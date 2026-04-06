@@ -1,0 +1,43 @@
+// Magi Magi Magician Gal
+// DARK Spellcaster Xyz — Rank 6, 2400/2000
+// 2 Level 6 Spellcaster monsters
+// Detach 1 material + banish 1 card from hand:
+// Choose 1: Take control of opponent's monster, OR
+//           Special Summon 1 monster from opponent's GY.
+
+card "Magi Magi Magician Gal" {
+    type: Xyz Monster | Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    rank: 6
+    atk: 2400
+    def: 2000
+    password: 10000030
+
+    materials {
+        require: 2 Spellcaster monster level 6
+        same_level: true
+        method: xyz
+    }
+
+    effect "Choose Effect" {
+        speed: spell_speed_1
+        once_per_turn: soft
+
+        cost {
+            detach 1 overlay_unit from self
+            banish (1, card, you controls, hand)
+        }
+
+        on_resolve {
+            choose {
+                option "Take control" {
+                    take_control of (1, monster, opponent controls)
+                }
+                option "Revive from opponent GY" {
+                    special_summon (1, monster, opponent controls, gy) from gy
+                }
+            }
+        }
+    }
+}

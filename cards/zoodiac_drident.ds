@@ -1,0 +1,55 @@
+// ============================================================
+// zoodiac_drident.ds — Xyz Monster, detach cost, negate + destroy
+// ============================================================
+
+card "Zoodiac Drident" {
+  type: Xyz Monster
+  attribute: EARTH
+  race: Beast-Warrior
+  rank: 4
+  atk: 2200
+  def: 2200
+
+  archetype: ["Zoodiac"]
+
+  materials {
+    require: 4 "Zoodiac" monster
+  }
+
+  // Continuous — any Zoodiac monster can become an overlay unit
+  continuous_effect "Zoodiac Charge" {
+    while: on_field
+    grant: piercing
+  }
+
+  // Effect 1 — Detach to destroy any face-up card on the field
+  effect "Drident Fang" {
+    speed: spell_speed_2
+    once_per_turn: true
+
+    cost {
+      detach 1 overlay_unit from self
+    }
+
+    on_resolve {
+      destroy (1, card, either_player controls, face_up)
+    }
+  }
+
+  // Effect 2 — Quick: negate and destroy a card or effect that targets a Zoodiac
+  effect "Drident Counter" {
+    speed: spell_speed_2
+    once_per_turn: true
+    timing: when
+
+    trigger: opponent_activates [activate_monster_effect | activate_spell | activate_trap]
+
+    cost {
+      none
+    }
+
+    on_resolve {
+      negate activation and destroy
+    }
+  }
+}

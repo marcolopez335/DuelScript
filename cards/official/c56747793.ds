@@ -1,0 +1,18 @@
+// United We Stand
+// Equip Spell
+// The equipped monster gains 800 ATK/DEF for each face-up
+// monster you control.
+
+card "United We Stand" {
+    type: Equip Spell
+    password: 56747793
+
+    equip_effect {
+        target: (1, monster, you controls, monster_zone, face_up)
+
+        while_equipped {
+            modifier: atk + count((1+, monster, you controls, monster_zone, face_up)) * 800
+            modifier: def + count((1+, monster, you controls, monster_zone, face_up)) * 800
+        }
+    }
+}

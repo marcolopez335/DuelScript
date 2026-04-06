@@ -1,0 +1,44 @@
+// Number 39: Utopia
+// LIGHT Warrior Xyz — Rank 4, 2500/2000
+// 2 Level 4 monsters
+// When a monster declares an attack: detach 1 material; negate the attack.
+// If this card is attacked while it has no materials: destroy this card.
+
+card "Number 39: Utopia" {
+    type: Xyz Monster | Effect Monster
+    attribute: LIGHT
+    race: Warrior
+    rank: 4
+    atk: 2500
+    def: 2000
+    password: 84013237
+
+    materials {
+        require: 2 monster level 4
+        same_level: true
+        method: xyz
+    }
+
+    effect "Negate Attack" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_attacked
+
+        cost {
+            detach 1 overlay_unit from self
+        }
+
+        on_resolve {
+            negate attack
+        }
+    }
+
+    effect "Self Destroy" {
+        speed: spell_speed_1
+        trigger: when_attacked
+
+        on_resolve {
+            destroy self
+        }
+    }
+}

@@ -1,0 +1,33 @@
+// Ash Blossom & Joyous Spring
+// FIRE Zombie Tuner / Hand Trap
+// When a card or effect is activated that includes an effect that
+// adds from Deck to hand, Special Summons from Deck, or sends from
+// Deck to GY: discard this card; negate that effect.
+
+card "Ash Blossom & Joyous Spring" {
+    type: Effect Monster | Tuner
+    attribute: FIRE
+    race: Zombie
+    level: 3
+    atk: 0
+    def: 1800
+    password: 14558127
+
+    effect "Negate Deck Interaction" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+
+        condition: chain_link_includes [add_to_hand, special_summon, send_to_gy, draw]
+
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+
+        cost {
+            discard self
+        }
+
+        on_resolve {
+            negate effect
+        }
+    }
+}

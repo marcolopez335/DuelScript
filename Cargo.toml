@@ -1,0 +1,36 @@
+[package]
+name        = "duelscript"
+version     = "0.5.0"
+edition     = "2021"
+description = "DuelScript — Universal card definition format for Yu-Gi-Oh card mechanics"
+license     = "MIT"
+repository  = "https://github.com/yourname/duelscript"
+keywords    = ["yugioh", "card-game", "dsl", "game-engine"]
+
+[features]
+default = []
+# Enable SQLite CDB reading (requires rusqlite)
+cdb = ["rusqlite"]
+# Enable Python bindings via PyO3
+python = ["pyo3"]
+
+[dependencies]
+pest        = "2.7"
+pest_derive = "2.7"
+thiserror   = "1.0"
+# Optional — enable with: duelscript = { features = ["cdb"] }
+rusqlite    = { version = "0.31", features = ["bundled"], optional = true }
+# Optional — enable with: duelscript = { features = ["python"] }
+pyo3        = { version = "0.22", features = ["extension-module"], optional = true }
+
+[lib]
+name = "duelscript"
+crate-type = ["rlib", "cdylib"]
+
+[[bin]]
+name = "duelscript"
+path = "src/bin/duelscript.rs"
+
+[[example]]
+name = "parse_card"
+path = "examples/parse_card.rs"

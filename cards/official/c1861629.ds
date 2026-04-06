@@ -1,0 +1,41 @@
+// Decode Talker
+// DARK Cyberse Link -- Link-3, 2300 ATK
+
+card "Decode Talker" {
+    type: Link Monster | Effect Monster
+    attribute: DARK
+    race: Cyberse
+    link: 3
+    atk: 2300
+    password: 1861629
+
+    materials {
+        require: 2+ effect monster
+        method: link
+    }
+
+    link_arrows: [top, bottom_left, bottom_right]
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    continuous_effect "Linked Monster Boost" {
+        while: on_field
+        modifier: atk + count((1+, monster, either_player controls, monster_zone)) * 500
+    }
+
+    effect "Negate Targeting" {
+        speed: spell_speed_2
+        optional: true
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+
+        cost {
+            tribute (1, monster, you controls, monster_zone)
+        }
+
+        on_resolve {
+            negate activation and destroy
+        }
+    }
+}

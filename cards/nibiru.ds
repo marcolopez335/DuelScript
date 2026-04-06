@@ -1,0 +1,36 @@
+// ============================================================
+// nibiru.ds — DuelScript Example (Multi-Effect Monster)
+// ============================================================
+
+card "Nibiru, the Primal Being" {
+  type: Effect Monster
+  attribute: LIGHT
+  race: Rock
+  level: 11
+  atk: 3000
+  def: 600
+
+  // Effect 1 — Interrupt opponent on 5th summon during main phase
+  effect "Primal Punishment" {
+    speed: spell_speed_2
+    once_per_turn: true
+    condition: in_hand
+
+    trigger: during main_phase_1
+
+    cost {
+      none
+    }
+
+    on_resolve {
+      // Send all monsters on field to GY
+      send (1, monster, either_player controls) to gy
+
+      // Special summon self from hand
+      special_summon self from hand
+
+      // Give opponent a Primal Being Token
+      special_summon (1, token, opponent controls)
+    }
+  }
+}

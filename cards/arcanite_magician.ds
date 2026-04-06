@@ -1,0 +1,56 @@
+// ============================================================
+// arcanite_magician.ds — Counter system stress test
+// ============================================================
+
+card "Arcanite Magician" {
+  type: Synchro Monster
+  attribute: LIGHT
+  race: Spellcaster
+  level: 7
+  atk: 400
+  def: 1800
+
+  materials {
+    require: 1 tuner monster
+    require: 1+ non-tuner "Spellcaster" monster
+  }
+
+  // Spell counter system — gains counters when spells are activated
+  counter_system {
+    name: "spell_counter"
+    placed_when: when activate_spell
+    max: none
+
+    // Gain 2 counters on summon
+    effect "Initial Charge" {
+      speed: spell_speed_1
+      timing: when
+      trigger: when_summoned
+
+      on_resolve {
+        place_counter 2 "spell_counter" on self
+      }
+    }
+
+    // Effect 1 — Remove a counter to destroy a card
+    effect "Arcanite Blast" {
+      speed: spell_speed_1
+      once_per_turn: false
+
+      cost {
+        remove_counter 1 "spell_counter" from self
+      }
+
+      on_resolve {
+        destroy (1, card, opponent controls)
+      }
+    }
+  }
+
+  // Continuous — gains ATK for each spell counter
+  continuous_effect "Counter Boost" {
+    while: on_field
+    apply_to: self
+    modifier: atk +1000
+  }
+}

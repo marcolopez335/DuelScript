@@ -1,0 +1,56 @@
+// ============================================================
+// erebus_monarch.ds — Tribute summon + tribute material filter
+// ============================================================
+
+card "Erebus the Underworld Monarch" {
+  type: Effect Monster
+  attribute: DARK
+  race: Zombie
+  level: 8
+  atk: 2800
+  def: 1000
+
+  archetype: ["Monarch"]
+
+  // Requires 2 tributes, at least one must be a Tribute Summoned monster
+  summon_condition {
+    tributes_required: 2
+    tribute_material: monster   // at least one tribute must be a Tribute Summoned monster
+  }
+
+  // Effect 1 — On tribute summon: return 2 opponent cards to deck
+  effect "Underworld Edict" {
+    speed: spell_speed_1
+    timing: when
+    once_per_turn: true
+
+    trigger: when_tribute_summoned using monster
+
+    on_resolve {
+      return (2, card, opponent controls) to deck shuffle
+    }
+  }
+
+  // Effect 2 — GY: discard a Monarch/Mega Monarch spell/trap to recycle
+  effect "Monarch's Decree" {
+    speed: spell_speed_1
+    once_per_turn: true
+    condition: in_gy
+
+    cost {
+      discard (1, "Monarch" card, you controls)
+    }
+
+    on_resolve {
+      add_to_hand self from gy
+    }
+  }
+
+  // Continuous — If tribute summoned using a Tribute Summoned monster, gains immunity
+  continuous_effect "Emperor's Throne" {
+    while: on_field
+    apply_to: self
+    grant: immune_to_targeting
+    grant: cannot_be_destroyed_by_effect
+  }
+}

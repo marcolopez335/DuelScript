@@ -1,0 +1,298 @@
+// ============================================================
+// materials_stress_test.ds
+// Tests every material slot permutation in DuelScript v0.5
+// ============================================================
+
+// ── Naturia Beast — attribute + tuner requirement ─────────────
+card "Naturia Beast" {
+  type: Synchro Monster
+  attribute: EARTH
+  race: Beast
+  level: 7
+  atk: 2200
+  def: 1700
+
+  password: 34539863
+
+  materials {
+    require: 1 EARTH tuner monster
+    require: 1+ non-tuner EARTH monster
+  }
+
+  continuous_effect "Spell Negate" {
+    while: on_field
+    apply_to: self
+    grant: immune_to_targeting
+  }
+
+  effect "Negate Spell" {
+    speed: spell_speed_2
+    once_per_turn: true
+
+    trigger: opponent_activates [activate_spell]
+
+    cost {
+      send (1, card, you controls, top_of_deck) to gy
+    }
+
+    on_resolve {
+      negate activation and destroy
+    }
+  }
+}
+
+// ── Shooting Quasar Dragon — 2+ tuners + non-tuner Synchro ───
+card "Shooting Quasar Dragon" {
+  type: Synchro Monster
+  attribute: LIGHT
+  race: Dragon
+  level: 12
+  atk: 4000
+  def: 4000
+
+  password: 81760600
+
+  materials {
+    require: 2+ tuner monster
+    require: 1 non-tuner synchro monster
+
+    alternative {
+      // Cannot be summoned via alternative in practice,
+      // but declared for completeness
+      require: 1 tuner monster
+      require: 2+ non-tuner monster level 8
+    }
+  }
+
+  summon_condition {
+    must_be_summoned_by: own_effect
+  }
+
+  effect "Multi-Attack" {
+    speed: spell_speed_1
+    continuous_effect "Attack Twice" {
+      while: on_field
+      grant: double_attack
+    }
+  }
+
+  effect "Negate" {
+    speed: spell_speed_2
+    once_per_turn: true
+
+    trigger: opponent_activates [activate_monster_effect | activate_spell | activate_trap]
+
+    on_resolve {
+      negate activation and destroy
+    }
+  }
+
+  replacement_effect "Quasar Return" {
+    instead_of: destroyed_by_any
+
+    do: {
+      special_summon (1, "Shooting Star Dragon") from extra_deck
+    }
+  }
+}
+
+// ── El Shaddoll Winda — must include Shaddoll + any DARK ─────
+card "El Shaddoll Winda" {
+  type: Fusion Monster
+  attribute: DARK
+  race: Spellcaster
+  level: 6
+  atk: 2200
+  def: 2800
+
+  password: 94977268
+
+  archetype: ["Shaddoll"]
+
+  materials {
+    require: 1 "Shaddoll" monster
+    require: 1 DARK monster
+
+    cannot_use: token
+    method: fusion
+  }
+
+  // Continuous — each player can only Special Summon once per turn
+  continuous_effect "Winda's Will" {
+    while: on_field
+    restriction {
+      limit: special_summons_per_turn: 1
+    }
+  }
+
+  // GY trigger — when sent to GY, target and set a Shaddoll spell/trap
+  effect "Shaddoll Return" {
+    speed: spell_speed_1
+    timing: when
+    optional: true
+
+    trigger: when_sent_to gy by card_effect
+
+    on_resolve {
+      add_to_hand (1, "Shaddoll" card) from gy
+    }
+  }
+}
+
+// ── Invoked Mechaba — Aleister + any LIGHT ────────────────────
+card "Invoked Mechaba" {
+  type: Fusion Monster
+  attribute: LIGHT
+  race: Machine
+  level: 9
+  atk: 3000
+  def: 2600
+
+  password: 85602468
+
+  archetype: ["Invoked"]
+
+  materials {
+    require: "Aleister the Invoker"
+    require: 1 LIGHT monster
+
+    method: fusion
+  }
+
+  effect "Mechaba Negate" {
+    speed: spell_speed_2
+    once_per_turn: true
+
+    trigger: opponent_activates [activate_monster_effect | activate_spell | activate_trap]
+
+    cost {
+      send (1, card, you controls) to gy
+    }
+
+    on_resolve {
+      negate activation and destroy
+    }
+  }
+}
+
+// ── Number 39: Utopia — 2+ level 4 monsters ──────────────────
+card "Number 39: Utopia" {
+  type: Xyz Monster
+  attribute: LIGHT
+  race: Warrior
+  rank: 4
+  atk: 2500
+  def: 2000
+
+  password: 84013237
+
+  materials {
+    require: 2+ monster level 4
+    same_level: true
+  }
+
+  effect "Negate Attack" {
+    speed: spell_speed_2
+    once_per_turn: true
+    optional: true
+
+    trigger: when_attacked
+
+    cost {
+      detach 1 overlay_unit from self
+    }
+
+    on_resolve {
+      negate attack
+    }
+  }
+
+  // If it has no overlay units, destroy it
+  continuous_effect "Utopia Collapse" {
+    while: on_field
+    restriction {
+      cannot: attack
+    }
+  }
+}
+
+// ── Mudragon of the Swamp — same attribute OR same race ──────
+card "Mudragon of the Swamp" {
+  type: Fusion Monster
+  attribute: WATER
+  race: Sea Serpent
+  level: 6
+  atk: 1900
+  def: 2000
+
+  password: 88093515
+
+  materials {
+    require: 2 monster
+    // either same attribute OR same race — engine picks whichever is satisfied
+    same_attribute: true
+    cannot_use: token
+    method: fusion
+
+    alternative {
+      require: 2 monster
+      same_race: true
+      cannot_use: token
+    }
+  }
+
+  effect "Attribute Change" {
+    speed: spell_speed_2
+    once_per_turn: true
+
+    condition: on_field
+
+    on_resolve {
+      // declare attribute change — engine handles the implementation
+      // target: self, change attribute until end of turn
+      modifier: atk +0 until_end_of_turn  // placeholder
+    }
+  }
+
+  continuous_effect "Swamp Shield" {
+    while: on_field
+    apply_to: self
+    grant: immune_to_targeting
+    grant: cannot_be_destroyed_by_effect
+  }
+}
+
+// ── Vermillion Dragon Mech — Tuner + non-Tuner OR 3 Resonators
+card "Vermillion Dragon Mech" {
+  type: Synchro Monster
+  attribute: FIRE
+  race: Machine
+  level: 9
+  atk: 2700
+  def: 1800
+
+  password: 45960743
+
+  materials {
+    require: 1 tuner monster
+    require: 2+ non-tuner monster
+
+    alternative {
+      require: 1 "Resonator" tuner monster
+      require: 2 non-tuner monster
+    }
+  }
+
+  effect "Banish Tuner" {
+    speed: spell_speed_1
+    once_per_turn: true
+
+    cost {
+      banish (1, tuner monster) from gy
+    }
+
+    on_resolve {
+      destroy (1, card, opponent controls)
+    }
+  }
+}
