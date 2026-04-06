@@ -1748,6 +1748,7 @@ fn parse_trigger_action(pair: Pair<Rule>) -> Result<TriggerAction, ParseError> {
         "change_battle_position"  => Ok(TriggerAction::ChangeBattlePosition),
         "take_damage"             => Ok(TriggerAction::TakeDamage),
         "gain_lp"                 => Ok(TriggerAction::GainLp),
+        "attack_declared"         => Ok(TriggerAction::AttackDeclared),
         other                     => Err(ParseError::UnknownRule(other.to_string())),
     }
 }

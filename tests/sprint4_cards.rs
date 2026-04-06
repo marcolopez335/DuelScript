@@ -42,10 +42,10 @@ fn test_utopia_compiles() {
         "Negate Attack should be FIELD|TRIGGER_O, got {:#x}", e1.effect_type);
     assert_eq!(e1.range, LOCATION_MZONE);
 
-    // Effect 3: Self Destroy — FIELD | TRIGGER_F
+    // Effect 3: Self Destroy — SINGLE | TRIGGER_F (watches this card only)
     let e2 = &compiled.effects[3];
-    assert_eq!(e2.effect_type, EFFECT_TYPE_FIELD | EFFECT_TYPE_TRIGGER_F,
-        "Self Destroy should be FIELD|TRIGGER_F, got {:#x}", e2.effect_type);
+    assert_eq!(e2.effect_type, EFFECT_TYPE_SINGLE | EFFECT_TYPE_TRIGGER_F,
+        "Self Destroy should be SINGLE|TRIGGER_F, got {:#x}", e2.effect_type);
 }
 
 // ── Solemn Judgment ───────────────────────────────────────────

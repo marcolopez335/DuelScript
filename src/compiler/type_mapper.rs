@@ -215,7 +215,7 @@ pub fn trigger_to_event_code(trigger: &Option<TriggerExpr>) -> u32 {
             TriggerExpr::WhenDestroyed(_)                     => EVENT_DESTROYED,
             TriggerExpr::WhenSentTo { .. }                    => EVENT_TO_GRAVE,
             TriggerExpr::WhenFlipped                          => EVENT_FLIP,
-            TriggerExpr::WhenAttacked                         => EVENT_ATTACK_ANNOUNCE,
+            TriggerExpr::WhenAttacked                         => EVENT_BE_BATTLE_TARGET,
             TriggerExpr::OnNthSummon(_)                       => EVENT_SPSUMMON_SUCCESS,
             TriggerExpr::DuringStandbyPhase(_)                => EVENT_PHASE + PHASE_STANDBY,
             TriggerExpr::DuringEndPhase                       => EVENT_PHASE + PHASE_END,
@@ -228,7 +228,10 @@ pub fn trigger_to_event_code(trigger: &Option<TriggerExpr>) -> u32 {
                 Phase::EndPhase         => EVENT_PHASE + PHASE_END,
                 _                       => EVENT_FREE_CHAIN,
             },
-            TriggerExpr::WhenAction(_) => EVENT_FREE_CHAIN,
+            TriggerExpr::WhenAction(action) => match action {
+                TriggerAction::AttackDeclared => EVENT_ATTACK_ANNOUNCE,
+                _ => EVENT_FREE_CHAIN,
+            },
         },
     }
 }

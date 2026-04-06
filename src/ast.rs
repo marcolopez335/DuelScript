@@ -579,6 +579,7 @@ pub enum TriggerAction {
     FusionSummon, SynchroSummon, XyzSummon, LinkSummon,
     RitualSummon, NormalSummon, SetCard,
     ChangeBattlePosition, TakeDamage, GainLp,
+    AttackDeclared,
 }
 
 // ── Phase ─────────────────────────────────────────────────────

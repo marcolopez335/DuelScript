@@ -303,14 +303,34 @@ fn compile_effect(effect: &Effect, card: &Card) -> CompiledEffect {
         code = 0;
     }
 
-    // Monster trigger effects that watch the field (like Utopia's negate-attack)
-    // use EFFECT_TYPE_FIELD | EFFECT_TYPE_TRIGGER_O/F
+    // Monster trigger effects: FIELD (watches the field) vs SINGLE (watches this card)
     if card.is_monster() && body.trigger.is_some()
         && (effect_type == type_mapper::EFFECT_TYPE_TRIGGER_O
             || effect_type == type_mapper::EFFECT_TYPE_TRIGGER_F)
     {
-        effect_type |= type_mapper::EFFECT_TYPE_FIELD;
+        let is_self_trigger = matches!(&body.trigger, Some(
+            TriggerExpr::WhenAttacked
+            | TriggerExpr::WhenDestroyed(_)
+            | TriggerExpr::WhenSentTo { .. }
+            | TriggerExpr::WhenFlipped
+            | TriggerExpr::WhenTributed(_)
+            | TriggerExpr::WhenTributeSummoned(_)
+        ));
+        if is_self_trigger {
+            effect_type |= type_mapper::EFFECT_TYPE_SINGLE;
+        } else {
+            effect_type |= type_mapper::EFFECT_TYPE_FIELD;
+        }
     }
+
+    // SINGLE trigger effects have range=0 (inherent to the card itself)
+    let range = if effect_type & type_mapper::EFFECT_TYPE_SINGLE != 0
+        && effect_type & (type_mapper::EFFECT_TYPE_TRIGGER_O | type_mapper::EFFECT_TYPE_TRIGGER_F) != 0
+    {
+        0
+    } else {
+        type_mapper::activation_range(body, card)
+    };
 
     // Ignition effects: Lua scripts don't set category at registration time —
     // they set it dynamically in the target function. So category=0 for ignition.
@@ -325,7 +345,7 @@ fn compile_effect(effect: &Effect, card: &Card) -> CompiledEffect {
         category,
         code,
         property: type_mapper::property_flags(body),
-        range: type_mapper::activation_range(body, card),
+        range,
         count_limit: type_mapper::frequency_to_count_limit(&body.frequency, card.password.unwrap_or(0)),
         callbacks: callback_gen::generate_callbacks(body, card),
         source: body.clone(),
