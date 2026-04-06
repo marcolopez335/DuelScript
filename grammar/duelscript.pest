@@ -330,15 +330,35 @@ flag_modifier_decl  = { "grant"    ~ ":" ~ granted_ability }
 granted_ability = {
     "piercing"
   | "double_attack"
+  | "triple_attack"
   | "direct_attack"
   | "cannot_be_destroyed_by_battle"
   | "cannot_be_destroyed_by_effect"
+  | "cannot_be_destroyed"
+  | "cannot_be_targeted_by_spell_effects"
+  | "cannot_be_targeted_by_trap_effects"
+  | "cannot_be_targeted_by_monster_effects"
+  | "cannot_be_targeted_by_card_effects"
+  | "cannot_be_targeted_by_opponent"
   | "unaffected_by_spell_effects"
   | "unaffected_by_trap_effects"
   | "unaffected_by_monster_effects"
   | "unaffected_by_card_effects"
   | "immune_to_targeting"
   | "cannot_activate_effects"
+  | "cannot_attack"
+  | "cannot_attack_directly"
+  | "must_attack_if_able"
+  | "cannot_be_tributed"
+  | "cannot_be_used_as_material"
+  | "cannot_change_battle_position"
+  | "attack_all_opponent_monsters"
+  | "attack_twice"
+  | "second_attack_this_turn"
+  | "ignores_battle_position"
+  | "pierces_defense"
+  | "cannot_be_negated"
+  | "unaffected_by_opponent_effects"
 }
 
 // ── Replacement Effect Block ──────────────────────────────────
@@ -598,6 +618,9 @@ game_action = {
   | register_effect_action
   | store_action
   | recall_action
+  | and_if_you_do_action
+  | then_action
+  | also_action
   | send_to_deck_action
   | release_action
   | discard_all_action
@@ -617,6 +640,13 @@ game_action = {
   | change_race_action
   | negate_effects_action
 }
+
+// Sequential resolution: "A, and if you do, B" — B only if A succeeded
+and_if_you_do_action = { "and_if_you_do" ~ "{" ~ game_action+ ~ "}" }
+// "A; then B" — B unconditionally after A
+then_action          = { "then" ~ "{" ~ game_action+ ~ "}" }
+// "A. Also, B" — simultaneous resolution
+also_action          = { "also" ~ "{" ~ game_action+ ~ "}" }
 
 // Send card(s) to deck (top, bottom, or shuffle)
 send_to_deck_action   = { "send_to_deck" ~ ("self" | target_expr) ~ ("top" | "bottom" | "shuffle")? }

@@ -817,6 +817,27 @@ fn execute_action(action: &GameAction, rt: &mut dyn DuelScriptRuntime, player: u
                 rt.attach_material(mat_id, target_id);
             }
         }
+        // Sequential resolution semantics (v0.6)
+        // The actual succeeded-or-not tracking is engine-side.
+        // In the closure, we execute the nested actions linearly for now;
+        // the engine interprets the categorization via the effect metadata.
+        GameAction::AndIfYouDo { actions } => {
+            // TODO: check "prior action succeeded" flag from runtime
+            // For now, execute unconditionally (closest approximation)
+            for a in actions {
+                execute_action(a, rt, player);
+            }
+        }
+        GameAction::Then { actions } => {
+            for a in actions {
+                execute_action(a, rt, player);
+            }
+        }
+        GameAction::Also { actions } => {
+            for a in actions {
+                execute_action(a, rt, player);
+            }
+        }
         // Remaining stubs
         GameAction::SetFaceDown { .. }
         | GameAction::FlipFaceDown { .. }

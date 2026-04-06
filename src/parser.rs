@@ -745,17 +745,49 @@ fn parse_modifier_decl(pair: Pair<Rule>) -> Result<ModifierDecl, ParseError> {
 
 fn parse_granted_ability(pair: Pair<Rule>) -> Result<GrantedAbility, ParseError> {
     match pair.as_str() {
-        "piercing"                       => Ok(GrantedAbility::Piercing),
-        "double_attack"                  => Ok(GrantedAbility::DoubleAttack),
-        "direct_attack"                  => Ok(GrantedAbility::DirectAttack),
-        "cannot_be_destroyed_by_battle"  => Ok(GrantedAbility::CannotBeDestroyedByBattle),
-        "cannot_be_destroyed_by_effect"  => Ok(GrantedAbility::CannotBeDestroyedByEffect),
-        "unaffected_by_spell_effects"    => Ok(GrantedAbility::UnaffectedBySpellEffects),
-        "unaffected_by_trap_effects"     => Ok(GrantedAbility::UnaffectedByTrapEffects),
-        "unaffected_by_monster_effects"  => Ok(GrantedAbility::UnaffectedByMonsterEffects),
-        "unaffected_by_card_effects"     => Ok(GrantedAbility::UnaffectedByCardEffects),
-        "immune_to_targeting"            => Ok(GrantedAbility::ImmuneToTargeting),
-        "cannot_activate_effects"        => Ok(GrantedAbility::CannotActivateEffects),
+        // Battle modifiers
+        "piercing"                          => Ok(GrantedAbility::Piercing),
+        "pierces_defense"                   => Ok(GrantedAbility::PiercesDefense),
+        "double_attack"                     => Ok(GrantedAbility::DoubleAttack),
+        "triple_attack"                     => Ok(GrantedAbility::TripleAttack),
+        "attack_twice"                      => Ok(GrantedAbility::AttackTwice),
+        "second_attack_this_turn"           => Ok(GrantedAbility::SecondAttackThisTurn),
+        "direct_attack"                     => Ok(GrantedAbility::DirectAttack),
+        "attack_all_opponent_monsters"      => Ok(GrantedAbility::AttackAllOpponentMonsters),
+        "ignores_battle_position"           => Ok(GrantedAbility::IgnoresBattlePosition),
+
+        // Attack restrictions
+        "cannot_attack"                     => Ok(GrantedAbility::CannotAttack),
+        "cannot_attack_directly"            => Ok(GrantedAbility::CannotAttackDirectly),
+        "must_attack_if_able"               => Ok(GrantedAbility::MustAttackIfAble),
+
+        // Destruction immunity
+        "cannot_be_destroyed"               => Ok(GrantedAbility::CannotBeDestroyed),
+        "cannot_be_destroyed_by_battle"     => Ok(GrantedAbility::CannotBeDestroyedByBattle),
+        "cannot_be_destroyed_by_effect"     => Ok(GrantedAbility::CannotBeDestroyedByEffect),
+
+        // Targeting immunity
+        "cannot_be_targeted_by_spell_effects" => Ok(GrantedAbility::CannotBeTargetedBySpellEffects),
+        "cannot_be_targeted_by_trap_effects"  => Ok(GrantedAbility::CannotBeTargetedByTrapEffects),
+        "cannot_be_targeted_by_monster_effects" => Ok(GrantedAbility::CannotBeTargetedByMonsterEffects),
+        "cannot_be_targeted_by_card_effects"  => Ok(GrantedAbility::CannotBeTargetedByCardEffects),
+        "cannot_be_targeted_by_opponent"      => Ok(GrantedAbility::CannotBeTargetedByOpponent),
+        "immune_to_targeting"                 => Ok(GrantedAbility::ImmuneToTargeting),
+
+        // Effect immunity
+        "unaffected_by_spell_effects"       => Ok(GrantedAbility::UnaffectedBySpellEffects),
+        "unaffected_by_trap_effects"        => Ok(GrantedAbility::UnaffectedByTrapEffects),
+        "unaffected_by_monster_effects"     => Ok(GrantedAbility::UnaffectedByMonsterEffects),
+        "unaffected_by_card_effects"        => Ok(GrantedAbility::UnaffectedByCardEffects),
+        "unaffected_by_opponent_effects"    => Ok(GrantedAbility::UnaffectedByOpponentEffects),
+        "cannot_be_negated"                 => Ok(GrantedAbility::CannotBeNegated),
+        "cannot_activate_effects"           => Ok(GrantedAbility::CannotActivateEffects),
+
+        // Other restrictions
+        "cannot_be_tributed"                => Ok(GrantedAbility::CannotBeTributed),
+        "cannot_be_used_as_material"        => Ok(GrantedAbility::CannotBeUsedAsMaterial),
+        "cannot_change_battle_position"     => Ok(GrantedAbility::CannotChangeBattlePosition),
+
         other => Err(ParseError::UnknownRule(other.to_string())),
     }
 }
@@ -1403,6 +1435,27 @@ fn parse_game_action(pair: Pair<Rule>) -> Result<GameAction, ParseError> {
             let label = inner.into_inner().find(|p| p.as_rule() == Rule::string)
                 .map(parse_string).unwrap_or_default();
             Ok(GameAction::Recall { label })
+        }
+        Rule::and_if_you_do_action => {
+            let actions = inner.into_inner()
+                .filter(|p| p.as_rule() == Rule::game_action)
+                .map(parse_game_action)
+                .collect::<Result<Vec<_>, _>>()?;
+            Ok(GameAction::AndIfYouDo { actions })
+        }
+        Rule::then_action => {
+            let actions = inner.into_inner()
+                .filter(|p| p.as_rule() == Rule::game_action)
+                .map(parse_game_action)
+                .collect::<Result<Vec<_>, _>>()?;
+            Ok(GameAction::Then { actions })
+        }
+        Rule::also_action => {
+            let actions = inner.into_inner()
+                .filter(|p| p.as_rule() == Rule::game_action)
+                .map(parse_game_action)
+                .collect::<Result<Vec<_>, _>>()?;
+            Ok(GameAction::Also { actions })
         }
         Rule::send_to_deck_action => {
             let target = parse_self_or_target_first(inner.clone())?;

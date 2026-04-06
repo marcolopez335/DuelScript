@@ -371,17 +371,48 @@ pub enum Sign { Plus, Minus }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum GrantedAbility {
+    // Battle modifiers
     Piercing,
+    PiercesDefense, // synonym for Piercing
     DoubleAttack,
+    TripleAttack,
+    AttackTwice,
+    SecondAttackThisTurn,
     DirectAttack,
+    AttackAllOpponentMonsters,
+    IgnoresBattlePosition,
+
+    // Attack restrictions
+    CannotAttack,
+    CannotAttackDirectly,
+    MustAttackIfAble,
+
+    // Destruction immunity
+    CannotBeDestroyed,
     CannotBeDestroyedByBattle,
     CannotBeDestroyedByEffect,
+
+    // Targeting immunity
+    CannotBeTargetedBySpellEffects,
+    CannotBeTargetedByTrapEffects,
+    CannotBeTargetedByMonsterEffects,
+    CannotBeTargetedByCardEffects,
+    CannotBeTargetedByOpponent,
+    ImmuneToTargeting,
+
+    // Effect immunity
     UnaffectedBySpellEffects,
     UnaffectedByTrapEffects,
     UnaffectedByMonsterEffects,
     UnaffectedByCardEffects,
-    ImmuneToTargeting,
+    UnaffectedByOpponentEffects,
+    CannotBeNegated,
     CannotActivateEffects,
+
+    // Other restrictions
+    CannotBeTributed,
+    CannotBeUsedAsMaterial,
+    CannotChangeBattlePosition,
 }
 
 // ── Replacement Effect ────────────────────────────────────────
@@ -784,6 +815,13 @@ pub enum GameAction {
 
     /// Recall previously stored cards/value
     Recall { label: String },
+
+    /// "A, and if you do, B" — B only resolves if A succeeded
+    AndIfYouDo { actions: Vec<GameAction> },
+    /// "A; then B" — B resolves unconditionally after A
+    Then { actions: Vec<GameAction> },
+    /// "A. Also, B" — simultaneous resolution (no chain link separation)
+    Also { actions: Vec<GameAction> },
 
     // ── Extended Actions (v0.5.1) ─────────────────────────────
 

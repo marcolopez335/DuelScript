@@ -195,6 +195,10 @@ fn category_for_action(action: &GameAction) -> u32 {
             options.iter().fold(0u32, |acc, opt| acc | categories_from_actions(&opt.actions))
         }
         GameAction::ForEach { actions, .. } => categories_from_actions(actions),
+        // Sequential resolution wrappers — categories bubble up from nested actions
+        GameAction::AndIfYouDo { actions }
+        | GameAction::Then { actions }
+        | GameAction::Also { actions } => categories_from_actions(actions),
         _ => 0,
     }
 }
