@@ -87,6 +87,308 @@ impl DuelApiCall {
     }
 }
 
+/// Extract effect blocks from a helper function body.
+/// Unlike extract_effect_blocks (which scopes to initial_effect), this takes
+/// a function body and returns the effects it registers.
+fn extract_effects_from_helper_body(body: &str) -> Vec<EffectBlock> {
+    use std::collections::HashMap;
+    let mut vars: HashMap<String, EffectBlock> = HashMap::new();
+    let mut registered: Vec<EffectBlock> = Vec::new();
+
+    for line in body.lines() {
+        let l = line.trim();
+        if l.starts_with("--") { continue; }
+
+        if l.contains("Effect.CreateEffect") {
+            if let Some(name) = extract_lhs_var(l) {
+                vars.insert(name, EffectBlock::default());
+            }
+            continue;
+        }
+
+        if l.contains(":Clone()") {
+            if let Some(name) = extract_lhs_var(l) {
+                if let Some(src_var) = extract_clone_source(l) {
+                    if let Some(src) = vars.get(&src_var) {
+                        vars.insert(name, src.clone());
+                    } else {
+                        vars.insert(name, EffectBlock::default());
+                    }
+                }
+            }
+            continue;
+        }
+
+        if l.contains(":Set") {
+            if let Some(var_name) = extract_method_receiver(l) {
+                if let Some(e) = vars.get_mut(&var_name) {
+                    if l.contains(":SetType(")       { e.effect_type = Some(extract_paren(l)); }
+                    if l.contains(":SetCategory(")   { e.category = Some(extract_paren(l)); }
+                    if l.contains(":SetCode(")       { e.code = Some(extract_paren(l)); }
+                    if l.contains(":SetProperty(")   { e.property = Some(extract_paren(l)); }
+                    if l.contains(":SetRange(")      { e.range = Some(extract_paren(l)); }
+                    if l.contains(":SetCountLimit(") { e.count_limit = Some(extract_paren(l)); }
+                    if l.contains(":SetCost(")       { e.cost_fn = Some(extract_paren(l)); }
+                    if l.contains(":SetTarget(")     { e.target_fn = Some(extract_paren(l)); }
+                    if l.contains(":SetCondition(")  { e.condition_fn = Some(extract_paren(l)); }
+                    if l.contains(":SetOperation(")  { e.operation_fn = Some(extract_paren(l)); }
+                }
+            }
+            continue;
+        }
+
+        if l.contains("RegisterEffect(") {
+            if let Some(arg) = extract_first_arg(l, "RegisterEffect") {
+                if let Some(e) = vars.get(&arg) {
+                    registered.push(e.clone());
+                }
+            }
+            continue;
+        }
+    }
+
+    registered
+}
+
+/// Count `end` tokens as whole words in a line (ignoring identifiers like `friend`).
+fn count_end_tokens(line: &str) -> i32 {
+    let mut count = 0i32;
+    let chars: Vec<char> = line.chars().collect();
+    let n = chars.len();
+    let mut i = 0;
+    while i < n {
+        // Skip until start of potential "end"
+        if chars[i] == 'e' && i + 3 <= n && chars[i+1] == 'n' && chars[i+2] == 'd' {
+            let before = if i == 0 { true } else {
+                let c = chars[i-1];
+                !(c.is_alphanumeric() || c == '_')
+            };
+            let after = if i + 3 >= n { true } else {
+                let c = chars[i+3];
+                !(c.is_alphanumeric() || c == '_')
+            };
+            if before && after {
+                count += 1;
+                i += 3;
+                continue;
+            }
+        }
+        i += 1;
+    }
+    count
+}
+
+/// Parse a helper file (utility.lua, cards_specific_functions.lua, proc_*.lua)
+/// and return a map from helper_name → effects registered.
+/// Handles both `function aux.X(c, ...)` and `function Auxiliary.X(c, ...)`.
+fn parse_helper_file(source: &str) -> std::collections::HashMap<String, Vec<EffectBlock>> {
+    let mut helpers: std::collections::HashMap<String, Vec<EffectBlock>> = std::collections::HashMap::new();
+    let lines: Vec<&str> = source.lines().collect();
+
+    let mut i = 0;
+    while i < lines.len() {
+        let line = lines[i].trim();
+
+        // Match: function aux.NAME(c, ...) or function Auxiliary.NAME(c, ...)
+        let name_opt = if line.starts_with("function aux.") {
+            let rest = &line["function aux.".len()..];
+            rest.split('(').next().map(|s| s.to_string())
+        } else if line.starts_with("function Auxiliary.") {
+            let rest = &line["function Auxiliary.".len()..];
+            rest.split('(').next().map(|s| s.to_string())
+        } else {
+            None
+        };
+
+        if let Some(name) = name_opt {
+            // Find matching `end` that closes this function.
+            // Count per-line: +1 for each "function"/"then"/"do" block opener,
+            // -1 for each "end" that closes a block. Handles single-line
+            // "if X then Y end" correctly.
+            let start = i + 1;
+            let mut depth = 1i32;
+            let mut end_idx = lines.len() - 1;
+            for j in start..lines.len() {
+                let l = lines[j].trim();
+                // Count block openers
+                // "function" as a keyword (not "function(" which is anonymous)
+                if l.starts_with("function ") { depth += 1; }
+                // "then" at end of line
+                if l.ends_with(" then") || l == "then" { depth += 1; }
+                // "do" at end of line or " do " with content after
+                if l.ends_with(" do") { depth += 1; }
+                // Count "end" tokens (as whole words, not inside identifiers)
+                let end_count = count_end_tokens(l);
+                depth -= end_count;
+
+                if depth <= 0 { end_idx = j; break; }
+            }
+
+            // Extract body and parse effects
+            let body: String = lines[start..end_idx].join("\n");
+            let effects = extract_effects_from_helper_body(&body);
+            if !effects.is_empty() {
+                // Index under both "aux.NAME" and "Auxiliary.NAME" forms
+                helpers.insert(format!("aux.{}", name), effects.clone());
+                helpers.insert(format!("Auxiliary.{}", name), effects);
+            }
+
+            i = end_idx + 1;
+            continue;
+        }
+
+        i += 1;
+    }
+
+    helpers
+}
+
+/// Lazy-loaded map of helper functions.
+/// Uses a hand-maintained table of commonly-used helpers from EDOPro's
+/// utility.lua and cards_specific_functions.lua. Auto-parsing those files
+/// is fragile due to complex Lua control flow — hand-mapping is more reliable.
+pub fn helper_map() -> &'static std::collections::HashMap<String, Vec<EffectBlock>> {
+    use std::sync::OnceLock;
+    static MAP: OnceLock<std::collections::HashMap<String, Vec<EffectBlock>>> = OnceLock::new();
+    MAP.get_or_init(|| {
+        let mut m: std::collections::HashMap<String, Vec<EffectBlock>> = std::collections::HashMap::new();
+
+        // Helper: build an EffectBlock with specified fields
+        let mk = |et: &str, code: &str, cat: &str, range: &str| EffectBlock {
+            effect_type: if et.is_empty() { None } else { Some(et.to_string()) },
+            code: if code.is_empty() { None } else { Some(code.to_string()) },
+            category: if cat.is_empty() { None } else { Some(cat.to_string()) },
+            range: if range.is_empty() { None } else { Some(range.to_string()) },
+            ..Default::default()
+        };
+
+        // Helper to insert with both aux. and Auxiliary. aliases
+        let mut add = |name: &str, effects: Vec<EffectBlock>| {
+            m.insert(format!("aux.{}", name), effects.clone());
+            m.insert(format!("Auxiliary.{}", name), effects);
+        };
+
+        // === Equipment helpers ===
+        // AddEquipProcedure: registers 1 activation effect (the equip action)
+        add("AddEquipProcedure", vec![
+            mk("EFFECT_TYPE_ACTIVATE", "EVENT_FREE_CHAIN", "CATEGORY_EQUIP", ""),
+        ]);
+
+        // === Summon procedure helpers ===
+        // Registered by the core procedure files (proc_*.lua), but declared
+        // in utility.lua for convenience wrappers.
+        add("AddContactFusionProcedure", vec![
+            mk("EFFECT_TYPE_FIELD", "EFFECT_SPSUMMON_PROC", "", "LOCATION_EXTRA"),
+        ]);
+
+        // === Ritual helpers ===
+        // These register the ritual spell activation + special summon effect
+        add("AddRitualProcGreater", vec![
+            mk("EFFECT_TYPE_ACTIVATE", "EVENT_FREE_CHAIN", "CATEGORY_SPECIAL_SUMMON", ""),
+        ]);
+        add("AddRitualProcEqual", vec![
+            mk("EFFECT_TYPE_ACTIVATE", "EVENT_FREE_CHAIN", "CATEGORY_SPECIAL_SUMMON", ""),
+        ]);
+        add("AddRitualProcGreaterCode", vec![
+            mk("EFFECT_TYPE_ACTIVATE", "EVENT_FREE_CHAIN", "CATEGORY_SPECIAL_SUMMON", ""),
+        ]);
+        add("AddRitualProcEqualCode", vec![
+            mk("EFFECT_TYPE_ACTIVATE", "EVENT_FREE_CHAIN", "CATEGORY_SPECIAL_SUMMON", ""),
+        ]);
+        add("AddRitualProcGreaterCode2", vec![
+            mk("EFFECT_TYPE_ACTIVATE", "EVENT_FREE_CHAIN", "CATEGORY_SPECIAL_SUMMON", ""),
+        ]);
+
+        // === Neos / Elemental HERO helpers ===
+        // EnableNeosReturn: registers 2 effects (trigger_f + trigger_o, both FIELD)
+        add("EnableNeosReturn", vec![
+            mk("EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F", "EVENT_PHASE+PHASE_END", "CATEGORY_TODECK", "LOCATION_MZONE"),
+            mk("EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O", "EVENT_PHASE+PHASE_END", "CATEGORY_TODECK", "LOCATION_MZONE"),
+        ]);
+
+        // === Code / archetype helpers ===
+        add("EnableChangeCode", vec![
+            mk("EFFECT_TYPE_SINGLE", "EFFECT_CHANGE_CODE", "", ""),
+        ]);
+
+        // === Union helpers ===
+        add("AddUnionProcedure", vec![
+            mk("EFFECT_TYPE_IGNITION", "", "", "LOCATION_MZONE"),
+            mk("EFFECT_TYPE_IGNITION", "", "", "LOCATION_SZONE"),
+            mk("EFFECT_TYPE_SINGLE", "EFFECT_EQUIP_LIMIT", "", ""),
+            mk("EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS", "EVENT_DESTROYED", "", ""),
+        ]);
+
+        // === Persistent / protection helpers ===
+        add("AddPersistentProcedure", vec![
+            mk("EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F", "EVENT_LEAVE_FIELD", "", "LOCATION_MZONE"),
+        ]);
+
+        // === Normal summon variants ===
+        add("AddNormalSummonProcedure", vec![
+            mk("EFFECT_TYPE_SINGLE", "EFFECT_CANNOT_SUMMON", "", ""),
+        ]);
+        add("AddNormalSetProcedure", vec![
+            mk("EFFECT_TYPE_SINGLE", "EFFECT_CANNOT_MSET", "", ""),
+        ]);
+
+        // === Kaiju / Lava monsters ===
+        add("AddKaijuProcedure", vec![
+            mk("EFFECT_TYPE_IGNITION", "", "CATEGORY_SPECIAL_SUMMON+CATEGORY_RELEASE", "LOCATION_HAND"),
+        ]);
+        add("AddLavaProcedure", vec![
+            mk("EFFECT_TYPE_IGNITION", "", "CATEGORY_SPECIAL_SUMMON", "LOCATION_HAND"),
+        ]);
+        add("AddMaleficSummonProcedure", vec![
+            mk("EFFECT_TYPE_FIELD", "EFFECT_SPSUMMON_PROC", "", "LOCATION_HAND"),
+        ]);
+
+        // === Extra deck monster helpers ===
+        add("AddContactCondition", vec![
+            mk("EFFECT_TYPE_SINGLE", "EFFECT_SPSUMMON_CONDITION", "", ""),
+        ]);
+
+        // === Equip limit variants ===
+        add("AddEREquipLimit", vec![
+            mk("EFFECT_TYPE_SINGLE", "EFFECT_EQUIP_LIMIT", "", ""),
+            mk("EFFECT_TYPE_SINGLE", "EFFECT_CANNOT_BE_EFFECT_TARGET", "", ""),
+            mk("EFFECT_TYPE_SINGLE", "EFFECT_INDESTRUCTABLE_EFFECT", "", ""),
+            mk("EFFECT_TYPE_SINGLE", "EFFECT_INDESTRUCTABLE_BATTLE", "", ""),
+        ]);
+        add("AddZWEquipLimit", vec![
+            mk("EFFECT_TYPE_SINGLE", "EFFECT_EQUIP_LIMIT", "", ""),
+            mk("EFFECT_TYPE_SINGLE", "EFFECT_UPDATE_ATTACK", "", ""),
+            mk("EFFECT_TYPE_SINGLE", "EFFECT_ADD_TYPE", "", ""),
+            mk("EFFECT_TYPE_SINGLE", "EFFECT_CANNOT_BE_EFFECT_TARGET", "", ""),
+            mk("EFFECT_TYPE_SINGLE", "EFFECT_INDESTRUCTABLE_EFFECT", "", ""),
+            mk("EFFECT_TYPE_SINGLE", "EFFECT_INDESTRUCTABLE_BATTLE", "", ""),
+        ]);
+
+        m
+    })
+}
+
+/// Debug helper — expose EffectBlock fields as strings
+pub fn debug_helper_effects(name: &str) -> Option<Vec<(Option<String>, Option<String>, Option<String>)>> {
+    helper_map().get(name).map(|effects| {
+        effects.iter().map(|e| (e.effect_type.clone(), e.code.clone(), e.category.clone())).collect()
+    })
+}
+
+/// Debug: return total number of loaded helpers
+pub fn debug_helper_count() -> usize {
+    helper_map().len()
+}
+
+/// Debug: list all helper names with their effect counts
+pub fn debug_list_helpers() -> Vec<(String, usize)> {
+    let mut v: Vec<(String, usize)> = helper_map().iter()
+        .map(|(k, v)| (k.clone(), v.len()))
+        .collect();
+    v.sort();
+    v
+}
+
 /// Transpile a Lua card script to DuelScript by walking function bodies
 /// and mapping Duel.* API calls to exact DuelScript actions.
 pub fn transpile_lua_to_ds(
@@ -96,8 +398,44 @@ pub fn transpile_lua_to_ds(
     cdb_card: Option<&crate::cdb::CdbCard>,
 ) -> TranspileResult {
     // Extract effect registrations
-    let effects = extract_effect_blocks(lua_source);
+    let mut effects = extract_effect_blocks(lua_source);
     let functions = extract_function_bodies(lua_source);
+
+    // Inject effects registered by helper function calls in initial_effect
+    let helpers = helper_map();
+    let mut in_initial = false;
+    let mut depth = 0i32;
+    for line in lua_source.lines() {
+        let l = line.trim();
+        if !in_initial {
+            if l.contains("function s.initial_effect") { in_initial = true; depth = 1; }
+            continue;
+        }
+        if l.starts_with("function ") { depth += 1; }
+        if l.contains(" do ") || l.ends_with(" do") || l.ends_with(" then") { depth += 1; }
+        if l == "end" || l.starts_with("end)") || l.starts_with("end,") {
+            depth -= 1;
+            if depth <= 0 { break; }
+            continue;
+        }
+        // Look for helper calls: aux.X(...) or Auxiliary.X(...)
+        // Must be a bare call at statement position, not nested in another expr
+        if !l.starts_with("function ") && !l.contains(":Set") && !l.contains("RegisterEffect") {
+            for (helper_name, helper_effects) in helpers.iter() {
+                // Match only if the line starts with the helper name
+                // followed by "(". E.g., "aux.EnableNeosReturn(c)" but not
+                // "local foo = aux.EnableNeosReturn(c)" (assignment) and not
+                // "-- uses aux.EnableNeosReturn" (comment).
+                let pattern_call = format!("{}(", helper_name);
+                if l.starts_with(&pattern_call) || l.starts_with(&format!("local _ = {}", pattern_call)) {
+                    for eff in helper_effects {
+                        effects.push(eff.clone());
+                    }
+                    break;
+                }
+            }
+        }
+    }
 
     let mut ds = String::new();
     let mut unmapped = Vec::new();
