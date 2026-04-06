@@ -24,6 +24,16 @@ card "Orcustrion" {
     }
 
     raw_effect "Effect 2" {
+        effect_type: 1
+        code: 67
+        property: 131072
+        range: 4
+        on_resolve {
+            reveal self
+        }
+    }
+
+    raw_effect "Effect 3" {
         effect_type: 64
         category: 6307856
         property: 16
@@ -35,11 +45,16 @@ card "Orcustrion" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: 1
-        code: 2
+    raw_effect "Effect 4" {
+        effect_type: 256
+        category: 6307856
+        code: 1002
+        property: 16400
+        range: 4
+        count_limit: (1, 3134857)
         on_resolve {
-            reveal self
+            return (1, card) to deck shuffle
+            shuffle deck
         }
     }
 

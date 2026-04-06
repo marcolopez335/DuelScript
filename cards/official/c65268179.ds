@@ -10,6 +10,17 @@ card "Awakening of the Possessed - Nefariouser Archfiend" {
     atk: 2000
     def: 200
 
+    raw_effect "Effect 1" {
+        effect_type: 2
+        code: 34
+        property: 262144
+        range: 3
+        on_resolve {
+            send (1, card) to gy
+            shuffle deck
+        }
+    }
+
     raw_effect "Effect 2" {
         effect_type: 129
         category: 512
@@ -28,22 +39,6 @@ card "Awakening of the Possessed - Nefariouser Archfiend" {
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1, card) from gy
-        }
-    }
-
-    raw_effect "Effect 4" {
-        effect_type: 1
-        code: 2
-        on_resolve {
-            reveal self
-        }
-    }
-
-    raw_effect "Effect 5" {
-        effect_type: 1
-        code: 76
-        on_resolve {
-            reveal self
         }
     }
 

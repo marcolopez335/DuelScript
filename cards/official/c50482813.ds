@@ -24,6 +24,19 @@ card "Speedroid Fuki-Modoshi Piper" {
     }
 
     raw_effect "Effect 2" {
+        effect_type: 129
+        category: 131080
+        code: 1102
+        property: 65536
+        count_limit: (1, 50482813)
+        on_resolve {
+            add_to_hand (1, card) from gy
+            shuffle deck
+            send (1, card) to gy
+        }
+    }
+
+    raw_effect "Effect 3" {
         effect_type: 64
         property: 16
         range: 16
@@ -31,14 +44,6 @@ card "Speedroid Fuki-Modoshi Piper" {
         cost {
             banish self
         }
-        on_resolve {
-            reveal self
-        }
-    }
-
-    raw_effect "Effect 3" {
-        effect_type: 1
-        code: 110
         on_resolve {
             reveal self
         }

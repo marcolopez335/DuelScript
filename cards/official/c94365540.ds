@@ -10,10 +10,35 @@ card "Tindangle Base Gardna" {
     atk: 0
     def: 2300
 
+    raw_effect "Effect 1" {
+        effect_type: 2
+        code: 34
+        property: 1310720
+        range: 2
+        count_limit: (1, 94365540)
+        on_resolve {
+            reveal self
+        }
+    }
+
     raw_effect "Effect 2" {
         effect_type: 130
         category: 512
         code: 1100
+        property: 65536
+        range: 4
+        cost {
+            tribute self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    raw_effect "Effect 3" {
+        effect_type: 130
+        category: 512
+        code: 1102
         property: 65536
         range: 4
         cost {

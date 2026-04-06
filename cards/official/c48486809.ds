@@ -23,10 +23,35 @@ card "Winged Kuriboh LV6" {
         }
     }
 
+    raw_effect "Effect 2" {
+        effect_type: 2
+        code: 34
+        property: 263168
+        range: 18
+        count_limit: (1, 48486809)
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
     raw_effect "Effect 3" {
         effect_type: 256
         category: 524289
         code: 1130
+        range: 4
+        cost {
+            tribute self
+        }
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 1000
+        }
+    }
+
+    raw_effect "Effect 4" {
+        effect_type: 256
+        category: 524289
+        code: 1027
         range: 4
         cost {
             tribute self

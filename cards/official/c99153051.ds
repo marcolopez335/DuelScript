@@ -10,6 +10,17 @@ card "Ragnaraika the Evil Seed" {
     atk: 0
     def: 0
 
+    raw_effect "Effect 1" {
+        effect_type: 2
+        code: 34
+        property: 262144
+        range: 2
+        count_limit: (1, 99153051)
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
     raw_effect "Effect 2" {
         effect_type: 129
         category: 131084
@@ -24,11 +35,15 @@ card "Ragnaraika the Evil Seed" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
-        code: 52
-        property: 67110912
+        effect_type: 129
+        category: 131084
+        code: 1102
+        property: 65536
+        count_limit: (1, 0)
         on_resolve {
-            reveal self
+            add_to_hand (1, card) from gy
+            shuffle deck
+            banish (1+, card)
         }
     }
 

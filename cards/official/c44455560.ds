@@ -25,20 +25,25 @@ card "Fire King Courtier Ulcanix" {
 
     raw_effect "Effect 2" {
         effect_type: 129
+        category: 134348809
+        code: 1102
+        property: 65536
+        count_limit: (1, 0)
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            add_to_hand (1, card) from gy
+            shuffle deck
+        }
+    }
+
+    raw_effect "Effect 3" {
+        effect_type: 129
         category: 512
         code: 1014
         property: 65536
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
-        }
-    }
-
-    raw_effect "Effect 3" {
-        effect_type: 1
-        code: 113
-        on_resolve {
-            reveal self
         }
     }
 

@@ -140,9 +140,10 @@ pub fn transpile_lua_to_ds(
     // This preserves the exact effect_type/category/code/range/count_limit
     // from the Lua script, bypassing type_mapper inference entirely.
     for (i, effect) in effects.iter().enumerate() {
-        // Skip summon proc effects (handled by materials block)
-        if effect.code.as_deref() == Some("EFFECT_SPSUMMON_PROC") { continue; }
-        if effect.code.as_deref().map(|c| c.contains("946") || c.contains("948") || c.contains("950")).unwrap_or(false) { continue; }
+        // NOTE: Don't skip EFFECT_SPSUMMON_PROC — cards like Shaman of the Ashened City
+        // declare custom self-special-summon conditions this way, and they need to be
+        // preserved verbatim. For cards using Xyz/Synchro/Link procedures,
+        // we still rely on the materials block.
 
         let effect_type = resolve_lua_constant_expr(effect.effect_type.as_deref().unwrap_or("0"));
         let category    = resolve_lua_constant_expr(effect.category.as_deref().unwrap_or("0"));
@@ -254,7 +255,7 @@ pub enum TranspileAccuracy {
 
 // ── Helpers ───────────────────────────────────────────────────
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 struct EffectBlock {
     effect_type: Option<String>,
     category: Option<String>,
@@ -268,34 +269,196 @@ struct EffectBlock {
     operation_fn: Option<String>,
 }
 
-fn extract_effect_blocks(source: &str) -> Vec<EffectBlock> {
-    let mut effects = Vec::new();
-    let mut current: Option<EffectBlock> = None;
+/// Create effect blocks that helper functions (aux.AddXxxProcedure etc.)
+/// register internally. These are invisible to the line-scanner because
+/// the Effect.CreateEffect calls happen inside EDOPro core scripts.
+fn helper_effects(helper_name: &str) -> Vec<EffectBlock> {
+    let mk = |et: &str, code: &str, range: &str| EffectBlock {
+        effect_type: Some(et.to_string()),
+        code: if code.is_empty() { None } else { Some(code.to_string()) },
+        range: if range.is_empty() { None } else { Some(range.to_string()) },
+        ..Default::default()
+    };
 
-    for line in source.lines() {
+    match helper_name {
+        // AddEquipProcedure(c) registers:
+        //   1. EFFECT_TYPE_ACTIVATE + EFFECT_FLAG_CARD_TARGET activation effect
+        //   2. EFFECT_TYPE_EQUIP limit effect
+        "aux.AddEquipProcedure" => vec![
+            mk("EFFECT_TYPE_ACTIVATE", "EVENT_FREE_CHAIN", ""),
+        ],
+        // AddContactFusionProcedure — registers a FIELD effect for contact fusion
+        "aux.AddContactFusionProcedure" => vec![
+            mk("EFFECT_TYPE_FIELD", "EFFECT_SPSUMMON_PROC", "LOCATION_EXTRA"),
+        ],
+        // AddRitualProcGreater / AddRitualProcEqual etc.
+        s if s.starts_with("aux.AddRitual") => vec![
+            mk("EFFECT_TYPE_ACTIVATE", "EVENT_FREE_CHAIN", ""),
+        ],
+        // EnableChangeCode — registers EFFECT_CHANGE_CODE
+        "aux.EnableChangeCode" => vec![
+            mk("EFFECT_TYPE_SINGLE", "EFFECT_CHANGE_CODE", ""),
+        ],
+        // AddCodeList / AddSetCodeList — no effects, just metadata
+        _ => vec![],
+    }
+}
+
+fn extract_effect_blocks(source: &str) -> Vec<EffectBlock> {
+    // Variable-tracking extractor, scoped to s.initial_effect only.
+    // Conditional branches (inside `if ... end`) are flattened but
+    // their RegisterEffect calls are still collected.
+    // Helper function calls (aux.AddXxxProcedure) emit synthetic effects.
+
+    use std::collections::HashMap;
+    let mut vars: HashMap<String, EffectBlock> = HashMap::new();
+    let mut registered_order: Vec<EffectBlock> = Vec::new();
+
+    // Find the initial_effect function boundaries
+    let lines: Vec<&str> = source.lines().collect();
+    let mut in_initial = false;
+    let mut depth = 0i32;
+
+    for line in &lines {
         let l = line.trim();
+        if l.starts_with("--") { continue; }
+
+        if !in_initial {
+            if l.contains("function s.initial_effect") {
+                in_initial = true;
+                depth = 1;
+            }
+            continue;
+        }
+
+        // Track block depth so we know when initial_effect ends
+        if l.starts_with("function ") { depth += 1; }
+        if l.contains(" do ") || l.ends_with(" do") || l.starts_with("if ") || l.ends_with(" then") {
+            depth += 1;
+        }
+        if l == "end" || l.starts_with("end)") || l.starts_with("end,") {
+            depth -= 1;
+            if depth <= 0 { break; }
+            continue;
+        }
+
+        // Detect helper function calls and emit synthetic effects
+        for helper in &[
+            "aux.AddEquipProcedure",
+            "aux.AddContactFusionProcedure",
+            "aux.AddRitualProcGreater",
+            "aux.AddRitualProcEqual",
+            "aux.AddRitualProcGreaterCode",
+            "aux.AddRitualProcEqualCode",
+            "aux.EnableChangeCode",
+        ] {
+            if l.contains(helper) {
+                for eff in helper_effects(helper) {
+                    registered_order.push(eff);
+                }
+            }
+        }
+
+        // Pattern: local eN = Effect.CreateEffect(c)
         if l.contains("Effect.CreateEffect") {
-            if let Some(e) = current.take() { effects.push(e); }
-            current = Some(EffectBlock::default());
+            if let Some(name) = extract_lhs_var(l) {
+                vars.insert(name, EffectBlock::default());
+            }
+            continue;
         }
-        if let Some(ref mut e) = current {
-            if l.contains(":SetType(")       { e.effect_type = Some(extract_paren(l)); }
-            if l.contains(":SetCategory(")   { e.category = Some(extract_paren(l)); }
-            if l.contains(":SetCode(")       { e.code = Some(extract_paren(l)); }
-            if l.contains(":SetProperty(")   { e.property = Some(extract_paren(l)); }
-            if l.contains(":SetRange(")      { e.range = Some(extract_paren(l)); }
-            if l.contains(":SetCountLimit(") { e.count_limit = Some(extract_paren(l)); }
-            if l.contains(":SetCost(")       { e.cost_fn = Some(extract_paren(l)); }
-            if l.contains(":SetTarget(")     { e.target_fn = Some(extract_paren(l)); }
-            if l.contains(":SetCondition(")  { e.condition_fn = Some(extract_paren(l)); }
-            if l.contains(":SetOperation(")  { e.operation_fn = Some(extract_paren(l)); }
+
+        // Pattern: local eN = eM:Clone()
+        if l.contains(":Clone()") {
+            if let Some(name) = extract_lhs_var(l) {
+                if let Some(src_var) = extract_clone_source(l) {
+                    if let Some(src) = vars.get(&src_var) {
+                        let cloned = src.clone();
+                        vars.insert(name, cloned);
+                    } else {
+                        vars.insert(name, EffectBlock::default());
+                    }
+                }
+            }
+            continue;
         }
-        if l.contains("RegisterEffect") {
-            if let Some(e) = current.take() { effects.push(e); }
+
+        // Pattern: eN:SetX(...)
+        if l.contains(":Set") {
+            if let Some(var_name) = extract_method_receiver(l) {
+                if let Some(e) = vars.get_mut(&var_name) {
+                    if l.contains(":SetType(")       { e.effect_type = Some(extract_paren(l)); }
+                    if l.contains(":SetCategory(")   { e.category = Some(extract_paren(l)); }
+                    if l.contains(":SetCode(")       { e.code = Some(extract_paren(l)); }
+                    if l.contains(":SetProperty(")   { e.property = Some(extract_paren(l)); }
+                    if l.contains(":SetRange(")      { e.range = Some(extract_paren(l)); }
+                    if l.contains(":SetCountLimit(") { e.count_limit = Some(extract_paren(l)); }
+                    if l.contains(":SetCost(")       { e.cost_fn = Some(extract_paren(l)); }
+                    if l.contains(":SetTarget(")     { e.target_fn = Some(extract_paren(l)); }
+                    if l.contains(":SetCondition(")  { e.condition_fn = Some(extract_paren(l)); }
+                    if l.contains(":SetOperation(")  { e.operation_fn = Some(extract_paren(l)); }
+                }
+            }
+            continue;
+        }
+
+        // Pattern: c:RegisterEffect(eN)
+        if l.contains("RegisterEffect(") {
+            if let Some(arg) = extract_first_arg(l, "RegisterEffect") {
+                if let Some(e) = vars.get(&arg) {
+                    registered_order.push(e.clone());
+                }
+            }
+            continue;
+        }
+
+        // Helper: Duel.RegisterEffect(eN, tp)
+        if l.contains("Duel.RegisterEffect(") {
+            if let Some(arg) = extract_first_arg(l, "Duel.RegisterEffect") {
+                if let Some(e) = vars.get(&arg) {
+                    registered_order.push(e.clone());
+                }
+            }
+            continue;
         }
     }
-    if let Some(e) = current { effects.push(e); }
-    effects
+
+    registered_order
+}
+
+/// Extract the LHS variable name: "local e1 = ..." → "e1"
+fn extract_lhs_var(line: &str) -> Option<String> {
+    let rest = line.strip_prefix("local ").unwrap_or(line);
+    let eq = rest.find('=')?;
+    let name = rest[..eq].trim().to_string();
+    if name.is_empty() { None } else { Some(name) }
+}
+
+/// Extract the source variable of a clone: "local e2 = e1:Clone()" → "e1"
+fn extract_clone_source(line: &str) -> Option<String> {
+    let idx = line.find(":Clone()")?;
+    let before = &line[..idx];
+    // Find the last word before :Clone()
+    let var = before.split(|c: char| !c.is_alphanumeric() && c != '_').last()?;
+    if var.is_empty() { None } else { Some(var.to_string()) }
+}
+
+/// Extract the method receiver: "e1:SetType(...)" → "e1"
+fn extract_method_receiver(line: &str) -> Option<String> {
+    let colon_idx = line.find(":Set")?;
+    let before = &line[..colon_idx];
+    let var = before.split(|c: char| !c.is_alphanumeric() && c != '_').last()?;
+    if var.is_empty() { None } else { Some(var.to_string()) }
+}
+
+/// Extract the first argument of a function call: "c:RegisterEffect(e1)" → "e1"
+fn extract_first_arg(line: &str, fn_name: &str) -> Option<String> {
+    let start = line.find(fn_name)?;
+    let after = &line[start + fn_name.len()..];
+    let open = after.find('(')?;
+    let inner = &after[open + 1..];
+    let arg = inner.split(|c: char| c == ',' || c == ')').next()?;
+    let arg = arg.trim().to_string();
+    if arg.is_empty() { None } else { Some(arg) }
 }
 
 fn extract_function_bodies(source: &str) -> std::collections::HashMap<String, Vec<DuelApiCall>> {

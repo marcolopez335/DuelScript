@@ -10,20 +10,23 @@ card "Familiar-Possessed - Dharc" {
     atk: 1850
     def: 1500
 
+    raw_effect "Effect 1" {
+        effect_type: 2
+        code: 34
+        property: 262144
+        range: 3
+        on_resolve {
+            send (1, card) to gy
+            shuffle deck
+        }
+    }
+
     raw_effect "Effect 2" {
         effect_type: 129
         category: 131080
         code: 1102
         on_resolve {
             add_to_hand (1, card) from gy
-        }
-    }
-
-    raw_effect "Effect 3" {
-        effect_type: 1
-        code: 80
-        on_resolve {
-            reveal self
         }
     }
 

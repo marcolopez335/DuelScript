@@ -37,11 +37,16 @@ card "Longirsu, the Orcust Orchestrator" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
-        code: 62
-        property: 525312
+        effect_type: 256
+        category: 48
+        code: 1002
+        property: 16
+        range: 4
+        count_limit: (1, 76145142)
         on_resolve {
-            reveal self
+            return (1, card) to deck shuffle
+            shuffle deck
+            send (1, card) to gy
         }
     }
 

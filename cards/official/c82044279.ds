@@ -34,17 +34,22 @@ card "Clear Wing Synchro Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 1029
+        effect_type: 256
+        category: 268435457
+        code: 1027
+        property: 49152
         range: 4
+        count_limit: (1, 0)
         on_resolve {
-            reveal self
+            negate activation
+            destroy (1+, card, either_player controls)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
-        code: 100
+        effect_type: 2050
+        code: 1029
+        range: 4
         on_resolve {
             reveal self
         }

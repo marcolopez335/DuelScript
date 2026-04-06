@@ -10,6 +10,16 @@ card "Apprentice Illusion Magician" {
     atk: 2000
     def: 1700
 
+    raw_effect "Effect 1" {
+        effect_type: 2
+        code: 34
+        property: 262144
+        range: 2
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
     raw_effect "Effect 2" {
         effect_type: 129
         category: 131080
@@ -21,6 +31,16 @@ card "Apprentice Illusion Magician" {
     }
 
     raw_effect "Effect 3" {
+        effect_type: 129
+        category: 131080
+        code: 1102
+        property: 65536
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    raw_effect "Effect 4" {
         effect_type: 256
         category: 2097152
         code: 1134
@@ -28,14 +48,6 @@ card "Apprentice Illusion Magician" {
         cost {
             send self to gy
         }
-        on_resolve {
-            reveal self
-        }
-    }
-
-    raw_effect "Effect 4" {
-        effect_type: 1
-        code: 100
         on_resolve {
             reveal self
         }

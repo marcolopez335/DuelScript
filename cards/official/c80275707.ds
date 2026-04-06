@@ -35,11 +35,17 @@ card "Laughing Puffin" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
-        code: 75
-        property: 2048
+        effect_type: 256
+        category: 8
+        code: 1002
+        property: 16
+        range: 4
+        count_limit: (1, 0)
+        cost {
+            tribute self
+        }
         on_resolve {
-            reveal self
+            add_to_hand (1, card) from gy
         }
     }
 
