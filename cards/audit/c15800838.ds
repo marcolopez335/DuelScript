@@ -1,0 +1,59 @@
+// Mind Crush — audit of expressiveness
+// Exercises: card name announcement, hand reveal check,
+// conditional resolution based on check result, random selection
+
+card "Mind Crush" {
+    password: 15800838
+    type: Normal Trap
+
+    effect "Crush" {
+        speed: spell_speed_2
+
+        condition: your_hand_size >= 1 and opponent_hand_size >= 1
+
+        on_activate {
+            // GAP #11: We need an `announce` action that captures a player choice
+            // of a card name with filters. Lua uses `Duel.AnnounceCard` with an
+            // opcode filter language.
+            //
+            // Pseudo-syntax:
+            //   announce (1, card) to you as announced_name {
+            //     filter: not extra_deck_monster
+            //   }
+            //
+            // GAP #12: Announcement filters are complex (OPCODE expressions
+            // that combine type checks with NOT/AND/OR). We'd need an
+            // announcement filter mini-language, OR just use named presets
+            // like `announce_filter: non_extra_monster`.
+
+            // Placeholder
+            reveal self
+        }
+
+        on_resolve {
+            // "If opponent has the announced card in hand, discard all copies.
+            //  Otherwise, you randomly discard 1 card."
+            //
+            // GAP #13: Check opponent's hand for a specific named card.
+            // Currently we have `count(...)` but not `count(hand, where name == X)`
+            // with a RUNTIME x that came from an announcement.
+            //
+            // GAP #14: Conditional branching based on COUNT > 0 result.
+            //   if (count(... matching announced_name) > 0) { ... } else { ... }
+            //
+            // GAP #15: Random card selection from opponent's hand.
+            //   discard (1, card, opponent hand, random)
+            //
+            // Pseudo-syntax for the full effect:
+            //   if (count((1+, card, opponent controls, hand,
+            //              where: name == announced_name)) > 0) {
+            //       discard (all, card, opponent controls, hand,
+            //                where: name == announced_name)
+            //   } else {
+            //       discard (1, card, you controls, hand, random)
+            //   }
+
+            reveal self
+        }
+    }
+}

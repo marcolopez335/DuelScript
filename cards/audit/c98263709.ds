@@ -1,0 +1,90 @@
+// Galaxy Mirror Sage — audit of expressiveness
+// Exercises: flip effect, flag effects, cross-chain state,
+// conditional trigger from GY, dynamic effect registration on summoned card
+
+card "Galaxy Mirror Sage" {
+    password: 98263709
+    type: Effect Monster
+    // TODO: verify from CDB
+    attribute: LIGHT
+    race: Spellcaster
+    level: 3
+    atk: 800
+    def: 500
+    archetype: ["Galaxy"]
+
+    // ── EFFECT 1: FLIP EFFECT ──────────────────────────────────
+    // "FLIP: Gain 500 LP for each 'Galaxy' monster in your GY."
+    //
+    // GAP #1: We need a dedicated `flip_effect` block.
+    // Currently we have `when_flipped` as a trigger, but flip effects
+    // are a distinct category (EFFECT_TYPE_FLIP = 0x20).
+    // A flip_effect is the card's face-up activation effect triggered
+    // by being flipped, not a generic "when flipped" trigger.
+    flip_effect "Gain LP" {
+        on_resolve {
+            gain_lp: count((1+, "Galaxy" monster, you controls, gy)) * 500
+        }
+    }
+
+    // ── EFFECT 2: FLAG ON FLIP ─────────────────────────────────
+    // "When this card is flipped face-up, remember it was flipped."
+    //
+    // GAP #2: We have `store "label"` but not a persistent flag
+    // that survives specific reset events. Lua's RegisterFlagEffect
+    // takes reset flags like (RESET_EVENT|RESETS_STANDARD|RESET_OVERLAY)&~(RESET_LEAVE|RESET_TOGRAVE)
+    // — meaning "reset on most events BUT keep through leave_field and to_grave".
+    //
+    // GAP #3: We need a syntax for "set a persistent flag on this card
+    // that survives specific events".
+    continuous_effect "Remember Flip" {
+        while: on_field
+        // Pseudo-syntax I'd like:
+        //   on_event: when_flipped
+        //   set_flag "flipped_once" {
+        //     survives: [leave_field, to_gy]
+        //     resets_on: [end_of_duel]
+        //   }
+    }
+
+    // ── EFFECT 3: REVIVE FROM GY IF DESTROYED ─────────────────
+    // "When this card is sent to the GY by destruction (ONLY if it was
+    // previously flipped face-up): Special Summon 1 Level 4 or lower
+    // 'Galaxy' monster from your Deck or GY in face-down defense position.
+    // Banish it when it leaves the field."
+    //
+    // GAP #4: We can express `trigger: when_sent_to gy by battle` but
+    // not "only if condition from history" — we need to check the flag.
+    //
+    // GAP #5: `special_summon ... in face_down_defense` — position syntax.
+    //
+    // GAP #6: Dynamic effect registration on the summoned card — the
+    // "banish when it leaves the field" effect is attached TO THE SUMMONED
+    // CARD, not to this card. We have `register_effect on target` in the
+    // grammar but haven't proved it works for this pattern.
+    effect "Revive Galaxy" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_sent_to gy by card_effect
+
+        // GAP: this condition requires reading the flag we set in effect 2
+        // condition: has_flag "flipped_once" on self
+
+        on_activate {
+            search (1, "Galaxy" monster, you controls, deck, with_level <= 4) from deck
+        }
+
+        on_resolve {
+            special_summon target from deck in face_down_defense
+
+            // Attach a leave-field redirect to the summoned card
+            // GAP: We have register_effect but the target is "the just-summoned card"
+            // which needs a reference mechanism
+            register_effect on target {
+                grant: redirect_when_leaving_field to banished
+                duration: permanently
+            }
+        }
+    }
+}
