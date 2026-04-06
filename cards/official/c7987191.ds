@@ -1,5 +1,5 @@
 // Borreload Riot Dragon
-// Migrated from c7987191.lua
+// Transpiled from c7987191.lua
 
 card "Borreload Riot Dragon" {
     password: 7987191
@@ -18,17 +18,20 @@ card "Borreload Riot Dragon" {
         speed: spell_speed_2
         once_per_turn: hard
         optional: true
+        trigger: when_summoned by_special_summon
         on_resolve {
-            negate summon and destroy
+            negate summon
+            destroy (1+, card, either_player controls)
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
+        once_per_turn: soft
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            add_to_hand (1, card) from gy
         }
     }
 

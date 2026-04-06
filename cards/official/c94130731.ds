@@ -1,0 +1,42 @@
+// Transcendosaurus Glaciasaurus
+// Transpiled from c94130731.lua
+
+card "Transcendosaurus Glaciasaurus" {
+    password: 94130731
+    type: Synchro Monster
+    attribute: WATER
+    race: Dinosaur
+    level: 12
+    atk: 3600
+    def: 2700
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            return (1, card) to deck shuffle
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

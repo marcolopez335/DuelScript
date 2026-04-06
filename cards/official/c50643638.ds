@@ -1,0 +1,42 @@
+// Chanbar, the Flashy Sportsknight
+// Transpiled from c50643638.lua
+
+card "Chanbar, the Flashy Sportsknight" {
+    password: 50643638
+    type: Synchro Monster
+    attribute: LIGHT
+    race: Warrior
+    level: 8
+    atk: 2700
+    def: 2100
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            send (1, card) to gy
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

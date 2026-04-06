@@ -1,5 +1,5 @@
 // Melffy Fenny
-// Migrated from c57523313.lua
+// Transpiled from c57523313.lua
 
 card "Melffy Fenny" {
     password: 57523313
@@ -16,17 +16,18 @@ card "Melffy Fenny" {
         optional: true
         trigger: when_summoned
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: during_end_phase
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

@@ -1,5 +1,5 @@
 // Infernoid Seitsemas
-// Migrated from c51316684.lua
+// Transpiled from c51316684.lua
 
 card "Infernoid Seitsemas" {
     password: 51316684
@@ -16,19 +16,22 @@ card "Infernoid Seitsemas" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        cost {
+            tribute self
+        }
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 

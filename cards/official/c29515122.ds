@@ -1,5 +1,5 @@
 // Digvorzhak, King of Heavy Industry
-// Migrated from c29515122.lua
+// Transpiled from c29515122.lua
 
 card "Digvorzhak, King of Heavy Industry" {
     password: 29515122
@@ -22,12 +22,13 @@ card "Digvorzhak, King of Heavy Industry" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         cost {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            mill 3
+            destroy (1+, card, either_player controls)
         }
     }
 

@@ -1,0 +1,25 @@
+// Core Blast
+// Transpiled from c18517177.lua
+
+card "Core Blast" {
+    password: 18517177
+    type: Continuous Trap
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: during_standby_phase
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

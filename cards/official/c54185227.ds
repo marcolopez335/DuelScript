@@ -1,5 +1,5 @@
 // Vision HERO Gravito
-// Migrated from c54185227.lua
+// Transpiled from c54185227.lua
 
 card "Vision HERO Gravito" {
     password: 54185227
@@ -14,17 +14,21 @@ card "Vision HERO Gravito" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        damage_step: true
         trigger: when_summoned
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
+        cost {
+            tribute self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

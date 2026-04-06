@@ -1,5 +1,5 @@
 // Linguriboh
-// Migrated from c24842059.lua
+// Transpiled from c24842059.lua
 
 card "Linguriboh" {
     password: 24842059
@@ -22,19 +22,26 @@ card "Linguriboh" {
         speed: spell_speed_2
         once_per_turn: hard
         optional: true
+        damage_step: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            tribute self
+        }
         on_resolve {
             negate effect
+            banish (1+, card)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
-        condition: in_gy
+        cost {
+            tribute self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

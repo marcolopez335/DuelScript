@@ -1,0 +1,41 @@
+// Amazoness Silver Sword Master
+// Transpiled from c24087580.lua
+
+card "Amazoness Silver Sword Master" {
+    password: 24087580
+    type: Pendulum Monster
+    attribute: EARTH
+    race: Warrior
+    level: 3
+    scale: 7
+    atk: 1200
+    def: 2000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when attack_declared
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

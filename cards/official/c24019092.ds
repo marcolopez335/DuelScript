@@ -1,5 +1,5 @@
 // Igknight Paladin
-// Migrated from c24019092.lua
+// Transpiled from c24019092.lua
 
 card "Igknight Paladin" {
     password: 24019092
@@ -14,7 +14,8 @@ card "Igknight Paladin" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            add_to_hand (1, card) from gy
         }
     }
 

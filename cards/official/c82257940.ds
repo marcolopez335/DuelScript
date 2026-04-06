@@ -1,5 +1,5 @@
 // Gift Exchange
-// Migrated from c82257940.lua
+// Transpiled from c82257940.lua
 
 card "Gift Exchange" {
     password: 82257940
@@ -8,16 +8,17 @@ card "Gift Exchange" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_end_phase
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            add_to_hand (1, card) from gy
         }
     }
 

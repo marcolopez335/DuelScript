@@ -1,0 +1,41 @@
+// Block Dragon
+// Transpiled from c94689206.lua
+
+card "Block Dragon" {
+    password: 94689206
+    type: Effect Monster | Spirit
+    attribute: EARTH
+    race: Rock
+    level: 8
+    atk: 2500
+    def: 3000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

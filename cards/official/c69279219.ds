@@ -1,5 +1,5 @@
 // My Body as a Shield
-// Migrated from c69279219.lua
+// Transpiled from c69279219.lua
 
 card "My Body as a Shield" {
     password: 69279219
@@ -7,13 +7,14 @@ card "My Body as a Shield" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        damage_step: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         cost {
-            pay_lp 1000 // TODO: verify amount
+            pay_lp 1000
         }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            negate activation and destroy
+            negate activation
+            destroy (1+, card, either_player controls)
         }
     }
 

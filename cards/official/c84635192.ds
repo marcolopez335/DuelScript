@@ -1,5 +1,5 @@
 // Tsuru-Puru-Purun
-// Migrated from c84635192.lua
+// Transpiled from c84635192.lua
 
 card "Tsuru-Puru-Purun" {
     password: 84635192
@@ -14,8 +14,9 @@ card "Tsuru-Puru-Purun" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            special_summon (1, monster) from gy // TODO: verify
+            destroy (1+, card, either_player controls)
+            special_summon (1, monster) from gy
+            destroy (1+, card, either_player controls)
         }
     }
 

@@ -1,5 +1,5 @@
 // Flamvell Counter
-// Migrated from c60718396.lua
+// Transpiled from c60718396.lua
 
 card "Flamvell Counter" {
     password: 60718396
@@ -8,9 +8,12 @@ card "Flamvell Counter" {
     effect "Effect 1" {
         speed: spell_speed_1
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            banish self
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            negate activation and destroy
+            negate activation
+            destroy (1+, card, either_player controls)
         }
     }
 

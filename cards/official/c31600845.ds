@@ -1,0 +1,40 @@
+// Amazement Abomination Arlekino
+// Transpiled from c31600845.lua
+
+card "Amazement Abomination Arlekino" {
+    password: 31600845
+    type: Effect Monster
+    attribute: LIGHT
+    race: Psychic
+    level: 7
+    atk: 2600
+    def: 2200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            special_summon (1, monster) from gy
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        damage_step: true
+        on_resolve {
+            return (1, card) to deck shuffle
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

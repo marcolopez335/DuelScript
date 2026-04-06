@@ -1,0 +1,36 @@
+// Supernatural Danger Zone
+// Transpiled from c16165939.lua
+
+card "Supernatural Danger Zone" {
+    password: 16165939
+    type: Continuous Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        damage_step: true
+        trigger: when_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

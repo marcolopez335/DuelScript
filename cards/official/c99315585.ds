@@ -1,0 +1,49 @@
+// The Phantom Knights of Cloven Helm
+// Transpiled from c99315585.lua
+
+card "The Phantom Knights of Cloven Helm" {
+    password: 99315585
+    type: Effect Monster
+    attribute: DARK
+    race: Warrior
+    level: 4
+    atk: 1500
+    def: 500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: when_sent_to gy
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            banish self
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

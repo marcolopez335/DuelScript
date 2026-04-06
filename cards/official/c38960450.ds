@@ -1,5 +1,5 @@
 // Armory Call
-// Migrated from c38960450.lua
+// Transpiled from c38960450.lua
 
 card "Armory Call" {
     password: 38960450
@@ -9,7 +9,9 @@ card "Armory Call" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            shuffle deck
+            equip (1, card) to (1, monster)
         }
     }
 

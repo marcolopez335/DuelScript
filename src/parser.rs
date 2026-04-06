@@ -509,6 +509,16 @@ fn parse_effect_body(pair: Pair<Rule>) -> Result<EffectBody, ParseError> {
                 body.optional = clause.into_inner().next()
                     .map(|p| p.as_str() == "true").unwrap_or(false);
             }
+            Rule::activate_from_clause => {
+                body.activate_from = clause.into_inner()
+                    .filter(|p| p.as_rule() == Rule::zone)
+                    .map(parse_zone)
+                    .collect::<Result<Vec<_>, _>>()?;
+            }
+            Rule::damage_step_decl => {
+                body.damage_step = clause.into_inner().next()
+                    .map(|p| p.as_str() == "true").unwrap_or(false);
+            }
             Rule::timing_qualifier_decl => {
                 if let Some(tq) = clause.into_inner().find(|p| p.as_rule() == Rule::timing_qualifier) {
                     body.timing = match tq.as_str() {
@@ -1697,6 +1707,33 @@ fn parse_trigger_expr(pair: Pair<Rule>) -> Result<TriggerExpr, ParseError> {
         }
         Rule::when_flipped_trigger  => Ok(TriggerExpr::WhenFlipped),
         Rule::when_attacked_trigger => Ok(TriggerExpr::WhenAttacked),
+        Rule::when_battle_destroyed_trigger   => Ok(TriggerExpr::WhenBattleDestroyed),
+        Rule::when_destroys_by_battle_trigger => Ok(TriggerExpr::WhenDestroysByBattle),
+        Rule::when_leaves_field_trigger       => Ok(TriggerExpr::WhenLeavesField),
+        Rule::when_used_as_material_trigger   => {
+            let method = inner.into_inner().next().map(|p| match p.as_str() {
+                "fusion"  => SummonMethodType::Fusion,
+                "synchro" => SummonMethodType::Synchro,
+                "xyz"     => SummonMethodType::Xyz,
+                "link"    => SummonMethodType::Link,
+                "ritual"  => SummonMethodType::Ritual,
+                _         => SummonMethodType::Fusion,
+            });
+            Ok(TriggerExpr::WhenUsedAsMaterial(method))
+        }
+        Rule::when_battle_damage_trigger => {
+            let player = inner.into_inner().next().map(|p| match p.as_str() {
+                "you"      => Player::You,
+                "opponent" => Player::Opponent,
+                _          => Player::You,
+            });
+            Ok(TriggerExpr::WhenBattleDamage(player))
+        }
+        Rule::when_banished_trigger => {
+            let cause = inner.into_inner().find(|p| p.as_rule() == Rule::destruction_cause)
+                .map(parse_destruction_cause).transpose()?;
+            Ok(TriggerExpr::WhenBanished(cause))
+        }
         Rule::on_nth_summon_trigger => {
             let n = inner.into_inner().find(|p| p.as_rule() == Rule::unsigned)
                 .map(|p| p.as_str().parse().unwrap_or(1)).unwrap_or(1);

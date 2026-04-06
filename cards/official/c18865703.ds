@@ -1,0 +1,37 @@
+// ZW - Ultimate Shield
+// Transpiled from c18865703.lua
+
+card "ZW - Ultimate Shield" {
+    password: 18865703
+    type: Effect Monster
+    attribute: EARTH
+    race: Aqua
+    level: 4
+    atk: 0
+    def: 2000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_summoned
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

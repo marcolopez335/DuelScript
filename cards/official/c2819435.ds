@@ -1,0 +1,41 @@
+// Pacifis, the Phantasm City
+// Transpiled from c2819435.lua
+
+card "Pacifis, the Phantasm City" {
+    password: 2819435
+    type: Field Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: when_summoned
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            create_token { atk: 0 def: 0 }
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

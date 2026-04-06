@@ -1,0 +1,34 @@
+// Mementotlan Mace
+// Transpiled from c81945676.lua
+
+card "Mementotlan Mace" {
+    password: 81945676
+    type: Effect Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 1
+    atk: 400
+    def: 300
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        cost {
+            discard self
+        }
+        on_resolve {
+            take_control of (1, monster, opponent controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

@@ -1,0 +1,44 @@
+// Salamangreat Almiraj
+// Transpiled from c60303245.lua
+
+card "Salamangreat Almiraj" {
+    password: 60303245
+    type: Link Monster
+    attribute: FIRE
+    race: Cyberse
+    link: 1
+    atk: 0
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        cost {
+            tribute self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_battle_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

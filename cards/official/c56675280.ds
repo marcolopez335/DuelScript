@@ -1,0 +1,38 @@
+// Performapal Parrotrio
+// Transpiled from c56675280.lua
+
+card "Performapal Parrotrio" {
+    password: 56675280
+    type: Pendulum Monster
+    attribute: WIND
+    race: Winged Beast
+    level: 3
+    scale: 2
+    atk: 500
+    def: 500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_battle_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

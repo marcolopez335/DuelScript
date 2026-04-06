@@ -1,0 +1,39 @@
+// Superheavy Samurai Thief
+// Transpiled from c14756848.lua
+
+card "Superheavy Samurai Thief" {
+    password: 14756848
+    type: Effect Monster
+    attribute: EARTH
+    race: Machine
+    level: 10
+    atk: 1000
+    def: 1000
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        cost {
+            tribute self
+        }
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            set (1, card)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

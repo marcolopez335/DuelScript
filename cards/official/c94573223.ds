@@ -1,0 +1,44 @@
+// Inzektor Giga-Mantis
+// Transpiled from c94573223.lua
+
+card "Inzektor Giga-Mantis" {
+    password: 94573223
+    type: Effect Monster
+    attribute: DARK
+    race: Insect
+    level: 6
+    atk: 2400
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // Naturia Mole Cricket
-// Migrated from c93454062.lua
+// Transpiled from c93454062.lua
 
 card "Naturia Mole Cricket" {
     password: 93454062
@@ -14,19 +14,21 @@ card "Naturia Mole Cricket" {
         speed: spell_speed_2
         once_per_turn: hard
         optional: true
+        cost {
+            tribute self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_summoned by_special_summon
-        condition: in_gy
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

@@ -1,0 +1,40 @@
+// Traptrix Mantis
+// Transpiled from c82738277.lua
+
+card "Traptrix Mantis" {
+    password: 82738277
+    type: Effect Monster
+    attribute: EARTH
+    race: Insect
+    level: 4
+    atk: 1500
+    def: 1300
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            add_to_hand (1, card) from gy
+            shuffle deck
+            set (1, card)
+        }
+    }
+
+}

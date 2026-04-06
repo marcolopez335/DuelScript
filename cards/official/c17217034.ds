@@ -1,0 +1,40 @@
+// Combination Maneuver - Engage Zero
+// Transpiled from c17217034.lua
+
+card "Combination Maneuver - Engage Zero" {
+    password: 17217034
+    type: Link Monster
+    attribute: LIGHT
+    race: Machine
+    link: 2
+    atk: 1500
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            negate effect
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

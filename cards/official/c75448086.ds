@@ -1,5 +1,5 @@
 // Generaider Boss Quest
-// Migrated from c75448086.lua
+// Transpiled from c75448086.lua
 
 card "Generaider Boss Quest" {
     password: 75448086
@@ -9,7 +9,9 @@ card "Generaider Boss Quest" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            shuffle deck
+            return (1, card) to deck shuffle
         }
     }
 

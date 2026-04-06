@@ -1,0 +1,35 @@
+// Wollow, Founder of the Drudge Dragons
+// Transpiled from c45935145.lua
+
+card "Wollow, Founder of the Drudge Dragons" {
+    password: 45935145
+    type: Xyz Monster
+    attribute: DARK
+    race: Zombie
+    rank: 6
+    atk: 2400
+    def: 1300
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            return (1, card) to deck shuffle
+            special_summon (1, monster) from gy
+            set (1, card)
+        }
+    }
+
+}

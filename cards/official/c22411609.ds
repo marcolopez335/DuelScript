@@ -1,5 +1,5 @@
 // Volcanic Trooper
-// Migrated from c22411609.lua
+// Transpiled from c22411609.lua
 
 card "Volcanic Trooper" {
     password: 22411609
@@ -16,25 +16,23 @@ card "Volcanic Trooper" {
         optional: true
         trigger: when_summoned
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
-        cost {
-            discard self // TODO: verify target
-        }
+        once_per_turn: soft
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            create_token { atk: 0 def: 0 }
         }
     }
 
     effect "Effect 3" {
         speed: spell_speed_1
+        trigger: when_leaves_field
         on_resolve {
-            deal_damage to opponent: 1000 // TODO: verify
+            deal_damage to opponent: 0
         }
     }
 

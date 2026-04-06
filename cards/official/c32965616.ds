@@ -1,0 +1,44 @@
+// Elemental Grace Doriado
+// Transpiled from c32965616.lua
+
+card "Elemental Grace Doriado" {
+    password: 32965616
+    type: Effect Monster | Spirit
+    attribute: LIGHT
+    race: Spellcaster
+    level: 9
+    atk: 0
+    def: 0
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_2
+        optional: true
+        trigger: when_summoned by_special_summon
+        cost {
+            banish self
+        }
+        on_resolve {
+            negate summon
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

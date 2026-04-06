@@ -1,5 +1,5 @@
 // Zapper Shrimp
-// Migrated from c92744676.lua
+// Transpiled from c92744676.lua
 
 card "Zapper Shrimp" {
     password: 92744676
@@ -10,12 +10,6 @@ card "Zapper Shrimp" {
     atk: 1000
     def: 1200
 
-    materials {
-        require: 1 tuner monster
-        require: 1+ non-tuner monster
-        method: synchro
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -25,8 +19,11 @@ card "Zapper Shrimp" {
         once_per_turn: hard
         optional: true
         trigger: when_summoned by_special_summon
+        cost {
+            send self to gy
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
@@ -35,7 +32,7 @@ card "Zapper Shrimp" {
         once_per_turn: soft
         optional: true
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

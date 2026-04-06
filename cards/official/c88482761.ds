@@ -1,0 +1,28 @@
+// Dice Roll Battle
+// Transpiled from c88482761.lua
+
+card "Dice Roll Battle" {
+    password: 88482761
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when attack_declared
+        on_resolve {
+            banish (1+, card)
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        cost {
+            banish self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

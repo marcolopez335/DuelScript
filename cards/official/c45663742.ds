@@ -1,5 +1,5 @@
 // Snake-Eye Oak
-// Migrated from c45663742.lua
+// Transpiled from c45663742.lua
 
 card "Snake-Eye Oak" {
     password: 45663742
@@ -16,15 +16,18 @@ card "Snake-Eye Oak" {
         optional: true
         trigger: when_summoned
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
+        cost {
+            send self to gy
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

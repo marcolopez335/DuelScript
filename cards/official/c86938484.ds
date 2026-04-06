@@ -1,5 +1,5 @@
 // Shaddoll Construct
-// Migrated from c86938484.lua
+// Transpiled from c86938484.lua
 
 card "Shaddoll Construct" {
     password: 86938484
@@ -9,11 +9,6 @@ card "Shaddoll Construct" {
     link: 2
     atk: 1200
 
-    materials {
-        require: 2+ effect monster
-        method: link
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -22,16 +17,15 @@ card "Shaddoll Construct" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
+        once_per_turn: soft
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

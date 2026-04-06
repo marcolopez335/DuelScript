@@ -1,0 +1,37 @@
+// Armor Exe
+// Transpiled from c7180418.lua
+
+card "Armor Exe" {
+    password: 7180418
+    type: Effect Monster
+    attribute: LIGHT
+    race: Rock
+    level: 4
+    atk: 2400
+    def: 1400
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_summoned
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

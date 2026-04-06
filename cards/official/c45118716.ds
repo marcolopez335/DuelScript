@@ -1,0 +1,26 @@
+// Spell Recycler
+// Transpiled from c45118716.lua
+
+card "Spell Recycler" {
+    password: 45118716
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 1
+    atk: 0
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when attack_declared
+        cost {
+            banish self
+        }
+        on_resolve {
+            mill 1
+            return (1, card) to deck shuffle
+        }
+    }
+
+}

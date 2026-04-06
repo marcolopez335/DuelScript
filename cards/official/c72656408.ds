@@ -1,0 +1,42 @@
+// Bystial Baldrake
+// Transpiled from c72656408.lua
+
+card "Bystial Baldrake" {
+    password: 72656408
+    type: Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 6
+    atk: 2500
+    def: 2000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            banish (1+, card)
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        cost {
+            tribute self
+        }
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

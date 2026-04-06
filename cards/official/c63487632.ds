@@ -1,0 +1,41 @@
+// Dragunity Arma Leyvaten
+// Transpiled from c63487632.lua
+
+card "Dragunity Arma Leyvaten" {
+    password: 63487632
+    type: Effect Monster
+    attribute: WIND
+    race: Dragon
+    level: 8
+    atk: 2600
+    def: 1200
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_summoned
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: when_leaves_field
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

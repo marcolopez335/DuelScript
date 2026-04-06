@@ -1,0 +1,38 @@
+// Psychic Rover
+// Transpiled from c53154400.lua
+
+card "Psychic Rover" {
+    password: 53154400
+    type: Effect Monster
+    attribute: DARK
+    race: Psychic
+    level: 2
+    atk: 0
+    def: 700
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

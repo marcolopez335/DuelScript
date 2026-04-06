@@ -1,0 +1,39 @@
+// Horus the Black Flame Dragon LV4
+// Transpiled from c75830094.lua
+
+card "Horus the Black Flame Dragon LV4" {
+    password: 75830094
+    type: Effect Monster
+    attribute: FIRE
+    race: Dragon
+    level: 4
+    atk: 1600
+    def: 1000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: during_end_phase
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

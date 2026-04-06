@@ -1,0 +1,37 @@
+// Segmental Dragon
+// Transpiled from c15066114.lua
+
+card "Segmental Dragon" {
+    password: 15066114
+    type: Effect Monster
+    attribute: LIGHT
+    race: Cyberse
+    level: 7
+    atk: 2600
+    def: 2400
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

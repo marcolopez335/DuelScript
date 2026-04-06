@@ -1,0 +1,42 @@
+// Number 39: Utopia Roots
+// Transpiled from c84124261.lua
+
+card "Number 39: Utopia Roots" {
+    password: 84124261
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Warrior
+    rank: 1
+    atk: 500
+    def: 100
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when attack_declared
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            negate attack
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

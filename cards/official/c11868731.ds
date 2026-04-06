@@ -1,0 +1,30 @@
+// Madolche Magileine
+// Transpiled from c11868731.lua
+
+card "Madolche Magileine" {
+    password: 11868731
+    type: Effect Monster
+    attribute: EARTH
+    race: Spellcaster
+    level: 4
+    atk: 1400
+    def: 1200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_sent_to gy
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

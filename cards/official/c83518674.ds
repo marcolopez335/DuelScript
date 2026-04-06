@@ -1,0 +1,33 @@
+// Danger! Ogopogo!
+// Transpiled from c83518674.lua
+
+card "Danger! Ogopogo!" {
+    password: 83518674
+    type: Effect Monster
+    attribute: DARK
+    race: Sea Serpent
+    level: 8
+    atk: 1200
+    def: 3000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            shuffle deck
+            send (1, card) to gy
+            special_summon (1, monster) from gy
+            draw 1
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+}

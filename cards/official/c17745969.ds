@@ -1,5 +1,5 @@
 // Super Vehicroid - Mobile Base
-// Migrated from c17745969.lua
+// Transpiled from c17745969.lua
 
 card "Super Vehicroid - Mobile Base" {
     password: 17745969
@@ -10,11 +10,6 @@ card "Super Vehicroid - Mobile Base" {
     atk: 0
     def: 5000
 
-    materials {
-        require: 2+ monster
-        method: fusion
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -23,17 +18,17 @@ card "Super Vehicroid - Mobile Base" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: during_end_phase
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

@@ -1,5 +1,5 @@
 // EM:P Meowmine
-// Migrated from c48017189.lua
+// Transpiled from c48017189.lua
 
 card "EM:P Meowmine" {
     password: 48017189
@@ -12,15 +12,15 @@ card "EM:P Meowmine" {
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        activate_from: [hand, gy]
         trigger: when_sent_to gy
-        condition: in_gy
         cost {
             banish self
         }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

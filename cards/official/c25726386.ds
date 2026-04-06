@@ -1,5 +1,5 @@
 // Megalith Aratron
-// Migrated from c25726386.lua
+// Transpiled from c25726386.lua
 
 card "Megalith Aratron" {
     password: 25726386
@@ -22,18 +22,20 @@ card "Megalith Aratron" {
             discard self
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        damage_step: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            negate activation and destroy
+            return (1, card) to deck shuffle
+            negate activation
+            destroy (1+, card, either_player controls)
         }
     }
 

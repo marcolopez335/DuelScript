@@ -1,0 +1,45 @@
+// Abyss Actor - Liberty Dramatist
+// Transpiled from c65477143.lua
+
+card "Abyss Actor - Liberty Dramatist" {
+    password: 65477143
+    type: Pendulum Monster
+    attribute: DARK
+    race: Fiend
+    level: 4
+    scale: 8
+    atk: 1500
+    def: 1500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when attack_declared
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            shuffle deck
+            set (1, card)
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+}

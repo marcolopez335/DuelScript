@@ -1,0 +1,33 @@
+// Gusto Thunbolt
+// Transpiled from c28066831.lua
+
+card "Gusto Thunbolt" {
+    password: 28066831
+    type: Effect Monster
+    attribute: WIND
+    race: Thunder
+    level: 4
+    atk: 1500
+    def: 1200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_battle_destroyed
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        cost {
+            banish self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // Spirit Charmers
-// Migrated from c91530236.lua
+// Transpiled from c91530236.lua
 
 card "Spirit Charmers" {
     password: 91530236
@@ -8,11 +8,10 @@ card "Spirit Charmers" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
-        cost {
-            discard self // TODO: verify target
-        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            special_summon (1, monster) from gy
+            set (1, card)
         }
     }
 

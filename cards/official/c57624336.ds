@@ -1,5 +1,5 @@
 // Archfiend Eccentrick
-// Migrated from c57624336.lua
+// Transpiled from c57624336.lua
 
 card "Archfiend Eccentrick" {
     password: 57624336
@@ -15,15 +15,18 @@ card "Archfiend Eccentrick" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
+        cost {
+            tribute self
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

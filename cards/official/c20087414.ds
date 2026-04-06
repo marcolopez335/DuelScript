@@ -1,5 +1,5 @@
 // Kuebiko
-// Migrated from c20087414.lua
+// Transpiled from c20087414.lua
 
 card "Kuebiko" {
     password: 20087414
@@ -9,7 +9,7 @@ card "Kuebiko" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
@@ -19,7 +19,9 @@ card "Kuebiko" {
         optional: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
+            set (1, card)
             negate effect
+            add_to_hand (1, card) from gy
         }
     }
 

@@ -1,0 +1,49 @@
+// Wightprincess
+// Transpiled from c90243945.lua
+
+card "Wightprincess" {
+    password: 90243945
+    type: Effect Monster
+    attribute: LIGHT
+    race: Zombie
+    level: 3
+    atk: 1600
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_2
+        optional: true
+        activate_from: [hand, monster_zone]
+        damage_step: true
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,0 +1,33 @@
+// Lumina, Twilightsworn Shaman
+// Transpiled from c56166150.lua
+
+card "Lumina, Twilightsworn Shaman" {
+    password: 56166150
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 3
+    atk: 1000
+    def: 1000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            banish self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            mill 3
+        }
+    }
+
+}

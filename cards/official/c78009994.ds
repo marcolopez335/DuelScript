@@ -1,0 +1,31 @@
+// Dragonic Guard
+// Transpiled from c78009994.lua
+
+card "Dragonic Guard" {
+    password: 78009994
+    type: Effect Monster
+    attribute: FIRE
+    race: Dragon
+    level: 4
+    atk: 1500
+    def: 1800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_summoned
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

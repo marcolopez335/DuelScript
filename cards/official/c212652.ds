@@ -1,5 +1,5 @@
 // Trap of the Poisonous Scorpion
-// Migrated from c212652.lua
+// Transpiled from c212652.lua
 
 card "Trap of the Poisonous Scorpion" {
     password: 212652
@@ -9,7 +9,8 @@ card "Trap of the Poisonous Scorpion" {
         speed: spell_speed_1
         trigger: when attack_declared
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 300
         }
     }
 

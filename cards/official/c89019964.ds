@@ -1,0 +1,39 @@
+// Unchained Soul of Disaster
+// Transpiled from c89019964.lua
+
+card "Unchained Soul of Disaster" {
+    password: 89019964
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 8
+    atk: 0
+    def: 3000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        damage_step: true
+        trigger: when_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

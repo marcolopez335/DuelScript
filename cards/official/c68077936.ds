@@ -1,5 +1,5 @@
 // Induced Explosion
-// Migrated from c68077936.lua
+// Transpiled from c68077936.lua
 
 card "Induced Explosion" {
     password: 68077936
@@ -9,7 +9,7 @@ card "Induced Explosion" {
         speed: spell_speed_1
         trigger: when_destroyed
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
@@ -17,12 +17,11 @@ card "Induced Explosion" {
         speed: spell_speed_1
         optional: true
         trigger: when_destroyed
-        condition: in_gy
         cost {
             banish self
         }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

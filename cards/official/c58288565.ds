@@ -1,0 +1,40 @@
+// Butterfly Fish
+// Transpiled from c58288565.lua
+
+card "Butterfly Fish" {
+    password: 58288565
+    type: Effect Monster
+    attribute: WATER
+    race: Fish
+    level: 3
+    atk: 700
+    def: 400
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

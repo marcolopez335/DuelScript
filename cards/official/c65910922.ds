@@ -1,5 +1,5 @@
 // Arionpos, Serpent of the Ghoti
-// Migrated from c65910922.lua
+// Transpiled from c65910922.lua
 
 card "Arionpos, Serpent of the Ghoti" {
     password: 65910922
@@ -9,12 +9,6 @@ card "Arionpos, Serpent of the Ghoti" {
     level: 6
     atk: 2100
     def: 0
-
-    materials {
-        require: 1 tuner monster
-        require: 1+ non-tuner monster
-        method: synchro
-    }
 
     summon_condition {
         cannot_normal_summon: true
@@ -26,17 +20,18 @@ card "Arionpos, Serpent of the Ghoti" {
         optional: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        trigger: when_used_as_material
         on_resolve {
-            banish (1, card) // TODO: verify
-            add_to_hand (1, card) from gy // TODO: verify
+            banish (1+, card)
+            add_to_hand (1, card) from gy
         }
     }
 

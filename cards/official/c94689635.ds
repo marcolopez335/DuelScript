@@ -1,5 +1,5 @@
 // Herald of Purple Light
-// Migrated from c94689635.lua
+// Transpiled from c94689635.lua
 
 card "Herald of Purple Light" {
     password: 94689635
@@ -13,10 +13,14 @@ card "Herald of Purple Light" {
     effect "Effect 1" {
         speed: spell_speed_2
         optional: true
+        damage_step: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            send self to gy
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            negate activation and destroy
+            negate activation
+            destroy (1+, card, either_player controls)
         }
     }
 

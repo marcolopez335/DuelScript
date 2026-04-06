@@ -1,0 +1,40 @@
+// Crystron Smiger
+// Transpiled from c83443619.lua
+
+card "Crystron Smiger" {
+    password: 83443619
+    type: Effect Monster
+    attribute: WATER
+    race: Machine
+    level: 3
+    atk: 1000
+    def: 1800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            banish self
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

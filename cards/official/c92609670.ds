@@ -1,0 +1,44 @@
+// Heroic Challenger - Ambush Soldier
+// Transpiled from c92609670.lua
+
+card "Heroic Challenger - Ambush Soldier" {
+    password: 92609670
+    type: Effect Monster
+    attribute: EARTH
+    race: Warrior
+    level: 1
+    atk: 0
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: during_standby_phase
+        cost {
+            tribute self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        cost {
+            banish self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

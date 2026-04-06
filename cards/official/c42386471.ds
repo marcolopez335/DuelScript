@@ -1,0 +1,51 @@
+// Toon Gemini Elf
+// Transpiled from c42386471.lua
+
+card "Toon Gemini Elf" {
+    password: 42386471
+    type: Effect Monster
+    attribute: EARTH
+    race: Spellcaster
+    level: 4
+    atk: 1900
+    def: 900
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_summoned
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_leaves_field
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 5" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

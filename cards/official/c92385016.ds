@@ -1,0 +1,49 @@
+// Munin the Runick Wings
+// Transpiled from c92385016.lua
+
+card "Munin the Runick Wings" {
+    password: 92385016
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 3
+    atk: 0
+    def: 2000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        damage_step: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            banish self
+        }
+        on_resolve {
+            negate activation
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            gain_lp: 1000
+        }
+    }
+
+}

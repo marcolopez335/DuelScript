@@ -1,5 +1,5 @@
 // Golden Flying Fish
-// Migrated from c76203291.lua
+// Transpiled from c76203291.lua
 
 card "Golden Flying Fish" {
     password: 76203291
@@ -12,8 +12,11 @@ card "Golden Flying Fish" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        cost {
+            tribute self
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

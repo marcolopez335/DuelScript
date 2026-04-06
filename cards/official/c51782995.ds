@@ -1,0 +1,40 @@
+// Defender of Nephthys
+// Transpiled from c51782995.lua
+
+card "Defender of Nephthys" {
+    password: 51782995
+    type: Effect Monster
+    attribute: WIND
+    race: Spellcaster
+    level: 2
+    atk: 1400
+    def: 200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_destroyed
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: during_standby_phase
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

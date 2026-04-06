@@ -1,5 +1,5 @@
 // Fortune Fairy Ann
-// Migrated from c31683874.lua
+// Transpiled from c31683874.lua
 
 card "Fortune Fairy Ann" {
     password: 31683874
@@ -14,18 +14,20 @@ card "Fortune Fairy Ann" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        damage_step: true
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        damage_step: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 

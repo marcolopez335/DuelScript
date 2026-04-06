@@ -1,5 +1,5 @@
 // Koa'ki Meiru Crusader
-// Migrated from c32314730.lua
+// Transpiled from c32314730.lua
 
 card "Koa'ki Meiru Crusader" {
     password: 32314730
@@ -12,10 +12,10 @@ card "Koa'ki Meiru Crusader" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_end_phase
         on_resolve {
-            destroy (1+, card, either_player controls) // TODO: verify
+            reveal self
         }
     }
 
@@ -23,7 +23,7 @@ card "Koa'ki Meiru Crusader" {
         speed: spell_speed_1
         optional: true
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

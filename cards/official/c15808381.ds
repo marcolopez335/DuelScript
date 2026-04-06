@@ -1,5 +1,5 @@
 // Achichi @Ignister
-// Migrated from c15808381.lua
+// Transpiled from c15808381.lua
 
 card "Achichi @Ignister" {
     password: 15808381
@@ -14,22 +14,23 @@ card "Achichi @Ignister" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        damage_step: true
         trigger: when_summoned
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
-        condition: in_gy
+        damage_step: true
         cost {
             banish self
         }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

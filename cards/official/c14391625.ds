@@ -1,0 +1,36 @@
+// Visas Samsara
+// Transpiled from c14391625.lua
+
+card "Visas Samsara" {
+    password: 14391625
+    type: Effect Monster | Tuner
+    attribute: LIGHT
+    race: Fairy
+    level: 4
+    atk: 1500
+    def: 2100
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            return (1, card) to deck shuffle
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

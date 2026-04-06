@@ -1,0 +1,33 @@
+// Naturia Marron
+// Transpiled from c24694698.lua
+
+card "Naturia Marron" {
+    password: 24694698
+    type: Effect Monster
+    attribute: EARTH
+    race: Plant
+    level: 3
+    atk: 1200
+    def: 700
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_summoned
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            return (1, card) to deck shuffle
+            shuffle deck
+            draw 1
+        }
+    }
+
+}

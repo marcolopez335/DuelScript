@@ -1,5 +1,5 @@
 // Myutant Blast
-// Migrated from c79072916.lua
+// Transpiled from c79072916.lua
 
 card "Myutant Blast" {
     password: 79072916
@@ -9,15 +9,19 @@ card "Myutant Blast" {
         speed: spell_speed_1
         optional: true
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
         once_per_turn: hard
+        cost {
+            banish self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            send (1, card) to gy
+            special_summon (1, monster) from gy
         }
     }
 

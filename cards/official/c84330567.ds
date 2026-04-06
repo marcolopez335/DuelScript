@@ -1,0 +1,47 @@
+// Tearlaments Rulkallos
+// Transpiled from c84330567.lua
+
+card "Tearlaments Rulkallos" {
+    password: 84330567
+    type: Fusion Monster
+    attribute: WATER
+    race: Aqua
+    level: 8
+    atk: 3000
+    def: 2500
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            negate activation
+            destroy (1+, card, either_player controls)
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

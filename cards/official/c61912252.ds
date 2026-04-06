@@ -1,5 +1,5 @@
 // Infinitrack Trencher
-// Migrated from c61912252.lua
+// Transpiled from c61912252.lua
 
 card "Infinitrack Trencher" {
     password: 61912252
@@ -13,20 +13,22 @@ card "Infinitrack Trencher" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
+        cost {
+            tribute self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
+        once_per_turn: soft
         cost {
             banish self
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

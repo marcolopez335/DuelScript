@@ -1,0 +1,53 @@
+// Ashura King
+// Transpiled from c80993256.lua
+
+card "Ashura King" {
+    password: 80993256
+    type: Xyz Monster
+    attribute: EARTH
+    race: Warrior
+    rank: 3
+    atk: 2100
+    def: 0
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            negate activation
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

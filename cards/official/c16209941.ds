@@ -1,5 +1,5 @@
 // Danger! Chupacabra!
-// Migrated from c16209941.lua
+// Transpiled from c16209941.lua
 
 card "Danger! Chupacabra!" {
     password: 16209941
@@ -13,8 +13,10 @@ card "Danger! Chupacabra!" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            draw 2 // TODO: verify count
-            special_summon (1, monster) from gy // TODO: verify
+            shuffle deck
+            send (1, card) to gy
+            special_summon (1, monster) from gy
+            draw 1
         }
     }
 
@@ -24,7 +26,7 @@ card "Danger! Chupacabra!" {
         optional: true
         trigger: when_sent_to gy
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

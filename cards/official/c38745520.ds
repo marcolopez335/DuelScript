@@ -1,0 +1,27 @@
+// Dracoback, the Rideable Dragon
+// Transpiled from c38745520.lua
+
+card "Dracoback, the Rideable Dragon" {
+    password: 38745520
+    type: Equip Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            equip (1, card) to (1, monster)
+        }
+    }
+
+}

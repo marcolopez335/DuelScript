@@ -1,5 +1,5 @@
 // Earthbound Prisoner Line Walker
-// Migrated from c19322865.lua
+// Transpiled from c19322865.lua
 
 card "Earthbound Prisoner Line Walker" {
     password: 19322865
@@ -16,19 +16,19 @@ card "Earthbound Prisoner Line Walker" {
         optional: true
         trigger: when_summoned
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
+        once_per_turn: soft
         cost {
             banish self
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            return (1, card) to deck shuffle
+            special_summon (1, monster) from gy
         }
     }
 

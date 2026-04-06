@@ -1,0 +1,40 @@
+// Krishnerd Witch
+// Transpiled from c37006702.lua
+
+card "Krishnerd Witch" {
+    password: 37006702
+    type: Effect Monster
+    attribute: LIGHT
+    race: Spellcaster
+    level: 4
+    atk: 1800
+    def: 700
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_leaves_field
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

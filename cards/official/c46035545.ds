@@ -1,0 +1,55 @@
+// D/D Savant Nikola
+// Transpiled from c46035545.lua
+
+card "D/D Savant Nikola" {
+    password: 46035545
+    type: Pendulum Monster
+    attribute: DARK
+    race: Fiend
+    level: 6
+    scale: 8
+    atk: 2000
+    def: 2000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: when_destroyed
+        on_resolve {
+            add_to_hand (1, card) from gy
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 5" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,0 +1,39 @@
+// Brotherhood of the Fire Fist - Panda
+// Transpiled from c35488287.lua
+
+card "Brotherhood of the Fire Fist - Panda" {
+    password: 35488287
+    type: Effect Monster
+    attribute: FIRE
+    race: Beast-Warrior
+    level: 5
+    atk: 2100
+    def: 400
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            special_summon (1, monster) from gy
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

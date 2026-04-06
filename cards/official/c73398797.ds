@@ -1,0 +1,41 @@
+// Paladin of White Dragon
+// Transpiled from c73398797.lua
+
+card "Paladin of White Dragon" {
+    password: 73398797
+    type: Ritual Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 4
+    atk: 1900
+    def: 1200
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        cost {
+            tribute self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

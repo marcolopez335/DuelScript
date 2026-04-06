@@ -1,0 +1,48 @@
+// Batteryman Solar
+// Transpiled from c44586426.lua
+
+card "Batteryman Solar" {
+    password: 44586426
+    type: Effect Monster
+    attribute: LIGHT
+    race: Thunder
+    level: 4
+    atk: 1500
+    def: 1500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: when_summoned
+        on_resolve {
+            create_token { atk: 0 def: 0 }
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

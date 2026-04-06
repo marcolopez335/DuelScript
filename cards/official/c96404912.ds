@@ -1,5 +1,5 @@
 // Recall
-// Migrated from c96404912.lua
+// Transpiled from c96404912.lua
 
 card "Recall" {
     password: 96404912
@@ -9,9 +9,8 @@ card "Recall" {
         speed: spell_speed_1
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
-            draw 2 // TODO: verify count
-            destroy (1, card, opponent controls) // TODO: verify target
-            negate activation and destroy
+            negate activation
+            destroy (1+, card, either_player controls)
         }
     }
 

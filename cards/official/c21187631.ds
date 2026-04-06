@@ -1,5 +1,5 @@
 // Altergeist Dragvirion
-// Migrated from c21187631.lua
+// Transpiled from c21187631.lua
 
 card "Altergeist Dragvirion" {
     password: 21187631
@@ -9,12 +9,6 @@ card "Altergeist Dragvirion" {
     level: 6
     atk: 2200
     def: 1200
-
-    materials {
-        require: 1 tuner monster
-        require: 1+ non-tuner monster
-        method: synchro
-    }
 
     summon_condition {
         cannot_normal_summon: true
@@ -32,11 +26,12 @@ card "Altergeist Dragvirion" {
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        damage_step: true
         trigger: when_sent_to gy
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

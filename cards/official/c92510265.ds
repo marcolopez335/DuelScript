@@ -1,5 +1,5 @@
 // Black Luster Soldier - Sacred Soldier
-// Migrated from c92510265.lua
+// Transpiled from c92510265.lua
 
 card "Black Luster Soldier - Sacred Soldier" {
     password: 92510265
@@ -14,9 +14,11 @@ card "Black Luster Soldier - Sacred Soldier" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        damage_step: true
         trigger: when_summoned
         on_resolve {
-            banish (1, card) // TODO: verify
+            send (1, card) to gy
+            banish (1+, card)
         }
     }
 
@@ -24,7 +26,7 @@ card "Black Luster Soldier - Sacred Soldier" {
         speed: spell_speed_1
         optional: true
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

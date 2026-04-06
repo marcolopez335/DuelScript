@@ -1,5 +1,5 @@
 // Gameciel, the Sea Turtle Kaiju
-// Migrated from c55063751.lua
+// Transpiled from c55063751.lua
 
 card "Gameciel, the Sea Turtle Kaiju" {
     password: 55063751
@@ -13,9 +13,11 @@ card "Gameciel, the Sea Turtle Kaiju" {
     effect "Effect 1" {
         speed: spell_speed_2
         optional: true
+        damage_step: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
             negate activation
+            banish (1+, card)
         }
     }
 

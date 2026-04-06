@@ -1,0 +1,35 @@
+// Virtual World Beast - Jiujiu
+// Transpiled from c35252119.lua
+
+card "Virtual World Beast - Jiujiu" {
+    password: 35252119
+    type: Synchro Monster
+    attribute: WIND
+    race: Psychic
+    level: 6
+    atk: 2400
+    def: 1700
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            banish self
+        }
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+}

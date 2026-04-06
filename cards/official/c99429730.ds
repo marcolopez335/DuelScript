@@ -1,0 +1,30 @@
+// Sylvan Guardioak
+// Transpiled from c99429730.lua
+
+card "Sylvan Guardioak" {
+    password: 99429730
+    type: Effect Monster
+    attribute: EARTH
+    race: Plant
+    level: 6
+    atk: 2400
+    def: 1500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+}

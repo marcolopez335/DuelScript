@@ -1,0 +1,38 @@
+// Performapal Bit Bite Turtle
+// Transpiled from c89113320.lua
+
+card "Performapal Bit Bite Turtle" {
+    password: 89113320
+    type: Pendulum Monster
+    attribute: WATER
+    race: Reptile
+    level: 3
+    scale: 3
+    atk: 800
+    def: 1200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            shuffle deck
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_battle_destroyed
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

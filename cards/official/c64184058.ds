@@ -1,0 +1,56 @@
+// Destiny HERO - Decider
+// Transpiled from c64184058.lua
+
+card "Destiny HERO - Decider" {
+    password: 64184058
+    type: Effect Monster
+    attribute: DARK
+    race: Warrior
+    level: 4
+    atk: 1600
+    def: 1000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        damage_step: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 5" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

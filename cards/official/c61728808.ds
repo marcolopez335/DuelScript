@@ -1,0 +1,43 @@
+// Heavymetalfoes Amalgam
+// Transpiled from c61728808.lua
+
+card "Heavymetalfoes Amalgam" {
+    password: 61728808
+    type: Link Monster
+    attribute: FIRE
+    race: Psychic
+    link: 2
+    atk: 2000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            equip (1, card) to (1, monster)
+            destroy (1+, card, either_player controls)
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

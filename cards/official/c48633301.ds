@@ -1,0 +1,31 @@
+// T.G. Booster Raptor
+// Transpiled from c48633301.lua
+
+card "T.G. Booster Raptor" {
+    password: 48633301
+    type: Effect Monster
+    attribute: WIND
+    race: Dinosaur
+    level: 1
+    atk: 400
+    def: 300
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_sent_to gy
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: during_end_phase
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

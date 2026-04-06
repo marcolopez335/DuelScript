@@ -1,0 +1,39 @@
+// Blackwing - Shamal the Sandstorm
+// Transpiled from c8571567.lua
+
+card "Blackwing - Shamal the Sandstorm" {
+    password: 8571567
+    type: Effect Monster | Tuner
+    attribute: DARK
+    race: Winged Beast
+    level: 4
+    atk: 1600
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand, monster_zone]
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_summoned by_special_summon
+        cost {
+            banish self
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+            deal_damage to opponent: 700
+        }
+    }
+
+}

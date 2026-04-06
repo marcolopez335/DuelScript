@@ -1,0 +1,47 @@
+// Cloudcastle
+// Transpiled from c9348522.lua
+
+card "Cloudcastle" {
+    password: 9348522
+    type: Synchro Monster
+    attribute: WIND
+    race: Machine
+    level: 9
+    atk: 0
+    def: 3000
+
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: when_summoned
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,0 +1,44 @@
+// Argostars - Home Stadium
+// Transpiled from c2674965.lua
+
+card "Argostars - Home Stadium" {
+    password: 2674965
+    type: Field Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            pay_lp 1000
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            deal_damage to opponent: 500
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            negate effect
+        }
+    }
+
+}

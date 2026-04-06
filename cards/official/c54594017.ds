@@ -1,5 +1,5 @@
 // Blackwing - Sharnga the Waning Moon
-// Migrated from c54594017.lua
+// Transpiled from c54594017.lua
 
 card "Blackwing - Sharnga the Waning Moon" {
     password: 54594017
@@ -12,14 +12,13 @@ card "Blackwing - Sharnga the Waning Moon" {
 
     effect "Effect 2" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
-        condition: in_gy
         cost {
             banish self
         }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

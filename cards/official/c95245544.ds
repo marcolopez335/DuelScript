@@ -1,5 +1,5 @@
 // Witchcrafter Pittore
-// Migrated from c95245544.lua
+// Transpiled from c95245544.lua
 
 card "Witchcrafter Pittore" {
     password: 95245544
@@ -15,19 +15,21 @@ card "Witchcrafter Pittore" {
         once_per_turn: hard
         optional: true
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
+        once_per_turn: soft
         cost {
             banish self
         }
         on_resolve {
-            draw 2 // TODO: verify count
+            draw 1
+            shuffle deck
+            send (1, card) to gy
+            banish (1+, card)
         }
     }
 

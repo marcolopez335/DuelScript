@@ -1,0 +1,37 @@
+// Noble Arms - Clarent
+// Transpiled from c41359411.lua
+
+card "Noble Arms - Clarent" {
+    password: 41359411
+    type: Equip Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            pay_lp 1000
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            equip (1, card) to (1, monster)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

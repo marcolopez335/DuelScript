@@ -1,0 +1,41 @@
+// Keeper of Dragon Magic
+// Transpiled from c48048590.lua
+
+card "Keeper of Dragon Magic" {
+    password: 48048590
+    type: Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 4
+    atk: 1800
+    def: 1300
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned
+        cost {
+            discard (1, card)
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // Goblin Out of the Frying Pan
-// Migrated from c69632396.lua
+// Transpiled from c69632396.lua
 
 card "Goblin Out of the Frying Pan" {
     password: 69632396
@@ -9,10 +9,11 @@ card "Goblin Out of the Frying Pan" {
         speed: spell_speed_1
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         cost {
-            pay_lp 1000 // TODO: verify amount
+            pay_lp 1000
         }
         on_resolve {
             negate activation
+            add_to_hand (1, card) from gy
         }
     }
 

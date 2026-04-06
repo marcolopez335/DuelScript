@@ -1,0 +1,49 @@
+// Maliss <P> Chessy Cat
+// Transpiled from c96676583.lua
+
+card "Maliss <P> Chessy Cat" {
+    password: 96676583
+    type: Effect Monster
+    attribute: DARK
+    race: Cyberse
+    level: 3
+    atk: 1500
+    def: 300
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            banish (1+, card)
+            draw 2
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_banished
+        cost {
+            pay_lp 1000
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,0 +1,31 @@
+// Wightmare
+// Transpiled from c22339232.lua
+
+card "Wightmare" {
+    password: 22339232
+    type: Effect Monster
+    attribute: DARK
+    race: Zombie
+    level: 1
+    atk: 300
+    def: 200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        cost {
+            discard self
+        }
+        on_resolve {
+            send (1, card) to gy
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

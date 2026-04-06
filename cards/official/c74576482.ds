@@ -1,0 +1,33 @@
+// Koa'ki Meiru Sea Panther
+// Transpiled from c74576482.lua
+
+card "Koa'ki Meiru Sea Panther" {
+    password: 74576482
+    type: Effect Monster
+    attribute: WATER
+    race: Sea Serpent
+    level: 4
+    atk: 1900
+    def: 1200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+}

@@ -1,0 +1,32 @@
+// Super Soldier Shield
+// Transpiled from c799183.lua
+
+card "Super Soldier Shield" {
+    password: 799183
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            negate activation
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        on_resolve {
+            set (1, card)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

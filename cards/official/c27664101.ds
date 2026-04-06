@@ -1,5 +1,5 @@
 // Link Restart
-// Migrated from c27664101.lua
+// Transpiled from c27664101.lua
 
 card "Link Restart" {
     password: 27664101
@@ -7,10 +7,11 @@ card "Link Restart" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        damage_step: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
             negate activation
+            special_summon (1, monster) from gy
         }
     }
 

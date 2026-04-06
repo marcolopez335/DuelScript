@@ -1,5 +1,5 @@
 // Gambler of Legend
-// Migrated from c2196767.lua
+// Transpiled from c2196767.lua
 
 card "Gambler of Legend" {
     password: 2196767
@@ -12,9 +12,12 @@ card "Gambler of Legend" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            send (1, card) to gy
+            destroy (1+, card, either_player controls)
+            send (1, card) to gy
         }
     }
 

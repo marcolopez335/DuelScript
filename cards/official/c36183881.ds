@@ -1,5 +1,5 @@
 // Majespecter Tornado
-// Migrated from c36183881.lua
+// Transpiled from c36183881.lua
 
 card "Majespecter Tornado" {
     password: 36183881
@@ -7,8 +7,11 @@ card "Majespecter Tornado" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        cost {
+            tribute self
+        }
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 

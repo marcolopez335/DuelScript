@@ -1,5 +1,5 @@
 // Dragunity Knight - Ascalon
-// Migrated from c48891960.lua
+// Transpiled from c48891960.lua
 
 card "Dragunity Knight - Ascalon" {
     password: 48891960
@@ -22,8 +22,11 @@ card "Dragunity Knight - Ascalon" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        cost {
+            banish self
+        }
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 
@@ -33,7 +36,7 @@ card "Dragunity Knight - Ascalon" {
         optional: true
         trigger: when_destroyed
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

@@ -1,5 +1,5 @@
 // Realm Eulogy
-// Migrated from c54851325.lua
+// Transpiled from c54851325.lua
 
 card "Realm Eulogy" {
     password: 54851325
@@ -9,19 +9,19 @@ card "Realm Eulogy" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            negate effect
+            destroy (1+, card, either_player controls)
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
+        once_per_turn: soft
         cost {
             banish self
         }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

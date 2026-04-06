@@ -1,5 +1,5 @@
 // Krawler Spine
-// Migrated from c88316955.lua
+// Transpiled from c88316955.lua
 
 card "Krawler Spine" {
     password: 88316955
@@ -15,16 +15,18 @@ card "Krawler Spine" {
         once_per_turn: hard
         optional: true
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        damage_step: true
+        trigger: when_leaves_field
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

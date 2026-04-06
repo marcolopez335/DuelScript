@@ -1,5 +1,5 @@
 // Aether, the Evil Empowering Dragon
-// Migrated from c28865322.lua
+// Transpiled from c28865322.lua
 
 card "Aether, the Evil Empowering Dragon" {
     password: 28865322
@@ -13,18 +13,22 @@ card "Aether, the Evil Empowering Dragon" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
+        cost {
+            banish self
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
         optional: true
+        damage_step: true
         trigger: when_summoned
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 

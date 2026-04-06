@@ -1,0 +1,37 @@
+// Knight of Armor Dragon
+// Transpiled from c75901113.lua
+
+card "Knight of Armor Dragon" {
+    password: 75901113
+    type: Ritual Monster
+    attribute: WIND
+    race: Dragon
+    level: 4
+    atk: 1900
+    def: 1200
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            tribute self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

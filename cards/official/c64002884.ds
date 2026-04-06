@@ -1,0 +1,29 @@
+// Simorgh Repulsion
+// Transpiled from c64002884.lua
+
+card "Simorgh Repulsion" {
+    password: 64002884
+    type: Normal Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            discard (1, card)
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        cost {
+            banish self
+        }
+        on_resolve {
+            shuffle deck
+        }
+    }
+
+}

@@ -1,0 +1,33 @@
+// SPYRAL GEAR - Fully Armed
+// Transpiled from c73828446.lua
+
+card "SPYRAL GEAR - Fully Armed" {
+    password: 73828446
+    type: Equip Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

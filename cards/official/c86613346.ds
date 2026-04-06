@@ -1,5 +1,5 @@
 // Starry Knight Flamel
-// Migrated from c86613346.lua
+// Transpiled from c86613346.lua
 
 card "Starry Knight Flamel" {
     password: 86613346
@@ -14,12 +14,13 @@ card "Starry Knight Flamel" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        activate_from: [hand, monster_zone]
         trigger: when attack_declared
         cost {
             send self to gy
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
@@ -27,12 +28,11 @@ card "Starry Knight Flamel" {
         speed: spell_speed_2
         once_per_turn: hard
         optional: true
-        condition: in_gy
         cost {
             banish self
         }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

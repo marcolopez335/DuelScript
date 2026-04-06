@@ -1,5 +1,5 @@
 // The Three Brave Swordsouls
-// Migrated from c74405783.lua
+// Transpiled from c74405783.lua
 
 card "The Three Brave Swordsouls" {
     password: 74405783
@@ -9,12 +9,6 @@ card "The Three Brave Swordsouls" {
     level: 8
     atk: 2500
     def: 2500
-
-    materials {
-        require: 1 tuner monster
-        require: 1+ non-tuner monster
-        method: synchro
-    }
 
     summon_condition {
         cannot_normal_summon: true
@@ -26,15 +20,15 @@ card "The Three Brave Swordsouls" {
         optional: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            negate effect
+            destroy (1+, card, either_player controls)
         }
     }
 

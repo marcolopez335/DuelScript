@@ -1,5 +1,5 @@
 // Crystal Abundance
-// Migrated from c72881007.lua
+// Transpiled from c72881007.lua
 
 card "Crystal Abundance" {
     password: 72881007
@@ -7,8 +7,12 @@ card "Crystal Abundance" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        cost {
+            send self to gy
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            send (1, card) to gy
+            special_summon (1, monster) from gy
         }
     }
 

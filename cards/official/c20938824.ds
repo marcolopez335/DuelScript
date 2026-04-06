@@ -1,0 +1,43 @@
+// Maliss <P> March Hare
+// Transpiled from c20938824.lua
+
+card "Maliss <P> March Hare" {
+    password: 20938824
+    type: Effect Monster
+    attribute: DARK
+    race: Cyberse
+    level: 3
+    atk: 600
+    def: 300
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            banish (1+, card)
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_banished
+        cost {
+            pay_lp 1000
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

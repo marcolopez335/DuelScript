@@ -1,0 +1,62 @@
+// Dark Requiem Xyz Dragon
+// Transpiled from c1621413.lua
+
+card "Dark Requiem Xyz Dragon" {
+    password: 1621413
+    type: Xyz Monster
+    attribute: DARK
+    race: Dragon
+    rank: 5
+    atk: 3000
+    def: 2500
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        damage_step: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            negate activation
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

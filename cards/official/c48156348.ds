@@ -1,5 +1,5 @@
 // Gladiator Beast Gyzarus
-// Migrated from c48156348.lua
+// Transpiled from c48156348.lua
 
 card "Gladiator Beast Gyzarus" {
     password: 48156348
@@ -10,11 +10,6 @@ card "Gladiator Beast Gyzarus" {
     atk: 2400
     def: 1500
 
-    materials {
-        require: 2+ monster
-        method: fusion
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -22,9 +17,10 @@ card "Gladiator Beast Gyzarus" {
     effect "Effect 1" {
         speed: spell_speed_1
         optional: true
+        damage_step: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
@@ -32,7 +28,7 @@ card "Gladiator Beast Gyzarus" {
         speed: spell_speed_1
         optional: true
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

@@ -1,0 +1,32 @@
+// D.D. Patrol Plane
+// Transpiled from c75991479.lua
+
+card "D.D. Patrol Plane" {
+    password: 75991479
+    type: Effect Monster
+    attribute: DARK
+    race: Machine
+    level: 3
+    atk: 1200
+    def: 800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_banished
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: during_end_phase
+        on_resolve {
+            banish (1+, card)
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

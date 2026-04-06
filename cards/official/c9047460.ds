@@ -1,0 +1,40 @@
+// Blackwing - Steam the Cloak
+// Transpiled from c9047460.lua
+
+card "Blackwing - Steam the Cloak" {
+    password: 9047460
+    type: Effect Monster | Tuner
+    attribute: DARK
+    race: Winged Beast
+    level: 3
+    atk: 800
+    def: 1200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_leaves_field
+        on_resolve {
+            create_token { atk: 0 def: 0 }
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            tribute self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

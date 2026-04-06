@@ -1,5 +1,5 @@
 // Gate Guardians Combined
-// Migrated from c8505920.lua
+// Transpiled from c8505920.lua
 
 card "Gate Guardians Combined" {
     password: 8505920
@@ -9,11 +9,6 @@ card "Gate Guardians Combined" {
     level: 12
     atk: 3750
     def: 3400
-
-    materials {
-        require: 2+ monster
-        method: fusion
-    }
 
     summon_condition {
         cannot_normal_summon: true
@@ -26,14 +21,16 @@ card "Gate Guardians Combined" {
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
             negate effect
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
         optional: true
+        trigger: when_leaves_field
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

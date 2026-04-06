@@ -1,5 +1,5 @@
 // Ursarctic Departure
-// Migrated from c16471775.lua
+// Transpiled from c16471775.lua
 
 card "Ursarctic Departure" {
     password: 16471775
@@ -9,19 +9,18 @@ card "Ursarctic Departure" {
         speed: spell_speed_1
         once_per_turn: hard
         cost {
-            discard self
+            discard (1, card)
         }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
+        once_per_turn: soft
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 

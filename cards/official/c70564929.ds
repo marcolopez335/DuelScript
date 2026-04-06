@@ -1,0 +1,35 @@
+// Abyss Script - Abysstainment
+// Transpiled from c70564929.lua
+
+card "Abyss Script - Abysstainment" {
+    password: 70564929
+    type: Continuous Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            tribute self
+        }
+        on_resolve {
+            set (1, card)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

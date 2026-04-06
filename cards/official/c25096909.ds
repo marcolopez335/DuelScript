@@ -1,5 +1,5 @@
 // Simultaneous Equation Cannons
-// Migrated from c25096909.lua
+// Transpiled from c25096909.lua
 
 card "Simultaneous Equation Cannons" {
     password: 25096909
@@ -8,7 +8,9 @@ card "Simultaneous Equation Cannons" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
+            return (1, card) to deck shuffle
+            banish (1+, card)
         }
     }
 

@@ -1,0 +1,37 @@
+// Silent Wobby
+// Transpiled from c71015787.lua
+
+card "Silent Wobby" {
+    password: 71015787
+    type: Effect Monster
+    attribute: WATER
+    race: Fish
+    level: 4
+    atk: 1000
+    def: 2000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            draw 1
+            gain_lp: 2000
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

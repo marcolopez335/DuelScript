@@ -1,0 +1,56 @@
+// Gunkan Suship Ikura-class Dreadnought
+// Transpiled from c75215744.lua
+
+card "Gunkan Suship Ikura-class Dreadnought" {
+    password: 75215744
+    type: Xyz Monster
+    attribute: FIRE
+    race: Aqua
+    rank: 4
+    atk: 2200
+    def: 300
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            draw 1
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

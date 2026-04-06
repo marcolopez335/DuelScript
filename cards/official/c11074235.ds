@@ -1,0 +1,32 @@
+// Mana Dragon Zirnitron
+// Transpiled from c11074235.lua
+
+card "Mana Dragon Zirnitron" {
+    password: 11074235
+    type: Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 6
+    atk: 2200
+    def: 1200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        activate_from: [hand, gy]
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+            set (1, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

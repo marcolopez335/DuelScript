@@ -1,0 +1,33 @@
+// Harpie Lady Elegance
+// Transpiled from c65664792.lua
+
+card "Harpie Lady Elegance" {
+    password: 65664792
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            return (1, card) to deck shuffle
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: when_destroyed
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

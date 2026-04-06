@@ -1,0 +1,38 @@
+// Giant Rex
+// Transpiled from c80280944.lua
+
+card "Giant Rex" {
+    password: 80280944
+    type: Effect Monster
+    attribute: EARTH
+    race: Dinosaur
+    level: 4
+    atk: 2000
+    def: 1200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: when_banished
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

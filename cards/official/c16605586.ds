@@ -1,0 +1,33 @@
+// Destiny HERO - Denier
+// Transpiled from c16605586.lua
+
+card "Destiny HERO - Denier" {
+    password: 16605586
+    type: Effect Monster
+    attribute: DARK
+    race: Warrior
+    level: 3
+    atk: 1100
+    def: 600
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: when_summoned
+        on_resolve {
+            shuffle deck
+            return (1, card) to deck shuffle
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

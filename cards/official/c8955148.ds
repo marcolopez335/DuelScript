@@ -1,5 +1,5 @@
 // Litmus Doom Ritual
-// Migrated from c8955148.lua
+// Transpiled from c8955148.lua
 
 card "Litmus Doom Ritual" {
     password: 8955148
@@ -8,9 +8,10 @@ card "Litmus Doom Ritual" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
-        condition: in_gy
         on_resolve {
-            draw 2 // TODO: verify count
+            return (1, card) to deck shuffle
+            shuffle deck
+            draw 1
         }
     }
 

@@ -1,5 +1,5 @@
 // Dual Avatar Fists - Yuhi
-// Migrated from c85360035.lua
+// Transpiled from c85360035.lua
 
 card "Dual Avatar Fists - Yuhi" {
     password: 85360035
@@ -14,17 +14,19 @@ card "Dual Avatar Fists - Yuhi" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
-        condition: in_gy
+        damage_step: true
+        trigger: when_leaves_field
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

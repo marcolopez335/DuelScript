@@ -1,0 +1,33 @@
+// Sylvan Cherubsprout
+// Transpiled from c10753491.lua
+
+card "Sylvan Cherubsprout" {
+    password: 10753491
+    type: Effect Monster
+    attribute: LIGHT
+    race: Plant
+    level: 1
+    atk: 100
+    def: 100
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

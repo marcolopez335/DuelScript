@@ -1,0 +1,42 @@
+// Amazoness Princess
+// Transpiled from c84539520.lua
+
+card "Amazoness Princess" {
+    password: 84539520
+    type: Effect Monster
+    attribute: EARTH
+    race: Warrior
+    level: 3
+    atk: 1200
+    def: 900
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when attack_declared
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

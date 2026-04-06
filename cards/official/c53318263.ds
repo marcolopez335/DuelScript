@@ -1,0 +1,33 @@
+// Bahalutiya, the Grand Radiance
+// Transpiled from c53318263.lua
+
+card "Bahalutiya, the Grand Radiance" {
+    password: 53318263
+    type: Effect Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 7
+    atk: 2000
+    def: 2400
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            banish (1+, card)
+            return (1, card) to deck shuffle
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

@@ -1,0 +1,45 @@
+// Speedroid Hexasaucer
+// Transpiled from c23792058.lua
+
+card "Speedroid Hexasaucer" {
+    password: 23792058
+    type: Pendulum Monster
+    attribute: WIND
+    race: Machine
+    level: 4
+    scale: 6
+    atk: 100
+    def: 1600
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

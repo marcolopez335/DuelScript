@@ -1,0 +1,29 @@
+// Valkyrian Knight
+// Transpiled from c99348756.lua
+
+card "Valkyrian Knight" {
+    password: 99348756
+    type: Effect Monster
+    attribute: FIRE
+    race: Warrior
+    level: 4
+    atk: 1900
+    def: 1200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_battle_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

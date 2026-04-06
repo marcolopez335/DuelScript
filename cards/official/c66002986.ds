@@ -1,5 +1,5 @@
 // Speedroid Clear Wing Wonder
-// Migrated from c66002986.lua
+// Transpiled from c66002986.lua
 
 card "Speedroid Clear Wing Wonder" {
     password: 66002986
@@ -9,21 +9,20 @@ card "Speedroid Clear Wing Wonder" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_summoned by_special_summon
-        condition: in_gy
         cost {
             banish self
         }
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 

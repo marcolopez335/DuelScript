@@ -1,0 +1,34 @@
+// Curse of Dragon, the Magical Knight Dragon
+// Transpiled from c72064891.lua
+
+card "Curse of Dragon, the Magical Knight Dragon" {
+    password: 72064891
+    type: Fusion Monster
+    attribute: DARK
+    race: Dragon
+    level: 5
+    atk: 2000
+    def: 1500
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

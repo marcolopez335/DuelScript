@@ -1,5 +1,5 @@
 // Carpiponica, Mystical Beast of the Forest
-// Migrated from c85055821.lua
+// Transpiled from c85055821.lua
 
 card "Carpiponica, Mystical Beast of the Forest" {
     password: 85055821
@@ -14,19 +14,22 @@ card "Carpiponica, Mystical Beast of the Forest" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        damage_step: true
         trigger: when_sent_to gy
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            return (1, card) to deck shuffle
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        damage_step: true
         trigger: when_summoned
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

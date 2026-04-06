@@ -1,0 +1,33 @@
+// Metalfoes Orichalc
+// Transpiled from c28016193.lua
+
+card "Metalfoes Orichalc" {
+    password: 28016193
+    type: Fusion Monster
+    attribute: FIRE
+    race: Psychic
+    level: 8
+    atk: 2800
+    def: 2200
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

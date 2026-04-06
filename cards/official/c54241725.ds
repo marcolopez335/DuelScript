@@ -1,0 +1,37 @@
+// The Prime Monarch
+// Transpiled from c54241725.lua
+
+card "The Prime Monarch" {
+    password: 54241725
+    type: Continuous Trap
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        on_resolve {
+            return (1, card) to deck shuffle
+            shuffle deck
+            draw 1
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        cost {
+            banish self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // Fire King Avatar Rangbali
-// Migrated from c38910263.lua
+// Transpiled from c38910263.lua
 
 card "Fire King Avatar Rangbali" {
     password: 38910263
@@ -16,18 +16,19 @@ card "Fire King Avatar Rangbali" {
         optional: true
         trigger: when_destroyed
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        damage_step: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            negate activation and destroy
+            negate activation
+            destroy (1+, card, either_player controls)
         }
     }
 

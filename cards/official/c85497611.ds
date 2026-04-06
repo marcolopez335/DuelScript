@@ -1,5 +1,5 @@
 // Odd-Eyes Wizard Dragon
-// Migrated from c85497611.lua
+// Transpiled from c85497611.lua
 
 card "Odd-Eyes Wizard Dragon" {
     password: 85497611
@@ -12,8 +12,12 @@ card "Odd-Eyes Wizard Dragon" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        cost {
+            tribute self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            send (1, card) to gy
+            special_summon (1, monster) from gy
         }
     }
 
@@ -22,7 +26,8 @@ card "Odd-Eyes Wizard Dragon" {
         optional: true
         trigger: when_sent_to gy
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
+            add_to_hand (1, card) from gy
         }
     }
 

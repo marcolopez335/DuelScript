@@ -1,0 +1,48 @@
+// Arcanite Magician/Assault Mode
+// Transpiled from c14553285.lua
+
+card "Arcanite Magician/Assault Mode" {
+    password: 14553285
+    type: Effect Monster | Spirit
+    attribute: LIGHT
+    race: Spellcaster
+    level: 9
+    atk: 900
+    def: 2300
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

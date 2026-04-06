@@ -1,0 +1,29 @@
+// Jade Knight
+// Transpiled from c44364207.lua
+
+card "Jade Knight" {
+    password: 44364207
+    type: Effect Monster
+    attribute: LIGHT
+    race: Machine
+    level: 4
+    atk: 1000
+    def: 1800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_battle_destroyed
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

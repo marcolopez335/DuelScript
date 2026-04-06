@@ -1,0 +1,45 @@
+// Wizard Buster Destruction Sword
+// Transpiled from c2602411.lua
+
+card "Wizard Buster Destruction Sword" {
+    password: 2602411
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 3
+    atk: 1200
+    def: 900
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        activate_from: [hand, monster_zone]
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

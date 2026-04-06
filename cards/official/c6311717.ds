@@ -1,5 +1,5 @@
 // Fortune Fairy Hikari
-// Migrated from c6311717.lua
+// Transpiled from c6311717.lua
 
 card "Fortune Fairy Hikari" {
     password: 6311717
@@ -14,18 +14,20 @@ card "Fortune Fairy Hikari" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        damage_step: true
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            send (1, card) to gy
+            special_summon (1, monster) from gy
         }
     }
 

@@ -1,0 +1,43 @@
+// Scarred Dragon Archfiend
+// Transpiled from c87451661.lua
+
+card "Scarred Dragon Archfiend" {
+    password: 87451661
+    type: Synchro Monster
+    attribute: DARK
+    race: Dragon
+    level: 8
+    atk: 3000
+    def: 2500
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: when_used_as_material
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

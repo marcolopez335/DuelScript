@@ -1,0 +1,40 @@
+// Onomatokage
+// Transpiled from c55088578.lua
+
+card "Onomatokage" {
+    password: 55088578
+    type: Effect Monster
+    attribute: DARK
+    race: Reptile
+    level: 4
+    atk: 1100
+    def: 1500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand, gy]
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            banish self
+        }
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

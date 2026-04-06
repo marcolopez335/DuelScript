@@ -1,0 +1,30 @@
+// Iron Knight
+// Transpiled from c73405179.lua
+
+card "Iron Knight" {
+    password: 73405179
+    type: Effect Monster
+    attribute: EARTH
+    race: Warrior
+    level: 4
+    atk: 1700
+    def: 700
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

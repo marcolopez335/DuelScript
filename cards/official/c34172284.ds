@@ -1,0 +1,43 @@
+// Aron, the Ogdoadic King
+// Transpiled from c34172284.lua
+
+card "Aron, the Ogdoadic King" {
+    password: 34172284
+    type: Effect Monster
+    attribute: LIGHT
+    race: Reptile
+    level: 8
+    atk: 2500
+    def: 2800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            tribute self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

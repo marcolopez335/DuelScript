@@ -1,0 +1,35 @@
+// Rock Band Xenoguitar
+// Transpiled from c36187051.lua
+
+card "Rock Band Xenoguitar" {
+    password: 36187051
+    type: Effect Monster
+    attribute: EARTH
+    race: Rock
+    level: 4
+    atk: 1000
+    def: 2000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            add_to_hand (1, card) from gy
+            return (1, card) to deck shuffle
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_banished
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+}

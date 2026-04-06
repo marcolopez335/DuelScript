@@ -1,0 +1,33 @@
+// Fool of Prophecy
+// Transpiled from c63175639.lua
+
+card "Fool of Prophecy" {
+    password: 63175639
+    type: Effect Monster
+    attribute: EARTH
+    race: Spellcaster
+    level: 3
+    atk: 1600
+    def: 900
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: during_end_phase
+        cost {
+            tribute self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

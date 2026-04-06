@@ -1,5 +1,5 @@
 // Throwstone Unit
-// Migrated from c76075810.lua
+// Transpiled from c76075810.lua
 
 card "Throwstone Unit" {
     password: 76075810
@@ -12,8 +12,11 @@ card "Throwstone Unit" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        cost {
+            tribute self
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

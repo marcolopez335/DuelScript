@@ -1,5 +1,5 @@
 // Ignoble Knight of Black Laundsallyn
-// Migrated from c95772051.lua
+// Transpiled from c95772051.lua
 
 card "Ignoble Knight of Black Laundsallyn" {
     password: 95772051
@@ -12,17 +12,23 @@ card "Ignoble Knight of Black Laundsallyn" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        condition: in_gy
+        activate_from: [hand, gy]
+        cost {
+            send self to gy
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
         once_per_turn: hard
+        cost {
+            tribute self
+        }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

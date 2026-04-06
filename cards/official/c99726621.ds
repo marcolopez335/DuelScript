@@ -1,5 +1,5 @@
 // Tri-Brigade Shuraig the Ominous Omen
-// Migrated from c99726621.lua
+// Transpiled from c99726621.lua
 
 card "Tri-Brigade Shuraig the Ominous Omen" {
     password: 99726621
@@ -9,11 +9,6 @@ card "Tri-Brigade Shuraig the Ominous Omen" {
     link: 4
     atk: 3000
 
-    materials {
-        require: 2+ effect monster
-        method: link
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -22,9 +17,10 @@ card "Tri-Brigade Shuraig the Ominous Omen" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        damage_step: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 
@@ -32,19 +28,21 @@ card "Tri-Brigade Shuraig the Ominous Omen" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        damage_step: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 
     effect "Effect 3" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        damage_step: true
         trigger: when_sent_to gy
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

@@ -1,5 +1,5 @@
 // Catoblepas and the Witch of Fate
-// Migrated from c54360049.lua
+// Transpiled from c54360049.lua
 
 card "Catoblepas and the Witch of Fate" {
     password: 54360049
@@ -14,8 +14,11 @@ card "Catoblepas and the Witch of Fate" {
         speed: spell_speed_1
         optional: true
         trigger: when_summoned by_special_summon
+        cost {
+            banish self
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

@@ -1,5 +1,5 @@
 // Meklord Factory
-// Migrated from c77864539.lua
+// Transpiled from c77864539.lua
 
 card "Meklord Factory" {
     password: 77864539
@@ -9,7 +9,8 @@ card "Meklord Factory" {
         speed: spell_speed_1
         trigger: when_attacked
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            add_to_hand (1, card) from gy
+            destroy (1+, card, either_player controls)
         }
     }
 

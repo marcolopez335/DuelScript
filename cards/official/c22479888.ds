@@ -1,5 +1,5 @@
 // Clay Charge
-// Migrated from c22479888.lua
+// Transpiled from c22479888.lua
 
 card "Clay Charge" {
     password: 22479888
@@ -9,7 +9,8 @@ card "Clay Charge" {
         speed: spell_speed_1
         trigger: when_attacked
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 800
         }
     }
 

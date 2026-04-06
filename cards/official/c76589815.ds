@@ -1,0 +1,49 @@
+// Battlin' Boxer Cheat Commissioner
+// Transpiled from c76589815.lua
+
+card "Battlin' Boxer Cheat Commissioner" {
+    password: 76589815
+    type: Xyz Monster
+    attribute: FIRE
+    race: Warrior
+    rank: 3
+    atk: 0
+    def: 1300
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when attack_declared
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            set (1, card)
+        }
+    }
+
+}

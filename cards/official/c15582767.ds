@@ -1,0 +1,25 @@
+// Echo Oscillation
+// Transpiled from c15582767.lua
+
+card "Echo Oscillation" {
+    password: 15582767
+    type: Continuous Trap
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            draw 1
+        }
+    }
+
+}

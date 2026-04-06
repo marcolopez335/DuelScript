@@ -1,5 +1,5 @@
 // Blast Held by a Tribute
-// Migrated from c89041555.lua
+// Transpiled from c89041555.lua
 
 card "Blast Held by a Tribute" {
     password: 89041555
@@ -9,7 +9,8 @@ card "Blast Held by a Tribute" {
         speed: spell_speed_1
         trigger: when attack_declared
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 1000
         }
     }
 

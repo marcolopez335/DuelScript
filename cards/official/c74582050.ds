@@ -1,5 +1,5 @@
 // Dinomist Eruption
-// Migrated from c74582050.lua
+// Transpiled from c74582050.lua
 
 card "Dinomist Eruption" {
     password: 74582050
@@ -7,9 +7,10 @@ card "Dinomist Eruption" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        damage_step: true
         trigger: when_destroyed
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

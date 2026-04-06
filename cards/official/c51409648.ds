@@ -1,5 +1,5 @@
 // Rindbrumm the Striking Dragon
-// Migrated from c51409648.lua
+// Transpiled from c51409648.lua
 
 card "Rindbrumm the Striking Dragon" {
     password: 51409648
@@ -9,11 +9,6 @@ card "Rindbrumm the Striking Dragon" {
     level: 8
     atk: 2500
     def: 2000
-
-    materials {
-        require: 2+ monster
-        method: fusion
-    }
 
     summon_condition {
         cannot_normal_summon: true
@@ -26,16 +21,17 @@ card "Rindbrumm the Striking Dragon" {
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
             negate effect
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
-        condition: in_gy
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
+            banish (1+, card)
         }
     }
 

@@ -1,5 +1,5 @@
 // Red Dragon Archfiend
-// Migrated from c70902743.lua
+// Transpiled from c70902743.lua
 
 card "Red Dragon Archfiend" {
     password: 70902743
@@ -23,16 +23,16 @@ card "Red Dragon Archfiend" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_end_phase
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

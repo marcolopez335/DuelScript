@@ -1,0 +1,47 @@
+// Alsei, the Sylvan High Protector
+// Transpiled from c10406322.lua
+
+card "Alsei, the Sylvan High Protector" {
+    password: 10406322
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Plant
+    rank: 8
+    atk: 2300
+    def: 3200
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            add_to_hand (1, card) from gy
+            shuffle deck
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_sent_to gy
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            return (1, card) to deck shuffle
+            return (1, card) to deck shuffle
+        }
+    }
+
+}

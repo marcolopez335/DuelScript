@@ -1,0 +1,46 @@
+// Imperion Magnum the Superconductive Battlebot
+// Transpiled from c4628897.lua
+
+card "Imperion Magnum the Superconductive Battlebot" {
+    password: 4628897
+    type: Fusion Monster
+    attribute: EARTH
+    race: Rock
+    level: 10
+    atk: 4000
+    def: 4000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        damage_step: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            negate activation
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_leaves_field
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

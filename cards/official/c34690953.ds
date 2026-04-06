@@ -1,0 +1,44 @@
+// Curse of Aramatir
+// Transpiled from c34690953.lua
+
+card "Curse of Aramatir" {
+    password: 34690953
+    type: Continuous Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            create_token { atk: 0 def: 0 }
+            special_summon (1, monster) from gy
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        damage_step: true
+        trigger: when_destroyed
+        on_resolve {
+            create_token { atk: 0 def: 0 }
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

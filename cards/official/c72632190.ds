@@ -1,0 +1,50 @@
+// Triple-Headed Behemoth
+// Transpiled from c72632190.lua
+
+card "Triple-Headed Behemoth" {
+    password: 72632190
+    type: Effect Monster
+    attribute: WIND
+    race: Dragon
+    level: 4
+    atk: 1500
+    def: 1200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: when_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

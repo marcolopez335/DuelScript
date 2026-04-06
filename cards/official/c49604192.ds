@@ -1,5 +1,5 @@
 // Mitsurugi Tempest
-// Migrated from c49604192.lua
+// Transpiled from c49604192.lua
 
 card "Mitsurugi Tempest" {
     password: 49604192
@@ -7,9 +7,12 @@ card "Mitsurugi Tempest" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
+        cost {
+            tribute self
+        }
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 

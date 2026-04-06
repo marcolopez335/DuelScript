@@ -1,0 +1,35 @@
+// Thunder Dragondark
+// Transpiled from c56713174.lua
+
+card "Thunder Dragondark" {
+    password: 56713174
+    type: Effect Monster
+    attribute: DARK
+    race: Thunder
+    level: 5
+    atk: 1600
+    def: 1500
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        cost {
+            discard self
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_banished
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

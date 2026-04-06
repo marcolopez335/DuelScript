@@ -1,5 +1,5 @@
 // Furtive Techniques Fur Hire, Fur All Your Ultimate Moves
-// Migrated from c59374259.lua
+// Transpiled from c59374259.lua
 
 card "Furtive Techniques Fur Hire, Fur All Your Ultimate Moves" {
     password: 59374259
@@ -9,7 +9,8 @@ card "Furtive Techniques Fur Hire, Fur All Your Ultimate Moves" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            banish (1+, card)
+            destroy (1+, card, either_player controls)
         }
     }
 
@@ -18,9 +19,8 @@ card "Furtive Techniques Fur Hire, Fur All Your Ultimate Moves" {
         once_per_turn: hard
         optional: true
         trigger: when_summoned by_special_summon
-        condition: in_gy
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

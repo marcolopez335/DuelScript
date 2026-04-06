@@ -1,0 +1,28 @@
+// Red Dragon Ninja
+// Transpiled from c58165765.lua
+
+card "Red Dragon Ninja" {
+    password: 58165765
+    type: Effect Monster
+    attribute: FIRE
+    race: Winged Beast
+    level: 6
+    atk: 2400
+    def: 1200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: when_summoned
+        cost {
+            banish self
+        }
+        on_resolve {
+            return (1, card) to deck shuffle
+            return (1, card) to deck shuffle
+        }
+    }
+
+}

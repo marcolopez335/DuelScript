@@ -1,5 +1,5 @@
 // Twin Photon Lizard
-// Migrated from c29455728.lua
+// Transpiled from c29455728.lua
 
 card "Twin Photon Lizard" {
     password: 29455728
@@ -10,19 +10,17 @@ card "Twin Photon Lizard" {
     atk: 2400
     def: 1000
 
-    materials {
-        require: 2+ monster
-        method: fusion
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
 
     effect "Effect 1" {
         speed: spell_speed_1
+        cost {
+            tribute self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

@@ -1,5 +1,5 @@
 // Psychic Ace
-// Migrated from c84453939.lua
+// Transpiled from c84453939.lua
 
 card "Psychic Ace" {
     password: 84453939
@@ -13,8 +13,9 @@ card "Psychic Ace" {
     effect "Effect 1" {
         speed: spell_speed_1
         optional: true
+        damage_step: true
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

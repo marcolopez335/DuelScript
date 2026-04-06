@@ -1,5 +1,5 @@
 // Valkyrie Zweite
-// Migrated from c30411385.lua
+// Transpiled from c30411385.lua
 
 card "Valkyrie Zweite" {
     password: 30411385
@@ -14,18 +14,19 @@ card "Valkyrie Zweite" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        damage_step: true
         trigger: when_summoned
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

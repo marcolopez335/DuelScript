@@ -1,0 +1,32 @@
+// Raging Mad Plants
+// Transpiled from c95507060.lua
+
+card "Raging Mad Plants" {
+    password: 95507060
+    type: Quick-Play Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: true
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

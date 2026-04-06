@@ -1,0 +1,35 @@
+// Zoodiac Kataroost
+// Transpiled from c20155904.lua
+
+card "Zoodiac Kataroost" {
+    password: 20155904
+    type: Effect Monster
+    attribute: EARTH
+    race: Beast-Warrior
+    level: 4
+    atk: 800
+    def: 1200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        damage_step: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            negate activation
+        }
+    }
+
+}

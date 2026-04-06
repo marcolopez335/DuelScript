@@ -1,0 +1,38 @@
+// Virtual World Dragon - Longlong
+// Transpiled from c61641818.lua
+
+card "Virtual World Dragon - Longlong" {
+    password: 61641818
+    type: Xyz Monster
+    attribute: EARTH
+    race: Wyrm
+    rank: 3
+    atk: 2400
+    def: 2000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            negate activation
+        }
+    }
+
+}

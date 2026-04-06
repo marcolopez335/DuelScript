@@ -1,0 +1,47 @@
+// Bone Archfiend
+// Transpiled from c25784595.lua
+
+card "Bone Archfiend" {
+    password: 25784595
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 4
+    atk: 1800
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand, gy]
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // Shock Troops of the Ice Barrier
-// Migrated from c38528901.lua
+// Transpiled from c38528901.lua
 
 card "Shock Troops of the Ice Barrier" {
     password: 38528901
@@ -12,8 +12,12 @@ card "Shock Troops of the Ice Barrier" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        cost {
+            tribute self
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            add_to_hand (1, card) from gy
         }
     }
 

@@ -1,5 +1,5 @@
 // Stardust Warrior
-// Migrated from c74892653.lua
+// Transpiled from c74892653.lua
 
 card "Stardust Warrior" {
     password: 74892653
@@ -23,27 +23,30 @@ card "Stardust Warrior" {
     effect "Effect 1" {
         speed: spell_speed_2
         optional: true
+        trigger: when_summoned by_special_summon
         on_resolve {
-            negate summon and destroy
+            negate summon
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: during_end_phase
-        condition: in_gy
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 3" {
         speed: spell_speed_1
         optional: true
+        damage_step: true
+        trigger: when_leaves_field
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

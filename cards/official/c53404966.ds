@@ -1,0 +1,49 @@
+// Infernoble Knight Ricciardetto
+// Transpiled from c53404966.lua
+
+card "Infernoble Knight Ricciardetto" {
+    password: 53404966
+    type: Effect Monster | Tuner
+    attribute: FIRE
+    race: Warrior
+    level: 1
+    atk: 500
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand, gy]
+        cost {
+            banish self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

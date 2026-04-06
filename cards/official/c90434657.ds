@@ -1,5 +1,5 @@
 // Imperial Tombs of Necrovalley
-// Migrated from c90434657.lua
+// Transpiled from c90434657.lua
 
 card "Imperial Tombs of Necrovalley" {
     password: 90434657
@@ -10,8 +10,8 @@ card "Imperial Tombs of Necrovalley" {
         once_per_turn: hard
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            negate activation and destroy
+            negate activation
+            destroy (1+, card, either_player controls)
         }
     }
 

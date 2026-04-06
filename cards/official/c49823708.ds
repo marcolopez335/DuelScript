@@ -1,5 +1,5 @@
 // Buster Whelp of the Destruction Swordsman
-// Migrated from c49823708.lua
+// Transpiled from c49823708.lua
 
 card "Buster Whelp of the Destruction Swordsman" {
     password: 49823708
@@ -15,24 +15,29 @@ card "Buster Whelp of the Destruction Swordsman" {
         optional: true
         trigger: when_summoned
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
         once_per_turn: hard
+        cost {
+            tribute self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 3" {
         speed: spell_speed_1
         once_per_turn: hard
-        condition: in_gy
+        cost {
+            tribute self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

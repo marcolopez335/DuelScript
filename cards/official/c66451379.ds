@@ -1,0 +1,53 @@
+// Graydle Alligator
+// Transpiled from c66451379.lua
+
+card "Graydle Alligator" {
+    password: 66451379
+    type: Effect Monster
+    attribute: WATER
+    race: Aqua
+    level: 3
+    atk: 500
+    def: 1500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            equip (1, card) to (1, monster)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        trigger: when_leaves_field
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 5" {
+        speed: spell_speed_1
+        trigger: when_leaves_field
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

@@ -1,0 +1,53 @@
+// Stardust Chronicle Spark Dragon
+// Transpiled from c89474727.lua
+
+card "Stardust Chronicle Spark Dragon" {
+    password: 89474727
+    type: Synchro Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 10
+    atk: 3000
+    def: 2500
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        cost {
+            banish self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

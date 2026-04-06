@@ -1,0 +1,37 @@
+// Inzektor Dragonfly
+// Transpiled from c68184115.lua
+
+card "Inzektor Dragonfly" {
+    password: 68184115
+    type: Effect Monster
+    attribute: DARK
+    race: Insect
+    level: 3
+    atk: 1000
+    def: 1800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_leaves_field
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

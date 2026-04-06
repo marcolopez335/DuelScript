@@ -1,0 +1,45 @@
+// Virtual World Kyubi - Shenshen
+// Transpiled from c92519087.lua
+
+card "Virtual World Kyubi - Shenshen" {
+    password: 92519087
+    type: Synchro Monster
+    attribute: WIND
+    race: Psychic
+    level: 9
+    atk: 2800
+    def: 2400
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when attack_declared
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            banish self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

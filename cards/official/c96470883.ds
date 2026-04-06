@@ -1,5 +1,5 @@
 // Queen Angel of Roses
-// Migrated from c96470883.lua
+// Transpiled from c96470883.lua
 
 card "Queen Angel of Roses" {
     password: 96470883
@@ -12,10 +12,11 @@ card "Queen Angel of Roses" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_standby_phase
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            destroy (1+, card, either_player controls)
         }
     }
 

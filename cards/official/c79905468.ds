@@ -1,0 +1,48 @@
+// Guardragon Promineses
+// Transpiled from c79905468.lua
+
+card "Guardragon Promineses" {
+    password: 79905468
+    type: Effect Monster
+    attribute: FIRE
+    race: Dragon
+    level: 1
+    atk: 500
+    def: 200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        activate_from: [hand, monster_zone]
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // Summon Reactor ・SK
-// Migrated from c89493368.lua
+// Transpiled from c89493368.lua
 
 card "Summon Reactor ・SK" {
     password: 89493368
@@ -15,13 +15,13 @@ card "Summon Reactor ・SK" {
         once_per_turn: soft
         trigger: when_summoned
         on_resolve {
-            deal_damage to opponent: 1000 // TODO: verify
+            deal_damage to opponent: 800
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when attack_declared
         on_resolve {
@@ -31,8 +31,11 @@ card "Summon Reactor ・SK" {
 
     effect "Effect 3" {
         speed: spell_speed_1
+        cost {
+            send self to gy
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

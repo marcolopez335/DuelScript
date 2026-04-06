@@ -1,5 +1,5 @@
 // Commander of Swords
-// Migrated from c12197543.lua
+// Transpiled from c12197543.lua
 
 card "Commander of Swords" {
     password: 12197543
@@ -8,7 +8,11 @@ card "Commander of Swords" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            shuffle deck
+            shuffle deck
+            send (1, card) to gy
+            destroy (1+, card, either_player controls)
+            shuffle deck
         }
     }
 

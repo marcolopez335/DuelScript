@@ -1,5 +1,5 @@
 // Two-for-One Repair Job
-// Migrated from c44459942.lua
+// Transpiled from c44459942.lua
 
 card "Two-for-One Repair Job" {
     password: 44459942
@@ -8,8 +8,11 @@ card "Two-for-One Repair Job" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
+        cost {
+            banish self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
@@ -18,12 +21,12 @@ card "Two-for-One Repair Job" {
         once_per_turn: hard
         optional: true
         trigger: when_sent_to gy
-        condition: in_gy
         cost {
             banish self
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            create_token { atk: 0 def: 0 }
+            special_summon (1, monster) from gy
         }
     }
 

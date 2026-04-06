@@ -1,0 +1,31 @@
+// Genex Neutron
+// Transpiled from c19182751.lua
+
+card "Genex Neutron" {
+    password: 19182751
+    type: Effect Monster
+    attribute: LIGHT
+    race: Machine
+    level: 4
+    atk: 1800
+    def: 1200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_summoned
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: during_end_phase
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

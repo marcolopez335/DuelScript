@@ -1,0 +1,36 @@
+// Thunder Dragonmatrix
+// Transpiled from c20318029.lua
+
+card "Thunder Dragonmatrix" {
+    password: 20318029
+    type: Effect Monster
+    attribute: LIGHT
+    race: Thunder
+    level: 1
+    atk: 0
+    def: 2000
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        cost {
+            discard self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_banished
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

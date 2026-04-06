@@ -1,5 +1,5 @@
 // Fluffal Crane
-// Migrated from c9298235.lua
+// Transpiled from c9298235.lua
 
 card "Fluffal Crane" {
     password: 9298235
@@ -7,9 +7,11 @@ card "Fluffal Crane" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        damage_step: true
         trigger: when_sent_to gy
         on_resolve {
-            draw 2 // TODO: verify count
+            add_to_hand (1, card) from gy
+            draw 1
         }
     }
 

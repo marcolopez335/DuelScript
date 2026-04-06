@@ -1,5 +1,5 @@
 // Chamber Dragonmaid
-// Migrated from c32600024.lua
+// Transpiled from c32600024.lua
 
 card "Chamber Dragonmaid" {
     password: 32600024
@@ -14,18 +14,20 @@ card "Chamber Dragonmaid" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        damage_step: true
         trigger: when_summoned
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            special_summon (1, monster) from gy
         }
     }
 

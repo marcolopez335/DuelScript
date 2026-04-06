@@ -1,5 +1,5 @@
 // Heraldic Beast Aberconway
-// Migrated from c60316373.lua
+// Transpiled from c60316373.lua
 
 card "Heraldic Beast Aberconway" {
     password: 60316373
@@ -13,9 +13,11 @@ card "Heraldic Beast Aberconway" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
-        condition: in_gy
+        cost {
+            banish self
+        }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

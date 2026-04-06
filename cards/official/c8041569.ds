@@ -1,5 +1,5 @@
 // Laval Lakeside Lady
-// Migrated from c8041569.lua
+// Transpiled from c8041569.lua
 
 card "Laval Lakeside Lady" {
     password: 8041569
@@ -12,9 +12,11 @@ card "Laval Lakeside Lady" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        condition: in_gy
+        cost {
+            banish self
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

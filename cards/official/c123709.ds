@@ -1,0 +1,39 @@
+// Laval Lancelord
+// Transpiled from c123709.lua
+
+card "Laval Lancelord" {
+    password: 123709
+    type: Effect Monster
+    attribute: FIRE
+    race: Warrior
+    level: 6
+    atk: 2100
+    def: 200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+}

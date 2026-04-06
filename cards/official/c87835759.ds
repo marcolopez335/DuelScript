@@ -1,0 +1,37 @@
+// Dragon Knight of Creation
+// Transpiled from c87835759.lua
+
+card "Dragon Knight of Creation" {
+    password: 87835759
+    type: Effect Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 4
+    atk: 1800
+    def: 600
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            send (1, card) to gy
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // Face-Off
-// Migrated from c39276790.lua
+// Transpiled from c39276790.lua
 
 card "Face-Off" {
     password: 39276790
@@ -9,8 +9,8 @@ card "Face-Off" {
         speed: spell_speed_1
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            negate activation and destroy
+            negate activation
+            destroy (1+, card, either_player controls)
         }
     }
 

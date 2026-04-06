@@ -1,5 +1,5 @@
 // Adamancipator Risen - Dragite
-// Migrated from c9464441.lua
+// Transpiled from c9464441.lua
 
 card "Adamancipator Risen - Dragite" {
     password: 9464441
@@ -10,12 +10,6 @@ card "Adamancipator Risen - Dragite" {
     atk: 3000
     def: 2200
 
-    materials {
-        require: 1 tuner monster
-        require: 1+ non-tuner monster
-        method: synchro
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -24,18 +18,20 @@ card "Adamancipator Risen - Dragite" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            shuffle deck
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        damage_step: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            negate activation and destroy
+            negate activation
+            destroy (1+, card, either_player controls)
         }
     }
 

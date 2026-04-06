@@ -1,5 +1,5 @@
 // Dragon Ice
-// Migrated from c64262809.lua
+// Transpiled from c64262809.lua
 
 card "Dragon Ice" {
     password: 64262809
@@ -13,13 +13,10 @@ card "Dragon Ice" {
     effect "Effect 1" {
         speed: spell_speed_1
         optional: true
+        activate_from: [hand, gy]
         trigger: when_summoned by_special_summon
-        condition: in_gy
-        cost {
-            discard self // TODO: verify target
-        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

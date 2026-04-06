@@ -1,0 +1,41 @@
+// Lightsworn Dragonling
+// Transpiled from c59481082.lua
+
+card "Lightsworn Dragonling" {
+    password: 59481082
+    type: Effect Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 4
+    atk: 1500
+    def: 1300
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

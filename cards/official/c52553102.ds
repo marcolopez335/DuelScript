@@ -1,0 +1,51 @@
+// Jurrac Astero
+// Transpiled from c52553102.lua
+
+card "Jurrac Astero" {
+    password: 52553102
+    type: Synchro Monster
+    attribute: FIRE
+    race: Dinosaur
+    level: 10
+    atk: 2500
+    def: 2300
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            set (1, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        trigger: when_summoned by_special_summon
+        cost {
+            banish self
+        }
+        on_resolve {
+            negate summon
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_2
+        optional: true
+        cost {
+            banish self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

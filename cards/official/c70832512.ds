@@ -1,5 +1,5 @@
 // Absolute Crusader
-// Migrated from c70832512.lua
+// Transpiled from c70832512.lua
 
 card "Absolute Crusader" {
     password: 70832512
@@ -13,8 +13,11 @@ card "Absolute Crusader" {
     effect "Effect 1" {
         speed: spell_speed_1
         trigger: when_summoned by_special_summon
+        cost {
+            tribute self
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

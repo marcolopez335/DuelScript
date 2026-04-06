@@ -1,5 +1,5 @@
 // Worm Prince
-// Migrated from c54860010.lua
+// Transpiled from c54860010.lua
 
 card "Worm Prince" {
     password: 54860010
@@ -14,16 +14,16 @@ card "Worm Prince" {
         speed: spell_speed_1
         optional: true
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_end_phase
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

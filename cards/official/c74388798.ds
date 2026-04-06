@@ -1,0 +1,39 @@
+// Silent Swordsman LV5
+// Transpiled from c74388798.lua
+
+card "Silent Swordsman LV5" {
+    password: 74388798
+    type: Effect Monster
+    attribute: LIGHT
+    race: Warrior
+    level: 5
+    atk: 2300
+    def: 1000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: during_standby_phase
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

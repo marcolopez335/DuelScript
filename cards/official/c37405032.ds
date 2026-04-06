@@ -1,0 +1,39 @@
+// Trickstar Aqua Angel
+// Transpiled from c37405032.lua
+
+card "Trickstar Aqua Angel" {
+    password: 37405032
+    type: Effect Monster
+    attribute: WATER
+    race: Fairy
+    level: 4
+    atk: 0
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand, gy]
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_used_as_material
+        on_resolve {
+            shuffle deck
+        }
+    }
+
+}

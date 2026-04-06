@@ -1,5 +1,5 @@
 // Lavalval Dragun
-// Migrated from c8611007.lua
+// Transpiled from c8611007.lua
 
 card "Lavalval Dragun" {
     password: 8611007
@@ -22,9 +22,11 @@ card "Lavalval Dragun" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            shuffle deck
+            send (1, card) to gy
         }
     }
 

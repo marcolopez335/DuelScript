@@ -1,0 +1,35 @@
+// Borreload Liberator Dragon
+// Transpiled from c27096833.lua
+
+card "Borreload Liberator Dragon" {
+    password: 27096833
+    type: Link Monster
+    attribute: DARK
+    race: Dragon
+    link: 4
+    atk: 3000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            take_control of (1, monster, opponent controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

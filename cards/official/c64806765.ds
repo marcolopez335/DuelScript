@@ -1,5 +1,5 @@
 // Crow Tengu
-// Migrated from c64806765.lua
+// Transpiled from c64806765.lua
 
 card "Crow Tengu" {
     password: 64806765
@@ -14,9 +14,10 @@ card "Crow Tengu" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        damage_step: true
         trigger: when_sent_to gy
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

@@ -1,0 +1,39 @@
+// Blackwing - Auster the South Wind
+// Transpiled from c17465972.lua
+
+card "Blackwing - Auster the South Wind" {
+    password: 17465972
+    type: Effect Monster | Tuner
+    attribute: DARK
+    race: Winged Beast
+    level: 4
+    atk: 1300
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        cost {
+            banish self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // Prohibit Snake
-// Migrated from c39732186.lua
+// Transpiled from c39732186.lua
 
 card "Prohibit Snake" {
     password: 39732186
@@ -14,21 +14,25 @@ card "Prohibit Snake" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        damage_step: true
         cost {
             send self to gy
         }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
-        condition: in_gy
+        trigger: when_battle_destroyed
+        cost {
+            banish self
+        }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

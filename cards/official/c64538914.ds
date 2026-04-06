@@ -1,5 +1,5 @@
 // Manticore of Smashing
-// Migrated from c64538914.lua
+// Transpiled from c64538914.lua
 
 card "Manticore of Smashing" {
     password: 64538914
@@ -14,16 +14,18 @@ card "Manticore of Smashing" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
+        once_per_turn: soft
+        cost {
+            banish self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

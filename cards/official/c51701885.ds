@@ -1,5 +1,5 @@
 // D.D. Telepon
-// Migrated from c51701885.lua
+// Transpiled from c51701885.lua
 
 card "D.D. Telepon" {
     password: 51701885
@@ -13,17 +13,19 @@ card "D.D. Telepon" {
     effect "Effect 1" {
         speed: spell_speed_1
         optional: true
+        damage_step: true
+        trigger: when_banished
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_standby_phase
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

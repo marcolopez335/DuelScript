@@ -1,0 +1,31 @@
+// Madolche Marmalmaide
+// Transpiled from c26016357.lua
+
+card "Madolche Marmalmaide" {
+    password: 26016357
+    type: Effect Monster
+    attribute: EARTH
+    race: Spellcaster
+    level: 4
+    atk: 800
+    def: 2000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_sent_to gy
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_flipped
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

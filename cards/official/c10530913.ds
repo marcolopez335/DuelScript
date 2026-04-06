@@ -1,0 +1,39 @@
+// Sylvan Sagequoia
+// Transpiled from c10530913.lua
+
+card "Sylvan Sagequoia" {
+    password: 10530913
+    type: Effect Monster
+    attribute: WIND
+    race: Plant
+    level: 7
+    atk: 2600
+    def: 2100
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

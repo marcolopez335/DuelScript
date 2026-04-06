@@ -1,0 +1,28 @@
+// Lightray Diabolos
+// Transpiled from c30126992.lua
+
+card "Lightray Diabolos" {
+    password: 30126992
+    type: Effect Monster | Spirit
+    attribute: LIGHT
+    race: Dragon
+    level: 7
+    atk: 2800
+    def: 1000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            banish self
+        }
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+}

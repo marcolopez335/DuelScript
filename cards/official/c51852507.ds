@@ -1,5 +1,5 @@
 // Rose Archer
-// Migrated from c51852507.lua
+// Transpiled from c51852507.lua
 
 card "Rose Archer" {
     password: 51852507
@@ -13,13 +13,14 @@ card "Rose Archer" {
     effect "Effect 1" {
         speed: spell_speed_2
         optional: true
+        damage_step: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         cost {
             send self to gy
         }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            negate activation and destroy
+            negate activation
+            destroy (1+, card, either_player controls)
         }
     }
 

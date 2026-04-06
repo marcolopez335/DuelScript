@@ -1,5 +1,5 @@
 // R.B. Lambda Cannon
-// Migrated from c81794107.lua
+// Transpiled from c81794107.lua
 
 card "R.B. Lambda Cannon" {
     password: 81794107
@@ -16,19 +16,18 @@ card "R.B. Lambda Cannon" {
         optional: true
         trigger: when_summoned
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         cost {
-            pay_lp 1000 // TODO: verify amount
+            pay_lp 1000
         }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            special_summon (1, monster) from gy // TODO: verify
+            destroy (1+, card, either_player controls)
         }
     }
 

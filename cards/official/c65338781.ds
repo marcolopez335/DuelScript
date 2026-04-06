@@ -1,0 +1,48 @@
+// Skilled Red Magician
+// Transpiled from c65338781.lua
+
+card "Skilled Red Magician" {
+    password: 65338781
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 4
+    atk: 1600
+    def: 1600
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        cost {
+            tribute self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        cost {
+            banish self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,0 +1,68 @@
+// D/D/D/D Dimensional King Arc Crisis
+// Transpiled from c71398055.lua
+
+card "D/D/D/D Dimensional King Arc Crisis" {
+    password: 71398055
+    type: Fusion Monster
+    attribute: DARK
+    race: Fiend
+    level: 12
+    scale: 13
+    atk: 4000
+    def: 4000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            negate effect
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 6" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

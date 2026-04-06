@@ -1,0 +1,32 @@
+// Dragunity Legionnaire
+// Transpiled from c54578613.lua
+
+card "Dragunity Legionnaire" {
+    password: 54578613
+    type: Effect Monster
+    attribute: WIND
+    race: Winged Beast
+    level: 3
+    atk: 1200
+    def: 800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

@@ -1,0 +1,24 @@
+// Magician's Right Hand
+// Transpiled from c87769556.lua
+
+card "Magician's Right Hand" {
+    password: 87769556
+    type: Continuous Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            negate effect
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

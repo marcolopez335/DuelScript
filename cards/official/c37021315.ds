@@ -1,0 +1,39 @@
+// Primineral Mandstrong
+// Transpiled from c37021315.lua
+
+card "Primineral Mandstrong" {
+    password: 37021315
+    type: Effect Monster
+    attribute: EARTH
+    race: Rock
+    level: 8
+    atk: 2000
+    def: 3000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_sent_to gy
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: during_end_phase
+        on_resolve {
+            special_summon (1, monster) from gy
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

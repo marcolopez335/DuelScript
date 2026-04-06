@@ -1,0 +1,49 @@
+// PSY-Framelord Zeta
+// Transpiled from c37192109.lua
+
+card "PSY-Framelord Zeta" {
+    password: 37192109
+    type: Synchro Monster
+    attribute: LIGHT
+    race: Psychic
+    level: 7
+    atk: 2500
+    def: 1800
+
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            return (1, card) to deck shuffle
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

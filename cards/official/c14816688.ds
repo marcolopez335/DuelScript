@@ -1,5 +1,5 @@
 // Shuffle Reborn
-// Migrated from c14816688.lua
+// Transpiled from c14816688.lua
 
 card "Shuffle Reborn" {
     password: 14816688
@@ -8,28 +8,29 @@ card "Shuffle Reborn" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            banish (1+, card)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
         once_per_turn: hard
-        condition: in_gy
         cost {
             banish self
         }
         on_resolve {
-            draw 2 // TODO: verify count
+            return (1, card) to deck shuffle
+            shuffle deck
+            draw 1
         }
     }
 
     effect "Effect 3" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_end_phase
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 

@@ -1,0 +1,41 @@
+// Cucumber Horse
+// Transpiled from c89552119.lua
+
+card "Cucumber Horse" {
+    password: 89552119
+    type: Effect Monster
+    attribute: DARK
+    race: Plant
+    level: 8
+    atk: 100
+    def: 2000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+}

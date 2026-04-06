@@ -1,0 +1,45 @@
+// Storm-Bane Dragon Destorbim
+// Transpiled from c94641726.lua
+
+card "Storm-Bane Dragon Destorbim" {
+    password: 94641726
+    type: Synchro Monster
+    attribute: DARK
+    race: Dragon
+    level: 11
+    atk: 3000
+    def: 2800
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            banish self
+        }
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

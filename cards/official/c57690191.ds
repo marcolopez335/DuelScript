@@ -1,0 +1,46 @@
+// Noble Knight Brothers
+// Transpiled from c57690191.lua
+
+card "Noble Knight Brothers" {
+    password: 57690191
+    type: Effect Monster
+    attribute: LIGHT
+    race: Warrior
+    level: 4
+    atk: 1200
+    def: 2400
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            return (1, card) to deck shuffle
+            shuffle deck
+            draw 1
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

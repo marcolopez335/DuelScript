@@ -1,5 +1,5 @@
 // Levia-Dragon - Daedalus
-// Migrated from c37721209.lua
+// Transpiled from c37721209.lua
 
 card "Levia-Dragon - Daedalus" {
     password: 37721209
@@ -12,8 +12,11 @@ card "Levia-Dragon - Daedalus" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        cost {
+            send self to gy
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

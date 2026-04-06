@@ -28,7 +28,7 @@ impl DuelApiCall {
             "Remove" => Some("banish (1+, card)".to_string()),
             "SendtoGrave" | "SendToGrave" => Some("send (1, card) to gy".to_string()),
             "SendtoHand" | "SendToHand" => Some("add_to_hand (1, card) from gy".to_string()),
-            "SendtoDeck" | "SendToDeck" => Some("send_to_deck (1, card) shuffle".to_string()),
+            "SendtoDeck" | "SendToDeck" => Some("return (1, card) to deck shuffle".to_string()),
             "SpecialSummon" => Some("special_summon (1, monster) from gy".to_string()),
             "NegateEffect" => Some("negate effect".to_string()),
             "NegateActivation" => Some("negate activation".to_string()),
@@ -44,25 +44,25 @@ impl DuelApiCall {
             }
             "Release" => Some("release (1, monster, you controls)".to_string()),
             "ChangePosition" => Some("change_position (1, monster)".to_string()),
-            "SSet" => Some("set_spell_trap (1, card)".to_string()),
+            "SSet" => Some("set (1, card)".to_string()),
             "Equip" => Some("equip (1, card) to (1, monster)".to_string()),
             "Overlay" => Some("overlay (1, card) to self".to_string()),
             "CreateToken" => Some("create_token { atk: 0 def: 0 }".to_string()),
             "GetControl" => Some("take_control of (1, monster, opponent controls)".to_string()),
             "DiscardHand" => Some("discard_all your_hand".to_string()),
-            "ShuffleHand" => Some("shuffle_hand".to_string()),
-            "ShuffleDeck" => Some("shuffle_deck".to_string()),
+            "ShuffleHand" => Some("shuffle deck".to_string()),
+            "ShuffleDeck" => Some("shuffle deck".to_string()),
             "DiscardDeck" => {
                 let count = self.args.get(1).map(|s| s.as_str()).unwrap_or("1");
                 Some(format!("mill {}", count))
             }
             "Discard" => Some("discard (1, card)".to_string()),
-            "MoveToField" => Some("move_to_field (1, card)".to_string()),
+            "MoveToField" => Some("special_summon (1, monster) from gy".to_string()),
             "PayLPCost" => {
                 // This is an action, not a cost — used in some operation functions
                 Some("pay_lp 1000".to_string())
             }
-            "SelectYesNo" => Some("if_player_chooses { reveal self } else { reveal self }".to_string()),
+            "SelectYesNo" => None, // Engine handles player choice
             _ => None,
         }
     }

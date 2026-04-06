@@ -1,5 +1,5 @@
 // Ancient Gear Catapult
-// Migrated from c44052074.lua
+// Transpiled from c44052074.lua
 
 card "Ancient Gear Catapult" {
     password: 44052074
@@ -9,21 +9,21 @@ card "Ancient Gear Catapult" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            special_summon (1, monster) from gy // TODO: verify
+            destroy (1+, card, either_player controls)
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
         once_per_turn: hard
-        condition: in_gy
         cost {
             banish self
         }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            special_summon (1, monster) from gy // TODO: verify
+            destroy (1+, card, either_player controls)
+            create_token { atk: 0 def: 0 }
+            special_summon (1, monster) from gy
         }
     }
 

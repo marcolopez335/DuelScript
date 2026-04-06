@@ -1,5 +1,5 @@
 // Unchained Twins - Sarama
-// Migrated from c31588572.lua
+// Transpiled from c31588572.lua
 
 card "Unchained Twins - Sarama" {
     password: 31588572
@@ -14,17 +14,18 @@ card "Unchained Twins - Sarama" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        damage_step: true
         trigger: when_destroyed
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

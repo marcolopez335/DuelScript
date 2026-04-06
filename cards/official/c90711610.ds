@@ -1,5 +1,5 @@
 // Goblin Biker Grand Entrance
-// Migrated from c90711610.lua
+// Transpiled from c90711610.lua
 
 card "Goblin Biker Grand Entrance" {
     password: 90711610
@@ -9,20 +9,20 @@ card "Goblin Biker Grand Entrance" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            shuffle deck
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
+        once_per_turn: soft
         cost {
             banish self
         }
         on_resolve {
-            banish (1, card) // TODO: verify
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

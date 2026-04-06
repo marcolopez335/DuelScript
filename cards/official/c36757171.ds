@@ -1,0 +1,35 @@
+// Evilswarm Bahamut
+// Transpiled from c36757171.lua
+
+card "Evilswarm Bahamut" {
+    password: 36757171
+    type: Xyz Monster
+    attribute: DARK
+    race: Dragon
+    rank: 4
+    atk: 2350
+    def: 1350
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            send (1, card) to gy
+            take_control of (1, monster, opponent controls)
+        }
+    }
+
+}

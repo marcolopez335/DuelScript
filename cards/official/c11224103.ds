@@ -1,0 +1,39 @@
+// Horus the Black Flame Dragon LV6
+// Transpiled from c11224103.lua
+
+card "Horus the Black Flame Dragon LV6" {
+    password: 11224103
+    type: Effect Monster
+    attribute: FIRE
+    race: Dragon
+    level: 6
+    atk: 2300
+    def: 1600
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: during_end_phase
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

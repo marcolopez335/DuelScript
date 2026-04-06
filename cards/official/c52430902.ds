@@ -1,0 +1,31 @@
+// Psychic Jumper
+// Transpiled from c52430902.lua
+
+card "Psychic Jumper" {
+    password: 52430902
+    type: Effect Monster | Tuner
+    attribute: EARTH
+    race: Psychic
+    level: 2
+    atk: 100
+    def: 1500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            pay_lp 1000
+        }
+        on_resolve {
+            take_control of (1, monster, opponent controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

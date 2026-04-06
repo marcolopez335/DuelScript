@@ -1,0 +1,59 @@
+// Ancient Warriors Saga - East-by-South Winds
+// Transpiled from c62528292.lua
+
+card "Ancient Warriors Saga - East-by-South Winds" {
+    password: 62528292
+    type: Continuous Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 5" {
+        speed: spell_speed_1
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 6" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when attack_declared
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

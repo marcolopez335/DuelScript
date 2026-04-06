@@ -1,5 +1,5 @@
 // Gruesome Grave Squirmer
-// Migrated from c24215921.lua
+// Transpiled from c24215921.lua
 
 card "Gruesome Grave Squirmer" {
     password: 24215921
@@ -15,20 +15,19 @@ card "Gruesome Grave Squirmer" {
         once_per_turn: hard
         optional: true
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
+        once_per_turn: soft
         cost {
             banish self
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

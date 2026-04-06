@@ -1,5 +1,5 @@
 // Nemeses Flag
-// Migrated from c19211362.lua
+// Transpiled from c19211362.lua
 
 card "Nemeses Flag" {
     password: 19211362
@@ -14,15 +14,16 @@ card "Nemeses Flag" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
+            return (1, card) to deck shuffle
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

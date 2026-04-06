@@ -1,5 +1,5 @@
 // Gold Pride - Nytro Blaster
-// Migrated from c58884063.lua
+// Transpiled from c58884063.lua
 
 card "Gold Pride - Nytro Blaster" {
     password: 58884063
@@ -9,11 +9,6 @@ card "Gold Pride - Nytro Blaster" {
     link: 2
     atk: 2300
 
-    materials {
-        require: 2+ effect monster
-        method: link
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -22,16 +17,18 @@ card "Gold Pride - Nytro Blaster" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_end_phase
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            return (1, card) to deck shuffle
+            special_summon (1, monster) from gy
         }
     }
 

@@ -1,0 +1,44 @@
+// Hieratic Seal of the Heavenly Spheres
+// Transpiled from c24361622.lua
+
+card "Hieratic Seal of the Heavenly Spheres" {
+    password: 24361622
+    type: Link Monster
+    attribute: LIGHT
+    race: Dragon
+    link: 2
+    atk: 0
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        cost {
+            tribute self
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: true
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

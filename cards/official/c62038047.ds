@@ -1,0 +1,40 @@
+// Shiranui Smith
+// Transpiled from c62038047.lua
+
+card "Shiranui Smith" {
+    password: 62038047
+    type: Effect Monster
+    attribute: FIRE
+    race: Zombie
+    level: 4
+    atk: 1000
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_used_as_material
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_banished
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

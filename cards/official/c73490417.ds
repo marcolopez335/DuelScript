@@ -1,0 +1,42 @@
+// Jungle Dweller
+// Transpiled from c73490417.lua
+
+card "Jungle Dweller" {
+    password: 73490417
+    type: Effect Monster | Spirit
+    attribute: DARK
+    race: Fiend
+    level: 8
+    atk: 2500
+    def: 1800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            banish self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            return (1, card) to deck shuffle
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

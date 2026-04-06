@@ -1,0 +1,42 @@
+// Lunalight Purple Butterfly
+// Transpiled from c48427163.lua
+
+card "Lunalight Purple Butterfly" {
+    password: 48427163
+    type: Effect Monster
+    attribute: DARK
+    race: Beast-Warrior
+    level: 3
+    atk: 1000
+    def: 1000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        activate_from: [hand, monster_zone]
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            banish self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

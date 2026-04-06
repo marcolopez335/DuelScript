@@ -1,5 +1,5 @@
 // Millennium Seeker
-// Migrated from c5130393.lua
+// Transpiled from c5130393.lua
 
 card "Millennium Seeker" {
     password: 5130393
@@ -14,16 +14,20 @@ card "Millennium Seeker" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        damage_step: true
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            shuffle deck
+            special_summon (1, monster) from gy
+            add_to_hand (1, card) from gy
+            shuffle deck
         }
     }
 

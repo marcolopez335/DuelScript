@@ -1,0 +1,35 @@
+// Blue Flame Swordsman
+// Transpiled from c50903514.lua
+
+card "Blue Flame Swordsman" {
+    password: 50903514
+    type: Effect Monster
+    attribute: FIRE
+    race: Warrior
+    level: 4
+    atk: 1800
+    def: 1600
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        damage_step: true
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_sent_to gy
+        cost {
+            banish self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

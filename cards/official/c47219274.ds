@@ -1,0 +1,49 @@
+// Freki the Runick Fangs
+// Transpiled from c47219274.lua
+
+card "Freki the Runick Fangs" {
+    password: 47219274
+    type: Fusion Monster
+    attribute: DARK
+    race: Beast
+    level: 5
+    atk: 2000
+    def: 0
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when attack_declared
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

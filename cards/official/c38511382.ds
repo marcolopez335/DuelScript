@@ -1,5 +1,5 @@
 // Sinful Spoils of Betrayal - Silvera
-// Migrated from c38511382.lua
+// Transpiled from c38511382.lua
 
 card "Sinful Spoils of Betrayal - Silvera" {
     password: 38511382
@@ -8,6 +8,9 @@ card "Sinful Spoils of Betrayal - Silvera" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
+        cost {
+            send self to gy
+        }
         on_resolve {
             negate effect
         }
@@ -18,7 +21,6 @@ card "Sinful Spoils of Betrayal - Silvera" {
         once_per_turn: hard
         optional: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
-        condition: in_gy
         cost {
             banish self
         }

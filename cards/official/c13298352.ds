@@ -1,5 +1,5 @@
 // Yaguramaru the Armor Ninja
-// Migrated from c13298352.lua
+// Transpiled from c13298352.lua
 
 card "Yaguramaru the Armor Ninja" {
     password: 13298352
@@ -10,11 +10,6 @@ card "Yaguramaru the Armor Ninja" {
     atk: 2000
     def: 2000
 
-    materials {
-        require: 2+ monster
-        method: fusion
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -24,8 +19,11 @@ card "Yaguramaru the Armor Ninja" {
         once_per_turn: hard
         optional: true
         trigger: when_summoned by_special_summon
+        cost {
+            banish self
+        }
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 

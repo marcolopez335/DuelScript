@@ -1,0 +1,43 @@
+// Sphinx of the Cycle
+// Transpiled from c46148485.lua
+
+card "Sphinx of the Cycle" {
+    password: 46148485
+    type: Effect Monster
+    attribute: EARTH
+    race: Rock
+    level: 8
+    atk: 2500
+    def: 3000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        activate_from: [hand, gy]
+        cost {
+            banish self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            set (1, card)
+        }
+    }
+
+}

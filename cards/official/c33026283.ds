@@ -1,0 +1,43 @@
+// Dual Avatar - Empowered Kon-Gyo
+// Transpiled from c33026283.lua
+
+card "Dual Avatar - Empowered Kon-Gyo" {
+    password: 33026283
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Warrior
+    level: 8
+    atk: 3000
+    def: 1700
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            negate activation
+        }
+    }
+
+}

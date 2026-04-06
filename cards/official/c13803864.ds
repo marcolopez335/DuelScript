@@ -1,5 +1,5 @@
 // Mokey Mokey King
-// Migrated from c13803864.lua
+// Transpiled from c13803864.lua
 
 card "Mokey Mokey King" {
     password: 13803864
@@ -10,11 +10,6 @@ card "Mokey Mokey King" {
     atk: 300
     def: 100
 
-    materials {
-        require: 2+ monster
-        method: fusion
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -22,8 +17,10 @@ card "Mokey Mokey King" {
     effect "Effect 1" {
         speed: spell_speed_1
         optional: true
+        damage_step: true
+        trigger: when_leaves_field
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

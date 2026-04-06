@@ -1,5 +1,5 @@
 // Imperial Bower
-// Migrated from c56673112.lua
+// Transpiled from c56673112.lua
 
 card "Imperial Bower" {
     password: 56673112
@@ -13,8 +13,12 @@ card "Imperial Bower" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
+        cost {
+            tribute self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
+            add_to_hand (1, card) from gy
         }
     }
 

@@ -1,5 +1,5 @@
 // Survival's End
-// Migrated from c44612603.lua
+// Transpiled from c44612603.lua
 
 card "Survival's End" {
     password: 44612603
@@ -8,29 +8,28 @@ card "Survival's End" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            special_summon (1, monster) from gy // TODO: verify
+            destroy (1+, card, either_player controls)
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_2
         optional: true
-        condition: in_gy
         cost {
             banish self
         }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 3" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_end_phase
         on_resolve {
-            destroy (1+, card, either_player controls) // TODO: verify
+            destroy (1+, card, either_player controls)
         }
     }
 

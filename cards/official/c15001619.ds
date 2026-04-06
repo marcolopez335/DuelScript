@@ -1,0 +1,38 @@
+// Puppet Queen
+// Transpiled from c15001619.lua
+
+card "Puppet Queen" {
+    password: 15001619
+    type: Effect Monster
+    attribute: EARTH
+    race: Warrior
+    level: 6
+    atk: 2200
+    def: 2500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

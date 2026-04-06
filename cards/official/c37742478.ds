@@ -1,0 +1,39 @@
+// Honest
+// Transpiled from c37742478.lua
+
+card "Honest" {
+    password: 37742478
+    type: Effect Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 4
+    atk: 1100
+    def: 1900
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        damage_step: true
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,0 +1,37 @@
+// Albion the Branded Dragon
+// Transpiled from c87746184.lua
+
+card "Albion the Branded Dragon" {
+    password: 87746184
+    type: Fusion Monster
+    attribute: DARK
+    race: Dragon
+    level: 8
+    atk: 2500
+    def: 2000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: during_end_phase
+        on_resolve {
+            set (1, card)
+        }
+    }
+
+}

@@ -1,0 +1,31 @@
+// Abyss Script - Fantasy Magic
+// Transpiled from c87390798.lua
+
+card "Abyss Script - Fantasy Magic" {
+    password: 87390798
+    type: Normal Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

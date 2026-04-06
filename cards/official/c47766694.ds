@@ -1,5 +1,5 @@
 // Wild Tornado
-// Migrated from c47766694.lua
+// Transpiled from c47766694.lua
 
 card "Wild Tornado" {
     password: 47766694
@@ -8,7 +8,8 @@ card "Wild Tornado" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            set (1, card)
         }
     }
 
@@ -16,7 +17,7 @@ card "Wild Tornado" {
         speed: spell_speed_1
         trigger: when_sent_to gy
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

@@ -1,0 +1,41 @@
+// Rilliona, the Magistus of Verre
+// Transpiled from c72498838.lua
+
+card "Rilliona, the Magistus of Verre" {
+    password: 72498838
+    type: Effect Monster
+    attribute: LIGHT
+    race: Spellcaster
+    level: 4
+    atk: 800
+    def: 1800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            banish self
+        }
+        on_resolve {
+            equip (1, card) to (1, monster)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

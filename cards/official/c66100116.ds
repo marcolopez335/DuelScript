@@ -1,0 +1,41 @@
+// Vengeful Witch
+// Transpiled from c66100116.lua
+
+card "Vengeful Witch" {
+    password: 66100116
+    type: Effect Monster
+    attribute: DARK
+    race: Plant
+    level: 4
+    atk: 1100
+    def: 1200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_sent_to gy
+        cost {
+            discard (1, card)
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

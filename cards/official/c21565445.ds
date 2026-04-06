@@ -1,5 +1,5 @@
 // Neptabyss, the Atlantean Prince
-// Migrated from c21565445.lua
+// Transpiled from c21565445.lua
 
 card "Neptabyss, the Atlantean Prince" {
     password: 21565445
@@ -13,17 +13,20 @@ card "Neptabyss, the Atlantean Prince" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
+        cost {
+            send self to gy
+        }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: when_sent_to gy
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

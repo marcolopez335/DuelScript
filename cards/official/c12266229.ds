@@ -1,5 +1,5 @@
 // Illusion of Chaos
-// Migrated from c12266229.lua
+// Transpiled from c12266229.lua
 
 card "Illusion of Chaos" {
     password: 12266229
@@ -18,17 +18,22 @@ card "Illusion of Chaos" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            shuffle deck
+            shuffle deck
+            return (1, card) to deck shuffle
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            special_summon (1, monster) from gy
+            negate effect
         }
     }
 

@@ -1,0 +1,45 @@
+// Cursed Bride Doll
+// Transpiled from c71545247.lua
+
+card "Cursed Bride Doll" {
+    password: 71545247
+    type: Effect Monster | Tuner
+    attribute: EARTH
+    race: Spellcaster
+    level: 3
+    atk: 0
+    def: 2100
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,0 +1,35 @@
+// Dr. Frankenderp
+// Transpiled from c27995943.lua
+
+card "Dr. Frankenderp" {
+    password: 27995943
+    type: Effect Monster
+    attribute: DARK
+    race: Psychic
+    level: 3
+    atk: 300
+    def: 300
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: when_summoned
+        cost {
+            pay_lp 1000
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+            shuffle deck
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

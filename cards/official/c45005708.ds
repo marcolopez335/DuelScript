@@ -1,0 +1,32 @@
+// The Bystial Aluber
+// Transpiled from c45005708.lua
+
+card "The Bystial Aluber" {
+    password: 45005708
+    type: Effect Monster | Tuner
+    attribute: DARK
+    race: Dragon
+    level: 4
+    atk: 1800
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            send (1, card) to gy
+            take_control of (1, monster, opponent controls)
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

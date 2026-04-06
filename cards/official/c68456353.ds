@@ -1,5 +1,5 @@
 // Exterio's Fang
-// Migrated from c68456353.lua
+// Transpiled from c68456353.lua
 
 card "Exterio's Fang" {
     password: 68456353
@@ -9,8 +9,8 @@ card "Exterio's Fang" {
         speed: spell_speed_1
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            negate activation and destroy
+            negate activation
+            destroy (1+, card, either_player controls)
         }
     }
 

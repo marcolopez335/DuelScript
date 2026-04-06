@@ -1,5 +1,5 @@
 // Gem-Knight Amber
-// Migrated from c72056560.lua
+// Transpiled from c72056560.lua
 
 card "Gem-Knight Amber" {
     password: 72056560
@@ -12,9 +12,12 @@ card "Gem-Knight Amber" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
+        cost {
+            send self to gy
+        }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

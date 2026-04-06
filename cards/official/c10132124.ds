@@ -1,5 +1,5 @@
 // Wingtortoise
-// Migrated from c10132124.lua
+// Transpiled from c10132124.lua
 
 card "Wingtortoise" {
     password: 10132124
@@ -13,9 +13,10 @@ card "Wingtortoise" {
     effect "Effect 1" {
         speed: spell_speed_1
         optional: true
-        condition: in_gy
+        activate_from: [hand, gy]
+        trigger: when_banished
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

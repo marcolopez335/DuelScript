@@ -1,0 +1,41 @@
+// Mathmech Division
+// Transpiled from c89743495.lua
+
+card "Mathmech Division" {
+    password: 89743495
+    type: Effect Monster
+    attribute: EARTH
+    race: Cyberse
+    level: 4
+    atk: 1500
+    def: 1000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            tribute self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

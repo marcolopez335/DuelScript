@@ -1,5 +1,5 @@
 // Kozmoll Dark Lady
-// Migrated from c12408276.lua
+// Transpiled from c12408276.lua
 
 card "Kozmoll Dark Lady" {
     password: 12408276
@@ -18,21 +18,22 @@ card "Kozmoll Dark Lady" {
             banish self
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        damage_step: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         cost {
-            pay_lp 1000 // TODO: verify amount
+            pay_lp 1000
         }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            negate activation and destroy
+            negate activation
+            destroy (1+, card, either_player controls)
         }
     }
 

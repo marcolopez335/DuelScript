@@ -1,0 +1,49 @@
+// Colossal Fighter/Assault Mode
+// Transpiled from c38898779.lua
+
+card "Colossal Fighter/Assault Mode" {
+    password: 38898779
+    type: Effect Monster | Spirit
+    attribute: DARK
+    race: Warrior
+    level: 10
+    atk: 3300
+    def: 1500
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

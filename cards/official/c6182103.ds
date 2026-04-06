@@ -1,5 +1,5 @@
 // Myutant Ultimus
-// Migrated from c6182103.lua
+// Transpiled from c6182103.lua
 
 card "Myutant Ultimus" {
     password: 6182103
@@ -10,11 +10,6 @@ card "Myutant Ultimus" {
     atk: 3500
     def: 3000
 
-    materials {
-        require: 2+ monster
-        method: fusion
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -23,19 +18,24 @@ card "Myutant Ultimus" {
         speed: spell_speed_2
         once_per_turn: hard
         optional: true
+        damage_step: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            banish self
+        }
         on_resolve {
             negate activation
+            banish (1+, card)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_destroyed
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

@@ -1,5 +1,5 @@
 // Infinitrack Tunneller
-// Migrated from c97316367.lua
+// Transpiled from c97316367.lua
 
 card "Infinitrack Tunneller" {
     password: 97316367
@@ -13,20 +13,24 @@ card "Infinitrack Tunneller" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
+        cost {
+            tribute self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
+        once_per_turn: soft
         cost {
             banish self
         }
         on_resolve {
-            draw 2 // TODO: verify count
+            return (1, card) to deck shuffle
+            shuffle deck
+            draw 2
         }
     }
 

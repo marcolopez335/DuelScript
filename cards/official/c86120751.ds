@@ -1,0 +1,42 @@
+// Aleister the Invoker
+// Transpiled from c86120751.lua
+
+card "Aleister the Invoker" {
+    password: 86120751
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 4
+    atk: 1000
+    def: 1800
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        damage_step: true
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_summoned
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

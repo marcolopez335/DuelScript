@@ -1,5 +1,5 @@
 // Masked HERO Dusk Crow
-// Migrated from c10808715.lua
+// Transpiled from c10808715.lua
 
 card "Masked HERO Dusk Crow" {
     password: 10808715
@@ -13,18 +13,21 @@ card "Masked HERO Dusk Crow" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
+        cost {
+            banish self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_summoned
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

@@ -1,5 +1,5 @@
 // Bending Destiny
-// Migrated from c94662235.lua
+// Transpiled from c94662235.lua
 
 card "Bending Destiny" {
     password: 94662235
@@ -10,6 +10,7 @@ card "Bending Destiny" {
         trigger: when_summoned
         on_resolve {
             negate summon
+            banish (1+, card)
         }
     }
 
@@ -18,24 +19,25 @@ card "Bending Destiny" {
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
             negate activation
+            banish (1+, card)
         }
     }
 
     effect "Effect 3" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_end_phase
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 4" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_end_phase
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

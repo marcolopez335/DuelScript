@@ -1,0 +1,48 @@
+// Paleozoic Anomalocaris
+// Transpiled from c61307542.lua
+
+card "Paleozoic Anomalocaris" {
+    password: 61307542
+    type: Xyz Monster
+    attribute: WATER
+    race: Aqua
+    rank: 2
+    atk: 2400
+    def: 0
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            add_to_hand (1, card) from gy
+            shuffle deck
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

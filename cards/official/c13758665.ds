@@ -1,0 +1,24 @@
+// Magician's Left Hand
+// Transpiled from c13758665.lua
+
+card "Magician's Left Hand" {
+    password: 13758665
+    type: Continuous Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            negate effect
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

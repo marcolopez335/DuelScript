@@ -1,0 +1,63 @@
+// Genex Ally Triarm
+// Transpiled from c17760003.lua
+
+card "Genex Ally Triarm" {
+    password: 17760003
+    type: Synchro Monster
+    attribute: DARK
+    race: Machine
+    level: 6
+    atk: 2400
+    def: 1600
+
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            draw 1
+        }
+    }
+
+}

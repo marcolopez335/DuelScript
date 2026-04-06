@@ -1,0 +1,35 @@
+// Fluffal Bear
+// Transpiled from c3841833.lua
+
+card "Fluffal Bear" {
+    password: 3841833
+    type: Effect Monster
+    attribute: EARTH
+    race: Fairy
+    level: 3
+    atk: 1200
+    def: 800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            set (1, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            tribute self
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

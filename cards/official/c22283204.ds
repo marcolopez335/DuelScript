@@ -1,5 +1,5 @@
 // The Gaze of Timaeus
-// Migrated from c22283204.lua
+// Transpiled from c22283204.lua
 
 card "The Gaze of Timaeus" {
     password: 22283204
@@ -9,7 +9,9 @@ card "The Gaze of Timaeus" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            return (1, card) to deck shuffle
+            special_summon (1, monster) from gy
+            banish (1+, card)
         }
     }
 

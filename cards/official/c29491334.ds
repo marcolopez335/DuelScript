@@ -1,5 +1,5 @@
 // Kozmo DOG Fighter
-// Migrated from c29491334.lua
+// Transpiled from c29491334.lua
 
 card "Kozmo DOG Fighter" {
     password: 29491334
@@ -12,11 +12,12 @@ card "Kozmo DOG Fighter" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: during_standby_phase
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            create_token { atk: 0 def: 0 }
+            special_summon (1, monster) from gy
         }
     }
 
@@ -24,8 +25,11 @@ card "Kozmo DOG Fighter" {
         speed: spell_speed_1
         optional: true
         trigger: when_sent_to gy
+        cost {
+            banish self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

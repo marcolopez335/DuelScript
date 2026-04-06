@@ -1,0 +1,41 @@
+// Kozmo Dark Destroyer
+// Transpiled from c55885348.lua
+
+card "Kozmo Dark Destroyer" {
+    password: 55885348
+    type: Effect Monster
+    attribute: DARK
+    race: Machine
+    level: 8
+    atk: 3000
+    def: 1800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_sent_to gy
+        cost {
+            banish self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

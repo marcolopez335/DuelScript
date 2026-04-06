@@ -1,5 +1,5 @@
 // Gunkan Suship Daily Special
-// Migrated from c24393683.lua
+// Transpiled from c24393683.lua
 
 card "Gunkan Suship Daily Special" {
     password: 24393683
@@ -8,19 +8,19 @@ card "Gunkan Suship Daily Special" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_2
         optional: true
-        condition: in_gy
         cost {
             banish self
         }
         on_resolve {
-            draw 2 // TODO: verify count
+            return (1, card) to deck shuffle
+            shuffle deck
         }
     }
 

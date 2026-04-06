@@ -1,5 +1,5 @@
 // Dark Magical Circle
-// Migrated from c47222536.lua
+// Transpiled from c47222536.lua
 
 card "Dark Magical Circle" {
     password: 47222536
@@ -9,17 +9,18 @@ card "Dark Magical Circle" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            shuffle deck
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_summoned
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 

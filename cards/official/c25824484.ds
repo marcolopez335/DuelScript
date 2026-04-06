@@ -1,0 +1,30 @@
+// Sylvan Hermitree
+// Transpiled from c25824484.lua
+
+card "Sylvan Hermitree" {
+    password: 25824484
+    type: Effect Monster
+    attribute: FIRE
+    race: Plant
+    level: 8
+    atk: 2700
+    def: 1800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            send (1, card) to gy
+            draw 1
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_sent_to gy
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,0 +1,38 @@
+// Twin-Headed Behemoth
+// Transpiled from c43586926.lua
+
+card "Twin-Headed Behemoth" {
+    password: 43586926
+    type: Effect Monster
+    attribute: WIND
+    race: Dragon
+    level: 3
+    atk: 1500
+    def: 1200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_sent_to gy
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: during_end_phase
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

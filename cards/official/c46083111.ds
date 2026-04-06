@@ -1,0 +1,33 @@
+// Krawler Dendrite
+// Transpiled from c46083111.lua
+
+card "Krawler Dendrite" {
+    password: 46083111
+    type: Effect Monster
+    attribute: EARTH
+    race: Insect
+    level: 2
+    atk: 1300
+    def: 600
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        damage_step: true
+        trigger: when_leaves_field
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

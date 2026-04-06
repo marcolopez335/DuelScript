@@ -1,0 +1,31 @@
+// Chain Summon
+// Transpiled from c90812044.lua
+
+card "Chain Summon" {
+    password: 90812044
+    type: Normal Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+}

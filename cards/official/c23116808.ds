@@ -1,0 +1,48 @@
+// Goka, the Pyre of Malice
+// Transpiled from c23116808.lua
+
+card "Goka, the Pyre of Malice" {
+    password: 23116808
+    type: Effect Monster
+    attribute: FIRE
+    race: Zombie
+    level: 6
+    atk: 2200
+    def: 1900
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
+        on_resolve {
+            create_token { atk: 0 def: 0 }
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        cost {
+            tribute self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 5" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

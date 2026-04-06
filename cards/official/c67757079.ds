@@ -1,5 +1,5 @@
 // King of the Beasts
-// Migrated from c67757079.lua
+// Transpiled from c67757079.lua
 
 card "King of the Beasts" {
     password: 67757079
@@ -12,9 +12,12 @@ card "King of the Beasts" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        condition: in_gy
+        activate_from: [hand, gy]
+        cost {
+            tribute self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

@@ -1,0 +1,44 @@
+// Toon Harpie Lady
+// Transpiled from c64116319.lua
+
+card "Toon Harpie Lady" {
+    password: 64116319
+    type: Effect Monster
+    attribute: WIND
+    race: Winged Beast
+    level: 4
+    atk: 1300
+    def: 1400
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_summoned
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            special_summon (1, monster) from gy
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

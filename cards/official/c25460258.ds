@@ -1,5 +1,5 @@
 // Darkflare Dragon
-// Migrated from c25460258.lua
+// Transpiled from c25460258.lua
 
 card "Darkflare Dragon" {
     password: 25460258
@@ -12,9 +12,12 @@ card "Darkflare Dragon" {
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
+        cost {
+            send self to gy
+        }
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 

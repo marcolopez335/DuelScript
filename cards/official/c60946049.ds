@@ -1,0 +1,38 @@
+// Artmage Graflare
+// Transpiled from c60946049.lua
+
+card "Artmage Graflare" {
+    password: 60946049
+    type: Effect Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 5
+    atk: 2100
+    def: 1500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            special_summon (1, monster) from gy
+            set (1, card)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

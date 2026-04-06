@@ -1,0 +1,39 @@
+// Ritual Beast Tamer Zeframpilica
+// Transpiled from c57777714.lua
+
+card "Ritual Beast Tamer Zeframpilica" {
+    password: 57777714
+    type: Pendulum Monster
+    attribute: WIND
+    race: Psychic
+    level: 3
+    scale: 1
+    atk: 1000
+    def: 1500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

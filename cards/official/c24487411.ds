@@ -1,5 +1,5 @@
 // Detonate Deleter
-// Migrated from c24487411.lua
+// Transpiled from c24487411.lua
 
 card "Detonate Deleter" {
     password: 24487411
@@ -9,29 +9,27 @@ card "Detonate Deleter" {
     link: 3
     atk: 2100
 
-    materials {
-        require: 2+ effect monster
-        method: link
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
+        cost {
+            tribute self
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

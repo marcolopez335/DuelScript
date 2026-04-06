@@ -1,5 +1,5 @@
 // Swordsoul Auspice Chunjun
-// Migrated from c29884951.lua
+// Transpiled from c29884951.lua
 
 card "Swordsoul Auspice Chunjun" {
     password: 29884951
@@ -14,7 +14,7 @@ card "Swordsoul Auspice Chunjun" {
         speed: spell_speed_1
         optional: true
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
@@ -22,17 +22,21 @@ card "Swordsoul Auspice Chunjun" {
         speed: spell_speed_2
         once_per_turn: hard
         optional: true
+        cost {
+            tribute self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 3" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        trigger: when_used_as_material
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 

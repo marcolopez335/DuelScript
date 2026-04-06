@@ -1,5 +1,5 @@
 // Krawler Ranvier
-// Migrated from c10698416.lua
+// Transpiled from c10698416.lua
 
 card "Krawler Ranvier" {
     password: 10698416
@@ -15,16 +15,18 @@ card "Krawler Ranvier" {
         once_per_turn: hard
         optional: true
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        damage_step: true
+        trigger: when_leaves_field
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

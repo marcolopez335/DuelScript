@@ -1,5 +1,5 @@
 // Scareclaw Reichheart
-// Migrated from c82361809.lua
+// Transpiled from c82361809.lua
 
 card "Scareclaw Reichheart" {
     password: 82361809
@@ -12,11 +12,13 @@ card "Scareclaw Reichheart" {
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_summoned
         on_resolve {
-            draw 2 // TODO: verify count
+            add_to_hand (1, card) from gy
+            shuffle deck
+            draw 1
         }
     }
 

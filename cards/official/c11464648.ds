@@ -1,0 +1,44 @@
+// Fiendsmith's Rextremende
+// Transpiled from c11464648.lua
+
+card "Fiendsmith's Rextremende" {
+    password: 11464648
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Fiend
+    level: 9
+    atk: 3000
+    def: 3600
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

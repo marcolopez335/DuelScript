@@ -1,5 +1,5 @@
 // Burnout
-// Migrated from c25669282.lua
+// Transpiled from c25669282.lua
 
 card "Burnout" {
     password: 25669282
@@ -8,8 +8,11 @@ card "Burnout" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
+        cost {
+            banish self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
@@ -17,12 +20,11 @@ card "Burnout" {
         speed: spell_speed_1
         optional: true
         trigger: when attack_declared
-        condition: in_gy
         cost {
             banish self
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

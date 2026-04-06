@@ -1,5 +1,5 @@
 // Morphtronic Converter
-// Migrated from c90659259.lua
+// Transpiled from c90659259.lua
 
 card "Morphtronic Converter" {
     password: 90659259
@@ -9,7 +9,9 @@ card "Morphtronic Converter" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
+            shuffle deck
+            return (1, card) to deck shuffle
         }
     }
 

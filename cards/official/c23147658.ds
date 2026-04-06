@@ -1,0 +1,39 @@
+// Weathering Soldier
+// Transpiled from c23147658.lua
+
+card "Weathering Soldier" {
+    password: 23147658
+    type: Effect Monster
+    attribute: EARTH
+    race: Rock
+    level: 4
+    atk: 2000
+    def: 1200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_battle_destroyed
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

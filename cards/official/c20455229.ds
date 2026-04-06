@@ -1,0 +1,38 @@
+// Firewall Defenser
+// Transpiled from c20455229.lua
+
+card "Firewall Defenser" {
+    password: 20455229
+    type: Effect Monster
+    attribute: DARK
+    race: Cyberse
+    level: 4
+    atk: 1200
+    def: 1500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_used_as_material
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

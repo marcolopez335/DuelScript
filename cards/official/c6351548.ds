@@ -1,0 +1,33 @@
+// Dawn Knight
+// Transpiled from c6351548.lua
+
+card "Dawn Knight" {
+    password: 6351548
+    type: Effect Monster
+    attribute: LIGHT
+    race: Warrior
+    level: 4
+    atk: 1400
+    def: 1200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: when_sent_to gy
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+}

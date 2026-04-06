@@ -1,0 +1,35 @@
+// Nine-Lives Cat
+// Transpiled from c28981598.lua
+
+card "Nine-Lives Cat" {
+    password: 28981598
+    type: Xyz Monster
+    attribute: EARTH
+    race: Zombie
+    rank: 9
+    atk: 900
+    def: 3300
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

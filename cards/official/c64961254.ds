@@ -1,5 +1,5 @@
 // Goddess Verdande's Guidance
-// Migrated from c64961254.lua
+// Transpiled from c64961254.lua
 
 card "Goddess Verdande's Guidance" {
     password: 64961254
@@ -9,15 +9,18 @@ card "Goddess Verdande's Guidance" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
+            set (1, card)
+            add_to_hand (1, card) from gy
+            shuffle deck
         }
     }
 

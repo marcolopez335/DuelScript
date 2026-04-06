@@ -1,0 +1,30 @@
+// Drytron Beta Rastaban
+// Transpiled from c33543890.lua
+
+card "Drytron Beta Rastaban" {
+    password: 33543890
+    type: Effect Monster | Spirit
+    attribute: LIGHT
+    race: Machine
+    level: 1
+    atk: 2000
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand, gy]
+        on_resolve {
+            special_summon (1, monster) from gy
+            send (1, card) to gy
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // Embers of the Ashened
-// Migrated from c35035985.lua
+// Transpiled from c35035985.lua
 
 card "Embers of the Ashened" {
     password: 35035985
@@ -9,11 +9,6 @@ card "Embers of the Ashened" {
     level: 8
     atk: 2900
     def: 2400
-
-    materials {
-        require: 2+ monster
-        method: fusion
-    }
 
     summon_condition {
         cannot_normal_summon: true
@@ -25,16 +20,16 @@ card "Embers of the Ashened" {
         optional: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

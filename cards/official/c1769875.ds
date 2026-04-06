@@ -1,0 +1,55 @@
+// Chimera the King of Phantom Beasts
+// Transpiled from c1769875.lua
+
+card "Chimera the King of Phantom Beasts" {
+    password: 1769875
+    type: Fusion Monster
+    attribute: WIND
+    race: Beast
+    level: 6
+    atk: 2100
+    def: 1800
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        cost {
+            banish self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+}

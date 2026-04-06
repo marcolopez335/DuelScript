@@ -1,0 +1,31 @@
+// Synchro Soldier
+// Transpiled from c79796561.lua
+
+card "Synchro Soldier" {
+    password: 79796561
+    type: Effect Monster
+    attribute: EARTH
+    race: Machine
+    level: 1
+    atk: 0
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            banish (1+, card)
+            deal_damage to opponent: 600
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

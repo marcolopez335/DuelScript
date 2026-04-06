@@ -1,0 +1,47 @@
+// Performapal Uni
+// Transpiled from c7714344.lua
+
+card "Performapal Uni" {
+    password: 7714344
+    type: Effect Monster
+    attribute: LIGHT
+    race: Beast-Warrior
+    level: 4
+    atk: 800
+    def: 1500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        cost {
+            banish self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: when_summoned
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

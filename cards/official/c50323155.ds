@@ -1,5 +1,5 @@
 // Black Horn of Heaven
-// Migrated from c50323155.lua
+// Transpiled from c50323155.lua
 
 card "Black Horn of Heaven" {
     password: 50323155
@@ -7,8 +7,10 @@ card "Black Horn of Heaven" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        trigger: when_summoned by_special_summon
         on_resolve {
-            negate summon and destroy
+            negate summon
+            destroy (1+, card, either_player controls)
         }
     }
 

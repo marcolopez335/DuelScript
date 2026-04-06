@@ -1,5 +1,5 @@
 // Blast Held by Destiny
-// Migrated from c51208877.lua
+// Transpiled from c51208877.lua
 
 card "Blast Held by Destiny" {
     password: 51208877
@@ -10,17 +10,18 @@ card "Blast Held by Destiny" {
         once_per_turn: hard
         trigger: when attack_declared
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 1000
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_sent_to gy
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

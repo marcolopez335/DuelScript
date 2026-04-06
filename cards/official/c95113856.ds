@@ -1,5 +1,5 @@
 // Phantom Fortress Enterblathnir
-// Migrated from c95113856.lua
+// Transpiled from c95113856.lua
 
 card "Phantom Fortress Enterblathnir" {
     password: 95113856
@@ -10,24 +10,18 @@ card "Phantom Fortress Enterblathnir" {
     atk: 2900
     def: 2500
 
-    materials {
-        require: 2+ monster
-        same_level: true
-        method: xyz
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         cost {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 

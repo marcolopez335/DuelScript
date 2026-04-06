@@ -1,5 +1,5 @@
 // Talkback Lancer
-// Migrated from c96380700.lua
+// Transpiled from c96380700.lua
 
 card "Talkback Lancer" {
     password: 96380700
@@ -9,11 +9,6 @@ card "Talkback Lancer" {
     link: 1
     atk: 1200
 
-    materials {
-        require: 2+ effect monster
-        method: link
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -21,8 +16,11 @@ card "Talkback Lancer" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
+        cost {
+            tribute self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

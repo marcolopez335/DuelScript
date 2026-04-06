@@ -1,5 +1,5 @@
 // Kid Guard
-// Migrated from c10759529.lua
+// Transpiled from c10759529.lua
 
 card "Kid Guard" {
     password: 10759529
@@ -8,9 +8,12 @@ card "Kid Guard" {
     effect "Effect 1" {
         speed: spell_speed_1
         trigger: when attack_declared
+        cost {
+            tribute self
+        }
         on_resolve {
             negate attack
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

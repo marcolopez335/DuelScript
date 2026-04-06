@@ -1,5 +1,5 @@
 // Altergeist Primebanshee
-// Migrated from c93503294.lua
+// Transpiled from c93503294.lua
 
 card "Altergeist Primebanshee" {
     password: 93503294
@@ -9,11 +9,6 @@ card "Altergeist Primebanshee" {
     link: 3
     atk: 2100
 
-    materials {
-        require: 2+ effect monster
-        method: link
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -22,18 +17,21 @@ card "Altergeist Primebanshee" {
         speed: spell_speed_2
         once_per_turn: hard
         optional: true
+        cost {
+            tribute self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_sent_to gy
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

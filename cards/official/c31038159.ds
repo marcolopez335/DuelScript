@@ -1,0 +1,31 @@
+// Genesis Dragon
+// Transpiled from c31038159.lua
+
+card "Genesis Dragon" {
+    password: 31038159
+    type: Effect Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 6
+    atk: 2200
+    def: 1800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+}

@@ -1,0 +1,38 @@
+// T.G. Rush Rhino
+// Transpiled from c36687247.lua
+
+card "T.G. Rush Rhino" {
+    password: 36687247
+    type: Effect Monster
+    attribute: EARTH
+    race: Beast
+    level: 4
+    atk: 1600
+    def: 800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_sent_to gy
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: during_end_phase
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // Dragonmaid Sheou
-// Migrated from c24799107.lua
+// Transpiled from c24799107.lua
 
 card "Dragonmaid Sheou" {
     password: 24799107
@@ -9,11 +9,6 @@ card "Dragonmaid Sheou" {
     level: 10
     atk: 3500
     def: 2000
-
-    materials {
-        require: 2+ monster
-        method: fusion
-    }
 
     summon_condition {
         cannot_normal_summon: true
@@ -25,19 +20,19 @@ card "Dragonmaid Sheou" {
         optional: true
         trigger: during_standby_phase
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        damage_step: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            special_summon (1, monster) from gy // TODO: verify
-            negate activation and destroy
+            negate activation
+            destroy (1+, card, either_player controls)
         }
     }
 

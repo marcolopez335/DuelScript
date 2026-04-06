@@ -1,0 +1,40 @@
+// Tri-Brigade Fraktall
+// Transpiled from c87209160.lua
+
+card "Tri-Brigade Fraktall" {
+    password: 87209160
+    type: Effect Monster
+    attribute: FIRE
+    race: Beast-Warrior
+    level: 4
+    atk: 1900
+    def: 1600
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand, monster_zone]
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

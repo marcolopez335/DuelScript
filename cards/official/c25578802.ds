@@ -1,0 +1,25 @@
+// Two-Man Cell Battle
+// Transpiled from c25578802.lua
+
+card "Two-Man Cell Battle" {
+    password: 25578802
+    type: Continuous Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: during_end_phase
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

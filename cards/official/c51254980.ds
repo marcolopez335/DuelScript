@@ -1,5 +1,5 @@
 // Naturia Mantis
-// Migrated from c51254980.lua
+// Transpiled from c51254980.lua
 
 card "Naturia Mantis" {
     password: 51254980
@@ -14,8 +14,11 @@ card "Naturia Mantis" {
         speed: spell_speed_1
         optional: true
         trigger: when_summoned
+        cost {
+            send self to gy
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

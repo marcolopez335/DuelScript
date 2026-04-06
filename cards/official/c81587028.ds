@@ -1,0 +1,40 @@
+// Box of Friends
+// Transpiled from c81587028.lua
+
+card "Box of Friends" {
+    password: 81587028
+    type: Effect Monster
+    attribute: LIGHT
+    race: Machine
+    level: 1
+    atk: 0
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

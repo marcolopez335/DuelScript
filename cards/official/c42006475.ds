@@ -1,0 +1,40 @@
+// Palladium Oracle Mana
+// Transpiled from c42006475.lua
+
+card "Palladium Oracle Mana" {
+    password: 42006475
+    type: Effect Monster
+    attribute: LIGHT
+    race: Spellcaster
+    level: 6
+    atk: 2000
+    def: 1700
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [hand, gy]
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

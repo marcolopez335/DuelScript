@@ -1,0 +1,34 @@
+// Plunder Patrollship Moerk
+// Transpiled from c20248754.lua
+
+card "Plunder Patrollship Moerk" {
+    password: 20248754
+    type: Xyz Monster
+    attribute: DARK
+    race: Fiend
+    rank: 4
+    atk: 1000
+    def: 2500
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            banish (1+, card)
+            add_to_hand (1, card) from gy
+            shuffle deck
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

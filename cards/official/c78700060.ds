@@ -1,0 +1,33 @@
+// Doomcaliber Knight
+// Transpiled from c78700060.lua
+
+card "Doomcaliber Knight" {
+    password: 78700060
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 4
+    atk: 1900
+    def: 1800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        damage_step: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            tribute self
+        }
+        on_resolve {
+            negate activation
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

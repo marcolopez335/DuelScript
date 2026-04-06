@@ -1,5 +1,5 @@
 // Aloof Lupine
-// Migrated from c92998610.lua
+// Transpiled from c92998610.lua
 
 card "Aloof Lupine" {
     password: 92998610
@@ -15,18 +15,21 @@ card "Aloof Lupine" {
         once_per_turn: hard
         optional: true
         trigger: when_summoned
+        cost {
+            banish self
+        }
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_destroyed
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

@@ -1,0 +1,42 @@
+// Prototype Psychic Blaster
+// Transpiled from c95091919.lua
+
+card "Prototype Psychic Blaster" {
+    password: 95091919
+    type: Effect Monster
+    attribute: EARTH
+    race: Psychic
+    level: 6
+    atk: 2000
+    def: 1500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            discard self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            pay_lp 1000
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

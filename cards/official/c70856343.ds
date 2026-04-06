@@ -1,0 +1,40 @@
+// Radiant Vouirescence
+// Transpiled from c70856343.lua
+
+card "Radiant Vouirescence" {
+    password: 70856343
+    type: Effect Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 4
+    atk: 1600
+    def: 800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned
+        cost {
+            discard (1, card)
+        }
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

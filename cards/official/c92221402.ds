@@ -1,0 +1,28 @@
+// Chaotic Elements
+// Transpiled from c92221402.lua
+
+card "Chaotic Elements" {
+    password: 92221402
+    type: Normal Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            add_to_hand (1, card) from gy
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            banish self
+        }
+        on_resolve {
+            take_control of (1, monster, opponent controls)
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // Defrag Dragon
-// Migrated from c58582979.lua
+// Transpiled from c58582979.lua
 
 card "Defrag Dragon" {
     password: 58582979
@@ -12,10 +12,12 @@ card "Defrag Dragon" {
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
+        once_per_turn: soft
+        cost {
+            banish self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

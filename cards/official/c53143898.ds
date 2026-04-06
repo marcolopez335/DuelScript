@@ -1,0 +1,31 @@
+// Altergeist Marionetter
+// Transpiled from c53143898.lua
+
+card "Altergeist Marionetter" {
+    password: 53143898
+    type: Effect Monster
+    attribute: LIGHT
+    race: Spellcaster
+    level: 4
+    atk: 1600
+    def: 1700
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            set (1, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            send (1, card) to gy
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

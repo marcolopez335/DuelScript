@@ -1,5 +1,5 @@
 // Gold Pride - It's Neck and Neck!
-// Migrated from c90164606.lua
+// Transpiled from c90164606.lua
 
 card "Gold Pride - It's Neck and Neck!" {
     password: 90164606
@@ -9,17 +9,19 @@ card "Gold Pride - It's Neck and Neck!" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
-        condition: in_gy
+        cost {
+            banish self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

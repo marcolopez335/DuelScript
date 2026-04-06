@@ -1,0 +1,30 @@
+// Gaia Plate the Earth Giant
+// Transpiled from c14258627.lua
+
+card "Gaia Plate the Earth Giant" {
+    password: 14258627
+    type: Effect Monster
+    attribute: EARTH
+    race: Rock
+    level: 8
+    atk: 2800
+    def: 1000
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
+        on_resolve {
+            banish (1+, card)
+            send (1, card) to gy
+        }
+    }
+
+}

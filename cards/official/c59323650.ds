@@ -1,5 +1,5 @@
 // Regenesis Dragon
-// Migrated from c59323650.lua
+// Transpiled from c59323650.lua
 
 card "Regenesis Dragon" {
     password: 59323650
@@ -12,21 +12,23 @@ card "Regenesis Dragon" {
 
     effect "Effect 2" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        cost {
+            tribute self
+        }
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 
     effect "Effect 3" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: during_end_phase
-        condition: in_gy
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

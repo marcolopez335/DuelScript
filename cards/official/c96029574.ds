@@ -1,5 +1,5 @@
 // Black Brutdrago
-// Migrated from c96029574.lua
+// Transpiled from c96029574.lua
 
 card "Black Brutdrago" {
     password: 96029574
@@ -22,18 +22,22 @@ card "Black Brutdrago" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
+        cost {
+            send self to gy
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
         optional: true
+        damage_step: true
         trigger: when_sent_to gy
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

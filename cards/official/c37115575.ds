@@ -1,0 +1,52 @@
+// Malefic Truth Dragon
+// Transpiled from c37115575.lua
+
+card "Malefic Truth Dragon" {
+    password: 37115575
+    type: Effect Monster | Spirit
+    attribute: DARK
+    race: Dragon
+    level: 12
+    atk: 5000
+    def: 5000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        activate_from: [hand, gy]
+        damage_step: true
+        trigger: when_destroyed
+        cost {
+            pay_lp your_lp / 2
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

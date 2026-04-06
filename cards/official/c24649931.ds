@@ -1,5 +1,5 @@
 // Materialization
-// Migrated from c24649931.lua
+// Transpiled from c24649931.lua
 
 card "Materialization" {
     password: 24649931
@@ -9,9 +9,10 @@ card "Materialization" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            destroy (1+, card, either_player controls) // TODO: verify
-            special_summon self from gy // TODO: verify
-            add_to_hand (1, card) from gy // TODO: verify
+            special_summon (1, monster) from gy
+            add_to_hand (1, card) from gy
+            destroy (1+, card, either_player controls)
+            destroy (1+, card, either_player controls)
         }
     }
 

@@ -1,5 +1,5 @@
 // Pollinosis
-// Migrated from c91078716.lua
+// Transpiled from c91078716.lua
 
 card "Pollinosis" {
     password: 91078716
@@ -8,17 +8,24 @@ card "Pollinosis" {
     effect "Effect 1" {
         speed: spell_speed_1
         trigger: when_summoned
+        cost {
+            tribute self
+        }
         on_resolve {
-            negate summon and destroy
+            negate summon
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            tribute self
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            negate activation and destroy
+            negate activation
+            destroy (1+, card, either_player controls)
         }
     }
 

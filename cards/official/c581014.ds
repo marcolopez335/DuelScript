@@ -1,5 +1,5 @@
 // Daigusto Emeral
-// Migrated from c581014.lua
+// Transpiled from c581014.lua
 
 card "Daigusto Emeral" {
     password: 581014
@@ -10,25 +10,20 @@ card "Daigusto Emeral" {
     atk: 1800
     def: 800
 
-    materials {
-        require: 2+ monster
-        same_level: true
-        method: xyz
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         cost {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            draw 2 // TODO: verify count
-            special_summon self from gy // TODO: verify
+            return (1, card) to deck shuffle
+            shuffle deck
+            draw 1
         }
     }
 

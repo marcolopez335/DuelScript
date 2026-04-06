@@ -1,5 +1,5 @@
 // Skull Conductor
-// Migrated from c62782218.lua
+// Transpiled from c62782218.lua
 
 card "Skull Conductor" {
     password: 62782218
@@ -12,9 +12,9 @@ card "Skull Conductor" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
@@ -24,7 +24,7 @@ card "Skull Conductor" {
             send self to gy
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

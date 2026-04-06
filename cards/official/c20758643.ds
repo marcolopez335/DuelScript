@@ -1,0 +1,39 @@
+// Graff, Malebranche of the Burning Abyss
+// Transpiled from c20758643.lua
+
+card "Graff, Malebranche of the Burning Abyss" {
+    password: 20758643
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 3
+    atk: 1000
+    def: 1500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

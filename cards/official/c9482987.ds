@@ -1,0 +1,38 @@
+// Endymion, the Magistus of Mastery
+// Transpiled from c9482987.lua
+
+card "Endymion, the Magistus of Mastery" {
+    password: 9482987
+    type: Effect Monster
+    attribute: WATER
+    race: Spellcaster
+    level: 4
+    atk: 1300
+    def: 1700
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            equip (1, card) to (1, monster)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            shuffle deck
+            return (1, card) to deck shuffle
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,0 +1,46 @@
+// Revendread Slayer
+// Transpiled from c4388680.lua
+
+card "Revendread Slayer" {
+    password: 4388680
+    type: Ritual Monster
+    attribute: DARK
+    race: Zombie
+    level: 6
+    atk: 2400
+    def: 0
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        cost {
+            banish self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            add_to_hand (1, card) from gy
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

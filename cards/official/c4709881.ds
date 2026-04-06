@@ -1,0 +1,48 @@
+// Auram the World Chalice Blademaster
+// Transpiled from c4709881.lua
+
+card "Auram the World Chalice Blademaster" {
+    password: 4709881
+    type: Link Monster
+    attribute: FIRE
+    race: Cyberse
+    link: 2
+    atk: 2000
+
+    materials {
+        require: 2+ effect monster
+        method: link
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            tribute self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

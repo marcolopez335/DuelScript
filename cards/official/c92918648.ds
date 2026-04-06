@@ -1,5 +1,5 @@
 // Hierophant of Prophecy
-// Migrated from c92918648.lua
+// Transpiled from c92918648.lua
 
 card "Hierophant of Prophecy" {
     password: 92918648
@@ -22,12 +22,12 @@ card "Hierophant of Prophecy" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         cost {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

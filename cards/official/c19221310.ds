@@ -1,5 +1,5 @@
 // Odd-Eyes Saber Dragon
-// Migrated from c19221310.lua
+// Transpiled from c19221310.lua
 
 card "Odd-Eyes Saber Dragon" {
     password: 19221310
@@ -12,8 +12,12 @@ card "Odd-Eyes Saber Dragon" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        cost {
+            tribute self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            send (1, card) to gy
+            special_summon (1, monster) from gy
         }
     }
 
@@ -21,7 +25,7 @@ card "Odd-Eyes Saber Dragon" {
         speed: spell_speed_1
         optional: true
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

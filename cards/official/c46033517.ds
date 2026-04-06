@@ -1,0 +1,49 @@
+// Machina Ruinforce
+// Transpiled from c46033517.lua
+
+card "Machina Ruinforce" {
+    password: 46033517
+    type: Effect Monster | Spirit
+    attribute: DARK
+    race: Machine
+    level: 10
+    atk: 4600
+    def: 4100
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            pay_lp your_lp / 2
+        }
+        on_resolve {
+            negate activation
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

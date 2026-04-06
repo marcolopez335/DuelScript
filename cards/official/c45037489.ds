@@ -1,5 +1,5 @@
 // Chevalier de Fleur
-// Migrated from c45037489.lua
+// Transpiled from c45037489.lua
 
 card "Chevalier de Fleur" {
     password: 45037489
@@ -22,12 +22,13 @@ card "Chevalier de Fleur" {
 
     effect "Effect 1" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        damage_step: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            negate activation and destroy
+            negate activation
+            destroy (1+, card, either_player controls)
         }
     }
 

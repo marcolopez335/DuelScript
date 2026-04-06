@@ -1,0 +1,33 @@
+// Orbital Hydralander
+// Transpiled from c44009443.lua
+
+card "Orbital Hydralander" {
+    password: 44009443
+    type: Effect Monster | Spirit
+    attribute: DARK
+    race: Machine
+    level: 8
+    atk: 3000
+    def: 1500
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

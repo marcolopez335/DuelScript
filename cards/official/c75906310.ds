@@ -1,0 +1,44 @@
+// Armed Dragon Catapult Cannon
+// Transpiled from c75906310.lua
+
+card "Armed Dragon Catapult Cannon" {
+    password: 75906310
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Machine
+    level: 10
+    atk: 3500
+    def: 3000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        cost {
+            banish self
+        }
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,0 +1,33 @@
+// Dimension Gate
+// Transpiled from c44046281.lua
+
+card "Dimension Gate" {
+    password: 44046281
+    type: Continuous Trap
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when attack_declared
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_leaves_field
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

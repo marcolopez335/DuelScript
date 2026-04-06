@@ -1,5 +1,5 @@
 // Vertical Landing
-// Migrated from c904185.lua
+// Transpiled from c904185.lua
 
 card "Vertical Landing" {
     password: 904185
@@ -8,8 +8,11 @@ card "Vertical Landing" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
+        cost {
+            tribute self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            create_token { atk: 0 def: 0 }
         }
     }
 

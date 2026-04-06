@@ -1,0 +1,36 @@
+// Laevateinn the Burning Blade
+// Transpiled from c6260560.lua
+
+card "Laevateinn the Burning Blade" {
+    password: 6260560
+    type: Link Monster
+    attribute: FIRE
+    race: Warrior
+    link: 2
+    atk: 1000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        cost {
+            tribute self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,0 +1,39 @@
+// Girsu, the Orcust Mekk-Knight
+// Transpiled from c69811710.lua
+
+card "Girsu, the Orcust Mekk-Knight" {
+    password: 69811710
+    type: Effect Monster
+    attribute: DARK
+    race: Machine
+    level: 4
+    atk: 1800
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            create_token { atk: 0 def: 0 }
+            create_token { atk: 0 def: 0 }
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

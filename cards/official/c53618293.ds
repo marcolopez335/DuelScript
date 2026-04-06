@@ -1,0 +1,31 @@
+// Sunvine Maiden
+// Transpiled from c53618293.lua
+
+card "Sunvine Maiden" {
+    password: 53618293
+    type: Effect Monster
+    attribute: EARTH
+    race: Plant
+    level: 1
+    atk: 0
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            special_summon (1, monster) from gy
+            negate effect
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

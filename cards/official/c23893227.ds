@@ -1,0 +1,40 @@
+// Cyber Dragon Core
+// Transpiled from c23893227.lua
+
+card "Cyber Dragon Core" {
+    password: 23893227
+    type: Effect Monster
+    attribute: LIGHT
+    race: Machine
+    level: 2
+    atk: 400
+    def: 1500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: when_summoned
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            banish self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

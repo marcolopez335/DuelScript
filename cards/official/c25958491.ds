@@ -1,0 +1,49 @@
+// Ancient Sacred Wyvern
+// Transpiled from c25958491.lua
+
+card "Ancient Sacred Wyvern" {
+    password: 25958491
+    type: Synchro Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 7
+    atk: 2100
+    def: 2000
+
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_battle_destroyed
+        cost {
+            pay_lp 1000
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

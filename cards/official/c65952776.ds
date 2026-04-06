@@ -1,0 +1,26 @@
+// Dunnell, the Noble Arms of Light
+// Transpiled from c65952776.lua
+
+card "Dunnell, the Noble Arms of Light" {
+    password: 65952776
+    type: Equip Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            equip (1, card) to (1, monster)
+        }
+    }
+
+}

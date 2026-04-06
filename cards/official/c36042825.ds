@@ -1,0 +1,24 @@
+// One-Shot Wand
+// Transpiled from c36042825.lua
+
+card "One-Shot Wand" {
+    password: 36042825
+    type: Equip Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            draw 1
+        }
+    }
+
+}

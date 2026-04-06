@@ -1,5 +1,5 @@
 // Sacred Fire King Garunix
-// Migrated from c66431519.lua
+// Transpiled from c66431519.lua
 
 card "Sacred Fire King Garunix" {
     password: 66431519
@@ -14,20 +14,21 @@ card "Sacred Fire King Garunix" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        activate_from: [hand, gy]
+        damage_step: true
         trigger: when_destroyed
-        condition: in_gy
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_summoned
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

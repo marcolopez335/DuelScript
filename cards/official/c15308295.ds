@@ -1,0 +1,46 @@
+// Abyss Actor - Comic Relief
+// Transpiled from c15308295.lua
+
+card "Abyss Actor - Comic Relief" {
+    password: 15308295
+    type: Pendulum Monster
+    attribute: DARK
+    race: Fiend
+    level: 3
+    scale: 8
+    atk: 1000
+    def: 2000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
+        on_resolve {
+            take_control of (1, monster, opponent controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

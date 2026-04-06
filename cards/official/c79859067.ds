@@ -1,5 +1,5 @@
 // R.B. Next Phase
-// Migrated from c79859067.lua
+// Transpiled from c79859067.lua
 
 card "R.B. Next Phase" {
     password: 79859067
@@ -10,8 +10,9 @@ card "R.B. Next Phase" {
         once_per_turn: hard
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            negate activation and destroy
+            destroy (1+, card, either_player controls)
+            destroy (1+, card, either_player controls)
+            gain_lp: 2000
         }
     }
 

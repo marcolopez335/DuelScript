@@ -1,0 +1,30 @@
+// Gimmick Puppet Shadow Feeler
+// Transpiled from c34620088.lua
+
+card "Gimmick Puppet Shadow Feeler" {
+    password: 34620088
+    type: Effect Monster
+    attribute: DARK
+    race: Machine
+    level: 8
+    atk: 1000
+    def: 1000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            special_summon (1, monster) from gy
+            deal_damage to opponent: 1000
+        }
+    }
+
+}

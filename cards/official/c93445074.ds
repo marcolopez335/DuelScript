@@ -1,0 +1,53 @@
+// Graydle Cobra
+// Transpiled from c93445074.lua
+
+card "Graydle Cobra" {
+    password: 93445074
+    type: Effect Monster
+    attribute: WATER
+    race: Aqua
+    level: 3
+    atk: 1000
+    def: 1000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            equip (1, card) to (1, monster)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        trigger: when_leaves_field
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 5" {
+        speed: spell_speed_1
+        trigger: when_leaves_field
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

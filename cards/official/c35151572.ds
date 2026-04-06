@@ -1,5 +1,5 @@
 // Shaman of the Ashened City
-// Migrated from c35151572.lua
+// Transpiled from c35151572.lua
 
 card "Shaman of the Ashened City" {
     password: 35151572
@@ -12,9 +12,11 @@ card "Shaman of the Ashened City" {
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            return (1, card) to deck shuffle
+            shuffle deck
+            add_to_hand (1, card) from gy
         }
     }
 

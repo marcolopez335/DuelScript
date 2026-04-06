@@ -1,0 +1,31 @@
+// Sylvan Komushroomo
+// Transpiled from c99641328.lua
+
+card "Sylvan Komushroomo" {
+    password: 99641328
+    type: Effect Monster
+    attribute: FIRE
+    race: Plant
+    level: 2
+    atk: 100
+    def: 2000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_flipped
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

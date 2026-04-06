@@ -1,0 +1,32 @@
+// War Rock Ordeal
+// Transpiled from c71331215.lua
+
+card "War Rock Ordeal" {
+    password: 71331215
+    type: Continuous Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_battle_destroyed
+        on_resolve {
+            draw 1
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: when_banished
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+}

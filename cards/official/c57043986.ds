@@ -1,0 +1,48 @@
+// Blue-Eyes Solid Dragon
+// Transpiled from c57043986.lua
+
+card "Blue-Eyes Solid Dragon" {
+    password: 57043986
+    type: Effect Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 8
+    atk: 2500
+    def: 2000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            negate effect
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            return (1, card) to deck shuffle
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

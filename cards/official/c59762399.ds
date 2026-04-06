@@ -1,0 +1,43 @@
+// Performapal Odd-Eyes Light Phoenix
+// Transpiled from c59762399.lua
+
+card "Performapal Odd-Eyes Light Phoenix" {
+    password: 59762399
+    type: Pendulum Monster
+    attribute: LIGHT
+    race: Winged Beast
+    level: 5
+    scale: 3
+    atk: 2000
+    def: 1000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when attack_declared
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        damage_step: true
+        cost {
+            tribute self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

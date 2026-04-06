@@ -1,0 +1,34 @@
+// Junk Berserker
+// Transpiled from c59771339.lua
+
+card "Junk Berserker" {
+    password: 59771339
+    type: Synchro Monster
+    attribute: WIND
+    race: Warrior
+    level: 7
+    atk: 2700
+    def: 1800
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        cost {
+            banish self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

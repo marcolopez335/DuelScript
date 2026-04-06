@@ -1,0 +1,38 @@
+// Altergeist Meluseek
+// Transpiled from c25533642.lua
+
+card "Altergeist Meluseek" {
+    password: 25533642
+    type: Effect Monster
+    attribute: WATER
+    race: Spellcaster
+    level: 1
+    atk: 500
+    def: 300
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

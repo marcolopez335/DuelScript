@@ -1,0 +1,48 @@
+// Snake-Eyes Flamberge Dragon
+// Transpiled from c48452496.lua
+
+card "Snake-Eyes Flamberge Dragon" {
+    password: 48452496
+    type: Effect Monster
+    attribute: FIRE
+    race: Dragon
+    level: 8
+    atk: 3000
+    def: 2500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            send (1, card) to gy
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

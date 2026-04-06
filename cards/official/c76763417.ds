@@ -1,5 +1,5 @@
 // Cyber Gymnast
-// Migrated from c76763417.lua
+// Transpiled from c76763417.lua
 
 card "Cyber Gymnast" {
     password: 76763417
@@ -12,12 +12,9 @@ card "Cyber Gymnast" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
-        cost {
-            discard self // TODO: verify target
-        }
+        once_per_turn: soft
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

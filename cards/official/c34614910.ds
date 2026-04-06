@@ -1,0 +1,57 @@
+// Cyclamen the Rikka Fairy
+// Transpiled from c34614910.lua
+
+card "Cyclamen the Rikka Fairy" {
+    password: 34614910
+    type: Effect Monster
+    attribute: WATER
+    race: Plant
+    level: 4
+    atk: 1800
+    def: 800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand, monster_zone]
+        cost {
+            tribute self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_sent_to gy
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: during_end_phase
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 5" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

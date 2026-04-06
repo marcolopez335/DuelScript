@@ -1,5 +1,5 @@
 // Danger! Bigfoot!
-// Migrated from c43316238.lua
+// Transpiled from c43316238.lua
 
 card "Danger! Bigfoot!" {
     password: 43316238
@@ -13,8 +13,10 @@ card "Danger! Bigfoot!" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            draw 2 // TODO: verify count
-            special_summon (1, monster) from gy // TODO: verify
+            shuffle deck
+            send (1, card) to gy
+            special_summon (1, monster) from gy
+            draw 1
         }
     }
 
@@ -24,7 +26,7 @@ card "Danger! Bigfoot!" {
         optional: true
         trigger: when_sent_to gy
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

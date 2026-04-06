@@ -1,0 +1,37 @@
+// Giltia the D. Knight - Soul Spear
+// Transpiled from c77406972.lua
+
+card "Giltia the D. Knight - Soul Spear" {
+    password: 77406972
+    type: Effect Monster
+    attribute: LIGHT
+    race: Warrior
+    level: 5
+    atk: 1850
+    def: 1500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

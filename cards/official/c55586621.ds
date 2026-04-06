@@ -1,0 +1,45 @@
+// Fortune Lady Dark
+// Transpiled from c55586621.lua
+
+card "Fortune Lady Dark" {
+    password: 55586621
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 5
+    atk: ?
+    def: ?
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_battle_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

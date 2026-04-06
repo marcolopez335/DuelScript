@@ -1,15 +1,8 @@
 // Superdreadnought Rail Cannon Gustav Rocket
-// Migrated from c92359409.lua
+// Transpiled from c92359409.lua
 
 card "Superdreadnought Rail Cannon Gustav Rocket" {
     password: 92359409
-    // TODO: type, attribute, race, level, atk, def from CDB
-
-    materials {
-        require: 2+ monster
-        same_level: true
-        method: xyz
-    }
 
     summon_condition {
         cannot_normal_summon: true
@@ -22,15 +15,16 @@ card "Superdreadnought Rail Cannon Gustav Rocket" {
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
             negate effect
+            deal_damage to opponent: 1000
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_end_phase
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

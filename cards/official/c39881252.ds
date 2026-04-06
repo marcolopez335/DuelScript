@@ -1,0 +1,28 @@
+// Play the Diabell
+// Transpiled from c39881252.lua
+
+card "Play the Diabell" {
+    password: 39881252
+    type: Quick-Play Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: when_sent_to gy
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            banish self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

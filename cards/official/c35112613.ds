@@ -1,0 +1,43 @@
+// Kuriphoton
+// Transpiled from c35112613.lua
+
+card "Kuriphoton" {
+    password: 35112613
+    type: Effect Monster
+    attribute: LIGHT
+    race: Fiend
+    level: 1
+    atk: 300
+    def: 200
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        cost {
+            pay_lp your_lp / 2
+            send self to gy
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

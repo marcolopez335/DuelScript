@@ -1,0 +1,25 @@
+// Banquet of Millions
+// Transpiled from c48814566.lua
+
+card "Banquet of Millions" {
+    password: 48814566
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            banish (1+, card)
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+}

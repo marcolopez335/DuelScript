@@ -1,5 +1,5 @@
 // Metalfoes Mithrilium
-// Migrated from c4688231.lua
+// Transpiled from c4688231.lua
 
 card "Metalfoes Mithrilium" {
     password: 4688231
@@ -10,11 +10,6 @@ card "Metalfoes Mithrilium" {
     atk: 2600
     def: 1000
 
-    materials {
-        require: 2+ monster
-        method: fusion
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -23,7 +18,9 @@ card "Metalfoes Mithrilium" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            return (1, card) to deck shuffle
+            shuffle deck
+            add_to_hand (1, card) from gy
         }
     }
 
@@ -32,7 +29,7 @@ card "Metalfoes Mithrilium" {
         optional: true
         trigger: when_sent_to gy
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

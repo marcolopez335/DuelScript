@@ -1,5 +1,5 @@
 // Monster Slots
-// Migrated from c9576193.lua
+// Transpiled from c9576193.lua
 
 card "Monster Slots" {
     password: 9576193
@@ -8,8 +8,10 @@ card "Monster Slots" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            draw 2 // TODO: verify count
-            special_summon (1, monster) from gy // TODO: verify
+            banish (1+, card)
+            draw 1
+            special_summon (1, monster) from gy
+            shuffle deck
         }
     }
 

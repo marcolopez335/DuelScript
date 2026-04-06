@@ -1,5 +1,5 @@
 // Lillybot
-// Migrated from c68812773.lua
+// Transpiled from c68812773.lua
 
 card "Lillybot" {
     password: 68812773
@@ -13,17 +13,21 @@ card "Lillybot" {
     effect "Effect 1" {
         speed: spell_speed_1
         optional: true
+        damage_step: true
         trigger: when_summoned
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
+        cost {
+            tribute self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

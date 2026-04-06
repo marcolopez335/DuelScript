@@ -1,0 +1,41 @@
+// Ebon High Magician
+// Transpiled from c85551711.lua
+
+card "Ebon High Magician" {
+    password: 85551711
+    type: Xyz Monster
+    attribute: DARK
+    race: Spellcaster
+    rank: 7
+    atk: 2300
+    def: 2800
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

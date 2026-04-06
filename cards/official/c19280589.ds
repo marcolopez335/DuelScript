@@ -1,0 +1,42 @@
+// Tellus the Little Angel
+// Transpiled from c19280589.lua
+
+card "Tellus the Little Angel" {
+    password: 19280589
+    type: Effect Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 3
+    atk: 500
+    def: 500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            create_token { atk: 0 def: 0 }
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            banish self
+        }
+        on_resolve {
+            create_token { atk: 0 def: 0 }
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

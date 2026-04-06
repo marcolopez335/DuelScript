@@ -1,0 +1,37 @@
+// Infernoid Piaty
+// Transpiled from c25811989.lua
+
+card "Infernoid Piaty" {
+    password: 25811989
+    type: Effect Monster | Spirit
+    attribute: FIRE
+    race: Fiend
+    level: 5
+    atk: 2200
+    def: 0
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        cost {
+            tribute self
+        }
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+}

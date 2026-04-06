@@ -1,0 +1,49 @@
+// Gem-Knight Nepyrim
+// Transpiled from c51831560.lua
+
+card "Gem-Knight Nepyrim" {
+    password: 51831560
+    type: Effect Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 4
+    atk: 1550
+    def: 1600
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            send (1, card) to gy
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

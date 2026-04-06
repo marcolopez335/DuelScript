@@ -1,0 +1,41 @@
+// Cyberse Code Magician
+// Transpiled from c64865.lua
+
+card "Cyberse Code Magician" {
+    password: 64865
+    type: Ritual Monster
+    attribute: DARK
+    race: Cyberse
+    level: 7
+    atk: 2500
+    def: 2000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

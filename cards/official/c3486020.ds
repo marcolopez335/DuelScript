@@ -1,5 +1,5 @@
 // Yoko, the Graceful Mayakashi
-// Migrated from c3486020.lua
+// Transpiled from c3486020.lua
 
 card "Yoko, the Graceful Mayakashi" {
     password: 3486020
@@ -24,20 +24,22 @@ card "Yoko, the Graceful Mayakashi" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        damage_step: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        damage_step: true
         trigger: when_destroyed
-        condition: in_gy
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            banish (1+, card)
+            special_summon (1, monster) from gy
         }
     }
 

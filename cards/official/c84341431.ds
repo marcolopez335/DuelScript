@@ -1,0 +1,31 @@
+// Archfiend Giant
+// Transpiled from c84341431.lua
+
+card "Archfiend Giant" {
+    password: 84341431
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 6
+    atk: 2400
+    def: 1600
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

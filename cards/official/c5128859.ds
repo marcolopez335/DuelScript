@@ -1,5 +1,5 @@
 // Elemental HERO Marine Neos
-// Migrated from c5128859.lua
+// Transpiled from c5128859.lua
 
 card "Elemental HERO Marine Neos" {
     password: 5128859
@@ -10,20 +10,15 @@ card "Elemental HERO Marine Neos" {
     atk: 2800
     def: 2300
 
-    materials {
-        require: 2+ monster
-        method: fusion
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

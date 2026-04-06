@@ -1,0 +1,49 @@
+// Beetrooper Light Flapper
+// Transpiled from c88962829.lua
+
+card "Beetrooper Light Flapper" {
+    password: 88962829
+    type: Effect Monster
+    attribute: WATER
+    race: Insect
+    level: 6
+    atk: 2000
+    def: 2200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: when_summoned
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when attack_declared
+        on_resolve {
+            add_to_hand (1, card) from gy
+            negate attack
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

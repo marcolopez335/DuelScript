@@ -1,0 +1,39 @@
+// Magician's Robe
+// Transpiled from c71696014.lua
+
+card "Magician's Robe" {
+    password: 71696014
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 2
+    atk: 700
+    def: 2000
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

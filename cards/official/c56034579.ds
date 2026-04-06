@@ -1,5 +1,5 @@
 // GMX Chairman Kimridge
-// Migrated from c56034579.lua
+// Transpiled from c56034579.lua
 
 card "GMX Chairman Kimridge" {
     password: 56034579
@@ -13,18 +13,22 @@ card "GMX Chairman Kimridge" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: soft
+        cost {
+            reveal self
+        }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            return (1, card) to deck shuffle
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            return (1, card) to deck shuffle
         }
     }
 

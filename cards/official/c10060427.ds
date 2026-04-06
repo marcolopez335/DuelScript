@@ -1,5 +1,5 @@
 // Koa'ki Meiru Rooklord
-// Migrated from c10060427.lua
+// Transpiled from c10060427.lua
 
 card "Koa'ki Meiru Rooklord" {
     password: 10060427
@@ -12,10 +12,10 @@ card "Koa'ki Meiru Rooklord" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_end_phase
         on_resolve {
-            destroy (1+, card, either_player controls) // TODO: verify
+            reveal self
         }
     }
 
@@ -23,8 +23,11 @@ card "Koa'ki Meiru Rooklord" {
         speed: spell_speed_1
         optional: true
         trigger: when_summoned
+        cost {
+            banish self
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

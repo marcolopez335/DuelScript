@@ -1,5 +1,5 @@
 // Revival Jam
-// Migrated from c31709826.lua
+// Transpiled from c31709826.lua
 
 card "Revival Jam" {
     password: 31709826
@@ -13,21 +13,21 @@ card "Revival Jam" {
     effect "Effect 1" {
         speed: spell_speed_1
         optional: true
+        trigger: when_battle_destroyed
         cost {
-            pay_lp 1000 // TODO: verify amount
+            pay_lp 1000
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_standby_phase
-        condition: in_gy
         on_resolve {
-            special_summon self from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

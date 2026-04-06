@@ -1,0 +1,49 @@
+// Ninaruru, the Magistus Glass Goddess
+// Transpiled from c8660395.lua
+
+card "Ninaruru, the Magistus Glass Goddess" {
+    password: 8660395
+    type: Xyz Monster
+    attribute: EARTH
+    race: Rock
+    rank: 4
+    atk: 1800
+    def: 2400
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

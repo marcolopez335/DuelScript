@@ -1,0 +1,32 @@
+// Army of the Haunted
+// Transpiled from c18078153.lua
+
+card "Army of the Haunted" {
+    password: 18078153
+    type: Effect Monster
+    attribute: DARK
+    race: Zombie
+    level: 6
+    atk: 2400
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [hand, gy]
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            set (1, card)
+        }
+    }
+
+}

@@ -1,0 +1,54 @@
+// Diabound Kernel
+// Transpiled from c51644030.lua
+
+card "Diabound Kernel" {
+    password: 51644030
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 5
+    atk: 1800
+    def: 1200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when attack_declared
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

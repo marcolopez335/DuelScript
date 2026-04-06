@@ -1,0 +1,48 @@
+// Aromaseraphy Sweet Marjoram
+// Transpiled from c79656239.lua
+
+card "Aromaseraphy Sweet Marjoram" {
+    password: 79656239
+    type: Synchro Monster
+    attribute: LIGHT
+    race: Plant
+    level: 6
+    atk: 2200
+    def: 2000
+
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

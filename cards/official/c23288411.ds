@@ -1,0 +1,41 @@
+// Mementoal Tecuhtlica - Combined Creation
+// Transpiled from c23288411.lua
+
+card "Mementoal Tecuhtlica - Combined Creation" {
+    password: 23288411
+    type: Effect Monster | Spirit
+    attribute: EARTH
+    race: Wyrm
+    level: 11
+    atk: 5000
+    def: 5000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

@@ -1,0 +1,31 @@
+// D.D. Seeker
+// Transpiled from c89015998.lua
+
+card "D.D. Seeker" {
+    password: 89015998
+    type: Effect Monster
+    attribute: DARK
+    race: Psychic
+    level: 3
+    atk: 1500
+    def: 800
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,0 +1,36 @@
+// Evil★Twin's Trouble Sunny
+// Transpiled from c93672138.lua
+
+card "Evil★Twin's Trouble Sunny" {
+    password: 93672138
+    type: Link Monster
+    attribute: LIGHT
+    race: Fiend
+    link: 4
+    atk: 3300
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        cost {
+            tribute self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+}

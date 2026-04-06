@@ -1,5 +1,5 @@
 // Merry Melffys
-// Migrated from c81019803.lua
+// Transpiled from c81019803.lua
 
 card "Merry Melffys" {
     password: 81019803
@@ -9,12 +9,6 @@ card "Merry Melffys" {
     level: 4
     atk: 1500
     def: 1000
-
-    materials {
-        require: 1 tuner monster
-        require: 1+ non-tuner monster
-        method: synchro
-    }
 
     summon_condition {
         cannot_normal_summon: true
@@ -26,17 +20,18 @@ card "Merry Melffys" {
         optional: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_summoned
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            return (1, card) to deck shuffle
+            special_summon (1, monster) from gy
         }
     }
 

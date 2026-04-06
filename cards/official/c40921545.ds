@@ -1,5 +1,5 @@
 // Evilswarm Ketos
-// Migrated from c40921545.lua
+// Transpiled from c40921545.lua
 
 card "Evilswarm Ketos" {
     password: 40921545
@@ -12,8 +12,11 @@ card "Evilswarm Ketos" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        cost {
+            tribute self
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

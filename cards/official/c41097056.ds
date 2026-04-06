@@ -1,5 +1,5 @@
 // Synchro Cracker
-// Migrated from c41097056.lua
+// Transpiled from c41097056.lua
 
 card "Synchro Cracker" {
     password: 41097056
@@ -8,7 +8,8 @@ card "Synchro Cracker" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            return (1, card) to deck shuffle
+            destroy (1+, card, either_player controls)
         }
     }
 

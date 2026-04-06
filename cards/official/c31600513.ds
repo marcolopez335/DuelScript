@@ -1,5 +1,5 @@
 // Praying Mantis
-// Migrated from c31600513.lua
+// Transpiled from c31600513.lua
 
 card "Praying Mantis" {
     password: 31600513
@@ -12,11 +12,14 @@ card "Praying Mantis" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when attack_declared
+        cost {
+            send self to gy
+        }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
@@ -26,19 +29,20 @@ card "Praying Mantis" {
         optional: true
         trigger: during_standby_phase
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            create_token { atk: 0 def: 0 }
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 3" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
+        once_per_turn: soft
         cost {
             banish self
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            create_token { atk: 0 def: 0 }
+            special_summon (1, monster) from gy
         }
     }
 

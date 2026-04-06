@@ -1,0 +1,43 @@
+// Oneiros, the Dream Mirror Erlking
+// Transpiled from c35187185.lua
+
+card "Oneiros, the Dream Mirror Erlking" {
+    password: 35187185
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 10
+    atk: 3000
+    def: 3000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

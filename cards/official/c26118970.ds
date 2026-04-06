@@ -1,5 +1,5 @@
 // Red Rose Dragon
-// Migrated from c26118970.lua
+// Transpiled from c26118970.lua
 
 card "Red Rose Dragon" {
     password: 26118970
@@ -14,8 +14,10 @@ card "Red Rose Dragon" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        trigger: when_used_as_material
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
+            add_to_hand (1, card) from gy
         }
     }
 

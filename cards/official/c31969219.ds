@@ -1,5 +1,5 @@
 // Baneshade
-// Migrated from c31969219.lua
+// Transpiled from c31969219.lua
 
 card "Baneshade" {
     password: 31969219
@@ -8,7 +8,9 @@ card "Baneshade" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            banish (1+, card)
+            banish (1+, card)
         }
     }
 

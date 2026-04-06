@@ -1,0 +1,34 @@
+// Bururu @Ignister
+// Transpiled from c42429678.lua
+
+card "Bururu @Ignister" {
+    password: 42429678
+    type: Effect Monster | Tuner
+    attribute: WIND
+    race: Cyberse
+    level: 3
+    atk: 600
+    def: 1000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: when_summoned
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_used_as_material
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

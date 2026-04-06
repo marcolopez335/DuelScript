@@ -1,5 +1,5 @@
 // Sunseed Twin
-// Migrated from c66407907.lua
+// Transpiled from c66407907.lua
 
 card "Sunseed Twin" {
     password: 66407907
@@ -16,16 +16,18 @@ card "Sunseed Twin" {
         optional: true
         trigger: when_summoned
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
+        once_per_turn: soft
+        cost {
+            banish self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

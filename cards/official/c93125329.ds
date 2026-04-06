@@ -1,0 +1,43 @@
+// Golden Cloud Beast - Malong
+// Transpiled from c93125329.lua
+
+card "Golden Cloud Beast - Malong" {
+    password: 93125329
+    type: Synchro Monster | Tuner
+    attribute: LIGHT
+    race: Dragon
+    level: 6
+    atk: 2200
+    def: 1000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

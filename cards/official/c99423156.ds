@@ -1,0 +1,40 @@
+// Shiranui Spiritmaster
+// Transpiled from c99423156.lua
+
+card "Shiranui Spiritmaster" {
+    password: 99423156
+    type: Effect Monster
+    attribute: FIRE
+    race: Zombie
+    level: 4
+    atk: 1500
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: when_banished
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

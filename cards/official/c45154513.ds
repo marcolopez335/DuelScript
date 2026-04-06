@@ -1,0 +1,39 @@
+// Alghoul Mazera
+// Transpiled from c45154513.lua
+
+card "Alghoul Mazera" {
+    password: 45154513
+    type: Effect Monster
+    attribute: EARTH
+    race: Zombie
+    level: 8
+    atk: 2800
+    def: 2300
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand, gy]
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_banished
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

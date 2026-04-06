@@ -1,5 +1,5 @@
 // Outstanding Dog Mary
-// Migrated from c71583486.lua
+// Transpiled from c71583486.lua
 
 card "Outstanding Dog Mary" {
     password: 71583486
@@ -16,7 +16,10 @@ card "Outstanding Dog Mary" {
         optional: true
         trigger: when_sent_to gy
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            return (1, card) to deck shuffle
+            add_to_hand (1, card) from gy
+            shuffle deck
+            return (1, card) to deck shuffle
         }
     }
 

@@ -1,0 +1,32 @@
+// Guiding Quem, the Virtuous
+// Transpiled from c45883110.lua
+
+card "Guiding Quem, the Virtuous" {
+    password: 45883110
+    type: Effect Monster | Tuner
+    attribute: LIGHT
+    race: Spellcaster
+    level: 4
+    atk: 1500
+    def: 1500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

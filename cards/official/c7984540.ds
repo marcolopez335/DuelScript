@@ -1,0 +1,39 @@
+// Sunavalon Daphne
+// Transpiled from c7984540.lua
+
+card "Sunavalon Daphne" {
+    password: 7984540
+    type: Link Monster
+    attribute: EARTH
+    race: Plant
+    link: 2
+    atk: 0
+
+    materials {
+        require: 2+ effect monster
+        method: link
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            tribute self
+        }
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+}

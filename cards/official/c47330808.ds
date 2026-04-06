@@ -1,5 +1,5 @@
 // Hapi, Guidance of Horus
-// Migrated from c47330808.lua
+// Transpiled from c47330808.lua
 
 card "Hapi, Guidance of Horus" {
     password: 47330808
@@ -12,10 +12,12 @@ card "Hapi, Guidance of Horus" {
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        trigger: when_leaves_field
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            return (1, card) to deck shuffle
         }
     }
 

@@ -1,5 +1,5 @@
 // Darklord Rebellion
-// Migrated from c50501121.lua
+// Transpiled from c50501121.lua
 
 card "Darklord Rebellion" {
     password: 50501121
@@ -8,8 +8,11 @@ card "Darklord Rebellion" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
+        cost {
+            send self to gy
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

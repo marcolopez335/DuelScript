@@ -1,5 +1,5 @@
 // Diabellstar Vengeance
-// Migrated from c23151193.lua
+// Transpiled from c23151193.lua
 
 card "Diabellstar Vengeance" {
     password: 23151193
@@ -13,22 +13,25 @@ card "Diabellstar Vengeance" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
-        condition: in_gy
+        activate_from: [hand, gy]
+        cost {
+            banish self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         cost {
-            pay_lp 1000 // TODO: verify amount
+            pay_lp 1000
         }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            special_summon (1, monster) from gy // TODO: verify
+            destroy (1+, card, either_player controls)
+            special_summon (1, monster) from gy
         }
     }
 

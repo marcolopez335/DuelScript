@@ -1,0 +1,44 @@
+// Surgical Striker - S.P.E.C.T.R.A.
+// Transpiled from c23530726.lua
+
+card "Surgical Striker - S.P.E.C.T.R.A." {
+    password: 23530726
+    type: Link Monster
+    attribute: DARK
+    race: Machine
+    link: 4
+    atk: 3000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            banish self
+        }
+        on_resolve {
+            negate effect
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

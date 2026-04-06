@@ -1,5 +1,5 @@
 // Number C106: Giant Red Hand
-// Migrated from c55888045.lua
+// Transpiled from c55888045.lua
 
 card "Number C106: Giant Red Hand" {
     password: 55888045
@@ -10,19 +10,14 @@ card "Number C106: Giant Red Hand" {
     atk: 2600
     def: 2000
 
-    materials {
-        require: 2+ monster
-        same_level: true
-        method: xyz
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
 
     effect "Effect 1" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
+        damage_step: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
             negate activation

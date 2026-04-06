@@ -1,0 +1,51 @@
+// Ryu Senshi
+// Transpiled from c49868263.lua
+
+card "Ryu Senshi" {
+    password: 49868263
+    type: Fusion Monster
+    attribute: EARTH
+    race: Warrior
+    level: 6
+    atk: 2000
+    def: 1200
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            pay_lp 1000
+        }
+        on_resolve {
+            negate effect
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            negate effect
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

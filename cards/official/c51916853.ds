@@ -1,5 +1,5 @@
 // Magical Hound
-// Migrated from c51916853.lua
+// Transpiled from c51916853.lua
 
 card "Magical Hound" {
     password: 51916853
@@ -13,9 +13,10 @@ card "Magical Hound" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
-        condition: in_gy
+        activate_from: [hand, gy]
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            special_summon (1, monster) from gy
         }
     }
 

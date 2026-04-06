@@ -1,5 +1,5 @@
 // Ritual Beast Ulti-Cannahawk
-// Migrated from c48063985.lua
+// Transpiled from c48063985.lua
 
 card "Ritual Beast Ulti-Cannahawk" {
     password: 48063985
@@ -10,20 +10,16 @@ card "Ritual Beast Ulti-Cannahawk" {
     atk: 1400
     def: 1600
 
-    materials {
-        require: 2+ monster
-        method: fusion
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            send (1, card) to gy
+            add_to_hand (1, card) from gy
         }
     }
 
@@ -31,7 +27,9 @@ card "Ritual Beast Ulti-Cannahawk" {
         speed: spell_speed_2
         optional: true
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
+            special_summon (1, monster) from gy
+            send (1, card) to gy
         }
     }
 

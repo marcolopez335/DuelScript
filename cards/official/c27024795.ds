@@ -1,5 +1,5 @@
 // Alviss of the Nordic Alfar
-// Migrated from c27024795.lua
+// Transpiled from c27024795.lua
 
 card "Alviss of the Nordic Alfar" {
     password: 27024795
@@ -13,8 +13,10 @@ card "Alviss of the Nordic Alfar" {
     effect "Effect 1" {
         speed: spell_speed_1
         optional: true
+        trigger: when_banished
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            send (1, card) to gy
+            special_summon (1, monster) from gy
         }
     }
 
@@ -23,12 +25,11 @@ card "Alviss of the Nordic Alfar" {
         once_per_turn: hard
         optional: true
         trigger: when_sent_to gy
-        condition: in_gy
         cost {
             banish self
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

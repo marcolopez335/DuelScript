@@ -1,0 +1,42 @@
+// Fire King Courtier Ulcanix
+// Transpiled from c44455560.lua
+
+card "Fire King Courtier Ulcanix" {
+    password: 44455560
+    type: Effect Monster
+    attribute: FIRE
+    race: Winged Beast
+    level: 4
+    atk: 800
+    def: 2000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            add_to_hand (1, card) from gy
+            shuffle deck
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

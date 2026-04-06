@@ -1,0 +1,43 @@
+// The Bystial Lubellion
+// Transpiled from c32731036.lua
+
+card "The Bystial Lubellion" {
+    password: 32731036
+    type: Effect Monster | Spirit
+    attribute: LIGHT
+    race: Dragon
+    level: 8
+    atk: 2500
+    def: 3000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

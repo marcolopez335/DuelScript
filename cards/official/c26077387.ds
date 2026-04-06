@@ -1,5 +1,5 @@
 // Sky Striker Ace - Raye
-// Migrated from c26077387.lua
+// Transpiled from c26077387.lua
 
 card "Sky Striker Ace - Raye" {
     password: 26077387
@@ -14,18 +14,22 @@ card "Sky Striker Ace - Raye" {
         speed: spell_speed_2
         once_per_turn: hard
         optional: true
+        cost {
+            tribute self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
-        condition: in_gy
+        damage_step: true
+        trigger: when_leaves_field
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

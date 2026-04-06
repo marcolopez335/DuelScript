@@ -1,5 +1,5 @@
 // Abyss Actor - Super Producer
-// Migrated from c47404795.lua
+// Transpiled from c47404795.lua
 
 card "Abyss Actor - Super Producer" {
     password: 47404795
@@ -8,11 +8,6 @@ card "Abyss Actor - Super Producer" {
     race: Fiend
     link: 2
     atk: 1600
-
-    materials {
-        require: 2+ effect monster
-        method: link
-    }
 
     summon_condition {
         cannot_normal_summon: true
@@ -23,7 +18,8 @@ card "Abyss Actor - Super Producer" {
         once_per_turn: hard
         optional: true
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            send (1, card) to gy
         }
     }
 

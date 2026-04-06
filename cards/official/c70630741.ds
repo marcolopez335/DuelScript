@@ -1,0 +1,28 @@
+// Rescue Warrior
+// Transpiled from c70630741.lua
+
+card "Rescue Warrior" {
+    password: 70630741
+    type: Effect Monster
+    attribute: EARTH
+    race: Warrior
+    level: 4
+    atk: 1600
+    def: 1700
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_battle_destroyed
+        on_resolve {
+            take_control of (1, monster, opponent controls)
+        }
+    }
+
+}

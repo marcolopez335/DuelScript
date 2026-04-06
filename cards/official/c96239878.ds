@@ -1,0 +1,43 @@
+// Strength in Unity
+// Transpiled from c96239878.lua
+
+card "Strength in Unity" {
+    password: 96239878
+    type: Continuous Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+}

@@ -1,0 +1,45 @@
+// Black Metal Dragon
+// Transpiled from c93969023.lua
+
+card "Black Metal Dragon" {
+    password: 93969023
+    type: Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 1
+    atk: 600
+    def: 600
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        activate_from: [hand, monster_zone]
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

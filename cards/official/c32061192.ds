@@ -1,0 +1,55 @@
+// Maliss <P> Dormouse
+// Transpiled from c32061192.lua
+
+card "Maliss <P> Dormouse" {
+    password: 32061192
+    type: Effect Monster
+    attribute: DARK
+    race: Cyberse
+    level: 3
+    atk: 900
+    def: 300
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_banished
+        cost {
+            pay_lp 1000
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 5" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

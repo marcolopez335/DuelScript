@@ -1,0 +1,32 @@
+// Shaddoll Squamata
+// Transpiled from c30328508.lua
+
+card "Shaddoll Squamata" {
+    password: 30328508
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 4
+    atk: 1800
+    def: 1000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+}

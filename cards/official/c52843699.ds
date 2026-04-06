@@ -1,0 +1,43 @@
+// Simorgh, Bird of Perfection
+// Transpiled from c52843699.lua
+
+card "Simorgh, Bird of Perfection" {
+    password: 52843699
+    type: Effect Monster
+    attribute: DARK
+    race: Winged Beast
+    level: 4
+    atk: 1800
+    def: 500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_summoned
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

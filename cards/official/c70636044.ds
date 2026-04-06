@@ -1,5 +1,5 @@
 // Varudras, the Final Bringer of the End Times
-// Migrated from c70636044.lua
+// Transpiled from c70636044.lua
 
 card "Varudras, the Final Bringer of the End Times" {
     password: 70636044
@@ -10,12 +10,6 @@ card "Varudras, the Final Bringer of the End Times" {
     atk: 3000
     def: 3000
 
-    materials {
-        require: 2+ monster
-        same_level: true
-        method: xyz
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -24,32 +18,33 @@ card "Varudras, the Final Bringer of the End Times" {
         speed: spell_speed_2
         once_per_turn: hard
         optional: true
+        damage_step: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         cost {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            negate activation and destroy
+            negate activation
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 3" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_destroyed
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

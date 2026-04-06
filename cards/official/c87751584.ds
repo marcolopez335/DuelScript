@@ -1,5 +1,5 @@
 // Gatling Dragon
-// Migrated from c87751584.lua
+// Transpiled from c87751584.lua
 
 card "Gatling Dragon" {
     password: 87751584
@@ -10,20 +10,15 @@ card "Gatling Dragon" {
     atk: 2600
     def: 1200
 
-    materials {
-        require: 2+ monster
-        method: fusion
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

@@ -1,5 +1,5 @@
 // Danger! Response Team
-// Migrated from c25140659.lua
+// Transpiled from c25140659.lua
 
 card "Danger! Response Team" {
     password: 25140659
@@ -9,19 +9,16 @@ card "Danger! Response Team" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
-        cost {
-            discard self // TODO: verify target
-        }
+        once_per_turn: soft
         on_resolve {
-            draw 2 // TODO: verify count
+            return (1, card) to deck shuffle
+            draw 1
         }
     }
 

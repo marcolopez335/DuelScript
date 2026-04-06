@@ -1,0 +1,43 @@
+// Gouki The Powerload Ogre
+// Transpiled from c11516241.lua
+
+card "Gouki The Powerload Ogre" {
+    password: 11516241
+    type: Link Monster
+    attribute: EARTH
+    race: Warrior
+    link: 4
+    atk: 2800
+
+    materials {
+        require: 2+ effect monster
+        method: link
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

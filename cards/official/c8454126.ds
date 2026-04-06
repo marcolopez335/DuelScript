@@ -1,5 +1,5 @@
 // Conductor of Nephthys
-// Migrated from c8454126.lua
+// Transpiled from c8454126.lua
 
 card "Conductor of Nephthys" {
     password: 8454126
@@ -20,25 +20,25 @@ card "Conductor of Nephthys" {
         optional: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 3" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_standby_phase
         on_resolve {
-            destroy (1+, card, either_player controls) // TODO: verify
+            destroy (1+, card, either_player controls)
         }
     }
 

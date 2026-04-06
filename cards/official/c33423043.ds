@@ -1,5 +1,5 @@
 // D.D. Designator
-// Migrated from c33423043.lua
+// Transpiled from c33423043.lua
 
 card "D.D. Designator" {
     password: 33423043
@@ -8,7 +8,10 @@ card "D.D. Designator" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
+            shuffle deck
+            banish (1+, card)
+            shuffle deck
         }
     }
 

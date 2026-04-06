@@ -1,5 +1,5 @@
 // Grave Squirmer
-// Migrated from c48343627.lua
+// Transpiled from c48343627.lua
 
 card "Grave Squirmer" {
     password: 48343627
@@ -12,8 +12,9 @@ card "Grave Squirmer" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        trigger: when_battle_destroyed
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

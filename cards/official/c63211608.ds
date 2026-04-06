@@ -1,0 +1,36 @@
+// Genex Ally Reliever
+// Transpiled from c63211608.lua
+
+card "Genex Ally Reliever" {
+    password: 63211608
+    type: Effect Monster
+    attribute: DARK
+    race: Machine
+    level: 5
+    atk: 2200
+    def: 1000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

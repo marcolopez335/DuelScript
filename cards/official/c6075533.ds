@@ -1,0 +1,29 @@
+// Terror of Trishula
+// Transpiled from c6075533.lua
+
+card "Terror of Trishula" {
+    password: 6075533
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            banish (1, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            banish self
+        }
+        on_resolve {
+            negate effect
+        }
+    }
+
+}

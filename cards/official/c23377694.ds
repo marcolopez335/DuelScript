@@ -1,0 +1,39 @@
+// Performapal Sellshell Crab
+// Transpiled from c23377694.lua
+
+card "Performapal Sellshell Crab" {
+    password: 23377694
+    type: Pendulum Monster
+    attribute: WATER
+    race: Aqua
+    level: 5
+    scale: 2
+    atk: 500
+    def: 2500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_battle_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

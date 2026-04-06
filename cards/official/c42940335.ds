@@ -1,0 +1,53 @@
+// Mimighoul Throne
+// Transpiled from c42940335.lua
+
+card "Mimighoul Throne" {
+    password: 42940335
+    type: Xyz Monster
+    attribute: EARTH
+    race: Rock
+    rank: 1
+    atk: 0
+    def: 1000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            send (1, card) to gy
+            equip (1, card) to (1, monster)
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

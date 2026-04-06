@@ -1,5 +1,5 @@
 // Metalfoes Goldriver
-// Migrated from c33256280.lua
+// Transpiled from c33256280.lua
 
 card "Metalfoes Goldriver" {
     password: 33256280
@@ -13,9 +13,10 @@ card "Metalfoes Goldriver" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            set (1, card)
         }
     }
 

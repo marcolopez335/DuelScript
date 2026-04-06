@@ -1,5 +1,5 @@
 // Koa'ki Meiru Overload
-// Migrated from c14309486.lua
+// Transpiled from c14309486.lua
 
 card "Koa'ki Meiru Overload" {
     password: 14309486
@@ -12,10 +12,10 @@ card "Koa'ki Meiru Overload" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_end_phase
         on_resolve {
-            destroy (1+, card, either_player controls) // TODO: verify
+            reveal self
         }
     }
 
@@ -23,8 +23,12 @@ card "Koa'ki Meiru Overload" {
         speed: spell_speed_2
         optional: true
         trigger: when_summoned
+        cost {
+            tribute self
+        }
         on_resolve {
-            negate summon and destroy
+            negate summon
+            destroy (1+, card, either_player controls)
         }
     }
 

@@ -1,0 +1,48 @@
+// Floowandereeze & Empen
+// Transpiled from c80611581.lua
+
+card "Floowandereeze & Empen" {
+    password: 80611581
+    type: Effect Monster
+    attribute: WIND
+    race: Winged Beast
+    level: 10
+    atk: 2700
+    def: 1000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            add_to_hand (1, card) from gy
+            shuffle deck
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_2
+        optional: true
+        cost {
+            banish self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

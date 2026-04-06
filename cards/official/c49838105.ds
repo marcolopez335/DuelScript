@@ -1,0 +1,40 @@
+// Sylvan Waterslide
+// Transpiled from c49838105.lua
+
+card "Sylvan Waterslide" {
+    password: 49838105
+    type: Continuous Trap
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when attack_declared
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            send (1, card) to gy
+            add_to_hand (1, card) from gy
+            shuffle deck
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

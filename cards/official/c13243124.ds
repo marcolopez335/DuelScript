@@ -1,0 +1,44 @@
+// Favorite HERO Flame Wingman
+// Transpiled from c13243124.lua
+
+card "Favorite HERO Flame Wingman" {
+    password: 13243124
+    type: Fusion Monster
+    attribute: WIND
+    race: Warrior
+    level: 6
+    atk: 2100
+    def: 1200
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when attack_declared
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: when_battle_destroyed
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

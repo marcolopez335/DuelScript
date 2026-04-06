@@ -1,5 +1,5 @@
 // Astellar of the White Forest
-// Migrated from c25592142.lua
+// Transpiled from c25592142.lua
 
 card "Astellar of the White Forest" {
     password: 25592142
@@ -13,19 +13,21 @@ card "Astellar of the White Forest" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
+        cost {
+            send self to gy
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_sent_to gy
-        condition: in_gy
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

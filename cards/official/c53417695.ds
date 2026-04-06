@@ -1,5 +1,5 @@
 // Escape of the Unchained
-// Migrated from c53417695.lua
+// Transpiled from c53417695.lua
 
 card "Escape of the Unchained" {
     password: 53417695
@@ -9,17 +9,17 @@ card "Escape of the Unchained" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_destroyed
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

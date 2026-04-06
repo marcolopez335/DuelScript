@@ -1,5 +1,5 @@
 // T.G. Halberd Cannon/Assault Mode
-// Migrated from c47027714.lua
+// Transpiled from c47027714.lua
 
 card "T.G. Halberd Cannon/Assault Mode" {
     password: 47027714
@@ -21,16 +21,17 @@ card "T.G. Halberd Cannon/Assault Mode" {
         trigger: when_summoned
         on_resolve {
             negate summon
+            banish (1+, card)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_destroyed
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

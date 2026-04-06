@@ -1,5 +1,5 @@
 // Steelswarm Roach
-// Migrated from c37926346.lua
+// Transpiled from c37926346.lua
 
 card "Steelswarm Roach" {
     password: 37926346
@@ -23,11 +23,13 @@ card "Steelswarm Roach" {
     effect "Effect 1" {
         speed: spell_speed_2
         optional: true
+        trigger: when_summoned by_special_summon
         cost {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            negate summon and destroy
+            negate summon
+            destroy (1+, card, either_player controls)
         }
     }
 

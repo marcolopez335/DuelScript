@@ -1,0 +1,38 @@
+// Greatfly
+// Transpiled from c90512490.lua
+
+card "Greatfly" {
+    password: 90512490
+    type: Link Monster
+    attribute: WIND
+    race: Insect
+    link: 2
+    atk: 1400
+
+    materials {
+        require: 2+ effect monster
+        method: link
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

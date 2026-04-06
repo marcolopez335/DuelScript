@@ -1,0 +1,33 @@
+// Triamid Master
+// Transpiled from c32912040.lua
+
+card "Triamid Master" {
+    password: 32912040
+    type: Effect Monster
+    attribute: EARTH
+    race: Rock
+    level: 4
+    atk: 1800
+    def: 700
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+}

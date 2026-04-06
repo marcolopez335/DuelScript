@@ -1,0 +1,61 @@
+// Master Spirit Tech Force - Pendulum Ruler
+// Transpiled from c68508433.lua
+
+card "Master Spirit Tech Force - Pendulum Ruler" {
+    password: 68508433
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Machine
+    level: 12
+    scale: 1
+    atk: 3500
+    def: 3000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            return (1, card) to deck shuffle
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            tribute self
+        }
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 1600
+        }
+    }
+
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

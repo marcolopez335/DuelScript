@@ -1,5 +1,5 @@
 // Nurse Dragonmaid
-// Migrated from c40398073.lua
+// Transpiled from c40398073.lua
 
 card "Nurse Dragonmaid" {
     password: 40398073
@@ -14,18 +14,20 @@ card "Nurse Dragonmaid" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        damage_step: true
         trigger: when_summoned
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            special_summon (1, monster) from gy
         }
     }
 

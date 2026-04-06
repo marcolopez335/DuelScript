@@ -1,0 +1,44 @@
+// Full Armored Utopic Ray Lancer
+// Transpiled from c1269512.lua
+
+card "Full Armored Utopic Ray Lancer" {
+    password: 1269512
+    type: Xyz Monster
+    attribute: WATER
+    race: Beast-Warrior
+    rank: 4
+    atk: 2500
+    def: 600
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            negate effect
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

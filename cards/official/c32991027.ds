@@ -1,0 +1,38 @@
+// Georgius, Swordman of the Ice Barrier
+// Transpiled from c32991027.lua
+
+card "Georgius, Swordman of the Ice Barrier" {
+    password: 32991027
+    type: Effect Monster | Tuner
+    attribute: WATER
+    race: Winged Beast
+    level: 6
+    atk: 2000
+    def: 1200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

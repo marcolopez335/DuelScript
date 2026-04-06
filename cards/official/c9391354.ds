@@ -1,5 +1,5 @@
 // Gravi-Crush Dragon
-// Migrated from c9391354.lua
+// Transpiled from c9391354.lua
 
 card "Gravi-Crush Dragon" {
     password: 9391354
@@ -12,8 +12,11 @@ card "Gravi-Crush Dragon" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        cost {
+            send self to gy
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

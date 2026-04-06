@@ -1,5 +1,5 @@
 // Maliss in the Mirror
-// Migrated from c93453053.lua
+// Transpiled from c93453053.lua
 
 card "Maliss in the Mirror" {
     password: 93453053
@@ -9,17 +9,18 @@ card "Maliss in the Mirror" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            negate effect
+            banish (1+, card)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        trigger: when_banished
         on_resolve {
-            banish (1, card) // TODO: verify
-            add_to_hand (1, card) from gy // TODO: verify
+            banish (1+, card)
+            add_to_hand (1, card) from gy
         }
     }
 

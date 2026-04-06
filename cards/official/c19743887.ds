@@ -1,0 +1,30 @@
+// VARefar, the Judge of Ball
+// Transpiled from c19743887.lua
+
+card "VARefar, the Judge of Ball" {
+    password: 19743887
+    type: Effect Monster
+    attribute: EARTH
+    race: Fiend
+    level: 11
+    atk: 2100
+    def: 800
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

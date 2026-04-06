@@ -1,0 +1,30 @@
+// Sylvan Bladefender
+// Transpiled from c11682713.lua
+
+card "Sylvan Bladefender" {
+    password: 11682713
+    type: Effect Monster
+    attribute: EARTH
+    race: Plant
+    level: 4
+    atk: 1900
+    def: 700
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

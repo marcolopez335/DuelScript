@@ -1,0 +1,42 @@
+// Watch Cat
+// Transpiled from c70975131.lua
+
+card "Watch Cat" {
+    password: 70975131
+    type: Effect Monster
+    attribute: EARTH
+    race: Beast
+    level: 1
+    atk: 0
+    def: 1800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: during_end_phase
+        cost {
+            banish self
+        }
+        on_resolve {
+            set (1, card)
+        }
+    }
+
+}

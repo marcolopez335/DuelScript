@@ -1,0 +1,46 @@
+// Guoglim, Spear of the Ghoti
+// Transpiled from c2405631.lua
+
+card "Guoglim, Spear of the Ghoti" {
+    password: 2405631
+    type: Synchro Monster
+    attribute: WATER
+    race: Fish
+    level: 8
+    atk: 2700
+    def: 0
+
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: during_standby_phase
+        on_resolve {
+            banish (1+, card)
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

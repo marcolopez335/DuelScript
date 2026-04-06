@@ -1,5 +1,5 @@
 // White Aura Bihamut
-// Migrated from c89907227.lua
+// Transpiled from c89907227.lua
 
 card "White Aura Bihamut" {
     password: 89907227
@@ -10,12 +10,6 @@ card "White Aura Bihamut" {
     atk: 3300
     def: 3000
 
-    materials {
-        require: 1 tuner monster
-        require: 1+ non-tuner monster
-        method: synchro
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -25,25 +19,28 @@ card "White Aura Bihamut" {
         optional: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            create_token { atk: 0 def: 0 }
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            create_token { atk: 0 def: 0 }
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 3" {
         speed: spell_speed_1
         optional: true
+        damage_step: true
         trigger: when_sent_to gy
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

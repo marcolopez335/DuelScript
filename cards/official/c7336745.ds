@@ -1,0 +1,46 @@
+// Dinomorphia Intact
+// Transpiled from c7336745.lua
+
+card "Dinomorphia Intact" {
+    password: 7336745
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            pay_lp your_lp / 2
+        }
+        on_resolve {
+            negate activation
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        cost {
+            banish self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

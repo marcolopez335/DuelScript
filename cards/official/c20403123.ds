@@ -1,5 +1,5 @@
 // Performapal Sleight Hand Magician
-// Migrated from c20403123.lua
+// Transpiled from c20403123.lua
 
 card "Performapal Sleight Hand Magician" {
     password: 20403123
@@ -12,12 +12,9 @@ card "Performapal Sleight Hand Magician" {
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
-        cost {
-            discard self // TODO: verify target
-        }
+        once_per_turn: soft
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

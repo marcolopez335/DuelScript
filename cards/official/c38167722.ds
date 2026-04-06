@@ -1,5 +1,5 @@
 // Dark Spirit Art - Greed
-// Migrated from c38167722.lua
+// Transpiled from c38167722.lua
 
 card "Dark Spirit Art - Greed" {
     password: 38167722
@@ -7,8 +7,12 @@ card "Dark Spirit Art - Greed" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        cost {
+            tribute self
+        }
         on_resolve {
-            draw 2 // TODO: verify count
+            shuffle deck
+            negate effect
         }
     }
 

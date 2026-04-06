@@ -1,0 +1,30 @@
+// Beetrooper Fly & Sting
+// Transpiled from c1712616.lua
+
+card "Beetrooper Fly & Sting" {
+    password: 1712616
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            negate activation
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        cost {
+            banish self
+        }
+        on_resolve {
+            set (1, card)
+        }
+    }
+
+}

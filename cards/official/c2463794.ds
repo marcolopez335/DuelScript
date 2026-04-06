@@ -1,0 +1,50 @@
+// Fiendsmith's Requiem
+// Transpiled from c2463794.lua
+
+card "Fiendsmith's Requiem" {
+    password: 2463794
+    type: Link Monster
+    attribute: LIGHT
+    race: Fiend
+    link: 1
+    atk: 600
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        cost {
+            tribute self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            equip (1, card) to (1, monster)
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

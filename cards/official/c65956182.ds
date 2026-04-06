@@ -1,5 +1,5 @@
 // Dark World Accession
-// Migrated from c65956182.lua
+// Transpiled from c65956182.lua
 
 card "Dark World Accession" {
     password: 65956182
@@ -7,10 +7,11 @@ card "Dark World Accession" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
+        once_per_turn: soft
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            shuffle deck
+            send (1, card) to gy
         }
     }
 

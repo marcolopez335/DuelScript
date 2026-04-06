@@ -1,5 +1,5 @@
 // Dogmatikaturgy
-// Migrated from c42158279.lua
+// Transpiled from c42158279.lua
 
 card "Dogmatikaturgy" {
     password: 42158279
@@ -9,12 +9,12 @@ card "Dogmatikaturgy" {
         speed: spell_speed_2
         once_per_turn: hard
         optional: true
-        condition: in_gy
         cost {
             banish self
         }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            return (1, card) to deck shuffle
         }
     }
 

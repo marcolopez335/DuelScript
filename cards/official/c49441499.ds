@@ -1,0 +1,40 @@
+// Ultimate Insect LV1
+// Transpiled from c49441499.lua
+
+card "Ultimate Insect LV1" {
+    password: 49441499
+    type: Effect Monster
+    attribute: WIND
+    race: Insect
+    level: 1
+    atk: 0
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: during_standby_phase
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: when_summoned
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

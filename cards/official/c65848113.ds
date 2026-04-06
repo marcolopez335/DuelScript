@@ -1,15 +1,8 @@
 // DoomZ XIII Over - Graflario
-// Migrated from c65848113.lua
+// Transpiled from c65848113.lua
 
 card "DoomZ XIII Over - Graflario" {
     password: 65848113
-    // TODO: type, attribute, race, level, atk, def from CDB
-
-    materials {
-        require: 2+ monster
-        same_level: true
-        method: xyz
-    }
 
     summon_condition {
         cannot_normal_summon: true
@@ -22,17 +15,19 @@ card "DoomZ XIII Over - Graflario" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            add_to_hand (1, card) from gy
+            shuffle deck
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_destroyed
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

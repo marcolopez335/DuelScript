@@ -1,5 +1,5 @@
 // Red-Eyes Zombie Dragon Lord
-// Migrated from c38192988.lua
+// Transpiled from c38192988.lua
 
 card "Red-Eyes Zombie Dragon Lord" {
     password: 38192988
@@ -25,16 +25,18 @@ card "Red-Eyes Zombie Dragon Lord" {
         once_per_turn: hard
         optional: true
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
+        once_per_turn: soft
+        cost {
+            banish self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

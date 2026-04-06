@@ -1,5 +1,5 @@
 // Bonding - D2O
-// Migrated from c79402185.lua
+// Transpiled from c79402185.lua
 
 card "Bonding - D2O" {
     password: 79402185
@@ -7,8 +7,11 @@ card "Bonding - D2O" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        cost {
+            tribute self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
@@ -16,9 +19,8 @@ card "Bonding - D2O" {
         speed: spell_speed_1
         once_per_turn: hard
         trigger: when_sent_to gy
-        condition: in_gy
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

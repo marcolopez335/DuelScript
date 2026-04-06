@@ -1,0 +1,36 @@
+// Evolzar Lars
+// Transpiled from c35103106.lua
+
+card "Evolzar Lars" {
+    password: 35103106
+    type: Xyz Monster
+    attribute: FIRE
+    race: Dragon
+    rank: 6
+    atk: 2500
+    def: 1500
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            negate effect
+        }
+    }
+
+}

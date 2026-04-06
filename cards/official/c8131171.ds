@@ -1,5 +1,5 @@
 // Sinister Serpent
-// Migrated from c8131171.lua
+// Transpiled from c8131171.lua
 
 card "Sinister Serpent" {
     password: 8131171
@@ -15,18 +15,17 @@ card "Sinister Serpent" {
         once_per_turn: hard
         optional: true
         trigger: during_standby_phase
-        condition: in_gy
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_end_phase
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 

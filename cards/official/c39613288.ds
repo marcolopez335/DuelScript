@@ -1,0 +1,28 @@
+// Dark Supremacy
+// Transpiled from c39613288.lua
+
+card "Dark Supremacy" {
+    password: 39613288
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            negate effect
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        cost {
+            banish self
+        }
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+}

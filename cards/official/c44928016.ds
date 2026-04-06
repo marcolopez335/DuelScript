@@ -1,5 +1,5 @@
 // World Carrotweight Champion
-// Migrated from c44928016.lua
+// Transpiled from c44928016.lua
 
 card "World Carrotweight Champion" {
     password: 44928016
@@ -13,9 +13,11 @@ card "World Carrotweight Champion" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
-        condition: in_gy
+        cost {
+            send self to gy
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

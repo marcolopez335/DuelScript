@@ -1,5 +1,5 @@
 // Chaos Burst
-// Migrated from c4923662.lua
+// Transpiled from c4923662.lua
 
 card "Chaos Burst" {
     password: 4923662
@@ -8,8 +8,12 @@ card "Chaos Burst" {
     effect "Effect 1" {
         speed: spell_speed_1
         trigger: when attack_declared
+        cost {
+            tribute self
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 1000
         }
     }
 

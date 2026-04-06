@@ -1,0 +1,45 @@
+// Dangerous Frightfur Nightmary
+// Transpiled from c58468105.lua
+
+card "Dangerous Frightfur Nightmary" {
+    password: 58468105
+    type: Fusion Monster
+    attribute: DARK
+    race: Fiend
+    level: 10
+    atk: 2000
+    def: 3000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_2
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            banish self
+        }
+        on_resolve {
+            negate effect
+        }
+    }
+
+}

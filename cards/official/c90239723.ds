@@ -1,0 +1,41 @@
+// Morphtronic Repair Unit
+// Transpiled from c90239723.lua
+
+card "Morphtronic Repair Unit" {
+    password: 90239723
+    type: Equip Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+            equip (1, card) to (1, monster)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_leaves_field
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

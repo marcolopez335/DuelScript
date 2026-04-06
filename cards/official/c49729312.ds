@@ -1,0 +1,39 @@
+// Primineral Kongreat
+// Transpiled from c49729312.lua
+
+card "Primineral Kongreat" {
+    password: 49729312
+    type: Effect Monster | Spirit
+    attribute: EARTH
+    race: Rock
+    level: 8
+    atk: 3000
+    def: 2000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_flipped
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

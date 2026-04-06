@@ -1,0 +1,39 @@
+// Metalzoa X
+// Transpiled from c27268998.lua
+
+card "Metalzoa X" {
+    password: 27268998
+    type: Effect Monster | Spirit
+    attribute: DARK
+    race: Machine
+    level: 8
+    atk: 3000
+    def: 2300
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            reveal self
+        }
+        on_resolve {
+            set (1, card)
+            return (1, card) to deck shuffle
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

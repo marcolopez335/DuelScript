@@ -1,0 +1,44 @@
+// Fire Fighting Daruma Doll
+// Transpiled from c64514892.lua
+
+card "Fire Fighting Daruma Doll" {
+    password: 64514892
+    type: Link Monster
+    attribute: FIRE
+    race: Beast-Warrior
+    link: 2
+    atk: 1500
+
+    materials {
+        require: 2+ effect monster
+        method: link
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

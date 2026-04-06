@@ -1,0 +1,40 @@
+// Ultimate Insect LV3
+// Transpiled from c34088136.lua
+
+card "Ultimate Insect LV3" {
+    password: 34088136
+    type: Effect Monster
+    attribute: WIND
+    race: Insect
+    level: 3
+    atk: 1400
+    def: 900
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: during_standby_phase
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: when_summoned
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

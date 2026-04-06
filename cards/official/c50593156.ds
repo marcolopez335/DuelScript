@@ -1,5 +1,5 @@
 // Sand Gambler
-// Migrated from c50593156.lua
+// Transpiled from c50593156.lua
 
 card "Sand Gambler" {
     password: 50593156
@@ -12,9 +12,10 @@ card "Sand Gambler" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            destroy (1+, card, either_player controls)
         }
     }
 

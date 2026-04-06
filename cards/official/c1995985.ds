@@ -1,0 +1,40 @@
+// Silent Swordsman LV3
+// Transpiled from c1995985.lua
+
+card "Silent Swordsman LV3" {
+    password: 1995985
+    type: Effect Monster
+    attribute: LIGHT
+    race: Warrior
+    level: 3
+    atk: 1000
+    def: 1000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            negate effect
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: during_standby_phase
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: when_summoned
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,0 +1,31 @@
+// Vivid Knight
+// Transpiled from c52575195.lua
+
+card "Vivid Knight" {
+    password: 52575195
+    type: Effect Monster
+    attribute: LIGHT
+    race: Beast-Warrior
+    level: 4
+    atk: 1700
+    def: 800
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

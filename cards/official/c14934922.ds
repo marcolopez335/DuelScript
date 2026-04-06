@@ -1,5 +1,5 @@
 // Salamangreat Rage
-// Migrated from c14934922.lua
+// Transpiled from c14934922.lua
 
 card "Salamangreat Rage" {
     password: 14934922
@@ -8,8 +8,11 @@ card "Salamangreat Rage" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
+        cost {
+            send self to gy
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
@@ -17,7 +20,7 @@ card "Salamangreat Rage" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

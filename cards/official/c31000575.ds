@@ -1,5 +1,5 @@
 // Conscription
-// Migrated from c31000575.lua
+// Transpiled from c31000575.lua
 
 card "Conscription" {
     password: 31000575
@@ -8,7 +8,10 @@ card "Conscription" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
+            add_to_hand (1, card) from gy
+            shuffle deck
+            send (1, card) to gy
         }
     }
 

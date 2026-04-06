@@ -1,0 +1,45 @@
+// Tellarknight Constellar Delteros
+// Transpiled from c32289031.lua
+
+card "Tellarknight Constellar Delteros" {
+    password: 32289031
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Warrior
+    rank: 4
+    atk: 2500
+    def: 2500
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+            shuffle deck
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

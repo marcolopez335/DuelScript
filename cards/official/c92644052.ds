@@ -1,0 +1,66 @@
+// Performapal Duelist Extraordinaire
+// Transpiled from c92644052.lua
+
+card "Performapal Duelist Extraordinaire" {
+    password: 92644052
+    type: Pendulum Monster
+    attribute: LIGHT
+    race: Spellcaster
+    level: 4
+    scale: 8
+    atk: 1800
+    def: 400
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            add_to_hand (1, card) from gy
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: when attack_declared
+        on_resolve {
+            add_to_hand (1, card) from gy
+            send (1, card) to gy
+            negate attack
+        }
+    }
+
+    effect "Effect 5" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 6" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

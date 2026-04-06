@@ -1,0 +1,40 @@
+// Mirage Knight
+// Transpiled from c49217579.lua
+
+card "Mirage Knight" {
+    password: 49217579
+    type: Effect Monster | Spirit
+    attribute: LIGHT
+    race: Warrior
+    level: 8
+    atk: 2800
+    def: 2000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

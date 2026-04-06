@@ -1,0 +1,36 @@
+// Parasite Paracide
+// Transpiled from c27911549.lua
+
+card "Parasite Paracide" {
+    password: 27911549
+    type: Effect Monster
+    attribute: EARTH
+    race: Insect
+    level: 2
+    atk: 500
+    def: 300
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            return (1, card) to deck shuffle
+            shuffle deck
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            special_summon (1, monster) from gy
+            deal_damage to opponent: 1000
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

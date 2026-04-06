@@ -1,5 +1,5 @@
 // Enma's Judgment
-// Migrated from c32120116.lua
+// Transpiled from c32120116.lua
 
 card "Enma's Judgment" {
     password: 32120116
@@ -9,8 +9,9 @@ card "Enma's Judgment" {
         speed: spell_speed_1
         trigger: when_summoned by_special_summon
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            special_summon (1, monster) from gy // TODO: verify
+            destroy (1+, card, either_player controls)
+            banish (1+, card)
+            special_summon (1, monster) from gy
         }
     }
 

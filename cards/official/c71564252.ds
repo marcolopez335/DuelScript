@@ -1,0 +1,33 @@
+// Thunder King Rai-Oh
+// Transpiled from c71564252.lua
+
+card "Thunder King Rai-Oh" {
+    password: 71564252
+    type: Effect Monster
+    attribute: LIGHT
+    race: Thunder
+    level: 4
+    atk: 1900
+    def: 800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        trigger: when_summoned by_special_summon
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            negate summon
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // Tearlaments Cryme
-// Migrated from c1329620.lua
+// Transpiled from c1329620.lua
 
 card "Tearlaments Cryme" {
     password: 1329620
@@ -11,6 +11,8 @@ card "Tearlaments Cryme" {
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
             negate activation
+            return (1, card) to deck shuffle
+            send (1, card) to gy
         }
     }
 
@@ -20,7 +22,7 @@ card "Tearlaments Cryme" {
         optional: true
         trigger: when_sent_to gy
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

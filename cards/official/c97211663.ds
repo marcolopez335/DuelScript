@@ -1,5 +1,5 @@
 // Nekroz Cycle
-// Migrated from c97211663.lua
+// Transpiled from c97211663.lua
 
 card "Nekroz Cycle" {
     password: 97211663
@@ -7,9 +7,11 @@ card "Nekroz Cycle" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        condition: in_gy
+        cost {
+            banish self
+        }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

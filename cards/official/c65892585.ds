@@ -1,5 +1,5 @@
 // Gold Pride - Chariot Carrie
-// Migrated from c65892585.lua
+// Transpiled from c65892585.lua
 
 card "Gold Pride - Chariot Carrie" {
     password: 65892585
@@ -9,12 +9,6 @@ card "Gold Pride - Chariot Carrie" {
     rank: 3
     atk: 1900
     def: 2700
-
-    materials {
-        require: 2+ monster
-        same_level: true
-        method: xyz
-    }
 
     summon_condition {
         cannot_normal_summon: true
@@ -27,16 +21,18 @@ card "Gold Pride - Chariot Carrie" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            send (1, card) to gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_end_phase
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            return (1, card) to deck shuffle
+            special_summon (1, monster) from gy
         }
     }
 

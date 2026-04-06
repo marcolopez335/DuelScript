@@ -1,0 +1,33 @@
+// Gem-Knight Lady Brilliant Diamond
+// Transpiled from c19355597.lua
+
+card "Gem-Knight Lady Brilliant Diamond" {
+    password: 19355597
+    type: Fusion Monster
+    attribute: EARTH
+    race: Rock
+    level: 10
+    atk: 3400
+    def: 2000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            send (1, card) to gy
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

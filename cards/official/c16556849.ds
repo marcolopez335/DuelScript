@@ -1,5 +1,5 @@
 // Freed the Brave Wanderer
-// Migrated from c16556849.lua
+// Transpiled from c16556849.lua
 
 card "Freed the Brave Wanderer" {
     password: 16556849
@@ -12,9 +12,12 @@ card "Freed the Brave Wanderer" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
+        cost {
+            banish self
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

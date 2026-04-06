@@ -1,0 +1,42 @@
+// Number 12: Crimson Shadow Armor Ninja
+// Transpiled from c19333131.lua
+
+card "Number 12: Crimson Shadow Armor Ninja" {
+    password: 19333131
+    type: Xyz Monster
+    attribute: EARTH
+    race: Warrior
+    rank: 5
+    atk: 2400
+    def: 1700
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

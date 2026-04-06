@@ -1,0 +1,56 @@
+// Dhampir Vampire Sheridan
+// Transpiled from c32302078.lua
+
+card "Dhampir Vampire Sheridan" {
+    password: 32302078
+    type: Xyz Monster
+    attribute: DARK
+    race: Zombie
+    rank: 6
+    atk: 2600
+    def: 1000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        damage_step: true
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        trigger: when_sent_to gy
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

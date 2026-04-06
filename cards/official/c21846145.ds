@@ -1,5 +1,5 @@
 // Abduction
-// Migrated from c21846145.lua
+// Transpiled from c21846145.lua
 
 card "Abduction" {
     password: 21846145
@@ -9,7 +9,8 @@ card "Abduction" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
+            take_control of (1, monster, opponent controls)
         }
     }
 

@@ -1,5 +1,5 @@
 // Salamangreat Balelynx
-// Migrated from c14812471.lua
+// Transpiled from c14812471.lua
 
 card "Salamangreat Balelynx" {
     password: 14812471
@@ -8,11 +8,6 @@ card "Salamangreat Balelynx" {
     race: Cyberse
     link: 1
     atk: 500
-
-    materials {
-        require: 2+ effect monster
-        method: link
-    }
 
     summon_condition {
         cannot_normal_summon: true
@@ -24,16 +19,15 @@ card "Salamangreat Balelynx" {
         optional: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
+        once_per_turn: soft
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 

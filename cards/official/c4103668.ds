@@ -1,5 +1,5 @@
 // Tengu, the Winged Mayakashi
-// Migrated from c4103668.lua
+// Transpiled from c4103668.lua
 
 card "Tengu, the Winged Mayakashi" {
     password: 4103668
@@ -24,20 +24,22 @@ card "Tengu, the Winged Mayakashi" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        damage_step: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        damage_step: true
         trigger: when_destroyed
-        condition: in_gy
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            banish (1+, card)
+            special_summon (1, monster) from gy
         }
     }
 

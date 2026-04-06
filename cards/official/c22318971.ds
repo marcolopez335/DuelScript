@@ -1,0 +1,41 @@
+// Uni-Horned Familiar
+// Transpiled from c22318971.lua
+
+card "Uni-Horned Familiar" {
+    password: 22318971
+    type: Effect Monster | Tuner
+    attribute: LIGHT
+    race: Beast
+    level: 2
+    atk: 0
+    def: 1000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_attacked
+        cost {
+            banish self
+        }
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

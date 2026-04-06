@@ -1,0 +1,34 @@
+// Ecclesia and the Dark Dragon
+// Transpiled from c78397661.lua
+
+card "Ecclesia and the Dark Dragon" {
+    password: 78397661
+    type: Synchro Monster
+    attribute: LIGHT
+    race: Spellcaster
+    level: 8
+    atk: 2500
+    def: 2500
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // Impcantation Thanatosis
-// Migrated from c13482262.lua
+// Transpiled from c13482262.lua
 
 card "Impcantation Thanatosis" {
     password: 13482262
@@ -9,17 +9,18 @@ card "Impcantation Thanatosis" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
+            return (1, card) to deck shuffle
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

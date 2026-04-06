@@ -1,5 +1,5 @@
 // Kuribah
-// Migrated from c44632120.lua
+// Transpiled from c44632120.lua
 
 card "Kuribah" {
     password: 44632120
@@ -14,15 +14,19 @@ card "Kuribah" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        trigger: when_battle_destroyed
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
+        cost {
+            tribute self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

@@ -1,0 +1,32 @@
+// Noble Knight Bedwyr
+// Transpiled from c30575681.lua
+
+card "Noble Knight Bedwyr" {
+    password: 30575681
+    type: Effect Monster
+    attribute: LIGHT
+    race: Warrior
+    level: 4
+    atk: 1600
+    def: 1500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_summoned
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            equip (1, card) to (1, monster)
+        }
+    }
+
+}

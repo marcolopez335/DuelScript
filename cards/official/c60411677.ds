@@ -1,5 +1,5 @@
 // Anubis the Last Judge
-// Migrated from c60411677.lua
+// Transpiled from c60411677.lua
 
 card "Anubis the Last Judge" {
     password: 60411677
@@ -21,17 +21,17 @@ card "Anubis the Last Judge" {
             send self to gy
         }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 3" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_destroyed
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

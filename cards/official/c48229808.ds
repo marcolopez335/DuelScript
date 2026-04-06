@@ -1,0 +1,35 @@
+// Horus the Black Flame Dragon LV8
+// Transpiled from c48229808.lua
+
+card "Horus the Black Flame Dragon LV8" {
+    password: 48229808
+    type: Effect Monster | Spirit
+    attribute: FIRE
+    race: Dragon
+    level: 8
+    atk: 3000
+    def: 1800
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        damage_step: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            negate activation
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

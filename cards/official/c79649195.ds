@@ -1,5 +1,5 @@
 // Armor Break
-// Migrated from c79649195.lua
+// Transpiled from c79649195.lua
 
 card "Armor Break" {
     password: 79649195
@@ -9,8 +9,8 @@ card "Armor Break" {
         speed: spell_speed_1
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            negate activation and destroy
+            negate activation
+            destroy (1+, card, either_player controls)
         }
     }
 

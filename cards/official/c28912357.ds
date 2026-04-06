@@ -1,5 +1,5 @@
 // Gear Gigant X
-// Migrated from c28912357.lua
+// Transpiled from c28912357.lua
 
 card "Gear Gigant X" {
     password: 28912357
@@ -22,20 +22,23 @@ card "Gear Gigant X" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         cost {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            shuffle deck
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
         optional: true
+        damage_step: true
+        trigger: when_leaves_field
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

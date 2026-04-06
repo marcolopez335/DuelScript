@@ -1,0 +1,44 @@
+// Absolute King Back Jack
+// Transpiled from c60990740.lua
+
+card "Absolute King Back Jack" {
+    password: 60990740
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 0
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        cost {
+            banish self
+        }
+        on_resolve {
+            set (1, card)
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

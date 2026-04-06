@@ -1,5 +1,5 @@
 // Infernoid Antra
-// Migrated from c26034577.lua
+// Transpiled from c26034577.lua
 
 card "Infernoid Antra" {
     password: 26034577
@@ -16,18 +16,21 @@ card "Infernoid Antra" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        cost {
+            tribute self
+        }
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 

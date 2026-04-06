@@ -1,0 +1,68 @@
+// Shooting Majestic Star Dragon
+// Transpiled from c40939228.lua
+
+card "Shooting Majestic Star Dragon" {
+    password: 40939228
+    type: Synchro Monster
+    attribute: WIND
+    race: Dragon
+    level: 11
+    atk: 4000
+    def: 3300
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            negate effect
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        damage_step: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            banish (1+, card)
+            negate activation
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 5" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 6" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

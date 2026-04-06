@@ -1,0 +1,70 @@
+// Heroic Champion - Magnum Excalibur
+// Transpiled from c14301396.lua
+
+card "Heroic Champion - Magnum Excalibur" {
+    password: 14301396
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Warrior
+    rank: 4
+    atk: 2000
+    def: 2000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            send (1, card) to gy
+            equip (1, card) to (1, monster)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        cost {
+            banish self
+        }
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 5" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 6" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

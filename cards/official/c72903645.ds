@@ -1,5 +1,5 @@
 // Magna-Slash Dragon
-// Migrated from c72903645.lua
+// Transpiled from c72903645.lua
 
 card "Magna-Slash Dragon" {
     password: 72903645
@@ -12,8 +12,11 @@ card "Magna-Slash Dragon" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        cost {
+            send self to gy
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

@@ -1,0 +1,44 @@
+// The Zombie Vampire
+// Transpiled from c73082255.lua
+
+card "The Zombie Vampire" {
+    password: 73082255
+    type: Xyz Monster
+    attribute: DARK
+    race: Zombie
+    rank: 8
+    atk: 3000
+    def: 2800
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            mill 4
+            mill 4
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

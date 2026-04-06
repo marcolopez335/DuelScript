@@ -1,0 +1,29 @@
+// Terrors of the Afterroot
+// Transpiled from c85698115.lua
+
+card "Terrors of the Afterroot" {
+    password: 85698115
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            special_summon (1, monster) from gy
+            banish (1+, card)
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        cost {
+            banish self
+        }
+        on_resolve {
+            return (1, card) to deck shuffle
+            set (1, card)
+        }
+    }
+
+}

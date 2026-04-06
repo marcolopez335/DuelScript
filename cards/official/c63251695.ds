@@ -1,0 +1,40 @@
+// Dinomist Rex
+// Transpiled from c63251695.lua
+
+card "Dinomist Rex" {
+    password: 63251695
+    type: Pendulum Monster
+    attribute: WATER
+    race: Machine
+    level: 5
+    scale: 6
+    atk: 2400
+    def: 2200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            negate effect
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        cost {
+            tribute self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

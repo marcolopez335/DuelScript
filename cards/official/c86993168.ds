@@ -1,0 +1,50 @@
+// Mad Hacker
+// Transpiled from c86993168.lua
+
+card "Mad Hacker" {
+    password: 86993168
+    type: Effect Monster
+    attribute: DARK
+    race: Cyberse
+    level: 2
+    atk: 1000
+    def: 600
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: during_end_phase
+        cost {
+            banish self
+        }
+        on_resolve {
+            take_control of (1, monster, opponent controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

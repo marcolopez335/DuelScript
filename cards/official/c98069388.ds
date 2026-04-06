@@ -1,5 +1,5 @@
 // Horn of Heaven
-// Migrated from c98069388.lua
+// Transpiled from c98069388.lua
 
 card "Horn of Heaven" {
     password: 98069388
@@ -8,8 +8,12 @@ card "Horn of Heaven" {
     effect "Effect 1" {
         speed: spell_speed_1
         trigger: when_summoned
+        cost {
+            tribute self
+        }
         on_resolve {
-            negate summon and destroy
+            negate summon
+            destroy (1+, card, either_player controls)
         }
     }
 

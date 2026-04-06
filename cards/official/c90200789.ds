@@ -1,5 +1,5 @@
 // Ninjitsu Art of Super-Transformation
-// Migrated from c90200789.lua
+// Transpiled from c90200789.lua
 
 card "Ninjitsu Art of Super-Transformation" {
     password: 90200789
@@ -8,14 +8,15 @@ card "Ninjitsu Art of Super-Transformation" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            send (1, card) to gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
+        trigger: when_leaves_field
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 

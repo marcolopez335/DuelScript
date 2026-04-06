@@ -1,0 +1,31 @@
+// Clock Wyvern
+// Transpiled from c21830679.lua
+
+card "Clock Wyvern" {
+    password: 21830679
+    type: Effect Monster
+    attribute: WIND
+    race: Cyberse
+    level: 4
+    atk: 1800
+    def: 1000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            create_token { atk: 0 def: 0 }
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

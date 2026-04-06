@@ -1,5 +1,5 @@
 // Earthbound Immortal Red Nova
-// Migrated from c5267507.lua
+// Transpiled from c5267507.lua
 
 card "Earthbound Immortal Red Nova" {
     password: 5267507
@@ -14,11 +14,13 @@ card "Earthbound Immortal Red Nova" {
         speed: spell_speed_2
         once_per_turn: hard
         optional: true
+        activate_from: [hand, gy]
         cost {
             banish self
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            send (1, card) to gy
+            special_summon (1, monster) from gy
         }
     }
 

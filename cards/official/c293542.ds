@@ -1,0 +1,40 @@
+// T.G. Warwolf
+// Transpiled from c293542.lua
+
+card "T.G. Warwolf" {
+    password: 293542
+    type: Effect Monster
+    attribute: DARK
+    race: Beast-Warrior
+    level: 3
+    atk: 1200
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_sent_to gy
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: during_end_phase
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

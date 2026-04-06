@@ -1,0 +1,41 @@
+// Water Dragon
+// Transpiled from c85066822.lua
+
+card "Water Dragon" {
+    password: 85066822
+    type: Effect Monster | Spirit
+    attribute: WATER
+    race: Sea Serpent
+    level: 8
+    atk: 2800
+    def: 2600
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

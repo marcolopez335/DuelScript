@@ -1,5 +1,5 @@
 // Xyz Poseidon Splash
-// Migrated from c16938770.lua
+// Transpiled from c16938770.lua
 
 card "Xyz Poseidon Splash" {
     password: 16938770
@@ -9,7 +9,7 @@ card "Xyz Poseidon Splash" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
@@ -17,12 +17,12 @@ card "Xyz Poseidon Splash" {
         speed: spell_speed_2
         once_per_turn: hard
         optional: true
-        condition: in_gy
         cost {
+            banish self
             detach 1 overlay_unit from self
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

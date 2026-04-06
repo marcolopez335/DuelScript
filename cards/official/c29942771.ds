@@ -1,0 +1,41 @@
+// Naturia Camellia
+// Transpiled from c29942771.lua
+
+card "Naturia Camellia" {
+    password: 29942771
+    type: Effect Monster | Tuner
+    attribute: EARTH
+    race: Plant
+    level: 4
+    atk: 1400
+    def: 700
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            mill 2
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

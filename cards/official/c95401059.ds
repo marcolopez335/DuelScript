@@ -1,0 +1,32 @@
+// Shaddoll Zefracore
+// Transpiled from c95401059.lua
+
+card "Shaddoll Zefracore" {
+    password: 95401059
+    type: Pendulum Monster
+    attribute: DARK
+    race: Rock
+    level: 4
+    scale: 7
+    atk: 450
+    def: 1950
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

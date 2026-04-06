@@ -1,5 +1,5 @@
 // Cynet Mining
-// Migrated from c57160136.lua
+// Transpiled from c57160136.lua
 
 card "Cynet Mining" {
     password: 57160136
@@ -8,8 +8,11 @@ card "Cynet Mining" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
+        cost {
+            send self to gy
+        }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

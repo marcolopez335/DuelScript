@@ -1,5 +1,5 @@
 // T.G. Metal Skeleton
-// Migrated from c66733743.lua
+// Transpiled from c66733743.lua
 
 card "T.G. Metal Skeleton" {
     password: 66733743
@@ -14,18 +14,18 @@ card "T.G. Metal Skeleton" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        damage_step: true
         trigger: when_destroyed
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
+        once_per_turn: soft
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 

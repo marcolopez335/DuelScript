@@ -1,5 +1,5 @@
 // Scrapstorm
-// Migrated from c48445393.lua
+// Transpiled from c48445393.lua
 
 card "Scrapstorm" {
     password: 48445393
@@ -8,8 +8,10 @@ card "Scrapstorm" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            draw 2 // TODO: verify count
-            destroy (1, card, opponent controls) // TODO: verify target
+            send (1, card) to gy
+            shuffle deck
+            draw 1
+            destroy (1+, card, either_player controls)
         }
     }
 

@@ -1,0 +1,56 @@
+// D/D/D Stone King Darius
+// Transpiled from c51497409.lua
+
+card "D/D/D Stone King Darius" {
+    password: 51497409
+    type: Xyz Monster
+    attribute: EARTH
+    race: Fiend
+    rank: 3
+    atk: 1900
+    def: 1000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            draw 1
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 500
+        }
+    }
+
+}

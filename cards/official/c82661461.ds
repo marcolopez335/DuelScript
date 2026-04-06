@@ -1,0 +1,58 @@
+// Performapal Odd-Eyes Valet
+// Transpiled from c82661461.lua
+
+card "Performapal Odd-Eyes Valet" {
+    password: 82661461
+    type: Pendulum Monster
+    attribute: LIGHT
+    race: Spellcaster
+    level: 1
+    scale: 8
+    atk: 100
+    def: 200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when attack_declared
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: when_summoned
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 5" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

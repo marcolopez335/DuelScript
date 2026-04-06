@@ -1,5 +1,5 @@
 // Lee the World Chalice Fairy
-// Migrated from c21893603.lua
+// Transpiled from c21893603.lua
 
 card "Lee the World Chalice Fairy" {
     password: 21893603
@@ -16,16 +16,18 @@ card "Lee the World Chalice Fairy" {
         optional: true
         trigger: when_summoned
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
+        once_per_turn: soft
+        cost {
+            send self to gy
+        }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

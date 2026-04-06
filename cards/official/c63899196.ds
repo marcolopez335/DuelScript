@@ -1,0 +1,27 @@
+// The Monarchs Masterplan
+// Transpiled from c63899196.lua
+
+card "The Monarchs Masterplan" {
+    password: 63899196
+    type: Normal Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_banished
+        on_resolve {
+            add_to_hand (1, card) from gy
+            shuffle deck
+            shuffle deck
+        }
+    }
+
+}

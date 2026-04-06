@@ -1,0 +1,30 @@
+// Madolche Hootcake
+// Transpiled from c91350799.lua
+
+card "Madolche Hootcake" {
+    password: 91350799
+    type: Effect Monster
+    attribute: EARTH
+    race: Beast
+    level: 3
+    atk: 1500
+    def: 1100
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_sent_to gy
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            banish (1+, card)
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

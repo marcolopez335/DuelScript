@@ -1,0 +1,31 @@
+// Infernity Sage
+// Transpiled from c46435376.lua
+
+card "Infernity Sage" {
+    password: 46435376
+    type: Effect Monster | Tuner
+    attribute: DARK
+    race: Fiend
+    level: 2
+    atk: 400
+    def: 800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+}

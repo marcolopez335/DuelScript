@@ -1,5 +1,5 @@
 // Infernal Punisher
-// Migrated from c28653611.lua
+// Transpiled from c28653611.lua
 
 card "Infernal Punisher" {
     password: 28653611
@@ -7,9 +7,12 @@ card "Infernal Punisher" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        cost {
+            tribute self
+        }
         on_resolve {
-            special_summon self from gy // TODO: verify
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            special_summon (1, monster) from gy
         }
     }
 

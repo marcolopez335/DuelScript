@@ -1,5 +1,5 @@
 // Brute Enforcer
-// Migrated from c63503850.lua
+// Transpiled from c63503850.lua
 
 card "Brute Enforcer" {
     password: 63503850
@@ -9,11 +9,6 @@ card "Brute Enforcer" {
     link: 2
     atk: 1600
 
-    materials {
-        require: 2+ effect monster
-        method: link
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -21,11 +16,8 @@ card "Brute Enforcer" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
-        cost {
-            discard self // TODO: verify target
-        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            send (1, card) to gy
         }
     }
 

@@ -1,0 +1,39 @@
+// Evilswarm Thunderbird
+// Transpiled from c78663366.lua
+
+card "Evilswarm Thunderbird" {
+    password: 78663366
+    type: Effect Monster
+    attribute: DARK
+    race: Thunder
+    level: 4
+    atk: 1650
+    def: 1050
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

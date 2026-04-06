@@ -1,0 +1,41 @@
+// Swordsoul of Taia
+// Transpiled from c56495147.lua
+
+card "Swordsoul of Taia" {
+    password: 56495147
+    type: Effect Monster
+    attribute: WIND
+    race: Wyrm
+    level: 4
+    atk: 1800
+    def: 1500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            banish self
+        }
+        on_resolve {
+            create_token { atk: 0 def: 0 }
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_used_as_material
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

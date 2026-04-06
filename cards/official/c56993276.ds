@@ -1,5 +1,5 @@
 // Wattcancel
-// Migrated from c56993276.lua
+// Transpiled from c56993276.lua
 
 card "Wattcancel" {
     password: 56993276
@@ -8,11 +8,9 @@ card "Wattcancel" {
     effect "Effect 1" {
         speed: spell_speed_1
         trigger: when_summoned
-        cost {
-            discard self // TODO: verify target
-        }
         on_resolve {
-            negate summon and destroy
+            negate summon
+            destroy (1+, card, either_player controls)
         }
     }
 

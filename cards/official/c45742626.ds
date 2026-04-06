@@ -1,0 +1,41 @@
+// Pilgrim Reaper
+// Transpiled from c45742626.lua
+
+card "Pilgrim Reaper" {
+    password: 45742626
+    type: Xyz Monster
+    attribute: DARK
+    race: Zombie
+    rank: 6
+    atk: ?
+    def: ?
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+}

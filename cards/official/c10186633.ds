@@ -1,5 +1,5 @@
 // EN Shuffle
-// Migrated from c10186633.lua
+// Transpiled from c10186633.lua
 
 card "EN Shuffle" {
     password: 10186633
@@ -9,19 +9,21 @@ card "EN Shuffle" {
         speed: spell_speed_1
         once_per_turn: soft
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            return (1, card) to deck shuffle
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
+        once_per_turn: soft
         cost {
             banish self
         }
         on_resolve {
-            draw 2 // TODO: verify count
+            return (1, card) to deck shuffle
+            shuffle deck
+            draw 1
         }
     }
 

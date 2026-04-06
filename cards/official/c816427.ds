@@ -1,0 +1,35 @@
+// Neo Flamvell Lady
+// Transpiled from c816427.lua
+
+card "Neo Flamvell Lady" {
+    password: 816427
+    type: Effect Monster
+    attribute: FIRE
+    race: Pyro
+    level: 4
+    atk: 1600
+    def: 200
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_banished
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+}

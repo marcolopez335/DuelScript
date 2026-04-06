@@ -1,0 +1,42 @@
+// Dark Paladin
+// Transpiled from c98502113.lua
+
+card "Dark Paladin" {
+    password: 98502113
+    type: Fusion Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 8
+    atk: 2900
+    def: 2400
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        damage_step: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            negate activation
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

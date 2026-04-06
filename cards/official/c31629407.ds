@@ -1,0 +1,30 @@
+// Magical Musketeer Starfire
+// Transpiled from c31629407.lua
+
+card "Magical Musketeer Starfire" {
+    password: 31629407
+    type: Effect Monster
+    attribute: LIGHT
+    race: Fiend
+    level: 4
+    atk: 1300
+    def: 1700
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

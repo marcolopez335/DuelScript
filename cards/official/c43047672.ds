@@ -1,0 +1,53 @@
+// Raidraptor - Final Fortress Falcon
+// Transpiled from c43047672.lua
+
+card "Raidraptor - Final Fortress Falcon" {
+    password: 43047672
+    type: Xyz Monster
+    attribute: DARK
+    race: Winged Beast
+    rank: 12
+    atk: 3800
+    def: 2800
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        cost {
+            banish self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,0 +1,41 @@
+// The Weather Painter Sun
+// Transpiled from c54895237.lua
+
+card "The Weather Painter Sun" {
+    password: 54895237
+    type: Effect Monster
+    attribute: FIRE
+    race: Fairy
+    level: 3
+    atk: 1600
+    def: 400
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_banished
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: during_standby_phase
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

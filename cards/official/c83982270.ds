@@ -1,5 +1,5 @@
 // Cloudian - Poison Cloud
-// Migrated from c83982270.lua
+// Transpiled from c83982270.lua
 
 card "Cloudian - Poison Cloud" {
     password: 83982270
@@ -12,8 +12,10 @@ card "Cloudian - Poison Cloud" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        trigger: when_battle_destroyed
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 800
         }
     }
 

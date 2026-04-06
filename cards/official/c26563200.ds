@@ -1,0 +1,43 @@
+// Muzurhythm the String Djinn
+// Transpiled from c26563200.lua
+
+card "Muzurhythm the String Djinn" {
+    password: 26563200
+    type: Xyz Monster
+    attribute: WIND
+    race: Fiend
+    rank: 3
+    atk: 1500
+    def: 1000
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

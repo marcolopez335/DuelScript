@@ -1,5 +1,5 @@
 // Flogos, the Ogdoadic Boundless
-// Migrated from c9400127.lua
+// Transpiled from c9400127.lua
 
 card "Flogos, the Ogdoadic Boundless" {
     password: 9400127
@@ -16,16 +16,19 @@ card "Flogos, the Ogdoadic Boundless" {
         optional: true
         trigger: when_sent_to gy
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
+            send (1, card) to gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
+        once_per_turn: soft
+        cost {
+            send self to gy
+        }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

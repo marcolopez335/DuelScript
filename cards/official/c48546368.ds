@@ -1,0 +1,45 @@
+// Herald of Ultimateness
+// Transpiled from c48546368.lua
+
+card "Herald of Ultimateness" {
+    password: 48546368
+    type: Ritual Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 12
+    atk: 2000
+    def: 3000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        damage_step: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            negate activation
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_2
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            negate summon
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

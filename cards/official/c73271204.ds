@@ -1,5 +1,5 @@
 // Recardination
-// Migrated from c73271204.lua
+// Transpiled from c73271204.lua
 
 card "Recardination" {
     password: 73271204
@@ -8,7 +8,8 @@ card "Recardination" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            special_summon (1, monster) from gy
         }
     }
 
@@ -17,7 +18,8 @@ card "Recardination" {
         optional: true
         trigger: when_sent_to gy
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            shuffle deck
         }
     }
 

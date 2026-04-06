@@ -1,5 +1,5 @@
 // Dark Blade the Dragon Knight
-// Migrated from c86805855.lua
+// Transpiled from c86805855.lua
 
 card "Dark Blade the Dragon Knight" {
     password: 86805855
@@ -10,11 +10,6 @@ card "Dark Blade the Dragon Knight" {
     atk: 2200
     def: 1500
 
-    materials {
-        require: 2+ monster
-        method: fusion
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -22,8 +17,9 @@ card "Dark Blade the Dragon Knight" {
     effect "Effect 1" {
         speed: spell_speed_1
         optional: true
+        damage_step: true
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 

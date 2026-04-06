@@ -1,5 +1,5 @@
 // Evilswarm O'lantern
-// Migrated from c72429240.lua
+// Transpiled from c72429240.lua
 
 card "Evilswarm O'lantern" {
     password: 72429240
@@ -12,8 +12,11 @@ card "Evilswarm O'lantern" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        cost {
+            tribute self
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

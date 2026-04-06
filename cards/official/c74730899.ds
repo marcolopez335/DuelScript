@@ -1,5 +1,5 @@
 // Batteryman Fuel Cell
-// Migrated from c74730899.lua
+// Transpiled from c74730899.lua
 
 card "Batteryman Fuel Cell" {
     password: 74730899
@@ -12,9 +12,12 @@ card "Batteryman Fuel Cell" {
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
+        cost {
+            tribute self
+        }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

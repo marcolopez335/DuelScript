@@ -1,0 +1,32 @@
+// Sloppy Stasher Squirrel
+// Transpiled from c42081767.lua
+
+card "Sloppy Stasher Squirrel" {
+    password: 42081767
+    type: Effect Monster
+    attribute: EARTH
+    race: Beast
+    level: 1
+    atk: 200
+    def: 100
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: during_standby_phase
+        on_resolve {
+            set (1, card)
+        }
+    }
+
+}

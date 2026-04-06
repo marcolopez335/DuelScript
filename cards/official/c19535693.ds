@@ -1,0 +1,41 @@
+// Noh-P.U.N.K. Ze Amin
+// Transpiled from c19535693.lua
+
+card "Noh-P.U.N.K. Ze Amin" {
+    password: 19535693
+    type: Effect Monster | Tuner
+    attribute: EARTH
+    race: Psychic
+    level: 3
+    atk: 600
+    def: 600
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            pay_lp 1000
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,0 +1,35 @@
+// White Night Dragon
+// Transpiled from c79473793.lua
+
+card "White Night Dragon" {
+    password: 79473793
+    type: Effect Monster
+    attribute: WATER
+    race: Dragon
+    level: 8
+    atk: 3000
+    def: 2500
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        damage_step: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            negate activation
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_attacked
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // Number 103: Ragnazero
-// Migrated from c94380860.lua
+// Transpiled from c94380860.lua
 
 card "Number 103: Ragnazero" {
     password: 94380860
@@ -22,14 +22,14 @@ card "Number 103: Ragnazero" {
 
     effect "Effect 1" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         cost {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            draw 2 // TODO: verify count
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            draw 1
         }
     }
 

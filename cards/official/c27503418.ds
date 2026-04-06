@@ -1,5 +1,5 @@
 // King's Synchro
-// Migrated from c27503418.lua
+// Transpiled from c27503418.lua
 
 card "King's Synchro" {
     password: 27503418
@@ -9,7 +9,9 @@ card "King's Synchro" {
         speed: spell_speed_1
         trigger: when attack_declared
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            negate attack
+            banish (1+, card)
+            special_summon (1, monster) from gy
         }
     }
 

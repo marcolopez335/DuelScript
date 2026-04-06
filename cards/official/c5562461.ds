@@ -1,5 +1,5 @@
 // Dark Illusion
-// Migrated from c5562461.lua
+// Transpiled from c5562461.lua
 
 card "Dark Illusion" {
     password: 5562461
@@ -9,8 +9,8 @@ card "Dark Illusion" {
         speed: spell_speed_1
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            negate activation and destroy
+            negate activation
+            destroy (1+, card, either_player controls)
         }
     }
 

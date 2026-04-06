@@ -1,0 +1,41 @@
+// Lilith, Lady of Lament
+// Transpiled from c23898021.lua
+
+card "Lilith, Lady of Lament" {
+    password: 23898021
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 3
+    atk: 2000
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_summoned
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        cost {
+            tribute self
+        }
+        on_resolve {
+            shuffle deck
+            set (1, card)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

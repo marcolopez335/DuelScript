@@ -1,0 +1,46 @@
+// Ancient Warriors Oath - Double Dragon Lords
+// Transpiled from c65711558.lua
+
+card "Ancient Warriors Oath - Double Dragon Lords" {
+    password: 65711558
+    type: Link Monster
+    attribute: WIND
+    race: Beast-Warrior
+    link: 2
+    atk: 1100
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

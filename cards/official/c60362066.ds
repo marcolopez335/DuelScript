@@ -1,0 +1,27 @@
+// Tearlaments Heartbeat
+// Transpiled from c60362066.lua
+
+card "Tearlaments Heartbeat" {
+    password: 60362066
+    type: Quick-Play Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            return (1, card) to deck shuffle
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

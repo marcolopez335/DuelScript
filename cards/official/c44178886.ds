@@ -1,0 +1,29 @@
+// Ehren, Lightsworn Monk
+// Transpiled from c44178886.lua
+
+card "Ehren, Lightsworn Monk" {
+    password: 44178886
+    type: Effect Monster
+    attribute: LIGHT
+    race: Warrior
+    level: 4
+    atk: 1600
+    def: 1000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            mill 3
+        }
+    }
+
+}

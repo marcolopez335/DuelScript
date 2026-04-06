@@ -1,0 +1,39 @@
+// Ib the World Chalice Priestess
+// Transpiled from c77610772.lua
+
+card "Ib the World Chalice Priestess" {
+    password: 77610772
+    type: Link Monster
+    attribute: WATER
+    race: Spellcaster
+    link: 2
+    atk: 1800
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

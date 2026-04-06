@@ -1,5 +1,5 @@
 // Psychic Bounder
-// Migrated from c65471349.lua
+// Transpiled from c65471349.lua
 
 card "Psychic Bounder" {
     password: 65471349
@@ -14,18 +14,19 @@ card "Psychic Bounder" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        damage_step: true
         trigger: when_summoned
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

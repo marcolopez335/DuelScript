@@ -1,5 +1,5 @@
 // Nobleman of Extermination
-// Migrated from c17449108.lua
+// Transpiled from c17449108.lua
 
 card "Nobleman of Extermination" {
     password: 17449108
@@ -8,7 +8,10 @@ card "Nobleman of Extermination" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            shuffle deck
+            shuffle deck
+            banish (1+, card)
         }
     }
 

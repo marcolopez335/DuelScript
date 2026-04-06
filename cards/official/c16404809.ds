@@ -1,0 +1,35 @@
+// Kuribandit
+// Transpiled from c16404809.lua
+
+card "Kuribandit" {
+    password: 16404809
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 3
+    atk: 1000
+    def: 700
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_summoned
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: during_end_phase
+        cost {
+            tribute self
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+            shuffle deck
+        }
+    }
+
+}

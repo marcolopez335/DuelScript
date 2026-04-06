@@ -1,5 +1,5 @@
 // Junk Destroyer
-// Migrated from c74860293.lua
+// Transpiled from c74860293.lua
 
 card "Junk Destroyer" {
     password: 74860293
@@ -10,12 +10,6 @@ card "Junk Destroyer" {
     atk: 2600
     def: 2500
 
-    materials {
-        require: 1 tuner monster
-        require: 1+ non-tuner monster
-        method: synchro
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -25,7 +19,7 @@ card "Junk Destroyer" {
         optional: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

@@ -1,5 +1,5 @@
 // Regulus the Fairy Beast
-// Migrated from c61480937.lua
+// Transpiled from c61480937.lua
 
 card "Regulus the Fairy Beast" {
     password: 61480937
@@ -16,27 +16,27 @@ card "Regulus the Fairy Beast" {
         optional: true
         trigger: when_summoned
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 3" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
+        once_per_turn: soft
         cost {
             banish self
         }
         on_resolve {
-            draw 2 // TODO: verify count
+            return (1, card) to deck shuffle
+            draw 1
         }
     }
 

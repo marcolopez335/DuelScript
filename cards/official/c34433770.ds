@@ -1,5 +1,5 @@
 // Sky Striker Special Maneuver - Lemnisgate!
-// Migrated from c34433770.lua
+// Transpiled from c34433770.lua
 
 card "Sky Striker Special Maneuver - Lemnisgate!" {
     password: 34433770
@@ -9,21 +9,21 @@ card "Sky Striker Special Maneuver - Lemnisgate!" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            return (1, card) to deck shuffle
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_summoned by_special_summon
-        condition: in_gy
         cost {
             banish self
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

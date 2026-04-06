@@ -1,5 +1,5 @@
 // Hand of the Six Samurai
-// Migrated from c78792195.lua
+// Transpiled from c78792195.lua
 
 card "Hand of the Six Samurai" {
     password: 78792195
@@ -12,8 +12,11 @@ card "Hand of the Six Samurai" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        cost {
+            tribute self
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

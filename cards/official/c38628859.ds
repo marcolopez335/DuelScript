@@ -1,5 +1,5 @@
 // Dinomorphia Diplos
-// Migrated from c38628859.lua
+// Transpiled from c38628859.lua
 
 card "Dinomorphia Diplos" {
     password: 38628859
@@ -14,19 +14,24 @@ card "Dinomorphia Diplos" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        damage_step: true
         trigger: when_summoned
         on_resolve {
-            deal_damage to opponent: 1000 // TODO: verify
+            send (1, card) to gy
+            deal_damage to opponent: 500
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_destroyed
+        cost {
+            banish self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

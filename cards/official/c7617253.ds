@@ -1,5 +1,5 @@
 // Rainbow Path
-// Migrated from c7617253.lua
+// Transpiled from c7617253.lua
 
 card "Rainbow Path" {
     password: 7617253
@@ -8,9 +8,12 @@ card "Rainbow Path" {
     effect "Effect 1" {
         speed: spell_speed_1
         trigger: when attack_declared
+        cost {
+            send self to gy
+        }
         on_resolve {
             negate attack
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

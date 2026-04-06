@@ -1,5 +1,5 @@
 // Valkyrie Sigrun
-// Migrated from c97854941.lua
+// Transpiled from c97854941.lua
 
 card "Valkyrie Sigrun" {
     password: 97854941
@@ -14,17 +14,19 @@ card "Valkyrie Sigrun" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            send (1, card) to gy
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        damage_step: true
         trigger: when_summoned
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

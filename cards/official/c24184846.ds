@@ -1,0 +1,34 @@
+// Battlin' Boxer Rib Gardna
+// Transpiled from c24184846.lua
+
+card "Battlin' Boxer Rib Gardna" {
+    password: 24184846
+    type: Effect Monster
+    attribute: FIRE
+    race: Warrior
+    level: 3
+    atk: 100
+    def: 1400
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        activate_from: [hand, gy]
+        cost {
+            banish self
+        }
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

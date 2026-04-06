@@ -1,0 +1,37 @@
+// Lifeless Leaffish
+// Transpiled from c89617515.lua
+
+card "Lifeless Leaffish" {
+    password: 89617515
+    type: Effect Monster
+    attribute: WATER
+    race: Fish
+    level: 4
+    atk: 1500
+    def: 1600
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: when_summoned
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            banish self
+        }
+        on_resolve {
+            return (1, card) to deck shuffle
+            shuffle deck
+            draw 1
+        }
+    }
+
+}

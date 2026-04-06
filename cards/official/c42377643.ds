@@ -1,0 +1,38 @@
+// Gunkan Suship Uni
+// Transpiled from c42377643.lua
+
+card "Gunkan Suship Uni" {
+    password: 42377643
+    type: Effect Monster
+    attribute: FIRE
+    race: Aqua
+    level: 5
+    atk: 900
+    def: 500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            special_summon (1, monster) from gy
+            special_summon (1, monster) from gy
+            return (1, card) to deck shuffle
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

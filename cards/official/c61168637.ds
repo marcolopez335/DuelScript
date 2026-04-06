@@ -1,0 +1,33 @@
+// Linkslayer @Ignister
+// Transpiled from c61168637.lua
+
+card "Linkslayer @Ignister" {
+    password: 61168637
+    type: Effect Monster
+    attribute: DARK
+    race: Cyberse
+    level: 5
+    atk: 2000
+    def: 600
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_used_as_material
+        cost {
+            discard (1, card)
+        }
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

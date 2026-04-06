@@ -1,5 +1,5 @@
 // Deep Sweeper
-// Migrated from c8649148.lua
+// Transpiled from c8649148.lua
 
 card "Deep Sweeper" {
     password: 8649148
@@ -12,8 +12,11 @@ card "Deep Sweeper" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        cost {
+            tribute self
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

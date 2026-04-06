@@ -1,0 +1,49 @@
+// Performapal Sky Magician
+// Transpiled from c73734821.lua
+
+card "Performapal Sky Magician" {
+    password: 73734821
+    type: Effect Monster
+    attribute: WIND
+    race: Spellcaster
+    level: 7
+    atk: 2500
+    def: 2000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            add_to_hand (1, card) from gy
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_leaves_field
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

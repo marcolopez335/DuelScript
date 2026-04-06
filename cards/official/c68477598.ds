@@ -1,5 +1,5 @@
 // Pendulum Hole
-// Migrated from c68477598.lua
+// Transpiled from c68477598.lua
 
 card "Pendulum Hole" {
     password: 68477598
@@ -7,8 +7,10 @@ card "Pendulum Hole" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        trigger: when_summoned by_special_summon
         on_resolve {
             negate summon
+            return (1, card) to deck shuffle
         }
     }
 

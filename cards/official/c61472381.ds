@@ -1,0 +1,35 @@
+// Brotherhood of the Fire Fist - Eland
+// Transpiled from c61472381.lua
+
+card "Brotherhood of the Fire Fist - Eland" {
+    password: 61472381
+    type: Ritual Monster
+    attribute: FIRE
+    race: Beast-Warrior
+    level: 6
+    atk: 2400
+    def: 2000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            set (1, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            negate effect
+        }
+    }
+
+}

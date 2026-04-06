@@ -1,5 +1,5 @@
 // Materiactor Critical
-// Migrated from c64767757.lua
+// Transpiled from c64767757.lua
 
 card "Materiactor Critical" {
     password: 64767757
@@ -10,7 +10,10 @@ card "Materiactor Critical" {
         once_per_turn: hard
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
+            add_to_hand (1, card) from gy
+            shuffle deck
             negate activation
+            return (1, card) to deck shuffle
         }
     }
 

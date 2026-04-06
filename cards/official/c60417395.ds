@@ -1,0 +1,51 @@
+// Darkness Neosphere
+// Transpiled from c60417395.lua
+
+card "Darkness Neosphere" {
+    password: 60417395
+    type: Effect Monster | Spirit
+    attribute: DARK
+    race: Fiend
+    level: 10
+    atk: 4000
+    def: 4000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when attack_declared
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

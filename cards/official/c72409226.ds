@@ -1,5 +1,5 @@
 // Materiactor Exagard
-// Migrated from c72409226.lua
+// Transpiled from c72409226.lua
 
 card "Materiactor Exagard" {
     password: 72409226
@@ -9,12 +9,6 @@ card "Materiactor Exagard" {
     rank: 3
     atk: 2000
     def: 2000
-
-    materials {
-        require: 2+ monster
-        same_level: true
-        method: xyz
-    }
 
     summon_condition {
         cannot_normal_summon: true
@@ -27,17 +21,19 @@ card "Materiactor Exagard" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_summoned
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            add_to_hand (1, card) from gy
         }
     }
 

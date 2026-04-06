@@ -1,5 +1,5 @@
 // Myutant ST-46
-// Migrated from c8200556.lua
+// Transpiled from c8200556.lua
 
 card "Myutant ST-46" {
     password: 8200556
@@ -14,17 +14,22 @@ card "Myutant ST-46" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        damage_step: true
         trigger: when_summoned
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
+        cost {
+            tribute self
+            banish self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

@@ -1,5 +1,5 @@
 // Explosive Magician
-// Migrated from c33413279.lua
+// Transpiled from c33413279.lua
 
 card "Explosive Magician" {
     password: 33413279
@@ -10,12 +10,6 @@ card "Explosive Magician" {
     atk: 2500
     def: 1800
 
-    materials {
-        require: 1 tuner monster
-        require: 1+ non-tuner monster
-        method: synchro
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -23,7 +17,7 @@ card "Explosive Magician" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

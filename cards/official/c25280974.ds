@@ -1,0 +1,31 @@
+// Legion the Fiend Jester
+// Transpiled from c25280974.lua
+
+card "Legion the Fiend Jester" {
+    password: 25280974
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 4
+    atk: 1300
+    def: 1500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

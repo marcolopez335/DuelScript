@@ -1,0 +1,35 @@
+// Despian Tragedy
+// Transpiled from c36577931.lua
+
+card "Despian Tragedy" {
+    password: 36577931
+    type: Effect Monster
+    attribute: DARK
+    race: Fairy
+    level: 1
+    atk: 400
+    def: 400
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            banish self
+        }
+        on_resolve {
+            set (1, card)
+        }
+    }
+
+}

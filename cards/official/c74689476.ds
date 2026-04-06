@@ -1,0 +1,43 @@
+// Rilliona, the Wondrous Magistus Witch Wardrobe
+// Transpiled from c74689476.lua
+
+card "Rilliona, the Wondrous Magistus Witch Wardrobe" {
+    password: 74689476
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Spellcaster
+    rank: 4
+    atk: 1000
+    def: 2800
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            negate effect
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

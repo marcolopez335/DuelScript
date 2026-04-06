@@ -1,0 +1,36 @@
+// Wandering Titan of Tartarus
+// Transpiled from c43363035.lua
+
+card "Wandering Titan of Tartarus" {
+    password: 43363035
+    type: Effect Monster
+    attribute: EARTH
+    race: Zombie
+    level: 9
+    atk: 2600
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: when_sent_to gy
+        on_resolve {
+            send (1, card) to gy
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_sent_to gy
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+}

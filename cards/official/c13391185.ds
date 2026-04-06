@@ -1,0 +1,29 @@
+// Noble Knight Gwalchavad
+// Transpiled from c13391185.lua
+
+card "Noble Knight Gwalchavad" {
+    password: 13391185
+    type: Effect Monster
+    attribute: LIGHT
+    race: Warrior
+    level: 4
+    atk: 1500
+    def: 1800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            add_to_hand (1, card) from gy
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

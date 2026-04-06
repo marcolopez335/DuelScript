@@ -1,0 +1,43 @@
+// Cyber Angel Dakini
+// Transpiled from c39618799.lua
+
+card "Cyber Angel Dakini" {
+    password: 39618799
+    type: Ritual Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 8
+    atk: 2700
+    def: 2400
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: during_end_phase
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

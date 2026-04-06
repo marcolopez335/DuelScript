@@ -1,0 +1,38 @@
+// BOXer
+// Transpiled from c61156777.lua
+
+card "BOXer" {
+    password: 61156777
+    type: Effect Monster
+    attribute: EARTH
+    race: Warrior
+    level: 4
+    atk: 1800
+    def: 1000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

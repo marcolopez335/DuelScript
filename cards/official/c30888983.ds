@@ -1,5 +1,5 @@
 // The Selection
-// Migrated from c30888983.lua
+// Transpiled from c30888983.lua
 
 card "The Selection" {
     password: 30888983
@@ -9,10 +9,11 @@ card "The Selection" {
         speed: spell_speed_1
         trigger: when_summoned
         cost {
-            pay_lp 1000 // TODO: verify amount
+            pay_lp 1000
         }
         on_resolve {
-            negate summon and destroy
+            negate summon
+            destroy (1+, card, either_player controls)
         }
     }
 

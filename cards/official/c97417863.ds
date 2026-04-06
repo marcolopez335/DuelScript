@@ -1,0 +1,71 @@
+// D/D/D/D Super-Dimensional Sovereign Emperor Zero Paradox
+// Transpiled from c97417863.lua
+
+card "D/D/D/D Super-Dimensional Sovereign Emperor Zero Paradox" {
+    password: 97417863
+    type: Pendulum Monster | Spirit
+    attribute: DARK
+    race: Fiend
+    level: 12
+    scale: 10
+    atk: 3000
+    def: 3000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            special_summon (1, monster) from gy
+            special_summon (1, monster) from gy
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            special_summon (1, monster) from gy
+            destroy (1+, card, either_player controls)
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: when_leaves_field
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 6" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,0 +1,45 @@
+// Dark Magician of Chaos
+// Transpiled from c40737112.lua
+
+card "Dark Magician of Chaos" {
+    password: 40737112
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 8
+    atk: 2800
+    def: 2600
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: during_end_phase
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        trigger: when_summoned
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

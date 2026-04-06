@@ -1,0 +1,31 @@
+// Speedroid Block-n-Roll
+// Transpiled from c69550259.lua
+
+card "Speedroid Block-n-Roll" {
+    password: 69550259
+    type: Effect Monster
+    attribute: WIND
+    race: Machine
+    level: 4
+    atk: 1000
+    def: 1800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_used_as_material
+        on_resolve {
+            create_token { atk: 0 def: 0 }
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

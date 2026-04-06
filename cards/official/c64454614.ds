@@ -1,5 +1,5 @@
 // Arcana Extra Joker
-// Migrated from c64454614.lua
+// Transpiled from c64454614.lua
 
 card "Arcana Extra Joker" {
     password: 64454614
@@ -20,22 +20,23 @@ card "Arcana Extra Joker" {
 
     effect "Effect 1" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        damage_step: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
-        cost {
-            discard self // TODO: verify target
-        }
         on_resolve {
             negate activation
+            send (1, card) to gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
         optional: true
+        trigger: when_battle_destroyed
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
+            add_to_hand (1, card) from gy
         }
     }
 

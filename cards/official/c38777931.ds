@@ -1,5 +1,5 @@
 // Release, Reverse, Burst
-// Migrated from c38777931.lua
+// Transpiled from c38777931.lua
 
 card "Release, Reverse, Burst" {
     password: 38777931
@@ -7,8 +7,11 @@ card "Release, Reverse, Burst" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        cost {
+            tribute self
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

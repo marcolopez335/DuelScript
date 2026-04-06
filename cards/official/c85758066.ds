@@ -1,0 +1,34 @@
+// Magical Trick Mirror
+// Transpiled from c85758066.lua
+
+card "Magical Trick Mirror" {
+    password: 85758066
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when attack_declared
+        on_resolve {
+            set (1, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

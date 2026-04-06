@@ -1,5 +1,5 @@
 // Snake-Eye Ash
-// Migrated from c9674034.lua
+// Transpiled from c9674034.lua
 
 card "Snake-Eye Ash" {
     password: 9674034
@@ -16,15 +16,18 @@ card "Snake-Eye Ash" {
         optional: true
         trigger: when_summoned
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
+        cost {
+            send self to gy
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

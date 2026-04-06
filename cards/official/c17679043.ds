@@ -1,0 +1,43 @@
+// Penguin Torpedo
+// Transpiled from c17679043.lua
+
+card "Penguin Torpedo" {
+    password: 17679043
+    type: Effect Monster
+    attribute: WATER
+    race: Aqua
+    level: 3
+    atk: 550
+    def: 300
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            take_control of (1, monster, opponent controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

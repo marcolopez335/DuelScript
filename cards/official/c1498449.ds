@@ -1,0 +1,35 @@
+// Dracotail Faimena
+// Transpiled from c1498449.lua
+
+card "Dracotail Faimena" {
+    password: 1498449
+    type: Effect Monster
+    attribute: WATER
+    race: Spellcaster
+    level: 5
+    atk: 1300
+    def: 2500
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        cost {
+            discard self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_used_as_material
+        on_resolve {
+            set (1, card)
+        }
+    }
+
+}

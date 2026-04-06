@@ -1,0 +1,37 @@
+// The Supremacy Sun
+// Transpiled from c51402908.lua
+
+card "The Supremacy Sun" {
+    password: 51402908
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 10
+    atk: 3000
+    def: 3000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_sent_to gy
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: during_standby_phase
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

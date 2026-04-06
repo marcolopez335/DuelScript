@@ -1,5 +1,5 @@
 // Nine Pillars of Yang Zing
-// Migrated from c57831349.lua
+// Transpiled from c57831349.lua
 
 card "Nine Pillars of Yang Zing" {
     password: 57831349
@@ -9,8 +9,9 @@ card "Nine Pillars of Yang Zing" {
         speed: spell_speed_1
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            negate activation and destroy
+            negate activation
+            return (1, card) to deck shuffle
+            destroy (1+, card, either_player controls)
         }
     }
 

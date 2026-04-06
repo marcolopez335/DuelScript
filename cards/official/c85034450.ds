@@ -1,5 +1,5 @@
 // Speedroid Pachingo-Kart
-// Migrated from c85034450.lua
+// Transpiled from c85034450.lua
 
 card "Speedroid Pachingo-Kart" {
     password: 85034450
@@ -12,12 +12,9 @@ card "Speedroid Pachingo-Kart" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
-        cost {
-            discard self // TODO: verify target
-        }
+        once_per_turn: soft
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

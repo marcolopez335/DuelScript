@@ -1,5 +1,5 @@
 // Redox, Dragon Ruler of Boulders
-// Migrated from c90411554.lua
+// Transpiled from c90411554.lua
 
 card "Redox, Dragon Ruler of Boulders" {
     password: 90411554
@@ -13,9 +13,12 @@ card "Redox, Dragon Ruler of Boulders" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
-        condition: in_gy
+        activate_from: [hand, gy]
+        cost {
+            banish self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
@@ -24,18 +27,15 @@ card "Redox, Dragon Ruler of Boulders" {
         once_per_turn: hard
         trigger: during_end_phase
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 3" {
         speed: spell_speed_1
         once_per_turn: hard
-        cost {
-            discard self
-        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
@@ -43,8 +43,9 @@ card "Redox, Dragon Ruler of Boulders" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        trigger: when_banished
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

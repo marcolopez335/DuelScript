@@ -1,0 +1,37 @@
+// Dragonlark Pairen
+// Transpiled from c75083197.lua
+
+card "Dragonlark Pairen" {
+    password: 75083197
+    type: Xyz Monster
+    attribute: WIND
+    race: Wyrm
+    rank: 6
+    atk: 2700
+    def: 1300
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: during_standby_phase
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

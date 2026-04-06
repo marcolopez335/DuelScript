@@ -1,0 +1,34 @@
+// Diabellstar the Black Witch
+// Transpiled from c72270339.lua
+
+card "Diabellstar the Black Witch" {
+    password: 72270339
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 7
+    atk: 2500
+    def: 2000
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            set (1, card)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            send (1, card) to gy
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

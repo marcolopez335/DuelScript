@@ -1,5 +1,5 @@
 // Libromancer Intervention
-// Migrated from c44889144.lua
+// Transpiled from c44889144.lua
 
 card "Libromancer Intervention" {
     password: 44889144
@@ -10,7 +10,9 @@ card "Libromancer Intervention" {
         once_per_turn: hard
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            negate effect
+            special_summon (1, monster) from gy
         }
     }
 

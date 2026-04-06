@@ -1,5 +1,5 @@
 // XYZ-Dragon Cannon
-// Migrated from c91998119.lua
+// Transpiled from c91998119.lua
 
 card "XYZ-Dragon Cannon" {
     password: 91998119
@@ -10,22 +10,14 @@ card "XYZ-Dragon Cannon" {
     atk: 2800
     def: 2600
 
-    materials {
-        require: 2+ monster
-        method: fusion
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
 
     effect "Effect 1" {
         speed: spell_speed_1
-        cost {
-            discard self // TODO: verify target
-        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

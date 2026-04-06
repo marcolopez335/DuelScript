@@ -1,5 +1,5 @@
 // Imperial Princess Quinquery
-// Migrated from c29510428.lua
+// Transpiled from c29510428.lua
 
 card "Imperial Princess Quinquery" {
     password: 29510428
@@ -9,12 +9,6 @@ card "Imperial Princess Quinquery" {
     rank: 5
     atk: 1200
     def: 2800
-
-    materials {
-        require: 2+ monster
-        same_level: true
-        method: xyz
-    }
 
     summon_condition {
         cannot_normal_summon: true
@@ -27,16 +21,18 @@ card "Imperial Princess Quinquery" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        damage_step: true
+        trigger: when_leaves_field
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

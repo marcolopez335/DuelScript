@@ -1,5 +1,5 @@
 // Fists of the Unrivaled Tenyi
-// Migrated from c21834870.lua
+// Transpiled from c21834870.lua
 
 card "Fists of the Unrivaled Tenyi" {
     password: 21834870
@@ -10,6 +10,7 @@ card "Fists of the Unrivaled Tenyi" {
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
             negate activation
+            send (1, card) to gy
         }
     }
 
@@ -18,7 +19,7 @@ card "Fists of the Unrivaled Tenyi" {
         optional: true
         trigger: when_destroyed
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

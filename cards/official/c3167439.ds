@@ -1,5 +1,5 @@
 // Dark World Punishment
-// Migrated from c3167439.lua
+// Transpiled from c3167439.lua
 
 card "Dark World Punishment" {
     password: 3167439
@@ -10,16 +10,17 @@ card "Dark World Punishment" {
         once_per_turn: hard
         trigger: when_summoned
         on_resolve {
-            negate summon and destroy
+            negate summon
+            destroy (1+, card, either_player controls)
+            send (1, card) to gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
+        once_per_turn: soft
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 

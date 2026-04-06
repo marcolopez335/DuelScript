@@ -1,5 +1,5 @@
 // Silent Paladin
-// Migrated from c19502505.lua
+// Transpiled from c19502505.lua
 
 card "Silent Paladin" {
     password: 19502505
@@ -15,17 +15,19 @@ card "Silent Paladin" {
         optional: true
         trigger: when_summoned
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        damage_step: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
             negate activation
+            send (1, card) to gy
         }
     }
 
@@ -34,7 +36,7 @@ card "Silent Paladin" {
         optional: true
         trigger: when_destroyed
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

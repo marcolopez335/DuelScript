@@ -1,0 +1,42 @@
+// CXyz Coach Lord Ultimatrainer
+// Transpiled from c88754763.lua
+
+card "CXyz Coach Lord Ultimatrainer" {
+    password: 88754763
+    type: Xyz Monster
+    attribute: FIRE
+    race: Warrior
+    rank: 9
+    atk: 3800
+    def: 2300
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            draw 1
+            deal_damage to opponent: 800
+        }
+    }
+
+}

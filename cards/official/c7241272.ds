@@ -1,5 +1,5 @@
 // Curse of Dragonfire
-// Migrated from c7241272.lua
+// Transpiled from c7241272.lua
 
 card "Curse of Dragonfire" {
     password: 7241272
@@ -15,15 +15,15 @@ card "Curse of Dragonfire" {
         optional: true
         trigger: when_summoned
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

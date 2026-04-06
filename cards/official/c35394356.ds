@@ -1,0 +1,40 @@
+// Daruma Dropper
+// Transpiled from c35394356.lua
+
+card "Daruma Dropper" {
+    password: 35394356
+    type: Effect Monster
+    attribute: EARTH
+    race: Warrior
+    level: 4
+    atk: 700
+    def: 1800
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

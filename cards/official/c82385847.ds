@@ -1,5 +1,5 @@
 // Dinowrestler Pankratops
-// Migrated from c82385847.lua
+// Transpiled from c82385847.lua
 
 card "Dinowrestler Pankratops" {
     password: 82385847
@@ -12,10 +12,13 @@ card "Dinowrestler Pankratops" {
 
     effect "Effect 2" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        cost {
+            tribute self
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

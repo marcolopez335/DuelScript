@@ -1,0 +1,39 @@
+// Diabrocken of the Ghost Light
+// Transpiled from c6083904.lua
+
+card "Diabrocken of the Ghost Light" {
+    password: 6083904
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        cost {
+            banish self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            negate effect
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_used_as_material
+        on_resolve {
+            set (1, card)
+        }
+    }
+
+}

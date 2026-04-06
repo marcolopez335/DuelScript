@@ -1,0 +1,29 @@
+// Ogdoadic Daybreak
+// Transpiled from c78789356.lua
+
+card "Ogdoadic Daybreak" {
+    password: 78789356
+    type: Quick-Play Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            create_token { atk: 0 def: 0 }
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            banish self
+        }
+        on_resolve {
+            return (1, card) to deck shuffle
+            shuffle deck
+            send (1, card) to gy
+        }
+    }
+
+}

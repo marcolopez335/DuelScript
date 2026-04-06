@@ -1,0 +1,29 @@
+// Big Jaws
+// Transpiled from c51254277.lua
+
+card "Big Jaws" {
+    password: 51254277
+    type: Effect Monster
+    attribute: WATER
+    race: Fish
+    level: 3
+    atk: 1800
+    def: 300
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when attack_declared
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+}

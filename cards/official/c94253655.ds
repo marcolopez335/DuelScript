@@ -1,0 +1,33 @@
+// Plunder Patrollship Brann
+// Transpiled from c94253655.lua
+
+card "Plunder Patrollship Brann" {
+    password: 94253655
+    type: Synchro Monster
+    attribute: FIRE
+    race: Fiend
+    level: 8
+    atk: 2500
+    def: 1000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            banish (1+, card)
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // Celestial Knightlord Parshath
-// Migrated from c48589580.lua
+// Transpiled from c48589580.lua
 
 card "Celestial Knightlord Parshath" {
     password: 48589580
@@ -9,11 +9,6 @@ card "Celestial Knightlord Parshath" {
     link: 3
     atk: 2400
 
-    materials {
-        require: 2+ effect monster
-        method: link
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -21,21 +16,21 @@ card "Celestial Knightlord Parshath" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
-        cost {
-            discard self // TODO: verify target
-        }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_sent_to gy
+        cost {
+            banish self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

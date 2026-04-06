@@ -1,0 +1,46 @@
+// Disguise, the Copycat Hero
+// Transpiled from c87750925.lua
+
+card "Disguise, the Copycat Hero" {
+    password: 87750925
+    type: Effect Monster | Tuner
+    attribute: LIGHT
+    race: Warrior
+    level: 4
+    atk: 1400
+    def: 1200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

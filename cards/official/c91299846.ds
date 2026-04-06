@@ -1,0 +1,41 @@
+// The Weather Painter Thunder
+// Transpiled from c91299846.lua
+
+card "The Weather Painter Thunder" {
+    password: 91299846
+    type: Effect Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 3
+    atk: 1700
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_banished
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: during_standby_phase
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

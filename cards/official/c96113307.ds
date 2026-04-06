@@ -1,0 +1,41 @@
+// Ritual Beast Ulti-Reirautari
+// Transpiled from c96113307.lua
+
+card "Ritual Beast Ulti-Reirautari" {
+    password: 96113307
+    type: Link Monster
+    attribute: WIND
+    race: Psychic
+    link: 4
+    atk: 2600
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            add_to_hand (1, card) from gy
+            shuffle deck
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+}

@@ -1,0 +1,39 @@
+// Electrode Beast Anion
+// Transpiled from c58680635.lua
+
+card "Electrode Beast Anion" {
+    password: 58680635
+    type: Effect Monster
+    attribute: LIGHT
+    race: Thunder
+    level: 2
+    atk: 300
+    def: 100
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            send (1, card) to gy
+            draw 1
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

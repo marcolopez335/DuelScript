@@ -1,5 +1,5 @@
 // Adreus, Keeper of Armageddon
-// Migrated from c94119480.lua
+// Transpiled from c94119480.lua
 
 card "Adreus, Keeper of Armageddon" {
     password: 94119480
@@ -22,12 +22,12 @@ card "Adreus, Keeper of Armageddon" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         cost {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

@@ -1,0 +1,46 @@
+// Jack-o-Bolan
+// Transpiled from c36016907.lua
+
+card "Jack-o-Bolan" {
+    password: 36016907
+    type: Effect Monster
+    attribute: FIRE
+    race: Zombie
+    level: 7
+    atk: 1500
+    def: 2200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // Destruction Sword Memories
-// Migrated from c32104431.lua
+// Transpiled from c32104431.lua
 
 card "Destruction Sword Memories" {
     password: 32104431
@@ -7,23 +7,20 @@ card "Destruction Sword Memories" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        cost {
-            discard self // TODO: verify target
-        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_2
         optional: true
-        condition: in_gy
         cost {
             banish self
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
+            banish (1, card)
         }
     }
 

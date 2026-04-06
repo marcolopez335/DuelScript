@@ -1,0 +1,35 @@
+// Knightmare Mermaid
+// Transpiled from c3679218.lua
+
+card "Knightmare Mermaid" {
+    password: 3679218
+    type: Link Monster
+    attribute: WATER
+    race: Fiend
+    link: 1
+    atk: 1000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            special_summon (1, monster) from gy
+            shuffle deck
+            draw 1
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,0 +1,38 @@
+// General Wayne of the Ice Barrier
+// Transpiled from c81825063.lua
+
+card "General Wayne of the Ice Barrier" {
+    password: 81825063
+    type: Effect Monster
+    attribute: WATER
+    race: Warrior
+    level: 5
+    atk: 2100
+    def: 400
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

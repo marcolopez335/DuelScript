@@ -1,0 +1,36 @@
+// Bull Blader
+// Transpiled from c36088082.lua
+
+card "Bull Blader" {
+    password: 36088082
+    type: Effect Monster
+    attribute: EARTH
+    race: Warrior
+    level: 4
+    atk: 1600
+    def: 1200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when attack_declared
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

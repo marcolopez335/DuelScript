@@ -1,0 +1,42 @@
+// Traptrix Vesiculo
+// Transpiled from c28868394.lua
+
+card "Traptrix Vesiculo" {
+    password: 28868394
+    type: Effect Monster
+    attribute: EARTH
+    race: Plant
+    level: 4
+    atk: 1400
+    def: 1400
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            banish self
+        }
+        on_resolve {
+            set (1, card)
+        }
+    }
+
+}

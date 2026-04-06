@@ -1,5 +1,5 @@
 // Zombie Master
-// Migrated from c17259470.lua
+// Transpiled from c17259470.lua
 
 card "Zombie Master" {
     password: 17259470
@@ -12,9 +12,12 @@ card "Zombie Master" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
+        cost {
+            send self to gy
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

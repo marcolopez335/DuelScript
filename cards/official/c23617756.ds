@@ -1,5 +1,5 @@
 // Exxod Fires of Rage
-// Migrated from c23617756.lua
+// Transpiled from c23617756.lua
 
 card "Exxod Fires of Rage" {
     password: 23617756
@@ -9,20 +9,19 @@ card "Exxod Fires of Rage" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
-        condition: in_gy
         cost {
             banish self
         }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

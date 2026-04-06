@@ -1,0 +1,31 @@
+// Dwarf Star Dragon Planeter
+// Transpiled from c67310848.lua
+
+card "Dwarf Star Dragon Planeter" {
+    password: 67310848
+    type: Effect Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 4
+    atk: 1700
+    def: 1200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_summoned
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: during_end_phase
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

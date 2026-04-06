@@ -1,5 +1,5 @@
 // Tribe-Shocking Virus
-// Migrated from c86361354.lua
+// Transpiled from c86361354.lua
 
 card "Tribe-Shocking Virus" {
     password: 86361354
@@ -12,9 +12,12 @@ card "Tribe-Shocking Virus" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
+        cost {
+            banish self
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

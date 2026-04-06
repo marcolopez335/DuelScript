@@ -1,5 +1,5 @@
 // Grand Horn of Heaven
-// Migrated from c1637760.lua
+// Transpiled from c1637760.lua
 
 card "Grand Horn of Heaven" {
     password: 1637760
@@ -7,9 +7,11 @@ card "Grand Horn of Heaven" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        trigger: when_summoned by_special_summon
         on_resolve {
-            draw 2 // TODO: verify count
-            negate summon and destroy
+            negate summon
+            destroy (1+, card, either_player controls)
+            draw 1
         }
     }
 

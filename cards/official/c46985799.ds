@@ -1,0 +1,54 @@
+// Black Rose Dragon/Assault Mode
+// Transpiled from c46985799.lua
+
+card "Black Rose Dragon/Assault Mode" {
+    password: 46985799
+    type: Effect Monster | Spirit
+    attribute: FIRE
+    race: Dragon
+    level: 9
+    atk: 2900
+    def: 2300
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            reveal self
+        }
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

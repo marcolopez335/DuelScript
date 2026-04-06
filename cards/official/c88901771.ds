@@ -1,0 +1,48 @@
+// Skilled Blue Magician
+// Transpiled from c88901771.lua
+
+card "Skilled Blue Magician" {
+    password: 88901771
+    type: Effect Monster
+    attribute: LIGHT
+    race: Spellcaster
+    level: 4
+    atk: 1800
+    def: 1800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        cost {
+            tribute self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        cost {
+            banish self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

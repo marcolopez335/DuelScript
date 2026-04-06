@@ -1,5 +1,5 @@
 // Fabled Topi
-// Migrated from c46833854.lua
+// Transpiled from c46833854.lua
 
 card "Fabled Topi" {
     password: 46833854
@@ -12,8 +12,11 @@ card "Fabled Topi" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        cost {
+            tribute self
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

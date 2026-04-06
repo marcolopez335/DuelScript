@@ -1,5 +1,5 @@
 // Cybernetic Overflow
-// Migrated from c82428674.lua
+// Transpiled from c82428674.lua
 
 card "Cybernetic Overflow" {
     password: 82428674
@@ -9,17 +9,18 @@ card "Cybernetic Overflow" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            banish (1+, card)
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_destroyed
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

@@ -1,5 +1,5 @@
 // Neo-Spacian Aqua Dolphin
-// Migrated from c17955766.lua
+// Transpiled from c17955766.lua
 
 card "Neo-Spacian Aqua Dolphin" {
     password: 17955766
@@ -12,12 +12,13 @@ card "Neo-Spacian Aqua Dolphin" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         cost {
-            discard self
+            discard (1, card)
         }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 500
         }
     }
 

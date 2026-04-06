@@ -1,0 +1,53 @@
+// Rainbow Overdragon
+// Transpiled from c37440988.lua
+
+card "Rainbow Overdragon" {
+    password: 37440988
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 12
+    atk: 4000
+    def: 0
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            banish self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_2
+        optional: true
+        cost {
+            tribute self
+        }
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+    effect "Effect 5" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

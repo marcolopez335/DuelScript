@@ -1,0 +1,39 @@
+// Salvagent Driver
+// Transpiled from c62306203.lua
+
+card "Salvagent Driver" {
+    password: 62306203
+    type: Effect Monster
+    attribute: LIGHT
+    race: Cyberse
+    level: 6
+    atk: 2200
+    def: 2100
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        activate_from: [hand, gy]
+        trigger: when_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

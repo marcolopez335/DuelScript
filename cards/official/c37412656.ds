@@ -1,5 +1,5 @@
 // Hero Blast
-// Migrated from c37412656.lua
+// Transpiled from c37412656.lua
 
 card "Hero Blast" {
     password: 37412656
@@ -8,7 +8,8 @@ card "Hero Blast" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            add_to_hand (1, card) from gy
+            destroy (1+, card, either_player controls)
         }
     }
 

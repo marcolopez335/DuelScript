@@ -1,0 +1,49 @@
+// Traptrix Pudica
+// Transpiled from c49027020.lua
+
+card "Traptrix Pudica" {
+    password: 49027020
+    type: Effect Monster
+    attribute: EARTH
+    race: Plant
+    level: 4
+    atk: 900
+    def: 1900
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

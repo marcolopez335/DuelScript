@@ -1,0 +1,47 @@
+// Kozmo Dark Eclipser
+// Transpiled from c64063868.lua
+
+card "Kozmo Dark Eclipser" {
+    password: 64063868
+    type: Effect Monster
+    attribute: DARK
+    race: Machine
+    level: 9
+    atk: 3000
+    def: 2600
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        damage_step: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            banish self
+        }
+        on_resolve {
+            negate activation
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        cost {
+            banish self
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

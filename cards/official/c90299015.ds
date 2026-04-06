@@ -1,0 +1,39 @@
+// Vampire Ghost
+// Transpiled from c90299015.lua
+
+card "Vampire Ghost" {
+    password: 90299015
+    type: Effect Monster
+    attribute: DARK
+    race: Zombie
+    level: 3
+    atk: 1500
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        cost {
+            pay_lp your_lp / 2
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

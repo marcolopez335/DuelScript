@@ -1,5 +1,5 @@
 // Psychic Wheeleder
-// Migrated from c3233859.lua
+// Transpiled from c3233859.lua
 
 card "Psychic Wheeleder" {
     password: 3233859
@@ -12,10 +12,11 @@ card "Psychic Wheeleder" {
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        trigger: when_used_as_material
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

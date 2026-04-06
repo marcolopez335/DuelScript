@@ -1,5 +1,5 @@
 // Machina Megaform
-// Migrated from c51617185.lua
+// Transpiled from c51617185.lua
 
 card "Machina Megaform" {
     password: 51617185
@@ -13,8 +13,11 @@ card "Machina Megaform" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
+        cost {
+            tribute self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
@@ -23,9 +26,11 @@ card "Machina Megaform" {
         once_per_turn: hard
         optional: true
         trigger: when_sent_to gy
-        condition: in_gy
+        cost {
+            banish self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

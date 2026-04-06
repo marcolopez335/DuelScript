@@ -1,5 +1,5 @@
 // Exosister Pax
-// Migrated from c77913594.lua
+// Transpiled from c77913594.lua
 
 card "Exosister Pax" {
     password: 77913594
@@ -9,10 +9,12 @@ card "Exosister Pax" {
         speed: spell_speed_1
         once_per_turn: hard
         cost {
-            pay_lp 1000 // TODO: verify amount
+            pay_lp 1000
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            shuffle deck
+            special_summon (1, monster) from gy
         }
     }
 

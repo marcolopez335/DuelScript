@@ -1,0 +1,30 @@
+// Drytron Alpha Thuban
+// Transpiled from c97148796.lua
+
+card "Drytron Alpha Thuban" {
+    password: 97148796
+    type: Effect Monster | Spirit
+    attribute: LIGHT
+    race: Machine
+    level: 1
+    atk: 2000
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand, gy]
+        on_resolve {
+            special_summon (1, monster) from gy
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

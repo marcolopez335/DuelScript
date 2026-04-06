@@ -1,0 +1,43 @@
+// Dragunity Falchion
+// Transpiled from c8039562.lua
+
+card "Dragunity Falchion" {
+    password: 8039562
+    type: Effect Monster | Tuner
+    attribute: WIND
+    race: Dragon
+    level: 2
+    atk: 1300
+    def: 1200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand, gy]
+        cost {
+            banish self
+        }
+        on_resolve {
+            equip (1, card) to (1, monster)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

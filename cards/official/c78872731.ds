@@ -1,0 +1,33 @@
+// Zoodiac Ratpier
+// Transpiled from c78872731.lua
+
+card "Zoodiac Ratpier" {
+    password: 78872731
+    type: Effect Monster
+    attribute: EARTH
+    race: Beast-Warrior
+    level: 4
+    atk: 0
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // Darklord Zerato
-// Migrated from c40921744.lua
+// Transpiled from c40921744.lua
 
 card "Darklord Zerato" {
     password: 40921744
@@ -12,20 +12,17 @@ card "Darklord Zerato" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        cost {
-            discard self // TODO: verify target
-        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_end_phase
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

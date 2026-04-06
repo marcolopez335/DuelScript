@@ -1,0 +1,40 @@
+// Yellow-Bellied Oni
+// Transpiled from c53090623.lua
+
+card "Yellow-Bellied Oni" {
+    password: 53090623
+    type: Effect Monster
+    attribute: DARK
+    race: Zombie
+    level: 4
+    atk: 1000
+    def: 1000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

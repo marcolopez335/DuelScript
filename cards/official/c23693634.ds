@@ -1,0 +1,39 @@
+// Colossal Fighter
+// Transpiled from c23693634.lua
+
+card "Colossal Fighter" {
+    password: 23693634
+    type: Synchro Monster
+    attribute: DARK
+    race: Warrior
+    level: 8
+    atk: 2800
+    def: 1000
+
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_battle_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

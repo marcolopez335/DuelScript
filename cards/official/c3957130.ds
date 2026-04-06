@@ -1,5 +1,5 @@
 // Trisborrel Dragon
-// Migrated from c3957130.lua
+// Transpiled from c3957130.lua
 
 card "Trisborrel Dragon" {
     password: 3957130
@@ -8,11 +8,6 @@ card "Trisborrel Dragon" {
     race: Dragon
     link: 3
     atk: 2300
-
-    materials {
-        require: 2+ effect monster
-        method: link
-    }
 
     summon_condition {
         cannot_normal_summon: true
@@ -24,15 +19,16 @@ card "Trisborrel Dragon" {
         optional: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            add_to_hand (1, card) from gy
         }
     }
 

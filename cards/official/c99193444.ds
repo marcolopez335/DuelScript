@@ -1,0 +1,44 @@
+// Poseidra, the Storming Atlantean
+// Transpiled from c99193444.lua
+
+card "Poseidra, the Storming Atlantean" {
+    password: 99193444
+    type: Effect Monster
+    attribute: WATER
+    race: Sea Serpent
+    level: 7
+    atk: 2800
+    def: 1600
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_summoned
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

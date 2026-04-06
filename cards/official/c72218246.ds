@@ -1,5 +1,5 @@
 // Crossrose Dragon
-// Migrated from c72218246.lua
+// Transpiled from c72218246.lua
 
 card "Crossrose Dragon" {
     password: 72218246
@@ -9,11 +9,6 @@ card "Crossrose Dragon" {
     link: 2
     atk: 800
 
-    materials {
-        require: 2+ effect monster
-        method: link
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -22,22 +17,24 @@ card "Crossrose Dragon" {
         speed: spell_speed_2
         once_per_turn: hard
         optional: true
+        cost {
+            tribute self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_destroyed
-        condition: in_gy
         cost {
             banish self
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

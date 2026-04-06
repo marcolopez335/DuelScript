@@ -1,27 +1,29 @@
 // Exceptional Schedule
-// Migrated from c52782439.lua
+// Transpiled from c52782439.lua
 
 card "Exceptional Schedule" {
     password: 52782439
-    // TODO: type, attribute, race, level, atk, def from CDB
 
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: soft
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            shuffle deck
+            create_token { atk: 0 def: 0 }
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
+        once_per_turn: soft
         cost {
             banish self
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            send (1, card) to gy
+            special_summon (1, monster) from gy
         }
     }
 

@@ -1,0 +1,44 @@
+// Curious, the Lightsworn Dominion
+// Transpiled from c98095162.lua
+
+card "Curious, the Lightsworn Dominion" {
+    password: 98095162
+    type: Link Monster
+    attribute: LIGHT
+    race: Warrior
+    link: 3
+    atk: 2400
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_leaves_field
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: when_sent_to gy
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

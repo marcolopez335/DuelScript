@@ -1,5 +1,5 @@
 // Altergeist Pixiel
-// Migrated from c57769391.lua
+// Transpiled from c57769391.lua
 
 card "Altergeist Pixiel" {
     password: 57769391
@@ -13,8 +13,12 @@ card "Altergeist Pixiel" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
+        cost {
+            tribute self
+        }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            shuffle deck
         }
     }
 

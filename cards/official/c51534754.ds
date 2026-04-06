@@ -1,5 +1,5 @@
 // Yomi Ship
-// Migrated from c51534754.lua
+// Transpiled from c51534754.lua
 
 card "Yomi Ship" {
     password: 51534754
@@ -12,8 +12,9 @@ card "Yomi Ship" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        trigger: when_battle_destroyed
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

@@ -1,0 +1,34 @@
+// Baba Barber
+// Transpiled from c67073561.lua
+
+card "Baba Barber" {
+    password: 67073561
+    type: Link Monster
+    attribute: DARK
+    race: Fiend
+    link: 2
+    atk: 200
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

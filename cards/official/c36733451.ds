@@ -1,0 +1,38 @@
+// Dimensional Alchemist
+// Transpiled from c36733451.lua
+
+card "Dimensional Alchemist" {
+    password: 36733451
+    type: Effect Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 4
+    atk: 1300
+    def: 200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

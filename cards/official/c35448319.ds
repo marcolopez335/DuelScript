@@ -1,0 +1,40 @@
+// Snyffus
+// Transpiled from c35448319.lua
+
+card "Snyffus" {
+    password: 35448319
+    type: Effect Monster | Tuner
+    attribute: EARTH
+    race: Beast
+    level: 1
+    atk: 100
+    def: 100
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            tribute self
+        }
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

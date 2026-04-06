@@ -1,5 +1,5 @@
 // Brionac, the Magical Ice Dragon
-// Migrated from c65892310.lua
+// Transpiled from c65892310.lua
 
 card "Brionac, the Magical Ice Dragon" {
     password: 65892310
@@ -10,12 +10,6 @@ card "Brionac, the Magical Ice Dragon" {
     atk: 2300
     def: 1400
 
-    materials {
-        require: 1 tuner monster
-        require: 1+ non-tuner monster
-        method: synchro
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -25,11 +19,8 @@ card "Brionac, the Magical Ice Dragon" {
         once_per_turn: hard
         optional: true
         trigger: when_summoned by_special_summon
-        cost {
-            discard self // TODO: verify target
-        }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

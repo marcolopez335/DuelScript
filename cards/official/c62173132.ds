@@ -1,0 +1,28 @@
+// Susurrus of the Sinful Spoils
+// Transpiled from c62173132.lua
+
+card "Susurrus of the Sinful Spoils" {
+    password: 62173132
+    type: Quick-Play Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            return (1, card) to deck shuffle
+            add_to_hand (1, card) from gy
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            set (1, card)
+        }
+    }
+
+}

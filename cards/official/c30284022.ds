@@ -1,5 +1,5 @@
 // Dark World Puppetry
-// Migrated from c30284022.lua
+// Transpiled from c30284022.lua
 
 card "Dark World Puppetry" {
     password: 30284022
@@ -9,18 +9,18 @@ card "Dark World Puppetry" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
+            send (1, card) to gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        condition: in_gy
         cost {
             banish self
         }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

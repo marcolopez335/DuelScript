@@ -1,5 +1,5 @@
 // Odd-Eyes Absolute Dragon
-// Migrated from c16691074.lua
+// Transpiled from c16691074.lua
 
 card "Odd-Eyes Absolute Dragon" {
     password: 16691074
@@ -29,17 +29,19 @@ card "Odd-Eyes Absolute Dragon" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            negate attack
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        damage_step: true
         trigger: when_sent_to gy
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

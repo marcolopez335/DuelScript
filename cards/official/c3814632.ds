@@ -1,0 +1,36 @@
+// Skypalace Gangaridai
+// Transpiled from c3814632.lua
+
+card "Skypalace Gangaridai" {
+    password: 3814632
+    type: Xyz Monster
+    attribute: WIND
+    race: Machine
+    rank: 10
+    atk: 3400
+    def: 3000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 1000
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

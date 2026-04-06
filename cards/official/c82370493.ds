@@ -1,5 +1,5 @@
 // Predaplant Dheadevil
-// Migrated from c82370493.lua
+// Transpiled from c82370493.lua
 
 card "Predaplant Dheadevil" {
     password: 82370493
@@ -10,11 +10,6 @@ card "Predaplant Dheadevil" {
     atk: 2200
     def: 1500
 
-    materials {
-        require: 2+ monster
-        method: fusion
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -24,7 +19,7 @@ card "Predaplant Dheadevil" {
         once_per_turn: hard
         optional: true
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

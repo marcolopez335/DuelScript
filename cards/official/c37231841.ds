@@ -1,0 +1,25 @@
+// Lighten the Load
+// Transpiled from c37231841.lua
+
+card "Lighten the Load" {
+    password: 37231841
+    type: Continuous Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            return (1, card) to deck shuffle
+            shuffle deck
+            draw 1
+        }
+    }
+
+}

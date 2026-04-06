@@ -1,0 +1,28 @@
+// Focused Aquamirror
+// Transpiled from c72386290.lua
+
+card "Focused Aquamirror" {
+    password: 72386290
+    type: Normal Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: during_end_phase
+        cost {
+            banish self
+        }
+        on_resolve {
+            set (1, card)
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // Doomking Balerdroch
-// Migrated from c39185163.lua
+// Transpiled from c39185163.lua
 
 card "Doomking Balerdroch" {
     password: 39185163
@@ -15,9 +15,8 @@ card "Doomking Balerdroch" {
         once_per_turn: hard
         optional: true
         trigger: during_standby_phase
-        condition: in_gy
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
@@ -28,6 +27,7 @@ card "Doomking Balerdroch" {
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
             negate effect
+            banish (1+, card)
         }
     }
 

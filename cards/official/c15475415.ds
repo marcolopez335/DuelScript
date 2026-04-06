@@ -1,0 +1,30 @@
+// Alien Dog
+// Transpiled from c15475415.lua
+
+card "Alien Dog" {
+    password: 15475415
+    type: Effect Monster
+    attribute: LIGHT
+    race: Reptile
+    level: 3
+    atk: 1500
+    def: 1000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

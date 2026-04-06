@@ -1,5 +1,5 @@
 // Graydle Slime
-// Migrated from c20056760.lua
+// Transpiled from c20056760.lua
 
 card "Graydle Slime" {
     password: 20056760
@@ -13,10 +13,10 @@ card "Graydle Slime" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
-        condition: in_gy
+        activate_from: [hand, gy]
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            special_summon (1, monster) from gy // TODO: verify
+            destroy (1+, card, either_player controls)
+            special_summon (1, monster) from gy
         }
     }
 
@@ -25,7 +25,7 @@ card "Graydle Slime" {
         optional: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

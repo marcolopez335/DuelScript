@@ -1,0 +1,35 @@
+// Chaos Goddess
+// Transpiled from c31385077.lua
+
+card "Chaos Goddess" {
+    password: 31385077
+    type: Synchro Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 8
+    atk: 2500
+    def: 1800
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // Armor Dragon Ritual
-// Migrated from c58827995.lua
+// Transpiled from c58827995.lua
 
 card "Armor Dragon Ritual" {
     password: 58827995
@@ -8,9 +8,12 @@ card "Armor Dragon Ritual" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
-        condition: in_gy
+        cost {
+            banish self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            banish (1+, card)
+            special_summon (1, monster) from gy
         }
     }
 

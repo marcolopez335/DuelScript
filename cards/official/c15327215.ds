@@ -1,0 +1,41 @@
+// Legendary Secret of the Six Samurai
+// Transpiled from c15327215.lua
+
+card "Legendary Secret of the Six Samurai" {
+    password: 15327215
+    type: Effect Monster
+    attribute: DARK
+    race: Warrior
+    level: 4
+    atk: 500
+    def: 2000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            banish self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

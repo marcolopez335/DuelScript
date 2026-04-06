@@ -1,5 +1,5 @@
 // Galaxy-Eyes Solflare Dragon
-// Migrated from c3356494.lua
+// Transpiled from c3356494.lua
 
 card "Galaxy-Eyes Solflare Dragon" {
     password: 3356494
@@ -8,11 +8,6 @@ card "Galaxy-Eyes Solflare Dragon" {
     race: Dragon
     link: 2
     atk: 2000
-
-    materials {
-        require: 2+ effect monster
-        method: link
-    }
 
     summon_condition {
         cannot_normal_summon: true
@@ -24,16 +19,19 @@ card "Galaxy-Eyes Solflare Dragon" {
         optional: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        cost {
+            send self to gy
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

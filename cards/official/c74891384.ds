@@ -1,0 +1,33 @@
+// Adamancipator Crystal - Raptite
+// Transpiled from c74891384.lua
+
+card "Adamancipator Crystal - Raptite" {
+    password: 74891384
+    type: Effect Monster
+    attribute: WIND
+    race: Rock
+    level: 4
+    atk: 0
+    def: 2200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            return (1, card) to deck shuffle
+            return (1, card) to deck shuffle
+        }
+    }
+
+}

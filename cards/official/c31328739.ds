@@ -1,5 +1,5 @@
 // Psi-Impulse
-// Migrated from c31328739.lua
+// Transpiled from c31328739.lua
 
 card "Psi-Impulse" {
     password: 31328739
@@ -7,8 +7,13 @@ card "Psi-Impulse" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        cost {
+            tribute self
+        }
         on_resolve {
-            draw 2 // TODO: verify count
+            return (1, card) to deck shuffle
+            shuffle deck
+            draw 3
         }
     }
 

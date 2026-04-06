@@ -1,5 +1,5 @@
 // Appointer of the Red Lotus
-// Migrated from c43262273.lua
+// Transpiled from c43262273.lua
 
 card "Appointer of the Red Lotus" {
     password: 43262273
@@ -7,17 +7,20 @@ card "Appointer of the Red Lotus" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        cost {
+            pay_lp your_lp / 2
+        }
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_end_phase
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

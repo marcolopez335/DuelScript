@@ -1,5 +1,5 @@
 // Flux Ochsenfeld
-// Migrated from c21861412.lua
+// Transpiled from c21861412.lua
 
 card "Flux Ochsenfeld" {
     password: 21861412
@@ -9,11 +9,6 @@ card "Flux Ochsenfeld" {
     level: 7
     atk: 2600
     def: 2000
-
-    materials {
-        require: 2+ monster
-        method: fusion
-    }
 
     summon_condition {
         cannot_normal_summon: true
@@ -25,16 +20,16 @@ card "Flux Ochsenfeld" {
         optional: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

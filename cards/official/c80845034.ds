@@ -1,5 +1,5 @@
 // WANTED: Seeker of Sinful Spoils
-// Migrated from c80845034.lua
+// Transpiled from c80845034.lua
 
 card "WANTED: Seeker of Sinful Spoils" {
     password: 80845034
@@ -9,19 +9,19 @@ card "WANTED: Seeker of Sinful Spoils" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
+        once_per_turn: soft
         cost {
             banish self
         }
         on_resolve {
-            draw 2 // TODO: verify count
+            return (1, card) to deck shuffle
+            draw 1
         }
     }
 

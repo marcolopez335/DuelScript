@@ -1,5 +1,5 @@
 // Fukubiki
-// Migrated from c54927180.lua
+// Transpiled from c54927180.lua
 
 card "Fukubiki" {
     password: 54927180
@@ -8,7 +8,11 @@ card "Fukubiki" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            shuffle deck
+            add_to_hand (1, card) from gy
+            send (1, card) to gy
+            add_to_hand (1, card) from gy
+            send (1, card) to gy
         }
     }
 

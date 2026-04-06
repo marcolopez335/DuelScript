@@ -1,0 +1,37 @@
+// Morphtronic Scopen
+// Transpiled from c10591919.lua
+
+card "Morphtronic Scopen" {
+    password: 10591919
+    type: Effect Monster | Tuner
+    attribute: LIGHT
+    race: Machine
+    level: 3
+    atk: 800
+    def: 1400
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

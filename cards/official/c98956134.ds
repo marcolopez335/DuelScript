@@ -1,5 +1,5 @@
 // Destruction Jammer
-// Migrated from c98956134.lua
+// Transpiled from c98956134.lua
 
 card "Destruction Jammer" {
     password: 98956134
@@ -8,12 +8,9 @@ card "Destruction Jammer" {
     effect "Effect 1" {
         speed: spell_speed_1
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
-        cost {
-            discard self // TODO: verify target
-        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            negate activation and destroy
+            negate activation
+            destroy (1+, card, either_player controls)
         }
     }
 

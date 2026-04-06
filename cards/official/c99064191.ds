@@ -1,5 +1,5 @@
 // Xyz Wrath
-// Migrated from c99064191.lua
+// Transpiled from c99064191.lua
 
 card "Xyz Wrath" {
     password: 99064191
@@ -8,8 +8,8 @@ card "Xyz Wrath" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            destroy (1+, card, either_player controls) // TODO: verify
             negate effect
+            destroy (1+, card, either_player controls)
         }
     }
 
@@ -17,12 +17,9 @@ card "Xyz Wrath" {
         speed: spell_speed_2
         optional: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
-        cost {
-            discard self // TODO: verify target
-        }
         on_resolve {
-            destroy (1+, card, either_player controls) // TODO: verify
             negate effect
+            destroy (1+, card, either_player controls)
         }
     }
 

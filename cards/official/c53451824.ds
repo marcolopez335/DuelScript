@@ -1,0 +1,36 @@
+// Mecha Phantom Beast Concoruda
+// Transpiled from c53451824.lua
+
+card "Mecha Phantom Beast Concoruda" {
+    password: 53451824
+    type: Synchro Monster
+    attribute: WIND
+    race: Machine
+    level: 7
+    atk: 2400
+    def: 1200
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_sent_to gy
+        cost {
+            tribute self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

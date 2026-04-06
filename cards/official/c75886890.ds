@@ -1,0 +1,42 @@
+// Vylon Sphere
+// Transpiled from c75886890.lua
+
+card "Vylon Sphere" {
+    password: 75886890
+    type: Effect Monster | Tuner
+    attribute: LIGHT
+    race: Machine
+    level: 1
+    atk: 400
+    def: 400
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_sent_to gy
+        cost {
+            pay_lp 1000
+        }
+        on_resolve {
+            equip (1, card) to (1, monster)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            equip (1, card) to (1, monster)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

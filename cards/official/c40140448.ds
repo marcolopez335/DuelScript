@@ -1,0 +1,41 @@
+// Ancient Warriors - Masterful Sun Mou
+// Transpiled from c40140448.lua
+
+card "Ancient Warriors - Masterful Sun Mou" {
+    password: 40140448
+    type: Effect Monster
+    attribute: WATER
+    race: Beast-Warrior
+    level: 4
+    atk: 1800
+    def: 1500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

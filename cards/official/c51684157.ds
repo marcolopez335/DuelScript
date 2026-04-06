@@ -1,5 +1,5 @@
 // Heavenly Dragon Circle
-// Migrated from c51684157.lua
+// Transpiled from c51684157.lua
 
 card "Heavenly Dragon Circle" {
     password: 51684157
@@ -8,21 +8,22 @@ card "Heavenly Dragon Circle" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
+        cost {
+            tribute self
+        }
         on_resolve {
-            special_summon self from gy // TODO: verify
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
         once_per_turn: hard
-        condition: in_gy
         cost {
             banish self
         }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

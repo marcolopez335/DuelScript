@@ -1,0 +1,38 @@
+// Fallen of the Tistina
+// Transpiled from c87498729.lua
+
+card "Fallen of the Tistina" {
+    password: 87498729
+    type: Effect Monster
+    attribute: WATER
+    race: Aqua
+    level: 1
+    atk: 200
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand, monster_zone]
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_destroyed
+        cost {
+            banish self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

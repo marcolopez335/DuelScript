@@ -1,5 +1,5 @@
 // Doombearer Psychopompos
-// Migrated from c83116692.lua
+// Transpiled from c83116692.lua
 
 card "Doombearer Psychopompos" {
     password: 83116692
@@ -16,16 +16,19 @@ card "Doombearer Psychopompos" {
         optional: true
         trigger: during_end_phase
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: when_summoned by_special_summon
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
+            banish (1+, card)
+            send (1, card) to gy
+            send (1, card) to gy
         }
     }
 

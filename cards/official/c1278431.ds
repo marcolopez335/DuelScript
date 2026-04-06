@@ -1,0 +1,38 @@
+// Ancient Gear Frame
+// Transpiled from c1278431.lua
+
+card "Ancient Gear Frame" {
+    password: 1278431
+    type: Effect Monster
+    attribute: EARTH
+    race: Machine
+    level: 4
+    atk: 1600
+    def: 500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_leaves_field
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

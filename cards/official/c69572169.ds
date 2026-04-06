@@ -1,5 +1,5 @@
 // Elemental HERO Flash
-// Migrated from c69572169.lua
+// Transpiled from c69572169.lua
 
 card "Elemental HERO Flash" {
     password: 69572169
@@ -13,8 +13,12 @@ card "Elemental HERO Flash" {
     effect "Effect 1" {
         speed: spell_speed_1
         optional: true
+        trigger: when_battle_destroyed
+        cost {
+            banish self
+        }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

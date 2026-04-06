@@ -1,0 +1,33 @@
+// Zefraxa, Flame Beast of the Nekroz
+// Transpiled from c20773176.lua
+
+card "Zefraxa, Flame Beast of the Nekroz" {
+    password: 20773176
+    type: Pendulum Monster
+    attribute: FIRE
+    race: Dragon
+    level: 5
+    scale: 7
+    atk: 2000
+    def: 1000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        activate_from: [hand, gy]
+        damage_step: true
+        trigger: when_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

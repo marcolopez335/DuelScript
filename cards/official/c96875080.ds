@@ -1,5 +1,5 @@
 // Orbital Bombardment
-// Migrated from c96875080.lua
+// Transpiled from c96875080.lua
 
 card "Orbital Bombardment" {
     password: 96875080
@@ -7,8 +7,11 @@ card "Orbital Bombardment" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        cost {
+            send self to gy
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

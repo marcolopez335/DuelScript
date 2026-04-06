@@ -1,0 +1,34 @@
+// Millennium-Eyes Illusionist
+// Transpiled from c89785779.lua
+
+card "Millennium-Eyes Illusionist" {
+    password: 89785779
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 2
+    atk: 0
+    def: 1400
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        cost {
+            discard self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

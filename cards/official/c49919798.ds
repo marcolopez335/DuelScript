@@ -1,0 +1,46 @@
+// Symphonic Warrior Synthess
+// Transpiled from c49919798.lua
+
+card "Symphonic Warrior Synthess" {
+    password: 49919798
+    type: Effect Monster
+    attribute: WIND
+    race: Machine
+    level: 4
+    atk: 1200
+    def: 1900
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        cost {
+            banish self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

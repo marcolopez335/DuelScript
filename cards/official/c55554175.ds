@@ -1,0 +1,57 @@
+// Performapal Classikuriboh
+// Transpiled from c55554175.lua
+
+card "Performapal Classikuriboh" {
+    password: 55554175
+    type: Pendulum Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    scale: 8
+    atk: 300
+    def: 200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when attack_declared
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_destroyed
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            discard self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 5" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

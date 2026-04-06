@@ -1,5 +1,5 @@
 // Endymion Empire
-// Migrated from c34041788.lua
+// Transpiled from c34041788.lua
 
 card "Endymion Empire" {
     password: 34041788
@@ -9,15 +9,17 @@ card "Endymion Empire" {
         speed: spell_speed_1
         once_per_turn: soft
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            shuffle deck
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            destroy (1+, card, either_player controls) // TODO: verify
+            destroy (1+, card, either_player controls)
         }
     }
 

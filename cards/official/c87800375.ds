@@ -1,5 +1,5 @@
 // Until Noble Arms are Needed Once Again
-// Migrated from c87800375.lua
+// Transpiled from c87800375.lua
 
 card "Until Noble Arms are Needed Once Again" {
     password: 87800375
@@ -8,7 +8,9 @@ card "Until Noble Arms are Needed Once Again" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            shuffle deck
+            send (1, card) to gy
         }
     }
 
@@ -16,12 +18,11 @@ card "Until Noble Arms are Needed Once Again" {
         speed: spell_speed_2
         once_per_turn: hard
         optional: true
-        condition: in_gy
         cost {
             banish self
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

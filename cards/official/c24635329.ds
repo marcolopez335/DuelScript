@@ -1,0 +1,40 @@
+// Qadshaddoll Keios
+// Transpiled from c24635329.lua
+
+card "Qadshaddoll Keios" {
+    password: 24635329
+    type: Effect Monster
+    attribute: LIGHT
+    race: Spellcaster
+    level: 2
+    atk: 900
+    def: 100
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

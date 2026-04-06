@@ -1,5 +1,5 @@
 // Lost Blue Breaker
-// Migrated from c95231062.lua
+// Transpiled from c95231062.lua
 
 card "Lost Blue Breaker" {
     password: 95231062
@@ -12,8 +12,11 @@ card "Lost Blue Breaker" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        cost {
+            tribute self
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

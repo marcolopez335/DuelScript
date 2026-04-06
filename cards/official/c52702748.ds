@@ -1,0 +1,30 @@
+// D.D. Guide
+// Transpiled from c52702748.lua
+
+card "D.D. Guide" {
+    password: 52702748
+    type: Effect Monster
+    attribute: DARK
+    race: Warrior
+    level: 4
+    atk: 1400
+    def: 1000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_summoned
+        on_resolve {
+            take_control of (1, monster, opponent controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+}

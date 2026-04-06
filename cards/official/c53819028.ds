@@ -1,5 +1,5 @@
 // Predaplant Sarraceniant
-// Migrated from c53819028.lua
+// Transpiled from c53819028.lua
 
 card "Predaplant Sarraceniant" {
     password: 53819028
@@ -15,7 +15,7 @@ card "Predaplant Sarraceniant" {
         optional: true
         trigger: when attack_declared
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
@@ -23,7 +23,7 @@ card "Predaplant Sarraceniant" {
         speed: spell_speed_1
         optional: true
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
@@ -31,8 +31,9 @@ card "Predaplant Sarraceniant" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        trigger: when_battle_destroyed
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

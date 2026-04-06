@@ -1,0 +1,32 @@
+// Resonant Destruction
+// Transpiled from c59593925.lua
+
+card "Resonant Destruction" {
+    password: 59593925
+    type: Continuous Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_used_as_material
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // Dragon Dowser
-// Migrated from c76066541.lua
+// Transpiled from c76066541.lua
 
 card "Dragon Dowser" {
     password: 76066541
@@ -14,18 +14,19 @@ card "Dragon Dowser" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        damage_step: true
         trigger: when_sent_to gy
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_end_phase
         on_resolve {
-            destroy (1+, card, either_player controls) // TODO: verify
+            destroy (1+, card, either_player controls)
         }
     }
 

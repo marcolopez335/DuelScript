@@ -1,0 +1,45 @@
+// Light and Darkness Dragon
+// Transpiled from c47297616.lua
+
+card "Light and Darkness Dragon" {
+    password: 47297616
+    type: Effect Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 8
+    atk: 2800
+    def: 2400
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        damage_step: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            negate activation
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: when_sent_to gy
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

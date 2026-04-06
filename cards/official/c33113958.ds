@@ -1,5 +1,5 @@
 // LeVirtue Dragon
-// Migrated from c33113958.lua
+// Transpiled from c33113958.lua
 
 card "LeVirtue Dragon" {
     password: 33113958
@@ -9,12 +9,6 @@ card "LeVirtue Dragon" {
     rank: 3
     atk: 2000
     def: 0
-
-    materials {
-        require: 2+ monster
-        same_level: true
-        method: xyz
-    }
 
     summon_condition {
         cannot_normal_summon: true
@@ -26,16 +20,15 @@ card "LeVirtue Dragon" {
         optional: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            banish (1, card) // TODO: verify
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

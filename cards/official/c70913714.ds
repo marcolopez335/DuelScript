@@ -1,0 +1,55 @@
+// Old Entity Hastorr
+// Transpiled from c70913714.lua
+
+card "Old Entity Hastorr" {
+    password: 70913714
+    type: Synchro Monster
+    attribute: WIND
+    race: Reptile
+    level: 4
+    atk: 2300
+    def: 1000
+
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            equip (1, card) to (1, monster)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        trigger: when_leaves_field
+        on_resolve {
+            take_control of (1, monster, opponent controls)
+        }
+    }
+
+}

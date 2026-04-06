@@ -1,5 +1,5 @@
 // Beetrooper Landing
-// Migrated from c13234975.lua
+// Transpiled from c13234975.lua
 
 card "Beetrooper Landing" {
     password: 13234975
@@ -8,9 +8,11 @@ card "Beetrooper Landing" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
-        condition: in_gy
+        cost {
+            banish self
+        }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

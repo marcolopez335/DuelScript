@@ -1,0 +1,38 @@
+// Verre, the Maid of Endymion
+// Transpiled from c22623509.lua
+
+card "Verre, the Maid of Endymion" {
+    password: 22623509
+    type: Effect Monster
+    attribute: LIGHT
+    race: Spellcaster
+    level: 4
+    atk: 500
+    def: 1400
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

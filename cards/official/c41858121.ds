@@ -1,5 +1,5 @@
 // Vylon Matter
-// Migrated from c41858121.lua
+// Transpiled from c41858121.lua
 
 card "Vylon Matter" {
     password: 41858121
@@ -8,8 +8,10 @@ card "Vylon Matter" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            draw 2 // TODO: verify count
-            destroy (1, card, opponent controls) // TODO: verify target
+            return (1, card) to deck shuffle
+            shuffle deck
+            draw 1
+            destroy (1+, card, either_player controls)
         }
     }
 

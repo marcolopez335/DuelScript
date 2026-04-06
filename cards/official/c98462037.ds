@@ -1,0 +1,45 @@
+// Sky Striker Ace - Azalea
+// Transpiled from c98462037.lua
+
+card "Sky Striker Ace - Azalea" {
+    password: 98462037
+    type: Link Monster
+    attribute: DARK
+    race: Machine
+    link: 2
+    atk: 1500
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        cost {
+            banish self
+        }
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

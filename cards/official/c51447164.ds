@@ -1,5 +1,5 @@
 // T.G. Blade Blaster
-// Migrated from c51447164.lua
+// Transpiled from c51447164.lua
 
 card "T.G. Blade Blaster" {
     password: 51447164
@@ -24,6 +24,9 @@ card "T.G. Blade Blaster" {
         speed: spell_speed_2
         optional: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            send self to gy
+        }
         on_resolve {
             negate effect
         }
@@ -31,19 +34,22 @@ card "T.G. Blade Blaster" {
 
     effect "Effect 2" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        cost {
+            banish self
+        }
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 
     effect "Effect 3" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_standby_phase
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

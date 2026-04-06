@@ -1,5 +1,5 @@
 // Fire King High Avatar Kirin
-// Migrated from c2526224.lua
+// Transpiled from c2526224.lua
 
 card "Fire King High Avatar Kirin" {
     password: 2526224
@@ -15,19 +15,19 @@ card "Fire King High Avatar Kirin" {
         once_per_turn: hard
         optional: true
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            special_summon (1, monster) from gy // TODO: verify
+            destroy (1+, card, either_player controls)
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_sent_to gy
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
+            destroy (1+, card, either_player controls)
         }
     }
 

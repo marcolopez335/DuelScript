@@ -1,5 +1,5 @@
 // Salamangreat Mole
-// Migrated from c89484053.lua
+// Transpiled from c89484053.lua
 
 card "Salamangreat Mole" {
     password: 89484053
@@ -14,19 +14,20 @@ card "Salamangreat Mole" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
+        once_per_turn: soft
         cost {
             banish self
         }
         on_resolve {
-            draw 2 // TODO: verify count
+            return (1, card) to deck shuffle
+            shuffle deck
+            draw 2
         }
     }
 

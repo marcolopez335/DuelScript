@@ -1,0 +1,43 @@
+// Tri-Gate Wizard
+// Transpiled from c32617464.lua
+
+card "Tri-Gate Wizard" {
+    password: 32617464
+    type: Link Monster
+    attribute: EARTH
+    race: Cyberse
+    link: 3
+    atk: 2200
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        damage_step: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            negate activation
+            banish (1+, card)
+        }
+    }
+
+}

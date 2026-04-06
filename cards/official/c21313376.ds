@@ -1,0 +1,41 @@
+// Number 14: Greedy Sarameya
+// Transpiled from c21313376.lua
+
+card "Number 14: Greedy Sarameya" {
+    password: 21313376
+    type: Xyz Monster
+    attribute: DARK
+    race: Beast
+    rank: 5
+    atk: 2500
+    def: 1500
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

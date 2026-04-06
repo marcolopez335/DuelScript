@@ -1,5 +1,5 @@
 // Kozmo Landwalker
-// Migrated from c59496924.lua
+// Transpiled from c59496924.lua
 
 card "Kozmo Landwalker" {
     password: 59496924
@@ -13,7 +13,7 @@ card "Kozmo Landwalker" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            destroy (1+, card, either_player controls) // TODO: verify
+            destroy (1+, card, either_player controls)
         }
     }
 
@@ -21,8 +21,11 @@ card "Kozmo Landwalker" {
         speed: spell_speed_1
         optional: true
         trigger: when_sent_to gy
+        cost {
+            banish self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

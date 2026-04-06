@@ -1,0 +1,37 @@
+// Flower Cardian Willow
+// Transpiled from c54135423.lua
+
+card "Flower Cardian Willow" {
+    password: 54135423
+    type: Effect Monster
+    attribute: DARK
+    race: Warrior
+    level: 11
+    atk: 100
+    def: 100
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            return (1, card) to deck shuffle
+            shuffle deck
+            draw 1
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

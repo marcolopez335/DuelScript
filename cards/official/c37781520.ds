@@ -1,0 +1,40 @@
+// Mermail Abyssleed
+// Transpiled from c37781520.lua
+
+card "Mermail Abyssleed" {
+    password: 37781520
+    type: Effect Monster
+    attribute: WATER
+    race: Sea Serpent
+    level: 7
+    atk: 2700
+    def: 1000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            tribute self
+        }
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+}

@@ -1,0 +1,34 @@
+// Scrypton
+// Transpiled from c56161953.lua
+
+card "Scrypton" {
+    password: 56161953
+    type: Effect Monster
+    attribute: WATER
+    race: Cyberse
+    level: 5
+    atk: 1500
+    def: 1500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            banish self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_used_as_material
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+}

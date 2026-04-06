@@ -1,0 +1,46 @@
+// D/D/D Deviser King Deus Machinex
+// Transpiled from c46593546.lua
+
+card "D/D/D Deviser King Deus Machinex" {
+    password: 46593546
+    type: Xyz Monster
+    attribute: DARK
+    race: Fiend
+    rank: 10
+    scale: 10
+    atk: 3000
+    def: 3000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            special_summon (1, monster) from gy
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: during_standby_phase
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

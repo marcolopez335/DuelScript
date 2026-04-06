@@ -1,5 +1,5 @@
 // Hero Medal
-// Migrated from c10489311.lua
+// Transpiled from c10489311.lua
 
 card "Hero Medal" {
     password: 10489311
@@ -9,7 +9,9 @@ card "Hero Medal" {
         speed: spell_speed_1
         trigger: when_sent_to gy
         on_resolve {
-            draw 2 // TODO: verify count
+            return (1, card) to deck shuffle
+            shuffle deck
+            draw 1
         }
     }
 

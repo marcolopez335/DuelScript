@@ -1,5 +1,5 @@
 // Torrential Tribute
-// Migrated from c53582587.lua
+// Transpiled from c53582587.lua
 
 card "Torrential Tribute" {
     password: 53582587
@@ -9,15 +9,15 @@ card "Torrential Tribute" {
         speed: spell_speed_1
         trigger: when_summoned
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        trigger: when_flipped
+        trigger: when_summoned by_flip_summon
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
@@ -25,7 +25,7 @@ card "Torrential Tribute" {
         speed: spell_speed_1
         trigger: when_summoned by_special_summon
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

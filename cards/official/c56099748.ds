@@ -1,0 +1,37 @@
+// Visas Starfrost
+// Transpiled from c56099748.lua
+
+card "Visas Starfrost" {
+    password: 56099748
+    type: Effect Monster | Tuner
+    attribute: LIGHT
+    race: Warrior
+    level: 6
+    atk: 2100
+    def: 1500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

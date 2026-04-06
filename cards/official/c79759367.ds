@@ -1,5 +1,5 @@
 // Madolche Nights
-// Migrated from c79759367.lua
+// Transpiled from c79759367.lua
 
 card "Madolche Nights" {
     password: 79759367
@@ -7,9 +7,11 @@ card "Madolche Nights" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        damage_step: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
             negate activation
+            return (1, card) to deck shuffle
         }
     }
 

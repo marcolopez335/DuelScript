@@ -1,5 +1,5 @@
 // Test Tiger
-// Migrated from c92373006.lua
+// Transpiled from c92373006.lua
 
 card "Test Tiger" {
     password: 92373006
@@ -12,8 +12,12 @@ card "Test Tiger" {
 
     effect "Effect 2" {
         speed: spell_speed_1
+        cost {
+            tribute self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            return (1, card) to deck shuffle
+            special_summon (1, monster) from gy
         }
     }
 

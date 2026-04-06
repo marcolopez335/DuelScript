@@ -1,0 +1,45 @@
+// Scrap Worm
+// Transpiled from c32761286.lua
+
+card "Scrap Worm" {
+    password: 32761286
+    type: Effect Monster | Tuner
+    attribute: EARTH
+    race: Insect
+    level: 2
+    atk: 500
+    def: 100
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when attack_declared
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

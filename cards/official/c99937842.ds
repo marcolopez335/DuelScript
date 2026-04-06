@@ -1,5 +1,5 @@
 // T.G. Star Guardian
-// Migrated from c99937842.lua
+// Transpiled from c99937842.lua
 
 card "T.G. Star Guardian" {
     password: 99937842
@@ -9,12 +9,6 @@ card "T.G. Star Guardian" {
     level: 5
     atk: 100
     def: 2200
-
-    materials {
-        require: 1 tuner monster
-        require: 1+ non-tuner monster
-        method: synchro
-    }
 
     summon_condition {
         cannot_normal_summon: true
@@ -26,15 +20,15 @@ card "T.G. Star Guardian" {
         optional: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
@@ -42,7 +36,7 @@ card "T.G. Star Guardian" {
         speed: spell_speed_2
         optional: true
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

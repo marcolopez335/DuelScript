@@ -1,5 +1,5 @@
 // Unwavering Bond
-// Migrated from c72648810.lua
+// Transpiled from c72648810.lua
 
 card "Unwavering Bond" {
     password: 72648810
@@ -7,9 +7,11 @@ card "Unwavering Bond" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        damage_step: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
             negate activation
+            banish (1+, card)
         }
     }
 

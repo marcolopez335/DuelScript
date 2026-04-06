@@ -1,0 +1,44 @@
+// Geargiagear Gigant XG
+// Transpiled from c19891310.lua
+
+card "Geargiagear Gigant XG" {
+    password: 19891310
+    type: Xyz Monster
+    attribute: EARTH
+    race: Machine
+    rank: 3
+    atk: 2500
+    def: 1300
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            negate effect
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_leaves_field
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

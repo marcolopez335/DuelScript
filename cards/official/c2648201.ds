@@ -1,0 +1,38 @@
+// ZW - Sleipnir Mail
+// Transpiled from c2648201.lua
+
+card "ZW - Sleipnir Mail" {
+    password: 2648201
+    type: Effect Monster
+    attribute: LIGHT
+    race: Beast
+    level: 4
+    atk: 1000
+    def: 1000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        activate_from: [hand, monster_zone]
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,0 +1,43 @@
+// Constellar Praesepe
+// Transpiled from c2091298.lua
+
+card "Constellar Praesepe" {
+    password: 2091298
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Machine
+    rank: 4
+    atk: 2400
+    def: 800
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        damage_step: true
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

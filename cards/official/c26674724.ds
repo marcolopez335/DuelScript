@@ -1,0 +1,43 @@
+// Nekroz of Brionac
+// Transpiled from c26674724.lua
+
+card "Nekroz of Brionac" {
+    password: 26674724
+    type: Ritual Monster
+    attribute: WATER
+    race: Warrior
+    level: 6
+    atk: 2300
+    def: 1400
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            discard self
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+}

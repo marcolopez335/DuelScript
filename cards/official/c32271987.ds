@@ -1,5 +1,5 @@
 // Featherizer
-// Migrated from c32271987.lua
+// Transpiled from c32271987.lua
 
 card "Featherizer" {
     password: 32271987
@@ -13,8 +13,10 @@ card "Featherizer" {
     effect "Effect 1" {
         speed: spell_speed_1
         optional: true
+        trigger: when_battle_destroyed
         on_resolve {
-            draw 2 // TODO: verify count
+            send (1, card) to gy
+            draw 1
         }
     }
 

@@ -1,0 +1,41 @@
+// Apprentice Illusion Magician
+// Transpiled from c30603688.lua
+
+card "Apprentice Illusion Magician" {
+    password: 30603688
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 6
+    atk: 2000
+    def: 1700
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_2
+        optional: true
+        activate_from: [hand, monster_zone]
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

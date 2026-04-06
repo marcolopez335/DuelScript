@@ -1,0 +1,51 @@
+// Heraldic Beast Stad Whale
+// Transpiled from c97662494.lua
+
+card "Heraldic Beast Stad Whale" {
+    password: 97662494
+    type: Effect Monster
+    attribute: WATER
+    race: Fish
+    level: 4
+    atk: 900
+    def: 1900
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned
+        cost {
+            discard (1, card)
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            banish self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

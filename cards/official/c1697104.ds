@@ -1,0 +1,40 @@
+// PSY-Framegear Epsilon
+// Transpiled from c1697104.lua
+
+card "PSY-Framegear Epsilon" {
+    password: 1697104
+    type: Effect Monster | Tuner | Spirit
+    attribute: LIGHT
+    race: Psychic
+    level: 2
+    atk: 1500
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        damage_step: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            negate activation
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+}

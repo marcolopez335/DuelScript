@@ -1,5 +1,5 @@
 // Raging Earth
-// Migrated from c50957346.lua
+// Transpiled from c50957346.lua
 
 card "Raging Earth" {
     password: 50957346
@@ -12,8 +12,9 @@ card "Raging Earth" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        trigger: when_battle_destroyed
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

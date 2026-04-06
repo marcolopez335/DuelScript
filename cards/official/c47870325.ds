@@ -1,0 +1,32 @@
+// Smile Action
+// Transpiled from c47870325.lua
+
+card "Smile Action" {
+    password: 47870325
+    type: Field Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            banish (1, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when attack_declared
+        on_resolve {
+            add_to_hand (1, card) from gy
+            send (1, card) to gy
+            negate attack
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

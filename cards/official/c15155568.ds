@@ -1,5 +1,5 @@
 // Destruction Sword Flash
-// Migrated from c15155568.lua
+// Transpiled from c15155568.lua
 
 card "Destruction Sword Flash" {
     password: 15155568
@@ -8,7 +8,7 @@ card "Destruction Sword Flash" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 
@@ -16,12 +16,12 @@ card "Destruction Sword Flash" {
         speed: spell_speed_2
         optional: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
-        condition: in_gy
         cost {
             banish self
         }
         on_resolve {
             negate effect
+            destroy (1+, card, either_player controls)
         }
     }
 

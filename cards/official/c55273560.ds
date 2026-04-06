@@ -1,0 +1,43 @@
+// Incredible Ecclesia, the Virtuous
+// Transpiled from c55273560.lua
+
+card "Incredible Ecclesia, the Virtuous" {
+    password: 55273560
+    type: Effect Monster | Tuner
+    attribute: LIGHT
+    race: Spellcaster
+    level: 4
+    atk: 1500
+    def: 1500
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        cost {
+            tribute self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: during_end_phase
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        trigger: when_sent_to gy
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

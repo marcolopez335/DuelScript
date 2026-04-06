@@ -1,0 +1,29 @@
+// Mare Mare
+// Transpiled from c54537489.lua
+
+card "Mare Mare" {
+    password: 54537489
+    type: Effect Monster | Tuner
+    attribute: WATER
+    race: Wyrm
+    level: 7
+    atk: 2100
+    def: 1400
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            create_token { atk: 0 def: 0 }
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

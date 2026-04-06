@@ -1,5 +1,5 @@
 // Xyz Energy
-// Migrated from c85839825.lua
+// Transpiled from c85839825.lua
 
 card "Xyz Energy" {
     password: 85839825
@@ -7,11 +7,8 @@ card "Xyz Energy" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        cost {
-            detach 1 overlay_unit from self
-        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

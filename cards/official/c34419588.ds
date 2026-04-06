@@ -1,0 +1,42 @@
+// Kuribeh
+// Transpiled from c34419588.lua
+
+card "Kuribeh" {
+    password: 34419588
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 300
+    def: 200
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        damage_step: true
+        cost {
+            discard self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        cost {
+            tribute self
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // Fortune Fairy Hu
-// Migrated from c79890560.lua
+// Transpiled from c79890560.lua
 
 card "Fortune Fairy Hu" {
     password: 79890560
@@ -14,18 +14,20 @@ card "Fortune Fairy Hu" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        damage_step: true
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        damage_step: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

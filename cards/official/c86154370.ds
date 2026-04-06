@@ -1,0 +1,44 @@
+// Hi-Speedroid Clear Wing Rider
+// Transpiled from c86154370.lua
+
+card "Hi-Speedroid Clear Wing Rider" {
+    password: 86154370
+    type: Synchro Monster
+    attribute: WIND
+    race: Machine
+    level: 11
+    atk: 3500
+    def: 2000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            return (1, card) to deck shuffle
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        cost {
+            tribute self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

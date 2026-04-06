@@ -1,5 +1,5 @@
 // Dragunity Knight - Areus
-// Migrated from c34528176.lua
+// Transpiled from c34528176.lua
 
 card "Dragunity Knight - Areus" {
     password: 34528176
@@ -9,12 +9,6 @@ card "Dragunity Knight - Areus" {
     level: 8
     atk: 2900
     def: 2500
-
-    materials {
-        require: 1 tuner monster
-        require: 1+ non-tuner monster
-        method: synchro
-    }
 
     summon_condition {
         cannot_normal_summon: true
@@ -30,9 +24,10 @@ card "Dragunity Knight - Areus" {
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
+            special_summon (1, monster) from gy
         }
     }
 

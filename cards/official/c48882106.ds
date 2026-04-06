@@ -1,5 +1,5 @@
 // Toxic Boxfish
-// Migrated from c48882106.lua
+// Transpiled from c48882106.lua
 
 card "Toxic Boxfish" {
     password: 48882106
@@ -9,12 +9,6 @@ card "Toxic Boxfish" {
     level: 4
     atk: 1800
     def: 800
-
-    materials {
-        require: 1 tuner monster
-        require: 1+ non-tuner monster
-        method: synchro
-    }
 
     summon_condition {
         cannot_normal_summon: true
@@ -26,14 +20,15 @@ card "Toxic Boxfish" {
         optional: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        trigger: when_banished
         on_resolve {
             negate effect
         }

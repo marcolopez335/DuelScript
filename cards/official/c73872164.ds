@@ -1,5 +1,5 @@
 // Eliminating the League
-// Migrated from c73872164.lua
+// Transpiled from c73872164.lua
 
 card "Eliminating the League" {
     password: 73872164
@@ -7,11 +7,9 @@ card "Eliminating the League" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        cost {
-            discard self // TODO: verify target
-        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            send (1, card) to gy
         }
     }
 

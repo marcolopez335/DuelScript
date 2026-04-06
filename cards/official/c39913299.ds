@@ -1,5 +1,5 @@
 // The True Name
-// Migrated from c39913299.lua
+// Transpiled from c39913299.lua
 
 card "The True Name" {
     password: 39913299
@@ -9,7 +9,12 @@ card "The True Name" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            send (1, card) to gy
+            add_to_hand (1, card) from gy
+            shuffle deck
+            special_summon (1, monster) from gy
+            shuffle deck
+            send (1, card) to gy
         }
     }
 

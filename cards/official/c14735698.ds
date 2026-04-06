@@ -1,5 +1,5 @@
 // Nekroz Mirror
-// Migrated from c14735698.lua
+// Transpiled from c14735698.lua
 
 card "Nekroz Mirror" {
     password: 14735698
@@ -7,9 +7,11 @@ card "Nekroz Mirror" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        condition: in_gy
+        cost {
+            banish self
+        }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

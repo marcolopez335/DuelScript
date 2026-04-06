@@ -1,5 +1,5 @@
 // Dark Master - Zorc
-// Migrated from c97642679.lua
+// Transpiled from c97642679.lua
 
 card "Dark Master - Zorc" {
     password: 97642679
@@ -16,9 +16,11 @@ card "Dark Master - Zorc" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            destroy (1+, card, either_player controls)
+            destroy (1+, card, either_player controls)
         }
     }
 

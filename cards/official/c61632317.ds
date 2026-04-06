@@ -1,5 +1,5 @@
 // Sinister Sprocket
-// Migrated from c61632317.lua
+// Transpiled from c61632317.lua
 
 card "Sinister Sprocket" {
     password: 61632317
@@ -13,8 +13,9 @@ card "Sinister Sprocket" {
     effect "Effect 1" {
         speed: spell_speed_1
         optional: true
+        trigger: when_used_as_material
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

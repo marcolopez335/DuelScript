@@ -1,0 +1,46 @@
+// Kurikurinku @Ignister
+// Transpiled from c66102515.lua
+
+card "Kurikurinku @Ignister" {
+    password: 66102515
+    type: Effect Monster
+    attribute: DARK
+    race: Cyberse
+    level: 1
+    atk: 300
+    def: 200
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        activate_from: [hand, gy]
+        cost {
+            tribute self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            tribute self
+        }
+        on_resolve {
+            negate effect
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

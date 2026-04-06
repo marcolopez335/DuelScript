@@ -1,0 +1,32 @@
+// Elemental HERO Storm Neos
+// Transpiled from c49352945.lua
+
+card "Elemental HERO Storm Neos" {
+    password: 49352945
+    type: Fusion Monster
+    attribute: WIND
+    race: Warrior
+    level: 9
+    atk: 3000
+    def: 2500
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+}

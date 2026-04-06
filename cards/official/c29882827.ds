@@ -1,5 +1,5 @@
 // Ryu-Ge Rising
-// Migrated from c29882827.lua
+// Transpiled from c29882827.lua
 
 card "Ryu-Ge Rising" {
     password: 29882827
@@ -9,16 +9,19 @@ card "Ryu-Ge Rising" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            shuffle deck
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
         once_per_turn: hard
-        condition: in_gy
+        cost {
+            banish self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

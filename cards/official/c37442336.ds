@@ -1,0 +1,50 @@
+// Cosmic Quasar Dragon
+// Transpiled from c37442336.lua
+
+card "Cosmic Quasar Dragon" {
+    password: 37442336
+    type: Synchro Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 12
+    atk: 4000
+    def: 4000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            negate effect
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_2
+        optional: true
+        cost {
+            banish self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

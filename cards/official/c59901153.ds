@@ -1,0 +1,34 @@
+// Phalaenop Sisters
+// Transpiled from c59901153.lua
+
+card "Phalaenop Sisters" {
+    password: 59901153
+    type: Effect Monster
+    attribute: WIND
+    race: Fairy
+    level: 1
+    atk: 300
+    def: 300
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            tribute self
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+            deal_damage to opponent: 2700
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: when_summoned
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

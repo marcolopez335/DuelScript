@@ -1,5 +1,5 @@
 // Shadow Ghoul of the Labyrinth
-// Migrated from c62411811.lua
+// Transpiled from c62411811.lua
 
 card "Shadow Ghoul of the Labyrinth" {
     password: 62411811
@@ -17,20 +17,19 @@ card "Shadow Ghoul of the Labyrinth" {
             discard self
         }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
-        condition: in_gy
         cost {
             banish self
         }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

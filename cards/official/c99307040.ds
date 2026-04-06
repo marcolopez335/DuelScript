@@ -1,0 +1,35 @@
+// Horus the Black Flame Deity
+// Transpiled from c99307040.lua
+
+card "Horus the Black Flame Deity" {
+    password: 99307040
+    type: Effect Monster
+    attribute: FIRE
+    race: Dragon
+    level: 8
+    atk: 3000
+    def: 1800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_leaves_field
+        on_resolve {
+            special_summon (1, monster) from gy
+            send (1, card) to gy
+        }
+    }
+
+}

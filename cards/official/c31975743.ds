@@ -1,0 +1,38 @@
+// Ape Magician
+// Transpiled from c31975743.lua
+
+card "Ape Magician" {
+    password: 31975743
+    type: Effect Monster
+    attribute: DARK
+    race: Beast
+    level: 3
+    atk: 800
+    def: 1200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            take_control of (1, monster, opponent controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

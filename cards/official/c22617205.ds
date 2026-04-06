@@ -1,0 +1,31 @@
+// Stellarknight Zefraxciton
+// Transpiled from c22617205.lua
+
+card "Stellarknight Zefraxciton" {
+    password: 22617205
+    type: Pendulum Monster
+    attribute: LIGHT
+    race: Fiend
+    level: 4
+    scale: 7
+    atk: 1900
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // Doom Kraken
-// Migrated from c69436288.lua
+// Transpiled from c69436288.lua
 
 card "Doom Kraken" {
     password: 69436288
@@ -15,19 +15,20 @@ card "Doom Kraken" {
         once_per_turn: hard
         optional: true
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
+            add_to_hand (1, card) from gy
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when attack_declared
         on_resolve {
+            add_to_hand (1, card) from gy
             negate attack
-            add_to_hand (1, card) from gy // TODO: verify
         }
     }
 

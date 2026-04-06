@@ -1,5 +1,5 @@
 // Pyrite Knight
-// Migrated from c48228390.lua
+// Transpiled from c48228390.lua
 
 card "Pyrite Knight" {
     password: 48228390
@@ -13,18 +13,21 @@ card "Pyrite Knight" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
-        condition: in_gy
+        activate_from: [hand, gy]
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            special_summon (1, monster) from gy
+            create_token { atk: 0 def: 0 }
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

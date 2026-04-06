@@ -1,5 +1,5 @@
 // Contact with Gusto
-// Migrated from c83544697.lua
+// Transpiled from c83544697.lua
 
 card "Contact with Gusto" {
     password: 83544697
@@ -8,7 +8,8 @@ card "Contact with Gusto" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            return (1, card) to deck shuffle
+            destroy (1+, card, either_player controls)
         }
     }
 

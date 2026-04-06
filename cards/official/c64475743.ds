@@ -1,0 +1,33 @@
+// Kittytail, Mystical Beast of the Forest
+// Transpiled from c64475743.lua
+
+card "Kittytail, Mystical Beast of the Forest" {
+    password: 64475743
+    type: Effect Monster
+    attribute: EARTH
+    race: Beast
+    level: 2
+    atk: 200
+    def: 200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

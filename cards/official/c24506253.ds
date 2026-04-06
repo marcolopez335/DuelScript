@@ -1,0 +1,54 @@
+// Chronomaly Acambaro Figures
+// Transpiled from c24506253.lua
+
+card "Chronomaly Acambaro Figures" {
+    password: 24506253
+    type: Effect Monster
+    attribute: EARTH
+    race: Rock
+    level: 5
+    atk: 1000
+    def: 1800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            pay_lp your_lp / 2
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // Demiurge Ema
-// Migrated from c26364381.lua
+// Transpiled from c26364381.lua
 
 card "Demiurge Ema" {
     password: 26364381
@@ -13,17 +13,21 @@ card "Demiurge Ema" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: soft
+        cost {
+            send self to gy
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            special_summon (1, monster) from gy // TODO: verify
+            destroy (1+, card, either_player controls)
+            create_token { atk: 0 def: 0 }
+            create_token { atk: 0 def: 0 }
         }
     }
 

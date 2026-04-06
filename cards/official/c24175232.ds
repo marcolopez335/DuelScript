@@ -1,0 +1,44 @@
+// Cerulean Sacred Phoenix of Nephthys
+// Transpiled from c24175232.lua
+
+card "Cerulean Sacred Phoenix of Nephthys" {
+    password: 24175232
+    type: Ritual Monster
+    attribute: FIRE
+    race: Winged Beast
+    level: 8
+    atk: 3000
+    def: 1000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_sent_to gy
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: during_standby_phase
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

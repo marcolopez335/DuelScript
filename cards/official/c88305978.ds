@@ -1,5 +1,5 @@
 // Blackwing - Calima the Haze
-// Migrated from c88305978.lua
+// Transpiled from c88305978.lua
 
 card "Blackwing - Calima the Haze" {
     password: 88305978
@@ -13,20 +13,19 @@ card "Blackwing - Calima the Haze" {
     effect "Effect 1" {
         speed: spell_speed_2
         optional: true
-        condition: in_gy
         cost {
             banish self
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 

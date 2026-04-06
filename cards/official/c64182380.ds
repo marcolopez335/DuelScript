@@ -1,0 +1,56 @@
+// Garunix Eternity, Hyang of the Fire Kings
+// Transpiled from c64182380.lua
+
+card "Garunix Eternity, Hyang of the Fire Kings" {
+    password: 64182380
+    type: Xyz Monster
+    attribute: FIRE
+    race: Pyro
+    rank: 8
+    atk: 3000
+    def: 2000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        trigger: when_leaves_field
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

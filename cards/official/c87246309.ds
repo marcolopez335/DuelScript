@@ -1,0 +1,33 @@
+// Fluffal Octopus
+// Transpiled from c87246309.lua
+
+card "Fluffal Octopus" {
+    password: 87246309
+    type: Effect Monster
+    attribute: WATER
+    race: Fairy
+    level: 1
+    atk: 800
+    def: 800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_used_as_material
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+}

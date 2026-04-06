@@ -1,0 +1,47 @@
+// Fiendsmith's Sequence
+// Transpiled from c49867899.lua
+
+card "Fiendsmith's Sequence" {
+    password: 49867899
+    type: Link Monster
+    attribute: LIGHT
+    race: Fiend
+    link: 2
+    atk: 1200
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            equip (1, card) to (1, monster)
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

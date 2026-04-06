@@ -1,5 +1,5 @@
 // Genex Doctor
-// Migrated from c89211486.lua
+// Transpiled from c89211486.lua
 
 card "Genex Doctor" {
     password: 89211486
@@ -12,8 +12,11 @@ card "Genex Doctor" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        cost {
+            tribute self
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

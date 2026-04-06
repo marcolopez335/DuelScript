@@ -1,0 +1,34 @@
+// Loop of Destruction
+// Transpiled from c7852509.lua
+
+card "Loop of Destruction" {
+    password: 7852509
+    type: Continuous Trap
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 500
+            deal_damage to opponent: 500
+        }
+    }
+
+}

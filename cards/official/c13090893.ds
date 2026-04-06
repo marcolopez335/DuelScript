@@ -1,5 +1,5 @@
 // Grid Sweeper
-// Migrated from c13090893.lua
+// Transpiled from c13090893.lua
 
 card "Grid Sweeper" {
     password: 13090893
@@ -14,16 +14,18 @@ card "Grid Sweeper" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
+        once_per_turn: soft
+        cost {
+            banish self
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

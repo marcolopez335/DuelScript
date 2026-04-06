@@ -1,5 +1,5 @@
 // Eclipse, Dragon Ruler of Catastrophes
-// Migrated from c30350202.lua
+// Transpiled from c30350202.lua
 
 card "Eclipse, Dragon Ruler of Catastrophes" {
     password: 30350202
@@ -9,12 +9,6 @@ card "Eclipse, Dragon Ruler of Catastrophes" {
     rank: 7
     atk: 2700
     def: 1900
-
-    materials {
-        require: 2+ monster
-        same_level: true
-        method: xyz
-    }
 
     summon_condition {
         cannot_normal_summon: true
@@ -26,20 +20,23 @@ card "Eclipse, Dragon Ruler of Catastrophes" {
         optional: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
+            return (1, card) to deck shuffle
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        damage_step: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         cost {
-            detach 2 overlay_unit from self
+            detach 1 overlay_unit from self
         }
         on_resolve {
             negate activation
+            banish (1+, card)
         }
     }
 

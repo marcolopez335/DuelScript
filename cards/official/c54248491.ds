@@ -1,5 +1,5 @@
 // Relinquished Spider
-// Migrated from c54248491.lua
+// Transpiled from c54248491.lua
 
 card "Relinquished Spider" {
     password: 54248491
@@ -12,8 +12,11 @@ card "Relinquished Spider" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        cost {
+            tribute self
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

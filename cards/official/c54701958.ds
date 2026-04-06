@@ -1,0 +1,43 @@
+// Lunalight Liger Dancer
+// Transpiled from c54701958.lua
+
+card "Lunalight Liger Dancer" {
+    password: 54701958
+    type: Fusion Monster
+    attribute: DARK
+    race: Beast-Warrior
+    level: 12
+    atk: 3800
+    def: 3500
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

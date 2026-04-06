@@ -1,0 +1,46 @@
+// Subterror Nemesis Defender
+// Transpiled from c68823957.lua
+
+card "Subterror Nemesis Defender" {
+    password: 68823957
+    type: Effect Monster
+    attribute: EARTH
+    race: Beast-Warrior
+    level: 2
+    atk: 100
+    def: 2000
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        activate_from: [hand, monster_zone]
+        trigger: when_attacked
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        activate_from: [hand, monster_zone]
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

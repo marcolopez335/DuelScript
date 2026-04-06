@@ -1,0 +1,32 @@
+// Evoltile Lagosucho
+// Transpiled from c3283679.lua
+
+card "Evoltile Lagosucho" {
+    password: 3283679
+    type: Effect Monster
+    attribute: FIRE
+    race: Reptile
+    level: 3
+    atk: 1200
+    def: 500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_flipped
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

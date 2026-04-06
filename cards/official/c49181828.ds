@@ -1,5 +1,5 @@
 // Fist Armed Dragon
-// Migrated from c49181828.lua
+// Transpiled from c49181828.lua
 
 card "Fist Armed Dragon" {
     password: 49181828
@@ -13,22 +13,21 @@ card "Fist Armed Dragon" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
-        condition: in_gy
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            special_summon (1, monster) from gy // TODO: verify
+            destroy (1+, card, either_player controls)
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         cost {
-            discard self
+            discard (1, card)
         }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            special_summon (1, monster) from gy // TODO: verify
+            destroy (1+, card, either_player controls)
+            special_summon (1, monster) from gy
         }
     }
 

@@ -1,0 +1,39 @@
+// Valkyrie Erste
+// Transpiled from c66809920.lua
+
+card "Valkyrie Erste" {
+    password: 66809920
+    type: Effect Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 6
+    atk: 1600
+    def: 1800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

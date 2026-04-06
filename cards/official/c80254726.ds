@@ -1,0 +1,28 @@
+// Blackbird Close
+// Transpiled from c80254726.lua
+
+card "Blackbird Close" {
+    password: 80254726
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            negate activation
+            destroy (1+, card, either_player controls)
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

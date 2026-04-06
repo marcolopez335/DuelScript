@@ -1,5 +1,5 @@
 // Salamangreat Foxer
-// Migrated from c86962245.lua
+// Transpiled from c86962245.lua
 
 card "Salamangreat Foxer" {
     password: 86962245
@@ -17,7 +17,8 @@ card "Salamangreat Foxer" {
             send self to gy
         }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            return (1, card) to deck shuffle
+            destroy (1+, card, either_player controls)
         }
     }
 
@@ -26,9 +27,8 @@ card "Salamangreat Foxer" {
         once_per_turn: hard
         optional: true
         trigger: when_sent_to gy
-        condition: in_gy
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

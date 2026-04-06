@@ -1,0 +1,49 @@
+// Super Anti-Kaiju War Machine Mecha-Thunder-King
+// Transpiled from c29913783.lua
+
+card "Super Anti-Kaiju War Machine Mecha-Thunder-King" {
+    password: 29913783
+    type: Effect Monster
+    attribute: LIGHT
+    race: Machine
+    level: 9
+    atk: 2200
+    def: 2100
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        cost {
+            discard self
+        }
+        on_resolve {
+            banish (1+, card)
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: during_end_phase
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

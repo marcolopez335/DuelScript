@@ -1,0 +1,44 @@
+// Vampire Familiar
+// Transpiled from c34250214.lua
+
+card "Vampire Familiar" {
+    password: 34250214
+    type: Effect Monster
+    attribute: DARK
+    race: Zombie
+    level: 1
+    atk: 500
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned by_special_summon
+        cost {
+            pay_lp 1000
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

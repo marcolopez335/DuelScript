@@ -1,0 +1,38 @@
+// Sacred Arch-Airknight Parshath
+// Transpiled from c16261341.lua
+
+card "Sacred Arch-Airknight Parshath" {
+    password: 16261341
+    type: Effect Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 9
+    atk: 2800
+    def: 2300
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        activate_from: [hand, gy]
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

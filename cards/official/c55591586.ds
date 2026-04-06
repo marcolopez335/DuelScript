@@ -1,0 +1,55 @@
+// Thunder Dragonduo
+// Transpiled from c55591586.lua
+
+card "Thunder Dragonduo" {
+    password: 55591586
+    type: Effect Monster | Spirit
+    attribute: DARK
+    race: Thunder
+    level: 8
+    atk: 2800
+    def: 0
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        cost {
+            banish self
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: during_end_phase
+        on_resolve {
+            return (1, card) to deck shuffle
+            return (1, card) to deck shuffle
+        }
+    }
+
+    effect "Effect 5" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

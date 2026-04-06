@@ -1,5 +1,5 @@
 // Jiaotu, Darkness of the Yang Zing
-// Migrated from c25935625.lua
+// Transpiled from c25935625.lua
 
 card "Jiaotu, Darkness of the Yang Zing" {
     password: 25935625
@@ -14,29 +14,27 @@ card "Jiaotu, Darkness of the Yang Zing" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        damage_step: true
         trigger: when_sent_to gy
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
         once_per_turn: hard
-        cost {
-            discard self // TODO: verify target
-        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 3" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_end_phase
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 

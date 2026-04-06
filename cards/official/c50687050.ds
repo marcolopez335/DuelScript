@@ -1,0 +1,44 @@
+// Arktos XII - Chronochasm Vaylantz
+// Transpiled from c50687050.lua
+
+card "Arktos XII - Chronochasm Vaylantz" {
+    password: 50687050
+    type: Fusion Monster
+    attribute: EARTH
+    race: Fairy
+    level: 12
+    scale: 12
+    atk: 3000
+    def: 3000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

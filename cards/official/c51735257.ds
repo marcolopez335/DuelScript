@@ -1,0 +1,36 @@
+// Number 50: Blackship of Corn
+// Transpiled from c51735257.lua
+
+card "Number 50: Blackship of Corn" {
+    password: 51735257
+    type: Xyz Monster
+    attribute: DARK
+    race: Plant
+    rank: 4
+    atk: 2100
+    def: 1500
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            send (1, card) to gy
+            deal_damage to opponent: 1000
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,0 +1,39 @@
+// Aromage Marjoram
+// Transpiled from c40663548.lua
+
+card "Aromage Marjoram" {
+    password: 40663548
+    type: Effect Monster
+    attribute: DARK
+    race: Plant
+    level: 5
+    atk: 2000
+    def: 1600
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_battle_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+            gain_lp: 500
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+}

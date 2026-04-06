@@ -1,0 +1,47 @@
+// Drill Driver Vespenato
+// Transpiled from c39317553.lua
+
+card "Drill Driver Vespenato" {
+    password: 39317553
+    type: Xyz Monster
+    attribute: EARTH
+    race: Machine
+    rank: 5
+    atk: 2500
+    def: 2100
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

@@ -1,0 +1,38 @@
+// Chaos Witch
+// Transpiled from c30327674.lua
+
+card "Chaos Witch" {
+    password: 30327674
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 4
+    atk: 1500
+    def: 1500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            create_token { atk: 0 def: 0 }
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_banished
+        on_resolve {
+            create_token { atk: 0 def: 0 }
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,0 +1,66 @@
+// Flying Fortress SKY FIRE
+// Transpiled from c16898077.lua
+
+card "Flying Fortress SKY FIRE" {
+    password: 16898077
+    type: Effect Monster | Spirit
+    attribute: WIND
+    race: Machine
+    level: 8
+    atk: 3000
+    def: 2500
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 800
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 800
+        }
+    }
+
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 800
+        }
+    }
+
+}

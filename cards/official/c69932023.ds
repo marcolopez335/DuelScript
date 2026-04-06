@@ -1,5 +1,5 @@
 // Dracotail Horn
-// Migrated from c69932023.lua
+// Transpiled from c69932023.lua
 
 card "Dracotail Horn" {
     password: 69932023
@@ -9,7 +9,9 @@ card "Dracotail Horn" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            draw 2 // TODO: verify count
+            add_to_hand (1, card) from gy
+            return (1, card) to deck shuffle
+            draw 1
         }
     }
 

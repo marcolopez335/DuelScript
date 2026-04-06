@@ -1,0 +1,38 @@
+// Shiranui Squiresaga
+// Transpiled from c52711246.lua
+
+card "Shiranui Squiresaga" {
+    password: 52711246
+    type: Synchro Monster
+    attribute: FIRE
+    race: Zombie
+    level: 7
+    atk: 2100
+    def: 0
+
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

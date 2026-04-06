@@ -1,0 +1,35 @@
+// Gizmek Taniguku, the Immobile Intellect
+// Transpiled from c23384666.lua
+
+card "Gizmek Taniguku, the Immobile Intellect" {
+    password: 23384666
+    type: Effect Monster
+    attribute: EARTH
+    race: Machine
+    level: 3
+    atk: 1450
+    def: 1450
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: when_summoned
+        on_resolve {
+            shuffle deck
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            banish self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

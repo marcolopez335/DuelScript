@@ -1,5 +1,5 @@
 // Firestorms Over Atlantis
-// Migrated from c17151328.lua
+// Transpiled from c17151328.lua
 
 card "Firestorms Over Atlantis" {
     password: 17151328
@@ -8,24 +8,19 @@ card "Firestorms Over Atlantis" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
-        cost {
-            discard self // TODO: verify target
-        }
         on_resolve {
-            draw 2 // TODO: verify count
-            destroy (1+, card, either_player controls) // TODO: verify
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
+        once_per_turn: soft
         cost {
             banish self
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

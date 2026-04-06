@@ -1,0 +1,41 @@
+// Aussa the Earth Channeler
+// Transpiled from c62803464.lua
+
+card "Aussa the Earth Channeler" {
+    password: 62803464
+    type: Effect Monster
+    attribute: EARTH
+    race: Spellcaster
+    level: 5
+    atk: 1850
+    def: 1500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_battle_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

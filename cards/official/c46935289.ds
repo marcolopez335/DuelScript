@@ -1,5 +1,5 @@
 // Herald of Mirage Lights
-// Migrated from c46935289.lua
+// Transpiled from c46935289.lua
 
 card "Herald of Mirage Lights" {
     password: 46935289
@@ -9,11 +9,6 @@ card "Herald of Mirage Lights" {
     link: 2
     atk: 600
 
-    materials {
-        require: 2+ effect monster
-        method: link
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -22,23 +17,21 @@ card "Herald of Mirage Lights" {
         speed: spell_speed_2
         once_per_turn: hard
         optional: true
+        damage_step: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
-        cost {
-            discard self // TODO: verify target
-        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            negate activation and destroy
+            negate activation
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_sent_to gy
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

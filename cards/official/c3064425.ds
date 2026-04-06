@@ -1,0 +1,51 @@
+// Superheavy Samurai Soulbang Cannon
+// Transpiled from c3064425.lua
+
+card "Superheavy Samurai Soulbang Cannon" {
+    password: 3064425
+    type: Effect Monster
+    attribute: EARTH
+    race: Machine
+    level: 3
+    atk: 1000
+    def: 1000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        activate_from: [hand, monster_zone]
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        damage_step: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            banish self
+        }
+        on_resolve {
+            negate activation
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 1000
+            deal_damage to opponent: 1000
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

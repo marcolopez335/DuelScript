@@ -1,5 +1,5 @@
 // Bujintei Tsukuyomi
-// Migrated from c73289035.lua
+// Transpiled from c73289035.lua
 
 card "Bujintei Tsukuyomi" {
     password: 73289035
@@ -22,20 +22,23 @@ card "Bujintei Tsukuyomi" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         cost {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            draw 2 // TODO: verify count
+            send (1, card) to gy
+            draw 2
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
         optional: true
+        damage_step: true
+        trigger: when_leaves_field
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

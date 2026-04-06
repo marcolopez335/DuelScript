@@ -1,0 +1,28 @@
+// Inspection
+// Transpiled from c16227556.lua
+
+card "Inspection" {
+    password: 16227556
+    type: Continuous Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: during_standby_phase
+        cost {
+            pay_lp 1000
+        }
+        on_resolve {
+            shuffle deck
+        }
+    }
+
+}

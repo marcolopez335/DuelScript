@@ -1,5 +1,5 @@
 // Hieratic Seal of Banishment
-// Migrated from c11975962.lua
+// Transpiled from c11975962.lua
 
 card "Hieratic Seal of Banishment" {
     password: 11975962
@@ -7,8 +7,11 @@ card "Hieratic Seal of Banishment" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        cost {
+            tribute self
+        }
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 

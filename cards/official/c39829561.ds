@@ -1,0 +1,37 @@
+// Destiny HERO - Departed
+// Transpiled from c39829561.lua
+
+card "Destiny HERO - Departed" {
+    password: 39829561
+    type: Effect Monster
+    attribute: DARK
+    race: Warrior
+    level: 2
+    atk: 1000
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

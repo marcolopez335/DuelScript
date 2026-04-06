@@ -1,5 +1,5 @@
 // Scareclaw Light-Heart
-// Migrated from c53776969.lua
+// Transpiled from c53776969.lua
 
 card "Scareclaw Light-Heart" {
     password: 53776969
@@ -8,11 +8,6 @@ card "Scareclaw Light-Heart" {
     race: Beast-Warrior
     link: 1
     atk: 500
-
-    materials {
-        require: 2+ effect monster
-        method: link
-    }
 
     summon_condition {
         cannot_normal_summon: true
@@ -23,16 +18,15 @@ card "Scareclaw Light-Heart" {
         optional: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
         once_per_turn: hard
-        condition: in_gy
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

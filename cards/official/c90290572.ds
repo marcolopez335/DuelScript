@@ -1,5 +1,5 @@
 // Protector of The Agents - Moon
-// Migrated from c90290572.lua
+// Transpiled from c90290572.lua
 
 card "Protector of The Agents - Moon" {
     password: 90290572
@@ -8,11 +8,6 @@ card "Protector of The Agents - Moon" {
     race: Fairy
     link: 2
     atk: 1800
-
-    materials {
-        require: 2+ effect monster
-        method: link
-    }
 
     summon_condition {
         cannot_normal_summon: true
@@ -24,15 +19,18 @@ card "Protector of The Agents - Moon" {
         optional: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
+        cost {
+            tribute self
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

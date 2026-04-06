@@ -1,5 +1,5 @@
 // Legendary Six Samurai - Mizuho
-// Migrated from c74094021.lua
+// Transpiled from c74094021.lua
 
 card "Legendary Six Samurai - Mizuho" {
     password: 74094021
@@ -12,9 +12,12 @@ card "Legendary Six Samurai - Mizuho" {
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
+        cost {
+            tribute self
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

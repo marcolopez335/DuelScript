@@ -1,5 +1,5 @@
 // Infernoid Flood
-// Migrated from c34446231.lua
+// Transpiled from c34446231.lua
 
 card "Infernoid Flood" {
     password: 34446231
@@ -9,11 +9,6 @@ card "Infernoid Flood" {
     link: 4
     atk: 3000
 
-    materials {
-        require: 2+ effect monster
-        method: link
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -22,27 +17,33 @@ card "Infernoid Flood" {
         speed: spell_speed_2
         once_per_turn: hard
         optional: true
+        trigger: when_summoned by_special_summon
+        cost {
+            tribute self
+        }
         on_resolve {
             negate summon
+            banish (1+, card)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        trigger: when_banished
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 
     effect "Effect 3" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_destroyed
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

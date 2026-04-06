@@ -1,0 +1,39 @@
+// Poseidra, the Atlantean Dragon
+// Transpiled from c47826112.lua
+
+card "Poseidra, the Atlantean Dragon" {
+    password: 47826112
+    type: Effect Monster
+    attribute: WATER
+    race: Sea Serpent
+    level: 7
+    atk: 2800
+    def: 1600
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        activate_from: [hand, gy]
+        cost {
+            tribute self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

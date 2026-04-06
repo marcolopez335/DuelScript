@@ -1,5 +1,5 @@
 // Ground Xeno
-// Migrated from c67523044.lua
+// Transpiled from c67523044.lua
 
 card "Ground Xeno" {
     password: 67523044
@@ -9,19 +9,20 @@ card "Ground Xeno" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            add_to_hand (1, card) from gy
+            shuffle deck
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
+        once_per_turn: soft
         cost {
             banish self
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

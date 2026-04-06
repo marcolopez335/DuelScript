@@ -1,0 +1,33 @@
+// Zefrasaber, Swordmaster of the Nekroz
+// Transpiled from c84388461.lua
+
+card "Zefrasaber, Swordmaster of the Nekroz" {
+    password: 84388461
+    type: Pendulum Monster
+    attribute: WATER
+    race: Spellcaster
+    level: 4
+    scale: 1
+    atk: 1500
+    def: 800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand, monster_zone]
+        cost {
+            tribute self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

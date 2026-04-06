@@ -1,5 +1,5 @@
 // Vanquishing Light
-// Migrated from c32233746.lua
+// Transpiled from c32233746.lua
 
 card "Vanquishing Light" {
     password: 32233746
@@ -8,8 +8,12 @@ card "Vanquishing Light" {
     effect "Effect 1" {
         speed: spell_speed_1
         trigger: when_summoned
+        cost {
+            tribute self
+        }
         on_resolve {
-            negate summon and destroy
+            negate summon
+            destroy (1+, card, either_player controls)
         }
     }
 

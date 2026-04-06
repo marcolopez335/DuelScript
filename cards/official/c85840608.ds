@@ -1,5 +1,5 @@
 // Neo Space Connector
-// Migrated from c85840608.lua
+// Transpiled from c85840608.lua
 
 card "Neo Space Connector" {
     password: 85840608
@@ -16,15 +16,18 @@ card "Neo Space Connector" {
         optional: true
         trigger: when_summoned
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
+        cost {
+            tribute self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

@@ -1,0 +1,37 @@
+// Rciela, Sinister Soul of the White Forest
+// Transpiled from c77313225.lua
+
+card "Rciela, Sinister Soul of the White Forest" {
+    password: 77313225
+    type: Synchro Monster | Tuner
+    attribute: LIGHT
+    race: Spellcaster
+    level: 6
+    atk: 2000
+    def: 1500
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned by_special_summon
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

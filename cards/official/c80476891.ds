@@ -1,0 +1,36 @@
+// Poly-Chemicritter Hydragon
+// Transpiled from c80476891.lua
+
+card "Poly-Chemicritter Hydragon" {
+    password: 80476891
+    type: Effect Monster | Union
+    attribute: WATER
+    race: Dragon
+    level: 8
+    atk: 200
+    def: 2800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

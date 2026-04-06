@@ -1,5 +1,5 @@
 // Synchro Deflector
-// Migrated from c24545464.lua
+// Transpiled from c24545464.lua
 
 card "Synchro Deflector" {
     password: 24545464
@@ -9,7 +9,8 @@ card "Synchro Deflector" {
         speed: spell_speed_1
         trigger: when_attacked
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            negate attack
+            destroy (1+, card, either_player controls)
         }
     }
 

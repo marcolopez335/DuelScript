@@ -1,5 +1,5 @@
 // Hero of the Ashened City
-// Migrated from c30676200.lua
+// Transpiled from c30676200.lua
 
 card "Hero of the Ashened City" {
     password: 30676200
@@ -12,10 +12,11 @@ card "Hero of the Ashened City" {
 
     effect "Effect 2" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            send (1, card) to gy
         }
     }
 

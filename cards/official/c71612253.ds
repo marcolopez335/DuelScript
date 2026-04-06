@@ -1,0 +1,60 @@
+// D/D/D Marksman King Tell
+// Transpiled from c71612253.lua
+
+card "D/D/D Marksman King Tell" {
+    password: 71612253
+    type: Xyz Monster
+    attribute: DARK
+    race: Fiend
+    rank: 5
+    atk: 2300
+    def: 2000
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        damage_step: true
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            deal_damage to opponent: 1000
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

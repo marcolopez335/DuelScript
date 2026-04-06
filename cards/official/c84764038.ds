@@ -1,0 +1,46 @@
+// Scarm, Malebranche of the Burning Abyss
+// Transpiled from c84764038.lua
+
+card "Scarm, Malebranche of the Burning Abyss" {
+    password: 84764038
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 3
+    atk: 800
+    def: 2000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: when_sent_to gy
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: during_end_phase
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

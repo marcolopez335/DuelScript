@@ -1,0 +1,37 @@
+// R.B. Lambda Blade
+// Transpiled from c17188206.lua
+
+card "R.B. Lambda Blade" {
+    password: 17188206
+    type: Effect Monster
+    attribute: DARK
+    race: Machine
+    level: 7
+    atk: 1400
+    def: 1400
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        cost {
+            pay_lp 1000
+        }
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            take_control of (1, monster, opponent controls)
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

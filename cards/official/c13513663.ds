@@ -1,0 +1,45 @@
+// Castle of Dragon Souls
+// Transpiled from c13513663.lua
+
+card "Castle of Dragon Souls" {
+    password: 13513663
+    type: Continuous Trap
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: true
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        damage_step: true
+        cost {
+            banish self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

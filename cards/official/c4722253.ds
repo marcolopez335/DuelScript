@@ -1,0 +1,39 @@
+// Lightray Gearfried
+// Transpiled from c4722253.lua
+
+card "Lightray Gearfried" {
+    password: 4722253
+    type: Effect Monster | Spirit
+    attribute: LIGHT
+    race: Warrior
+    level: 8
+    atk: 2800
+    def: 2200
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        damage_step: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            banish self
+        }
+        on_resolve {
+            negate activation
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

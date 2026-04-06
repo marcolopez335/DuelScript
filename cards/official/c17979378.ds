@@ -1,0 +1,48 @@
+// D/D Proud Chevalier
+// Transpiled from c17979378.lua
+
+card "D/D Proud Chevalier" {
+    password: 17979378
+    type: Pendulum Monster
+    attribute: DARK
+    race: Fiend
+    level: 5
+    scale: 6
+    atk: 2000
+    def: 700
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            pay_lp 1000
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

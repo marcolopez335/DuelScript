@@ -1,0 +1,46 @@
+// Mind Procedure
+// Transpiled from c62606805.lua
+
+card "Mind Procedure" {
+    password: 62606805
+    type: Effect Monster | Tuner
+    attribute: LIGHT
+    race: Psychic
+    level: 3
+    atk: 1100
+    def: 1100
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned
+        cost {
+            pay_lp 1000
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_banished
+        cost {
+            pay_lp 1000
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

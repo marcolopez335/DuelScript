@@ -1,5 +1,5 @@
 // Animadorned Archosaur
-// Migrated from c98022050.lua
+// Transpiled from c98022050.lua
 
 card "Animadorned Archosaur" {
     password: 98022050
@@ -14,9 +14,11 @@ card "Animadorned Archosaur" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        damage_step: true
         trigger: when_summoned
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            add_to_hand (1, card) from gy
         }
     }
 

@@ -1,0 +1,41 @@
+// Rescue Interlacer
+// Transpiled from c63009228.lua
+
+card "Rescue Interlacer" {
+    password: 63009228
+    type: Effect Monster
+    attribute: LIGHT
+    race: Cyberse
+    level: 3
+    atk: 1000
+    def: 1200
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

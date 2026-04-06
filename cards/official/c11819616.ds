@@ -1,5 +1,5 @@
 // Tytannial, Princess of Camellias
-// Migrated from c11819616.lua
+// Transpiled from c11819616.lua
 
 card "Tytannial, Princess of Camellias" {
     password: 11819616
@@ -13,10 +13,14 @@ card "Tytannial, Princess of Camellias" {
     effect "Effect 1" {
         speed: spell_speed_2
         optional: true
+        damage_step: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            tribute self
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            negate activation and destroy
+            negate activation
+            destroy (1+, card, either_player controls)
         }
     }
 

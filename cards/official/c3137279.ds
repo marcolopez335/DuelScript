@@ -1,0 +1,33 @@
+// Ixeep, Omen of the Ghoti
+// Transpiled from c3137279.lua
+
+card "Ixeep, Omen of the Ghoti" {
+    password: 3137279
+    type: Effect Monster
+    attribute: WATER
+    race: Fish
+    level: 4
+    atk: 1500
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_banished
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: during_standby_phase
+        on_resolve {
+            set (1, card)
+        }
+    }
+
+}

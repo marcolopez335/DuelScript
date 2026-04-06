@@ -1,5 +1,5 @@
 // Morphtronic Remoten
-// Migrated from c57108202.lua
+// Transpiled from c57108202.lua
 
 card "Morphtronic Remoten" {
     password: 57108202
@@ -12,18 +12,19 @@ card "Morphtronic Remoten" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            banish (1, card) // TODO: verify
-            add_to_hand (1, card) from gy // TODO: verify
+            banish (1+, card)
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            send (1, card) to gy
+            add_to_hand (1, card) from gy
         }
     }
 

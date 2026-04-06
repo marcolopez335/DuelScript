@@ -1,0 +1,45 @@
+// Scrap Shark
+// Transpiled from c69155991.lua
+
+card "Scrap Shark" {
+    password: 69155991
+    type: Effect Monster
+    attribute: EARTH
+    race: Fish
+    level: 4
+    atk: 2100
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_destroyed
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+}

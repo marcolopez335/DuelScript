@@ -1,5 +1,5 @@
 // Disarm
-// Migrated from c26834022.lua
+// Transpiled from c26834022.lua
 
 card "Disarm" {
     password: 26834022
@@ -9,8 +9,9 @@ card "Disarm" {
         speed: spell_speed_1
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            negate activation and destroy
+            return (1, card) to deck shuffle
+            negate activation
+            destroy (1+, card, either_player controls)
         }
     }
 

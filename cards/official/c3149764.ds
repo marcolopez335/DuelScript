@@ -1,5 +1,5 @@
 // Tutan Mask
-// Migrated from c3149764.lua
+// Transpiled from c3149764.lua
 
 card "Tutan Mask" {
     password: 3149764
@@ -9,8 +9,8 @@ card "Tutan Mask" {
         speed: spell_speed_1
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            negate activation and destroy
+            negate activation
+            destroy (1+, card, either_player controls)
         }
     }
 

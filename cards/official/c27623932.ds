@@ -1,5 +1,5 @@
 // Thunder Discharge
-// Migrated from c27623932.lua
+// Transpiled from c27623932.lua
 
 card "Thunder Discharge" {
     password: 27623932
@@ -9,7 +9,8 @@ card "Thunder Discharge" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            equip (1, card) to (1, monster)
         }
     }
 

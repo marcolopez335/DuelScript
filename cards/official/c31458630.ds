@@ -1,5 +1,5 @@
 // Melodious Concerto
-// Migrated from c31458630.lua
+// Transpiled from c31458630.lua
 
 card "Melodious Concerto" {
     password: 31458630
@@ -7,12 +7,13 @@ card "Melodious Concerto" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        damage_step: true
         trigger: when_sent_to gy
-        condition: in_gy
         on_resolve {
-            draw 2 // TODO: verify count
+            return (1, card) to deck shuffle
+            draw 1
         }
     }
 

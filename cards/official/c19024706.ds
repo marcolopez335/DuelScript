@@ -1,5 +1,5 @@
 // Hero Counterattack
-// Migrated from c19024706.lua
+// Transpiled from c19024706.lua
 
 card "Hero Counterattack" {
     password: 19024706
@@ -7,9 +7,11 @@ card "Hero Counterattack" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        trigger: when_battle_destroyed
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            special_summon (1, monster) from gy // TODO: verify
+            destroy (1+, card, either_player controls)
+            special_summon (1, monster) from gy
+            shuffle deck
         }
     }
 

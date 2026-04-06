@@ -1,5 +1,5 @@
 // Kewl Tune Clip
-// Migrated from c43904702.lua
+// Transpiled from c43904702.lua
 
 card "Kewl Tune Clip" {
     password: 43904702
@@ -15,16 +15,17 @@ card "Kewl Tune Clip" {
         once_per_turn: hard
         optional: true
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        trigger: when_used_as_material
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 

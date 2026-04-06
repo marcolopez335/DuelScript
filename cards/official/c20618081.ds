@@ -1,0 +1,32 @@
+// Salamangreat Falco
+// Transpiled from c20618081.lua
+
+card "Salamangreat Falco" {
+    password: 20618081
+    type: Effect Monster
+    attribute: FIRE
+    race: Cyberse
+    level: 4
+    atk: 1200
+    def: 1600
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            set (1, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            add_to_hand (1, card) from gy
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

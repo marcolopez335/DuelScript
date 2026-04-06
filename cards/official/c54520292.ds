@@ -1,5 +1,5 @@
 // Koa'ki Meiru Ice
-// Migrated from c54520292.lua
+// Transpiled from c54520292.lua
 
 card "Koa'ki Meiru Ice" {
     password: 54520292
@@ -12,17 +12,20 @@ card "Koa'ki Meiru Ice" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_end_phase
         on_resolve {
-            destroy (1+, card, either_player controls) // TODO: verify
+            reveal self
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
+        cost {
+            send self to gy
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

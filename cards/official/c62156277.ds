@@ -1,5 +1,5 @@
 // Spearhead of the Ashened City
-// Migrated from c62156277.lua
+// Transpiled from c62156277.lua
 
 card "Spearhead of the Ashened City" {
     password: 62156277
@@ -12,9 +12,12 @@ card "Spearhead of the Ashened City" {
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
+        cost {
+            tribute self
+        }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

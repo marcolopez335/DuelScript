@@ -1,0 +1,30 @@
+// Mist Archfiend
+// Transpiled from c28601770.lua
+
+card "Mist Archfiend" {
+    password: 28601770
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 5
+    atk: 2400
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 1000
+        }
+    }
+
+}

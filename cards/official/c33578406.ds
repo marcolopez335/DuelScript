@@ -1,0 +1,33 @@
+// Original Bamboo Sword
+// Transpiled from c33578406.lua
+
+card "Original Bamboo Sword" {
+    password: 33578406
+    type: Equip Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            equip (1, card) to (1, monster)
+        }
+    }
+
+}

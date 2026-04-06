@@ -1,5 +1,5 @@
 // Solemn Warning
-// Migrated from c84749824.lua
+// Transpiled from c84749824.lua
 
 card "Solemn Warning" {
     password: 84749824
@@ -8,17 +8,25 @@ card "Solemn Warning" {
     effect "Effect 1" {
         speed: spell_speed_1
         trigger: when_summoned
+        cost {
+            pay_lp your_lp / 2
+        }
         on_resolve {
-            negate summon and destroy
+            negate summon
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
+        damage_step: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            pay_lp your_lp / 2
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            negate activation and destroy
+            negate activation
+            destroy (1+, card, either_player controls)
         }
     }
 

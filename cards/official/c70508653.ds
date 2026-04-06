@@ -1,0 +1,25 @@
+// Tool Box
+// Transpiled from c70508653.lua
+
+card "Tool Box" {
+    password: 70508653
+    type: Continuous Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            shuffle deck
+            add_to_hand (1, card) from gy
+            shuffle deck
+        }
+    }
+
+}

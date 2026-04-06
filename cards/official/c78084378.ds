@@ -1,0 +1,46 @@
+// Diplexer Chimera
+// Transpiled from c78084378.lua
+
+card "Diplexer Chimera" {
+    password: 78084378
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Cyberse
+    level: 5
+    atk: 2000
+    def: 800
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            tribute self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

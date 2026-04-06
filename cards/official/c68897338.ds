@@ -1,5 +1,5 @@
 // The Fabled Behilmoth
-// Migrated from c68897338.lua
+// Transpiled from c68897338.lua
 
 card "The Fabled Behilmoth" {
     password: 68897338
@@ -14,21 +14,21 @@ card "The Fabled Behilmoth" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            send (1, card) to gy
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_sent_to gy
-        condition: in_gy
         cost {
             banish self
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

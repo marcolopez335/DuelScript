@@ -1,0 +1,25 @@
+// Chain Ignition
+// Transpiled from c85893201.lua
+
+card "Chain Ignition" {
+    password: 85893201
+    type: Continuous Trap
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

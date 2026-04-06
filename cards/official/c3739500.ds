@@ -1,0 +1,47 @@
+// End of the World Ruler
+// Transpiled from c3739500.lua
+
+card "End of the World Ruler" {
+    password: 3739500
+    type: Ritual Monster
+    attribute: DARK
+    race: Fiend
+    level: 10
+    atk: 3000
+    def: 2900
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        activate_from: [hand, monster_zone]
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            reveal self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            pay_lp 1000
+        }
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}
