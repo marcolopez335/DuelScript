@@ -5,7 +5,7 @@
 use duelscript::parse;
 
 fn main() {
-    let source = include_str!("../cards/ash_blossom.ds");
+    let source = include_str!("../cards/official/c14558127.ds");
 
     match parse(source) {
         Ok(file) => {

@@ -19,6 +19,7 @@ pub use validator::{validate, validate_card, ValidationError, ValidationReport, 
 pub use database::{CardDatabase, LoadError, LoadErrorKind};
 pub use cdb::{CdbReader, CdbCard, CdbError, CdbRegion, MergedCard, merge_databases};
 pub use migrate::{generate_from_lua, migrate_directory, MigrationResult, Confidence};
+pub use compiler::compile_card;
 pub use engine::bridge::{
     DuelScriptEngine, GameContext, GameEvent, GameEventKind,
     CardHandle, EffectActivation, ChainLink,

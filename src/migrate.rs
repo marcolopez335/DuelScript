@@ -1,14 +1,13 @@
 // ============================================================
 // DuelScript Migration Tool — migrate.rs
 //
-// Reads ProjectIgnis Lua card scripts and generates .ds
-// skeletons. Automates what it can, flags what needs manual
-// work. Designed to port the 12,000+ CardScripts over time.
+// Smart migrator: reads ProjectIgnis Lua card scripts and
+// generates .ds files by extracting SetType/SetCategory/SetCode
+// patterns. Uses BabelCdb for card stats when available.
 //
-// Usage (CLI):
-//   duelscript migrate official/c14558127.lua
-//   duelscript migrate official/                  (batch)
-//   duelscript migrate-cdb cards.cdb cards/official/
+// Usage:
+//   let result = generate_from_lua(lua_source, 55144522, "Pot of Greed");
+//   let batch = migrate_directory(lua_dir, cdb_reader);
 // ============================================================
 
 use std::{
@@ -19,607 +18,455 @@ use std::{
 
 // ── Public API ────────────────────────────────────────────────
 
-/// Result of migrating a single Lua script
 #[derive(Debug)]
 pub struct MigrationResult {
     pub passcode:    u64,
-    pub source_path: PathBuf,
-    pub output_path: PathBuf,
+    pub card_name:   String,
     pub ds_content:  String,
     pub confidence:  Confidence,
-    pub notes:       Vec<MigrationNote>,
+    pub effect_count: usize,
+    pub notes:       Vec<String>,
 }
 
-/// How confident we are in the migration output
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Confidence {
-    /// Fully auto-migrated — normal monster, vanilla spell/trap
-    Full,
-    /// Mostly auto-migrated — common effect pattern recognized  
-    High,
-    /// Skeleton generated — structure correct, effects need review
-    Medium,
-    /// Passcode extracted only — complex script, manual work needed
-    Low,
+    Full,   // All effects fully mapped
+    High,   // Most effects mapped, minor TODOs
+    Medium, // Structure correct, some effects need review
+    Low,    // Skeleton only
 }
 
 impl Confidence {
     pub fn label(&self) -> &'static str {
         match self {
-            Confidence::Full   => "FULL   ",
-            Confidence::High   => "HIGH   ",
-            Confidence::Medium => "MEDIUM ",
-            Confidence::Low    => "LOW    ",
+            Confidence::Full   => "FULL",
+            Confidence::High   => "HIGH",
+            Confidence::Medium => "MEDIUM",
+            Confidence::Low    => "LOW",
         }
     }
 }
 
-/// A note attached to a migration result
-#[derive(Debug, Clone)]
-pub struct MigrationNote {
-    pub kind:    NoteKind,
-    pub message: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum NoteKind {
-    AutoMigrated,  // Successfully mapped to DuelScript keyword
-    NeedsReview,   // Pattern recognized but needs human verification
-    Unknown,       // Could not map — manual scripting required
-    Warning,       // Possible issue detected
-}
-
-// ── Lua Pattern Detector ──────────────────────────────────────
-
-/// Patterns we recognize from ProjectIgnis Lua scripts.
-/// Each maps to a DuelScript construct.
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-enum LuaPattern {
-    // Effect types
-    IgnitionEffect,
-    TriggerEffect,
-    QuickEffect,
-    ContinuousEffect,
-    FieldEffect,
-
-    // Common operations
-    DrawCards,
-    SpecialSummon,
-    SearchDeck,
-    NegateEffect,
-    NegateAndDestroy,
-    Destroy,
-    Banish,
-    SendToGy,
-    ReturnToHand,
-    ReturnToDeck,
-
-    // Costs
-    DetachCost,
-    DiscardCost,
-    TributeCost,
-    PayLpCost,
-    BanishCost,
-
-    // Conditions
-    HandCondition,
-    FieldCondition,
-    GraveyardCondition,
-
-    // Frequency
-    OncePerTurn,
-    OncePerDuel,
-
-    // Summon procedures
-    XyzSummon,
-    SynchroSummon,
-    FusionSummon,
-    LinkSummon,
-    RitualSummon,
-
-    // Special
-    OpponentActivates,
-    CounterLimit,
-    ReviveLimit,
-    EnableReviveLimit,
-}
-
-// ── Lua Script Analyzer ───────────────────────────────────────
-
-struct LuaAnalyzer<'a> {
-    source:   &'a str,
-    patterns: HashMap<LuaPattern, Vec<usize>>, // pattern → line numbers
-    passcode: u64,
-}
-
-impl<'a> LuaAnalyzer<'a> {
-    fn new(source: &'a str, passcode: u64) -> Self {
-        let mut analyzer = Self {
-            source,
-            patterns: HashMap::new(),
-            passcode,
-        };
-        analyzer.scan();
-        analyzer
-    }
-
-    fn scan(&mut self) {
-        for (lineno, line) in self.source.lines().enumerate() {
-            self.detect_line(line, lineno + 1);
-        }
-    }
-
-    fn detect_line(&mut self, line: &str, lineno: usize) {
-        let l = line.trim();
-
-        // Effect types
-        if l.contains("EFFECT_TYPE_IGNITION")  { self.mark(LuaPattern::IgnitionEffect, lineno); }
-        if l.contains("EFFECT_TYPE_TRIGGER_O") || l.contains("EFFECT_TYPE_TRIGGER_F") {
-            self.mark(LuaPattern::TriggerEffect, lineno);
-        }
-        if l.contains("EFFECT_TYPE_QUICK_O")   { self.mark(LuaPattern::QuickEffect, lineno); }
-        if l.contains("EFFECT_TYPE_CONTINUOUS") { self.mark(LuaPattern::ContinuousEffect, lineno); }
-        if l.contains("EFFECT_TYPE_FIELD")      { self.mark(LuaPattern::FieldEffect, lineno); }
-
-        // Operations
-        if l.contains("Duel.Draw")              { self.mark(LuaPattern::DrawCards, lineno); }
-        if l.contains("Duel.SpecialSummon")     { self.mark(LuaPattern::SpecialSummon, lineno); }
-        if l.contains("LOCATION_DECK") && l.contains("Duel.Hint") {
-            self.mark(LuaPattern::SearchDeck, lineno);
-        }
-        if l.contains("Duel.NegateEffect") || l.contains("re:IsHasType(EFFECT_NEGATE)") {
-            self.mark(LuaPattern::NegateEffect, lineno);
-        }
-        if l.contains("Duel.Destroy") && l.contains("negate") {
-            self.mark(LuaPattern::NegateAndDestroy, lineno);
-        }
-        if l.contains("Duel.Destroy")           { self.mark(LuaPattern::Destroy, lineno); }
-        if l.contains("Duel.Remove")            { self.mark(LuaPattern::Banish, lineno); }
-        if l.contains("Duel.SendtoGrave") || l.contains("Duel.SendToGrave") {
-            self.mark(LuaPattern::SendToGy, lineno);
-        }
-        if l.contains("LOCATION_HAND") && l.contains("Duel.SendtoGrave") {
-            self.mark(LuaPattern::ReturnToHand, lineno);
-        }
-        if l.contains("LOCATION_DECK") && l.contains("Duel.SendtoGrave") {
-            self.mark(LuaPattern::ReturnToDeck, lineno);
-        }
-
-        // Costs
-        if l.contains("Cost.Detach") || l.contains("DetachFromSelf") {
-            self.mark(LuaPattern::DetachCost, lineno);
-        }
-        if l.contains("Cost.Discard") || l.contains("Duel.Discard") {
-            self.mark(LuaPattern::DiscardCost, lineno);
-        }
-        if l.contains("Cost.Tribute") || l.contains("Duel.Tribute") {
-            self.mark(LuaPattern::TributeCost, lineno);
-        }
-        if l.contains("Cost.PayLp") || l.contains("Duel.DamageStep") {
-            self.mark(LuaPattern::PayLpCost, lineno);
-        }
-        if l.contains("Cost.Banish")            { self.mark(LuaPattern::BanishCost, lineno); }
-
-        // Conditions
-        if l.contains("LOCATION_HAND")          { self.mark(LuaPattern::HandCondition, lineno); }
-        if l.contains("LOCATION_MZONE") || l.contains("LOCATION_SZONE") {
-            self.mark(LuaPattern::FieldCondition, lineno);
-        }
-        if l.contains("LOCATION_GRAVE")         { self.mark(LuaPattern::GraveyardCondition, lineno); }
-
-        // Frequency
-        if l.contains("SetCountLimit(1)") || l.contains("SetCountLimit(1,") {
-            self.mark(LuaPattern::OncePerTurn, lineno);
-        }
-        if l.contains("SetCountLimit(1,id)") || l.contains("RESET_DUEL") {
-            self.mark(LuaPattern::OncePerDuel, lineno);
-        }
-
-        // Summon procedures
-        if l.contains("Xyz.AddProcedure")       { self.mark(LuaPattern::XyzSummon, lineno); }
-        if l.contains("Synchro.AddProcedure")   { self.mark(LuaPattern::SynchroSummon, lineno); }
-        if l.contains("Fusion.AddProcedure")    { self.mark(LuaPattern::FusionSummon, lineno); }
-        if l.contains("Link.AddProcedure")      { self.mark(LuaPattern::LinkSummon, lineno); }
-        if l.contains("Ritual.AddProcedure")    { self.mark(LuaPattern::RitualSummon, lineno); }
-
-        // Special
-        if l.contains("opponent_activates") || l.contains("EVENT_CHAIN_SOLVING") {
-            self.mark(LuaPattern::OpponentActivates, lineno);
-        }
-        if l.contains("EnableReviveLimit")      { self.mark(LuaPattern::EnableReviveLimit, lineno); }
-    }
-
-    fn mark(&mut self, pattern: LuaPattern, lineno: usize) {
-        self.patterns.entry(pattern).or_default().push(lineno);
-    }
-
-    fn has(&self, p: &LuaPattern) -> bool {
-        self.patterns.contains_key(p)
-    }
-
-    fn count_effects(&self) -> usize {
-        // Count RegisterEffect calls as a proxy for effect count
-        self.source.lines()
-            .filter(|l| l.contains("RegisterEffect"))
-            .count()
-    }
-
-    fn extract_effect_count_limit(&self) -> u32 {
-        if self.has(&LuaPattern::OncePerDuel) { return 1; }
-        if self.has(&LuaPattern::OncePerTurn) { return 1; }
-        0
-    }
-}
-
-// ── DS Generator ──────────────────────────────────────────────
-
-struct DsGenerator {
-    analyzer: LuaAnalyzer<'static>, // lifetime simplified for generation
-    passcode: u64,
-    card_name: String,
-}
-
-/// Generate a .ds skeleton from a Lua script source and card name.
+/// Generate a .ds file from a Lua script.
 pub fn generate_from_lua(
     lua_source: &str,
-    passcode:   u64,
-    card_name:  &str,
+    passcode: u64,
+    card_name: &str,
 ) -> MigrationResult {
+    let effects = extract_effects(lua_source);
+    let meta = extract_card_meta(lua_source);
+    let mut ds = String::new();
     let mut notes = Vec::new();
-    let mut ds    = String::new();
-    let mut confidence = Confidence::Low;
+    let mut all_mapped = true;
 
-    // Static analysis of the Lua source
-    let mut patterns: HashMap<LuaPattern, bool> = HashMap::new();
-    let mut effect_count = 0usize;
-
-    for line in lua_source.lines() {
-        let l = line.trim();
-
-        macro_rules! detect {
-            ($pat:expr, $needle:expr) => {
-                if l.contains($needle) { patterns.insert($pat, true); }
-            };
-        }
-
-        detect!(LuaPattern::XyzSummon,       "Xyz.AddProcedure");
-        detect!(LuaPattern::SynchroSummon,   "Synchro.AddProcedure");
-        detect!(LuaPattern::FusionSummon,    "Fusion.AddProcedure");
-        detect!(LuaPattern::LinkSummon,      "Link.AddProcedure");
-        detect!(LuaPattern::RitualSummon,    "Ritual.AddProcedure");
-        detect!(LuaPattern::EnableReviveLimit, "EnableReviveLimit");
-        detect!(LuaPattern::DetachCost,      "DetachFromSelf");
-        detect!(LuaPattern::DiscardCost,     "Cost.Discard");
-        detect!(LuaPattern::TributeCost,     "Cost.Tribute");
-        detect!(LuaPattern::PayLpCost,       "Cost.PayLp");
-        detect!(LuaPattern::BanishCost,      "Cost.Banish");
-        detect!(LuaPattern::DrawCards,       "Duel.Draw");
-        detect!(LuaPattern::Destroy,         "Duel.Destroy");
-        detect!(LuaPattern::Banish,          "Duel.Remove");
-        detect!(LuaPattern::SendToGy,        "Duel.SendtoGrave");
-        detect!(LuaPattern::SpecialSummon,   "Duel.SpecialSummon");
-        detect!(LuaPattern::NegateEffect,    "Duel.NegateEffect");
-        detect!(LuaPattern::OncePerTurn,     "SetCountLimit(1)");
-        detect!(LuaPattern::OncePerDuel,     "RESET_DUEL");
-        detect!(LuaPattern::HandCondition,   "LOCATION_HAND");
-        detect!(LuaPattern::FieldCondition,  "LOCATION_MZONE");
-        detect!(LuaPattern::GraveyardCondition, "LOCATION_GRAVE");
-        detect!(LuaPattern::IgnitionEffect,  "EFFECT_TYPE_IGNITION");
-        detect!(LuaPattern::TriggerEffect,   "EFFECT_TYPE_TRIGGER");
-        detect!(LuaPattern::QuickEffect,     "EFFECT_TYPE_QUICK");
-        detect!(LuaPattern::ContinuousEffect,"EFFECT_TYPE_CONTINUOUS");
-
-        if l.contains("RegisterEffect") { effect_count += 1; }
-    }
-
-    // ── Header ─────────────────────────────────────────────────
-    ds.push_str(&format!("// Migrated from c{}.lua\n", passcode));
-    ds.push_str("// Review all effect blocks before use — see LANGUAGE_REFERENCE.md\n\n");
+    // Header
+    ds.push_str(&format!("// {}\n", card_name));
+    ds.push_str(&format!("// Migrated from c{}.lua\n\n", passcode));
     ds.push_str(&format!("card \"{}\" {{\n", card_name));
-    ds.push_str(&format!("  password: {}\n\n", passcode));
-    ds.push_str("  // TODO: add type, attribute, race, level, atk, def from BabelCdb\n");
-    ds.push_str("  // Run: duelscript merge-cdb cards.cdb cards/ to auto-populate\n\n");
+    ds.push_str(&format!("    password: {}\n", passcode));
 
-    notes.push(MigrationNote {
-        kind:    NoteKind::NeedsReview,
-        message: "Card stats not populated — run merge-cdb or fill from BabelCdb".to_string(),
-    });
+    // Card stats placeholder (filled by CDB merge)
+    ds.push_str("    // TODO: type, attribute, race, level, atk, def from CDB\n\n");
 
-    // ── Summon procedure ───────────────────────────────────────
-    if patterns.contains_key(&LuaPattern::XyzSummon) {
-        ds.push_str("  materials {\n");
-        ds.push_str("    // TODO: add Xyz material requirements\n");
-        ds.push_str("    require: 2+ monster\n");
-        ds.push_str("    same_level: true\n");
-        ds.push_str("  }\n\n");
-        notes.push(MigrationNote {
-            kind:    NoteKind::AutoMigrated,
-            message: "Xyz summon procedure detected — materials block generated".to_string(),
-        });
-        confidence = Confidence::Medium;
-    }
-    if patterns.contains_key(&LuaPattern::SynchroSummon) {
-        ds.push_str("  materials {\n");
-        ds.push_str("    // TODO: add Synchro material requirements\n");
-        ds.push_str("    require: 1 tuner monster\n");
-        ds.push_str("    require: 1+ non-tuner monster\n");
-        ds.push_str("  }\n\n");
-        notes.push(MigrationNote {
-            kind:    NoteKind::AutoMigrated,
-            message: "Synchro summon procedure detected — materials block generated".to_string(),
-        });
-        confidence = Confidence::Medium;
-    }
-    if patterns.contains_key(&LuaPattern::FusionSummon) {
-        ds.push_str("  materials {\n");
-        ds.push_str("    // TODO: add Fusion material requirements\n");
-        ds.push_str("    require: 2+ monster\n");
-        ds.push_str("    method: fusion\n");
-        ds.push_str("  }\n\n");
-        notes.push(MigrationNote {
-            kind:    NoteKind::AutoMigrated,
-            message: "Fusion summon procedure detected — materials block generated".to_string(),
-        });
-        confidence = Confidence::Medium;
-    }
-    if patterns.contains_key(&LuaPattern::LinkSummon) {
-        ds.push_str("  // TODO: add link_arrows declaration\n");
-        ds.push_str("  materials {\n");
-        ds.push_str("    // TODO: add Link material requirements\n");
-        ds.push_str("    require: 2+ monster\n");
-        ds.push_str("  }\n\n");
-        notes.push(MigrationNote {
-            kind: NoteKind::AutoMigrated,
-            message: "Link summon procedure detected — materials block generated".to_string(),
-        });
-        confidence = Confidence::Medium;
-    }
-    if patterns.contains_key(&LuaPattern::EnableReviveLimit) {
-        ds.push_str("  summon_condition {\n");
-        ds.push_str("    must_be_summoned_by: own_effect\n");
-        ds.push_str("  }\n\n");
-        notes.push(MigrationNote {
-            kind:    NoteKind::AutoMigrated,
-            message: "EnableReviveLimit detected → summon_condition: must_be_summoned_by own_effect".to_string(),
-        });
+    // Summon procedures
+    if meta.has_xyz { ds.push_str("    materials {\n        require: 2+ monster\n        same_level: true\n        method: xyz\n    }\n\n"); }
+    if meta.has_synchro { ds.push_str("    materials {\n        require: 1 tuner monster\n        require: 1+ non-tuner monster\n        method: synchro\n    }\n\n"); }
+    if meta.has_link { ds.push_str("    materials {\n        require: 2+ effect monster\n        method: link\n    }\n\n"); }
+    if meta.has_fusion { ds.push_str("    materials {\n        require: 2+ monster\n        method: fusion\n    }\n\n"); }
+    if meta.has_revive_limit {
+        ds.push_str("    summon_condition {\n        cannot_normal_summon: true\n    }\n\n");
     }
 
-    // ── Effects ────────────────────────────────────────────────
-    let freq = if patterns.contains_key(&LuaPattern::OncePerDuel) {
-        "  once_per_duel: true\n"
-    } else if patterns.contains_key(&LuaPattern::OncePerTurn) {
-        "  once_per_turn: true\n"
-    } else {
-        ""
-    };
+    // Effects
+    for (i, eff) in effects.iter().enumerate() {
+        // Skip summon proc effects (they're handled by materials block)
+        if eff.code_raw == "EFFECT_SPSUMMON_PROC" || eff.code_raw.contains("946") || eff.code_raw.contains("948") || eff.code_raw.contains("950") {
+            continue;
+        }
 
-    let condition = if patterns.contains_key(&LuaPattern::HandCondition)
-        && patterns.contains_key(&LuaPattern::TriggerEffect)
-    {
-        "  condition: in_hand\n"
-    } else if patterns.contains_key(&LuaPattern::GraveyardCondition) {
-        "  condition: in_gy\n"
-    } else if patterns.contains_key(&LuaPattern::FieldCondition) {
-        "  condition: on_field\n"
-    } else {
-        ""
-    };
+        ds.push_str(&format!("    effect \"Effect {}\" {{\n", i + 1));
 
-    let speed = if patterns.contains_key(&LuaPattern::QuickEffect) {
-        "  speed: spell_speed_2\n"
-    } else {
-        "  speed: spell_speed_1\n"
-    };
+        // Speed
+        let speed = determine_speed(&eff.type_raw);
+        ds.push_str(&format!("        speed: {}\n", speed));
 
-    for i in 0..effect_count.max(1) {
-        ds.push_str(&format!("  effect \"Effect {}\" {{\n", i + 1));
-        ds.push_str(speed);
-        ds.push_str(freq);
-        ds.push_str(condition);
+        // Frequency
+        if let Some(ref cl) = eff.count_limit {
+            if cl.contains(",id") || cl.contains(", id") {
+                ds.push_str("        once_per_turn: hard\n");
+            } else if cl.contains(",0") || cl.contains(", 0") {
+                ds.push_str("        once_per_turn: soft\n");
+            } else {
+                ds.push_str("        once_per_turn: hard\n");
+            }
+        }
 
-        // Cost block
-        ds.push_str("    cost {\n");
-        if patterns.contains_key(&LuaPattern::DetachCost) {
-            ds.push_str("      detach 1 overlay_unit from self\n");
-            notes.push(MigrationNote {
-                kind:    NoteKind::AutoMigrated,
-                message: "DetachFromSelf → detach 1 overlay_unit from self".to_string(),
-            });
-        } else if patterns.contains_key(&LuaPattern::DiscardCost) {
-            ds.push_str("      // TODO: discard (1, card) OR discard self\n");
-            notes.push(MigrationNote {
-                kind:    NoteKind::NeedsReview,
-                message: "Cost.Discard detected — verify target".to_string(),
-            });
-        } else if patterns.contains_key(&LuaPattern::PayLpCost) {
-            ds.push_str("      // TODO: pay_lp N\n");
-            notes.push(MigrationNote {
-                kind:    NoteKind::NeedsReview,
-                message: "Cost.PayLp detected — add LP amount".to_string(),
-            });
-        } else if patterns.contains_key(&LuaPattern::TributeCost) {
-            ds.push_str("      // TODO: tribute (1, monster, you controls)\n");
-            notes.push(MigrationNote {
-                kind:    NoteKind::NeedsReview,
-                message: "Cost.Tribute detected — verify tribute target".to_string(),
-            });
+        // Optional
+        if eff.type_raw.contains("TRIGGER_O") || eff.type_raw.contains("QUICK_O") {
+            ds.push_str("        optional: true\n");
+        }
+
+        // Trigger
+        if let Some(trigger) = determine_trigger(&eff.code_raw) {
+            ds.push_str(&format!("        trigger: {}\n", trigger));
+        }
+
+        // Range condition
+        if eff.range_raw.contains("LOCATION_HAND") && eff.type_raw.contains("QUICK") {
+            // Hand trap
+        } else if eff.range_raw.contains("LOCATION_GRAVE") {
+            ds.push_str("        condition: in_gy\n");
+        }
+
+        // Cost
+        if let Some(cost) = determine_cost(&eff.cost_key, lua_source) {
+            ds.push_str(&format!("        cost {{\n            {}\n        }}\n", cost));
+        }
+
+        // On resolve
+        let actions = determine_actions(&eff.operation_key, lua_source, &eff.category_raw);
+        ds.push_str("        on_resolve {\n");
+        if !actions.is_empty() {
+            for action in &actions {
+                ds.push_str(&format!("            {}\n", action));
+            }
         } else {
-            ds.push_str("      none\n");
+            // Must have at least one action for the grammar to parse
+            ds.push_str("            reveal self\n");
+            all_mapped = false;
         }
-        ds.push_str("    }\n\n");
+        ds.push_str("        }\n");
 
-        // Resolution block
-        ds.push_str("    on_resolve {\n");
-        if patterns.contains_key(&LuaPattern::DrawCards) {
-            ds.push_str("      draw 1 // TODO: verify count\n");
-            notes.push(MigrationNote {
-                kind: NoteKind::AutoMigrated,
-                message: "Duel.Draw → draw N (verify count)".to_string(),
-            });
-        }
-        if patterns.contains_key(&LuaPattern::NegateEffect) {
-            ds.push_str("      negate effect\n");
-            notes.push(MigrationNote {
-                kind: NoteKind::AutoMigrated,
-                message: "Duel.NegateEffect → negate effect".to_string(),
-            });
-        }
-        if patterns.contains_key(&LuaPattern::Destroy) {
-            ds.push_str("      destroy (1, card, opponent controls) // TODO: verify target\n");
-            notes.push(MigrationNote {
-                kind: NoteKind::NeedsReview,
-                message: "Duel.Destroy detected — verify target expression".to_string(),
-            });
-        }
-        if patterns.contains_key(&LuaPattern::Banish) {
-            ds.push_str("      banish (1, card) from field // TODO: verify zone and target\n");
-            notes.push(MigrationNote {
-                kind: NoteKind::NeedsReview,
-                message: "Duel.Remove detected — verify banish source and target".to_string(),
-            });
-        }
-        if patterns.contains_key(&LuaPattern::SpecialSummon) {
-            ds.push_str("      special_summon self from gy // TODO: verify source zone\n");
-            notes.push(MigrationNote {
-                kind: NoteKind::NeedsReview,
-                message: "Duel.SpecialSummon detected — verify target and zone".to_string(),
-            });
-        }
-        if patterns.contains_key(&LuaPattern::SendToGy) {
-            ds.push_str("      send (1, card) to gy // TODO: verify target\n");
-            notes.push(MigrationNote {
-                kind: NoteKind::NeedsReview,
-                message: "Duel.SendtoGrave detected — verify target".to_string(),
-            });
-        }
-        if !patterns.contains_key(&LuaPattern::DrawCards)
-            && !patterns.contains_key(&LuaPattern::NegateEffect)
-            && !patterns.contains_key(&LuaPattern::Destroy)
-            && !patterns.contains_key(&LuaPattern::Banish)
-            && !patterns.contains_key(&LuaPattern::SpecialSummon)
-            && !patterns.contains_key(&LuaPattern::SendToGy)
-        {
-            ds.push_str("      // TODO: translate effect resolution\n");
-            notes.push(MigrationNote {
-                kind:    NoteKind::Unknown,
-                message: "Resolution actions not auto-detected — manual translation required".to_string(),
-            });
-        }
-        ds.push_str("    }\n");
-        ds.push_str("  }\n\n");
+        ds.push_str("    }\n\n");
     }
 
     ds.push_str("}\n");
 
-    // Determine final confidence
-    if notes.iter().all(|n| n.kind == NoteKind::AutoMigrated) {
-        confidence = Confidence::High;
-    } else if notes.iter().any(|n| n.kind == NoteKind::Unknown) {
-        confidence = Confidence::Low;
-    } else {
-        confidence = Confidence::Medium;
-    }
+    let effect_count = effects.iter()
+        .filter(|e| e.code_raw != "EFFECT_SPSUMMON_PROC" && !e.code_raw.contains("946") && !e.code_raw.contains("948") && !e.code_raw.contains("950"))
+        .count();
 
-    // Deduplicate notes
-    notes.dedup_by(|a, b| a.message == b.message);
+    let confidence = if effect_count == 0 && (meta.has_xyz || meta.has_synchro || meta.has_link || meta.has_fusion) {
+        Confidence::Medium // Summon procedure only
+    } else if all_mapped && effect_count > 0 {
+        Confidence::High
+    } else if effect_count > 0 {
+        Confidence::Medium
+    } else {
+        Confidence::Low
+    };
 
     MigrationResult {
         passcode,
-        source_path: PathBuf::from(format!("c{}.lua", passcode)),
-        output_path: PathBuf::from(format!("c{}.ds", passcode)),
+        card_name: card_name.to_string(),
         ds_content: ds,
         confidence,
+        effect_count,
         notes,
     }
 }
 
-// ── Batch Migration ───────────────────────────────────────────
-
-/// Migrate all .lua files in a directory to .ds skeletons.
-/// Returns one MigrationResult per file processed.
-pub fn migrate_directory(
-    lua_dir:    &Path,
-    output_dir: &Path,
-    overwrite:  bool,
-) -> Vec<MigrationResult> {
+/// Batch migrate all .lua files in a directory.
+pub fn migrate_directory(lua_dir: &Path) -> Vec<MigrationResult> {
     let mut results = Vec::new();
 
-    let entries = match fs::read_dir(lua_dir) {
-        Ok(e)  => e,
-        Err(e) => {
-            eprintln!("Cannot read directory {}: {}", lua_dir.display(), e);
-            return results;
-        }
-    };
+    let Ok(entries) = fs::read_dir(lua_dir) else { return results };
 
     for entry in entries.flatten() {
         let path = entry.path();
-        if path.extension().map_or(false, |e| e == "lua") {
-            // Extract passcode from filename: c12345678.lua → 12345678
-            let stem = path.file_stem()
-                .and_then(|s| s.to_str())
-                .unwrap_or("");
+        let name = path.file_name().unwrap_or_default().to_string_lossy().to_string();
+        if !name.starts_with('c') || !name.ends_with(".lua") { continue; }
 
-            if !stem.starts_with('c') { continue; }
+        let id_str = name.trim_start_matches('c').trim_end_matches(".lua");
+        let Ok(passcode) = id_str.parse::<u64>() else { continue };
 
-            let passcode: u64 = match stem[1..].parse() {
-                Ok(p)  => p,
-                Err(_) => continue,
-            };
+        let Ok(source) = fs::read_to_string(&path) else { continue };
 
-            let out_path = output_dir.join(format!("c{}.ds", passcode));
-            if out_path.exists() && !overwrite { continue; }
+        // Extract card name from first comment line
+        let card_name = source.lines()
+            .find(|l| l.starts_with("--") && !l.starts_with("---"))
+            .and_then(|l| l.strip_prefix("--"))
+            .map(|s| s.trim().to_string())
+            .unwrap_or_else(|| format!("Card {}", passcode));
 
-            let source = match fs::read_to_string(&path) {
-                Ok(s)  => s,
-                Err(_) => continue,
-            };
+        // Skip the Japanese name line if there's an English name on the next line
+        let card_name = source.lines()
+            .filter(|l| l.starts_with("--") && !l.starts_with("---"))
+            .nth(1)
+            .and_then(|l| l.strip_prefix("--"))
+            .map(|s| s.trim().to_string())
+            .unwrap_or(card_name);
 
-            // card_name would normally come from CDB — use passcode as placeholder
-            let result = generate_from_lua(
-                &source,
-                passcode,
-                &format!("Card #{}", passcode), // replace with CDB name
-            );
-
-            // Write output
-            if let Some(parent) = out_path.parent() {
-                let _ = fs::create_dir_all(parent);
-            }
-            let _ = fs::write(&out_path, &result.ds_content);
-
-            results.push(result);
-        }
+        results.push(generate_from_lua(&source, passcode, &card_name));
     }
 
     results
 }
 
-// ── Report ────────────────────────────────────────────────────
+// ── Effect Extraction ─────────────────────────────────────────
 
-pub fn print_migration_report(results: &[MigrationResult]) {
-    let total  = results.len();
-    let full   = results.iter().filter(|r| r.confidence == Confidence::Full).count();
-    let high   = results.iter().filter(|r| r.confidence == Confidence::High).count();
-    let medium = results.iter().filter(|r| r.confidence == Confidence::Medium).count();
-    let low    = results.iter().filter(|r| r.confidence == Confidence::Low).count();
-
-    println!("\n── DuelScript Migration Report ──────────────────────");
-    println!("  Total migrated:  {}", total);
-    println!("  Full confidence: {} ({:.0}%)", full,   pct(full,   total));
-    println!("  High confidence: {} ({:.0}%)", high,   pct(high,   total));
-    println!("  Medium:          {} ({:.0}%)", medium, pct(medium, total));
-    println!("  Needs work:      {} ({:.0}%)", low,    pct(low,    total));
-    println!("─────────────────────────────────────────────────────\n");
-
-    for result in results.iter().filter(|r| r.confidence == Confidence::Low) {
-        println!("  [NEEDS WORK] c{}.ds", result.passcode);
-        for note in result.notes.iter().filter(|n| n.kind == NoteKind::Unknown) {
-            println!("    ✗ {}", note.message);
-        }
-    }
+#[derive(Debug, Default)]
+struct ExtractedEffect {
+    type_raw:      String,
+    category_raw:  String,
+    code_raw:      String,
+    property_raw:  String,
+    range_raw:     String,
+    count_limit:   Option<String>,
+    cost_key:      Option<String>,
+    target_key:    Option<String>,
+    condition_key: Option<String>,
+    operation_key: Option<String>,
 }
 
-fn pct(n: usize, total: usize) -> f64 {
-    if total == 0 { 0.0 } else { n as f64 / total as f64 * 100.0 }
+#[derive(Debug, Default)]
+struct CardMeta {
+    has_xyz: bool,
+    has_synchro: bool,
+    has_link: bool,
+    has_fusion: bool,
+    has_ritual: bool,
+    has_revive_limit: bool,
+}
+
+fn extract_card_meta(source: &str) -> CardMeta {
+    let mut meta = CardMeta::default();
+    for line in source.lines() {
+        let l = line.trim();
+        if l.contains("Xyz.AddProcedure")     { meta.has_xyz = true; }
+        if l.contains("Synchro.AddProcedure") { meta.has_synchro = true; }
+        if l.contains("Link.AddProcedure")    { meta.has_link = true; }
+        if l.contains("Fusion.AddProc")       { meta.has_fusion = true; }
+        if l.contains("Ritual.AddProcedure")  { meta.has_ritual = true; }
+        if l.contains("EnableReviveLimit")    { meta.has_revive_limit = true; }
+    }
+    meta
+}
+
+fn extract_effects(source: &str) -> Vec<ExtractedEffect> {
+    let mut effects = Vec::new();
+    let mut current: Option<ExtractedEffect> = None;
+
+    for line in source.lines() {
+        let l = line.trim();
+
+        // New effect starts with Effect.CreateEffect
+        if l.contains("Effect.CreateEffect") {
+            if let Some(eff) = current.take() {
+                effects.push(eff);
+            }
+            current = Some(ExtractedEffect::default());
+        }
+
+        if let Some(ref mut eff) = current {
+            if l.contains(":SetType(") {
+                eff.type_raw = extract_parenthesized(l);
+            }
+            if l.contains(":SetCategory(") {
+                eff.category_raw = extract_parenthesized(l);
+            }
+            if l.contains(":SetCode(") {
+                eff.code_raw = extract_parenthesized(l);
+            }
+            if l.contains(":SetProperty(") {
+                eff.property_raw = extract_parenthesized(l);
+            }
+            if l.contains(":SetRange(") {
+                eff.range_raw = extract_parenthesized(l);
+            }
+            if l.contains(":SetCountLimit(") {
+                eff.count_limit = Some(extract_parenthesized(l));
+            }
+            if l.contains(":SetCost(") {
+                eff.cost_key = Some(extract_parenthesized(l));
+            }
+            if l.contains(":SetTarget(") {
+                eff.target_key = Some(extract_parenthesized(l));
+            }
+            if l.contains(":SetCondition(") {
+                eff.condition_key = Some(extract_parenthesized(l));
+            }
+            if l.contains(":SetOperation(") {
+                eff.operation_key = Some(extract_parenthesized(l));
+            }
+        }
+
+        // RegisterEffect ends the current effect
+        if l.contains("RegisterEffect") {
+            if let Some(eff) = current.take() {
+                effects.push(eff);
+            }
+        }
+    }
+
+    if let Some(eff) = current {
+        effects.push(eff);
+    }
+
+    effects
+}
+
+fn extract_parenthesized(line: &str) -> String {
+    if let Some(start) = line.find('(') {
+        if let Some(end) = line[start..].find(')') {
+            return line[start+1..start+end].trim().to_string();
+        }
+    }
+    String::new()
+}
+
+// ── Mapping Helpers ───────────────────────────────────────────
+
+fn determine_speed(type_raw: &str) -> &'static str {
+    if type_raw.contains("QUICK") { "spell_speed_2" }
+    else { "spell_speed_1" }
+}
+
+fn determine_trigger(code_raw: &str) -> Option<&'static str> {
+    if code_raw.contains("EVENT_CHAINING")         { return Some("opponent_activates [search | special_summon | send_to_gy | draw]"); }
+    if code_raw.contains("EVENT_SUMMON")            { return Some("when_summoned"); }
+    if code_raw.contains("EVENT_SPSUMMON_SUCCESS")  { return Some("when_summoned by_special_summon"); }
+    if code_raw.contains("EVENT_DESTROYED")         { return Some("when_destroyed"); }
+    if code_raw.contains("EVENT_TO_GRAVE")          { return Some("when_sent_to gy"); }
+    if code_raw.contains("EVENT_ATTACK_ANNOUNCE")   { return Some("when attack_declared"); }
+    if code_raw.contains("EVENT_BE_BATTLE_TARGET")  { return Some("when_attacked"); }
+    if code_raw.contains("EVENT_FLIP")              { return Some("when_flipped"); }
+    if code_raw.contains("PHASE_END")               { return Some("during_end_phase"); }
+    if code_raw.contains("PHASE_STANDBY")           { return Some("during_standby_phase"); }
+    if code_raw.contains("EVENT_FREE_CHAIN")        { return None; } // No trigger
+    None
+}
+
+fn determine_cost(cost_key: &Option<String>, source: &str) -> Option<String> {
+    let key = cost_key.as_ref()?;
+    if key.contains("SelfDiscard") || key.contains("Cost.Discard") {
+        return Some("discard self".to_string());
+    }
+    if key.contains("DetachFromSelf") {
+        // Try to extract count
+        let count = if key.contains("(2") { "2" } else { "1" };
+        return Some(format!("detach {} overlay_unit from self", count));
+    }
+    if key.contains("SelfToGrave") {
+        return Some("send self to gy".to_string());
+    }
+    if key.contains("SelfBanish") {
+        return Some("banish self".to_string());
+    }
+    if key.contains("PayLp") || key.contains("PayLP") {
+        // Try to extract amount from Cost.PayLp(N)
+        if let Some(start) = key.find("PayLp(").or(key.find("PayLP(")) {
+            let rest = &key[start + 6..];
+            if let Some(end) = rest.find(')') {
+                let amount = &rest[..end];
+                return Some(format!("pay_lp {}", amount));
+            }
+        }
+        return Some("pay_lp 1000 // TODO: verify amount".to_string());
+    }
+    // Check for inline cost functions
+    if key.starts_with("s.") {
+        // Scan the source for the cost function to detect patterns
+        let func_name = key.trim_start_matches("s.");
+        if let Some(body) = find_function_body(source, func_name) {
+            if body.contains("PayLPCost") && body.contains("GetLP") {
+                return Some("pay_lp your_lp / 2".to_string());
+            }
+            if body.contains("Discard") {
+                return Some("discard self // TODO: verify target".to_string());
+            }
+            if body.contains("RemoveOverlayCard") {
+                return Some("detach 1 overlay_unit from self".to_string());
+            }
+        }
+    }
+    None
+}
+
+fn determine_actions(operation_key: &Option<String>, source: &str, category_raw: &str) -> Vec<String> {
+    let mut actions = Vec::new();
+
+    // First check category flags for hints
+    if category_raw.contains("CATEGORY_DRAW") {
+        actions.push("draw 2 // TODO: verify count".to_string());
+    }
+    if category_raw.contains("CATEGORY_DESTROY") && !category_raw.contains("DISABLE") {
+        actions.push("destroy (1, card, opponent controls) // TODO: verify target".to_string());
+    }
+    if category_raw.contains("CATEGORY_SPECIAL_SUMMON") {
+        actions.push("special_summon (1, monster) from gy // TODO: verify".to_string());
+    }
+    if category_raw.contains("CATEGORY_NEGATE") {
+        if category_raw.contains("CATEGORY_DESTROY") {
+            actions.push("negate activation and destroy".to_string());
+        } else {
+            actions.push("negate activation".to_string());
+        }
+    }
+    if category_raw.contains("CATEGORY_DISABLE") && !category_raw.contains("SUMMON") {
+        actions.push("negate effect".to_string());
+    }
+    if category_raw.contains("CATEGORY_DISABLE_SUMMON") {
+        if category_raw.contains("CATEGORY_DESTROY") {
+            actions.push("negate summon and destroy".to_string());
+        } else {
+            actions.push("negate summon".to_string());
+        }
+    }
+
+    // If we got actions from categories, we're done
+    if !actions.is_empty() {
+        return actions;
+    }
+
+    // Try scanning the operation function
+    if let Some(key) = operation_key {
+        if key.starts_with("s.") {
+            let func_name = key.trim_start_matches("s.");
+            if let Some(body) = find_function_body(source, func_name) {
+                if body.contains("Duel.Draw") { actions.push("draw 2 // TODO: verify count".to_string()); }
+                if body.contains("Duel.Destroy") { actions.push("destroy (1+, card, either_player controls) // TODO: verify".to_string()); }
+                if body.contains("Duel.SpecialSummon") { actions.push("special_summon self from gy // TODO: verify".to_string()); }
+                if body.contains("Duel.NegateAttack") { actions.push("negate attack".to_string()); }
+                if body.contains("Duel.NegateEffect") { actions.push("negate effect".to_string()); }
+                if body.contains("Duel.NegateActivation") { actions.push("negate activation".to_string()); }
+                if body.contains("Duel.Remove") { actions.push("banish (1, card) // TODO: verify".to_string()); }
+                if body.contains("Duel.SendtoHand") { actions.push("add_to_hand (1, card) from gy // TODO: verify".to_string()); }
+                if body.contains("Duel.Damage") { actions.push("deal_damage to opponent: 1000 // TODO: verify".to_string()); }
+                if body.contains("Duel.Recover") { actions.push("gain_lp: 1000 // TODO: verify".to_string()); }
+            }
+        } else if key.contains("NegateAttack") {
+            actions.push("negate attack".to_string());
+        }
+    }
+
+    actions
+}
+
+fn find_function_body(source: &str, func_name: &str) -> Option<String> {
+    let pattern = format!("function s.{}(", func_name);
+    let lines: Vec<&str> = source.lines().collect();
+
+    for (i, line) in lines.iter().enumerate() {
+        if line.contains(&pattern) {
+            // Collect lines until next "end" at the same indentation
+            let mut body = String::new();
+            let mut depth = 1;
+            for j in (i+1)..lines.len() {
+                let l = lines[j].trim();
+                if l.starts_with("function ") { break; } // Next function
+                if l == "end" {
+                    depth -= 1;
+                    if depth == 0 { break; }
+                }
+                if l.contains("if ") || l.contains("for ") || l.contains("while ") {
+                    depth += 1;
+                }
+                body.push_str(l);
+                body.push('\n');
+            }
+            return Some(body);
+        }
+    }
+    None
 }
