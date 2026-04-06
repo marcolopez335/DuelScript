@@ -1,83 +1,89 @@
 # DuelScript Language Reference
-## Version 0.4 — Canonical Specification
+## Version 0.5 — Canonical Specification
 
 ---
 
-> DuelScript is a **universal card definition format** for Yu-Gi-Oh card mechanics.
-> It is engine-agnostic — any engine, written in any language, can parse and consume `.ds` files.
-> The grammar and this document are the spec. The Rust crate is the reference implementation.
+> **DuelScript** is a domain-specific language for defining Yu-Gi-Oh card mechanics.
+> It replaces Lua card scripting with a readable, declarative format that compiles
+> to engine-compatible bitfields (EDOPro/YGOPro compatible).
+>
+> **Files use the `c<ID>.ds` naming convention** (e.g., `c55144522.ds` for Pot of Greed).
 
 ---
 
 ## Table of Contents
 
-1. [Philosophy](#philosophy)
-2. [File Format](#file-format)
-3. [Card Structure](#card-structure)
-4. [Card Fields](#card-fields)
-5. [Card Types](#card-types)
-6. [Attributes & Races](#attributes--races)
-7. [Archetypes](#archetypes)
-8. [Summon Conditions](#summon-conditions)
-9. [Materials](#materials)
-10. [Link Arrows](#link-arrows)
-11. [Pendulum Effects](#pendulum-effects)
-12. [Effect Blocks](#effect-blocks)
-13. [Continuous Effects](#continuous-effects)
-14. [Replacement Effects](#replacement-effects)
-15. [Equip Effects](#equip-effects)
-16. [Counter Systems](#counter-systems)
-17. [Win Conditions](#win-conditions)
-18. [Triggers](#triggers)
-19. [Conditions](#conditions)
-20. [Costs](#costs)
-21. [Game Actions](#game-actions)
-22. [Target Expressions](#target-expressions)
-23. [Zones](#zones)
-24. [Durations](#durations)
-25. [Restrictions](#restrictions)
-26. [Engine Responsibilities](#engine-responsibilities)
-27. [Implementation Guide](#implementation-guide)
+1. [Quick Start](#quick-start)
+2. [Card Structure](#card-structure)
+3. [Card Fields](#card-fields)
+4. [Types, Attributes & Races](#types-attributes--races)
+5. [Archetypes](#archetypes)
+6. [Summon Conditions](#summon-conditions)
+7. [Materials](#materials)
+8. [Link Arrows](#link-arrows)
+9. [Effect Blocks](#effect-blocks)
+10. [Speed & Frequency](#speed--frequency)
+11. [Timing (When vs If)](#timing-when-vs-if)
+12. [Conditions](#conditions)
+13. [Triggers](#triggers)
+14. [Costs](#costs)
+15. [Game Actions](#game-actions)
+16. [Expressions](#expressions)
+17. [Target Expressions](#target-expressions)
+18. [Continuous Effects](#continuous-effects)
+19. [Replacement Effects](#replacement-effects)
+20. [Equip Effects](#equip-effects)
+21. [Advanced Actions](#advanced-actions)
+22. [Restrictions](#restrictions)
+23. [Counter Systems](#counter-systems)
+24. [Win Conditions](#win-conditions)
+25. [Zones](#zones)
+26. [Python Module](#python-module)
+27. [Engine Integration](#engine-integration)
 
 ---
 
-## Philosophy
+## Quick Start
 
-DuelScript answers one question: **"What makes this card unique?"**
+```
+// c55144522.ds — Pot of Greed
+card "Pot of Greed" {
+    type: Normal Spell
+    password: 55144522
 
-It declares card *identity* and *intent*. It does not simulate a duel.
+    effect "Draw 2" {
+        speed: spell_speed_1
+        on_resolve {
+            draw 2
+        }
+    }
+}
+```
 
-**DuelScript owns:**
-- Card identity — stats, types, archetypes, attributes
-- Effect structure — what triggers an effect, what it costs, what it does
-- Summon requirements — tribute counts, material rules
-- Continuous modifiers and restrictions
-- Win and lose conditions
+```
+// c14558127.ds — Ash Blossom & Joyous Spring
+card "Ash Blossom & Joyous Spring" {
+    type: Effect Monster | Tuner
+    attribute: FIRE
+    race: Zombie
+    level: 3
+    atk: 0
+    def: 1800
+    password: 14558127
 
-**The engine owns:**
-- When effects can legally activate (timing windows)
-- Chain resolution order and SEGOC
-- Damage step legality
-- Spell speed conflict resolution
-- All game state management
-
-This separation means a `.ds` file is a legal card definition that any conforming engine can consume. The engine decides how to execute the declared intent.
-
----
-
-## File Format
-
-DuelScript files use the `.ds` extension. A single file may contain one or more card definitions. UTF-8 encoding. Comments use `//` (line) or `/* */` (block).
-
-```ds
-// This is a line comment
-
-/*
-  This is a block comment
-*/
-
-card "Card Name" {
-  // card body
+    effect "Negate Deck Interaction" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        condition: chain_link_includes [add_to_hand, special_summon, send_to_gy, draw]
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            discard self
+        }
+        on_resolve {
+            negate effect
+        }
+    }
 }
 ```
 
@@ -85,44 +91,21 @@ card "Card Name" {
 
 ## Card Structure
 
-Every card follows this structure. All sections are optional except the card body itself:
+Cards are defined with the `card` keyword. All blocks can appear in any order.
 
-```ds
+```
 card "Card Name" {
-
-  // ── Identity fields ──────────────
-  type:      Effect Monster | Tuner
-  attribute: DARK
-  race:      Spellcaster
-  level:     4
-  atk:       1800
-  def:       0
-  password:  12345678
-
-  // ── Archetype membership ─────────
-  archetype: ["Spellcaster", "Chaos"]
-
-  // ── Summon rules ─────────────────
-  summon_condition { ... }
-  materials        { ... }
-  link_arrows:     [top, bottom_left, bottom_right]
-
-  // ── Pendulum ─────────────────────
-  scale: 4
-  pendulum_effect { ... }
-
-  // ── Effects ──────────────────────
-  effect "Effect Name" { ... }
-  continuous_effect   { ... }
-  replacement_effect  { ... }
-  equip_effect        { ... }
-  counter_system      { ... }
-
-  // ── Special ──────────────────────
-  win_condition { ... }
-
-  // ── Flavor ───────────────────────
-  flavor: "A powerful monster from ancient times."
+    // Card fields (type, attribute, stats, etc.)
+    // Archetype declaration
+    // Summon conditions
+    // Materials block
+    // Link arrows
+    // Effect blocks
+    // Continuous effect blocks
+    // Replacement effect blocks
+    // Equip effect blocks
+    // Counter system
+    // Win condition
 }
 ```
 
@@ -130,464 +113,279 @@ card "Card Name" {
 
 ## Card Fields
 
-| Field       | Type          | Required For          | Notes                              |
-|-------------|---------------|-----------------------|------------------------------------|
-| `type`      | CardType list | All cards             | Pipe-separated: `Effect Monster \| Tuner` |
-| `attribute` | Attribute     | Monsters              |                                    |
-| `race`      | Race          | Monsters              |                                    |
-| `level`     | integer       | Main deck monsters    | Not for Xyz (use `rank`) or Link   |
-| `rank`      | integer       | Xyz monsters          |                                    |
-| `link`      | integer       | Link monsters         | Must equal number of link arrows   |
-| `scale`     | integer       | Pendulum monsters     |                                    |
-| `atk`       | integer or `?`| Monsters              | `?` for variable ATK               |
-| `def`       | integer or `?`| Non-Link monsters     | Link monsters have no DEF          |
-| `password`  | integer       | Optional              | Official card password             |
-| `flavor`    | string        | Normal monsters       | Flavor text shown on card          |
+| Field | Syntax | Required |
+|-------|--------|----------|
+| Type | `type: Normal Spell` | Yes |
+| Attribute | `attribute: DARK` | Monsters only |
+| ATK | `atk: 2500` or `atk: ?` | Monsters only |
+| DEF | `def: 2000` or `def: ?` | Non-Link monsters |
+| Race | `race: Dragon` | Monsters only |
+| Level | `level: 4` | Non-Xyz, non-Link monsters |
+| Rank | `rank: 4` | Xyz monsters |
+| Link | `link: 3` | Link monsters |
+| Scale | `scale: 4` | Pendulum monsters |
+| Password | `password: 55144522` | Recommended (card ID) |
+| Flavor | `flavor: "Description text"` | Optional |
 
 ---
 
-## Card Types
+## Types, Attributes & Races
 
-Types are declared with `|` separators. A card may have multiple subtypes.
+### Card Types
+```
+Normal Monster | Effect Monster | Ritual Monster | Fusion Monster
+Synchro Monster | Xyz Monster | Link Monster | Pendulum Monster
+Tuner | Synchro Tuner | Gemini | Union | Spirit | Flip | Toon
+Normal Spell | Quick-Play Spell | Continuous Spell | Equip Spell
+Field Spell | Ritual Spell
+Normal Trap | Counter Trap | Continuous Trap
+```
 
-### Monster Types
-| Keyword           | Meaning                        |
-|-------------------|--------------------------------|
-| `Normal Monster`  | No effect                      |
-| `Effect Monster`  | Has one or more effects        |
-| `Ritual Monster`  | Ritual summon only             |
-| `Fusion Monster`  | Extra deck — Fusion            |
-| `Synchro Monster` | Extra deck — Synchro           |
-| `Xyz Monster`     | Extra deck — Xyz               |
-| `Link Monster`    | Extra deck — Link              |
-| `Pendulum Monster`| Has Pendulum scale and effect  |
-
-### Monster Subtypes
-| Keyword        | Meaning                        |
-|----------------|--------------------------------|
-| `Tuner`        | Can be used as Synchro tuner   |
-| `Synchro Tuner`| Tuner that is also a Synchro   |
-| `Gemini`       | Gemini monster                 |
-| `Union`        | Union monster                  |
-| `Spirit`       | Returns to hand end phase      |
-| `Flip`         | Flip effect monster            |
-| `Toon`         | Toon monster                   |
-
-### Spell Types
-| Keyword            | Spell Speed |
-|--------------------|-------------|
-| `Normal Spell`     | 1           |
-| `Quick-Play Spell` | 2           |
-| `Continuous Spell` | 1 (ongoing) |
-| `Equip Spell`      | 1           |
-| `Field Spell`      | 1           |
-| `Ritual Spell`     | 1           |
-
-### Trap Types
-| Keyword          | Spell Speed |
-|------------------|-------------|
-| `Normal Trap`    | 2           |
-| `Counter Trap`   | 3           |
-| `Continuous Trap`| 2 (ongoing) |
-
----
-
-## Attributes & Races
+Multiple types: `type: Effect Monster | Tuner`
 
 ### Attributes
-`LIGHT` `DARK` `FIRE` `WATER` `EARTH` `WIND` `DIVINE`
+`LIGHT | DARK | FIRE | WATER | EARTH | WIND | DIVINE`
 
 ### Races
-`Dragon` `Spellcaster` `Zombie` `Warrior` `Beast-Warrior` `Beast`
-`Winged Beast` `Fiend` `Fairy` `Insect` `Dinosaur` `Reptile`
-`Fish` `Sea Serpent` `Aqua` `Pyro` `Thunder` `Rock` `Plant`
-`Machine` `Psychic` `Divine-Beast` `Wyrm` `Cyberse`
+```
+Dragon | Spellcaster | Zombie | Warrior | Beast-Warrior | Beast
+Winged Beast | Fiend | Fairy | Insect | Dinosaur | Reptile
+Fish | Sea Serpent | Aqua | Pyro | Thunder | Rock | Plant
+Machine | Psychic | Divine-Beast | Wyrm | Cyberse
+```
 
 ---
 
 ## Archetypes
 
-Archetype membership is declared as a string list. Other cards can reference these names in target filters.
-
-```ds
-archetype: ["Blue-Eyes", "Dragon"]
-
-// Another card can then target:
-search (1, "Blue-Eyes" monster) from deck
 ```
-
-A card may belong to multiple archetypes.
+archetype: ["Blue-Eyes", "Eyes of Blue"]
+```
 
 ---
 
 ## Summon Conditions
 
-The `summon_condition` block declares how a card can legally be summoned. The engine enforces these rules.
-
-```ds
+```
 summon_condition {
-  tributes_required:    2          // 1 for level 5-6, 2 for level 7+
-  tribute_material:     monster    // tribute must match this filter
-  cannot_normal_summon: true       // cannot be normal summoned or set
-  special_summon_only:  true       // can only be special summoned
-  must_be_summoned_by:  own_effect // must be summoned by card's own effect
-  special_summon_from:  [hand, gy] // can only be special summoned from these zones
-  summon_once_per_turn: true       // can only be summoned once per turn
+    cannot_normal_summon: true
+    must_be_summoned_by: own_effect
+    tributes_required: 2
+    summon_once_per_turn: true
+    special_summon_from: [hand, gy]
 }
 ```
-
-### `must_be_summoned_by` Values
-
-| Value             | Meaning                               |
-|-------------------|---------------------------------------|
-| `own_effect`      | Must be summoned by this card's effect|
-| `ritual_spell`    | Must be ritual summoned               |
-| `fusion_spell`    | Must be fusion summoned               |
-| `specific_card: "Polymerization"` | Must be summoned by that card |
-| `by_fusion_summon` | Any fusion summon method             |
-| `by_synchro_summon`| Any synchro summon                  |
-| `by_xyz_summon`    | Any xyz summon                       |
-| `by_link_summon`   | Any link summon                      |
 
 ---
 
 ## Materials
 
-Extra deck and ritual monsters declare fusion/synchro/xyz/link material requirements.
-
-```ds
+```
+// Xyz: 2 Level 4 monsters
 materials {
-  // Named materials (exact cards required)
-  require: "Blue-Eyes White Dragon" + "Blue-Eyes White Dragon"
+    require: 2 monster level 4
+    same_level: true
+    method: xyz
+}
 
-  // Generic materials
-  require: 1 tuner monster
-  require: 2+ non-tuner monster
+// Synchro: 1 Tuner + 1+ non-Tuners
+materials {
+    require: 1 tuner monster
+    require: 1+ non-tuner monster
+    method: synchro
+}
 
-  // Restrictions on what can be used
-  cannot_use:    token
-  must_include:  "Stardust Dragon"
-  same_attribute: false
-  same_race:      true
+// Link: 2+ Effect Monsters
+materials {
+    require: 2+ effect monster
+    method: link
+}
+
+// Named materials
+materials {
+    require: "Blue-Eyes White Dragon" + "Blue-Eyes White Dragon" + "Blue-Eyes White Dragon"
+    method: fusion
 }
 ```
 
 ### Material Qualifiers
-`tuner` `non-tuner` `non-token` `non-special`
+`tuner | non-tuner | non-token | non-special | non-fusion | non-synchro | non-xyz | non-link`
 
-### `cannot_use` Values
-`token` `fusion` `synchro` `xyz` `link` or a quoted card name
+### Material Constraints
+```
+same_level: true
+same_attribute: true
+same_race: true
+must_include: "Specific Card Name"
+cannot_use: token
+method: xyz | synchro | link | fusion | ritual
+```
+
+### Alternative Materials
+```
+alternative {
+    require: 3+ non-tuner synchro monster
+}
+```
 
 ---
 
 ## Link Arrows
 
-Link monsters declare their arrows. The number must equal the link rating.
-
-```ds
+```
 link_arrows: [top, bottom_left, bottom_right]
-
-// Available positions:
-// top_left    top    top_right
-// left               right
-// bottom_left bottom bottom_right
 ```
 
----
-
-## Pendulum Effects
-
-Pendulum monsters have both a pendulum effect (active in the spell/trap zone) and a monster effect. Declare both as separate blocks.
-
-```ds
-card "Odd-Eyes Pendulum Dragon" {
-  type: Pendulum Monster | Effect Monster
-  scale: 4
-  level: 7
-
-  pendulum_effect {
-    // Active while in spell/trap zone as a pendulum
-    once_per_turn: true
-    trigger: during_standby_phase of yours
-    on_resolve {
-      search (1, monster, with_atk <= 1500) from deck
-    }
-  }
-
-  effect "Monster Effect" {
-    // Normal monster effect
-  }
-}
-```
+Options: `top_left | top | top_right | left | right | bottom_left | bottom | bottom_right`
 
 ---
 
 ## Effect Blocks
 
-The core of DuelScript. Each `effect` block describes one activatable effect.
+```
+effect "Effect Name" {
+    speed: spell_speed_2
+    once_per_turn: hard
+    optional: true
+    timing: if
 
-```ds
-effect "Optional Name" {
-  speed:         spell_speed_2    // spell_speed_1 | 2 | 3
-  once_per_turn: true             // frequency control
-  optional:      true             // false = mandatory trigger
-  timing:        when             // when | if (affects "missing the timing")
+    condition: chain_link_includes [search, draw]
+    trigger: opponent_activates [search | draw]
 
-  condition: in_hand              // where the card must be
-  trigger:   opponent_activates [search | special_summon]
+    cost {
+        discard self
+    }
 
-  cost {
-    discard self
-  }
+    on_activate {
+        search (1, monster) from deck
+    }
 
-  on_activate {
-    // actions that happen when placed on chain
-  }
+    on_resolve {
+        negate effect
+    }
 
-  on_resolve {
-    // actions that happen when chain resolves
-    negate effect
-  }
-
-  restriction {
-    cannot: be_targeted by card_effects
-  }
+    restriction {
+        cannot: special_summon
+    }
 }
 ```
 
-### Frequency Keywords
-
-| Keyword          | Meaning                                  |
-|------------------|------------------------------------------|
-| `once_per_turn`  | Once per turn per card (standard OPT)    |
-| `twice_per_turn` | Twice per turn                           |
-| `once_per_duel`  | Once per duel (e.g. Exodia pieces)       |
-| `each_turn`      | Once per turn but resets (continuous)    |
-
-### Timing: `when` vs `if`
-
-- `timing: when` — strict. The effect can **miss the timing** if it is not the last thing to happen.
-- `timing: if` — soft. The effect **cannot miss the timing** and fires regardless.
-
-Most trigger effects use `when`. "If X, you can" effects use `if`.
+All clauses are optional and can appear in any order.
 
 ---
 
-## Continuous Effects
+## Speed & Frequency
 
-Passive effects that are always active while the card is in the declared zone.
-
-```ds
-continuous_effect "Boost" {
-  while: on_field              // condition for effect to be active
-  apply_to: (1, monster, you controls)
-
-  modifier: atk +500           // stat modifiers
-  grant:    piercing           // ability grants
-}
+### Spell Speed
+```
+speed: spell_speed_1    // Spells, Ignition, Trigger effects
+speed: spell_speed_2    // Quick Effects, Traps, Quick-Play Spells
+speed: spell_speed_3    // Counter Traps
 ```
 
-### Granted Abilities
-
-| Keyword                           | Meaning                              |
-|-----------------------------------|--------------------------------------|
-| `piercing`                        | Deals battle damage through defense  |
-| `double_attack`                   | Can attack twice per turn            |
-| `direct_attack`                   | Can attack directly                  |
-| `cannot_be_destroyed_by_battle`   | Immune to battle destruction         |
-| `cannot_be_destroyed_by_effect`   | Immune to effect destruction         |
-| `unaffected_by_spell_effects`     | Spells don't affect this card        |
-| `unaffected_by_trap_effects`      | Traps don't affect this card         |
-| `unaffected_by_monster_effects`   | Monster effects don't affect this    |
-| `unaffected_by_card_effects`      | No card effects affect this card     |
-| `immune_to_targeting`             | Cannot be targeted                   |
-
----
-
-## Replacement Effects
-
-"Instead of X, do Y." Intercepts a game event and replaces it.
-
-```ds
-replacement_effect "Return from Void" {
-  instead_of: destroyed_by_any
-
-  do: {
-    return self to extra_deck
-  }
-}
+### Frequency
 ```
-
-### Replaceable Events
-
-| Keyword                | Replaces                             |
-|------------------------|--------------------------------------|
-| `destroyed_by_battle`  | Destruction by battle                |
-| `destroyed_by_effect`  | Destruction by card effect           |
-| `destroyed_by_any`     | Any destruction                      |
-| `sent_to_gy`           | Being sent to the graveyard          |
-| `sent_to_gy_by_effect` | Being sent to GY by effect           |
-| `sent_to_gy_by_battle` | Being sent to GY by battle           |
-| `banished`             | Being banished                       |
-| `returned_to_hand`     | Being returned to hand               |
-| `returned_to_deck`     | Being returned to deck               |
-
----
-
-## Equip Effects
-
-For Equip Spells and monsters that equip themselves.
-
-```ds
-equip_effect {
-  target: (1, warrior monster, you controls)
-
-  while_equipped {
-    modifier: atk +500
-    grant:    piercing
-  }
-
-  on_equipped_destroyed {
-    special_summon self from spell_trap_zone
-  }
-
-  on_unequipped {
-    send self to gy
-  }
-}
+once_per_turn: hard     // Cannot re-activate even if negated
+once_per_turn: soft     // Can re-activate if negated
+once_per_turn           // Defaults to hard
+twice_per_turn
+once_per_duel
+each_turn
 ```
 
 ---
 
-## Counter Systems
+## Timing (When vs If)
 
-Cards that use named spell counters.
+**Only applies to optional trigger effects (Spell Speed 1).**
 
-```ds
-counter_system {
-  name:        "spell_counter"
-  placed_when: when activate_spell
-  max:         none              // or a number
-
-  effect "Remove Counter" {
-    cost { remove_counter 1 "spell_counter" from self }
-    on_resolve { destroy (1, card, opponent controls) }
-  }
-}
 ```
+timing: when    // Can miss the timing (strict)
+timing: if      // Cannot miss the timing (lenient)
+```
+
+- `when` — If anything happens between the trigger event and chain building, this effect misses its activation window.
+- `if` — The engine always offers this effect during SEGOC, regardless of intervening events.
+- **Quick Effects (Speed 2/3) do NOT use when/if timing** — they have their own activation windows managed by the engine's priority system.
+
+The validator warns if an optional trigger effect doesn't explicitly declare timing.
 
 ---
 
-## Win Conditions
+## Conditions
 
-Declare alternate win/lose conditions.
+```
+condition: on_field
+condition: in_hand
+condition: in_gy
+condition: in_banished
 
-```ds
-win_condition {
-  when:   all_pieces_in_hand         // Exodia
-  result: win_duel
-}
+condition: you_control_no_monsters
+condition: opponent_controls_no_monsters
+condition: field_is_empty
+condition: you_control (1+, "Blue-Eyes" monster)
+condition: opponent_controls (1, spell)
 
-win_condition {
-  when:   turn_count >= 20           // Final Countdown
-  result: win_duel
-}
+condition: your_lp >= 1000
+condition: opponent_lp < 5000
+condition: hand_size >= 5
+condition: cards_in_gy < 3
+condition: banished_count >= 2
 
-win_condition {
-  when:   opponent_cannot_draw
-  result: win_duel
-}
+// Chain-aware (for hand traps like Ash Blossom)
+condition: chain_link_includes [search, special_summon, send_to_gy, draw]
+
+// Composite
+condition: on_field and your_lp >= 2000
+condition: in_hand or in_gy
 ```
 
 ---
 
 ## Triggers
 
-The `trigger` clause declares what event activates the effect.
-
-```ds
+```
 trigger: when_summoned
 trigger: when_summoned by_special_summon
+trigger: when_destroyed
 trigger: when_destroyed by battle
+trigger: when_destroyed by card_effect
 trigger: when_sent_to gy
+trigger: when_sent_to gy by card_effect
 trigger: when_flipped
-trigger: when_attacked
+trigger: when_attacked                // This card is attacked (SINGLE)
+trigger: when attack_declared          // Any monster declares an attack (FIELD)
+trigger: when_tributed
 trigger: when_tribute_summoned
-trigger: when_tribute_summoned using "Monarch" monster
-trigger: during main_phase_1
-trigger: during_standby_phase of yours
-trigger: during_standby_phase of opponents
-trigger: during_end_phase
 trigger: on_nth_summon: 5
-trigger: opponent_activates [search | special_summon | send_to_gy]
-trigger: when draw
+
+trigger: during_standby_phase
+trigger: during_standby_phase of yours
+trigger: during_end_phase
+trigger: during battle_phase
+
+trigger: opponent_activates [search | special_summon | send_to_gy | draw]
 ```
-
-### Trigger Actions (for `opponent_activates`)
-
-`search` `special_summon` `send_to_gy` `add_to_hand` `draw` `banish` `mill`
-`activate_spell` `activate_trap` `activate_monster_effect`
-`fusion_summon` `synchro_summon` `xyz_summon` `link_summon` `ritual_summon`
-`normal_summon` `set_card` `change_battle_position` `take_damage` `gain_lp`
-
----
-
-## Conditions
-
-The `condition` clause declares where/when this card must be for the effect to be activatable.
-
-```ds
-condition: in_hand
-condition: in_gy
-condition: on_field
-condition: you_control_no_monsters
-condition: your_lp <= 1000
-condition: cards_in_gy >= 5
-condition: hand_size == 0
-condition: in_hand and your_lp <= 2000   // composite
-```
-
-### Condition Keywords
-
-| Keyword                       | Meaning                              |
-|-------------------------------|--------------------------------------|
-| `in_hand`                     | Card is in the hand                  |
-| `in_gy`                       | Card is in the graveyard             |
-| `in_banished`                 | Card is banished                     |
-| `on_field`                    | Card is on the field                 |
-| `you_control_no_monsters`     | Controller has no monsters           |
-| `opponent_controls_no_monsters`| Opponent has no monsters            |
-| `field_is_empty`              | No cards on either side              |
-| `your_lp OP N`                | Your life points comparison          |
-| `opponent_lp OP N`            | Opponent life points comparison      |
-| `hand_size OP N`              | Your hand size comparison            |
-| `cards_in_gy OP N`            | Cards in your graveyard              |
-| `banished_count OP N`         | Your banished cards count            |
-
-Compare operators: `>=` `<=` `>` `<` `==` `!=`
 
 ---
 
 ## Costs
 
-Cost actions are paid on activation, before the effect resolves. If costs cannot be paid, the effect cannot be activated.
-
-```ds
+```
 cost {
-  none                                        // No cost
-  pay_lp 1000                                 // Pay life points
-  discard self                                // Discard this card
-  discard (1, monster)                        // Discard a card
-  tribute self                                // Tribute this card
-  tribute (1, monster, you controls)          // Tribute a monster
-  banish self                                 // Banish this card
-  banish (1, monster) from gy                 // Banish from GY
-  send self to gy                             // Send this card to GY
-  send (1, card) to gy                        // Send a card to GY
-  remove_counter 1 "spell_counter" from self  // Remove counters
-  detach 1 overlay_unit from self             // Detach Xyz material
-  reveal self                                 // Reveal this card
-  reveal (1, monster)                         // Reveal a card
+    pay_lp 1000
+    pay_lp your_lp / 2              // Dynamic expression
+    discard self
+    discard (1, card, you controls, hand)
+    tribute self
+    tribute (1, monster, you controls)
+    banish self
+    banish self from gy
+    send self to gy
+    detach 1 overlay_unit from self
+    remove_counter 3 "Spell Counter" from self
+    reveal self
+    none
 }
 ```
 
@@ -595,321 +393,404 @@ cost {
 
 ## Game Actions
 
-Actions that happen in `on_activate` or `on_resolve` blocks.
-
-### Drawing
-```ds
+### Card Movement
+```
 draw 2
+draw count((1+, monster, you controls, gy)) // Dynamic
+special_summon self from gy in attack_position
+special_summon (1, monster) from gy
+destroy (1+, monster, either_player controls)
+send self to gy
+banish (1, card, opponent controls) face_down
+return self to hand
+return (1, card) to deck shuffle
+search (1, "Blue-Eyes" monster) from deck
+add_to_hand (1, card) from gy
+mill 3
+mill 2 from opponent_deck
+discard (1, card)
+tribute self
+shuffle deck
 ```
 
-### Summoning
-```ds
-special_summon self from gy
-special_summon self from hand in attack_position
-special_summon (1, "Blue-Eyes White Dragon") from deck
-fusion_summon  "Blue-Eyes Ultimate Dragon" using monster + monster
-synchro_summon "Stardust Dragon" using tuner monster + non-tuner monster
-xyz_summon     "Number 39: Utopia" using monster + monster
-ritual_summon  "Black Luster Soldier" using monster
+### Stat Modification
+```
+modifier: atk +500 on (1, monster, you controls) until_end_of_turn
+modifier: atk + count((1+, monster, you controls, gy)) * 300
+modifier: def -200
+set_atk (1, monster) to 0
+double_atk self
+halve_atk (1, monster, opponent controls)
 ```
 
 ### Negation
-```ds
-negate effect
-negate activation
-negate activation and destroy
-negate summon
-negate attack
+```
+negate effect                  // CATEGORY_DISABLE (Ash Blossom)
+negate activation              // CATEGORY_NEGATE (Solemn Warning)
+negate activation and destroy  // NEGATE + DESTROY (Solemn Judgment)
+negate summon                  // CATEGORY_DISABLE_SUMMON
+negate summon and destroy      // DISABLE_SUMMON + DESTROY
+negate attack                  // No category (Utopia)
 ```
 
-### Destruction
-```ds
-destroy (1, monster, opponent controls)
-destroy (2, card, either_player controls)
+### Control & Position
 ```
-
-### Sending / Banishing
-```ds
-send (1, monster) to gy
-send self to gy
-banish (1, card) from gy
-banish self face_down
-```
-
-### Search / Add
-```ds
-search (1, "Blue-Eyes" monster) from deck
-add_to_hand (1, "Polymerization") from deck
-```
-
-### Return
-```ds
-return (1, monster, opponent controls) to hand
-return self to extra_deck
-return (1, card) to deck shuffle
-```
-
-### ATK / DEF Modification
-```ds
-modifier: atk +500 on (1, monster, you controls) until_end_of_turn
-modifier: atk -500 on (1, monster, opponent controls) until_end_of_turn
-set_atk (1, monster) to 0 until_end_of_turn
-double_atk self until_end_of_turn
-halve_atk  self until_end_of_turn
-```
-
-### Battle Position
-```ds
-flip_face_down (1, monster, opponent controls)
-change_battle_position (1, monster, opponent controls)
-set (1, monster, opponent controls)
-```
-
-### Control
-```ds
 take_control of (1, monster, opponent controls)
-take_control of (1, monster, opponent controls) until end_of_turn
+take_control of (1, monster) until end_phase
+change_battle_position (1, monster)
+set (1, card)
+flip_face_down (1, monster)
+```
+
+### Xyz Operations
+```
+detach 1 overlay_unit from self
+attach (1, monster) to self as_material
 ```
 
 ### Counters
-```ds
-place_counter  2 "spell_counter" on self
-remove_counter 1 "spell_counter" from self
+```
+place_counter 3 "Spell Counter" on self
+remove_counter 2 "Spell Counter" from self
 ```
 
-### Damage / LP
-```ds
+### Tokens
+```
+create_token {
+    name: "Sheep Token"
+    attribute: EARTH
+    race: Beast
+    atk: 0
+    def: 0
+    count: 4
+    position: defense_position
+}
+```
+
+### Damage & LP
+```
 deal_damage to opponent: 1000
 deal_damage to opponent: self.atk
 deal_damage to both_players: 500
 gain_lp: 1000
-gain_lp: half_opponent_lp
+gain_lp: count((1+, monster, you controls, gy)) * 500
 ```
 
-### Tokens
-```ds
-create_token {
-  name:      "Sheep Token"
-  attribute: EARTH
-  race:      Beast
-  atk:       0
-  def:       0
-  count:     2
-  position:  defense_position
-}
+### Summoning
+```
+fusion_summon (1, "Card Name") using monster + monster
+synchro_summon (1, synchro monster) using (1, tuner) + (1, non-tuner)
+xyz_summon (1, xyz monster) using monster + monster
+ritual_summon (1, ritual monster) using monster
+pendulum_summon (1+, monster) from [hand, extra_deck_face_up]
 ```
 
-### Loops / Conditionals
-```ds
-for_each (1, "Machine" monster, you controls) in monster_zone {
-  double_atk self until_end_of_turn
-}
+---
 
-if (your_lp <= 2000) {
-  draw 2
-} else {
-  gain_lp: 1000
-}
+## Expressions
+
+Dynamic values can be used anywhere a number is expected.
+
 ```
+// Literals
+draw 2
+pay_lp 1000
 
-### Miscellaneous
-```ds
-mill 3
-mill 2 from opponent_deck
-shuffle deck
-look_at (3, card, opponent controls, top_of_deck)
-reveal self
-copy_effect of (1, monster, opponent controls)
-equip (1, "Axe of Despair") to (1, monster, you controls)
+// Card stats
+deal_damage to opponent: self.atk
+modifier: atk + target.def
+
+// Player LP
+pay_lp your_lp / 2
+
+// Counting
+draw count((1+, monster, you controls, gy))
+modifier: atk + count((1+, "Dragon" monster, you controls, monster_zone)) * 300
+
+// Arithmetic
+deal_damage to opponent: self.level * 200
+modifier: atk + (count((1+, card, you controls, banished)) + 1) * 100
 ```
 
 ---
 
 ## Target Expressions
 
-DuelScript targets are fully typed and engine-validated.
-
-```ds
+```
 self                                          // This card
-(1, monster)                                  // 1 monster (any controller)
-(1, monster, you controls)                    // 1 monster you control
-(1, monster, opponent controls)               // 1 monster opponent controls
-(1, monster, either_player controls)          // 1 monster either player
-(2+, monster, you controls)                   // 2 or more monsters
-(1, "Blue-Eyes" monster, you controls)        // archetype target
-(1, card, opponent controls, face_up)         // with qualifier
-(1, monster, you controls, with_atk >= 2000)  // with stat qualifier
-(1, monster, opponent controls, other_than_self) // excluding self
+(1, monster)                                  // 1 monster (any)
+(1+, card, opponent controls)                 // 1 or more cards opponent controls
+(2, monster, you controls, monster_zone)      // 2 of your monsters in monster zone
+(1, "Blue-Eyes" monster, you controls, gy)    // 1 Blue-Eyes in your GY
+
+// Qualifiers
+(1, monster, you controls, face_up)
+(1, monster, opponent controls, with_atk >= 2000)
+(1, monster, you controls, of_attribute: DARK)
+(1, monster, either_player controls, of_race: Dragon)
+(1, card, you controls, other_than_self)
 ```
 
-### Target Qualifiers
+---
 
-| Qualifier                  | Meaning                            |
-|----------------------------|------------------------------------|
-| `face_up`                  | Must be face-up                    |
-| `face_down`                | Must be face-down                  |
-| `in_attack_position`       | In attack position                 |
-| `in_defense_position`      | In defense position                |
-| `other_than_self`          | Excludes the activating card       |
-| `with_atk OP N`            | ATK comparison                     |
-| `with_def OP N`            | DEF comparison                     |
-| `with_level OP N`          | Level comparison                   |
-| `of_attribute: FIRE`       | Specific attribute                 |
-| `of_race: Dragon`          | Specific race                      |
-| `of_archetype: "Monarch"`  | Archetype member                   |
-| `that_was_normal_summoned` | Was normal summoned this turn      |
-| `that_was_special_summoned`| Was special summoned               |
-| `with_counter: "spell_counter"` | Has this counter type         |
+## Continuous Effects
+
+```
+continuous_effect "ATK Boost" {
+    while: on_field
+    apply_to: (1+, "Dragon" monster, you controls, monster_zone)
+    modifier: atk +300
+    modifier: def +300
+}
+
+// Dynamic modifier with expression
+continuous_effect "Linked Boost" {
+    while: on_field
+    modifier: atk + count((1+, monster, either_player controls, monster_zone)) * 500
+}
+
+// Granting abilities
+continuous_effect "Protection" {
+    while: on_field
+    apply_to: self
+    grant: cannot_be_destroyed_by_battle
+    grant: immune_to_targeting
+}
+```
+
+### Granted Abilities
+```
+piercing | double_attack | direct_attack
+cannot_be_destroyed_by_battle | cannot_be_destroyed_by_effect
+unaffected_by_spell_effects | unaffected_by_trap_effects
+unaffected_by_monster_effects | unaffected_by_card_effects
+immune_to_targeting | cannot_activate_effects
+```
 
 ---
 
-## Zones
+## Replacement Effects
 
-| Keyword               | Zone                        |
-|-----------------------|-----------------------------|
-| `hand`                | Hand                        |
-| `field`               | Field (any zone)            |
-| `graveyard` / `gy`    | Graveyard                   |
-| `banished` / `exile`  | Banished zone               |
-| `deck`                | Main deck                   |
-| `extra_deck`          | Extra deck                  |
-| `monster_zone`        | Monster zone specifically   |
-| `spell_trap_zone`     | Spell/Trap zone             |
-| `extra_monster_zone`  | Extra Monster Zone          |
-| `top_of_deck`         | Top card of deck            |
-| `bottom_of_deck`      | Bottom of deck              |
+```
+replacement_effect "Indestructible" {
+    instead_of: destroyed_by_battle
+    do: {
+        detach 1 overlay_unit from self
+    }
+}
+```
+
+### Replaceable Events
+```
+destroyed_by_battle | destroyed_by_effect | destroyed_by_any
+sent_to_gy | sent_to_gy_by_effect | sent_to_gy_by_battle
+banished | returned_to_hand | returned_to_deck
+```
 
 ---
 
-## Durations
+## Equip Effects
 
-Used with modifier actions to declare how long they last.
+```
+equip_effect {
+    target: (1, monster, you controls, monster_zone, face_up)
 
-| Keyword                      | Duration                          |
-|------------------------------|-----------------------------------|
-| `until_end_of_turn`          | Until end of current turn         |
-| `until_end_phase`            | Until end phase of current turn   |
-| `until_end_of_damage_step`   | Until damage step ends            |
-| `until_next_turn`            | Until the start of next turn      |
-| `this_turn`                  | Synonym for until_end_of_turn     |
-| `permanently`                | Permanent (no expiry)             |
+    while_equipped {
+        modifier: atk + count((1+, monster, you controls, monster_zone, face_up)) * 800
+        modifier: def + count((1+, monster, you controls, monster_zone, face_up)) * 800
+    }
+
+    on_equipped_destroyed {
+        destroy self
+    }
+
+    on_unequipped {
+        send self to gy
+    }
+}
+```
+
+---
+
+## Advanced Actions
+
+### Player Choice
+```
+on_resolve {
+    choose {
+        option "Take control" {
+            take_control of (1, monster, opponent controls)
+        }
+        option "Revive from GY" {
+            special_summon (1, monster) from gy
+        }
+    }
+}
+```
+
+### Delayed Effects
+```
+on_resolve {
+    delayed until end_phase {
+        destroy self
+    }
+}
+```
+
+### Dynamic Effect Registration
+```
+on_resolve {
+    register_effect on (1, monster, opponent controls) {
+        grant: cannot_activate_effects
+        duration: until_end_of_turn
+    }
+}
+```
+
+### State Persistence
+```
+on_activate {
+    store "chosen" = selected_targets
+}
+on_resolve {
+    recall "chosen"
+}
+```
+
+### Conditional Logic
+```
+on_resolve {
+    if (your_lp <= 2000) {
+        draw 2
+    } else {
+        draw 1
+    }
+}
+```
+
+### Iteration
+```
+on_resolve {
+    for_each (1+, monster, you controls) in monster_zone {
+        modifier: atk +500
+    }
+}
+```
 
 ---
 
 ## Restrictions
 
-Declare what a card or its controller cannot do.
-
-```ds
+```
 restriction {
-  cannot: be_targeted by card_effects
-  cannot: be_destroyed by battle
-  cannot: be_destroyed by card_effects
-  cannot: be_negated
-  cannot: be_banished
-  cannot: attack_directly
-  must:   attack_if_able
-  limit:  attacks_per_turn: 2
+    cannot: be_targeted by card_effects
+    cannot: be_destroyed by battle
+    cannot: attack_directly
+    cannot: special_summon
+    must: attack_if_able
+    limit: attacks_per_turn: 2
+    limit: special_summons_per_turn: 1
 }
 ```
 
-### Restriction Scopes
-
-| Scope                   | Applies to                     |
-|-------------------------|--------------------------------|
-| `battle`                | Battle destruction only        |
-| `card_effects`          | Any card effect                |
-| `spell_effects`         | Spell card effects             |
-| `trap_effects`          | Trap card effects              |
-| `monster_effects`       | Monster effects                |
-| `opponent_card_effects` | Only opponent's card effects   |
-| `your_card_effects`     | Only your own card effects     |
-| `any`                   | All sources                    |
-
 ---
 
-## Engine Responsibilities
+## Counter Systems
 
-The following are **not** declared in DuelScript. The engine handles them universally:
+```
+counter_system {
+    name: "Spell Counter"
+    placed_when: when activate_spell
+    max: 6
 
-| Responsibility               | Engine handles because...                          |
-|------------------------------|----------------------------------------------------|
-| Damage step activation legality | Applies universally based on card type and speed |
-| SEGOC ordering               | Universal rule — controller of turn resolves first |
-| Chain building legality      | Spell speed comparison is universal               |
-| "Missing the timing"         | Derived from `timing: when` and game state        |
-| Hand size enforcement        | Universal end phase rule                          |
-| Once-per-turn tracking       | Engine tracks per card instance, not per definition|
-| Spell/Trap destruction on activation | Universal rule                           |
-| Battle damage calculation    | Universal formula — engine computes               |
-
----
-
-## Implementation Guide
-
-### For Rust Engines
-
-```rust
-use duelscript::{CardDatabase, DuelScriptEngine, GameEvent};
-
-// Load all cards at startup
-let db = CardDatabase::load_from_dir(Path::new("cards/"));
-db.print_load_summary();
-
-// Look up a card
-let ash = db.get("Ash Blossom & Joyous Spring").unwrap();
-
-// Your engine implements the bridge trait
-impl DuelScriptEngine for MyEngine {
-    type Context = MyGameState;
-
-    fn check_trigger(&self, trigger: &TriggerExpr, event: &GameEvent, ctx: &MyGameState) -> bool {
-        duelscript::engine::trigger_matches(trigger, event)
-    }
-
-    fn execute_action(&mut self, action: &GameAction, card: &Card, ctx: &mut MyGameState) {
-        match action {
-            GameAction::Draw { count } => ctx.draw(*count),
-            GameAction::Negate { what, and_destroy } => ctx.negate_current_chain_link(*and_destroy),
-            GameAction::Destroy { target } => {
-                let targets = self.resolve_targets(target, card, ctx);
-                for t in targets { ctx.destroy(t); }
-            }
-            // ... all GameAction variants
+    effect "Remove counters" {
+        speed: spell_speed_1
+        cost {
+            remove_counter 3 "Spell Counter" from self
+        }
+        on_resolve {
+            destroy (1, card, opponent controls)
         }
     }
-    // ... implement remaining methods
 }
 ```
 
-### For Other Languages
+---
 
-1. Implement a parser for `duelscript.pest` — the grammar is the canonical spec
-2. Map parsed nodes to your language's type system (see `ast.rs` as reference)
-3. Implement the engine bridge pattern in your language
-4. Run the validator rules against parsed cards before registering them
+## Win Conditions
 
-### Conformance
+```
+win_condition {
+    when: all_pieces_in_hand
+    result: win_duel
+}
 
-A conforming DuelScript implementation must:
-
-- Parse all constructs defined in `duelscript.pest`
-- Reject cards that fail validation (errors, not warnings)
-- Map all keyword semantics as defined in this document
-- Not require additional per-card scripting for standard mechanics
+win_condition {
+    when: turn_count >= 20
+    result: win_duel
+}
+```
 
 ---
 
-## Changelog
+## Zones
 
-| Version | Changes |
-|---------|---------|
-| v0.1 | Initial grammar — basic effects, zones, actions |
-| v0.2 | Continuous, replacement, equip effects. Counter systems. Win conditions. Pendulum. Link arrows. |
-| v0.3 | Summon conditions. Full tribute in all contexts. Validator. CLI tooling. |
-| v0.4 | CardDatabase. Engine bridge trait. Language reference spec (this document). |
+```
+hand | field | deck | extra_deck | extra_deck_face_up
+graveyard | gy | banished | exile
+monster_zone | spell_trap_zone | extra_monster_zone
+field_zone | pendulum_zone
+top_of_deck | bottom_of_deck
+```
 
 ---
 
-*DuelScript is an open specification. Yu-Gi-Oh is a trademark of Konami.*
-*This is a fan project and is not affiliated with or endorsed by Konami.*
+## Python Module
+
+Install: `maturin develop --features python`
+
+```python
+import duelscript
+
+# Parse
+cards = duelscript.parse_file("c55144522.ds")
+card = cards[0]
+print(card.name, card.card_types, card.atk)
+
+# Validate
+errors = duelscript.validate(source_string)
+for e in errors:
+    print(e)  # [ERROR] Card Name: message
+
+# Compile to engine bitfields
+compiled = duelscript.compile(source_string)
+for cc in compiled:
+    for eff in cc.effects:
+        print(eff.type_name(), hex(eff.category))
+
+# Load card database
+db = duelscript.CardDB("cards/official")
+card = db.get_by_id(55144522)
+results = db.search("dragon")
+
+# Constants
+duelscript.CATEGORY_DRAW        # 0x10000
+duelscript.EFFECT_TYPE_QUICK_O  # 0x100
+```
+
+---
+
+## Engine Integration
+
+DuelScript compiles to the same u32 bitfields used by EDOPro/YGOPro:
+
+| DuelScript Field | Engine Equivalent |
+|------------------|-------------------|
+| `effect_type` | `EFFECT_TYPE_*` flags |
+| `category` | `CATEGORY_*` flags |
+| `code` | `EVENT_*` codes |
+| `property` | `EFFECT_FLAG_*` flags |
+| `range` | `LOCATION_*` flags |
+| `count_limit` | `(count, code)` — 0=soft OPT, card_id=hard OPT |
+
+See [ENGINE_INTEGRATION.md](ENGINE_INTEGRATION.md) for the full integration guide.
