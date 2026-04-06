@@ -251,7 +251,7 @@ impl CdbCard {
         out
     }
 
-    fn ds_type_line(&self) -> String {
+    pub fn ds_type_line(&self) -> String {
         let mut parts = Vec::new();
 
         if self.is_fusion()   { parts.push("Fusion Monster"); }

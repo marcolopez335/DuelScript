@@ -1,0 +1,180 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "DuelScript",
+  "scopeName": "source.duelscript",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#strings" },
+    { "include": "#numbers" },
+    { "include": "#card-definition" },
+    { "include": "#block-keywords" },
+    { "include": "#field-keywords" },
+    { "include": "#action-keywords" },
+    { "include": "#type-keywords" },
+    { "include": "#attribute-keywords" },
+    { "include": "#race-keywords" },
+    { "include": "#zone-keywords" },
+    { "include": "#effect-keywords" },
+    { "include": "#cost-keywords" },
+    { "include": "#trigger-keywords" },
+    { "include": "#condition-keywords" },
+    { "include": "#modifier-keywords" },
+    { "include": "#constants" },
+    { "include": "#operators" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.duelscript",
+          "match": "//.*$"
+        },
+        {
+          "name": "comment.block.duelscript",
+          "begin": "/\\*",
+          "end": "\\*/"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.duelscript",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            { "name": "constant.character.escape.duelscript", "match": "\\\\." }
+          ]
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.duelscript",
+          "match": "\\b\\d+\\b"
+        }
+      ]
+    },
+    "card-definition": {
+      "patterns": [
+        {
+          "name": "keyword.control.card.duelscript",
+          "match": "\\b(card)\\b"
+        }
+      ]
+    },
+    "block-keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.block.duelscript",
+          "match": "\\b(effect|continuous_effect|replacement_effect|equip_effect|pendulum_effect|materials|summon_condition|counter_system|win_condition|restriction|on_activate|on_resolve|on_equipped_destroyed|on_unequipped|while_equipped|cost|alternative|choose|option|delayed|register_effect)\\b"
+        }
+      ]
+    },
+    "field-keywords": {
+      "patterns": [
+        {
+          "name": "support.type.field.duelscript",
+          "match": "\\b(type|attribute|race|level|rank|link|scale|atk|def|password|flavor|archetype|link_arrows|method|require|same_level|same_attribute|same_race|must_include|cannot_use|name|max|placed_when|result|instead_of|target|while|apply_to|modifier|grant|duration|count|speed|optional|timing|condition|trigger|once_per_turn|once_per_duel|twice_per_turn|each_turn)\\b"
+        }
+      ]
+    },
+    "action-keywords": {
+      "patterns": [
+        {
+          "name": "entity.name.function.action.duelscript",
+          "match": "\\b(draw|special_summon|destroy|negate|search|add_to_hand|send|banish|return|set|flip_face_down|change_battle_position|take_control|place_counter|remove_counter|look_at|reveal|copy_effect|equip|detach|attach|fusion_summon|synchro_summon|xyz_summon|ritual_summon|pendulum_summon|create_token|deal_damage|gain_lp|shuffle|mill|discard|tribute|set_scale|double_atk|halve_atk|set_atk|set_def|for_each|apply|store|recall)\\b"
+        }
+      ]
+    },
+    "type-keywords": {
+      "patterns": [
+        {
+          "name": "storage.type.card.duelscript",
+          "match": "\\b(Normal Monster|Effect Monster|Ritual Monster|Fusion Monster|Synchro Monster|Xyz Monster|Link Monster|Pendulum Monster|Tuner|Synchro Tuner|Gemini|Union|Spirit|Flip|Toon|Normal Spell|Quick-Play Spell|Continuous Spell|Equip Spell|Field Spell|Ritual Spell|Normal Trap|Counter Trap|Continuous Trap)\\b"
+        }
+      ]
+    },
+    "attribute-keywords": {
+      "patterns": [
+        {
+          "name": "constant.language.attribute.duelscript",
+          "match": "\\b(LIGHT|DARK|FIRE|WATER|EARTH|WIND|DIVINE)\\b"
+        }
+      ]
+    },
+    "race-keywords": {
+      "patterns": [
+        {
+          "name": "constant.language.race.duelscript",
+          "match": "\\b(Dragon|Spellcaster|Zombie|Warrior|Beast-Warrior|Beast|Winged Beast|Fiend|Fairy|Insect|Dinosaur|Reptile|Fish|Sea Serpent|Aqua|Pyro|Thunder|Rock|Plant|Machine|Psychic|Divine-Beast|Wyrm|Cyberse)\\b"
+        }
+      ]
+    },
+    "zone-keywords": {
+      "patterns": [
+        {
+          "name": "variable.language.zone.duelscript",
+          "match": "\\b(hand|field|graveyard|gy|banished|exile|deck|extra_deck|extra_deck_face_up|monster_zone|spell_trap_zone|extra_monster_zone|field_zone|pendulum_zone|top_of_deck|bottom_of_deck)\\b"
+        }
+      ]
+    },
+    "effect-keywords": {
+      "patterns": [
+        {
+          "name": "keyword.other.effect.duelscript",
+          "match": "\\b(spell_speed_1|spell_speed_2|spell_speed_3|soft|hard|attack_position|defense_position|face_down_defense|until_end_of_turn|until_end_phase|until_end_of_damage_step|until_next_turn|permanently|this_turn|face_up|face_down|face_down|in_attack_position|in_defense_position|other_than_self|as_material)\\b"
+        }
+      ]
+    },
+    "cost-keywords": {
+      "patterns": [
+        {
+          "name": "keyword.operator.cost.duelscript",
+          "match": "\\b(pay_lp|overlay_unit|none)\\b"
+        }
+      ]
+    },
+    "trigger-keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.trigger.duelscript",
+          "match": "\\b(when_summoned|when_destroyed|when_sent_to|when_flipped|when_attacked|when_tributed|when_tribute_summoned|during_standby_phase|during_end_phase|during|opponent_activates|on_nth_summon|attack_declared|by_normal_summon|by_special_summon|by_flip_summon|by_ritual_summon|by_fusion_summon|by_synchro_summon|by_xyz_summon|by_link_summon)\\b"
+        }
+      ]
+    },
+    "condition-keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.condition.duelscript",
+          "match": "\\b(chain_link_includes|you_control_no_monsters|opponent_controls_no_monsters|field_is_empty|you_control|opponent_controls|you_control_count|your_lp|opponent_lp|hand_size|cards_in_gy|banished_count|on_field|in_hand|in_gy|in_banished)\\b"
+        }
+      ]
+    },
+    "modifier-keywords": {
+      "patterns": [
+        {
+          "name": "support.function.modifier.duelscript",
+          "match": "\\b(piercing|double_attack|direct_attack|cannot_be_destroyed_by_battle|cannot_be_destroyed_by_effect|unaffected_by_spell_effects|unaffected_by_trap_effects|unaffected_by_monster_effects|unaffected_by_card_effects|immune_to_targeting|cannot_activate_effects|cannot|must|limit|be_targeted|be_destroyed|be_negated|be_banished|be_returned|be_tributed|attack_if_able|attack_all_monsters|attacks_per_turn|special_summons_per_turn)\\b"
+        }
+      ]
+    },
+    "constants": {
+      "patterns": [
+        {
+          "name": "constant.language.duelscript",
+          "match": "\\b(true|false|self|from|to|in|of|by|on|and|or|if|else|using|controls|when|until|selected_targets)\\b"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.duelscript",
+          "match": "(>=|<=|==|!=|>|<|\\+|\\-|\\*|/|\\|)"
+        }
+      ]
+    }
+  }
+}

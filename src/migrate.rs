@@ -47,11 +47,21 @@ impl Confidence {
     }
 }
 
-/// Generate a .ds file from a Lua script.
+/// Generate a .ds file from a Lua script, optionally with CDB stats.
 pub fn generate_from_lua(
     lua_source: &str,
     passcode: u64,
     card_name: &str,
+) -> MigrationResult {
+    generate_from_lua_with_cdb(lua_source, passcode, card_name, None)
+}
+
+/// Generate a .ds file from a Lua script with CDB data for card stats.
+pub fn generate_from_lua_with_cdb(
+    lua_source: &str,
+    passcode: u64,
+    card_name: &str,
+    cdb_card: Option<&crate::cdb::CdbCard>,
 ) -> MigrationResult {
     let effects = extract_effects(lua_source);
     let meta = extract_card_meta(lua_source);
@@ -65,8 +75,31 @@ pub fn generate_from_lua(
     ds.push_str(&format!("card \"{}\" {{\n", card_name));
     ds.push_str(&format!("    password: {}\n", passcode));
 
-    // Card stats placeholder (filled by CDB merge)
-    ds.push_str("    // TODO: type, attribute, race, level, atk, def from CDB\n\n");
+    // Card stats from CDB or placeholder
+    if let Some(cdb) = cdb_card {
+        ds.push_str(&format!("    type: {}\n", cdb.ds_type_line()));
+        if cdb.is_monster() {
+            ds.push_str(&format!("    attribute: {}\n", cdb.attribute_name()));
+            ds.push_str(&format!("    race: {}\n", cdb.race_name()));
+            if cdb.is_xyz() {
+                ds.push_str(&format!("    rank: {}\n", cdb.actual_level()));
+            } else if cdb.is_link() {
+                ds.push_str(&format!("    link: {}\n", cdb.actual_level()));
+            } else {
+                ds.push_str(&format!("    level: {}\n", cdb.actual_level()));
+            }
+            if cdb.is_pendulum() {
+                ds.push_str(&format!("    scale: {}\n", cdb.pendulum_scale()));
+            }
+            ds.push_str(&format!("    atk: {}\n", cdb.atk_str()));
+            if !cdb.is_link() {
+                ds.push_str(&format!("    def: {}\n", cdb.def_str()));
+            }
+        }
+    } else {
+        ds.push_str("    // TODO: type, attribute, race, level, atk, def from CDB\n");
+    }
+    ds.push('\n');
 
     // Summon procedures
     if meta.has_xyz { ds.push_str("    materials {\n        require: 2+ monster\n        same_level: true\n        method: xyz\n    }\n\n"); }
