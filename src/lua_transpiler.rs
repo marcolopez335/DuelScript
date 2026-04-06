@@ -507,6 +507,61 @@ fn extract_paren(s: &str) -> String {
     String::new()
 }
 
+/// The full EDOPro constant table, embedded at compile time.
+/// Built dynamically from constant.lua on first call.
+fn constant_table() -> &'static std::collections::HashMap<String, u32> {
+    use std::sync::OnceLock;
+    static TABLE: OnceLock<std::collections::HashMap<String, u32>> = OnceLock::new();
+    TABLE.get_or_init(build_constant_table)
+}
+
+fn build_constant_table() -> std::collections::HashMap<String, u32> {
+    let mut table = std::collections::HashMap::new();
+    // Embedded EDOPro constant.lua (snapshot from YGOPro/EDOPro core)
+    const CONSTANTS_LUA: &str = include_str!("../grammar/edopro_constants.lua");
+    for line in CONSTANTS_LUA.lines() {
+        let l = line.trim();
+        if l.is_empty() || l.starts_with("--") { continue; }
+        // Parse: NAME = VALUE[, --comment]
+        let eq = match l.find('=') { Some(i) => i, None => continue };
+        let name = l[..eq].trim().to_string();
+        if name.is_empty() || !name.chars().next().unwrap_or(' ').is_ascii_alphabetic() { continue; }
+        let rest = &l[eq+1..];
+        // Strip comment
+        let value_str = rest.split("--").next().unwrap_or("").trim().trim_end_matches(',').trim();
+        if let Some(v) = parse_number_or_expr(value_str, &table) {
+            table.insert(name, v);
+        }
+    }
+    table
+}
+
+fn parse_number_or_expr(s: &str, table: &std::collections::HashMap<String, u32>) -> Option<u32> {
+    let s = s.trim();
+    if s.is_empty() { return None; }
+
+    // Simple number (decimal or hex)
+    if let Ok(n) = s.parse::<u32>() { return Some(n); }
+    if let Ok(n) = s.parse::<i64>() { return Some(n as u32); }
+    if let Some(hex) = s.strip_prefix("0x") {
+        if let Ok(n) = u32::from_str_radix(hex, 16) { return Some(n); }
+    }
+
+    // Expression (e.g., "EVENT_SUMMON_SUCCESS+EVENT_FLIP_SUMMON_SUCCESS")
+    let mut total = 0u32;
+    let mut any = false;
+    for part in s.split(|c| c == '+' || c == '|') {
+        let t = part.trim();
+        if t.is_empty() { continue; }
+        if let Ok(n) = t.parse::<u32>() { total |= n; any = true; continue; }
+        if let Some(hex) = t.strip_prefix("0x") {
+            if let Ok(n) = u32::from_str_radix(hex, 16) { total |= n; any = true; continue; }
+        }
+        if let Some(v) = table.get(t) { total |= v; any = true; continue; }
+    }
+    if any { Some(total) } else { None }
+}
+
 /// Resolve a Lua constant expression like "EFFECT_TYPE_ACTIVATE+EFFECT_TYPE_IGNITION"
 /// into a single u32. Supports + and | (bitwise OR) and common constants.
 pub fn resolve_lua_constant_expr(expr: &str) -> u32 {
@@ -521,14 +576,18 @@ pub fn resolve_lua_constant_expr(expr: &str) -> u32 {
             total |= n;
             continue;
         }
-        // Handle hex
         if let Some(hex) = t.strip_prefix("0x") {
             if let Ok(n) = u32::from_str_radix(hex, 16) {
                 total |= n;
                 continue;
             }
         }
-        total |= lookup_lua_constant(t);
+        // Try the full table first (embedded constant.lua), fall back to hardcoded
+        if let Some(v) = constant_table().get(t) {
+            total |= v;
+        } else {
+            total |= lookup_lua_constant(t);
+        }
     }
     total
 }
