@@ -1,0 +1,20 @@
+// Doomstar Magician
+// Migrated from c58369990.lua
+
+card "Doomstar Magician" {
+    password: 58369990
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            discard self // TODO: verify target
+        }
+        on_resolve {
+            draw 2 // TODO: verify count
+            destroy (1, card, opponent controls) // TODO: verify target
+        }
+    }
+
+}

@@ -1,0 +1,26 @@
+// Multiple Piece Golem
+// Migrated from c71628381.lua
+
+card "Multiple Piece Golem" {
+    password: 71628381
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+}

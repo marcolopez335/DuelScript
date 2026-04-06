@@ -1,0 +1,30 @@
+// Number 22: Zombiestein
+// Migrated from c73445448.lua
+
+card "Number 22: Zombiestein" {
+    password: 73445448
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            negate effect
+        }
+    }
+
+}

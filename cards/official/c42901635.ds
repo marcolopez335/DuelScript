@@ -1,0 +1,28 @@
+// Berserkion the Electromagna Warrior
+// Migrated from c42901635.lua
+
+card "Berserkion the Electromagna Warrior" {
+    password: 42901635
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            destroy (1, card, opponent controls) // TODO: verify target
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+}

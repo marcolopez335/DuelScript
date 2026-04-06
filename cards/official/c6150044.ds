@@ -1,0 +1,30 @@
+// Arcana Knight Joker
+// Migrated from c6150044.lua
+
+card "Arcana Knight Joker" {
+    password: 6150044
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            discard self // TODO: verify target
+        }
+        on_resolve {
+            negate effect
+        }
+    }
+
+}

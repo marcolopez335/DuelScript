@@ -1,0 +1,36 @@
+// Miracle Ejector
+// Migrated from c30875635.lua
+
+card "Miracle Ejector" {
+    password: 30875635
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            add_to_hand (1, card) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            banish (1, card) // TODO: verify
+        }
+    }
+
+}

@@ -1,0 +1,27 @@
+// Unchained Abomination
+// Migrated from c29479265.lua
+
+card "Unchained Abomination" {
+    password: 29479265
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    materials {
+        require: 2+ effect monster
+        method: link
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            destroy (1, card, opponent controls) // TODO: verify target
+        }
+    }
+
+}

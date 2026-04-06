@@ -1,0 +1,25 @@
+// Mokey Mokey King
+// Migrated from c13803864.lua
+
+card "Mokey Mokey King" {
+    password: 13803864
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+}

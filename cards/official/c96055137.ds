@@ -1,0 +1,30 @@
+// Infernoid Sjette
+// Migrated from c96055137.lua
+
+card "Infernoid Sjette" {
+    password: 96055137
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when attack_declared
+        on_resolve {
+            banish (1, card) // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            banish (1, card) // TODO: verify
+        }
+    }
+
+}

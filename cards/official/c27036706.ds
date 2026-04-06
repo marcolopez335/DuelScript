@@ -1,0 +1,28 @@
+// Starry Knight Ciel
+// Migrated from c27036706.lua
+
+card "Starry Knight Ciel" {
+    password: 27036706
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        condition: in_gy
+        cost {
+            banish self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+}

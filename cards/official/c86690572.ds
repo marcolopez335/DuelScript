@@ -1,0 +1,26 @@
+// Burgeoning Whirlflame
+// Migrated from c86690572.lua
+
+card "Burgeoning Whirlflame" {
+    password: 86690572
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            destroy (1, card, opponent controls) // TODO: verify target
+            negate activation and destroy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        condition: in_gy
+        on_resolve {
+            add_to_hand (1, card) from gy // TODO: verify
+        }
+    }
+
+}

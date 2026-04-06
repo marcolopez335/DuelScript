@@ -1,0 +1,36 @@
+// Altergeist Primebanshee
+// Migrated from c93503294.lua
+
+card "Altergeist Primebanshee" {
+    password: 93503294
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    materials {
+        require: 2+ effect monster
+        method: link
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            add_to_hand (1, card) from gy // TODO: verify
+        }
+    }
+
+}

@@ -1,0 +1,17 @@
+// Dragonic Knight
+// Migrated from c38109772.lua
+
+card "Dragonic Knight" {
+    password: 38109772
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+}

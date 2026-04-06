@@ -1,0 +1,26 @@
+// Kashtira Unicorn
+// Migrated from c68304193.lua
+
+card "Kashtira Unicorn" {
+    password: 68304193
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            add_to_hand (1, card) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when attack_declared
+        on_resolve {
+            banish (1, card) // TODO: verify
+        }
+    }
+
+}

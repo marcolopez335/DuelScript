@@ -1,0 +1,18 @@
+// Dark Bribe
+// Migrated from c77538567.lua
+
+card "Dark Bribe" {
+    password: 77538567
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            draw 2 // TODO: verify count
+            destroy (1, card, opponent controls) // TODO: verify target
+            negate activation and destroy
+        }
+    }
+
+}

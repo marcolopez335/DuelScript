@@ -1,0 +1,28 @@
+// Elemental HERO Aqua Neos
+// Migrated from c55171412.lua
+
+card "Elemental HERO Aqua Neos" {
+    password: 55171412
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            discard self // TODO: verify target
+        }
+        on_resolve {
+            destroy (1, card, opponent controls) // TODO: verify target
+        }
+    }
+
+}

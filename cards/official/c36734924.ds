@@ -1,0 +1,26 @@
+// Priestess with Eyes of Blue
+// Migrated from c36734924.lua
+
+card "Priestess with Eyes of Blue" {
+    password: 36734924
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            add_to_hand (1, card) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        condition: in_gy
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+}

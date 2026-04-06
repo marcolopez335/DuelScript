@@ -1,0 +1,26 @@
+// The Fabled Unicore
+// Migrated from c44155002.lua
+
+card "The Fabled Unicore" {
+    password: 44155002
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            destroy (1+, card, either_player controls) // TODO: verify
+            negate effect
+        }
+    }
+
+}

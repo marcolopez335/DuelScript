@@ -1,0 +1,35 @@
+// Gate Guardian of Wind and Water
+// Migrated from c61398234.lua
+
+card "Gate Guardian of Wind and Water" {
+    password: 61398234
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            negate effect
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+}

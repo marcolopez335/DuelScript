@@ -1,0 +1,32 @@
+// Sauravis, the Ancient and Ascended
+// Migrated from c4810828.lua
+
+card "Sauravis, the Ancient and Ascended" {
+    password: 4810828
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            discard self
+        }
+        on_resolve {
+            negate activation
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        on_resolve {
+            negate summon
+        }
+    }
+
+}

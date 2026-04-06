@@ -1,0 +1,26 @@
+// Ancient Warriors - Eccentric Lu Jing
+// Migrated from c13923256.lua
+
+card "Ancient Warriors - Eccentric Lu Jing" {
+    password: 13923256
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            add_to_hand (1, card) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            destroy (1, card, opponent controls) // TODO: verify target
+        }
+    }
+
+}

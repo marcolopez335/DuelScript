@@ -1,0 +1,35 @@
+// Medusa, Watcher of the Evil Eye
+// Migrated from c18551923.lua
+
+card "Medusa, Watcher of the Evil Eye" {
+    password: 18551923
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            add_to_hand (1, card) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            banish (1, card) // TODO: verify
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: during_standby_phase
+        on_resolve {
+            banish (1, card) // TODO: verify
+        }
+    }
+
+}

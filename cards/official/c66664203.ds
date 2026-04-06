@@ -1,0 +1,26 @@
+// Revolution Cyber Dragon
+// Migrated from c66664203.lua
+
+card "Revolution Cyber Dragon" {
+    password: 66664203
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            negate effect
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+}

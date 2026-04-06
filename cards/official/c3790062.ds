@@ -1,0 +1,30 @@
+// Number 65: Djinn Buster
+// Migrated from c3790062.lua
+
+card "Number 65: Djinn Buster" {
+    password: 3790062
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            detach 2 overlay_unit from self
+        }
+        on_resolve {
+            negate activation
+        }
+    }
+
+}

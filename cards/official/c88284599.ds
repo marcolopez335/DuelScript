@@ -1,0 +1,18 @@
+// Sauravis, Dragon Sage of the Voiceless Voice
+// Migrated from c88284599.lua
+
+card "Sauravis, Dragon Sage of the Voiceless Voice" {
+    password: 88284599
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+}

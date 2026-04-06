@@ -1,0 +1,35 @@
+// Lyna the Light Charmer, Lustrous
+// Migrated from c9839945.lua
+
+card "Lyna the Light Charmer, Lustrous" {
+    password: 9839945
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    materials {
+        require: 2+ effect monster
+        method: link
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            add_to_hand (1, card) from gy // TODO: verify
+        }
+    }
+
+}

@@ -1,0 +1,33 @@
+// Depth Amulet
+// Migrated from c8279188.lua
+
+card "Depth Amulet" {
+    password: 8279188
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            negate attack
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        trigger: when attack_declared
+        on_resolve {
+            negate attack
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: during_end_phase
+        on_resolve {
+            destroy (1+, card, either_player controls) // TODO: verify
+        }
+    }
+
+}

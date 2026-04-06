@@ -1,0 +1,25 @@
+// Bellcat Fighter
+// Migrated from c22953211.lua
+
+card "Bellcat Fighter" {
+    password: 22953211
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    materials {
+        require: 2+ effect monster
+        method: link
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+}

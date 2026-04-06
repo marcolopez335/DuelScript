@@ -1,0 +1,35 @@
+// Sorcerer of Sebek
+// Migrated from c39767432.lua
+
+card "Sorcerer of Sebek" {
+    password: 39767432
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    materials {
+        require: 2+ effect monster
+        method: link
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            gain_lp: 1000 // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            deal_damage to opponent: 1000 // TODO: verify
+        }
+    }
+
+}

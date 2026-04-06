@@ -1,0 +1,24 @@
+// Asceticism of the Six Samurai
+// Migrated from c27821104.lua
+
+card "Asceticism of the Six Samurai" {
+    password: 27821104
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: during_end_phase
+        on_resolve {
+            destroy (1+, card, either_player controls) // TODO: verify
+        }
+    }
+
+}

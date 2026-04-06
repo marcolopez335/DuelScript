@@ -1,0 +1,29 @@
+// Induced Explosion
+// Migrated from c68077936.lua
+
+card "Induced Explosion" {
+    password: 68077936
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_destroyed
+        on_resolve {
+            destroy (1, card, opponent controls) // TODO: verify target
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_destroyed
+        condition: in_gy
+        cost {
+            banish self
+        }
+        on_resolve {
+            destroy (1, card, opponent controls) // TODO: verify target
+        }
+    }
+
+}

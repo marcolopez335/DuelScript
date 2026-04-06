@@ -1,0 +1,25 @@
+// Memory of an Adversary
+// Migrated from c60080151.lua
+
+card "Memory of an Adversary" {
+    password: 60080151
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when attack_declared
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: during_end_phase
+        on_resolve {
+            special_summon self from gy // TODO: verify
+        }
+    }
+
+}

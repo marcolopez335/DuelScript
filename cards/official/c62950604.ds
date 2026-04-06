@@ -1,0 +1,25 @@
+// Silent Psychic Wizard
+// Migrated from c62950604.lua
+
+card "Silent Psychic Wizard" {
+    password: 62950604
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            banish (1, card) // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+}

@@ -1,0 +1,25 @@
+// Curse of Dragonfire
+// Migrated from c7241272.lua
+
+card "Curse of Dragonfire" {
+    password: 7241272
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            destroy (1, card, opponent controls) // TODO: verify target
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+}

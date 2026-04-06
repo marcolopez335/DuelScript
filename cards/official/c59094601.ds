@@ -1,0 +1,30 @@
+// The Revived Sky God
+// Migrated from c59094601.lua
+
+card "The Revived Sky God" {
+    password: 59094601
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            draw 2 // TODO: verify count
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        condition: in_gy
+        cost {
+            banish self
+        }
+        on_resolve {
+            draw 2 // TODO: verify count
+        }
+    }
+
+}

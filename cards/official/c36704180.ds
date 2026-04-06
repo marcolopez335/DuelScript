@@ -1,0 +1,30 @@
+// The Phantom Knights of Fragile Armor
+// Migrated from c36704180.lua
+
+card "The Phantom Knights of Fragile Armor" {
+    password: 36704180
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        condition: in_gy
+        cost {
+            discard self // TODO: verify target
+        }
+        on_resolve {
+            draw 2 // TODO: verify count
+        }
+    }
+
+}

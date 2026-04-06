@@ -1,0 +1,29 @@
+// Illusionist Faceless Magician
+// Migrated from c15173384.lua
+
+card "Illusionist Faceless Magician" {
+    password: 15173384
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_destroyed
+        condition: in_gy
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+}

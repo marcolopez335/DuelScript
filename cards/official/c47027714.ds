@@ -1,0 +1,32 @@
+// T.G. Halberd Cannon/Assault Mode
+// Migrated from c47027714.lua
+
+card "T.G. Halberd Cannon/Assault Mode" {
+    password: 47027714
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            negate summon
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+}

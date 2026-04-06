@@ -1,0 +1,39 @@
+// Red Nova Dragon/Assault Mode
+// Migrated from c82323997.lua
+
+card "Red Nova Dragon/Assault Mode" {
+    password: 82323997
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            banish (1, card) // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        trigger: when attack_declared
+        on_resolve {
+            negate attack
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+}

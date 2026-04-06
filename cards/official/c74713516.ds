@@ -1,0 +1,27 @@
+// Dark Mimic LV1
+// Migrated from c74713516.lua
+
+card "Dark Mimic LV1" {
+    password: 74713516
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            draw 2 // TODO: verify count
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: during_standby_phase
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+}

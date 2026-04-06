@@ -1,0 +1,26 @@
+// Daigusto Gulldos
+// Migrated from c84766279.lua
+
+card "Daigusto Gulldos" {
+    password: 84766279
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            destroy (1, card, opponent controls) // TODO: verify target
+        }
+    }
+
+}

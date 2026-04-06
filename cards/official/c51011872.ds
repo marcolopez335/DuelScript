@@ -1,0 +1,36 @@
+// Trickstar Crimson Heart
+// Migrated from c51011872.lua
+
+card "Trickstar Crimson Heart" {
+    password: 51011872
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    materials {
+        require: 2+ effect monster
+        method: link
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_summoned
+        on_resolve {
+            gain_lp: 1000 // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            discard self // TODO: verify target
+        }
+        on_resolve {
+            draw 2 // TODO: verify count
+        }
+    }
+
+}

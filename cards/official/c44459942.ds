@@ -1,0 +1,30 @@
+// Two-for-One Repair Job
+// Migrated from c44459942.lua
+
+card "Two-for-One Repair Job" {
+    password: 44459942
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_sent_to gy
+        condition: in_gy
+        cost {
+            banish self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+}

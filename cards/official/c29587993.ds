@@ -1,0 +1,19 @@
+// Mist Valley Apex Avian
+// Migrated from c29587993.lua
+
+card "Mist Valley Apex Avian" {
+    password: 29587993
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            destroy (1, card, opponent controls) // TODO: verify target
+            negate activation and destroy
+        }
+    }
+
+}

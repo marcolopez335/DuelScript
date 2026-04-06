@@ -1,0 +1,34 @@
+// D/D/D Sky King Zeus Ragnarok
+// Migrated from c30998403.lua
+
+card "D/D/D Sky King Zeus Ragnarok" {
+    password: 30998403
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    materials {
+        require: 2+ effect monster
+        method: link
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            destroy (1, card, opponent controls) // TODO: verify target
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            negate activation
+        }
+    }
+
+}

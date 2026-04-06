@@ -1,0 +1,28 @@
+// Regenesis Warrior
+// Migrated from c96540807.lua
+
+card "Regenesis Warrior" {
+    password: 96540807
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            add_to_hand (1, card) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: during_end_phase
+        condition: in_gy
+        on_resolve {
+            add_to_hand (1, card) from gy // TODO: verify
+        }
+    }
+
+}

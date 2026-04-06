@@ -1,0 +1,27 @@
+// Fairy Tail - Luna
+// Migrated from c86937530.lua
+
+card "Fairy Tail - Luna" {
+    password: 86937530
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            add_to_hand (1, card) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            negate effect
+            add_to_hand (1, card) from gy // TODO: verify
+        }
+    }
+
+}

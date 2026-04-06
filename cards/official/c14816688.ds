@@ -1,0 +1,36 @@
+// Shuffle Reborn
+// Migrated from c14816688.lua
+
+card "Shuffle Reborn" {
+    password: 14816688
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        condition: in_gy
+        cost {
+            banish self
+        }
+        on_resolve {
+            draw 2 // TODO: verify count
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: during_end_phase
+        on_resolve {
+            banish (1, card) // TODO: verify
+        }
+    }
+
+}

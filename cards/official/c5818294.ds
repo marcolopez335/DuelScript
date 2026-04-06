@@ -1,0 +1,21 @@
+// Bujingi Turtle
+// Migrated from c5818294.lua
+
+card "Bujingi Turtle" {
+    password: 5818294
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        condition: in_gy
+        cost {
+            banish self
+        }
+        on_resolve {
+            negate effect
+        }
+    }
+
+}

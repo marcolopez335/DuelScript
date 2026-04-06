@@ -1,0 +1,26 @@
+// XX-Saber Fulhelmknight
+// Migrated from c78422252.lua
+
+card "XX-Saber Fulhelmknight" {
+    password: 78422252
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when attack_declared
+        on_resolve {
+            negate attack
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+}

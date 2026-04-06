@@ -1,0 +1,29 @@
+// Steelswarm Roach
+// Migrated from c37926346.lua
+
+card "Steelswarm Roach" {
+    password: 37926346
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            negate summon and destroy
+        }
+    }
+
+}

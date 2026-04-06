@@ -1,0 +1,27 @@
+// Morpheus, the Dream Mirror Black Knight
+// Migrated from c38267552.lua
+
+card "Morpheus, the Dream Mirror Black Knight" {
+    password: 38267552
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            destroy (1, card, opponent controls) // TODO: verify target
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+}

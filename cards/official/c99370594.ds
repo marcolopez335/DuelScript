@@ -1,0 +1,30 @@
+// Ghost Sleeper, the Underworld Princess
+// Migrated from c99370594.lua
+
+card "Ghost Sleeper, the Underworld Princess" {
+    password: 99370594
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            add_to_hand (1, card) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        condition: in_gy
+        cost {
+            discard self // TODO: verify target
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy // TODO: verify
+        }
+    }
+
+}

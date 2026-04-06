@@ -1,0 +1,26 @@
+// Luna Light Perfume
+// Migrated from c48444114.lua
+
+card "Luna Light Perfume" {
+    password: 48444114
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        condition: in_gy
+        cost {
+            discard self // TODO: verify target
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy // TODO: verify
+        }
+    }
+
+}

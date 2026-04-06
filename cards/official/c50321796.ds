@@ -1,0 +1,29 @@
+// Brionac, Dragon of the Ice Barrier
+// Migrated from c50321796.lua
+
+card "Brionac, Dragon of the Ice Barrier" {
+    password: 50321796
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            discard self // TODO: verify target
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy // TODO: verify
+        }
+    }
+
+}

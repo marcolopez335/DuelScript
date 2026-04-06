@@ -1,0 +1,57 @@
+// D/D/D Wave King Caesar
+// Migrated from c3758046.lua
+
+card "D/D/D Wave King Caesar" {
+    password: 3758046
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            add_to_hand (1, card) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            special_summon self from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: during_standby_phase
+        on_resolve {
+            deal_damage to opponent: 1000 // TODO: verify
+        }
+    }
+
+}

@@ -1,0 +1,29 @@
+// Leviair the Sea Dragon
+// Migrated from c95992081.lua
+
+card "Leviair the Sea Dragon" {
+    password: 95992081
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+}

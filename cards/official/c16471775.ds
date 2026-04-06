@@ -1,0 +1,28 @@
+// Ursarctic Departure
+// Migrated from c16471775.lua
+
+card "Ursarctic Departure" {
+    password: 16471775
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            discard self
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        condition: in_gy
+        on_resolve {
+            banish (1, card) // TODO: verify
+        }
+    }
+
+}

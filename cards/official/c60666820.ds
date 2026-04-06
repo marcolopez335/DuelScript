@@ -1,0 +1,20 @@
+// Nefarious Archfiend Eater of Nefariousness
+// Migrated from c60666820.lua
+
+card "Nefarious Archfiend Eater of Nefariousness" {
+    password: 60666820
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: during_end_phase
+        condition: in_gy
+        on_resolve {
+            destroy (1, card, opponent controls) // TODO: verify target
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+}

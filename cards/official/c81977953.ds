@@ -1,0 +1,23 @@
+// Desert Twister
+// Migrated from c81977953.lua
+
+card "Desert Twister" {
+    password: 81977953
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            discard self
+        }
+        on_resolve {
+            destroy (1, card, opponent controls) // TODO: verify target
+        }
+    }
+
+}

@@ -1,0 +1,30 @@
+// Gladiator Beast Heraklinos
+// Migrated from c27346636.lua
+
+card "Gladiator Beast Heraklinos" {
+    password: 27346636
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            discard self // TODO: verify target
+        }
+        on_resolve {
+            destroy (1, card, opponent controls) // TODO: verify target
+            negate activation and destroy
+        }
+    }
+
+}

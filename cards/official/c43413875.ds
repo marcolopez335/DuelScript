@@ -1,0 +1,30 @@
+// Flower Cardian Zebra Grass with Moon
+// Migrated from c43413875.lua
+
+card "Flower Cardian Zebra Grass with Moon" {
+    password: 43413875
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            draw 2 // TODO: verify count
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            draw 2 // TODO: verify count
+        }
+    }
+
+}

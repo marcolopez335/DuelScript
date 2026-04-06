@@ -1,0 +1,26 @@
+// Koa'ki Meiru Overload
+// Migrated from c14309486.lua
+
+card "Koa'ki Meiru Overload" {
+    password: 14309486
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: during_end_phase
+        on_resolve {
+            destroy (1+, card, either_player controls) // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            negate summon and destroy
+        }
+    }
+
+}

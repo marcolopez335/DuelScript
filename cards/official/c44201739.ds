@@ -1,0 +1,29 @@
+// Mira Match
+// Migrated from c44201739.lua
+
+card "Mira Match" {
+    password: 44201739
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            negate activation
+        }
+    }
+
+}

@@ -1,0 +1,25 @@
+// Vylon Ohm
+// Migrated from c5237827.lua
+
+card "Vylon Ohm" {
+    password: 5237827
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_summoned
+        on_resolve {
+            banish (1, card) // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: during_standby_phase
+        on_resolve {
+            add_to_hand (1, card) from gy // TODO: verify
+        }
+    }
+
+}

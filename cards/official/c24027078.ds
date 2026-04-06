@@ -1,0 +1,22 @@
+// Morgan, the Enchantress of Avalon
+// Migrated from c24027078.lua
+
+card "Morgan, the Enchantress of Avalon" {
+    password: 24027078
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            destroy (1, card, opponent controls) // TODO: verify target
+            negate activation and destroy
+        }
+    }
+
+}

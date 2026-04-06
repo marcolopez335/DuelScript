@@ -1,0 +1,39 @@
+// Magikey Deity - Ashtartu
+// Migrated from c26988374.lua
+
+card "Magikey Deity - Ashtartu" {
+    password: 26988374
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            deal_damage to opponent: 1000 // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            banish (1, card) // TODO: verify
+        }
+    }
+
+}

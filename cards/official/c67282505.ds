@@ -1,0 +1,26 @@
+// Mitsu the Insect Ninja
+// Migrated from c67282505.lua
+
+card "Mitsu the Insect Ninja" {
+    password: 67282505
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            negate effect
+        }
+    }
+
+}

@@ -1,0 +1,24 @@
+// Koa'ki Meiru Doom
+// Migrated from c80925836.lua
+
+card "Koa'ki Meiru Doom" {
+    password: 80925836
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: during_end_phase
+        on_resolve {
+            destroy (1+, card, either_player controls) // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            negate effect
+        }
+    }
+
+}

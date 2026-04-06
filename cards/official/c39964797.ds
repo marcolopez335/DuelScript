@@ -1,0 +1,35 @@
+// Crystron Quandax
+// Migrated from c39964797.lua
+
+card "Crystron Quandax" {
+    password: 39964797
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+}

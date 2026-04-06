@@ -1,0 +1,25 @@
+// Skull Archfiend of Lightning
+// Migrated from c61370518.lua
+
+card "Skull Archfiend of Lightning" {
+    password: 61370518
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: during_standby_phase
+        on_resolve {
+            destroy (1+, card, either_player controls) // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            destroy (1+, card, either_player controls) // TODO: verify
+            negate effect
+        }
+    }
+
+}

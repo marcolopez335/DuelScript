@@ -1,0 +1,21 @@
+// Ghost Belle & Haunted Mansion
+// Migrated from c73642296.lua
+
+card "Ghost Belle & Haunted Mansion" {
+    password: 73642296
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            discard self
+        }
+        on_resolve {
+            negate activation
+        }
+    }
+
+}

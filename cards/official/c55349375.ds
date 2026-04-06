@@ -1,0 +1,29 @@
+// Bluebeard, the Plunder Patroll Shipwright
+// Migrated from c55349375.lua
+
+card "Bluebeard, the Plunder Patroll Shipwright" {
+    password: 55349375
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_sent_to gy
+        cost {
+            discard self // TODO: verify target
+        }
+        on_resolve {
+            draw 2 // TODO: verify count
+        }
+    }
+
+}

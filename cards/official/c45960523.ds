@@ -1,0 +1,27 @@
+// Metaphys Daedalus
+// Migrated from c45960523.lua
+
+card "Metaphys Daedalus" {
+    password: 45960523
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            banish (1, card) // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: during_standby_phase
+        on_resolve {
+            banish (1, card) // TODO: verify
+        }
+    }
+
+}

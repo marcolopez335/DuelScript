@@ -1,0 +1,34 @@
+// Swordsoul Auspice Chunjun
+// Migrated from c29884951.lua
+
+card "Swordsoul Auspice Chunjun" {
+    password: 29884951
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            destroy (1, card, opponent controls) // TODO: verify target
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            banish (1, card) // TODO: verify
+        }
+    }
+
+}

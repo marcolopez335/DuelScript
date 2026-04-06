@@ -1,0 +1,26 @@
+// Chimera the Flying Mythical Beast
+// Migrated from c4796100.lua
+
+card "Chimera the Flying Mythical Beast" {
+    password: 4796100
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+}

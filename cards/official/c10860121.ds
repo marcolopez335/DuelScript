@@ -1,0 +1,21 @@
+// Bujingi Pavo
+// Migrated from c10860121.lua
+
+card "Bujingi Pavo" {
+    password: 10860121
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_sent_to gy
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+}

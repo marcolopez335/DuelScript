@@ -1,0 +1,25 @@
+// Ledger of Legerdemain
+// Migrated from c56256517.lua
+
+card "Ledger of Legerdemain" {
+    password: 56256517
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            banish (1, card) // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: during_standby_phase
+        on_resolve {
+            add_to_hand (1, card) from gy // TODO: verify
+        }
+    }
+
+}

@@ -1,0 +1,25 @@
+// Twilight Twin Dragons
+// Migrated from c60431417.lua
+
+card "Twilight Twin Dragons" {
+    password: 60431417
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            add_to_hand (1, card) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            banish (1, card) // TODO: verify
+            add_to_hand (1, card) from gy // TODO: verify
+        }
+    }
+
+}

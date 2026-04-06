@@ -1,0 +1,29 @@
+// Photon Alexandra Queen
+// Migrated from c75797046.lua
+
+card "Photon Alexandra Queen" {
+    password: 75797046
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy // TODO: verify
+            deal_damage to opponent: 1000 // TODO: verify
+        }
+    }
+
+}

@@ -1,0 +1,21 @@
+// Ghost Ogre & Snow Rabbit
+// Migrated from c59438930.lua
+
+card "Ghost Ogre & Snow Rabbit" {
+    password: 59438930
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            destroy (1, card, opponent controls) // TODO: verify target
+        }
+    }
+
+}

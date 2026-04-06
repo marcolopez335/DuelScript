@@ -1,0 +1,20 @@
+// Rescue Hedgehog
+// Migrated from c99742859.lua
+
+card "Rescue Hedgehog" {
+    password: 99742859
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            banish self
+        }
+        on_resolve {
+            destroy (1, card, opponent controls) // TODO: verify target
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+}

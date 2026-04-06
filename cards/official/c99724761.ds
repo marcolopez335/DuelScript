@@ -1,0 +1,27 @@
+// XZ-Tank Cannon
+// Migrated from c99724761.lua
+
+card "XZ-Tank Cannon" {
+    password: 99724761
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        cost {
+            discard self // TODO: verify target
+        }
+        on_resolve {
+            destroy (1, card, opponent controls) // TODO: verify target
+        }
+    }
+
+}

@@ -1,0 +1,28 @@
+// ZS - Vanish Sage
+// Migrated from c51865604.lua
+
+card "ZS - Vanish Sage" {
+    password: 51865604
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            draw 2 // TODO: verify count
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        cost {
+            banish self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+}

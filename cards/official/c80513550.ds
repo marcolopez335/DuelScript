@@ -1,0 +1,30 @@
+// Dragon Queen of Tragic Endings
+// Migrated from c80513550.lua
+
+card "Dragon Queen of Tragic Endings" {
+    password: 80513550
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            draw 2 // TODO: verify count
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: during_standby_phase
+        condition: in_gy
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+}

@@ -1,0 +1,36 @@
+// Crimson Blade Dragon
+// Migrated from c3294539.lua
+
+card "Crimson Blade Dragon" {
+    password: 3294539
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            destroy (1, card, opponent controls) // TODO: verify target
+        }
+    }
+
+}

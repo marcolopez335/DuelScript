@@ -1,0 +1,26 @@
+// Silent Burning
+// Migrated from c44968459.lua
+
+card "Silent Burning" {
+    password: 44968459
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            draw 2 // TODO: verify count
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        condition: in_gy
+        cost {
+            banish self
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy // TODO: verify
+        }
+    }
+
+}

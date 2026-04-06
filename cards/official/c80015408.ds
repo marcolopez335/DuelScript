@@ -1,0 +1,29 @@
+// Enneacraft Reverth
+// Migrated from c80015408.lua
+
+card "Enneacraft Reverth" {
+    password: 80015408
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            draw 2 // TODO: verify count
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned
+        condition: in_gy
+        cost {
+            banish self
+        }
+        on_resolve {
+            special_summon self from gy // TODO: verify
+        }
+    }
+
+}

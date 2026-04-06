@@ -1,0 +1,30 @@
+// Tri-Brigade Mercourier
+// Migrated from c19096726.lua
+
+card "Tri-Brigade Mercourier" {
+    password: 19096726
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            negate effect
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            add_to_hand (1, card) from gy // TODO: verify
+        }
+    }
+
+}

@@ -1,0 +1,28 @@
+// Galactikuriboh
+// Migrated from c46261704.lua
+
+card "Galactikuriboh" {
+    password: 46261704
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when attack_declared
+        cost {
+            discard self // TODO: verify target
+        }
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        condition: in_gy
+        on_resolve {
+            banish (1, card) // TODO: verify
+        }
+    }
+
+}

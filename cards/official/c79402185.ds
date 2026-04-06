@@ -1,0 +1,25 @@
+// Bonding - D2O
+// Migrated from c79402185.lua
+
+card "Bonding - D2O" {
+    password: 79402185
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            special_summon (1, monster) from gy // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: when_sent_to gy
+        condition: in_gy
+        on_resolve {
+            add_to_hand (1, card) from gy // TODO: verify
+        }
+    }
+
+}

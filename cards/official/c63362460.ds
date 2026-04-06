@@ -1,0 +1,26 @@
+// Destiny HERO - Celestial
+// Migrated from c63362460.lua
+
+card "Destiny HERO - Celestial" {
+    password: 63362460
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when attack_declared
+        on_resolve {
+            destroy (1, card, opponent controls) // TODO: verify target
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        condition: in_gy
+        on_resolve {
+            draw 2 // TODO: verify count
+        }
+    }
+
+}

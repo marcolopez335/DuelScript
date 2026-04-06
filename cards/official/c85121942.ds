@@ -1,0 +1,36 @@
+// Number C105: Battlin' Boxer Comet Cestus
+// Migrated from c85121942.lua
+
+card "Number C105: Battlin' Boxer Comet Cestus" {
+    password: 85121942
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            deal_damage to opponent: 1000 // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            destroy (1, card, opponent controls) // TODO: verify target
+        }
+    }
+
+}

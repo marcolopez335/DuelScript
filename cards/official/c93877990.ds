@@ -1,0 +1,36 @@
+// Brotherhood of the Fire Fist - Swan
+// Migrated from c93877990.lua
+
+card "Brotherhood of the Fire Fist - Swan" {
+    password: 93877990
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            deal_damage to opponent: 1000 // TODO: verify
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            destroy (1, card, opponent controls) // TODO: verify target
+        }
+    }
+
+}

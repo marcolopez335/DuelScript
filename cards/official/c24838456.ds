@@ -1,0 +1,20 @@
+// Vanity's Call
+// Migrated from c24838456.lua
+
+card "Vanity's Call" {
+    password: 24838456
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            pay_lp your_lp / 2
+        }
+        on_resolve {
+            destroy (1, card, opponent controls) // TODO: verify target
+            negate activation and destroy
+        }
+    }
+
+}

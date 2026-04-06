@@ -1,0 +1,27 @@
+// Magical Android
+// Migrated from c43385557.lua
+
+card "Magical Android" {
+    password: 43385557
+    // TODO: type, attribute, race, level, atk, def from CDB
+
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: during_end_phase
+        on_resolve {
+            gain_lp: 1000 // TODO: verify
+        }
+    }
+
+}
