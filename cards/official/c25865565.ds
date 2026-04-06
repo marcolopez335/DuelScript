@@ -10,28 +10,33 @@ card "Crystron Sulfador" {
     atk: 1900
     def: 2250
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        activate_from: [hand, gy]
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 513
+        property: 16
+        range: 18
+        count_limit: (1, 25865565)
         on_resolve {
             destroy (1+, card, either_player controls)
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_summoned
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 32
+        code: 1100
+        property: 65536
+        count_limit: (1, 0)
         on_resolve {
             send (1, card) to gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 2
+        code: 52
+        property: 67110912
         on_resolve {
             reveal self
         }

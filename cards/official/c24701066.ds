@@ -14,28 +14,32 @@ card "Infinitrack River Stormer" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 129
+        code: 1139
         on_resolve {
             attach (1, card) to self as_material
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 131112
+        range: 4
+        count_limit: (1, 24701066)
         cost {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 3" {
+        effect_type: 64
+        category: 512
+        range: 16
+        count_limit: (1, 0)
         cost {
             tribute self
         }

@@ -5,20 +5,23 @@ card "Noble Arms - Arfeudutyr" {
     password: 83438826
     type: Equip Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 1
+        property: 16
+        range: 8
+        count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        damage_step: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 262144
+        code: 1014
+        property: 81936
+        count_limit: (1, 83438826)
         on_resolve {
             equip (1, card) to (1, monster)
         }

@@ -5,18 +5,20 @@ card "Magikey Unlocking" {
     password: 98904974
     type: Normal Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 268435457
+        code: 1027
+        count_limit: (1, 98904974)
         on_resolve {
             negate activation
             destroy (1+, card, either_player controls)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 2
+        code: 121
         on_resolve {
             reveal self
         }

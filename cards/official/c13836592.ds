@@ -10,27 +10,32 @@ card "Behemoth the King of a Hundred Battles" {
     atk: 2700
     def: 1500
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_summoned
+    raw_effect "Effect 1" {
+        effect_type: 129
+        category: 2097160
+        code: 1100
+        property: 65552
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 1
+        code: 308
+        property: 131072
+        range: 4
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: during_end_phase
+    raw_effect "Effect 3" {
+        effect_type: 130
+        category: 2097152
+        code: 4608
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             reveal self
         }

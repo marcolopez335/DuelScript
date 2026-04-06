@@ -13,24 +13,32 @@ card "Tindangle Acute Cerberus" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 1
+        code: 100
+        property: 131072
+        range: 4
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 1
+        code: 100
+        property: 131072
+        range: 4
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
+    raw_effect "Effect 3" {
+        effect_type: 130
+        category: 1536
+        code: 4224
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             create_token { atk: 0 def: 0 }
             special_summon (1, monster) from gy

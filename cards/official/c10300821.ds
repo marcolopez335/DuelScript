@@ -14,29 +14,34 @@ card "Number C79: Battlin' Boxer General Kaiser" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 1
+        code: 100
+        property: 131072
+        range: 4
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 32769
+        code: 1105
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             negate summon
             destroy (1+, card, either_player controls)
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when attack_declared
+    raw_effect "Effect 3" {
+        effect_type: 130
+        category: 32
+        code: 1130
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             send (1, card) to gy
             attach (1, card) to self as_material

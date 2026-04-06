@@ -136,52 +136,36 @@ pub fn transpile_lua_to_ds(
         if l.contains("EnableReviveLimit")    { ds.push_str("    summon_condition {\n        cannot_normal_summon: true\n    }\n\n"); break; }
     }
 
-    // Effects — using extracted blocks
+    // v0.6: Emit raw_effect blocks with exact Lua bitfields
+    // This preserves the exact effect_type/category/code/range/count_limit
+    // from the Lua script, bypassing type_mapper inference entirely.
     for (i, effect) in effects.iter().enumerate() {
-        // Skip summon proc effects
+        // Skip summon proc effects (handled by materials block)
         if effect.code.as_deref() == Some("EFFECT_SPSUMMON_PROC") { continue; }
         if effect.code.as_deref().map(|c| c.contains("946") || c.contains("948") || c.contains("950")).unwrap_or(false) { continue; }
 
-        ds.push_str(&format!("    effect \"Effect {}\" {{\n", i + 1));
+        let effect_type = resolve_lua_constant_expr(effect.effect_type.as_deref().unwrap_or("0"));
+        let category    = resolve_lua_constant_expr(effect.category.as_deref().unwrap_or("0"));
+        let code        = resolve_lua_constant_expr(effect.code.as_deref().unwrap_or("0"));
+        let property    = resolve_lua_constant_expr(effect.property.as_deref().unwrap_or("0"));
+        let range       = resolve_lua_constant_expr(effect.range.as_deref().unwrap_or("0"));
 
-        // Speed
-        let is_quick = effect.effect_type.as_deref()
-            .map(|t| t.contains("QUICK")).unwrap_or(false);
-        ds.push_str(&format!("        speed: {}\n", if is_quick { "spell_speed_2" } else { "spell_speed_1" }));
+        ds.push_str(&format!("    raw_effect \"Effect {}\" {{\n", i + 1));
+        if effect_type != 0 { ds.push_str(&format!("        effect_type: {}\n", effect_type)); }
+        if category != 0    { ds.push_str(&format!("        category: {}\n", category)); }
+        if code != 0        { ds.push_str(&format!("        code: {}\n", code)); }
+        if property != 0    { ds.push_str(&format!("        property: {}\n", property)); }
+        if range != 0       { ds.push_str(&format!("        range: {}\n", range)); }
 
-        // OPT
         if let Some(ref cl) = effect.count_limit {
-            if cl.contains(",id") || cl.contains(", id") {
-                ds.push_str("        once_per_turn: hard\n");
-            } else {
-                ds.push_str("        once_per_turn: soft\n");
-            }
-        }
-
-        // Optional
-        if effect.effect_type.as_deref().map(|t| t.contains("_O")).unwrap_or(false) {
-            ds.push_str("        optional: true\n");
-        }
-
-        // Activate from
-        if let Some(ref range) = effect.range {
-            if range.contains("LOCATION_HAND") && range.contains("LOCATION_MZONE") {
-                ds.push_str("        activate_from: [hand, monster_zone]\n");
-            } else if range.contains("LOCATION_HAND") && range.contains("LOCATION_GRAVE") {
-                ds.push_str("        activate_from: [hand, gy]\n");
-            }
-        }
-
-        // Damage step
-        if effect.property.as_deref().map(|p| p.contains("DAMAGE_STEP")).unwrap_or(false) {
-            ds.push_str("        damage_step: true\n");
-        }
-
-        // Trigger
-        if let Some(ref code) = effect.code {
-            if let Some(trigger) = code_to_trigger(code) {
-                ds.push_str(&format!("        trigger: {}\n", trigger));
-            }
+            // Parse "(1,id)" or "(1, id)" or "(1)" etc.
+            let cleaned = cl.trim();
+            let parts: Vec<&str> = cleaned.split(',').map(|s| s.trim()).collect();
+            let count: u32 = parts.get(0).and_then(|s| s.parse().ok()).unwrap_or(1);
+            let code_val: u32 = parts.get(1).map(|s| {
+                if *s == "id" { passcode as u32 } else { s.parse().unwrap_or(0) }
+            }).unwrap_or(0);
+            ds.push_str(&format!("        count_limit: ({}, {})\n", count, code_val));
         }
 
         // Cost — resolve function body
@@ -209,7 +193,6 @@ pub fn transpile_lua_to_ds(
 
         if let Some(ref op_key) = effect.operation_fn {
             let op_name = op_key.trim_start_matches("s.");
-            // Handle inline lambda: function() Duel.X() end
             if op_key.contains("Duel.") {
                 if let Some(action) = inline_to_action(op_key) {
                     ds.push_str(&format!("            {}\n", action));
@@ -227,17 +210,6 @@ pub fn transpile_lua_to_ds(
                     } else {
                         unmapped.push(format!("Duel.{}", call.method));
                     }
-                }
-            }
-        }
-
-        // Fallback from categories
-        if !has_actions {
-            if let Some(ref cat) = effect.category {
-                let cat_actions = category_to_actions(cat);
-                for a in &cat_actions {
-                    ds.push_str(&format!("            {}\n", a));
-                    has_actions = true;
                 }
             }
         }
@@ -370,6 +342,137 @@ fn extract_paren(s: &str) -> String {
         }
     }
     String::new()
+}
+
+/// Resolve a Lua constant expression like "EFFECT_TYPE_ACTIVATE+EFFECT_TYPE_IGNITION"
+/// into a single u32. Supports + and | (bitwise OR) and common constants.
+pub fn resolve_lua_constant_expr(expr: &str) -> u32 {
+    let cleaned = expr.trim();
+    if cleaned.is_empty() { return 0; }
+
+    let mut total = 0u32;
+    for part in cleaned.split(|c| c == '+' || c == '|') {
+        let t = part.trim();
+        if t.is_empty() { continue; }
+        if let Ok(n) = t.parse::<u32>() {
+            total |= n;
+            continue;
+        }
+        // Handle hex
+        if let Some(hex) = t.strip_prefix("0x") {
+            if let Ok(n) = u32::from_str_radix(hex, 16) {
+                total |= n;
+                continue;
+            }
+        }
+        total |= lookup_lua_constant(t);
+    }
+    total
+}
+
+pub fn lookup_lua_constant(name: &str) -> u32 {
+    match name {
+        // Effect types
+        "EFFECT_TYPE_SINGLE" => 0x1, "EFFECT_TYPE_FIELD" => 0x2, "EFFECT_TYPE_EQUIP" => 0x4,
+        "EFFECT_TYPE_ACTIONS" => 0x8, "EFFECT_TYPE_ACTIVATE" => 0x10, "EFFECT_TYPE_FLIP" => 0x20,
+        "EFFECT_TYPE_IGNITION" => 0x40, "EFFECT_TYPE_TRIGGER_O" => 0x80, "EFFECT_TYPE_QUICK_O" => 0x100,
+        "EFFECT_TYPE_TRIGGER_F" => 0x200, "EFFECT_TYPE_QUICK_F" => 0x400, "EFFECT_TYPE_CONTINUOUS" => 0x800,
+        "EFFECT_TYPE_XMATERIAL" => 0x1000, "EFFECT_TYPE_GRANT" => 0x2000, "EFFECT_TYPE_TARGET" => 0x4000,
+
+        // Categories
+        "CATEGORY_DESTROY" => 0x1, "CATEGORY_RELEASE" => 0x2, "CATEGORY_REMOVE" => 0x4,
+        "CATEGORY_TOHAND" => 0x8, "CATEGORY_TODECK" => 0x10, "CATEGORY_TOGRAVE" => 0x20,
+        "CATEGORY_DECKDES" => 0x40, "CATEGORY_HANDES" => 0x80, "CATEGORY_SUMMON" => 0x100,
+        "CATEGORY_SPECIAL_SUMMON" => 0x200, "CATEGORY_TOKEN" => 0x400, "CATEGORY_FLIP" => 0x800,
+        "CATEGORY_POSITION" => 0x1000, "CATEGORY_CONTROL" => 0x2000, "CATEGORY_DISABLE" => 0x4000,
+        "CATEGORY_DISABLE_SUMMON" => 0x8000, "CATEGORY_DRAW" => 0x10000, "CATEGORY_SEARCH" => 0x20000,
+        "CATEGORY_EQUIP" => 0x40000, "CATEGORY_DAMAGE" => 0x80000, "CATEGORY_RECOVER" => 0x100000,
+        "CATEGORY_ATKCHANGE" => 0x200000, "CATEGORY_DEFCHANGE" => 0x400000, "CATEGORY_COUNTER" => 0x800000,
+        "CATEGORY_COIN" => 0x1000000, "CATEGORY_DICE" => 0x2000000, "CATEGORY_LEAVE_GRAVE" => 0x4000000,
+        "CATEGORY_LVCHANGE" => 0x8000000, "CATEGORY_NEGATE" => 0x10000000, "CATEGORY_ANNOUNCE" => 0x20000000,
+        "CATEGORY_FUSION_SUMMON" => 0x40000000,
+
+        // Events
+        "EVENT_STARTUP" => 1000, "EVENT_FLIP" => 1001, "EVENT_FREE_CHAIN" => 1002,
+        "EVENT_DESTROY" => 1010, "EVENT_REMOVE" => 1011, "EVENT_TO_HAND" => 1012,
+        "EVENT_TO_DECK" => 1013, "EVENT_TO_GRAVE" => 1014, "EVENT_LEAVE_FIELD" => 1015,
+        "EVENT_CHANGE_POS" => 1016, "EVENT_RELEASE" => 1017, "EVENT_DISCARD" => 1018,
+        "EVENT_CHAIN_SOLVING" => 1020, "EVENT_CHAIN_ACTIVATING" => 1021, "EVENT_CHAIN_SOLVED" => 1022,
+        "EVENT_CHAIN_NEGATED" => 1024, "EVENT_CHAIN_DISABLED" => 1025, "EVENT_CHAIN_END" => 1026,
+        "EVENT_CHAINING" => 1027, "EVENT_BECOME_TARGET" => 1028, "EVENT_DESTROYED" => 1029,
+        "EVENT_MOVE" => 1030, "EVENT_LEAVE_GRAVE" => 1031, "EVENT_ADJUST" => 1040,
+        "EVENT_BREAK_EFFECT" => 1050, "EVENT_SUMMON_SUCCESS" => 1100,
+        "EVENT_FLIP_SUMMON_SUCCESS" => 1101, "EVENT_SPSUMMON_SUCCESS" => 1102,
+        "EVENT_SUMMON" => 1103, "EVENT_FLIP_SUMMON" => 1104, "EVENT_SPSUMMON" => 1105,
+        "EVENT_MSET" => 1106, "EVENT_SSET" => 1107, "EVENT_BE_MATERIAL" => 1108,
+        "EVENT_BE_PRE_MATERIAL" => 1109, "EVENT_DRAW" => 1110, "EVENT_DAMAGE" => 1111,
+        "EVENT_RECOVER" => 1112, "EVENT_PREDRAW" => 1113, "EVENT_SUMMON_NEGATED" => 1114,
+        "EVENT_FLIP_SUMMON_NEGATED" => 1115, "EVENT_SPSUMMON_NEGATED" => 1116,
+        "EVENT_CONTROL_CHANGED" => 1120, "EVENT_EQUIP" => 1121,
+        "EVENT_ATTACK_ANNOUNCE" => 1130, "EVENT_BE_BATTLE_TARGET" => 1131,
+        "EVENT_BATTLE_START" => 1132, "EVENT_BATTLE_CONFIRM" => 1133,
+        "EVENT_PRE_DAMAGE_CALCULATE" => 1134, "EVENT_DAMAGE_STEP_END" => 1136,
+        "EVENT_BATTLED" => 1137, "EVENT_BATTLE_DAMAGE" => 1138,
+        "EVENT_BATTLE_DESTROYING" => 1139, "EVENT_BATTLE_DESTROYED" => 1140,
+        "EVENT_ATTACK_DISABLED" => 1141, "EVENT_PHASE" => 0x1000, "EVENT_PHASE_START" => 0x2000,
+
+        // Phases
+        "PHASE_DRAW" => 0x1, "PHASE_STANDBY" => 0x2, "PHASE_MAIN1" => 0x4,
+        "PHASE_BATTLE_START" => 0x8, "PHASE_BATTLE_STEP" => 0x10, "PHASE_DAMAGE" => 0x20,
+        "PHASE_DAMAGE_CAL" => 0x40, "PHASE_BATTLE" => 0x80, "PHASE_MAIN2" => 0x100,
+        "PHASE_END" => 0x200,
+
+        // Locations
+        "LOCATION_DECK" => 0x1, "LOCATION_HAND" => 0x2, "LOCATION_MZONE" => 0x4,
+        "LOCATION_SZONE" => 0x8, "LOCATION_GRAVE" => 0x10, "LOCATION_REMOVED" => 0x20,
+        "LOCATION_EXTRA" => 0x40, "LOCATION_FZONE" => 0x100, "LOCATION_PZONE" => 0x200,
+        "LOCATION_ONFIELD" => 0xc, "LOCATION_OVERLAY" => 0x80,
+
+        // Effect flags
+        "EFFECT_FLAG_INITIAL" => 0x1, "EFFECT_FLAG_FUNC_VALUE" => 0x2,
+        "EFFECT_FLAG_COUNT_LIMIT" => 0x4, "EFFECT_FLAG_FIELD_ONLY" => 0x8,
+        "EFFECT_FLAG_CARD_TARGET" => 0x10, "EFFECT_FLAG_IGNORE_RANGE" => 0x20,
+        "EFFECT_FLAG_ABSOLUTE_TARGET" => 0x40, "EFFECT_FLAG_IGNORE_IMMUNE" => 0x80,
+        "EFFECT_FLAG_SET_AVAILABLE" => 0x100, "EFFECT_FLAG_CANNOT_NEGATE" => 0x200,
+        "EFFECT_FLAG_CANNOT_DISABLE" => 0x400, "EFFECT_FLAG_PLAYER_TARGET" => 0x800,
+        "EFFECT_FLAG_BOTH_SIDE" => 0x1000, "EFFECT_FLAG_COPY_INHERIT" => 0x2000,
+        "EFFECT_FLAG_DAMAGE_STEP" => 0x4000, "EFFECT_FLAG_DAMAGE_CAL" => 0x8000,
+        "EFFECT_FLAG_DELAY" => 0x10000, "EFFECT_FLAG_SINGLE_RANGE" => 0x20000,
+        "EFFECT_FLAG_UNCOPYABLE" => 0x40000, "EFFECT_FLAG_OATH" => 0x80000,
+        "EFFECT_FLAG_SPSUM_PARAM" => 0x100000, "EFFECT_FLAG_REPEAT" => 0x200000,
+        "EFFECT_FLAG_NO_TURN_RESET" => 0x400000, "EFFECT_FLAG_EVENT_PLAYER" => 0x800000,
+        "EFFECT_FLAG_OWNER_RELATE" => 0x1000000, "EFFECT_FLAG_CANNOT_INACTIVATE" => 0x2000000,
+        "EFFECT_FLAG_CLIENT_HINT" => 0x4000000, "EFFECT_FLAG_CONTINUOUS_TARGET" => 0x8000000,
+        "EFFECT_FLAG_LIMIT_ZONE" => 0x10000000, "EFFECT_FLAG_IMMEDIATELY_APPLY" => 0x80000000,
+
+        // Effect codes (common ones)
+        "EFFECT_DISABLE" => 2, "EFFECT_UPDATE_ATTACK" => 100, "EFFECT_UPDATE_DEFENSE" => 104,
+        "EFFECT_SPSUMMON_CONDITION" => 30, "EFFECT_REVIVE_LIMIT" => 31, "EFFECT_SPSUMMON_PROC" => 34,
+        "EFFECT_SPSUMMON_PROC_G" => 320, "EFFECT_CANNOT_SUMMON" => 50,
+        "EFFECT_CANNOT_FLIP_SUMMON" => 51, "EFFECT_CANNOT_SPECIAL_SUMMON" => 52,
+        "EFFECT_CANNOT_MSET" => 53, "EFFECT_CANNOT_SSET" => 54,
+        "EFFECT_CANNOT_CHANGE_POSITION" => 56, "EFFECT_CANNOT_BE_EFFECT_TARGET" => 60,
+        "EFFECT_CANNOT_ATTACK" => 62, "EFFECT_CANNOT_ATTACK_ANNOUNCE" => 63,
+        "EFFECT_INDESTRUCTABLE" => 65, "EFFECT_INDESTRUCTABLE_BATTLE" => 66,
+        "EFFECT_INDESTRUCTABLE_EFFECT" => 67, "EFFECT_CANNOT_BE_BATTLE_TARGET" => 68,
+        "EFFECT_CANNOT_ACTIVATE" => 75, "EFFECT_DISABLE_EFFECT" => 76,
+        "EFFECT_CANNOT_TRIGGER" => 78, "EFFECT_PIERCE" => 80,
+        "EFFECT_DIRECT_ATTACK" => 82, "EFFECT_EXTRA_ATTACK" => 84,
+        "EFFECT_SET_ATTACK" => 91, "EFFECT_SET_ATTACK_FINAL" => 92,
+        "EFFECT_SET_BASE_ATTACK" => 93, "EFFECT_SWAP_ATTACK_FINAL" => 97,
+        "EFFECT_UPDATE_LEVEL" => 110, "EFFECT_CHANGE_LEVEL" => 113,
+        "EFFECT_CHANGE_ATTRIBUTE" => 121, "EFFECT_CHANGE_CODE" => 129,
+        "EFFECT_DESTROY_REPLACE" => 202, "EFFECT_SEND_REPLACE" => 203,
+        "EFFECT_LEAVE_FIELD_REDIRECT" => 205, "EFFECT_TO_GRAVE_REDIRECT" => 206,
+        "EFFECT_IMMUNE_EFFECT" => 308, "EFFECT_EQUIP_LIMIT" => 311,
+        "EFFECT_MATERIAL_CHECK" => 312, "EFFECT_CANNOT_DISABLE_SPSUMMON" => 77,
+        "EFFECT_CANNOT_BE_FUSION_MATERIAL" => 310, "EFFECT_ADD_TYPE" => 118,
+        "EFFECT_REMOVE_TYPE" => 119, "EFFECT_ADD_RACE" => 120,
+        "EFFECT_REMOVE_RACE" => 122, "EFFECT_ADD_ATTRIBUTE" => 123,
+        "EFFECT_REMOVE_ATTRIBUTE" => 124,
+
+        _ => 0,
+    }
 }
 
 fn code_to_trigger(code: &str) -> Option<&'static str> {

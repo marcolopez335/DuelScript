@@ -10,14 +10,17 @@ card "Hushed Psychic Minister" {
     atk: 0
     def: 2100
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 4
+        property: 16
+        range: 16
+        count_limit: (1, 0)
         cost {
             banish self
         }
         on_resolve {
-            banish (1, card)
+            reveal self
         }
     }
 

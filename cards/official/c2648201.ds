@@ -10,26 +10,29 @@ card "ZW - Sleipnir Mail" {
     atk: 1000
     def: 1000
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        activate_from: [hand, monster_zone]
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 262144
+        property: 16
+        range: 6
         on_resolve {
             send (1, card) to gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        damage_step: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 512
+        code: 1014
+        property: 16400
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 4
+        code: 100
         on_resolve {
             reveal self
         }

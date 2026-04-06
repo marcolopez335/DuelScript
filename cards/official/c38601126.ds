@@ -10,23 +10,30 @@ card "Robot Buster Destruction Sword" {
     atk: 1600
     def: 1200
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        activate_from: [hand, monster_zone]
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 262144
+        property: 16
+        range: 6
         on_resolve {
             send (1, card) to gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 2
+        code: 75
+        property: 2048
+        range: 8
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 64
+        category: 2097152
+        range: 8
         cost {
             send self to gy
         }
@@ -35,15 +42,17 @@ card "Robot Buster Destruction Sword" {
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 1
+        code: 311
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 5" {
-        speed: spell_speed_1
+    raw_effect "Effect 5" {
+        effect_type: 1
+        code: 100
         on_resolve {
             reveal self
         }

@@ -10,10 +10,13 @@ card "Veidos the Eruption Dragon of Extinction" {
     atk: 2800
     def: 1500
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 256
+        category: 131593
+        code: 1002
+        property: 16
+        range: 2
+        count_limit: (1, 78783557)
         on_resolve {
             special_summon (1, monster) from gy
             destroy (1+, card, either_player controls)
@@ -21,11 +24,12 @@ card "Veidos the Eruption Dragon of Extinction" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 1
+        code: 1014
+        property: 65536
+        count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
         }

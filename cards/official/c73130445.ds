@@ -11,21 +11,24 @@ card "Performapal Lizardraw" {
     atk: 1200
     def: 600
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 65537
+        range: 512
+        count_limit: (1, 73130445)
         on_resolve {
             destroy (1+, card, either_player controls)
             draw 1
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        damage_step: true
-        trigger: when_destroyed
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 65536
+        code: 1029
+        property: 81920
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             draw 1
         }

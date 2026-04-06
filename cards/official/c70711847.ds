@@ -10,8 +10,11 @@ card "Danger! Nessie!" {
     atk: 1600
     def: 2800
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 66176
+        code: 1002
+        range: 2
         on_resolve {
             shuffle deck
             send (1, card) to gy
@@ -20,11 +23,12 @@ card "Danger! Nessie!" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 131080
+        code: 1014
+        property: 65536
+        count_limit: (1, 70711847)
         on_resolve {
             add_to_hand (1, card) from gy
         }

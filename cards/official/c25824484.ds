@@ -10,18 +10,20 @@ card "Sylvan Hermitree" {
     atk: 2700
     def: 1800
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 65600
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             send (1, card) to gy
             draw 1
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 513
+        code: 1014
         on_resolve {
             reveal self
         }

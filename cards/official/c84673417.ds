@@ -10,9 +10,12 @@ card "Jain, Twilightsworn General" {
     atk: 1800
     def: 1200
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 6291456
+        property: 16
+        range: 4
+        count_limit: (1, 0)
         cost {
             banish self
         }
@@ -21,17 +24,20 @@ card "Jain, Twilightsworn General" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 2" {
+        effect_type: 514
+        category: 64
+        code: 1027
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             mill 2
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 100
         on_resolve {
             reveal self
         }

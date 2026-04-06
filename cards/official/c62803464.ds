@@ -10,9 +10,11 @@ card "Aussa the Earth Channeler" {
     atk: 1850
     def: 1500
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 131080
+        range: 2
+        count_limit: (1, 62803464)
         cost {
             send self to gy
         }
@@ -21,18 +23,21 @@ card "Aussa the Earth Channeler" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_battle_destroyed
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 512
+        code: 1140
+        range: 2
+        count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 2
+        code: 75
+        property: 67110912
         on_resolve {
             reveal self
         }

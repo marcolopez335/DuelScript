@@ -5,33 +5,37 @@ card "Screams of the Branded" {
     password: 67100549
     type: Normal Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 512
+        code: 1002
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 2049
+        code: 1014
+        property: 1024
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        trigger: when_sent_to gy
+    raw_effect "Effect 3" {
+        effect_type: 2050
+        code: 1014
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
+    raw_effect "Effect 4" {
+        effect_type: 256
+        code: 1002
+        range: 16
+        count_limit: (1, 67100549)
         on_resolve {
             set (1, card)
         }

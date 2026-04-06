@@ -5,18 +5,22 @@ card "EN Shuffle" {
     password: 10186633
     type: Normal Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 528
+        code: 1002
+        count_limit: (1, 0)
         on_resolve {
             return (1, card) to deck shuffle
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 65552
+        range: 16
+        count_limit: (1, 0)
         cost {
             banish self
         }

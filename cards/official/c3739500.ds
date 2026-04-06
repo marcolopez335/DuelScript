@@ -14,28 +14,34 @@ card "End of the World Ruler" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        activate_from: [hand, monster_zone]
+    raw_effect "Effect 1" {
+        effect_type: 1
+        code: 129
+        property: 131072
+        range: 6
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 512
+        range: 2
+        count_limit: (1, 3739500)
         cost {
             reveal self
         }
         on_resolve {
-            special_summon (1, monster) from gy
+            reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 3" {
+        effect_type: 64
+        category: 2097153
+        range: 4
+        count_limit: (1, 0)
         cost {
             pay_lp 1000
         }

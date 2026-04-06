@@ -5,16 +5,19 @@ card "Chronomaly Temple - Trilithon" {
     password: 98204536
     type: Continuous Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        code: 1002
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 256
+        range: 8
+        count_limit: (1, 98204536)
         cost {
             pay_lp 1000
         }
@@ -23,9 +26,10 @@ card "Chronomaly Temple - Trilithon" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 3" {
+        effect_type: 2050
+        range: 8
+        count_limit: (1, 0)
         on_resolve {
             send (1, card) to gy
         }

@@ -5,20 +5,23 @@ card "Armed Rebeellion" {
     password: 21056275
     type: Normal Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 544
+        code: 1002
+        count_limit: (1, 21056275)
         on_resolve {
             special_summon (1, monster) from gy
             send (1, card) to gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        damage_step: true
-        trigger: when_destroyed
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 8
+        code: 1029
+        property: 16384
+        range: 16
         cost {
             banish self
         }
@@ -27,8 +30,10 @@ card "Armed Rebeellion" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 2
+        code: 52
+        property: 67110912
         on_resolve {
             reveal self
         }

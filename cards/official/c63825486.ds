@@ -10,33 +10,40 @@ card "Gimmick Puppet Rouge Doll" {
     atk: 400
     def: 1400
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 512
+        range: 2
+        count_limit: (1, 63825486)
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 8
+        code: 1014
+        property: 65536
+        count_limit: (1, 0)
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 2
+        code: 52
+        property: 67635200
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 2
+        code: 52
+        property: 67635200
         on_resolve {
             reveal self
         }

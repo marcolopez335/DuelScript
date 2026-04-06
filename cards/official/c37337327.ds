@@ -13,19 +13,22 @@ card "Junk Connector" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 256
+        category: 512
+        code: 1002
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
-            special_summon (1, monster) from gy
+            reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 512
+        code: 1014
+        property: 65536
         on_resolve {
             special_summon (1, monster) from gy
         }

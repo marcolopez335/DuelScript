@@ -5,8 +5,9 @@ card "Infinite Machine" {
     password: 36894320
     type: Continuous Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        code: 1002
         cost {
             send self to gy
         }
@@ -15,24 +16,32 @@ card "Infinite Machine" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 2049
+        code: 202
+        property: 131072
+        range: 8
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_2
-        optional: true
+    raw_effect "Effect 3" {
+        effect_type: 256
+        category: 512
+        code: 1002
+        range: 8
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_2
-        optional: true
+    raw_effect "Effect 4" {
+        effect_type: 256
+        category: 16
+        code: 1002
+        property: 16
+        range: 8
         on_resolve {
             return (1, card) to deck shuffle
             set (1, card)

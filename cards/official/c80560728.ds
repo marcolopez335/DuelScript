@@ -5,9 +5,10 @@ card "Dimension Mirage" {
     password: 80560728
     type: Continuous Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 130
+        code: 1136
+        range: 8
         cost {
             banish self
         }
@@ -16,16 +17,17 @@ card "Dimension Mirage" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        trigger: when_leaves_field
+    raw_effect "Effect 2" {
+        effect_type: 2050
+        code: 1015
+        range: 8
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
         on_resolve {
             reveal self
         }

@@ -10,21 +10,24 @@ card "Magnet Warrior Omega Plus" {
     atk: 800
     def: 1900
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        activate_from: [hand, gy]
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 517
+        range: 18
+        count_limit: (1, 86289475)
         on_resolve {
             destroy (1+, card, either_player controls)
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 4096
+        code: 1027
+        property: 16
+        range: 4
+        count_limit: (1, 0)
         cost {
             tribute self
         }
@@ -33,8 +36,10 @@ card "Magnet Warrior Omega Plus" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 205
+        property: 67109888
         on_resolve {
             reveal self
         }

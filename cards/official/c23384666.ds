@@ -10,20 +10,22 @@ card "Gizmek Taniguku, the Immobile Intellect" {
     atk: 1450
     def: 1450
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        damage_step: true
-        trigger: when_summoned
+    raw_effect "Effect 1" {
+        effect_type: 129
+        code: 1100
+        property: 114688
+        count_limit: (1, 23384666)
         on_resolve {
             shuffle deck
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 512
+        property: 16
+        range: 16
+        count_limit: (1, 0)
         cost {
             banish self
         }

@@ -10,18 +10,22 @@ card "D.D. Guide" {
     atk: 1400
     def: 1000
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        trigger: when_summoned
+    raw_effect "Effect 1" {
+        effect_type: 513
+        category: 8192
+        code: 1100
         on_resolve {
             take_control of (1, monster, opponent controls)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: during_end_phase
+    raw_effect "Effect 2" {
+        effect_type: 514
+        category: 4
+        code: 4608
+        property: 16
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             banish (1+, card)
         }

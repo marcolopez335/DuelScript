@@ -14,29 +14,32 @@ card "Saffira, Queen of Dragons" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 1" {
+        effect_type: 2049
+        code: 1102
+        property: 1024
+        count_limit: (1, 0)
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 2050
+        code: 1014
+        property: 1024
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: during_end_phase
+    raw_effect "Effect 3" {
+        effect_type: 130
+        code: 4608
+        range: 4
+        count_limit: (1, 56350972)
         on_resolve {
             draw 2
             shuffle deck

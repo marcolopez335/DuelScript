@@ -5,49 +5,59 @@ card "SPYRAL MISSION - Recapture" {
     password: 39373426
     type: Continuous Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        code: 1002
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 2" {
+        effect_type: 16
+        category: 8192
+        code: 1102
+        property: 65552
+        count_limit: (1, 0)
         on_resolve {
             take_control of (1, monster, opponent controls)
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 2050
+        code: 202
+        range: 16
         on_resolve {
             banish (1+, card)
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: during_end_phase
+    raw_effect "Effect 4" {
+        effect_type: 2050
+        code: 4608
+        property: 1024
+        range: 8
+        count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
-    effect "Effect 5" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: during_end_phase
+    raw_effect "Effect 5" {
+        effect_type: 2050
+        code: 4608
+        property: 1024
+        range: 8
+        count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
-    effect "Effect 6" {
-        speed: spell_speed_1
+    raw_effect "Effect 6" {
+        effect_type: 1
+        property: 67109888
         on_resolve {
             reveal self
         }

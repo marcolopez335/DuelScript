@@ -10,25 +10,32 @@ card "Krawler Soma" {
     atk: 2000
     def: 2500
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 4608
+        property: 16
+        range: 2
+        count_limit: (1, 63526052)
         on_resolve {
             special_summon (1, monster) from gy
             change_battle_position (1, monster)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 134218240
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 56
+        property: 67108864
         on_resolve {
             reveal self
         }

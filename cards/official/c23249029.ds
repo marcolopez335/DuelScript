@@ -5,16 +5,19 @@ card "Cursed Copycat Noble Arms" {
     password: 23249029
     type: Equip Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 4
+        code: 100
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 262657
+        range: 8
+        count_limit: (1, 23249029)
         on_resolve {
             special_summon (1, monster) from gy
             equip (1, card) to (1, monster)
@@ -22,8 +25,10 @@ card "Cursed Copycat Noble Arms" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 2
+        code: 52
+        property: 67110912
         on_resolve {
             reveal self
         }

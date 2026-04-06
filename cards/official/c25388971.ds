@@ -5,18 +5,21 @@ card "Sangen Kaiho" {
     password: 25388971
     type: Normal Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 16
+        code: 1002
+        count_limit: (1, 25388971)
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 66048
+        code: 1002
+        range: 16
+        count_limit: (1, 0)
         cost {
             banish self
         }
@@ -27,9 +30,9 @@ card "Sangen Kaiho" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        trigger: when attack_declared
+    raw_effect "Effect 3" {
+        effect_type: 2050
+        code: 1130
         on_resolve {
             reveal self
         }

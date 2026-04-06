@@ -11,26 +11,27 @@ card "Performapal Trumpanda" {
     atk: 800
     def: 800
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 1" {
+        effect_type: 64
+        range: 512
+        count_limit: (1, 0)
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when_attacked
+    raw_effect "Effect 2" {
+        effect_type: 130
+        code: 1131
+        range: 4
+        count_limit: (1, 32787239)
         on_resolve {
             negate attack
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
         on_resolve {
             reveal self
         }

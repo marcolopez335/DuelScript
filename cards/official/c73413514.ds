@@ -10,35 +10,41 @@ card "Neverending Nightmare Absorber" {
     atk: 0
     def: 0
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        activate_from: [hand, gy]
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 1" {
+        effect_type: 130
+        category: 513
+        code: 1027
+        range: 18
+        count_limit: (1, 73413514)
         on_resolve {
             special_summon (1, monster) from gy
             destroy (1+, card, either_player controls)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 2" {
+        effect_type: 2050
+        code: 1027
+        property: 1024
+        range: 4
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 2050
+        code: 1022
+        range: 4
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 1
+        code: 100
+        property: 8192
         on_resolve {
             reveal self
         }

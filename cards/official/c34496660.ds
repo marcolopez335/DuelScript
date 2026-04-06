@@ -10,25 +10,27 @@ card "Superheavy Samurai Wagon" {
     atk: 1200
     def: 1800
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_summoned
+    raw_effect "Effect 1" {
+        effect_type: 129
+        category: 4096
+        code: 1100
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 1
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 3" {
+        effect_type: 64
+        category: 131080
+        range: 4
+        count_limit: (1, 34496660)
         on_resolve {
             change_battle_position (1, monster)
             add_to_hand (1, card) from gy

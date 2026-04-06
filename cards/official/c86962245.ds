@@ -10,9 +10,12 @@ card "Salamangreat Foxer" {
     atk: 1200
     def: 1000
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 17
+        property: 16
+        range: 2
+        count_limit: (1, 86962245)
         cost {
             send self to gy
         }
@@ -22,11 +25,13 @@ card "Salamangreat Foxer" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 512
+        code: 1014
+        property: 65536
+        range: 16
+        count_limit: (1, 86962245)
         on_resolve {
             special_summon (1, monster) from gy
         }

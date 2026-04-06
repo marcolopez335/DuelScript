@@ -5,16 +5,19 @@ card "U.A. Hyper Stadium" {
     password: 12931061
     type: Field Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 131080
+        code: 1002
+        count_limit: (1, 12931061)
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 64
+        range: 256
         cost {
             pay_lp your_lp / 2
         }
@@ -23,8 +26,8 @@ card "U.A. Hyper Stadium" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 2
         on_resolve {
             reveal self
         }

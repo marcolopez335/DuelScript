@@ -10,25 +10,27 @@ card "Fluffal Owl" {
     atk: 1000
     def: 1000
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        damage_step: true
-        trigger: when_summoned
+    raw_effect "Effect 1" {
+        effect_type: 129
+        category: 131080
+        code: 1100
+        property: 16384
+        count_limit: (1, 65331686)
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 1073742336
+        range: 4
+        count_limit: (1, 65331686)
         cost {
             pay_lp 1000
         }
         on_resolve {
-            special_summon (1, monster) from gy
+            reveal self
         }
     }
 

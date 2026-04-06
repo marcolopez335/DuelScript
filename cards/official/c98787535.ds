@@ -10,9 +10,11 @@ card "Aleirtt, the Ogdoadic Dark" {
     atk: 2000
     def: 800
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 512
+        range: 16
+        count_limit: (1, 98787535)
         cost {
             tribute self
         }
@@ -22,11 +24,12 @@ card "Aleirtt, the Ogdoadic Dark" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 32
+        code: 1102
+        property: 65552
+        count_limit: (1, 0)
         on_resolve {
             send (1, card) to gy
         }

@@ -5,17 +5,21 @@ card "Arcana Reading" {
     password: 11819473
     type: Normal Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 16908296
+        code: 1002
+        count_limit: (1, 11819473)
         on_resolve {
-            add_to_hand (1, card) from gy
+            reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 256
+        range: 16
+        count_limit: (1, 0)
         cost {
             banish self
         }

@@ -5,30 +5,37 @@ card "Phantom Knights' Spear" {
     password: 98153934
     type: Continuous Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        code: 1002
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 2" {
+        effect_type: 2050
+        code: 1027
+        range: 8
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 2050
+        code: 202
+        range: 16
         on_resolve {
             banish (1+, card)
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 2050
+        code: 1020
+        property: 65536
+        range: 8
         on_resolve {
             deal_damage to opponent: 500
         }

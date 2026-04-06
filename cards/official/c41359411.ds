@@ -5,9 +5,10 @@ card "Noble Arms - Clarent" {
     password: 41359411
     type: Equip Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 1" {
+        effect_type: 64
+        range: 8
+        count_limit: (1, 0)
         cost {
             pay_lp 1000
         }
@@ -16,19 +17,20 @@ card "Noble Arms - Clarent" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        damage_step: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 262144
+        code: 1014
+        property: 81936
+        count_limit: (1, 41359411)
         on_resolve {
             equip (1, card) to (1, monster)
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 4
+        code: 82
         on_resolve {
             reveal self
         }

@@ -10,8 +10,11 @@ card "Danger! Chupacabra!" {
     atk: 1500
     def: 400
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 66176
+        code: 1002
+        range: 2
         on_resolve {
             shuffle deck
             send (1, card) to gy
@@ -20,11 +23,12 @@ card "Danger! Chupacabra!" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 512
+        code: 1014
+        property: 65552
+        count_limit: (1, 16209941)
         on_resolve {
             special_summon (1, monster) from gy
         }

@@ -10,18 +10,21 @@ card "Speedroid Ultra Hound" {
     atk: 800
     def: 800
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_summoned
+    raw_effect "Effect 1" {
+        effect_type: 129
+        category: 32
+        code: 1100
         on_resolve {
             send (1, card) to gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 528
+        property: 16
+        range: 16
+        count_limit: (1, 86976918)
         cost {
             banish self
         }
@@ -31,15 +34,17 @@ card "Speedroid Ultra Hound" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 2
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 1
+        code: 76
         on_resolve {
             reveal self
         }

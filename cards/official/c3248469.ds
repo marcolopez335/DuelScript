@@ -10,12 +10,11 @@ card "Wannabee!" {
     atk: 0
     def: 0
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        activate_from: [hand, monster_zone]
-        trigger: during_end_phase
+    raw_effect "Effect 1" {
+        effect_type: 130
+        code: 4608
+        range: 6
+        count_limit: (1, 3248469)
         cost {
             send self to gy
         }
@@ -24,10 +23,11 @@ card "Wannabee!" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: during_end_phase
+    raw_effect "Effect 2" {
+        effect_type: 2050
+        code: 4608
+        property: 384
+        count_limit: (1, 0)
         on_resolve {
             send (1, card) to gy
         }

@@ -10,18 +10,21 @@ card "Springans Branga" {
     atk: 500
     def: 2500
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        activate_from: [hand, monster_zone]
+    raw_effect "Effect 1" {
+        effect_type: 64
+        property: 16
+        range: 22
+        count_limit: (1, 83203672)
         on_resolve {
             attach (1, card) to self as_material
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 131080
+        range: 16
+        count_limit: (1, 0)
         cost {
             banish self
         }

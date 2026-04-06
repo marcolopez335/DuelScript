@@ -10,24 +10,29 @@ card "Galaxy-Eyes Photon Dragon" {
     atk: 3000
     def: 2500
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 4
+        code: 1002
+        property: 16
+        range: 4
         on_resolve {
             banish (1+, card)
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 3" {
+        effect_type: 2050
+        code: 4224
+        count_limit: (1, 0)
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 1
+        code: 100
         on_resolve {
             reveal self
         }

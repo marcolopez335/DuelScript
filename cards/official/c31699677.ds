@@ -10,10 +10,12 @@ card "Magikuriboh" {
     atk: 300
     def: 200
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 256
+        category: 512
+        code: 1002
+        range: 2
+        count_limit: (1, 31699677)
         cost {
             send self to gy
         }
@@ -22,19 +24,21 @@ card "Magikuriboh" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        damage_step: true
-        trigger: when_destroyed
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 8
+        code: 1029
+        property: 81920
+        range: 16
+        count_limit: (1, 0)
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 2050
+        code: 1111
         on_resolve {
             reveal self
         }

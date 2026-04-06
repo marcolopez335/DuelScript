@@ -10,17 +10,18 @@ card "Ghost Belle & Haunted Mansion" {
     atk: 0
     def: 1800
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
-        damage_step: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 1" {
+        effect_type: 256
+        category: 268435456
+        code: 1027
+        property: 49152
+        range: 2
+        count_limit: (1, 73642296)
         cost {
             discard self
         }
         on_resolve {
-            negate activation
+            reveal self
         }
     }
 

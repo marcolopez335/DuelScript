@@ -5,19 +5,21 @@ card "Fists of the Unrivaled Tenyi" {
     password: 21834870
     type: Normal Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 268435456
+        code: 1027
         on_resolve {
             negate activation
             send (1, card) to gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_destroyed
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 512
+        code: 1029
+        property: 65536
         on_resolve {
             special_summon (1, monster) from gy
         }

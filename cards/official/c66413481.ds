@@ -10,21 +10,23 @@ card "Fire King Avatar Yaksha" {
     atk: 1800
     def: 200
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_destroyed
+    raw_effect "Effect 1" {
+        effect_type: 130
+        category: 512
+        code: 1029
+        property: 65536
+        range: 2
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        damage_step: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 1
+        code: 1014
+        property: 81920
+        count_limit: (1, 66413481)
         on_resolve {
             destroy (1+, card, either_player controls)
         }

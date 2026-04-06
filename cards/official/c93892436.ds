@@ -11,25 +11,31 @@ card "Performapal Swincobra" {
     atk: 300
     def: 1800
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 130
+        category: 64
+        code: 1138
+        range: 512
+        count_limit: (1, 0)
         on_resolve {
             mill 1
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 1
+        code: 82
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 3" {
+        effect_type: 2050
+        category: 4096
+        code: 4224
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)
         }

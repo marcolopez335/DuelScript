@@ -20,9 +20,11 @@ card "Alsei, the Sylvan High Protector" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 131144
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             add_to_hand (1, card) from gy
             shuffle deck
@@ -30,11 +32,13 @@ card "Alsei, the Sylvan High Protector" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 16
+        code: 1014
+        property: 65552
+        range: 4
+        count_limit: (1, 10406322)
         cost {
             detach 1 overlay_unit from self
         }

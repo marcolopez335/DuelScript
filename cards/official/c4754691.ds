@@ -10,16 +10,21 @@ card "Amphibious Bugroth MK-11" {
     atk: 1850
     def: 1500
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 1
+        property: 131072
+        range: 4
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 1
+        property: 16
+        range: 4
+        count_limit: (1, 4754691)
         on_resolve {
             destroy (1+, card, either_player controls)
         }

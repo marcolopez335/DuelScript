@@ -20,9 +20,11 @@ card "Number 17: Leviathan Dragon" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 2097152
+        range: 4
+        count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self
         }
@@ -31,15 +33,17 @@ card "Number 17: Leviathan Dragon" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 1
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 100
+        property: 8192
         on_resolve {
             reveal self
         }

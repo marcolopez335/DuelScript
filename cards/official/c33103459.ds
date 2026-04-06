@@ -10,18 +10,22 @@ card "Performapal Corn" {
     atk: 600
     def: 1000
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 135176
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 1048576
+        code: 1002
+        range: 16
         cost {
             banish self
         }

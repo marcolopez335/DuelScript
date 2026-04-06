@@ -20,12 +20,13 @@ card "Dragunity Knight - Areadbhair" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
-        damage_step: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 1" {
+        effect_type: 256
+        category: 268435460
+        code: 1027
+        property: 49152
+        range: 4
+        count_limit: (1, 88234821)
         cost {
             banish self
         }
@@ -35,20 +36,22 @@ card "Dragunity Knight - Areadbhair" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 4
+        code: 1137
+        count_limit: (1, 0)
         on_resolve {
             banish (1+, card)
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_destroyed
+    raw_effect "Effect 3" {
+        effect_type: 129
+        category: 1
+        code: 1029
+        property: 65536
+        count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
         }

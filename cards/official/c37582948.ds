@@ -5,17 +5,21 @@ card "Live☆Twin Sunny's Snitch" {
     password: 37582948
     type: Continuous Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 131080
+        code: 1002
+        count_limit: (1, 37582948)
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        trigger: when_summoned
+    raw_effect "Effect 2" {
+        effect_type: 2050
+        code: 1100
+        property: 2048
+        range: 8
         on_resolve {
             gain_lp: 200
             deal_damage to opponent: 200

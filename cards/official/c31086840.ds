@@ -14,11 +14,12 @@ card "Number 69: Heraldry Crest - Shatter Stream" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 1" {
+        effect_type: 256
+        category: 513
+        code: 1027
+        range: 4
+        count_limit: (1, 31086840)
         on_resolve {
             attach (1, card) to self as_material
             special_summon (1, monster) from gy

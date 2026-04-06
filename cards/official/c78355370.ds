@@ -10,9 +10,12 @@ card "Kuribohrn" {
     atk: 300
     def: 200
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 130
+        category: 512
+        code: 4224
+        property: 16
+        range: 2
         cost {
             discard self
         }
@@ -21,15 +24,17 @@ card "Kuribohrn" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when attack_declared
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 512
+        code: 1130
+        property: 16
+        range: 16
         cost {
             banish self
         }
         on_resolve {
-            special_summon (1, monster) from gy
+            reveal self
         }
     }
 

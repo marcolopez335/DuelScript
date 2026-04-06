@@ -5,24 +5,30 @@ card "Treasures of the Kings" {
     password: 69299029
     type: Field Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 16
+        code: 1002
+        count_limit: (1, 69299029)
         on_resolve {
             set (1, card)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 1
+        code: 129
+        property: 131072
+        range: 256
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 3" {
+        effect_type: 64
+        category: 131080
+        range: 256
+        count_limit: (1, 0)
         on_resolve {
             add_to_hand (1, card) from gy
         }

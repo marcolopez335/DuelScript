@@ -10,19 +10,23 @@ card "Psychic Jumper" {
     atk: 100
     def: 1500
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 8192
+        property: 16
+        range: 4
+        count_limit: (1, 0)
         cost {
             pay_lp 1000
         }
         on_resolve {
-            take_control of (1, monster, opponent controls)
+            reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 1
+        code: 56
         on_resolve {
             reveal self
         }

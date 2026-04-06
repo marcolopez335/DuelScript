@@ -10,21 +10,22 @@ card "Prinzessin" {
     atk: 300
     def: 600
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when_summoned
+    raw_effect "Effect 1" {
+        effect_type: 129
+        category: 262656
+        code: 1100
+        property: 65536
+        count_limit: (1, 78527720)
         on_resolve {
             special_summon (1, monster) from gy
             equip (1, card) to (1, monster)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        damage_step: true
+    raw_effect "Effect 2" {
+        effect_type: 129
+        code: 1138
+        property: 81936
         on_resolve {
             equip (1, card) to (1, monster)
         }

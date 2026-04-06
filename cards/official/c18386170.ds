@@ -14,34 +14,42 @@ card "Dante, Pilgrim of the Burning Abyss" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 1
+        code: 30
+        property: 263168
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 1
+        code: 60
+        property: 131072
+        range: 4
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
+    raw_effect "Effect 3" {
+        effect_type: 256
+        category: 65536
+        code: 1002
+        property: 2048
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             draw 1
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
-        optional: true
-        damage_step: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 4" {
+        effect_type: 129
+        category: 128
+        code: 1014
+        property: 81920
         on_resolve {
             send (1, card) to gy
         }

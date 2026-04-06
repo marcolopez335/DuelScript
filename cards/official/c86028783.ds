@@ -10,12 +10,12 @@ card "Rookie Warrior Lady" {
     atk: 1000
     def: 800
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        activate_from: [hand, monster_zone]
-        trigger: when attack_declared
+    raw_effect "Effect 1" {
+        effect_type: 130
+        category: 2097152
+        code: 1130
+        range: 6
+        count_limit: (1, 86028783)
         cost {
             send self to gy
         }
@@ -24,9 +24,12 @@ card "Rookie Warrior Lady" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 8
+        property: 16
+        range: 16
+        count_limit: (1, 0)
         cost {
             banish self
         }
@@ -35,8 +38,9 @@ card "Rookie Warrior Lady" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 100
         on_resolve {
             reveal self
         }

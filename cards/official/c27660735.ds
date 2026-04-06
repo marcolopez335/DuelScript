@@ -10,9 +10,10 @@ card "Speedroid Tri-Eyed Dice" {
     atk: 300
     def: 1500
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 256
+        code: 1002
+        range: 16
         cost {
             banish self
         }
@@ -21,10 +22,10 @@ card "Speedroid Tri-Eyed Dice" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: when attack_declared
+    raw_effect "Effect 2" {
+        effect_type: 2050
+        code: 1130
+        count_limit: (1, 0)
         on_resolve {
             negate attack
         }

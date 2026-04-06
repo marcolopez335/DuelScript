@@ -10,9 +10,12 @@ card "Gouki Headbatt" {
     atk: 800
     def: 0
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 2097664
+        property: 16
+        range: 2
+        count_limit: (1, 54088068)
         cost {
             send self to gy
         }
@@ -21,18 +24,20 @@ card "Gouki Headbatt" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 131080
+        code: 1014
+        property: 65536
+        count_limit: (1, 0)
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 100
         on_resolve {
             reveal self
         }

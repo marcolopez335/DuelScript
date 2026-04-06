@@ -5,31 +5,40 @@ card "Paleozoic Olenoides" {
     password: 35035481
     type: Normal Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 1
+        code: 1002
+        property: 16
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        optional: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
-        on_resolve {
-            special_summon (1, monster) from gy
-        }
-    }
-
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 512
+        code: 1027
+        range: 16
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 308
+        property: 67239936
+        range: 4
+        on_resolve {
+            reveal self
+        }
+    }
+
+    raw_effect "Effect 4" {
+        effect_type: 1
+        code: 205
+        property: 67109888
         on_resolve {
             reveal self
         }

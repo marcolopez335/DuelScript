@@ -10,9 +10,11 @@ card "Imsety, Glory of Horus" {
     atk: 3000
     def: 1800
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 196616
+        range: 2
+        count_limit: (1, 0)
         cost {
             send self to gy
         }
@@ -24,11 +26,12 @@ card "Imsety, Glory of Horus" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_leaves_field
+    raw_effect "Effect 3" {
+        effect_type: 130
+        category: 32
+        code: 1015
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             send (1, card) to gy
         }

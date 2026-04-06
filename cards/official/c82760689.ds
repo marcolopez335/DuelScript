@@ -5,41 +5,43 @@ card "Lucky Cloud" {
     password: 82760689
     type: Normal Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        on_resolve {
-            draw 2
-        }
-    }
-
-    effect "Effect 2" {
-        speed: spell_speed_1
-        trigger: when_summoned
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 65536
+        code: 1002
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        trigger: when_summoned by_flip_summon
+    raw_effect "Effect 2" {
+        effect_type: 2050
+        code: 1100
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 3" {
+        effect_type: 2050
+        code: 1101
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 5" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: during_end_phase
+    raw_effect "Effect 4" {
+        effect_type: 2050
+        code: 1102
+        on_resolve {
+            reveal self
+        }
+    }
+
+    raw_effect "Effect 5" {
+        effect_type: 2050
+        code: 4608
+        count_limit: (1, 0)
         on_resolve {
             draw 2
         }

@@ -20,37 +20,41 @@ card "Number 4: Stealth Kragen" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 2
+        code: 121
+        range: 4
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 524289
+        code: 1002
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
             deal_damage to opponent: 1000
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        optional: true
-        damage_step: true
-        trigger: when_destroyed
+    raw_effect "Effect 3" {
+        effect_type: 129
+        category: 512
+        code: 1029
+        property: 81920
         on_resolve {
             special_summon (1, monster) from gy
             attach (1, card) to self as_material
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
-        trigger: when_leaves_field
+    raw_effect "Effect 4" {
+        effect_type: 2049
+        property: 1024
         on_resolve {
             reveal self
         }

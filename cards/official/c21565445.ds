@@ -10,9 +10,11 @@ card "Neptabyss, the Atlantean Prince" {
     atk: 800
     def: 0
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 131080
+        range: 4
+        count_limit: (1, 21565445)
         cost {
             send self to gy
         }
@@ -21,10 +23,12 @@ card "Neptabyss, the Atlantean Prince" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 513
+        category: 512
+        code: 1014
+        property: 16
+        count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
         }

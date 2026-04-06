@@ -5,16 +5,19 @@ card "One-Shot Wand" {
     password: 36042825
     type: Equip Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 4
+        code: 100
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 65537
+        code: 1137
+        range: 8
         on_resolve {
             destroy (1+, card, either_player controls)
             draw 1

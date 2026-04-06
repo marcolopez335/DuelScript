@@ -5,24 +5,27 @@ card "Soul Binding Gate" {
     password: 6909330
     type: Field Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        code: 1002
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        trigger: when_destroyed
+    raw_effect "Effect 2" {
+        effect_type: 2050
+        code: 1029
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        trigger: when_summoned
+    raw_effect "Effect 3" {
+        effect_type: 514
+        category: 524289
+        code: 1100
+        range: 256
         on_resolve {
             destroy (1+, card, either_player controls)
             deal_damage to opponent: 800

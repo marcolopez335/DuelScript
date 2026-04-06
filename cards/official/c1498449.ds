@@ -10,23 +10,25 @@ card "Dracotail Faimena" {
     atk: 1300
     def: 2500
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 256
+        category: 1073742336
+        code: 1002
+        range: 2
+        count_limit: (1, 1498449)
         cost {
             discard self
         }
         on_resolve {
-            special_summon (1, monster) from gy
+            reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_used_as_material
+    raw_effect "Effect 2" {
+        effect_type: 129
+        code: 1108
+        property: 65536
+        count_limit: (1, 0)
         on_resolve {
             set (1, card)
         }

@@ -5,27 +5,32 @@ card "Magical Trick Mirror" {
     password: 85758066
     type: Normal Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        trigger: when attack_declared
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 67108864
+        code: 1130
+        property: 16
         on_resolve {
             set (1, card)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 512
+        code: 1002
+        range: 16
         cost {
             send self to gy
         }
         on_resolve {
-            special_summon (1, monster) from gy
+            reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 2
+        range: 4
         on_resolve {
             reveal self
         }

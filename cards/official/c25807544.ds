@@ -5,23 +5,28 @@ card "Noble Arms Museum" {
     password: 25807544
     type: Field Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        code: 1002
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 2
+        code: 100
+        range: 256
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 3" {
+        effect_type: 64
+        category: 131080
+        range: 256
+        count_limit: (1, 0)
         cost {
             pay_lp 1000
         }
@@ -30,16 +35,21 @@ card "Noble Arms Museum" {
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 4" {
+        effect_type: 64
+        category: 512
+        property: 16
+        range: 256
+        count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 5" {
-        speed: spell_speed_1
+    raw_effect "Effect 5" {
+        effect_type: 2
+        code: 52
+        property: 67110912
         on_resolve {
             reveal self
         }

@@ -3,6 +3,10 @@
 // A domain-specific language for Yu-Gi-Oh card mechanics
 // ============================================================
 
+// ============================================================
+// DuelScript Grammar v0.6 — full card expressiveness
+// ============================================================
+
 // ── Whitespace & Comments ────────────────────────────────────
 WHITESPACE = _{ " " | "\t" | "\r" | "\n" }
 COMMENT    = _{ "//" ~ (!"\n" ~ ANY)* | "/*" ~ (!"*/" ~ ANY)* ~ "*/" }
@@ -48,6 +52,7 @@ card_body_item = {
   | materials_block
   | counter_system_block
   | pendulum_block
+  | raw_effect_block
   | effect_block
   | continuous_effect_block
   | replacement_effect_block
@@ -253,6 +258,25 @@ counter_body         = {
 counter_name_decl   = { "name"        ~ ":" ~ string }
 counter_placed_when = { "placed_when" ~ ":" ~ trigger_expr }
 counter_max_decl    = { "max"         ~ ":" ~ (unsigned | "none") }
+
+// ── Raw Effect Block (v0.6) ──────────────────────────────────
+// Direct bitfield declaration — bypasses type_mapper.
+// Used by the transpiler to preserve exact Lua values.
+raw_effect_block = { "raw_effect" ~ string? ~ "{" ~ raw_effect_body ~ "}" }
+raw_effect_body  = {
+    raw_field*
+  ~ cost_clause?
+  ~ on_activate_clause?
+  ~ on_resolve_clause?
+}
+raw_field = {
+    "effect_type" ~ ":" ~ unsigned
+  | "category"    ~ ":" ~ unsigned
+  | "code"        ~ ":" ~ unsigned
+  | "property"    ~ ":" ~ unsigned
+  | "range"       ~ ":" ~ unsigned
+  | "count_limit" ~ ":" ~ "(" ~ unsigned ~ "," ~ unsigned ~ ")"
+}
 
 // ── Trigger Effect Block ──────────────────────────────────────
 effect_block = { "effect" ~ string? ~ "{" ~ effect_body ~ "}" }
@@ -835,4 +859,152 @@ zone = {
   | "hand"
   | "field"
   | "deck"
+}
+
+// ============================================================
+// v0.6 Extensions — Full Card Expressiveness
+// ============================================================
+
+// ── Predicate System ─────────────────────────────────────────
+// Rich compound predicates for filtering cards.
+// Example: where { race == Warrior and atk <= 1500 }
+
+predicate       = { pred_or }
+pred_or         = { pred_and ~ ("or" ~ pred_and)* }
+pred_and        = { pred_not ~ ("and" ~ pred_not)* }
+pred_not        = { "not" ~ pred_atom | pred_atom }
+pred_atom       = {
+    "(" ~ predicate ~ ")"
+  | pred_comparison
+  | pred_is_check
+  | pred_has_check
+  | pred_location
+  | pred_controller
+  | pred_state
+  | pred_archetype
+  | pred_method
+}
+
+// race == Warrior, atk <= 1500, level == 4
+pred_comparison = { pred_field ~ compare_op ~ pred_value }
+pred_field      = {
+    "atk" | "def" | "level" | "rank" | "link_rating" | "scale"
+  | "original_atk" | "original_def" | "original_level"
+  | "race" | "attribute" | "type" | "card_id" | "name"
+}
+pred_value      = {
+    unsigned
+  | attribute
+  | race
+  | card_type
+  | string
+  | pred_field
+}
+
+// is_face_up, is_tuner, is_normal_summoned, is_effect_monster
+pred_is_check   = { "is_" ~ is_property }
+is_property     = {
+    "face_up" | "face_down"
+  | "attack_position" | "defense_position"
+  | "tuner" | "non_tuner"
+  | "effect_monster" | "normal_monster"
+  | "fusion" | "synchro" | "xyz" | "link" | "pendulum" | "ritual"
+  | "token" | "monster" | "spell" | "trap"
+  | "normal_summoned" | "special_summoned" | "flip_summoned" | "tribute_summoned"
+  | "extra_deck_monster"
+  | "public" | "hidden"
+  | "counter_trap" | "continuous" | "equip" | "field_spell" | "quick_play"
+}
+
+// has_counter, has_material, has_level, has_been_destroyed_this_turn
+pred_has_check  = { "has_" ~ has_property }
+has_property    = {
+    "counter" ~ ("\"" ~ ident ~ "\"")?
+  | "material"
+  | "level"
+  | "been_destroyed_this_turn"
+  | "been_activated_this_turn"
+  | "been_summoned_this_turn"
+  | "left_field_this_turn"
+  | "targeted_this_turn"
+}
+
+// location: gy, in_location: [hand, gy]
+pred_location   = {
+    "location" ~ ":" ~ zone
+  | "in_location" ~ ":" ~ "[" ~ zone ~ ("," ~ zone)* ~ "]"
+  | "previous_location" ~ ":" ~ zone
+}
+
+// controller: you | opponent | either
+pred_controller = {
+    "controller" ~ ":" ~ controller_ref
+  | "controlled_by_you"
+  | "controlled_by_opponent"
+}
+
+// can_be_special_summoned, can_be_targeted, can_be_destroyed
+pred_state      = {
+    "can_be_special_summoned"
+  | "can_be_destroyed"
+  | "can_be_targeted"
+  | "can_be_banished"
+  | "can_be_tributed"
+  | "can_be_flipped"
+  | "disabled"
+  | "negated"
+  | "unaffected_by_effects"
+}
+
+// in_archetype: "Blue-Eyes"
+pred_archetype  = {
+    "in_archetype" ~ ":" ~ string
+  | "named" ~ ":" ~ string
+}
+
+// summoned_by: normal | special | fusion | synchro | xyz | link | ritual
+pred_method     = { "summoned_by" ~ ":" ~ summon_method }
+
+// ── Where Clause ─────────────────────────────────────────────
+// Attaches a predicate to a target expression
+where_clause = { "where" ~ "{" ~ predicate ~ "}" }
+
+// Extended target with optional where clause
+// Example: target 1 monster where { race == Warrior and atk <= 1500 }
+target_with_where = { "target" ~ unsigned ~ "+"? ~ card_filter ~ where_clause? }
+
+// ── Sequential Resolution ────────────────────────────────────
+// YGO has distinct semantics:
+//   and_if_you_do { B } — only executes B if A succeeded
+//   then { B }          — executes B unconditionally after A
+//   also { B }          — simultaneous resolution
+
+and_if_you_do_block = { "and_if_you_do" ~ "{" ~ game_action+ ~ "}" }
+then_block          = { "then" ~ "{" ~ game_action+ ~ "}" }
+also_block          = { "also" ~ "{" ~ game_action+ ~ "}" }
+
+// ── Chain Context Queries ────────────────────────────────────
+// Used in conditions to inspect the currently-activating chain link
+chain_link_matches  = { "chain_link_matches" ~ "{" ~ chain_match+ ~ "}" }
+chain_match         = {
+    "category_includes" ~ ":" ~ "[" ~ chain_category ~ ("," ~ chain_category)* ~ "]"
+  | "targets_location" ~ ":" ~ zone
+  | "would_destroy_on" ~ ":" ~ ("field" | "hand" | "gy" | "deck")
+  | "is_monster_effect"
+  | "is_spell_effect"
+  | "is_trap_effect"
+  | "spell_speed" ~ ":" ~ unsigned
+}
+
+// ── Dotted References ────────────────────────────────────────
+// self.atk, target.level, chain_link.source, equipped.atk
+dotted_ref = @{ ident ~ "." ~ ("atk" | "def" | "level" | "rank" | "attribute" | "race" | "controller" | "source") }
+
+// ── Card History ─────────────────────────────────────────────
+// Queries that reference what happened earlier in the turn/duel
+history_query = {
+    "this_effect_activated_this_turn"
+  | "this_card_was_summoned_this_turn"
+  | "nth_time_activated_this_turn" ~ ":" ~ unsigned
+  | "previously_in" ~ ":" ~ zone
 }

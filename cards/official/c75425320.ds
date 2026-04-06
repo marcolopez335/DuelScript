@@ -5,16 +5,20 @@ card "Disciples of the True Dracophoenix" {
     password: 75425320
     type: Continuous Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        code: 1002
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 65552
+        property: 16
+        range: 8
+        count_limit: (1, 75425320)
         on_resolve {
             return (1, card) to deck shuffle
             shuffle deck
@@ -22,19 +26,22 @@ card "Disciples of the True Dracophoenix" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 3" {
+        effect_type: 64
+        category: 256
+        range: 8
+        count_limit: (1, 0)
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 4" {
+        effect_type: 129
+        category: 1
+        code: 1014
+        property: 65552
+        count_limit: (1, 75425322)
         on_resolve {
             destroy (1+, card, either_player controls)
         }

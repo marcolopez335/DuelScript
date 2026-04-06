@@ -10,18 +10,22 @@ card "Cyber Archfiend" {
     atk: 1000
     def: 2000
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 130
+        code: 1113
+        property: 2048
+        range: 4
         on_resolve {
             draw 1
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: during_end_phase
+    raw_effect "Effect 2" {
+        effect_type: 514
+        category: 1
+        code: 4608
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
         }

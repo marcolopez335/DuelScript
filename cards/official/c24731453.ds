@@ -10,10 +10,11 @@ card "Snow Plow Hustle Rustle" {
     atk: 2500
     def: 3000
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when attack_declared
+    raw_effect "Effect 1" {
+        effect_type: 130
+        category: 524801
+        code: 1130
+        range: 2
         on_resolve {
             special_summon (1, monster) from gy
             destroy (1+, card, either_player controls)
@@ -21,8 +22,11 @@ card "Snow Plow Hustle Rustle" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 2
+        code: 52
+        property: 2048
+        range: 4
         on_resolve {
             reveal self
         }

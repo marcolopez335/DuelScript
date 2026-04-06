@@ -38,6 +38,25 @@ pub struct Card {
     pub replacement_effects: Vec<ReplacementEffect>,
     pub equip_effects:       Vec<EquipEffect>,
     pub win_condition:       Option<WinCondition>,
+    /// v0.6: Raw effect blocks with explicit bitfields (transpiler output)
+    pub raw_effects:         Vec<RawEffect>,
+}
+
+/// v0.6: A raw effect with explicit engine bitfields.
+/// Used by the transpiler to preserve exact Lua metadata
+/// without going through the type_mapper inference.
+#[derive(Debug, Clone)]
+pub struct RawEffect {
+    pub name:        Option<String>,
+    pub effect_type: u32,
+    pub category:    u32,
+    pub code:        u32,
+    pub property:    u32,
+    pub range:       u32,
+    pub count_limit: Option<(u32, u32)>,
+    pub cost:        Vec<CostAction>,
+    pub on_activate: Vec<GameAction>,
+    pub on_resolve:  Vec<GameAction>,
 }
 
 impl Card {
@@ -518,6 +537,12 @@ pub enum SimpleCondition {
     BanishedCount { op: CompareOp, value: u32 },
     /// Chain link includes one of these categories (for hand traps)
     ChainIncludes(Vec<ChainCategory>),
+    /// v0.6: rich chain link matching
+    ChainLinkMatches(ChainLinkMatch),
+    /// v0.6: card history query
+    History(HistoryQuery),
+    /// v0.6: compound predicate on self
+    Predicate(Predicate),
 }
 
 /// Categories that can appear in a chain link — maps to engine CATEGORY_* constants
@@ -934,8 +959,17 @@ pub enum TargetExpr {
         controller:    Option<ControllerRef>,
         zone:          Option<Zone>,
         qualifiers:    Vec<TargetQualifier>,
+        /// v0.6: rich predicate filter (attached via `where { ... }`)
+        predicate:     Option<Predicate>,
     },
     Filter(CardFilter),
+    /// v0.6: free-form `target N [filter] where { predicate }` expression
+    WithPredicate {
+        count:         u32,
+        count_or_more: bool,
+        filter:        CardFilter,
+        predicate:     Predicate,
+    },
 }
 
 #[derive(Debug, Clone)]
@@ -1015,4 +1049,181 @@ impl fmt::Display for Zone {
             Zone::FieldZone        => write!(f, "field zone"),
         }
     }
+}
+
+// ============================================================
+// v0.6 — Full Card Expressiveness
+// ============================================================
+
+// ── Predicate System ─────────────────────────────────────────
+/// A compound predicate for filtering cards.
+/// Used in `where { ... }` clauses after target expressions.
+#[derive(Debug, Clone)]
+pub enum Predicate {
+    And(Vec<Predicate>),
+    Or(Vec<Predicate>),
+    Not(Box<Predicate>),
+
+    /// Comparison: `race == Warrior`, `atk <= 1500`, `level == 4`
+    Compare {
+        field: PredField,
+        op: CompareOp,
+        value: PredValue,
+    },
+
+    /// Property check: `is_face_up`, `is_tuner`, `is_special_summoned`
+    Is(IsProperty),
+
+    /// History check: `has_been_destroyed_this_turn`, `has_counter`
+    Has(HasProperty),
+
+    /// Location: `location: gy`, `in_location: [hand, gy]`, `previous_location: field`
+    Location(LocationPred),
+
+    /// Controller: `controller: you`, `controlled_by_opponent`
+    Controller(ControllerPred),
+
+    /// Can-be check: `can_be_special_summoned`, `can_be_destroyed`
+    StateCheck(StateCheck),
+
+    /// Archetype: `in_archetype: "Blue-Eyes"`, `named: "Dark Magician"`
+    Archetype(ArchetypePred),
+
+    /// Summoned by: `summoned_by: fusion_summon`
+    SummonedBy(SummonMethod),
+}
+
+/// Fields that can be compared in predicates
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum PredField {
+    Atk, Def, Level, Rank, LinkRating, Scale,
+    OriginalAtk, OriginalDef, OriginalLevel,
+    Race, Attribute, Type, CardId, Name,
+}
+
+/// Values that can be compared against
+#[derive(Debug, Clone)]
+pub enum PredValue {
+    Number(i32),
+    Attribute(Attribute),
+    Race(Race),
+    CardType(CardType),
+    String(String),
+    /// Reference to another field (for comparisons like `atk >= def`)
+    FieldRef(PredField),
+}
+
+/// Boolean-style "is X" checks
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum IsProperty {
+    FaceUp, FaceDown,
+    AttackPosition, DefensePosition,
+    Tuner, NonTuner,
+    EffectMonster, NormalMonster,
+    Fusion, Synchro, Xyz, Link, Pendulum, Ritual,
+    Token, Monster, Spell, Trap,
+    NormalSummoned, SpecialSummoned, FlipSummoned, TributeSummoned,
+    ExtraDeckMonster,
+    Public, Hidden,
+    CounterTrap, Continuous, Equip, FieldSpell, QuickPlay,
+}
+
+/// "has X" checks (history/state queries)
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum HasProperty {
+    Counter(Option<String>),
+    Material,
+    Level,
+    BeenDestroyedThisTurn,
+    BeenActivatedThisTurn,
+    BeenSummonedThisTurn,
+    LeftFieldThisTurn,
+    TargetedThisTurn,
+}
+
+/// Location-based predicate
+#[derive(Debug, Clone)]
+pub enum LocationPred {
+    Exact(Zone),
+    OneOf(Vec<Zone>),
+    Previous(Zone),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ControllerPred {
+    Is(ControllerRef),
+    You,
+    Opponent,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum StateCheck {
+    CanBeSpecialSummoned,
+    CanBeDestroyed,
+    CanBeTargeted,
+    CanBeBanished,
+    CanBeTributed,
+    CanBeFlipped,
+    Disabled,
+    Negated,
+    UnaffectedByEffects,
+}
+
+#[derive(Debug, Clone)]
+pub enum ArchetypePred {
+    InArchetype(String),
+    Named(String),
+}
+
+// ── Sequential Resolution ────────────────────────────────────
+/// Sequential resolution semantics matching YGO card text
+/// - `and_if_you_do` — only resolves if prior action succeeded
+/// - `then` — resolves unconditionally after prior action
+/// - `also` — simultaneous resolution
+#[derive(Debug, Clone)]
+pub enum ResolutionSeq {
+    AndIfYouDo(Vec<GameAction>),
+    Then(Vec<GameAction>),
+    Also(Vec<GameAction>),
+}
+
+// ── Chain Context ────────────────────────────────────────────
+/// Inspect the currently-activating chain link in conditions
+#[derive(Debug, Clone)]
+pub struct ChainLinkMatch {
+    pub matches: Vec<ChainMatch>,
+}
+
+#[derive(Debug, Clone)]
+pub enum ChainMatch {
+    CategoryIncludes(Vec<ChainCategory>),
+    TargetsLocation(Zone),
+    WouldDestroyOn(DestroyLocation),
+    IsMonsterEffect,
+    IsSpellEffect,
+    IsTrapEffect,
+    SpellSpeed(u32),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum DestroyLocation {
+    Field, Hand, Gy, Deck,
+}
+
+// ── Card History Queries ─────────────────────────────────────
+#[derive(Debug, Clone)]
+pub enum HistoryQuery {
+    ThisEffectActivatedThisTurn,
+    ThisCardWasSummonedThisTurn,
+    NthTimeActivatedThisTurn(u32),
+    PreviouslyIn(Zone),
+}
+
+// ── Dotted References ────────────────────────────────────────
+/// Reference to a field on a named context object
+/// Example: `chain_link.source`, `equipped_monster.atk`, `target.level`
+#[derive(Debug, Clone)]
+pub struct DottedRef {
+    pub context: String,    // "self", "target", "chain_link", "equipped_monster"
+    pub field: String,      // "atk", "def", "source", "level", etc.
 }

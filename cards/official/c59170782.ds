@@ -20,10 +20,10 @@ card "Mermail Abysstrite" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        optional: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 1" {
+        effect_type: 256
+        code: 1027
+        range: 4
         cost {
             detach 1 overlay_unit from self
         }
@@ -32,10 +32,10 @@ card "Mermail Abysstrite" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when attack_declared
+    raw_effect "Effect 2" {
+        effect_type: 130
+        code: 1130
+        range: 4
         cost {
             detach 1 overlay_unit from self
         }
@@ -44,11 +44,11 @@ card "Mermail Abysstrite" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        optional: true
-        damage_step: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 3" {
+        effect_type: 129
+        category: 512
+        code: 1014
+        property: 16400
         on_resolve {
             special_summon (1, monster) from gy
         }

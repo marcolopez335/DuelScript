@@ -10,35 +10,41 @@ card "Salamandra, the Flying Flame Dragon" {
     atk: 700
     def: 1600
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 4
+        code: 100
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        activate_from: [hand, gy]
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 262144
+        property: 16
+        range: 18
+        count_limit: (1, 37531679)
         on_resolve {
             send (1, card) to gy
             equip (1, card) to (1, monster)
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 3" {
+        effect_type: 129
+        category: 131080
+        code: 1014
+        property: 65536
+        count_limit: (1, 0)
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 1
+        code: 311
+        property: 1024
         on_resolve {
             reveal self
         }

@@ -5,20 +5,24 @@ card "Mannadium Reframing" {
     password: 18158393
     type: Normal Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 268435457
+        code: 1027
+        count_limit: (1, 18158393)
         on_resolve {
             negate activation
             destroy (1+, card, either_player controls)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 16
+        code: 1002
+        property: 16
+        range: 16
+        count_limit: (1, 0)
         cost {
             banish self
         }

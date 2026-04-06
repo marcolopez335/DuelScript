@@ -14,9 +14,12 @@ card "Cyberse Reminder" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 8
+        property: 16
+        range: 4
+        count_limit: (1, 56337500)
         cost {
             detach 1 overlay_unit from self
         }
@@ -25,18 +28,21 @@ card "Cyberse Reminder" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_destroyed
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 16896
+        code: 1029
+        property: 65536
+        count_limit: (1, 0)
         on_resolve {
-            special_summon (1, monster) from gy
+            reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 2
+        code: 52
+        property: 67635200
         on_resolve {
             reveal self
         }

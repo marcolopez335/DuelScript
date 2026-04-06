@@ -14,9 +14,12 @@ card "Vermillion Dragon Mech" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 1
+        property: 16
+        range: 4
+        count_limit: (1, 0)
         cost {
             banish self
         }
@@ -25,10 +28,11 @@ card "Vermillion Dragon Mech" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 8
+        code: 1014
+        property: 65552
         on_resolve {
             add_to_hand (1, card) from gy
         }

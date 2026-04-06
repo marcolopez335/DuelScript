@@ -10,10 +10,12 @@ card "Kozmoll Dark Lady" {
     atk: 2200
     def: 1800
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 256
+        category: 512
+        code: 1002
+        range: 4
+        count_limit: (1, 12408276)
         cost {
             banish self
         }
@@ -22,12 +24,13 @@ card "Kozmoll Dark Lady" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
-        damage_step: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 268435457
+        code: 1027
+        property: 49152
+        range: 4
+        count_limit: (1, 0)
         cost {
             pay_lp 1000
         }

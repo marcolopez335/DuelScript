@@ -10,20 +10,20 @@ card "Keeper of the Shrine" {
     atk: 0
     def: 2100
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 1
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        activate_from: [hand, gy]
-        damage_step: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 520
+        code: 1014
+        property: 81920
+        range: 18
+        count_limit: (1, 66752837)
         on_resolve {
             special_summon (1, monster) from gy
             add_to_hand (1, card) from gy

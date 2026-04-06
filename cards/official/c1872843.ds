@@ -10,21 +10,22 @@ card "Morpheus, the Dream Mirror White Knight" {
     atk: 1000
     def: 2800
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        damage_step: true
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 1" {
+        effect_type: 129
+        code: 1102
+        property: 81920
+        count_limit: (1, 1872843)
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 512
+        code: 1002
+        range: 4
+        count_limit: (1, 0)
         cost {
             tribute self
         }
@@ -33,8 +34,10 @@ card "Morpheus, the Dream Mirror White Knight" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 67
+        property: 67109888
         on_resolve {
             reveal self
         }

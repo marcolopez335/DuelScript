@@ -10,9 +10,11 @@ card "Valkyrie Vierte" {
     atk: 1400
     def: 1400
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 131144
+        range: 4
+        count_limit: (1, 81558967)
         on_resolve {
             add_to_hand (1, card) from gy
             shuffle deck
@@ -20,11 +22,11 @@ card "Valkyrie Vierte" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_battle_destroyed
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 512
+        code: 1140
+        count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
         }

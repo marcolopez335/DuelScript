@@ -10,9 +10,10 @@ card "Performapal Inflater Tapir" {
     atk: 1000
     def: 2000
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 256
+        code: 1134
+        range: 2
         cost {
             discard self
         }
@@ -21,18 +22,20 @@ card "Performapal Inflater Tapir" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when attack_declared
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 512
+        code: 1130
+        range: 16
+        count_limit: (1, 71985676)
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 2
+        property: 2048
         on_resolve {
             reveal self
         }

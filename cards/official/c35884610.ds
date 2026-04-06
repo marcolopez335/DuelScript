@@ -5,49 +5,56 @@ card "U.A. Powered Jersey" {
     password: 35884610
     type: Equip Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 4
+        code: 100
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 4
+        property: 128
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_battle_destroyed
+    raw_effect "Effect 3" {
+        effect_type: 130
+        code: 1140
+        range: 8
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: during_standby_phase
+    raw_effect "Effect 4" {
+        effect_type: 514
+        category: 4
+        code: 4098
+        range: 8
+        count_limit: (1, 0)
         on_resolve {
             banish (1+, card)
         }
     }
 
-    effect "Effect 5" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 5" {
+        effect_type: 129
+        category: 8
+        code: 1014
+        property: 65536
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 6" {
-        speed: spell_speed_1
+    raw_effect "Effect 6" {
+        effect_type: 1
+        code: 84
+        property: 1024
         on_resolve {
             reveal self
         }

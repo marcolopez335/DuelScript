@@ -10,18 +10,20 @@ card "Reversible Beetle" {
     atk: 1100
     def: 1500
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 33
+        category: 16
+        count_limit: (1, 45702357)
         on_resolve {
             return (1, card) to deck shuffle
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: when_summoned
+    raw_effect "Effect 2" {
+        effect_type: 513
+        category: 4096
+        code: 1100
+        count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)
         }

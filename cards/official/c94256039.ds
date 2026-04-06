@@ -5,38 +5,45 @@ card "Tower of Babel" {
     password: 94256039
     type: Continuous Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        code: 1002
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 2" {
+        effect_type: 2050
+        code: 1027
+        property: 1024
+        range: 8
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 2050
+        code: 1022
+        range: 8
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 513
+        category: 524289
         on_resolve {
             destroy (1+, card, either_player controls)
             deal_damage to opponent: 3000
         }
     }
 
-    effect "Effect 5" {
-        speed: spell_speed_1
+    raw_effect "Effect 5" {
+        effect_type: 513
+        category: 1
         on_resolve {
             destroy (1+, card, either_player controls)
         }

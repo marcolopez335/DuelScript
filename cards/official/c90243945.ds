@@ -10,27 +10,32 @@ card "Wightprincess" {
     atk: 1600
     def: 0
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 1
+        code: 129
+        property: 131072
+        range: 16
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_summoned
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 32
+        code: 1100
+        property: 65536
         on_resolve {
             send (1, card) to gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_2
-        optional: true
-        activate_from: [hand, monster_zone]
-        damage_step: true
+    raw_effect "Effect 3" {
+        effect_type: 256
+        category: 6291456
+        code: 1002
+        property: 16384
+        range: 6
         cost {
             send self to gy
         }
@@ -39,8 +44,10 @@ card "Wightprincess" {
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 1
+        code: 100
+        property: 1024
         on_resolve {
             reveal self
         }

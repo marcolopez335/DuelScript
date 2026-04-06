@@ -10,10 +10,13 @@ card "Mementotlan Mace" {
     atk: 400
     def: 300
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 256
+        category: 8192
+        code: 1002
+        property: 16
+        range: 2
+        count_limit: (1, 81945676)
         cost {
             discard self
         }
@@ -22,9 +25,11 @@ card "Mementotlan Mace" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 131081
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
             add_to_hand (1, card) from gy

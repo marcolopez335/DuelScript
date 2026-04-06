@@ -5,9 +5,12 @@ card "Igknight Reload" {
     password: 76751255
     type: Quick-Play Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 65552
+        code: 1002
+        property: 2048
+        count_limit: (1, 76751255)
         on_resolve {
             return (1, card) to deck shuffle
             shuffle deck
@@ -15,8 +18,9 @@ card "Igknight Reload" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 2
+        property: 67110912
         on_resolve {
             reveal self
         }

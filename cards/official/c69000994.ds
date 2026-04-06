@@ -10,26 +10,31 @@ card "Fire King Avatar Barong" {
     atk: 1800
     def: 200
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_destroyed
+    raw_effect "Effect 1" {
+        effect_type: 130
+        category: 512
+        code: 1029
+        property: 65536
+        range: 2
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 2049
+        code: 1014
+        property: 1024
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        trigger: during_standby_phase
+    raw_effect "Effect 3" {
+        effect_type: 514
+        category: 131080
+        code: 4098
+        range: 16
         on_resolve {
             add_to_hand (1, card) from gy
         }

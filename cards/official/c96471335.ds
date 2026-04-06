@@ -20,9 +20,11 @@ card "Ebon Illusion Magician" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 512
+        range: 4
+        count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self
         }
@@ -31,11 +33,13 @@ card "Ebon Illusion Magician" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when attack_declared
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 4
+        code: 1130
+        property: 16
+        range: 4
+        count_limit: (1, 96471335)
         on_resolve {
             banish (1+, card)
         }

@@ -10,8 +10,9 @@ card "Lunalight Black Sheep" {
     atk: 100
     def: 600
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 64
+        range: 2
         cost {
             discard self
         }
@@ -20,10 +21,11 @@ card "Lunalight Black Sheep" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_used_as_material
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 8
+        code: 1108
+        property: 65536
         on_resolve {
             add_to_hand (1, card) from gy
         }

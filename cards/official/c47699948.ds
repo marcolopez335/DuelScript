@@ -5,16 +5,19 @@ card "Synchro Dilemma" {
     password: 47699948
     type: Continuous Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        code: 1002
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 512
+        range: 8
+        count_limit: (1, 47699948)
         cost {
             send self to gy
         }
@@ -23,9 +26,12 @@ card "Synchro Dilemma" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 3" {
+        effect_type: 64
+        category: 513
+        property: 16
+        range: 8
+        count_limit: (1, 47699948)
         on_resolve {
             destroy (1+, card, either_player controls)
             special_summon (1, monster) from gy

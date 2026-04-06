@@ -10,17 +10,21 @@ card "Crystal Rose" {
     atk: 500
     def: 500
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 32
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             send (1, card) to gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 512
+        range: 16
+        count_limit: (1, 79531196)
         cost {
             banish self
         }
@@ -29,8 +33,10 @@ card "Crystal Rose" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 129
+        property: 1024
         on_resolve {
             reveal self
         }

@@ -69,6 +69,12 @@ pub fn compile_card(card: &Card) -> CompiledCard {
         effects.extend(compile_revive_limit(card));
     }
 
+    // v0.6: Raw effects bypass type_mapper inference — used by transpiler
+    // to preserve exact Lua metadata without any inference
+    for raw in &card.raw_effects {
+        effects.push(compile_raw_effect(raw));
+    }
+
     // For spells/traps: ACTIVATE effects first, then continuous
     // For monsters: continuous first, then triggered/quick
     // This matches Lua registration order in initial_effect()
@@ -107,6 +113,31 @@ pub fn compile_card(card: &Card) -> CompiledCard {
 /// Mirrors what Xyz/Synchro/Link/Fusion.AddProcedure do in Lua.
 /// - Xyz.AddProcedure → 2 effects (check + proc)
 /// - Synchro/Link/Fusion.AddProcedure → 1 effect (proc only)
+/// v0.6: Compile a raw_effect block — exact pass-through of bitfields
+fn compile_raw_effect(raw: &RawEffect) -> CompiledEffect {
+    // Synthesize an EffectBody for the source field (used by callback_gen)
+    let mut body = EffectBody::default();
+    body.cost = raw.cost.clone();
+    body.on_activate = raw.on_activate.clone();
+    body.on_resolve = raw.on_resolve.clone();
+
+    CompiledEffect {
+        effect_type: raw.effect_type,
+        category: raw.category,
+        code: raw.code,
+        property: raw.property,
+        range: raw.range,
+        count_limit: raw.count_limit.map(|(c, code)| CountLimit { count: c, code }),
+        callbacks: callback_gen::GeneratedCallbacks {
+            condition: None,
+            cost: None,
+            target: None,
+            operation: None,
+        },
+        source: body,
+    }
+}
+
 fn compile_summoning_procedures(_mats: &MaterialsBlock, card: &Card) -> Vec<CompiledEffect> {
     let body = EffectBody::default();
     let is_xyz = card.card_types.contains(&CardType::XyzMonster);

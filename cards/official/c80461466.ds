@@ -10,18 +10,22 @@ card "Great Mammoth of the Netherworld" {
     atk: 2200
     def: 1800
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 1" {
+        effect_type: 129
+        category: 1
+        code: 1102
+        property: 65552
+        count_limit: (1, 80461466)
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 4096
+        code: 100
+        property: 131072
+        range: 4
         on_resolve {
             reveal self
         }

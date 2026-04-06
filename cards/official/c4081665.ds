@@ -10,11 +10,13 @@ card "Performage Stilts Launcher" {
     atk: 2200
     def: 0
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 524288
+        code: 1027
+        property: 2048
+        range: 16
+        count_limit: (1, 4081665)
         cost {
             banish self
         }
@@ -23,8 +25,10 @@ card "Performage Stilts Launcher" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 2
+        code: 50
+        property: 526336
         on_resolve {
             reveal self
         }

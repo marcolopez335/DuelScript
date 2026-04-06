@@ -10,10 +10,10 @@ card "Cyber Valley" {
     atk: 0
     def: 0
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_attacked
+    raw_effect "Effect 1" {
+        effect_type: 129
+        category: 65536
+        code: 1131
         cost {
             banish self
         }
@@ -22,16 +22,22 @@ card "Cyber Valley" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 65540
+        property: 16
+        range: 4
         on_resolve {
             banish (1+, card)
             draw 2
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 64
+        category: 20
+        property: 16
+        range: 4
         on_resolve {
             banish (1+, card)
             return (1, card) to deck shuffle

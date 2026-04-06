@@ -10,20 +10,22 @@ card "Rikka Princess" {
     atk: 0
     def: 0
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 512
+        range: 2
+        count_limit: (1, 132308)
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
-        activate_from: [hand, gy]
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 16384
+        code: 1027
+        range: 18
+        count_limit: (1, 0)
         cost {
             tribute self
         }
@@ -32,8 +34,11 @@ card "Rikka Princess" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 2
+        code: 52
+        property: 2048
+        range: 4
         on_resolve {
             reveal self
         }

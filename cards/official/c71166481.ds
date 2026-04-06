@@ -14,11 +14,11 @@ card "Number 75: Bamboozling Gossip Shadow" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 1" {
+        effect_type: 256
+        code: 1027
+        range: 4
+        count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self
         }
@@ -27,9 +27,11 @@ card "Number 75: Bamboozling Gossip Shadow" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 2" {
+        effect_type: 64
+        property: 16
+        range: 4
+        count_limit: (1, 71166481)
         on_resolve {
             attach (1, card) to self as_material
         }

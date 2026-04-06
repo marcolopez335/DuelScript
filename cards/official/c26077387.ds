@@ -10,10 +10,12 @@ card "Sky Striker Ace - Raye" {
     atk: 1500
     def: 1500
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 256
+        category: 512
+        code: 1002
+        range: 4
+        count_limit: (1, 26077387)
         cost {
             tribute self
         }
@@ -22,12 +24,13 @@ card "Sky Striker Ace - Raye" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        damage_step: true
-        trigger: when_leaves_field
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 512
+        code: 1015
+        property: 81920
+        range: 16
+        count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
         }

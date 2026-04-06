@@ -14,19 +14,24 @@ card "Gold Pride - Star Leon" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 256
+        category: 2097153
+        code: 1002
+        property: 16
+        range: 4
+        count_limit: (1, 22390469)
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: during_end_phase
+    raw_effect "Effect 2" {
+        effect_type: 514
+        category: 512
+        code: 4608
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             return (1, card) to deck shuffle
             special_summon (1, monster) from gy

@@ -14,26 +14,31 @@ card "Dangerous Frightfur Nightmary" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 1
+        code: 100
+        property: 131072
+        range: 4
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        damage_step: true
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 32
+        code: 1139
+        property: 81920
         on_resolve {
             send (1, card) to gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_2
-        optional: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 3" {
+        effect_type: 256
+        category: 16384
+        code: 1027
+        range: 4
         cost {
             banish self
         }

@@ -10,9 +10,11 @@ card "Horus the Black Flame Deity" {
     atk: 3000
     def: 1800
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 32
+        range: 2
+        count_limit: (1, 99307040)
         cost {
             send self to gy
         }
@@ -21,11 +23,13 @@ card "Horus the Black Flame Deity" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_leaves_field
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 544
+        code: 1015
+        property: 65536
+        range: 2
+        count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
             send (1, card) to gy

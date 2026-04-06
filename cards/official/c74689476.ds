@@ -14,9 +14,11 @@ card "Rilliona, the Wondrous Magistus Witch Wardrobe" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 512
+        range: 4
+        count_limit: (1, 74689476)
         cost {
             detach 1 overlay_unit from self
         }
@@ -25,16 +27,21 @@ card "Rilliona, the Wondrous Magistus Witch Wardrobe" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 16384
+        property: 16
+        range: 8
+        count_limit: (1, 0)
         on_resolve {
-            negate effect
+            reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 2
+        code: 52
+        property: 67110912
         on_resolve {
             reveal self
         }

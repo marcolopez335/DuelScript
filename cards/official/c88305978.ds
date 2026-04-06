@@ -10,20 +10,26 @@ card "Blackwing - Calima the Haze" {
     atk: 600
     def: 1800
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 256
+        category: 512
+        code: 1002
+        property: 16
+        range: 16
         cost {
             banish self
         }
         on_resolve {
-            special_summon (1, monster) from gy
+            reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 2050
+        code: 4224
+        property: 128
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             banish (1+, card)
         }

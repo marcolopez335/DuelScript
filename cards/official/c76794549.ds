@@ -11,27 +11,32 @@ card "Astrograph Sorcerer" {
     atk: 2500
     def: 2000
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 513
+        range: 512
+        count_limit: (1, 76794549)
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        damage_step: true
-        trigger: when_destroyed
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 131592
+        code: 1029
+        property: 81920
+        range: 2
         on_resolve {
             special_summon (1, monster) from gy
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 64
+        category: 1073742336
+        range: 4
         cost {
             banish self
         }
@@ -40,9 +45,9 @@ card "Astrograph Sorcerer" {
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
-        trigger: when_destroyed
+    raw_effect "Effect 4" {
+        effect_type: 2050
+        code: 1029
         on_resolve {
             reveal self
         }

@@ -5,17 +5,20 @@ card "Trap Gatherer" {
     password: 24839398
     type: Equip Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 4
+        code: 100
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 67108864
+        code: 1137
+        range: 8
+        count_limit: (1, 24839398)
         cost {
             send self to gy
         }
@@ -24,9 +27,11 @@ card "Trap Gatherer" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 3" {
+        effect_type: 2050
+        code: 202
+        range: 8
+        count_limit: (1, 0)
         on_resolve {
             reveal self
         }

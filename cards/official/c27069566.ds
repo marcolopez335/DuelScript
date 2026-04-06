@@ -14,9 +14,12 @@ card "Virtual World Phoenix - Fanfan" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 4
+        property: 16
+        range: 4
+        count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self
         }
@@ -25,12 +28,12 @@ card "Virtual World Phoenix - Fanfan" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        damage_step: true
-        trigger: when_destroyed
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 512
+        code: 1029
+        property: 81920
+        count_limit: (1, 27069566)
         on_resolve {
             special_summon (1, monster) from gy
         }

@@ -5,17 +5,20 @@ card "Gift Exchange" {
     password: 82257940
     type: Normal Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 4
+        code: 1002
         on_resolve {
             banish (1+, card)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: during_end_phase
+    raw_effect "Effect 2" {
+        effect_type: 2050
+        code: 4608
+        property: 128
+        count_limit: (1, 0)
         on_resolve {
             add_to_hand (1, card) from gy
             add_to_hand (1, card) from gy

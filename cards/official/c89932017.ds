@@ -5,25 +5,31 @@ card "One-Way Synchro" {
     password: 89932017
     type: Normal Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 131592
+        code: 1002
+        count_limit: (1, 89932017)
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 67108864
+        code: 1002
+        range: 16
+        count_limit: (1, 89932017)
         on_resolve {
             set (1, card)
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 205
+        property: 67109888
         on_resolve {
             reveal self
         }

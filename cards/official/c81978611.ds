@@ -5,16 +5,21 @@ card "Xyz Entrust" {
     password: 81978611
     type: Normal Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 134348808
+        code: 1002
+        count_limit: (1, 81978611)
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 512
+        property: 16
+        range: 16
         cost {
             banish self
         }
@@ -23,8 +28,8 @@ card "Xyz Entrust" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
         on_resolve {
             reveal self
         }

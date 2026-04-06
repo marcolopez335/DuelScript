@@ -10,11 +10,12 @@ card "Arias the Labrynth Butler" {
     atk: 1500
     def: 2500
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
-        activate_from: [hand, monster_zone]
+    raw_effect "Effect 1" {
+        effect_type: 256
+        category: 512
+        code: 1002
+        range: 6
+        count_limit: (1, 73602965)
         cost {
             send self to gy
         }
@@ -24,18 +25,20 @@ card "Arias the Labrynth Butler" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 512
+        code: 1027
+        range: 16
+        count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        property: 256
         on_resolve {
             reveal self
         }

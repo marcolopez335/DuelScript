@@ -10,9 +10,11 @@ card "Thunder Dragonhawk" {
     atk: 1800
     def: 2200
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 512
+        range: 2
+        count_limit: (1, 83107873)
         cost {
             discard self
         }
@@ -21,11 +23,12 @@ card "Thunder Dragonhawk" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when_banished
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 65552
+        code: 1011
+        property: 65536
+        count_limit: (1, 83107873)
         on_resolve {
             return (1, card) to deck shuffle
             shuffle deck

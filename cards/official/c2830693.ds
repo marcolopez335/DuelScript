@@ -10,43 +10,51 @@ card "Rainbow Kuriboh" {
     atk: 100
     def: 100
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when attack_declared
+    raw_effect "Effect 1" {
+        effect_type: 130
+        category: 262144
+        code: 1130
+        property: 16
+        range: 2
+        count_limit: (1, 2830693)
         on_resolve {
             send (1, card) to gy
             equip (1, card) to (1, monster)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when attack_declared
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 512
+        code: 1130
+        range: 16
+        count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 311
+        property: 1024
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 4
+        code: 62
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 5" {
-        speed: spell_speed_1
+    raw_effect "Effect 5" {
+        effect_type: 1
+        code: 205
+        property: 67109888
         on_resolve {
             reveal self
         }

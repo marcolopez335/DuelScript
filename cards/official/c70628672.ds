@@ -5,19 +5,23 @@ card "Emergeroid Call" {
     password: 70628672
     type: Normal Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 268435488
+        code: 1027
         on_resolve {
             negate activation
             send (1, card) to gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 8
+        code: 1002
+        property: 16
+        range: 16
+        count_limit: (1, 70628672)
         cost {
             banish self
         }

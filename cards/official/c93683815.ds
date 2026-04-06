@@ -11,32 +11,35 @@ card "Vulmina, Statue of the Sacred Dragon" {
     atk: 200
     def: 1800
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 1" {
+        effect_type: 130
+        category: 520
+        code: 1102
+        property: 65552
+        range: 512
+        count_limit: (1, 93683815)
         on_resolve {
             add_to_hand (1, card) from gy
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when attack_declared
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 8
+        code: 1130
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_destroyed
+    raw_effect "Effect 3" {
+        effect_type: 129
+        code: 1029
+        property: 65536
         on_resolve {
             special_summon (1, monster) from gy
         }

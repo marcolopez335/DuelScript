@@ -15,20 +15,23 @@ card "Sosei Ryu-Ge Mistva" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 131081
+        range: 512
+        count_limit: (1, 92487128)
         on_resolve {
             add_to_hand (1, card) from gy
             destroy (1+, card, either_player controls)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        damage_step: true
-        trigger: when_destroyed
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 515
+        code: 1029
+        property: 65536
+        range: 64
         on_resolve {
             tribute (1, monster, you controls)
             special_summon (1, monster) from gy

@@ -14,19 +14,22 @@ card "Magistus Chorozo" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when attack_declared
+    raw_effect "Effect 1" {
+        effect_type: 130
+        category: 2097160
+        code: 1130
+        property: 16
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             negate attack
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 1
+        code: 100
         on_resolve {
             reveal self
         }

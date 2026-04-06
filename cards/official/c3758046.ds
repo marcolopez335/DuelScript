@@ -14,41 +14,44 @@ card "D/D/D Wave King Caesar" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 256
+        category: 524800
+        code: 1002
+        range: 4
+        count_limit: (1, 3758046)
         cost {
             detach 1 overlay_unit from self
         }
-        on_resolve {
-            special_summon (1, monster) from gy
-            deal_damage to opponent: 1000
-        }
-    }
-
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_sent_to gy
-        on_resolve {
-            add_to_hand (1, card) from gy
-        }
-    }
-
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: during_standby_phase
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 131080
+        code: 1014
+        property: 65536
+        count_limit: (1, 0)
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    raw_effect "Effect 3" {
+        effect_type: 2050
+        code: 4224
+        count_limit: (1, 0)
+        on_resolve {
+            reveal self
+        }
+    }
+
+    raw_effect "Effect 4" {
+        effect_type: 2050
+        code: 4098
+        count_limit: (1, 0)
         on_resolve {
             deal_damage to opponent: 1000
         }

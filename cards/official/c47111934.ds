@@ -10,23 +10,29 @@ card "Worm Yagan" {
     atk: 1000
     def: 1800
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 512
+        range: 16
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        trigger: when_flipped
+    raw_effect "Effect 2" {
+        effect_type: 513
+        category: 8
+        code: 1001
+        property: 16
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 205
+        property: 1024
         on_resolve {
             reveal self
         }

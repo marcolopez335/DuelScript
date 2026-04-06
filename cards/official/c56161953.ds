@@ -10,9 +10,11 @@ card "Scrypton" {
     atk: 1500
     def: 1500
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 512
+        range: 2
+        count_limit: (1, 56161953)
         cost {
             banish self
         }
@@ -21,11 +23,12 @@ card "Scrypton" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_used_as_material
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 16
+        code: 1108
+        property: 65552
+        count_limit: (1, 0)
         on_resolve {
             return (1, card) to deck shuffle
         }

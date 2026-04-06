@@ -20,10 +20,13 @@ card "Number 24: Dragulas the Vampiric Dragon" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 256
+        category: 4096
+        code: 1002
+        property: 16
+        range: 4
+        count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self
         }
@@ -32,19 +35,20 @@ card "Number 24: Dragulas the Vampiric Dragon" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        damage_step: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 512
+        code: 1014
+        property: 81920
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        trigger: when_flipped
+    raw_effect "Effect 3" {
+        effect_type: 513
+        category: 32
+        code: 1001
         on_resolve {
             send (1, card) to gy
         }

@@ -5,18 +5,20 @@ card "Dogmatikacism" {
     password: 87481592
     type: Equip Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 4
+        code: 100
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 32
+        code: 1014
+        property: 65536
+        count_limit: (1, 87481592)
         on_resolve {
             send (1, card) to gy
         }

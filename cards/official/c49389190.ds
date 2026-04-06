@@ -10,21 +10,23 @@ card "Ikelos, the Dream Mirror Sprite" {
     atk: 0
     def: 500
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        damage_step: true
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 1" {
+        effect_type: 129
+        category: 131080
+        code: 1102
+        property: 81920
+        count_limit: (1, 49389190)
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 512
+        code: 1002
+        range: 4
+        count_limit: (1, 0)
         cost {
             tribute self
         }

@@ -14,19 +14,22 @@ card "CXyz Gimmick Puppet Fanatix Machinix" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 1" {
+        effect_type: 129
+        category: 131080
+        code: 1102
+        property: 65536
+        count_limit: (1, 3685372)
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 512
+        range: 4
+        count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self
         }
@@ -35,19 +38,23 @@ card "CXyz Gimmick Puppet Fanatix Machinix" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
+    raw_effect "Effect 3" {
+        effect_type: 129
+        category: 524289
+        property: 65552
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
             deal_damage to opponent: 1000
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 4" {
+        effect_type: 2050
+        code: 1102
+        property: 1024
+        range: 4
         on_resolve {
             reveal self
         }

@@ -14,21 +14,23 @@ card "Gate Guardians Combined" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 1" {
+        effect_type: 256
+        category: 16385
+        code: 1027
+        range: 4
+        count_limit: (3, 8505920)
         on_resolve {
             negate effect
             destroy (1+, card, either_player controls)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_leaves_field
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 512
+        code: 1015
+        property: 65536
         on_resolve {
             special_summon (1, monster) from gy
         }

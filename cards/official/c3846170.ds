@@ -10,25 +10,26 @@ card "Karakuri Soldier mdl 236 'Nisamu'" {
     atk: 1400
     def: 200
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 1
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        trigger: when_attacked
+    raw_effect "Effect 2" {
+        effect_type: 513
+        category: 4096
+        code: 1131
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_battle_destroyed
+    raw_effect "Effect 3" {
+        effect_type: 129
+        category: 512
+        code: 1140
         on_resolve {
             special_summon (1, monster) from gy
         }

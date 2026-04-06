@@ -10,19 +10,22 @@ card "Galaxy Cleric" {
     atk: 1500
     def: 600
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        property: 16
+        range: 2
+        count_limit: (1, 28770951)
         on_resolve {
             attach (1, card) to self as_material
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when_summoned
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 65552
+        code: 1100
+        property: 65552
+        count_limit: (1, 28770951)
         on_resolve {
             return (1, card) to deck shuffle
             shuffle deck

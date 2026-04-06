@@ -10,23 +10,28 @@ card "Mermail Abyssbalaen" {
     atk: 2500
     def: 2000
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 512
+        range: 2
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 2" {
+        effect_type: 513
+        category: 2097153
+        code: 1102
+        property: 16
         on_resolve {
-            destroy (1+, card, either_player controls)
+            reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 64
+        range: 4
         cost {
             tribute self
         }
@@ -35,15 +40,18 @@ card "Mermail Abyssbalaen" {
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 1
+        code: 100
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 5" {
-        speed: spell_speed_1
+    raw_effect "Effect 5" {
+        effect_type: 513
+        category: 1
+        code: 1132
         on_resolve {
             destroy (1+, card, either_player controls)
         }

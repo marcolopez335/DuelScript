@@ -10,23 +10,28 @@ card "Gandora the Dragon of Destruction" {
     atk: 0
     def: 0
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 1
+        code: 30
+        property: 263168
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        trigger: when_summoned
+    raw_effect "Effect 2" {
+        effect_type: 2049
+        code: 1100
+        property: 1024
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 64
+        category: 1
+        range: 4
         cost {
             pay_lp your_lp / 2
         }
@@ -35,17 +40,21 @@ card "Gandora the Dragon of Destruction" {
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: during_end_phase
+    raw_effect "Effect 4" {
+        effect_type: 514
+        category: 32
+        code: 4608
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             send (1, card) to gy
         }
     }
 
-    effect "Effect 5" {
-        speed: spell_speed_1
+    raw_effect "Effect 5" {
+        effect_type: 1
+        code: 100
+        property: 8192
         on_resolve {
             reveal self
         }

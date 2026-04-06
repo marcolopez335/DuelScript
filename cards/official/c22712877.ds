@@ -10,22 +10,24 @@ card "Paralyzing Mushroom" {
     atk: 1400
     def: 0
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        damage_step: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 1" {
+        effect_type: 130
+        category: 512
+        code: 1014
+        property: 114688
+        range: 2
+        count_limit: (1, 22712877)
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 1536
+        code: 1027
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             create_token { atk: 0 def: 0 }
             special_summon (1, monster) from gy

@@ -10,11 +10,13 @@ card "Roulette Barrel" {
     atk: 1000
     def: 2000
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 33554433
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            reveal self
         }
     }
 

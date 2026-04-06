@@ -10,29 +10,33 @@ card "Bujin Mikazuchi" {
     atk: 1900
     def: 1500
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        optional: true
-        damage_step: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 1" {
+        effect_type: 130
+        category: 512
+        code: 1014
+        property: 16384
+        range: 2
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: during_end_phase
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 131080
+        code: 4608
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        trigger: when_sent_to gy
+    raw_effect "Effect 3" {
+        effect_type: 2050
+        code: 1014
+        property: 1024
+        range: 4
         on_resolve {
             reveal self
         }

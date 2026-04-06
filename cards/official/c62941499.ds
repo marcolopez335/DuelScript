@@ -14,27 +14,31 @@ card "Springans Ship - Exblowrer" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 1
+        range: 4
+        count_limit: (1, 62941499)
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 4
+        code: 1002
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             banish (1+, card)
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: during_end_phase
+    raw_effect "Effect 3" {
+        effect_type: 2050
+        code: 4608
+        count_limit: (1, 0)
         on_resolve {
             reveal self
         }

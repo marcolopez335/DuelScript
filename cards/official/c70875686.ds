@@ -13,16 +13,20 @@ card "Prank-Kids Rip-Roarin-Roaster" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 1
+        code: 30
+        property: 263168
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 1
+        code: 1002
+        range: 4
         cost {
             tribute self
         }
@@ -31,12 +35,12 @@ card "Prank-Kids Rip-Roarin-Roaster" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        damage_step: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 3" {
+        effect_type: 129
+        category: 8
+        code: 1014
+        property: 81936
+        count_limit: (1, 70875686)
         on_resolve {
             add_to_hand (1, card) from gy
         }

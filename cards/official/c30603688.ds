@@ -10,19 +10,21 @@ card "Apprentice Illusion Magician" {
     atk: 2000
     def: 1700
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_summoned
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 131080
+        code: 1100
+        property: 65536
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_2
-        optional: true
-        activate_from: [hand, monster_zone]
+    raw_effect "Effect 3" {
+        effect_type: 256
+        category: 2097152
+        code: 1134
+        range: 6
         cost {
             send self to gy
         }
@@ -31,8 +33,9 @@ card "Apprentice Illusion Magician" {
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 1
+        code: 100
         on_resolve {
             reveal self
         }

@@ -5,8 +5,9 @@ card "Spell Chronicle" {
     password: 74402414
     type: Continuous Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        code: 1002
         cost {
             send self to gy
         }
@@ -15,39 +16,46 @@ card "Spell Chronicle" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 2" {
+        effect_type: 2050
+        code: 1027
+        property: 1024
+        range: 8
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 2050
+        code: 1022
+        range: 8
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 64
+        category: 8
+        property: 16
+        range: 8
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 5" {
-        speed: spell_speed_1
-        trigger: when_leaves_field
+    raw_effect "Effect 5" {
+        effect_type: 2049
+        property: 1024
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 6" {
-        speed: spell_speed_1
-        trigger: when_leaves_field
+    raw_effect "Effect 6" {
+        effect_type: 2049
+        code: 1015
         on_resolve {
             deal_damage to opponent: 1000
         }

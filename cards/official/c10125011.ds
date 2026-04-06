@@ -5,17 +5,22 @@ card "Constellar Tellarknights" {
     password: 10125011
     type: Continuous Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 512
+        code: 1002
+        count_limit: (1, 10125011)
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 512
+        property: 16
+        range: 8
+        count_limit: (1, 0)
         on_resolve {
             attach (1, card) to self as_material
             special_summon (1, monster) from gy

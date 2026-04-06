@@ -20,9 +20,11 @@ card "Divine Arsenal AA-ZEUS - Sky Thunder" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 256
+        category: 32
+        code: 1002
+        range: 4
         cost {
             detach 1 overlay_unit from self
         }
@@ -31,19 +33,20 @@ card "Divine Arsenal AA-ZEUS - Sky Thunder" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        damage_step: true
-        trigger: when_destroyed
+    raw_effect "Effect 2" {
+        effect_type: 130
+        code: 1029
+        property: 81920
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             attach (1, card) to self as_material
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 2050
+        code: 1137
         on_resolve {
             reveal self
         }

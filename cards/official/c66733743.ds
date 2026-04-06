@@ -10,20 +10,23 @@ card "T.G. Metal Skeleton" {
     atk: 1100
     def: 0
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        damage_step: true
-        trigger: when_destroyed
+    raw_effect "Effect 1" {
+        effect_type: 130
+        category: 512
+        code: 1029
+        property: 81920
+        range: 2
+        count_limit: (1, 66733743)
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 2050
+        code: 202
+        range: 20
+        count_limit: (1, 0)
         on_resolve {
             banish (1+, card)
         }

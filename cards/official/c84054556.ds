@@ -4,26 +4,31 @@
 card "DoomZ Command 'A.D.R.A.S.T.E.I.A.'" {
     password: 84054556
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 1" {
+        effect_type: 4
+        count_limit: (1, 0)
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 513
+        range: 8
+        count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 3" {
+        effect_type: 64
+        category: 786432
+        property: 16
+        range: 16
+        count_limit: (1, 0)
         on_resolve {
             equip (1, card) to (1, monster)
             deal_damage to opponent: 1000

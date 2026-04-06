@@ -10,9 +10,10 @@ card "Miscellaneousaurus" {
     atk: 1800
     def: 1000
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 256
+        code: 1002
+        range: 2
         cost {
             send self to gy
         }
@@ -21,25 +22,29 @@ card "Miscellaneousaurus" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 512
+        range: 16
+        count_limit: (1, 38572779)
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 2
+        code: 308
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: during_end_phase
+    raw_effect "Effect 4" {
+        effect_type: 2050
+        code: 4608
+        property: 128
+        count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
         }

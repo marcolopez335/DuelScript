@@ -20,11 +20,12 @@ card "Number 37: Hope Woven Dragon Spider Shark" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when attack_declared
+    raw_effect "Effect 1" {
+        effect_type: 130
+        category: 2097152
+        code: 1130
+        range: 4
+        count_limit: (1, 37279508)
         cost {
             detach 1 overlay_unit from self
         }
@@ -33,18 +34,20 @@ card "Number 37: Hope Woven Dragon Spider Shark" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 512
+        code: 1014
+        property: 16
+        count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 100
         on_resolve {
             reveal self
         }

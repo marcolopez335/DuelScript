@@ -10,16 +10,21 @@ card "The Big Saturn" {
     atk: 2800
     def: 2200
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 1
+        code: 30
+        property: 394240
+        range: 3
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 2097152
+        range: 4
+        count_limit: (1, 0)
         cost {
             pay_lp your_lp / 2
         }
@@ -28,17 +33,19 @@ card "The Big Saturn" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        trigger: when_sent_to gy
+    raw_effect "Effect 3" {
+        effect_type: 513
+        category: 524288
+        code: 1014
         on_resolve {
             deal_damage to opponent: 1000
             deal_damage to opponent: 1000
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 1
+        code: 100
         on_resolve {
             reveal self
         }

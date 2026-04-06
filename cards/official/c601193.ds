@@ -20,20 +20,23 @@ card "Virgil, Rock Star of the Burning Abyss" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 16
+        property: 16
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             return (1, card) to deck shuffle
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        damage_step: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 65536
+        code: 1014
+        property: 81920
+        count_limit: (1, 601193)
         on_resolve {
             draw 1
         }

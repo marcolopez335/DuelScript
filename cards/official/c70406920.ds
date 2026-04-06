@@ -5,30 +5,38 @@ card "Machine King - 3000 B.C." {
     password: 70406920
     type: Continuous Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        on_resolve {
-            special_summon (1, monster) from gy
-        }
-    }
-
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 512
+        code: 1002
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 2
+        code: 52
+        property: 526336
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 3" {
+        effect_type: 2
+        code: 50
+        property: 526336
+        on_resolve {
+            reveal self
+        }
+    }
+
+    raw_effect "Effect 4" {
+        effect_type: 64
+        category: 2097152
+        range: 4
+        count_limit: (1, 0)
         cost {
             tribute self
         }
@@ -37,8 +45,9 @@ card "Machine King - 3000 B.C." {
         }
     }
 
-    effect "Effect 5" {
-        speed: spell_speed_1
+    raw_effect "Effect 5" {
+        effect_type: 1
+        code: 100
         on_resolve {
             reveal self
         }

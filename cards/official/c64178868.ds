@@ -10,26 +10,29 @@ card "Battle Survivor" {
     atk: 1600
     def: 800
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 130
+        category: 8
+        code: 4224
+        range: 4
+        count_limit: (1, 64178868)
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        damage_step: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 2050
+        code: 1014
+        property: 17408
+        range: 4
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
         on_resolve {
             reveal self
         }

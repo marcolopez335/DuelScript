@@ -14,39 +14,46 @@ card "Swordsoul Sinister Sovereign - Qixing Longyuan" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 1" {
+        effect_type: 130
+        category: 65536
+        code: 1102
+        property: 2048
+        range: 4
+        count_limit: (1, 47710198)
         on_resolve {
             draw 1
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 524292
+        property: 65536
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             banish (1+, card)
             deal_damage to opponent: 1200
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 3" {
+        effect_type: 2050
+        code: 1102
+        property: 1024
+        range: 4
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 4" {
+        effect_type: 256
+        category: 524292
+        code: 1027
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             banish (1+, card)
             deal_damage to opponent: 1200

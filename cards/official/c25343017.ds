@@ -10,25 +10,31 @@ card "Hushed Psychic Cleric" {
     atk: 0
     def: 2100
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        trigger: when_summoned
+    raw_effect "Effect 1" {
+        effect_type: 513
+        category: 4096
+        code: 1100
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 4
+        property: 16
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             banish (1+, card)
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        trigger: when_sent_to gy
+    raw_effect "Effect 3" {
+        effect_type: 513
+        category: 512
+        code: 1014
+        property: 16
         on_resolve {
             special_summon (1, monster) from gy
         }

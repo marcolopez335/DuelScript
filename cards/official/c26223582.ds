@@ -14,29 +14,33 @@ card "Buerillabaisse de Nouvelles" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 1" {
+        effect_type: 2049
+        code: 1102
+        property: 1024
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 131080
+        code: 1102
+        property: 65536
+        count_limit: (1, 26223582)
         on_resolve {
             add_to_hand (1, card) from gy
             shuffle deck
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
+    raw_effect "Effect 3" {
+        effect_type: 256
+        category: 514
+        code: 1028
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             tribute (1, monster, you controls)
             special_summon (1, monster) from gy

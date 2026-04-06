@@ -5,31 +5,39 @@ card "The Phantom Knights of Dark Gauntlets" {
     password: 24212820
     type: Normal Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 32
+        code: 1002
         on_resolve {
             send (1, card) to gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        optional: true
-        trigger: when attack_declared
-        on_resolve {
-            special_summon (1, monster) from gy
-        }
-    }
-
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 512
+        code: 1130
+        range: 16
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 104
+        property: 131072
+        range: 4
+        on_resolve {
+            reveal self
+        }
+    }
+
+    raw_effect "Effect 4" {
+        effect_type: 1
+        code: 205
+        property: 67109888
         on_resolve {
             reveal self
         }

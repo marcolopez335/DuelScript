@@ -10,19 +10,22 @@ card "Vanquish Soul Jiaolong" {
     atk: 2400
     def: 2100
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 130
+        category: 512
+        property: 65536
+        range: 2
+        count_limit: (1, 9091064)
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 256
+        code: 1002
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)
         }

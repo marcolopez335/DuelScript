@@ -205,6 +205,19 @@ fn eval_simple_condition(cond: &SimpleCondition, rt: &dyn DuelScriptRuntime) -> 
             // TODO: check if matching cards exist on opponent's field
             true
         }
+        // v0.6 additions — evaluated against runtime state
+        SimpleCondition::ChainLinkMatches(_) => {
+            // TODO: walk the current chain link and match against criteria
+            true
+        }
+        SimpleCondition::History(_) => {
+            // TODO: query card history from runtime
+            true
+        }
+        SimpleCondition::Predicate(_) => {
+            // TODO: evaluate predicate against self
+            true
+        }
     }
 }
 
@@ -896,6 +909,13 @@ fn resolve_target_cards(target: &TargetExpr, rt: &dyn DuelScriptRuntime, player:
         }
         TargetExpr::Filter(filter) => {
             // Unscoped filter — search player's field
+            let all = rt.get_field_cards(player, type_mapper::LOCATION_ONFIELD);
+            all.into_iter()
+                .filter(|&cid| rt.card_matches_filter(cid, filter))
+                .collect()
+        }
+        TargetExpr::WithPredicate { filter, .. } => {
+            // v0.6: TODO — evaluate predicate. For now, fall back to filter only
             let all = rt.get_field_cards(player, type_mapper::LOCATION_ONFIELD);
             all.into_iter()
                 .filter(|&cid| rt.card_matches_filter(cid, filter))

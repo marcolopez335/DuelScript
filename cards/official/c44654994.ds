@@ -4,17 +4,19 @@
 card "Artmage Impasto -Recapture-" {
     password: 44654994
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 1
+        property: 256
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 2" {
+        effect_type: 16
+        category: 268435469
+        code: 1027
+        count_limit: (1, 44654994)
         on_resolve {
             negate activation
             destroy (1+, card, either_player controls)

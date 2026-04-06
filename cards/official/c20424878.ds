@@ -10,21 +10,22 @@ card "Springans Rockey" {
     atk: 1800
     def: 800
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        activate_from: [hand, monster_zone]
+    raw_effect "Effect 1" {
+        effect_type: 64
+        property: 16
+        range: 22
+        count_limit: (1, 20424878)
         on_resolve {
             attach (1, card) to self as_material
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        damage_step: true
-        trigger: when_summoned
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 8
+        code: 1100
+        property: 81936
+        count_limit: (1, 0)
         on_resolve {
             add_to_hand (1, card) from gy
         }

@@ -20,23 +20,24 @@ card "Yoko, the Graceful Mayakashi" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        damage_step: true
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 1" {
+        effect_type: 129
+        category: 1
+        code: 1102
+        property: 81920
+        count_limit: (1, 3486020)
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        damage_step: true
-        trigger: when_destroyed
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 516
+        code: 1029
+        property: 81920
+        range: 16
+        count_limit: (1, 0)
         on_resolve {
             banish (1+, card)
             special_summon (1, monster) from gy

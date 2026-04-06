@@ -10,25 +10,29 @@ card "Ghostrick Specter" {
     atk: 600
     def: 0
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 1
+        code: 50
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 4096
+        range: 4
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        optional: true
-        damage_step: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 3" {
+        effect_type: 130
+        category: 66048
+        code: 1014
+        property: 16384
+        range: 2
         on_resolve {
             special_summon (1, monster) from gy
             draw 1

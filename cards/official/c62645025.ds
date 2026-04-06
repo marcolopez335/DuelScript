@@ -5,17 +5,21 @@ card "The Phantom Knights of Wrong Magnetring" {
     password: 62645025
     type: Normal Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        trigger: when attack_declared
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 512
+        code: 1130
         on_resolve {
             negate attack
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 65536
+        code: 1002
+        property: 2048
+        range: 4
         cost {
             send self to gy
         }

@@ -20,9 +20,12 @@ card "Michael, the Arch-Lightsworn" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 4
+        property: 16
+        range: 4
+        count_limit: (1, 0)
         cost {
             pay_lp 1000
         }
@@ -31,21 +34,23 @@ card "Michael, the Arch-Lightsworn" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        damage_step: true
-        trigger: when_destroyed
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 1048592
+        code: 1029
+        property: 16400
         on_resolve {
             return (1, card) to deck shuffle
             gain_lp: 1000
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: during_end_phase
+    raw_effect "Effect 3" {
+        effect_type: 514
+        category: 64
+        code: 4608
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             mill 3
         }

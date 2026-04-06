@@ -20,20 +20,24 @@ card "Legendary Six Samurai - Shi En" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
-        damage_step: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 1" {
+        effect_type: 256
+        category: 268435457
+        code: 1027
+        property: 49152
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             negate activation
             destroy (1+, card, either_player controls)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 2049
+        code: 202
+        property: 131072
+        range: 4
         on_resolve {
             destroy (1+, card, either_player controls)
         }

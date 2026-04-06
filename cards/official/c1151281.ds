@@ -10,25 +10,30 @@ card "Subterror Behemoth Phospheroglacier" {
     atk: 2600
     def: 2500
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 161
+        category: 32
+        property: 65536
+        count_limit: (1, 1151281)
         on_resolve {
             send (1, card) to gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 512
+        code: 1016
+        range: 2
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 64
+        category: 4096
+        range: 4
         on_resolve {
             change_battle_position (1, monster)
         }

@@ -5,28 +5,32 @@ card "Depth Amulet" {
     password: 8279188
     type: Continuous Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        code: 1002
         on_resolve {
             discard (1, card)
             negate attack
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        optional: true
-        trigger: when attack_declared
+    raw_effect "Effect 2" {
+        effect_type: 256
+        code: 1130
+        property: 16
+        range: 8
         on_resolve {
             discard (1, card)
             negate attack
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: during_end_phase
+    raw_effect "Effect 3" {
+        effect_type: 2050
+        code: 4608
+        property: 1024
+        range: 8
+        count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
         }

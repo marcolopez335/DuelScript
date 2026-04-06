@@ -10,9 +10,11 @@ card "Rescue-ACE Turbulence" {
     atk: 3000
     def: 3000
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 512
+        range: 2
+        count_limit: (1, 0)
         cost {
             banish self
         }
@@ -21,19 +23,22 @@ card "Rescue-ACE Turbulence" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 64
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             set (1, card)
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_leaves_field
+    raw_effect "Effect 3" {
+        effect_type: 130
+        category: 1
+        code: 1015
+        property: 65552
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
         }

@@ -5,17 +5,20 @@ card "Supply Squad" {
     password: 17626381
     type: Continuous Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        code: 1002
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: when_destroyed
+    raw_effect "Effect 2" {
+        effect_type: 514
+        category: 65536
+        code: 1029
+        range: 8
+        count_limit: (1, 0)
         on_resolve {
             draw 1
         }

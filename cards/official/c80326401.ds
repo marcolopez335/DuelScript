@@ -5,17 +5,22 @@ card "Wishes for Eyes of Blue" {
     password: 80326401
     type: Normal Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 131080
+        code: 1002
+        count_limit: (1, 80326401)
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 262144
+        property: 16
+        range: 16
+        count_limit: (1, 0)
         cost {
             banish self
         }
@@ -24,15 +29,18 @@ card "Wishes for Eyes of Blue" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 4
+        code: 100
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 1
+        code: 311
+        property: 1024
         on_resolve {
             reveal self
         }

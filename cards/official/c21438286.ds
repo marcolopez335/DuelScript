@@ -5,19 +5,22 @@ card "Archfiend's Staff of Despair" {
     password: 21438286
     type: Equip Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 2097152
+        range: 8
+        count_limit: (1, 21438286)
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_leaves_field
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 8
+        code: 1015
+        property: 65536
+        count_limit: (1, 0)
         cost {
             pay_lp 1000
         }
@@ -26,8 +29,9 @@ card "Archfiend's Staff of Despair" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 100
         on_resolve {
             reveal self
         }

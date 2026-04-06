@@ -10,23 +10,26 @@ card "Cross Keeper" {
     atk: 400
     def: 400
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        activate_from: [hand, monster_zone]
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 512
+        range: 6
+        count_limit: (1, 40740224)
         cost {
             send self to gy
         }
         on_resolve {
-            special_summon (1, monster) from gy
+            reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 65552
+        code: 1102
+        property: 65536
+        range: 16
+        count_limit: (1, 0)
         cost {
             banish self
         }
@@ -37,8 +40,10 @@ card "Cross Keeper" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 2
+        property: 1024
         on_resolve {
             reveal self
         }

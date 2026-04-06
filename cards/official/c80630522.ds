@@ -10,25 +10,29 @@ card "Flower Cardian Paulownia" {
     atk: 100
     def: 100
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 512
+        range: 2
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_attacked
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 65536
+        code: 1131
         on_resolve {
             negate attack
             draw 1
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 2
+        code: 50
+        property: 67110912
         on_resolve {
             reveal self
         }

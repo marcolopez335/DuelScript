@@ -14,28 +14,34 @@ card "Kanzashi the Rikka Queen" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 130
+        category: 512
+        code: 1017
+        property: 65552
+        range: 4
+        count_limit: (1, 6284176)
         cost {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            special_summon (1, monster) from gy
+            reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 2050
+        code: 202
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             tribute (1, monster, you controls)
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 2
         on_resolve {
             reveal self
         }

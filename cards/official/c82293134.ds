@@ -10,19 +10,22 @@ card "Heraldic Beast Leo" {
     atk: 2000
     def: 1000
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: during_end_phase
+    raw_effect "Effect 1" {
+        effect_type: 514
+        category: 1
+        code: 4608
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 513
+        category: 131080
+        code: 1014
+        count_limit: (1, 82293134)
         on_resolve {
             add_to_hand (1, card) from gy
         }

@@ -10,19 +10,23 @@ card "Bahalutiya, the Grand Radiance" {
     atk: 2000
     def: 2400
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 130
+        category: 256
+        code: 1012
+        property: 65536
+        range: 2
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when_summoned
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 28
+        code: 1100
+        property: 67584
+        count_limit: (1, 53318263)
         on_resolve {
             banish (1+, card)
             return (1, card) to deck shuffle

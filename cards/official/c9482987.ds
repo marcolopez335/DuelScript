@@ -10,17 +10,23 @@ card "Endymion, the Magistus of Mastery" {
     atk: 1300
     def: 1700
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 262144
+        property: 16
+        range: 4
+        count_limit: (1, 9482987)
         on_resolve {
             equip (1, card) to (1, monster)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 65553
+        property: 16
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
             shuffle deck
@@ -28,8 +34,10 @@ card "Endymion, the Magistus of Mastery" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 311
+        property: 1024
         on_resolve {
             reveal self
         }

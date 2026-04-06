@@ -5,32 +5,39 @@ card "Cursed Bamboo Sword" {
     password: 42199039
     type: Equip Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 4
+        code: 100
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 8
+        property: 16
+        range: 8
+        count_limit: (1, 42199039)
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 3" {
+        effect_type: 129
+        category: 131080
+        code: 1014
+        property: 65536
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 1
+        code: 82
+        property: 67109888
         on_resolve {
             reveal self
         }

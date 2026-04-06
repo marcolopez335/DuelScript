@@ -10,21 +10,22 @@ card "Krawler Ranvier" {
     atk: 1100
     def: 900
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 161
+        category: 8
+        property: 65552
+        count_limit: (1, 10698416)
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        damage_step: true
-        trigger: when_leaves_field
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 512
+        code: 1015
+        property: 81920
+        count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
         }

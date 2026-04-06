@@ -10,9 +10,11 @@ card "Storming Wynn" {
     atk: 800
     def: 1500
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 512
+        range: 4
+        count_limit: (1, 0)
         cost {
             tribute self
         }
@@ -21,9 +23,10 @@ card "Storming Wynn" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        trigger: when_leaves_field
+    raw_effect "Effect 2" {
+        effect_type: 2050
+        code: 1015
+        range: 4
         on_resolve {
             destroy (1+, card, either_player controls)
         }

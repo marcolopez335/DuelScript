@@ -5,18 +5,22 @@ card "Xyz Poseidon Splash" {
     password: 16938770
     type: Normal Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 1
+        code: 1002
+        count_limit: (1, 16938770)
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 512
+        code: 1002
+        range: 16
+        count_limit: (1, 16938770)
         cost {
             banish self
             detach 1 overlay_unit from self

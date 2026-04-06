@@ -8,20 +8,21 @@ card "Crimson Blade Dragon" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 1" {
+        effect_type: 129
+        category: 131592
+        code: 1102
+        property: 65536
+        count_limit: (1, 3294539)
         on_resolve {
-            special_summon (1, monster) from gy
-            add_to_hand (1, card) from gy
+            reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 1
+        code: 1132
         on_resolve {
             destroy (1+, card, either_player controls)
         }

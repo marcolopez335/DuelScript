@@ -5,18 +5,22 @@ card "Mythical Bestiary" {
     password: 38325384
     type: Quick-Play Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 8388608
+        code: 1002
+        property: 16
+        count_limit: (1, 38325384)
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_destroyed
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 8389120
+        code: 1029
+        property: 65536
         on_resolve {
             special_summon (1, monster) from gy
         }

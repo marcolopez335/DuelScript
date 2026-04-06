@@ -5,10 +5,11 @@ card "Dark World Punishment" {
     password: 3167439
     type: Normal Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        trigger: when_summoned
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 32897
+        code: 1103
+        count_limit: (1, 3167439)
         on_resolve {
             negate summon
             destroy (1+, card, either_player controls)
@@ -16,9 +17,11 @@ card "Dark World Punishment" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 2050
+        code: 202
+        range: 16
+        count_limit: (1, 0)
         on_resolve {
             banish (1+, card)
         }

@@ -10,18 +10,21 @@ card "Amaterasu" {
     atk: 3000
     def: 3000
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        optional: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 1" {
+        effect_type: 256
+        category: 65536
+        code: 1027
+        property: 256
+        range: 4
         on_resolve {
             draw 1
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        trigger: when_flipped
+    raw_effect "Effect 2" {
+        effect_type: 513
+        category: 4
+        code: 1001
         on_resolve {
             banish (1+, card)
         }

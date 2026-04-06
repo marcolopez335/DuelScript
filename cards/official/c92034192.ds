@@ -10,22 +10,24 @@ card "Super Quantum Black Layer" {
     atk: 2400
     def: 2400
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 1" {
+        effect_type: 256
+        category: 640
+        code: 1027
+        range: 2
+        count_limit: (1, 92034192)
         on_resolve {
             discard (1, card)
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 512
+        code: 1102
+        property: 65536
+        count_limit: (1, 0)
         on_resolve {
             attach (1, card) to self as_material
             special_summon (1, monster) from gy
@@ -33,11 +35,12 @@ card "Super Quantum Black Layer" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 3" {
+        effect_type: 129
+        category: 131080
+        code: 1014
+        property: 65536
+        count_limit: (1, 0)
         on_resolve {
             add_to_hand (1, card) from gy
         }

@@ -14,45 +14,49 @@ card "Lightstorm Dragon" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 1" {
+        effect_type: 129
+        category: 1
+        code: 1102
+        property: 65552
+        count_limit: (1, 10515412)
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_destroyed
+    raw_effect "Effect 2" {
+        effect_type: 129
+        code: 1029
+        property: 65552
+        count_limit: (1, 0)
         on_resolve {
             set (1, card)
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 78
+        property: 67109888
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 4" {
+        effect_type: 2050
+        code: 1027
+        property: 128
+        count_limit: (1, 0)
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 5" {
-        speed: spell_speed_1
-        trigger: when_leaves_field
+    raw_effect "Effect 5" {
+        effect_type: 2049
+        property: 1024
         on_resolve {
             reveal self
         }

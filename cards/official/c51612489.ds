@@ -5,9 +5,12 @@ card "Riot's Reason" {
     password: 51612489
     type: Quick-Play Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 520
+        code: 1002
+        property: 16
+        count_limit: (1, 51612489)
         on_resolve {
             add_to_hand (1, card) from gy
             shuffle deck
@@ -15,11 +18,12 @@ card "Riot's Reason" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when attack_declared
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 4096
+        code: 1130
+        range: 16
+        count_limit: (1, 0)
         cost {
             banish self
         }

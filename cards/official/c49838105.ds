@@ -5,24 +5,29 @@ card "Sylvan Waterslide" {
     password: 49838105
     type: Continuous Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        code: 1002
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when attack_declared
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 64
+        code: 1130
+        range: 8
         on_resolve {
             send (1, card) to gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 514
+        category: 131144
+        code: 1113
+        range: 8
         on_resolve {
             send (1, card) to gy
             add_to_hand (1, card) from gy
@@ -30,8 +35,9 @@ card "Sylvan Waterslide" {
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 2
+        property: 2048
         on_resolve {
             reveal self
         }

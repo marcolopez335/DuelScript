@@ -10,21 +10,24 @@ card "Seed-Spitting Saplings" {
     atk: 1600
     def: 200
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 256
+        category: 1536
+        code: 1028
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             create_token { atk: 0 def: 0 }
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 32769
+        code: 1105
+        range: 4
+        count_limit: (1, 0)
         cost {
             tribute self
         }

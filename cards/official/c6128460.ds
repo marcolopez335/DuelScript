@@ -10,26 +10,31 @@ card "Wightbaking" {
     atk: 300
     def: 200
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 1
+        code: 129
+        property: 131072
+        range: 16
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 2050
+        code: 202
+        range: 2
         on_resolve {
             send (1, card) to gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        damage_step: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 3" {
+        effect_type: 129
+        category: 131208
+        code: 1014
+        property: 81920
+        count_limit: (1, 0)
         on_resolve {
             add_to_hand (1, card) from gy
             shuffle deck

@@ -5,9 +5,11 @@ card "Enneacraft Reverth" {
     password: 80015408
     type: Normal Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 65552
+        code: 1002
+        count_limit: (1, 80015408)
         on_resolve {
             return (1, card) to deck shuffle
             shuffle deck
@@ -15,10 +17,10 @@ card "Enneacraft Reverth" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_summoned
+    raw_effect "Effect 2" {
+        effect_type: 130
+        code: 1100
+        range: 16
         cost {
             banish self
         }

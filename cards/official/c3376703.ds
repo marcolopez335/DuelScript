@@ -10,8 +10,9 @@ card "Arcana Force V - The Hierophant" {
     atk: 1500
     def: 1500
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 64
+        range: 2
         cost {
             discard self
         }
@@ -20,17 +21,18 @@ card "Arcana Force V - The Hierophant" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        trigger: when_summoned
+    raw_effect "Effect 2" {
+        effect_type: 513
+        category: 16777728
+        code: 1100
         on_resolve {
-            special_summon (1, monster) from gy
+            reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        trigger: when_summoned
+    raw_effect "Effect 3" {
+        effect_type: 2050
+        code: 1100
         on_resolve {
             reveal self
         }

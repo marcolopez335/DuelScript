@@ -14,34 +14,38 @@ card "Epurrely Happiness" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 129
+        category: 2228232
+        code: 1136
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 2049
+        code: 1137
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 3" {
+        effect_type: 256
+        category: 8
+        code: 1027
+        range: 4
+        count_limit: (3, 0)
         on_resolve {
             attach (1, card) to self as_material
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 1
+        code: 92
         on_resolve {
             reveal self
         }

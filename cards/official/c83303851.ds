@@ -11,8 +11,10 @@ card "D/D/D Chaos King Apocalypse" {
     atk: 2700
     def: 2000
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 512
+        range: 512
         cost {
             banish self
         }
@@ -21,26 +23,30 @@ card "D/D/D Chaos King Apocalypse" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
-        activate_from: [hand, gy]
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 513
+        code: 1002
+        property: 16
+        range: 18
+        count_limit: (1, 83303851)
         on_resolve {
             destroy (1+, card, either_player controls)
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 2
+        code: 52
+        property: 2048
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        property: 67635200
         on_resolve {
             reveal self
         }

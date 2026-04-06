@@ -11,33 +11,40 @@ card "Performage Mirror Conductor" {
     atk: 600
     def: 1400
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 1" {
+        effect_type: 64
+        property: 16
+        range: 512
+        count_limit: (1, 0)
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
-        damage_step: true
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 524288
+        code: 1002
+        property: 16400
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             deal_damage to opponent: 500
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 92
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 1
+        code: 97
+        property: 1024
         on_resolve {
             reveal self
         }

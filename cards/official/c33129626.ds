@@ -14,31 +14,35 @@ card "Centaur Mina" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
-        damage_step: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 1" {
+        effect_type: 256
+        category: 268439552
+        code: 1027
+        property: 49152
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             negate activation
             change_battle_position (1, monster)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 512
+        range: 4
+        count_limit: (1, 33129626)
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_used_as_material
+    raw_effect "Effect 3" {
+        effect_type: 129
+        category: 1
+        code: 1108
+        property: 65536
+        count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
         }

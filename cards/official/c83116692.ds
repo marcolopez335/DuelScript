@@ -10,20 +10,22 @@ card "Doombearer Psychopompos" {
     atk: 0
     def: 0
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: during_end_phase
+    raw_effect "Effect 1" {
+        effect_type: 130
+        category: 512
+        code: 4608
+        range: 32
+        count_limit: (1, 83116692)
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 2" {
+        effect_type: 513
+        category: 36
+        code: 1102
+        count_limit: (1, 0)
         on_resolve {
             banish (1+, card)
             banish (1+, card)

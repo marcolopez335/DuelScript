@@ -5,24 +5,31 @@ card "Vampire Kingdom" {
     password: 62188962
     type: Field Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        code: 1002
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 2
+        category: 2097152
+        code: 100
+        range: 256
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: when_sent_to gy
+    raw_effect "Effect 3" {
+        effect_type: 514
+        category: 225
+        code: 1014
+        property: 16
+        range: 256
+        count_limit: (1, 0)
         on_resolve {
             send (1, card) to gy
             destroy (1+, card, either_player controls)

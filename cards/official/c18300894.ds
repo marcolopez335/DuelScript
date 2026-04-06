@@ -10,27 +10,31 @@ card "Silk Bomb Moth" {
     atk: 2400
     def: 1000
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 528
+        range: 2
+        count_limit: (1, 18300894)
         on_resolve {
             special_summon (1, monster) from gy
             return (1, card) to deck shuffle
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_summoned
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 4
+        code: 1100
+        property: 65536
+        count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        property: 1024
         on_resolve {
             reveal self
         }

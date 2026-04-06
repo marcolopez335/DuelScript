@@ -10,16 +10,20 @@ card "Chronomaly Acambaro Figures" {
     atk: 1000
     def: 1800
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 2050
+        code: 202
+        range: 2
         on_resolve {
             send (1, card) to gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 512
+        range: 16
+        count_limit: (1, 24506253)
         cost {
             pay_lp your_lp / 2
         }
@@ -28,24 +32,27 @@ card "Chronomaly Acambaro Figures" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 2
+        code: 52
+        property: 526336
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        property: 67110912
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 5" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: during_end_phase
+    raw_effect "Effect 5" {
+        effect_type: 2050
+        code: 4608
+        property: 128
+        count_limit: (1, 0)
         on_resolve {
             add_to_hand (1, card) from gy
         }

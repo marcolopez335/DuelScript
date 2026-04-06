@@ -10,17 +10,20 @@ card "Big Jaws" {
     atk: 1800
     def: 300
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        trigger: when attack_declared
+    raw_effect "Effect 1" {
+        effect_type: 2049
+        code: 1130
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 514
+        category: 4
+        code: 4224
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             banish (1+, card)
         }

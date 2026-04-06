@@ -10,18 +10,22 @@ card "S-Force Dog Tag" {
     atk: 1600
     def: 2100
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when_summoned
+    raw_effect "Effect 1" {
+        effect_type: 130
+        category: 512
+        code: 1100
+        property: 65536
+        range: 2
+        count_limit: (1, 65479980)
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 2
+        code: 78
+        range: 4
         on_resolve {
             reveal self
         }

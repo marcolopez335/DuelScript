@@ -5,20 +5,24 @@ card "Furtive Techniques Fur Hire, Fur All Your Ultimate Moves" {
     password: 59374259
     type: Normal Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 5
+        code: 1002
+        property: 16
+        count_limit: (1, 59374259)
         on_resolve {
             banish (1+, card)
             destroy (1+, card, either_player controls)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 8
+        code: 1102
+        range: 16
+        count_limit: (1, 59374259)
         on_resolve {
             add_to_hand (1, card) from gy
         }

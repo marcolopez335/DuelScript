@@ -10,19 +10,22 @@ card "Superheavy Samurai Soulbang Cannon" {
     atk: 1000
     def: 1000
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        activate_from: [hand, monster_zone]
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 262144
+        property: 16
+        range: 6
         on_resolve {
             send (1, card) to gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        optional: true
-        damage_step: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 268959745
+        code: 1027
+        property: 49152
+        range: 16
         cost {
             banish self
         }
@@ -34,15 +37,17 @@ card "Superheavy Samurai Soulbang Cannon" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 311
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 4
+        code: 104
         on_resolve {
             reveal self
         }

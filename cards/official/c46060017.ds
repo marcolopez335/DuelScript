@@ -5,26 +5,30 @@ card "Zoodiac Barrage" {
     password: 46060017
     type: Continuous Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        code: 1002
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 513
+        property: 16
+        range: 8
+        count_limit: (1, 46060017)
         on_resolve {
             destroy (1+, card, either_player controls)
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 3" {
+        effect_type: 129
+        code: 1014
+        property: 65552
         on_resolve {
             attach (1, card) to self as_material
         }

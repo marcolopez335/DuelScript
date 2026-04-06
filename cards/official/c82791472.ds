@@ -14,33 +14,41 @@ card "Ancient Warriors - Rebellious Lu Feng" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 1
+        code: 30
+        property: 263168
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
+    raw_effect "Effect 3" {
+        effect_type: 256
+        category: 1
+        code: 1002
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: during_end_phase
+    raw_effect "Effect 4" {
+        effect_type: 514
+        category: 8192
+        code: 4608
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             take_control of (1, monster, opponent controls)
         }
     }
 
-    effect "Effect 5" {
-        speed: spell_speed_1
+    raw_effect "Effect 5" {
+        effect_type: 2
+        code: 75
+        property: 67635200
         on_resolve {
             reveal self
         }

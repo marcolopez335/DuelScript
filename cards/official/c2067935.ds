@@ -10,18 +10,21 @@ card "Gladiator Beast Lanista" {
     atk: 1800
     def: 1200
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 1" {
+        effect_type: 129
+        category: 4
+        code: 1102
+        property: 16
         on_resolve {
             banish (1+, card)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 512
+        code: 4224
+        range: 4
         cost {
             send self to deck
         }
@@ -30,8 +33,10 @@ card "Gladiator Beast Lanista" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 129
+        property: 1024
         on_resolve {
             reveal self
         }

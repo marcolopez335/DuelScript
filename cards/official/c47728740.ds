@@ -10,41 +10,47 @@ card "Alich, Malebranche of the Burning Abyss" {
     atk: 1200
     def: 0
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 1
+        property: 131072
+        range: 4
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 512
+        range: 2
+        count_limit: (1, 47728740)
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        damage_step: true
-        trigger: when_sent_to gy
-        on_resolve {
-            negate effect
-        }
-    }
-
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 129
+        category: 16384
+        code: 1014
+        property: 81936
+        count_limit: (1, 47728740)
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 5" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 1
+        code: 2
+        on_resolve {
+            reveal self
+        }
+    }
+
+    raw_effect "Effect 5" {
+        effect_type: 1
+        code: 76
         on_resolve {
             reveal self
         }

@@ -5,17 +5,21 @@ card "Myutant Blast" {
     password: 79072916
     type: Equip Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 130
+        category: 4
+        code: 1132
+        range: 8
         on_resolve {
             banish (1+, card)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 544
+        range: 8
+        count_limit: (1, 79072916)
         cost {
             banish self
         }

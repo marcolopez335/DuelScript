@@ -10,10 +10,11 @@ card "Rescue Interlacer" {
     atk: 1000
     def: 1200
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 256
+        code: 1134
+        range: 2
+        count_limit: (1, 63009228)
         cost {
             send self to gy
         }
@@ -22,17 +23,20 @@ card "Rescue Interlacer" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: during_end_phase
+    raw_effect "Effect 2" {
+        effect_type: 514
+        category: 512
+        code: 4608
+        range: 16
+        count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 2
+        property: 2048
         on_resolve {
             reveal self
         }

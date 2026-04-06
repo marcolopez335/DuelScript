@@ -10,17 +10,20 @@ card "Mid Shield Gardna" {
     atk: 100
     def: 1800
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 4096
+        range: 4
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        damage_step: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 2" {
+        effect_type: 1024
+        code: 1027
+        property: 49408
+        range: 4
         on_resolve {
             negate activation
             send (1, card) to gy

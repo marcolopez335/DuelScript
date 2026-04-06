@@ -5,17 +5,20 @@ card "Phantasm Spiral Grip" {
     password: 75702749
     type: Equip Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 4
+        code: 100
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 524800
+        code: 1139
+        range: 8
+        count_limit: (1, 75702749)
         on_resolve {
             equip (1, card) to (1, monster)
             deal_damage to opponent: 1000

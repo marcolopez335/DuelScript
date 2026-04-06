@@ -20,10 +20,10 @@ card "Mecha Phantom Beast Jaculuslan" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 1" {
+        effect_type: 129
+        category: 128
+        code: 1102
         cost {
             tribute self
         }
@@ -32,18 +32,19 @@ card "Mecha Phantom Beast Jaculuslan" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 2
+        code: 66
+        range: 4
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        optional: true
-        damage_step: true
-        trigger: when_destroyed
+    raw_effect "Effect 3" {
+        effect_type: 129
+        code: 1029
+        property: 81920
         on_resolve {
             set (1, card)
         }

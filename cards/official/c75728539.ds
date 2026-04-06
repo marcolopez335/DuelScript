@@ -5,28 +5,32 @@ card "Sharv Sarga" {
     password: 75728539
     type: Normal Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 131096
+        code: 1002
+        property: 16
+        count_limit: (1, 75728539)
         on_resolve {
             return (1, card) to deck shuffle
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 8
+        code: 1102
+        range: 16
+        count_limit: (1, 0)
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: during_end_phase
+    raw_effect "Effect 3" {
+        effect_type: 2050
+        code: 4608
+        count_limit: (1, 0)
         on_resolve {
             add_to_hand (1, card) from gy
         }

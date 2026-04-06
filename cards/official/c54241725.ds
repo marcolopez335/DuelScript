@@ -5,16 +5,20 @@ card "The Prime Monarch" {
     password: 54241725
     type: Continuous Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        code: 1002
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 65552
+        code: 1002
+        property: 16
+        range: 8
         on_resolve {
             return (1, card) to deck shuffle
             shuffle deck
@@ -22,15 +26,17 @@ card "The Prime Monarch" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
+    raw_effect "Effect 3" {
+        effect_type: 256
+        category: 512
+        code: 1002
+        range: 16
+        count_limit: (1, 54241725)
         cost {
             banish self
         }
         on_resolve {
-            special_summon (1, monster) from gy
+            reveal self
         }
     }
 

@@ -10,19 +10,24 @@ card "Keldo the Sacred Protector" {
     atk: 1200
     def: 1600
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 131592
+        range: 2
+        count_limit: (1, 63542003)
         on_resolve {
             special_summon (1, monster) from gy
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 16
+        code: 1002
+        property: 16
+        range: 20
+        count_limit: (1, 0)
         cost {
             banish self
         }

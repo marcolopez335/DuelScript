@@ -10,19 +10,23 @@ card "SPYGAL Misty" {
     atk: 1500
     def: 1600
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_summoned
+    raw_effect "Effect 1" {
+        effect_type: 129
+        category: 65536
+        code: 1100
+        property: 67584
         on_resolve {
             draw 1
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 8
+        code: 1002
+        property: 16
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             add_to_hand (1, card) from gy
         }

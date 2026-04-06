@@ -5,16 +5,20 @@ card "Lightsworn Sanctuary" {
     password: 52665542
     type: Continuous Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        code: 1002
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 8
+        property: 16
+        range: 8
+        count_limit: (1, 0)
         cost {
             send self to gy
         }
@@ -23,16 +27,20 @@ card "Lightsworn Sanctuary" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        trigger: when_sent_to gy
+    raw_effect "Effect 3" {
+        effect_type: 2050
+        code: 1014
+        property: 65536
+        range: 8
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 2050
+        code: 202
+        range: 8
         on_resolve {
             reveal self
         }

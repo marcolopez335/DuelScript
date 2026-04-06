@@ -5,32 +5,36 @@ card "Escape from the Dark Dimension" {
     password: 31550470
     type: Continuous Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        on_resolve {
-            special_summon (1, monster) from gy
-        }
-    }
-
-    effect "Effect 2" {
-        speed: spell_speed_1
-        trigger: when_leaves_field
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 512
+        code: 1002
+        property: 16
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        trigger: when_leaves_field
+    raw_effect "Effect 2" {
+        effect_type: 2049
+        property: 1024
+        on_resolve {
+            reveal self
+        }
+    }
+
+    raw_effect "Effect 3" {
+        effect_type: 2049
+        code: 1015
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
-        trigger: when_leaves_field
+    raw_effect "Effect 4" {
+        effect_type: 2050
+        code: 1015
+        range: 8
         on_resolve {
             reveal self
         }

@@ -5,34 +5,40 @@ card "Seven Stars Slash - Army Annihilator Hagun" {
     password: 65114115
     type: Quick-Play Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        damage_step: true
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 262152
+        code: 1002
+        property: 16400
+        count_limit: (1, 65114115)
         on_resolve {
             equip (1, card) to (1, monster)
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_battle_destroyed
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 8
+        code: 1140
+        range: 16
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 4
+        code: 100
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 1
+        code: 311
+        property: 1024
         on_resolve {
             reveal self
         }

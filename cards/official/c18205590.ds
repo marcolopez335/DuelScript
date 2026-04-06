@@ -5,17 +5,23 @@ card "Satellarknight Skybridge" {
     password: 18205590
     type: Quick-Play Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 528
+        code: 1002
+        property: 16
+        count_limit: (1, 18205590)
         on_resolve {
             special_summon (1, monster) from gy
             return (1, card) to deck shuffle
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 2
+        code: 52
+        property: 2048
+        range: 4
         on_resolve {
             reveal self
         }

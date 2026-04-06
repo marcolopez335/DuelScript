@@ -10,9 +10,12 @@ card "Lumina, Twilightsworn Shaman" {
     atk: 1000
     def: 1000
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 512
+        property: 16
+        range: 4
+        count_limit: (1, 0)
         cost {
             banish self
         }
@@ -21,10 +24,12 @@ card "Lumina, Twilightsworn Shaman" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 2" {
+        effect_type: 514
+        category: 64
+        code: 1027
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             mill 3
         }

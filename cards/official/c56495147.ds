@@ -10,9 +10,11 @@ card "Swordsoul of Taia" {
     atk: 1800
     def: 1500
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 1536
+        range: 4
+        count_limit: (1, 56495147)
         cost {
             banish self
         }
@@ -21,18 +23,22 @@ card "Swordsoul of Taia" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_used_as_material
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 32
+        code: 1108
+        property: 65536
+        count_limit: (1, 0)
         on_resolve {
             send (1, card) to gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 2
+        code: 52
+        property: 2048
+        range: 4
         on_resolve {
             reveal self
         }

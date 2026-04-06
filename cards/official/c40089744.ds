@@ -5,25 +5,30 @@ card "Gateway to Chaos" {
     password: 40089744
     type: Field Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 131080
+        code: 1002
+        count_limit: (1, 40089744)
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 2050
+        code: 1014
+        range: 256
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 3" {
+        effect_type: 64
+        category: 131080
+        range: 256
+        count_limit: (1, 0)
         on_resolve {
             add_to_hand (1, card) from gy
         }

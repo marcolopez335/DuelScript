@@ -10,20 +10,23 @@ card "Mana Dragon Zirnitron" {
     atk: 2200
     def: 1200
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        activate_from: [hand, gy]
-        trigger: when_sent_to gy
+    raw_effect "Effect 1" {
+        effect_type: 130
+        category: 512
+        code: 1014
+        property: 65536
+        range: 18
+        count_limit: (1, 11074235)
         on_resolve {
             special_summon (1, monster) from gy
             set (1, card)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 1
+        code: 205
+        property: 67109888
         on_resolve {
             reveal self
         }

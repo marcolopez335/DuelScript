@@ -10,17 +10,19 @@ card "C-Crush Wyvern" {
     atk: 1200
     def: 2000
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 4
+        code: 308
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 512
+        code: 1014
+        property: 65536
         on_resolve {
             special_summon (1, monster) from gy
         }

@@ -10,10 +10,12 @@ card "Argostars - Glorious Adra" {
     atk: 1800
     def: 1800
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        optional: true
-        damage_step: true
+    raw_effect "Effect 1" {
+        effect_type: 256
+        category: 2097152
+        code: 1002
+        property: 16384
+        range: 2
         cost {
             banish self
         }
@@ -22,17 +24,18 @@ card "Argostars - Glorious Adra" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        trigger: when_summoned
+    raw_effect "Effect 2" {
+        effect_type: 513
+        code: 1100
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 3" {
+        effect_type: 64
+        range: 4
+        count_limit: (1, 91438674)
         cost {
             banish self
         }
@@ -41,16 +44,18 @@ card "Argostars - Glorious Adra" {
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 1
+        code: 92
+        property: 1024
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 5" {
-        speed: spell_speed_1
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 5" {
+        effect_type: 2050
+        code: 1027
         on_resolve {
             reveal self
         }

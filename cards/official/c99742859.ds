@@ -10,15 +10,16 @@ card "Rescue Hedgehog" {
     atk: 300
     def: 100
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 513
+        range: 4
+        count_limit: (1, 99742859)
         cost {
             banish self
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
-            special_summon (1, monster) from gy
+            reveal self
         }
     }
 

@@ -10,19 +10,22 @@ card "Gozuki" {
     atk: 1700
     def: 800
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 32
+        range: 4
+        count_limit: (1, 52467217)
         on_resolve {
             send (1, card) to gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 512
+        code: 1014
+        property: 65536
+        count_limit: (1, 0)
         cost {
             banish self
         }

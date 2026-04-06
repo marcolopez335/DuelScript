@@ -14,27 +14,31 @@ card "Fushioh Richie" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 4096
+        range: 4
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        damage_step: true
-        trigger: when_flipped
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 512
+        code: 1001
+        property: 16400
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_2
-        damage_step: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 3" {
+        effect_type: 1024
+        category: 268435457
+        code: 1027
+        property: 49152
+        range: 4
         on_resolve {
             negate activation
             destroy (1+, card, either_player controls)

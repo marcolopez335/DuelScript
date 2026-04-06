@@ -10,24 +10,28 @@ card "Ghostrick Skeleton" {
     atk: 1200
     def: 1100
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 1
+        code: 50
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 4096
+        range: 4
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        trigger: when_flipped
+    raw_effect "Effect 3" {
+        effect_type: 513
+        category: 4
+        code: 1001
+        count_limit: (1, 51196805)
         on_resolve {
             banish (1+, card)
         }

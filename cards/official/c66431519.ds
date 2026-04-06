@@ -10,23 +10,24 @@ card "Sacred Fire King Garunix" {
     atk: 2700
     def: 1700
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        activate_from: [hand, gy]
-        damage_step: true
-        trigger: when_destroyed
+    raw_effect "Effect 1" {
+        effect_type: 130
+        category: 512
+        code: 1029
+        property: 16384
+        range: 18
+        count_limit: (1, 66431519)
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_summoned
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 2097153
+        code: 1100
+        property: 65536
+        count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
         }

@@ -5,31 +5,38 @@ card "Cynet Universe" {
     password: 61583217
     type: Field Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        code: 1002
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 2
+        code: 100
+        range: 256
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 3" {
+        effect_type: 64
+        category: 16
+        property: 16
+        range: 256
+        count_limit: (1, 0)
         on_resolve {
             return (1, card) to deck shuffle
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
-        trigger: when_destroyed
+    raw_effect "Effect 4" {
+        effect_type: 513
+        category: 32
+        code: 1029
         on_resolve {
             send (1, card) to gy
         }

@@ -10,19 +10,22 @@ card "Emilia, Dance Priestess of the Nekroz" {
     atk: 1600
     def: 800
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 512
+        range: 2
+        count_limit: (1, 87003671)
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_summoned
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 131080
+        code: 1100
+        property: 65536
+        count_limit: (1, 0)
         on_resolve {
             add_to_hand (1, card) from gy
         }

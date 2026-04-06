@@ -10,28 +10,32 @@ card "Goblin Freefall Squad" {
     atk: 0
     def: 2000
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 1" {
+        effect_type: 129
+        category: 20480
+        code: 1102
+        property: 65552
+        count_limit: (1, 85123771)
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 8
+        code: 1102
+        range: 16
+        count_limit: (1, 0)
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 2
+        property: 1024
         on_resolve {
             reveal self
         }

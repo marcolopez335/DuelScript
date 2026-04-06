@@ -10,20 +10,24 @@ card "Bystial Saronir" {
     atk: 2500
     def: 2000
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 516
+        property: 16
+        range: 2
+        count_limit: (1, 60242223)
         on_resolve {
             banish (1+, card)
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 32
+        code: 1014
+        property: 65536
+        count_limit: (1, 0)
         on_resolve {
             send (1, card) to gy
         }

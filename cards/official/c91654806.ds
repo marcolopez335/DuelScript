@@ -5,16 +5,19 @@ card "Cosmos Channelling" {
     password: 91654806
     type: Continuous Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        code: 1002
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 512
+        range: 8
+        count_limit: (1, 91654806)
         cost {
             send self to gy
         }
@@ -23,10 +26,12 @@ card "Cosmos Channelling" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
+    raw_effect "Effect 3" {
+        effect_type: 130
+        category: 65568
+        code: 1110
+        range: 8
+        count_limit: (1, 0)
         on_resolve {
             send (1, card) to gy
             draw 1

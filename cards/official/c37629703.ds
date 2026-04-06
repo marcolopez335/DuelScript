@@ -10,11 +10,11 @@ card "Labrynth Chandraglier" {
     atk: 1500
     def: 0
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
-        activate_from: [hand, monster_zone]
+    raw_effect "Effect 1" {
+        effect_type: 256
+        code: 1002
+        range: 6
+        count_limit: (1, 37629703)
         cost {
             send self to gy
         }
@@ -23,11 +23,12 @@ card "Labrynth Chandraglier" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_leaves_field
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 8
+        code: 1015
+        range: 16
+        count_limit: (1, 0)
         on_resolve {
             add_to_hand (1, card) from gy
         }

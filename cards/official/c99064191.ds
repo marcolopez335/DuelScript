@@ -5,18 +5,19 @@ card "Xyz Wrath" {
     password: 99064191
     type: Continuous Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        code: 1002
         on_resolve {
             negate effect
             destroy (1+, card, either_player controls)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        optional: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 2" {
+        effect_type: 256
+        code: 1027
+        range: 8
         on_resolve {
             negate effect
             destroy (1+, card, either_player controls)

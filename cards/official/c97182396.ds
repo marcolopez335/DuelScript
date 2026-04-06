@@ -5,21 +5,23 @@ card "Amaze Attraction Viking Vortex" {
     password: 97182396
     type: Normal Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when attack_declared
+    raw_effect "Effect 1" {
+        effect_type: 130
+        category: 8192
+        code: 1130
+        range: 8
+        count_limit: (1, 0)
         on_resolve {
             negate attack
             take_control of (1, monster, opponent controls)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        optional: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 8
+        code: 1027
+        range: 8
         on_resolve {
             add_to_hand (1, card) from gy
         }

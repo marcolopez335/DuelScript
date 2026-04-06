@@ -5,35 +5,39 @@ card "Evil Eye Domain - Pareidolia" {
     password: 70122149
     type: Field Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 131080
+        code: 1002
+        count_limit: (1, 70122149)
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 130
+        code: 1134
+        range: 256
+        count_limit: (1, 0)
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        optional: true
-        damage_step: true
-        trigger: when_destroyed
+    raw_effect "Effect 3" {
+        effect_type: 129
+        category: 8
+        code: 1029
+        property: 114704
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 2
+        property: 2048
         on_resolve {
             reveal self
         }

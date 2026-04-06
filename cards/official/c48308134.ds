@@ -5,17 +5,20 @@ card "Phantasm Spiral Crash" {
     password: 48308134
     type: Equip Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 4
+        code: 80
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 512
+        code: 1138
+        range: 8
+        count_limit: (1, 48308134)
         on_resolve {
             equip (1, card) to (1, monster)
             change_battle_position (1, monster)

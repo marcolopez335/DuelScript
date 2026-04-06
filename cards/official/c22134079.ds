@@ -10,36 +10,37 @@ card "Gravekeeper's Ambusher" {
     atk: 1700
     def: 0
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        optional: true
-        damage_step: true
-        trigger: when_flipped
+    raw_effect "Effect 1" {
+        effect_type: 129
+        category: 16
+        code: 1001
+        property: 16400
         on_resolve {
             return (1, card) to deck shuffle
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        trigger: when_flipped
+    raw_effect "Effect 2" {
+        effect_type: 2049
+        code: 1001
+        property: 1024
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        optional: true
-        damage_step: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 3" {
+        effect_type: 129
+        category: 8
+        code: 1014
+        property: 81936
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 1
         on_resolve {
             reveal self
         }

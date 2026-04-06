@@ -11,17 +11,20 @@ card "Proto Enneacraft - 'orgIA'" {
     atk: 100
     def: 1000
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        trigger: when_flipped
+    raw_effect "Effect 1" {
+        effect_type: 2050
+        code: 1001
+        range: 512
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 131080
+        range: 512
+        count_limit: (1, 56187077)
         cost {
             pay_lp 1000
         }
@@ -31,8 +34,10 @@ card "Proto Enneacraft - 'orgIA'" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 64
+        category: 512
+        range: 2
         cost {
             reveal self
         }
@@ -41,39 +46,46 @@ card "Proto Enneacraft - 'orgIA'" {
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_2
-        optional: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 4" {
+        effect_type: 256
+        category: 131080
+        code: 1027
+        property: 256
+        range: 4
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 5" {
-        speed: spell_speed_1
-        trigger: when_flipped
+    raw_effect "Effect 5" {
+        effect_type: 513
+        category: 1
+        code: 1001
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
-    effect "Effect 6" {
-        speed: spell_speed_1
+    raw_effect "Effect 6" {
+        effect_type: 2050
+        code: 1022
+        range: 512
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 7" {
-        speed: spell_speed_1
+    raw_effect "Effect 7" {
+        effect_type: 2050
+        code: 1022
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 8" {
-        speed: spell_speed_1
+    raw_effect "Effect 8" {
+        effect_type: 2
+        property: 67635200
         on_resolve {
             reveal self
         }

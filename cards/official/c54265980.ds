@@ -10,20 +10,22 @@ card "DoomZ VII Seven - Elara" {
     atk: 1400
     def: 1200
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when_summoned
+    raw_effect "Effect 1" {
+        effect_type: 129
+        code: 1100
+        property: 65536
+        count_limit: (1, 54265980)
         on_resolve {
             set (1, card)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 512
+        code: 1002
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
             attach (1, card) to self as_material

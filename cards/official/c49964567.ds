@@ -10,29 +10,33 @@ card "Staysailor Romarin" {
     atk: 1600
     def: 300
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 256
+        category: 32
+        code: 1002
+        property: 16
+        range: 4
+        count_limit: (1, 49964567)
         on_resolve {
             send (1, card) to gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        damage_step: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 32
+        code: 1014
+        property: 81920
+        count_limit: (1, 0)
         on_resolve {
             send (1, card) to gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 3" {
+        effect_type: 1
+        property: 1024
+        count_limit: (1, 0)
         on_resolve {
             reveal self
         }

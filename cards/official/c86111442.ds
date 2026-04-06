@@ -10,18 +10,22 @@ card "Sentinel of the Tistina" {
     atk: 1200
     def: 1400
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        activate_from: [hand, gy]
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 512
+        range: 18
+        count_limit: (1, 86111442)
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 131081
+        property: 16
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
             add_to_hand (1, card) from gy

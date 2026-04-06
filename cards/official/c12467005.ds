@@ -10,19 +10,20 @@ card "Tackle Crusader" {
     atk: 1500
     def: 1800
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        optional: true
-        damage_step: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 1" {
+        effect_type: 129
+        code: 1014
+        property: 81936
         on_resolve {
             change_battle_position (1, monster)
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 2
+        code: 75
+        property: 2048
         on_resolve {
             reveal self
         }

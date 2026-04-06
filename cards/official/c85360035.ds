@@ -10,21 +10,25 @@ card "Dual Avatar Fists - Yuhi" {
     atk: 1800
     def: 1000
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 131081
+        property: 16
+        range: 4
+        count_limit: (1, 85360035)
         on_resolve {
             destroy (1+, card, either_player controls)
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        damage_step: true
-        trigger: when_leaves_field
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 8
+        code: 1015
+        property: 81920
+        range: 16
+        count_limit: (1, 0)
         on_resolve {
             add_to_hand (1, card) from gy
         }

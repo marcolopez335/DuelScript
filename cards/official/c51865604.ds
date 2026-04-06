@@ -10,19 +10,23 @@ card "ZS - Vanish Sage" {
     atk: 500
     def: 100
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 65536
+        range: 4
+        count_limit: (1, 51865604)
         on_resolve {
             draw 1
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when_banished
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 512
+        code: 1011
+        property: 65552
+        range: 4
+        count_limit: (1, 51865604)
         cost {
             banish self
         }

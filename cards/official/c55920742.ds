@@ -10,18 +10,21 @@ card "Noh-P.U.N.K. Foxy Tune" {
     atk: 2300
     def: 2600
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 129
+        category: 1048576
+        code: 1139
+        count_limit: (1, 0)
         on_resolve {
             gain_lp: 1000
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 512
+        range: 2
+        count_limit: (1, 55920742)
         cost {
             tribute self
         }
@@ -30,10 +33,11 @@ card "Noh-P.U.N.K. Foxy Tune" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        activate_from: [hand, monster_zone]
+    raw_effect "Effect 3" {
+        effect_type: 64
+        category: 640
+        range: 6
+        count_limit: (1, 0)
         cost {
             send self to gy
         }

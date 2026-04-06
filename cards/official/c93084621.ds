@@ -13,20 +13,23 @@ card "Unchained Soul of Anguish" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 512
+        property: 16
+        range: 4
+        count_limit: (1, 93084621)
         on_resolve {
-            special_summon (1, monster) from gy
+            reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        damage_step: true
-        trigger: when_destroyed
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 8
+        code: 1029
+        property: 81936
+        count_limit: (1, 0)
         on_resolve {
             add_to_hand (1, card) from gy
         }

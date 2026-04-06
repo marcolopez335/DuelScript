@@ -10,9 +10,12 @@ card "Morphtronic Slingen" {
     atk: 1200
     def: 800
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 1
+        property: 16
+        range: 4
+        count_limit: (1, 0)
         cost {
             tribute self
         }
@@ -21,8 +24,9 @@ card "Morphtronic Slingen" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 2049
+        code: 202
         on_resolve {
             destroy (1+, card, either_player controls)
         }

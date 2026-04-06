@@ -10,21 +10,25 @@ card "Radiant Typhoon Fonix, the Great Flame" {
     atk: 3000
     def: 0
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 1" {
+        effect_type: 130
+        category: 512
+        code: 1027
+        property: 65536
+        range: 2
+        count_limit: (1, 85315450)
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 16
+        code: 1027
+        property: 65552
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             return (1, card) to deck shuffle
         }

@@ -10,24 +10,29 @@ card "Mystic Swordsman LV2" {
     atk: 900
     def: 0
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 2049
+        code: 1139
+        property: 1024
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 513
+        category: 1
+        code: 1132
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        optional: true
-        trigger: during_end_phase
+    raw_effect "Effect 3" {
+        effect_type: 130
+        category: 512
+        code: 4608
+        range: 4
         cost {
             send self to gy
         }

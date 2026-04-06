@@ -5,9 +5,11 @@ card "Afterglow" {
     password: 43575579
     type: Normal Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 4
+        code: 1002
+        count_limit: (1, 43575579)
         on_resolve {
             banish (1+, card)
             banish (1+, card)
@@ -15,9 +17,11 @@ card "Afterglow" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 2050
+        code: 1110
+        property: 65536
+        count_limit: (1, 0)
         on_resolve {
             deal_damage to opponent: 4000
         }

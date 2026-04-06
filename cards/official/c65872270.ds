@@ -5,27 +5,31 @@ card "Igknight Burst" {
     password: 65872270
     type: Continuous Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        code: 1002
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 9
+        code: 1002
+        range: 8
+        count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 3" {
+        effect_type: 129
+        category: 8
+        code: 1014
+        property: 65536
         on_resolve {
             add_to_hand (1, card) from gy
         }

@@ -5,8 +5,9 @@ card "Tri-Blaze Accelerator" {
     password: 21420702
     type: Continuous Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        code: 1002
         cost {
             send self to gy
         }
@@ -15,8 +16,11 @@ card "Tri-Blaze Accelerator" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 524289
+        property: 16
+        range: 8
         on_resolve {
             send (1, card) to gy
             destroy (1+, card, either_player controls)
@@ -24,8 +28,10 @@ card "Tri-Blaze Accelerator" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 2
+        code: 63
+        property: 526336
         on_resolve {
             reveal self
         }

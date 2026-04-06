@@ -11,22 +11,26 @@ card "Zefrasaber, Swordmaster of the Nekroz" {
     atk: 1500
     def: 800
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 2
+        code: 52
+        property: 3584
+        range: 512
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        activate_from: [hand, monster_zone]
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 514
+        range: 6
+        count_limit: (1, 84388461)
         cost {
             tribute self
         }
         on_resolve {
-            special_summon (1, monster) from gy
+            reveal self
         }
     }
 

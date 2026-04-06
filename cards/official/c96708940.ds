@@ -11,43 +11,48 @@ card "Speedroid Marble Machine" {
     atk: 200
     def: 100
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_attacked
+    raw_effect "Effect 1" {
+        effect_type: 130
+        code: 1131
+        range: 512
+        count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        damage_step: true
-        trigger: when_summoned
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 131080
+        code: 1100
+        property: 16384
+        count_limit: (1, 96708940)
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 66
+        property: 67239936
+        range: 4
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 2
+        code: 52
+        property: 2048
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 5" {
-        speed: spell_speed_1
+    raw_effect "Effect 5" {
+        property: 67635200
         on_resolve {
             reveal self
         }

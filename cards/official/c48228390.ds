@@ -10,10 +10,12 @@ card "Pyrite Knight" {
     atk: 2000
     def: 0
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        activate_from: [hand, gy]
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 520
+        property: 16
+        range: 18
+        count_limit: (1, 48228390)
         on_resolve {
             add_to_hand (1, card) from gy
             special_summon (1, monster) from gy
@@ -22,10 +24,12 @@ card "Pyrite Knight" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 512
+        code: 1002
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
         }

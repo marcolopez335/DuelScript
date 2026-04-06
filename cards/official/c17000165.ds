@@ -5,27 +5,33 @@ card "Reptilianne Recoil" {
     password: 17000165
     type: Field Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        code: 1002
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 513
+        property: 16
+        range: 256
+        count_limit: (1, 17000165)
         on_resolve {
             destroy (1+, card, either_player controls)
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 3" {
+        effect_type: 130
+        category: 9728
+        code: 1027
+        property: 65552
+        range: 256
+        count_limit: (1, 0)
         on_resolve {
             take_control of (1, monster, opponent controls)
             create_token { atk: 0 def: 0 }

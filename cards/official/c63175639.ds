@@ -10,18 +10,21 @@ card "Fool of Prophecy" {
     atk: 1600
     def: 900
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 32
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             send (1, card) to gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        trigger: during_end_phase
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 512
+        code: 4608
+        range: 4
         cost {
             tribute self
         }

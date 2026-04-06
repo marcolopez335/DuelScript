@@ -14,18 +14,22 @@ card "Hi-Speedroid Clear Wing Rider" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 2097169
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             return (1, card) to deck shuffle
             destroy (1+, card, either_player controls)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 512
+        code: 1002
+        range: 4
         cost {
             tribute self
         }
@@ -34,8 +38,9 @@ card "Hi-Speedroid Clear Wing Rider" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 100
         on_resolve {
             reveal self
         }

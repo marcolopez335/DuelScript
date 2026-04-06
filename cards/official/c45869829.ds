@@ -5,18 +5,21 @@ card "Quick Booster" {
     password: 45869829
     type: Quick-Play Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 16
+        code: 1002
+        property: 16
         on_resolve {
             return (1, card) to deck shuffle
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        damage_step: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 131080
+        code: 1014
+        property: 81920
         on_resolve {
             add_to_hand (1, card) from gy
         }

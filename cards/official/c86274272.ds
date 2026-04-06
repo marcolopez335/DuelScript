@@ -14,17 +14,20 @@ card "Ritual Beast Ulti-Apelio" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        trigger: when attack_declared
+    raw_effect "Effect 1" {
+        effect_type: 2049
+        code: 1130
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 512
+        code: 1002
+        property: 16
+        range: 4
         on_resolve {
             special_summon (1, monster) from gy
             special_summon (1, monster) from gy
@@ -32,8 +35,11 @@ card "Ritual Beast Ulti-Apelio" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 308
+        property: 131072
+        range: 4
         on_resolve {
             reveal self
         }

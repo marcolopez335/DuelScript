@@ -14,15 +14,18 @@ card "Eclipse Twins" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 2
+        property: 1152
+        range: 64
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 64
+        range: 4
         cost {
             detach 1 overlay_unit from self
         }
@@ -31,19 +34,21 @@ card "Eclipse Twins" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 3" {
+        effect_type: 129
+        category: 512
+        code: 1014
+        property: 65552
+        count_limit: (1, 45852939)
         on_resolve {
             special_summon (1, monster) from gy
             attach (1, card) to self as_material
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 1
+        property: 67109888
         on_resolve {
             reveal self
         }

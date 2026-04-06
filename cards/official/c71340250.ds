@@ -10,9 +10,11 @@ card "Mixeroid" {
     atk: 0
     def: 2200
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 512
+        range: 4
+        count_limit: (1, 71340250)
         cost {
             tribute self
         }
@@ -21,18 +23,21 @@ card "Mixeroid" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 512
+        range: 16
+        count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: during_end_phase
+    raw_effect "Effect 3" {
+        effect_type: 2050
+        code: 4608
+        property: 128
+        count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
         }

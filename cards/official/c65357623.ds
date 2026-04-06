@@ -5,32 +5,39 @@ card "Zombie Power Struggle" {
     password: 65357623
     type: Quick-Play Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        damage_step: true
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 2097152
+        code: 1002
+        property: 16400
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 16
+        range: 16
+        count_limit: (1, 65357623)
         on_resolve {
             return (1, card) to deck shuffle
             set (1, card)
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 100
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 1
+        code: 205
+        property: 67109888
         on_resolve {
             reveal self
         }

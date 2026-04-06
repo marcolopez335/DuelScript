@@ -10,11 +10,12 @@ card "Spright Pixies" {
     atk: 1400
     def: 1400
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
-        activate_from: [hand, monster_zone]
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 6291456
+        code: 1134
+        range: 6
+        count_limit: (1, 0)
         cost {
             send self to gy
         }
@@ -23,8 +24,9 @@ card "Spright Pixies" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 100
         on_resolve {
             reveal self
         }

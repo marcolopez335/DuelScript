@@ -10,11 +10,12 @@ card "Dracotail Pan" {
     atk: 2700
     def: 1700
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when_used_as_material
+    raw_effect "Effect 1" {
+        effect_type: 129
+        category: 1
+        code: 1108
+        property: 65536
+        count_limit: (1, 44482554)
         on_resolve {
             set (1, card)
             shuffle deck
@@ -22,11 +23,12 @@ card "Dracotail Pan" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_destroyed
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 528
+        code: 1029
+        range: 16
+        count_limit: (1, 0)
         on_resolve {
             return (1, card) to deck shuffle
             special_summon (1, monster) from gy

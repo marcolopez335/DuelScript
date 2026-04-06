@@ -10,10 +10,12 @@ card "Battlin' Boxer Rib Gardna" {
     atk: 100
     def: 1400
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        optional: true
-        activate_from: [hand, gy]
+    raw_effect "Effect 1" {
+        effect_type: 256
+        category: 4
+        code: 1002
+        property: 16
+        range: 18
         cost {
             banish self
         }
@@ -22,10 +24,10 @@ card "Battlin' Boxer Rib Gardna" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: during_standby_phase
+    raw_effect "Effect 2" {
+        effect_type: 2050
+        code: 4098
+        count_limit: (1, 0)
         on_resolve {
             reveal self
         }

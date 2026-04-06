@@ -10,16 +10,20 @@ card "Gem-Elephant" {
     atk: 400
     def: 1900
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 8
+        range: 4
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 4194304
+        code: 1134
+        range: 4
         cost {
             send self to gy
         }
@@ -28,8 +32,9 @@ card "Gem-Elephant" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 104
         on_resolve {
             reveal self
         }

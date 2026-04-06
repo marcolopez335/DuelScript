@@ -5,8 +5,11 @@ card "Re-Fusion" {
     password: 74694807
     type: Equip Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 512
+        code: 1002
+        property: 16
         cost {
             pay_lp your_lp / 2
         }
@@ -16,16 +19,18 @@ card "Re-Fusion" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        trigger: when_leaves_field
+    raw_effect "Effect 2" {
+        effect_type: 2049
+        code: 1015
         on_resolve {
             banish (1+, card)
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 311
+        property: 1024
         on_resolve {
             reveal self
         }

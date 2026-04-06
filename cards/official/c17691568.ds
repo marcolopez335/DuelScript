@@ -5,35 +5,38 @@ card "Gagaku-P.U.N.K. Crash Beat" {
     password: 17691568
     type: Continuous Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        code: 1002
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 1
+        code: 1027
+        property: 65552
+        range: 8
+        count_limit: (1, 17691568)
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        optional: true
-        damage_step: true
-        trigger: when_destroyed
+    raw_effect "Effect 3" {
+        effect_type: 129
+        code: 1029
+        property: 81920
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 2
+        code: 67
         on_resolve {
             reveal self
         }

@@ -10,13 +10,13 @@ card "Rokket Recharger" {
     atk: 0
     def: 2100
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        activate_from: [hand, monster_zone]
-        damage_step: true
-        trigger: when_destroyed
+    raw_effect "Effect 1" {
+        effect_type: 130
+        category: 512
+        code: 1029
+        property: 81936
+        range: 6
+        count_limit: (1, 5969957)
         cost {
             send self to gy
         }
@@ -25,8 +25,11 @@ card "Rokket Recharger" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 1
+        code: 68
+        property: 131072
+        range: 4
         on_resolve {
             reveal self
         }

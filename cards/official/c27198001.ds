@@ -10,10 +10,11 @@ card "Nine-Tailed Fox" {
     atk: 2200
     def: 2000
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        activate_from: [hand, gy]
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 512
+        range: 18
+        count_limit: (1, 27198001)
         cost {
             tribute self
         }
@@ -22,18 +23,19 @@ card "Nine-Tailed Fox" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 1
+        code: 80
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        optional: true
-        damage_step: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 3" {
+        effect_type: 129
+        category: 1536
+        code: 1014
+        property: 81920
         on_resolve {
             create_token { atk: 0 def: 0 }
         }

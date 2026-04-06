@@ -14,20 +14,23 @@ card "Cyberse Desavewurm" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 134218240
+        range: 4
+        count_limit: (1, 92422871)
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
-        damage_step: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 268435456
+        code: 1027
+        property: 49152
+        range: 20
+        count_limit: (1, 0)
         cost {
             banish self
         }
@@ -36,8 +39,9 @@ card "Cyberse Desavewurm" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 113
         on_resolve {
             reveal self
         }

@@ -4,19 +4,21 @@
 card "Kewl Tune Rotary" {
     password: 17209452
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 256
+        range: 2
+        count_limit: (1, 0)
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_used_as_material
+    raw_effect "Effect 2" {
+        effect_type: 129
+        code: 1108
+        property: 65552
+        count_limit: (1, 0)
         on_resolve {
             return (1, card) to deck shuffle
         }

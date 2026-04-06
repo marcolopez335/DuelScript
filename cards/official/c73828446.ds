@@ -5,26 +5,30 @@ card "SPYRAL GEAR - Fully Armed" {
     password: 73828446
     type: Equip Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 4
+        code: 100
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 4
+        code: 1139
+        property: 2048
+        range: 8
         on_resolve {
             banish (1+, card)
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        optional: true
-        damage_step: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 3" {
+        effect_type: 129
+        category: 512
+        code: 1014
+        property: 16400
         on_resolve {
             special_summon (1, monster) from gy
         }

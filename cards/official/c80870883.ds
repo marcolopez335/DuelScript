@@ -14,9 +14,11 @@ card "Red-Eyes Black Fullmetal Dragon" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 16
+        range: 2
+        count_limit: (1, 80870883)
         cost {
             reveal self
         }
@@ -26,12 +28,13 @@ card "Red-Eyes Black Fullmetal Dragon" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
-        damage_step: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 268959744
+        code: 1027
+        property: 49152
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             negate activation
             deal_damage to opponent: 1000

@@ -10,30 +10,34 @@ card "Cipher Biplane" {
     atk: 1000
     def: 2000
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when_summoned
+    raw_effect "Effect 1" {
+        effect_type: 130
+        category: 512
+        code: 1100
+        property: 65536
+        range: 2
+        count_limit: (1, 29092121)
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 64
+        property: 16
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        damage_step: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 3" {
+        effect_type: 129
+        category: 131080
+        code: 1014
+        property: 81920
+        count_limit: (1, 0)
         cost {
             banish self
         }
@@ -42,8 +46,10 @@ card "Cipher Biplane" {
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 1
+        code: 113
+        property: 1024
         on_resolve {
             reveal self
         }

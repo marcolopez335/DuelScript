@@ -20,9 +20,11 @@ card "Minerva, the Exalted Lightsworn" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 65600
+        range: 4
+        count_limit: (1, 30100551)
         cost {
             detach 1 overlay_unit from self
         }
@@ -32,12 +34,12 @@ card "Minerva, the Exalted Lightsworn" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        damage_step: true
-        trigger: when_destroyed
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 65
+        code: 1029
+        property: 81920
+        count_limit: (1, 0)
         on_resolve {
             mill 1
             destroy (1+, card, either_player controls)

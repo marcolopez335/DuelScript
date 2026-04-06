@@ -10,11 +10,13 @@ card "Red Mirror" {
     atk: 0
     def: 0
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
-        trigger: when attack_declared
+    raw_effect "Effect 1" {
+        effect_type: 256
+        category: 8
+        code: 1130
+        property: 16
+        range: 2
+        count_limit: (1, 8706701)
         cost {
             send self to gy
         }
@@ -23,11 +25,13 @@ card "Red Mirror" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 8
+        code: 1102
+        property: 65536
+        range: 16
+        count_limit: (1, 0)
         on_resolve {
             add_to_hand (1, card) from gy
         }

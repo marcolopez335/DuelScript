@@ -10,19 +10,25 @@ card "Loris, Lady of Lament" {
     atk: 1500
     def: 500
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 65552
+        property: 16
+        range: 4
+        count_limit: (1, 50699850)
         on_resolve {
             return (1, card) to deck shuffle
             draw 1
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 67108864
+        code: 1017
+        property: 65552
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             set (1, card)
         }

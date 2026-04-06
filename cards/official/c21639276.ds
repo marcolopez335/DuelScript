@@ -5,34 +5,42 @@ card "Kashtira Preparations" {
     password: 21639276
     type: Continuous Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        code: 1002
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 512
+        code: 1002
+        range: 8
+        count_limit: (1, 21639276)
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 3" {
+        effect_type: 2050
+        code: 1027
+        property: 1024
+        range: 8
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
+    raw_effect "Effect 4" {
+        effect_type: 130
+        category: 4
+        code: 1022
+        property: 65536
+        range: 8
+        count_limit: (1, 0)
         on_resolve {
             banish (1+, card)
             shuffle deck

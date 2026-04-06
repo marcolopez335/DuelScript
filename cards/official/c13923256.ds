@@ -10,20 +10,25 @@ card "Ancient Warriors - Eccentric Lu Jing" {
     atk: 700
     def: 2000
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 8
+        property: 16
+        range: 4
+        count_limit: (1, 13923256)
         on_resolve {
             send (1, card) to gy
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 1
+        code: 1027
+        property: 65552
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
         }

@@ -14,25 +14,31 @@ card "Cyber Angel Natasha" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 1048576
+        property: 16
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             gain_lp: 1000
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_attacked
+    raw_effect "Effect 2" {
+        effect_type: 130
+        code: 1131
+        range: 4
         on_resolve {
             negate attack
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 64
+        category: 8704
+        property: 16
+        range: 16
         cost {
             banish self
         }

@@ -11,19 +11,22 @@ card "Shaddoll Zefracore" {
     atk: 450
     def: 1950
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 2
+        code: 52
+        property: 3584
+        range: 512
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        damage_step: true
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 512
+        code: 1102
+        property: 81936
+        count_limit: (1, 95401059)
         on_resolve {
             special_summon (1, monster) from gy
         }

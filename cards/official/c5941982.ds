@@ -5,8 +5,9 @@ card "Scareclaw Alternative" {
     password: 5941982
     type: Normal Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        code: 1002
         cost {
             tribute self
         }
@@ -15,10 +16,12 @@ card "Scareclaw Alternative" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 524288
+        code: 1002
+        range: 16
+        count_limit: (1, 5941982)
         cost {
             banish self
         }
@@ -27,8 +30,9 @@ card "Scareclaw Alternative" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 2
+        property: 67110912
         on_resolve {
             reveal self
         }

@@ -92,6 +92,7 @@ fn parse_card(pair: Pair<Rule>) -> Result<Card, ParseError> {
         replacement_effects: vec![],
         equip_effects: vec![],
         win_condition: None,
+        raw_effects: vec![],
     };
 
     let body = inner.next().ok_or(ParseError::MissingField("card body"))?;
@@ -113,6 +114,7 @@ fn parse_card(pair: Pair<Rule>) -> Result<Card, ParseError> {
                 let body_pair = field.into_inner().next().ok_or(ParseError::MissingField("pendulum body"))?;
                 card.pendulum_effect = Some(parse_effect_body(body_pair)?);
             }
+            Rule::raw_effect_block       => card.raw_effects.push(parse_raw_effect_block(field)?),
             Rule::effect_block           => card.effects.push(parse_effect_block(field)?),
             Rule::continuous_effect_block => card.continuous_effects.push(parse_continuous_effect(field)?),
             Rule::replacement_effect_block => card.replacement_effects.push(parse_replacement_effect(field)?),
@@ -474,6 +476,76 @@ fn parse_link_arrows(pair: Pair<Rule>) -> Result<Vec<LinkArrow>, ParseError> {
 }
 
 // ── Effect Block ──────────────────────────────────────────────
+
+/// v0.6: Parse a raw_effect block that declares explicit engine bitfields.
+/// Used by the transpiler to preserve exact Lua metadata.
+fn parse_raw_effect_block(pair: Pair<Rule>) -> Result<RawEffect, ParseError> {
+    let mut raw = RawEffect {
+        name: None,
+        effect_type: 0,
+        category: 0,
+        code: 0,
+        property: 0,
+        range: 0,
+        count_limit: None,
+        cost: vec![],
+        on_activate: vec![],
+        on_resolve: vec![],
+    };
+
+    for child in pair.into_inner() {
+        match child.as_rule() {
+            Rule::string => raw.name = Some(parse_string(child)),
+            Rule::raw_effect_body => {
+                for inner in child.into_inner() {
+                    match inner.as_rule() {
+                        Rule::raw_field => {
+                            let text = inner.as_str();
+                            let nums: Vec<u32> = inner.into_inner()
+                                .filter(|p| p.as_rule() == Rule::unsigned)
+                                .map(|p| p.as_str().parse().unwrap_or(0))
+                                .collect();
+
+                            if text.starts_with("effect_type") { raw.effect_type = nums[0]; }
+                            else if text.starts_with("category") { raw.category = nums[0]; }
+                            else if text.starts_with("code") { raw.code = nums[0]; }
+                            else if text.starts_with("property") { raw.property = nums[0]; }
+                            else if text.starts_with("range") { raw.range = nums[0]; }
+                            else if text.starts_with("count_limit") && nums.len() >= 2 {
+                                raw.count_limit = Some((nums[0], nums[1]));
+                            }
+                        }
+                        Rule::cost_clause => {
+                            for action in inner.into_inner() {
+                                if action.as_rule() == Rule::cost_action {
+                                    raw.cost.push(parse_cost_action(action)?);
+                                }
+                            }
+                        }
+                        Rule::on_activate_clause => {
+                            for action in inner.into_inner() {
+                                if action.as_rule() == Rule::game_action {
+                                    raw.on_activate.push(parse_game_action(action)?);
+                                }
+                            }
+                        }
+                        Rule::on_resolve_clause => {
+                            for action in inner.into_inner() {
+                                if action.as_rule() == Rule::game_action {
+                                    raw.on_resolve.push(parse_game_action(action)?);
+                                }
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+
+    Ok(raw)
+}
 
 fn parse_effect_block(pair: Pair<Rule>) -> Result<Effect, ParseError> {
     let mut name = None;
@@ -2160,7 +2232,7 @@ fn parse_target_expr(pair: Pair<Rule>) -> Result<TargetExpr, ParseError> {
                     }
                 }
             }
-            Ok(TargetExpr::Counted { count, count_or_more, filter, controller, zone, qualifiers })
+            Ok(TargetExpr::Counted { count, count_or_more, filter, controller, zone, qualifiers, predicate: None })
         }
         Rule::filter_target => {
             let filter = inner.into_inner().next()

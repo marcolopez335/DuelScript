@@ -10,10 +10,11 @@ card "The Golden Swordsoul" {
     atk: 1800
     def: 1500
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when attack_declared
+    raw_effect "Effect 1" {
+        effect_type: 130
+        category: 513
+        code: 1130
+        range: 2
         on_resolve {
             special_summon (1, monster) from gy
             negate attack
@@ -21,11 +22,13 @@ card "The Golden Swordsoul" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when_banished
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 512
+        code: 1011
+        property: 65536
+        range: 20
+        count_limit: (1, 82489470)
         cost {
             banish self
         }

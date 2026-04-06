@@ -10,11 +10,12 @@ card "Zohah, the Ogdoadic Boundless" {
     atk: 1500
     def: 1700
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 1" {
+        effect_type: 129
+        category: 196616
+        code: 1014
+        property: 65536
+        count_limit: (1, 35998832)
         on_resolve {
             draw 1
             add_to_hand (1, card) from gy
@@ -25,9 +26,11 @@ card "Zohah, the Ogdoadic Boundless" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 8
+        range: 16
+        count_limit: (1, 0)
         cost {
             send self to gy
         }

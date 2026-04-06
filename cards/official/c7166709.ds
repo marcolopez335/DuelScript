@@ -10,9 +10,9 @@ card "Steel-Stringed Sacrifice" {
     atk: 800
     def: 1000
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        activate_from: [hand, gy]
+    raw_effect "Effect 1" {
+        effect_type: 64
+        range: 18
         on_resolve {
             special_summon (1, monster) from gy
             add_to_hand (1, card) from gy
@@ -21,10 +21,10 @@ card "Steel-Stringed Sacrifice" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: when_summoned
+    raw_effect "Effect 2" {
+        effect_type: 2050
+        code: 1100
+        count_limit: (1, 0)
         on_resolve {
             reveal self
         }

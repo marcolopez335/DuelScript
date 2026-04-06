@@ -10,10 +10,13 @@ card "Neo Flamvell Lady" {
     atk: 1600
     def: 200
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
+    raw_effect "Effect 1" {
+        effect_type: 256
+        category: 4
+        code: 1002
+        property: 16
+        range: 4
+        count_limit: (1, 816427)
         cost {
             send self to gy
         }
@@ -22,11 +25,13 @@ card "Neo Flamvell Lady" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        trigger: when_banished
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 32
+        code: 1011
+        property: 65536
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             send (1, card) to gy
         }

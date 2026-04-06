@@ -10,10 +10,11 @@ card "Tri-Brigade Fraktall" {
     atk: 1900
     def: 1600
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        activate_from: [hand, monster_zone]
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 32
+        range: 6
+        count_limit: (1, 87209160)
         cost {
             send self to gy
         }
@@ -22,16 +23,18 @@ card "Tri-Brigade Fraktall" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 512
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 2
         on_resolve {
             reveal self
         }

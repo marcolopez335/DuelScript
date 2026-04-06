@@ -10,31 +10,41 @@ card "Judge of the Ice Barrier" {
     atk: 1800
     def: 900
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 2050
+        property: 1024
+        range: 4
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 2050
+        code: 1022
+        range: 4
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 3" {
+        effect_type: 64
+        category: 16
+        property: 16
+        range: 4
+        count_limit: (1, 53535814)
         on_resolve {
             return (1, card) to deck shuffle
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 4" {
+        effect_type: 64
+        category: 4096
+        property: 16
+        range: 16
+        count_limit: (1, 0)
         cost {
             banish self
         }

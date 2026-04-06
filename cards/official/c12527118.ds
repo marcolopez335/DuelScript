@@ -10,20 +10,21 @@ card "Cassimolar" {
     atk: 1000
     def: 1200
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_summoned
+    raw_effect "Effect 1" {
+        effect_type: 129
+        category: 2621441
+        code: 1100
+        property: 16
         on_resolve {
-            destroy (1+, card, either_player controls)
-            deal_damage to opponent: 1000
+            reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 130
+        code: 4104
+        range: 4
+        count_limit: (1, 0)
         cost {
             tribute self
         }
@@ -32,25 +33,27 @@ card "Cassimolar" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 100
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: during_end_phase
+    raw_effect "Effect 4" {
+        effect_type: 2050
+        code: 4608
+        property: 128
+        count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
             deal_damage to opponent: 1000
         }
     }
 
-    effect "Effect 5" {
-        speed: spell_speed_1
+    raw_effect "Effect 5" {
+        effect_type: 2
         on_resolve {
             reveal self
         }

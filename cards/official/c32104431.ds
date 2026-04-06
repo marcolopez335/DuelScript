@@ -5,22 +5,25 @@ card "Destruction Sword Memories" {
     password: 32104431
     type: Normal Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 512
+        code: 1002
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 1073742340
+        code: 1002
+        range: 16
         cost {
             banish self
         }
         on_resolve {
-            special_summon (1, monster) from gy
-            banish (1, card)
+            reveal self
         }
     }
 

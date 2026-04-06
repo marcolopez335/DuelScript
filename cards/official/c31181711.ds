@@ -10,32 +10,36 @@ card "Superheavy Samurai Soulshield Wall" {
     atk: 1200
     def: 1200
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        activate_from: [hand, monster_zone]
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 262144
+        property: 16
+        range: 6
         on_resolve {
             send (1, card) to gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
+    raw_effect "Effect 2" {
+        effect_type: 1
+        code: 311
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 4
+        code: 104
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_attacked
+    raw_effect "Effect 4" {
+        effect_type: 130
+        code: 1131
+        range: 8
         cost {
             send self to gy
         }
@@ -44,8 +48,8 @@ card "Superheavy Samurai Soulshield Wall" {
         }
     }
 
-    effect "Effect 5" {
-        speed: spell_speed_1
+    raw_effect "Effect 5" {
+        effect_type: 1
         on_resolve {
             reveal self
         }

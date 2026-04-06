@@ -5,20 +5,23 @@ card "'Infernoble Arms - Almace'" {
     password: 98319530
     type: Equip Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 262145
+        range: 8
+        count_limit: (1, 98319530)
         on_resolve {
             equip (1, card) to (1, monster)
             destroy (1+, card, either_player controls)
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 8
+        code: 1014
+        property: 65552
+        count_limit: (1, 98319530)
         on_resolve {
             add_to_hand (1, card) from gy
         }

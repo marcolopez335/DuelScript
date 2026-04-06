@@ -13,20 +13,23 @@ card "Rescue-ACE Arbitrator" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 1" {
+        effect_type: 129
+        category: 131080
+        code: 1102
+        property: 65536
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 1
+        code: 1027
+        property: 65552
+        range: 4
+        count_limit: (2, 2725599)
         on_resolve {
             destroy (1+, card, either_player controls)
         }

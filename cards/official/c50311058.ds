@@ -5,28 +5,34 @@ card "Goblin Biker Grand Stampede" {
     password: 50311058
     type: Continuous Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 16
+        code: 1002
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 512
+        code: 1002
+        range: 8
+        count_limit: (1, 50311058)
         on_resolve {
-            special_summon (1, monster) from gy
+            reveal self
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
+    raw_effect "Effect 3" {
+        effect_type: 256
+        category: 16384
+        code: 1002
+        property: 16
+        range: 8
+        count_limit: (1, 50311058)
         on_resolve {
-            negate effect
+            reveal self
         }
     }
 

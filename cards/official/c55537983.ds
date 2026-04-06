@@ -10,27 +10,33 @@ card "Mimighoul Master" {
     atk: 1800
     def: 1200
 
-    effect "Effect 1" {
-        speed: spell_speed_1
+    raw_effect "Effect 1" {
+        effect_type: 1
+        code: 66
+        property: 131072
+        range: 4
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when_summoned
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 131080
+        code: 1100
+        property: 65536
+        count_limit: (1, 55537983)
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
+    raw_effect "Effect 3" {
+        effect_type: 256
+        category: 4096
+        code: 1002
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)
         }

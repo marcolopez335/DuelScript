@@ -10,24 +10,28 @@ card "Card Trooper" {
     atk: 400
     def: 400
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 2097152
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 513
+        category: 65536
+        code: 1014
         on_resolve {
             draw 1
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 100
         on_resolve {
             reveal self
         }

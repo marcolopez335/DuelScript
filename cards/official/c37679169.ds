@@ -10,9 +10,12 @@ card "Kozmo Delta Shuttle" {
     atk: 2000
     def: 2000
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 6291456
+        property: 16
+        range: 4
+        count_limit: (1, 0)
         cost {
             send self to gy
         }
@@ -21,11 +24,11 @@ card "Kozmo Delta Shuttle" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        damage_step: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 512
+        code: 1014
+        property: 81920
         cost {
             banish self
         }
@@ -34,8 +37,9 @@ card "Kozmo Delta Shuttle" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 100
         on_resolve {
             reveal self
         }

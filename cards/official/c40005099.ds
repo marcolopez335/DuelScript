@@ -5,17 +5,20 @@ card "Shiranui Style Synthesis" {
     password: 40005099
     type: Field Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 16
+        code: 1002
+        count_limit: (1, 40005099)
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 64
+        property: 16
+        range: 256
+        count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
             send (1, card) to gy

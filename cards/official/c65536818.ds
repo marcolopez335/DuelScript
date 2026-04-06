@@ -20,18 +20,20 @@ card "Denglong, First of the Yang Zing" {
         cannot_normal_summon: true
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        optional: true
-        trigger: when_summoned by_special_summon
+    raw_effect "Effect 1" {
+        effect_type: 129
+        category: 131080
+        code: 1102
+        property: 65536
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
+    raw_effect "Effect 2" {
+        effect_type: 64
+        range: 4
+        count_limit: (1, 0)
         cost {
             send self to gy
         }
@@ -40,18 +42,19 @@ card "Denglong, First of the Yang Zing" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        optional: true
-        damage_step: true
-        trigger: when_leaves_field
+    raw_effect "Effect 3" {
+        effect_type: 129
+        category: 512
+        code: 1015
+        property: 114688
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 1
+        code: 113
         on_resolve {
             reveal self
         }

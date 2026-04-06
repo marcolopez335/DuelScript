@@ -4,18 +4,21 @@
 card "Enneacraft Reset" {
     password: 19504025
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 16
+        category: 16384
+        code: 1002
+        count_limit: (1, 19504025)
         on_resolve {
-            negate effect
+            reveal self
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 4096
+        code: 1027
+        range: 16
         cost {
             banish self
         }

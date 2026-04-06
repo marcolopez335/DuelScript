@@ -10,11 +10,13 @@ card "Shiranui Samurai" {
     atk: 1800
     def: 0
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
-        damage_step: true
+    raw_effect "Effect 1" {
+        effect_type: 256
+        category: 2097152
+        code: 1002
+        property: 16384
+        range: 4
+        count_limit: (1, 35818851)
         cost {
             banish self
         }
@@ -23,26 +25,28 @@ card "Shiranui Samurai" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        damage_step: true
-        trigger: when_banished
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 8
+        code: 1011
+        property: 81936
+        count_limit: (1, 0)
         on_resolve {
             add_to_hand (1, card) from gy
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 100
         on_resolve {
             reveal self
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
+    raw_effect "Effect 4" {
+        effect_type: 2049
+        code: 1137
         on_resolve {
             banish (1+, card)
         }
