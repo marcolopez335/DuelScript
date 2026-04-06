@@ -1,5 +1,5 @@
 // Danger! Mothman!
-// Migrated from c52350806.lua
+// Transpiled from c52350806.lua
 
 card "Danger! Mothman!" {
     password: 52350806
@@ -13,8 +13,10 @@ card "Danger! Mothman!" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            draw 2 // TODO: verify count
-            special_summon (1, monster) from gy // TODO: verify
+            shuffle deck
+            send (1, card) to gy
+            special_summon (1, monster) from gy
+            draw 1
         }
     }
 
@@ -24,7 +26,10 @@ card "Danger! Mothman!" {
         optional: true
         trigger: when_sent_to gy
         on_resolve {
-            draw 2 // TODO: verify count
+            draw 1
+            draw 1
+            shuffle deck
+            discard (1, card)
         }
     }
 

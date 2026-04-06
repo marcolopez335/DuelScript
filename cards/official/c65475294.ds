@@ -1,5 +1,5 @@
 // The Unfriendly Amazon
-// Migrated from c65475294.lua
+// Transpiled from c65475294.lua
 
 card "The Unfriendly Amazon" {
     password: 65475294
@@ -12,10 +12,11 @@ card "The Unfriendly Amazon" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_standby_phase
         on_resolve {
-            destroy (1+, card, either_player controls) // TODO: verify
+            tribute (1, monster, you controls)
+            destroy (1+, card, either_player controls)
         }
     }
 

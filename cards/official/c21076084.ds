@@ -1,5 +1,5 @@
 // Trickstar Reincarnation
-// Migrated from c21076084.lua
+// Transpiled from c21076084.lua
 
 card "Trickstar Reincarnation" {
     password: 21076084
@@ -8,19 +8,19 @@ card "Trickstar Reincarnation" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            draw 2 // TODO: verify count
+            banish (1+, card)
+            draw 1
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_2
         optional: true
-        condition: in_gy
         cost {
             banish self
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

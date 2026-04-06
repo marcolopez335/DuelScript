@@ -1,0 +1,36 @@
+// Search Striker
+// Transpiled from c80885324.lua
+
+card "Search Striker" {
+    password: 80885324
+    type: Effect Monster
+    attribute: WIND
+    race: Warrior
+    level: 4
+    atk: 1600
+    def: 1200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

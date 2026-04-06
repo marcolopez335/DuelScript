@@ -1,0 +1,38 @@
+// Magical Musket Mastermind Zakiel
+// Transpiled from c30907810.lua
+
+card "Magical Musket Mastermind Zakiel" {
+    password: 30907810
+    type: Effect Monster
+    attribute: LIGHT
+    race: Fiend
+    level: 8
+    atk: 2500
+    def: 2500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: during_end_phase
+        on_resolve {
+            draw 1
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

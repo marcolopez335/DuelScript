@@ -1,0 +1,37 @@
+// Ghostrick Siren
+// Transpiled from c64804316.lua
+
+card "Ghostrick Siren" {
+    password: 64804316
+    type: Effect Monster
+    attribute: DARK
+    race: Fairy
+    level: 4
+    atk: 800
+    def: 1500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: when_summoned
+        on_resolve {
+            mill 2
+            add_to_hand (1, card) from gy
+            change_battle_position (1, monster)
+        }
+    }
+
+}

@@ -1,0 +1,42 @@
+// Prediction Princess Tarotreith
+// Transpiled from c42932862.lua
+
+card "Prediction Princess Tarotreith" {
+    password: 42932862
+    type: Ritual Monster
+    attribute: DARK
+    race: Fairy
+    level: 9
+    atk: 1200
+    def: 2700
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+}

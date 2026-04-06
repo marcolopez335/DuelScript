@@ -1,0 +1,37 @@
+// Decode Talker Heatsoul
+// Transpiled from c61245672.lua
+
+card "Decode Talker Heatsoul" {
+    password: 61245672
+    type: Link Monster
+    attribute: FIRE
+    race: Cyberse
+    link: 3
+    atk: 2300
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        cost {
+            pay_lp 1000
+        }
+        on_resolve {
+            draw 1
+            banish (1+, card)
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

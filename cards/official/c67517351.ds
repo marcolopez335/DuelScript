@@ -1,0 +1,34 @@
+// Hyper Rank-Up-Magic Utopiforce
+// Transpiled from c67517351.lua
+
+card "Hyper Rank-Up-Magic Utopiforce" {
+    password: 67517351
+    type: Normal Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            attach (1, card) to self as_material
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            attach (1, card) to self as_material
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

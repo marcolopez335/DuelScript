@@ -1,0 +1,37 @@
+// Number 7: Lucky Straight
+// Transpiled from c82308875.lua
+
+card "Number 7: Lucky Straight" {
+    password: 82308875
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Fairy
+    rank: 7
+    atk: 700
+    def: 700
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            send (1, card) to gy
+            special_summon (1, monster) from gy
+            draw 3
+            discard (1, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

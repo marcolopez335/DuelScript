@@ -1,0 +1,33 @@
+// Gem-Knight Lady Lapis Lazuli
+// Transpiled from c47611119.lua
+
+card "Gem-Knight Lady Lapis Lazuli" {
+    password: 47611119
+    type: Fusion Monster
+    attribute: EARTH
+    race: Rock
+    level: 5
+    atk: 2400
+    def: 1000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            send (1, card) to gy
+            deal_damage to opponent: 1000
+        }
+    }
+
+}

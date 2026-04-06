@@ -1,0 +1,35 @@
+// Tin Archduke
+// Transpiled from c66506689.lua
+
+card "Tin Archduke" {
+    password: 66506689
+    type: Xyz Monster
+    attribute: EARTH
+    race: Machine
+    rank: 4
+    atk: 2200
+    def: 1200
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+}

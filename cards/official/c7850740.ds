@@ -1,0 +1,33 @@
+// Xyz Slidolphin
+// Transpiled from c7850740.lua
+
+card "Xyz Slidolphin" {
+    password: 7850740
+    type: Effect Monster
+    attribute: WATER
+    race: Sea Serpent
+    level: 4
+    atk: 1200
+    def: 1800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            attach (1, card) to self as_material
+        }
+    }
+
+}

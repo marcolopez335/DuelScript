@@ -1,5 +1,5 @@
 // Earthbound Servant Geo Gremlin
-// Migrated from c8690387.lua
+// Transpiled from c8690387.lua
 
 card "Earthbound Servant Geo Gremlin" {
     password: 8690387
@@ -10,12 +10,6 @@ card "Earthbound Servant Geo Gremlin" {
     atk: 2000
     def: 1000
 
-    materials {
-        require: 1 tuner monster
-        require: 1+ non-tuner monster
-        method: synchro
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -25,16 +19,17 @@ card "Earthbound Servant Geo Gremlin" {
         once_per_turn: soft
         optional: true
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            gain_lp: 1000
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

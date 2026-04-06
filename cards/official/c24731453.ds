@@ -1,0 +1,31 @@
+// Snow Plow Hustle Rustle
+// Transpiled from c24731453.lua
+
+card "Snow Plow Hustle Rustle" {
+    password: 24731453
+    type: Effect Monster
+    attribute: EARTH
+    race: Machine
+    level: 10
+    atk: 2500
+    def: 3000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when attack_declared
+        on_resolve {
+            special_summon (1, monster) from gy
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 1000
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

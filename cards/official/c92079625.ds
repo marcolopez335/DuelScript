@@ -1,0 +1,33 @@
+// Helshaddoll Hollow
+// Transpiled from c92079625.lua
+
+card "Helshaddoll Hollow" {
+    password: 92079625
+    type: Effect Monster
+    attribute: FIRE
+    race: Fiend
+    level: 9
+    atk: 2900
+    def: 2900
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            send (1, card) to gy
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            mill 1
+        }
+    }
+
+}

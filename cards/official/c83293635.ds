@@ -1,5 +1,5 @@
 // Seventh Force
-// Migrated from c83293635.lua
+// Transpiled from c83293635.lua
 
 card "Seventh Force" {
     password: 83293635
@@ -7,9 +7,12 @@ card "Seventh Force" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        damage_step: true
         trigger: when_destroyed
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
+            attach (1, card) to self as_material
+            add_to_hand (1, card) from gy
         }
     }
 

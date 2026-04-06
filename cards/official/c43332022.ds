@@ -1,5 +1,5 @@
 // Jurrac Gallim
-// Migrated from c43332022.lua
+// Transpiled from c43332022.lua
 
 card "Jurrac Gallim" {
     password: 43332022
@@ -12,8 +12,10 @@ card "Jurrac Gallim" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        trigger: when_battle_destroyed
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            discard (1, card)
+            destroy (1+, card, either_player controls)
         }
     }
 

@@ -1,0 +1,46 @@
+// Judge of the Ice Barrier
+// Transpiled from c53535814.lua
+
+card "Judge of the Ice Barrier" {
+    password: 53535814
+    type: Effect Monster
+    attribute: WATER
+    race: Warrior
+    level: 4
+    atk: 1800
+    def: 900
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            banish self
+        }
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+}

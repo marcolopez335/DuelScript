@@ -1,0 +1,63 @@
+// Raidraptor - Last Strix
+// Transpiled from c97219708.lua
+
+card "Raidraptor - Last Strix" {
+    password: 97219708
+    type: Effect Monster
+    attribute: DARK
+    race: Winged Beast
+    level: 1
+    atk: 100
+    def: 100
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        on_resolve {
+            special_summon (1, monster) from gy
+            gain_lp: 1000
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            tribute self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+    effect "Effect 6" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

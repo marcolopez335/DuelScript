@@ -1,0 +1,46 @@
+// Giant Mimighoul
+// Transpiled from c16955631.lua
+
+card "Giant Mimighoul" {
+    password: 16955631
+    type: Xyz Monster
+    attribute: EARTH
+    race: Rock
+    rank: 1
+    atk: 1300
+    def: 2000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 1000
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // Book of Eclipse
-// Migrated from c35480699.lua
+// Transpiled from c35480699.lua
 
 card "Book of Eclipse" {
     password: 35480699
@@ -8,16 +8,17 @@ card "Book of Eclipse" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            draw 2 // TODO: verify count
+            change_battle_position (1, monster)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_end_phase
         on_resolve {
-            draw 2 // TODO: verify count
+            change_battle_position (1, monster)
+            draw 1
         }
     }
 

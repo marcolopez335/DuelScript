@@ -1,0 +1,39 @@
+// Galaxy-Eyes Tachyon Primal
+// Transpiled from c45710945.lua
+
+card "Galaxy-Eyes Tachyon Primal" {
+    password: 45710945
+    type: Effect Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 8
+    atk: 3000
+    def: 2500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when attack_declared
+        on_resolve {
+            attach (1, card) to self as_material
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: when_summoned
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

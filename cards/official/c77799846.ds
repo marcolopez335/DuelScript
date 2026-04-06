@@ -1,0 +1,55 @@
+// Googly-Eyes Drum Dragon
+// Transpiled from c77799846.lua
+
+card "Googly-Eyes Drum Dragon" {
+    password: 77799846
+    type: Xyz Monster
+    attribute: EARTH
+    race: Machine
+    rank: 8
+    atk: 3000
+    def: 2500
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        cost {
+            banish self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+            attach (1, card) to self as_material
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

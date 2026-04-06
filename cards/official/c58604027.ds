@@ -1,0 +1,57 @@
+// The Legendary Exodia Incarnate
+// Transpiled from c58604027.lua
+
+card "The Legendary Exodia Incarnate" {
+    password: 58604027
+    type: Effect Monster | Spirit
+    attribute: DARK
+    race: Spellcaster
+    level: 10
+    atk: ?
+    def: 0
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 6" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_battle_destroyed
+        on_resolve {
+            shuffle deck
+            draw 1
+        }
+    }
+
+}

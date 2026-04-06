@@ -1,0 +1,29 @@
+// Mind Protector
+// Transpiled from c85060248.lua
+
+card "Mind Protector" {
+    password: 85060248
+    type: Effect Monster
+    attribute: LIGHT
+    race: Psychic
+    level: 3
+    atk: 0
+    def: 2200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

@@ -1,0 +1,34 @@
+// Dark Tuner Catastrogue
+// Transpiled from c15141103.lua
+
+card "Dark Tuner Catastrogue" {
+    password: 15141103
+    type: Effect Monster | Tuner
+    attribute: DARK
+    race: Fiend
+    level: 8
+    atk: 0
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            reveal self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            tribute (1, monster, you controls)
+            special_summon (1, monster) from gy
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

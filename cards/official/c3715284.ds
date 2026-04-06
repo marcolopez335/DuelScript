@@ -1,0 +1,48 @@
+// Meklord Army Deployer Obbligato
+// Transpiled from c3715284.lua
+
+card "Meklord Army Deployer Obbligato" {
+    password: 3715284
+    type: Effect Monster
+    attribute: LIGHT
+    race: Machine
+    level: 4
+    atk: 1200
+    def: 1800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            deal_damage to opponent: 1000
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            deal_damage to opponent: 1000
+        }
+    }
+
+}

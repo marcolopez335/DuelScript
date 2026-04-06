@@ -1,5 +1,5 @@
 // Time Wizard of Tomorrow
-// Migrated from c26273196.lua
+// Transpiled from c26273196.lua
 
 card "Time Wizard of Tomorrow" {
     password: 26273196
@@ -10,20 +10,16 @@ card "Time Wizard of Tomorrow" {
     atk: 2000
     def: 1900
 
-    materials {
-        require: 2+ monster
-        method: fusion
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 1000
         }
     }
 

@@ -1,0 +1,37 @@
+// Shadowknight Archfiend
+// Transpiled from c9603356.lua
+
+card "Shadowknight Archfiend" {
+    password: 9603356
+    type: Effect Monster
+    attribute: WIND
+    race: Fiend
+    level: 4
+    atk: 2000
+    def: 1600
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            negate effect
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

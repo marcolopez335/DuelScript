@@ -1,0 +1,39 @@
+// Retaliating 'C'
+// Transpiled from c46502744.lua
+
+card "Retaliating 'C'" {
+    password: 46502744
+    type: Effect Monster
+    attribute: EARTH
+    race: Insect
+    level: 4
+    atk: 1400
+    def: 1400
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

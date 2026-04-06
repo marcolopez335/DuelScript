@@ -1,0 +1,38 @@
+// Swords of Revealing Light
+// Transpiled from c72302403.lua
+
+card "Swords of Revealing Light" {
+    password: 72302403
+    type: Normal Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

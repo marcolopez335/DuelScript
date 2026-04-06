@@ -1,0 +1,42 @@
+// Dark Tuner Nightmare Hand
+// Transpiled from c51546708.lua
+
+card "Dark Tuner Nightmare Hand" {
+    password: 51546708
+    type: Effect Monster | Tuner
+    attribute: DARK
+    race: Warrior
+    level: 10
+    atk: 0
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            reveal self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            tribute (1, monster, you controls)
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

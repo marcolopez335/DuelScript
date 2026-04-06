@@ -1,5 +1,5 @@
 // Depth Amulet
-// Migrated from c8279188.lua
+// Transpiled from c8279188.lua
 
 card "Depth Amulet" {
     password: 8279188
@@ -8,6 +8,7 @@ card "Depth Amulet" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
+            discard (1, card)
             negate attack
         }
     }
@@ -17,16 +18,17 @@ card "Depth Amulet" {
         optional: true
         trigger: when attack_declared
         on_resolve {
+            discard (1, card)
             negate attack
         }
     }
 
     effect "Effect 3" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_end_phase
         on_resolve {
-            destroy (1+, card, either_player controls) // TODO: verify
+            destroy (1+, card, either_player controls)
         }
     }
 

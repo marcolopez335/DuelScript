@@ -1,5 +1,5 @@
 // ZS - Vanish Sage
-// Migrated from c51865604.lua
+// Transpiled from c51865604.lua
 
 card "ZS - Vanish Sage" {
     password: 51865604
@@ -14,7 +14,7 @@ card "ZS - Vanish Sage" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            draw 2 // TODO: verify count
+            draw 1
         }
     }
 
@@ -22,11 +22,13 @@ card "ZS - Vanish Sage" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        trigger: when_banished
         cost {
             banish self
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
+            banish (1+, card)
         }
     }
 

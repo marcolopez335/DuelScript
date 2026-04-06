@@ -1,5 +1,5 @@
 // Gishki Aquamirror
-// Migrated from c46159582.lua
+// Transpiled from c46159582.lua
 
 card "Gishki Aquamirror" {
     password: 46159582
@@ -7,9 +7,11 @@ card "Gishki Aquamirror" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        condition: in_gy
+        cost {
+            send self to deck
+        }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

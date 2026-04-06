@@ -1,0 +1,47 @@
+// Number 27: Dreadnought Dreadnoid
+// Transpiled from c8387138.lua
+
+card "Number 27: Dreadnought Dreadnoid" {
+    password: 8387138
+    type: Xyz Monster
+    attribute: WATER
+    race: Machine
+    rank: 4
+    atk: 2200
+    def: 1000
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            attach (1, card) to self as_material
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

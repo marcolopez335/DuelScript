@@ -1,5 +1,5 @@
 // Gladiator Beast Samnite
-// Migrated from c2619149.lua
+// Transpiled from c2619149.lua
 
 card "Gladiator Beast Samnite" {
     password: 2619149
@@ -14,15 +14,18 @@ card "Gladiator Beast Samnite" {
         speed: spell_speed_1
         optional: true
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
         optional: true
+        cost {
+            send self to deck
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

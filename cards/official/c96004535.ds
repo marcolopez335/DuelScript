@@ -1,0 +1,31 @@
+// Unbreakable Xyz Barrier
+// Transpiled from c96004535.lua
+
+card "Unbreakable Xyz Barrier" {
+    password: 96004535
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            negate activation
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        cost {
+            banish self
+        }
+        on_resolve {
+            attach (1, card) to self as_material
+        }
+    }
+
+}

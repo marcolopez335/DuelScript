@@ -1,5 +1,5 @@
 // Ariane the Labrynth Servant
-// Migrated from c75730490.lua
+// Transpiled from c75730490.lua
 
 card "Ariane the Labrynth Servant" {
     password: 75730490
@@ -13,18 +13,22 @@ card "Ariane the Labrynth Servant" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
+        cost {
+            send self to gy
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        trigger: when_leaves_field
         on_resolve {
-            draw 2 // TODO: verify count
-            special_summon (1, monster) from gy // TODO: verify
+            draw 1
+            special_summon (1, monster) from gy
         }
     }
 

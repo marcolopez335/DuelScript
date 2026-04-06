@@ -1,0 +1,44 @@
+// Kanzashi the Rikka Queen
+// Transpiled from c6284176.lua
+
+card "Kanzashi the Rikka Queen" {
+    password: 6284176
+    type: Xyz Monster
+    attribute: WATER
+    race: Plant
+    rank: 6
+    atk: 2400
+    def: 2400
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            tribute (1, monster, you controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

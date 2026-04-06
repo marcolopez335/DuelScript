@@ -1,5 +1,5 @@
 // Crystal Boon
-// Migrated from c85766789.lua
+// Transpiled from c85766789.lua
 
 card "Crystal Boon" {
     password: 85766789
@@ -8,7 +8,8 @@ card "Crystal Boon" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
+            gain_lp: 1000
         }
     }
 
@@ -16,12 +17,13 @@ card "Crystal Boon" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
-        condition: in_gy
+        damage_step: true
         cost {
             banish self
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
+            send (1, card) to gy
         }
     }
 

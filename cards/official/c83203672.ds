@@ -1,0 +1,33 @@
+// Springans Branga
+// Transpiled from c83203672.lua
+
+card "Springans Branga" {
+    password: 83203672
+    type: Effect Monster
+    attribute: FIRE
+    race: Machine
+    level: 8
+    atk: 500
+    def: 2500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand, monster_zone]
+        on_resolve {
+            attach (1, card) to self as_material
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            banish self
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

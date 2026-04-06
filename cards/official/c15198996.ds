@@ -1,0 +1,34 @@
+// Green Ninja
+// Transpiled from c15198996.lua
+
+card "Green Ninja" {
+    password: 15198996
+    type: Effect Monster
+    attribute: WIND
+    race: Warrior
+    level: 2
+    atk: 600
+    def: 600
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            special_summon (1, monster) from gy
+            change_battle_position (1, monster)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // Number C15: Gimmick Puppet Giant Hunter
-// Migrated from c33776843.lua
+// Transpiled from c33776843.lua
 
 card "Number C15: Gimmick Puppet Giant Hunter" {
     password: 33776843
@@ -22,12 +22,13 @@ card "Number C15: Gimmick Puppet Giant Hunter" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         cost {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 1000
         }
     }
 

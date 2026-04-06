@@ -1,0 +1,40 @@
+// Traptrix Cularia
+// Transpiled from c952523.lua
+
+card "Traptrix Cularia" {
+    password: 952523
+    type: Link Monster
+    attribute: EARTH
+    race: Plant
+    link: 2
+    atk: 1800
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: during_end_phase
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

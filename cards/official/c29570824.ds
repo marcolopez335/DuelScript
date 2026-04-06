@@ -1,0 +1,82 @@
+// Ekto Enneacraft - 'tromarIA'
+// Transpiled from c29570824.lua
+
+card "Ekto Enneacraft - 'tromarIA'" {
+    password: 29570824
+    type: Pendulum Monster
+    attribute: EARTH
+    race: Machine
+    level: 1
+    scale: 0
+    atk: 100
+    def: 1000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_flipped
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            pay_lp 1000
+        }
+        on_resolve {
+            shuffle deck
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        cost {
+            reveal self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_2
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 5" {
+        speed: spell_speed_1
+        trigger: when_flipped
+        on_resolve {
+            negate effect
+        }
+    }
+
+    effect "Effect 6" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 7" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 8" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

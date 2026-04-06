@@ -1,5 +1,5 @@
 // Icejade Acti
-// Migrated from c82777208.lua
+// Transpiled from c82777208.lua
 
 card "Icejade Acti" {
     password: 82777208
@@ -14,23 +14,27 @@ card "Icejade Acti" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        damage_step: true
         trigger: when_summoned
+        cost {
+            send self to gy
+        }
         on_resolve {
-            draw 2 // TODO: verify count
+            draw 1
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        damage_step: true
         trigger: when_destroyed
-        condition: in_gy
         cost {
             banish self
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

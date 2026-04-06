@@ -1,5 +1,5 @@
 // Favorite HERO Shining Flare Wingman
-// Migrated from c87758525.lua
+// Transpiled from c87758525.lua
 
 card "Favorite HERO Shining Flare Wingman" {
     password: 87758525
@@ -9,11 +9,6 @@ card "Favorite HERO Shining Flare Wingman" {
     level: 8
     atk: 2500
     def: 2100
-
-    materials {
-        require: 2+ monster
-        method: fusion
-    }
 
     summon_condition {
         cannot_normal_summon: true
@@ -25,14 +20,15 @@ card "Favorite HERO Shining Flare Wingman" {
         optional: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            draw 2 // TODO: verify count
+            return (1, card) to deck shuffle
+            draw 1
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
         on_resolve {
-            deal_damage to opponent: 1000 // TODO: verify
+            deal_damage to opponent: 1000
         }
     }
 

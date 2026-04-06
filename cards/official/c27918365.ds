@@ -1,0 +1,36 @@
+// World Legacy - 'World Crown'
+// Transpiled from c27918365.lua
+
+card "World Legacy - 'World Crown'" {
+    password: 27918365
+    type: Effect Monster
+    attribute: DARK
+    race: Machine
+    level: 6
+    atk: 2000
+    def: 2000
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        damage_step: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            tribute self
+        }
+        on_resolve {
+            negate activation
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

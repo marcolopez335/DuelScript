@@ -1,0 +1,43 @@
+// Magnet Warrior Omega Plus
+// Transpiled from c86289475.lua
+
+card "Magnet Warrior Omega Plus" {
+    password: 86289475
+    type: Effect Monster
+    attribute: EARTH
+    race: Rock
+    level: 4
+    atk: 800
+    def: 1900
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand, gy]
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            tribute self
+        }
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

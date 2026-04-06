@@ -1,0 +1,37 @@
+// Karakuri Soldier mdl 236 'Nisamu'
+// Transpiled from c3846170.lua
+
+card "Karakuri Soldier mdl 236 'Nisamu'" {
+    password: 3846170
+    type: Effect Monster
+    attribute: EARTH
+    race: Machine
+    level: 4
+    atk: 1400
+    def: 200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_attacked
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_battle_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // Battleguard Echoes
-// Migrated from c74213995.lua
+// Transpiled from c74213995.lua
 
 card "Battleguard Echoes" {
     password: 74213995
@@ -9,16 +9,19 @@ card "Battleguard Echoes" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            shuffle deck
+            discard (1, card)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        damage_step: true
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

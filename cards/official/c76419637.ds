@@ -1,0 +1,43 @@
+// CXyz Battleship Cherry Blossom
+// Transpiled from c76419637.lua
+
+card "CXyz Battleship Cherry Blossom" {
+    password: 76419637
+    type: Xyz Monster
+    attribute: EARTH
+    race: Plant
+    rank: 4
+    atk: 2400
+    def: 2000
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            discard (1, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            deal_damage to opponent: 1000
+        }
+    }
+
+}

@@ -1,0 +1,38 @@
+// Superheavy Samurai Wagon
+// Transpiled from c34496660.lua
+
+card "Superheavy Samurai Wagon" {
+    password: 34496660
+    type: Effect Monster
+    attribute: EARTH
+    race: Machine
+    level: 4
+    atk: 1200
+    def: 1800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            change_battle_position (1, monster)
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

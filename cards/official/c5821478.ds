@@ -1,0 +1,43 @@
+// Topologic Bomber Dragon
+// Transpiled from c5821478.lua
+
+card "Topologic Bomber Dragon" {
+    password: 5821478
+    type: Link Monster
+    attribute: DARK
+    race: Cyberse
+    link: 4
+    atk: 3000
+
+    materials {
+        require: 2+ effect monster
+        method: link
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            deal_damage to opponent: 1000
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

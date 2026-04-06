@@ -1,0 +1,48 @@
+// Seven Swords Warrior
+// Transpiled from c43366227.lua
+
+card "Seven Swords Warrior" {
+    password: 43366227
+    type: Synchro Monster
+    attribute: EARTH
+    race: Warrior
+    level: 7
+    atk: 2300
+    def: 1800
+
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            deal_damage to opponent: 1000
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_leaves_field
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

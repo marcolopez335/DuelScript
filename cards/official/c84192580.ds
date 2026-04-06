@@ -1,0 +1,62 @@
+// Mulcharmy Purulia
+// Transpiled from c84192580.lua
+
+card "Mulcharmy Purulia" {
+    password: 84192580
+    type: Effect Monster
+    attribute: WATER
+    race: Aqua
+    level: 4
+    atk: 100
+    def: 600
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            draw 2
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: when_summoned
+        on_resolve {
+            draw 1
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+    effect "Effect 5" {
+        speed: spell_speed_1
+        on_resolve {
+            draw 1
+        }
+    }
+
+    effect "Effect 6" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

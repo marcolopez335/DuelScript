@@ -1,5 +1,5 @@
 // Time Wizard
-// Migrated from c71625222.lua
+// Transpiled from c71625222.lua
 
 card "Time Wizard" {
     password: 71625222
@@ -12,9 +12,11 @@ card "Time Wizard" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 1000
         }
     }
 

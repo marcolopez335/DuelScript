@@ -1,5 +1,5 @@
 // R.B. Operation Test
-// Migrated from c16066654.lua
+// Transpiled from c16066654.lua
 
 card "R.B. Operation Test" {
     password: 16066654
@@ -9,15 +9,17 @@ card "R.B. Operation Test" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            special_summon self from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            gain_lp: 1000
+            shuffle deck
+            special_summon (1, monster) from gy
         }
     }
 

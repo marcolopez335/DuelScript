@@ -1,0 +1,32 @@
+// Yamorimori
+// Transpiled from c51474037.lua
+
+card "Yamorimori" {
+    password: 51474037
+    type: Effect Monster
+    attribute: WATER
+    race: Reptile
+    level: 2
+    atk: 0
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            banish self
+        }
+        on_resolve {
+            change_battle_position (1, monster)
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

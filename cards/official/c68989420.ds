@@ -1,0 +1,42 @@
+// T.G. Over Dragonar
+// Transpiled from c68989420.lua
+
+card "T.G. Over Dragonar" {
+    password: 68989420
+    type: Synchro Monster
+    attribute: DARK
+    race: Dragon
+    level: 5
+    atk: 2100
+    def: 1900
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_destroyed
+        on_resolve {
+            draw 1
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

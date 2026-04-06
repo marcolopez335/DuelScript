@@ -1,0 +1,40 @@
+// Karakuri Gama mdl 4624 'Shirokunishi'
+// Transpiled from c75690317.lua
+
+card "Karakuri Gama mdl 4624 'Shirokunishi'" {
+    password: 75690317
+    type: Effect Monster | Tuner
+    attribute: EARTH
+    race: Machine
+    level: 1
+    atk: 200
+    def: 1000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_attacked
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        cost {
+            banish self
+        }
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+}

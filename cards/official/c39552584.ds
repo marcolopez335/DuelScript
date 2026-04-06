@@ -1,0 +1,38 @@
+// Grapha, Dragon Overlord of Dark World
+// Transpiled from c39552584.lua
+
+card "Grapha, Dragon Overlord of Dark World" {
+    password: 39552584
+    type: Fusion Monster
+    attribute: DARK
+    race: Fiend
+    level: 10
+    atk: 3200
+    def: 2300
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_leaves_field
+        on_resolve {
+            special_summon (1, monster) from gy
+            discard (1, card)
+            discard (1, card)
+        }
+    }
+
+}

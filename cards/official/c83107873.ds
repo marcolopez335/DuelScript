@@ -1,5 +1,5 @@
 // Thunder Dragonhawk
-// Migrated from c83107873.lua
+// Transpiled from c83107873.lua
 
 card "Thunder Dragonhawk" {
     password: 83107873
@@ -17,7 +17,7 @@ card "Thunder Dragonhawk" {
             discard self
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
@@ -25,8 +25,11 @@ card "Thunder Dragonhawk" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        trigger: when_banished
         on_resolve {
-            draw 2 // TODO: verify count
+            return (1, card) to deck shuffle
+            shuffle deck
+            draw 1
         }
     }
 

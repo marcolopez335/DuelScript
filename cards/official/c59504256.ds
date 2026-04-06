@@ -1,0 +1,32 @@
+// Demigod of the Tistina
+// Transpiled from c59504256.lua
+
+card "Demigod of the Tistina" {
+    password: 59504256
+    type: Effect Monster
+    attribute: LIGHT
+    race: Aqua
+    level: 10
+    atk: 2000
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            special_summon (1, monster) from gy
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            change_battle_position (1, monster)
+            send (1, card) to gy
+        }
+    }
+
+}

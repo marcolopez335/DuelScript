@@ -1,0 +1,39 @@
+// Tsumuha-Kutsunagi the Lord of Swords
+// Transpiled from c78098950.lua
+
+card "Tsumuha-Kutsunagi the Lord of Swords" {
+    password: 78098950
+    type: Effect Monster | Flip
+    attribute: WIND
+    race: Warrior
+    level: 11
+    atk: 3000
+    def: 3000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_summoned
+        on_resolve {
+            send (1, card) to gy
+            draw 1
+            draw 1
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+}

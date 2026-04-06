@@ -1,5 +1,5 @@
 // Doodle Beast - Stego
-// Migrated from c31230289.lua
+// Transpiled from c31230289.lua
 
 card "Doodle Beast - Stego" {
     password: 31230289
@@ -14,17 +14,19 @@ card "Doodle Beast - Stego" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_summoned
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            shuffle deck
+            discard (1, card)
         }
     }
 

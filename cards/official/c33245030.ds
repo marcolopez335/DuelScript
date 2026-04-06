@@ -1,0 +1,32 @@
+// Sphere Kuriboh
+// Transpiled from c33245030.lua
+
+card "Sphere Kuriboh" {
+    password: 33245030
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 300
+    def: 200
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        trigger: when attack_declared
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

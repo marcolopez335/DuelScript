@@ -1,0 +1,33 @@
+// Shaddoll Hound
+// Transpiled from c52551211.lua
+
+card "Shaddoll Hound" {
+    password: 52551211
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 4
+    atk: 1600
+    def: 900
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            change_battle_position (1, monster)
+            change_battle_position (1, monster)
+        }
+    }
+
+}

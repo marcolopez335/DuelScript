@@ -1,5 +1,5 @@
 // Purrely
-// Migrated from c25550531.lua
+// Transpiled from c25550531.lua
 
 card "Purrely" {
     password: 25550531
@@ -15,15 +15,18 @@ card "Purrely" {
         optional: true
         trigger: when_summoned
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            shuffle deck
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            attach (1, card) to self as_material
+            special_summon (1, monster) from gy
+            attach (1, card) to self as_material
         }
     }
 

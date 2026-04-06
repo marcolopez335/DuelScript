@@ -1,0 +1,31 @@
+// Swarm of Centipedes
+// Transpiled from c6116731.lua
+
+card "Swarm of Centipedes" {
+    password: 6116731
+    type: Effect Monster
+    attribute: DARK
+    race: Insect
+    level: 3
+    atk: 1500
+    def: 500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_flipped
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+}

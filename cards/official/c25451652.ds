@@ -1,0 +1,45 @@
+// Darklord Morningstar
+// Transpiled from c25451652.lua
+
+card "Darklord Morningstar" {
+    password: 25451652
+    type: Effect Monster
+    attribute: DARK
+    race: Fairy
+    level: 11
+    atk: 3000
+    def: 3000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            mill 1
+            gain_lp: 1000
+        }
+    }
+
+}

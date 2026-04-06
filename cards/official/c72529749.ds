@@ -1,5 +1,5 @@
 // Topologic Trisbaena
-// Migrated from c72529749.lua
+// Transpiled from c72529749.lua
 
 card "Topologic Trisbaena" {
     password: 72529749
@@ -9,11 +9,6 @@ card "Topologic Trisbaena" {
     link: 3
     atk: 2500
 
-    materials {
-        require: 2+ effect monster
-        method: link
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -22,8 +17,8 @@ card "Topologic Trisbaena" {
         speed: spell_speed_1
         trigger: when_summoned by_special_summon
         on_resolve {
-            banish (1, card) // TODO: verify
-            deal_damage to opponent: 1000 // TODO: verify
+            banish (1+, card)
+            deal_damage to opponent: 1000
         }
     }
 

@@ -1,0 +1,39 @@
+// Triggering Wurm
+// Transpiled from c95504778.lua
+
+card "Triggering Wurm" {
+    password: 95504778
+    type: Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 2
+    atk: 600
+    def: 600
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_used_as_material
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: when_destroyed
+        on_resolve {
+            draw 1
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

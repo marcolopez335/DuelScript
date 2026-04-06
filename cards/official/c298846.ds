@@ -1,5 +1,5 @@
 // Trickstar Colchica
-// Migrated from c298846.lua
+// Transpiled from c298846.lua
 
 card "Trickstar Colchica" {
     password: 298846
@@ -9,11 +9,6 @@ card "Trickstar Colchica" {
     link: 1
     atk: 200
 
-    materials {
-        require: 2+ effect monster
-        method: link
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -22,12 +17,12 @@ card "Trickstar Colchica" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
-        condition: in_gy
+        trigger: when_battle_destroyed
         cost {
             banish self
         }
         on_resolve {
-            deal_damage to opponent: 1000 // TODO: verify
+            deal_damage to opponent: 1000
         }
     }
 

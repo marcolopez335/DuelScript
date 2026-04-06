@@ -1,0 +1,43 @@
+// Heavymetalfoes Electrumite
+// Transpiled from c24094258.lua
+
+card "Heavymetalfoes Electrumite" {
+    password: 24094258
+    type: Link Monster
+    attribute: FIRE
+    race: Psychic
+    link: 2
+    atk: 1800
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: when_leaves_field
+        on_resolve {
+            draw 1
+        }
+    }
+
+}

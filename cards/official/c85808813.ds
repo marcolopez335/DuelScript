@@ -1,5 +1,5 @@
 // Time Stream
-// Migrated from c85808813.lua
+// Transpiled from c85808813.lua
 
 card "Time Stream" {
     password: 85808813
@@ -8,15 +8,18 @@ card "Time Stream" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            tribute (1, monster, you controls)
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        condition: in_gy
+        cost {
+            banish self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

@@ -1,0 +1,36 @@
+// Ghostrick Stein
+// Transpiled from c16279989.lua
+
+card "Ghostrick Stein" {
+    password: 16279989
+    type: Effect Monster
+    attribute: DARK
+    race: Zombie
+    level: 3
+    atk: 1600
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

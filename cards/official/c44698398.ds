@@ -1,5 +1,5 @@
 // Divine Golden Shadow Dragon Dragluxion
-// Migrated from c44698398.lua
+// Transpiled from c44698398.lua
 
 card "Divine Golden Shadow Dragon Dragluxion" {
     password: 44698398
@@ -9,12 +9,6 @@ card "Divine Golden Shadow Dragon Dragluxion" {
     rank: 8
     atk: 2500
     def: 3000
-
-    materials {
-        require: 2+ monster
-        same_level: true
-        method: xyz
-    }
 
     summon_condition {
         cannot_normal_summon: true
@@ -26,18 +20,20 @@ card "Divine Golden Shadow Dragon Dragluxion" {
         optional: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         cost {
-            detach 2 overlay_unit from self
+            detach 1 overlay_unit from self
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            attach (1, card) to self as_material
+            special_summon (1, monster) from gy
+            attach (1, card) to self as_material
         }
     }
 

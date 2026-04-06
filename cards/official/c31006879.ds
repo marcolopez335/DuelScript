@@ -1,0 +1,37 @@
+// On Your Mark, Get Set, DUEL!
+// Transpiled from c31006879.lua
+
+card "On Your Mark, Get Set, DUEL!" {
+    password: 31006879
+    type: Continuous Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            draw 1
+            shuffle deck
+            discard (1, card)
+        }
+    }
+
+}

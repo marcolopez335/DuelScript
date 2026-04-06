@@ -1,0 +1,45 @@
+// Castel, the Skyblaster Musketeer
+// Transpiled from c82633039.lua
+
+card "Castel, the Skyblaster Musketeer" {
+    password: 82633039
+    type: Xyz Monster
+    attribute: WIND
+    race: Winged Beast
+    rank: 4
+    atk: 2000
+    def: 1500
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+}

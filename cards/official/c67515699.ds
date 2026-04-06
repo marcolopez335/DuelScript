@@ -1,0 +1,37 @@
+// K9-66X 'Jacks'
+// Transpiled from c67515699.lua
+
+card "K9-66X 'Jacks'" {
+    password: 67515699
+    type: Xyz Monster
+    attribute: DARK
+    race: Fiend
+    rank: 5
+    atk: 2600
+    def: 2500
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned by_special_summon
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

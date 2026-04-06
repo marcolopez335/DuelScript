@@ -1,5 +1,5 @@
 // Dragon Piper
-// Migrated from c55763552.lua
+// Transpiled from c55763552.lua
 
 card "Dragon Piper" {
     password: 55763552
@@ -13,7 +13,8 @@ card "Dragon Piper" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            change_battle_position (1, monster)
         }
     }
 

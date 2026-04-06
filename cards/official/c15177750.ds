@@ -1,0 +1,49 @@
+// Blessed Winds
+// Transpiled from c15177750.lua
+
+card "Blessed Winds" {
+    password: 15177750
+    type: Continuous Trap
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            gain_lp: 1000
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            return (1, card) to deck shuffle
+            gain_lp: 500
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        cost {
+            pay_lp your_lp / 2
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

@@ -1,0 +1,54 @@
+// Michael, the Arch-Lightsworn
+// Transpiled from c4779823.lua
+
+card "Michael, the Arch-Lightsworn" {
+    password: 4779823
+    type: Synchro Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 7
+    atk: 2600
+    def: 2000
+
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            pay_lp 1000
+        }
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_destroyed
+        on_resolve {
+            return (1, card) to deck shuffle
+            gain_lp: 1000
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            mill 3
+        }
+    }
+
+}

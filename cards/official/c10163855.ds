@@ -1,0 +1,40 @@
+// Shell Knight
+// Transpiled from c10163855.lua
+
+card "Shell Knight" {
+    password: 10163855
+    type: Effect Monster
+    attribute: EARTH
+    race: Rock
+    level: 4
+    atk: 0
+    def: 2000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            change_battle_position (1, monster)
+            deal_damage to opponent: 500
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_battle_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

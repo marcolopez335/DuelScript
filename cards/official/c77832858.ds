@@ -1,0 +1,38 @@
+// Thestalos the Shadowfire Monarch
+// Transpiled from c77832858.lua
+
+card "Thestalos the Shadowfire Monarch" {
+    password: 77832858
+    type: Effect Monster
+    attribute: FIRE
+    race: Pyro
+    level: 10
+    atk: 3000
+    def: 1000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            tribute (1, monster, you controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            banish (1+, card)
+            banish (1+, card)
+            deal_damage to opponent: 1000
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

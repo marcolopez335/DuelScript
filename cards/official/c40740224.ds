@@ -1,0 +1,47 @@
+// Cross Keeper
+// Transpiled from c40740224.lua
+
+card "Cross Keeper" {
+    password: 40740224
+    type: Effect Monster
+    attribute: DARK
+    race: Warrior
+    level: 2
+    atk: 400
+    def: 400
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand, monster_zone]
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_summoned by_special_summon
+        cost {
+            banish self
+        }
+        on_resolve {
+            draw 1
+            shuffle deck
+            return (1, card) to deck shuffle
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

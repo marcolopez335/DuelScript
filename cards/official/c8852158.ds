@@ -1,0 +1,36 @@
+// Reeshaddoll Wendikurhu
+// Transpiled from c8852158.lua
+
+card "Reeshaddoll Wendikurhu" {
+    password: 8852158
+    type: Fusion Monster
+    attribute: WIND
+    race: Psychic
+    level: 6
+    atk: 200
+    def: 2800
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            change_battle_position (1, monster)
+            change_battle_position (1, monster)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

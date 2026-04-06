@@ -1,5 +1,5 @@
 // Latency
-// Migrated from c3560069.lua
+// Transpiled from c3560069.lua
 
 card "Latency" {
     password: 3560069
@@ -14,17 +14,20 @@ card "Latency" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        damage_step: true
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        damage_step: true
+        trigger: when_used_as_material
         on_resolve {
-            draw 2 // TODO: verify count
+            draw 1
         }
     }
 

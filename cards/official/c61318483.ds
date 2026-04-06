@@ -1,0 +1,37 @@
+// Ghostrick Jackfrost
+// Transpiled from c61318483.lua
+
+card "Ghostrick Jackfrost" {
+    password: 61318483
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 800
+    def: 100
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when attack_declared
+        on_resolve {
+            change_battle_position (1, monster)
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

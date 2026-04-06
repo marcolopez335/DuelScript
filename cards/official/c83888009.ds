@@ -1,5 +1,5 @@
 // Rebirth of the Seventh Emperors
-// Migrated from c83888009.lua
+// Transpiled from c83888009.lua
 
 card "Rebirth of the Seventh Emperors" {
     password: 83888009
@@ -7,17 +7,22 @@ card "Rebirth of the Seventh Emperors" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        cost {
+            tribute self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
+            attach (1, card) to self as_material
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_end_phase
         on_resolve {
-            deal_damage to opponent: 1000 // TODO: verify
+            deal_damage to opponent: 1000
+            deal_damage to opponent: 1000
         }
     }
 

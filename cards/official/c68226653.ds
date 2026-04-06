@@ -1,5 +1,5 @@
 // Flamvell Dragnov
-// Migrated from c68226653.lua
+// Transpiled from c68226653.lua
 
 card "Flamvell Dragnov" {
     password: 68226653
@@ -12,16 +12,19 @@ card "Flamvell Dragnov" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        trigger: when_battle_destroyed
         on_resolve {
-            deal_damage to opponent: 1000 // TODO: verify
+            deal_damage to opponent: 1000
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        condition: in_gy
+        cost {
+            banish self
+        }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

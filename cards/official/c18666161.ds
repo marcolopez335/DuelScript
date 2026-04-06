@@ -1,5 +1,5 @@
 // Despian Proskenion
-// Migrated from c18666161.lua
+// Transpiled from c18666161.lua
 
 card "Despian Proskenion" {
     password: 18666161
@@ -10,11 +10,6 @@ card "Despian Proskenion" {
     atk: 3200
     def: 3200
 
-    materials {
-        require: 2+ monster
-        method: fusion
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -24,17 +19,17 @@ card "Despian Proskenion" {
         once_per_turn: hard
         optional: true
         on_resolve {
-            special_summon self from gy // TODO: verify
-            banish (1, card) // TODO: verify
+            banish (1+, card)
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         on_resolve {
-            deal_damage to opponent: 1000 // TODO: verify
+            deal_damage to opponent: 1000
         }
     }
 

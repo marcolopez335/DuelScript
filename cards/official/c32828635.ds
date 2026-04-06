@@ -1,5 +1,5 @@
 // Cycle of the World
-// Migrated from c32828635.lua
+// Transpiled from c32828635.lua
 
 card "Cycle of the World" {
     password: 32828635
@@ -7,9 +7,12 @@ card "Cycle of the World" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        condition: in_gy
+        cost {
+            send self to deck
+        }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            add_to_hand (1, card) from gy
         }
     }
 

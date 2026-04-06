@@ -1,0 +1,41 @@
+// Swordsoul of Mo Ye
+// Transpiled from c20001443.lua
+
+card "Swordsoul of Mo Ye" {
+    password: 20001443
+    type: Effect Monster
+    attribute: WATER
+    race: Wyrm
+    level: 4
+    atk: 1700
+    def: 1800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: when_summoned
+        on_resolve {
+            create_token { atk: 0 def: 0 }
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_used_as_material
+        on_resolve {
+            draw 1
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

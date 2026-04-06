@@ -1,0 +1,47 @@
+// Yummy★Redemption
+// Transpiled from c65853758.lua
+
+card "Yummy★Redemption" {
+    password: 65853758
+    type: Continuous Trap
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: true
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            draw 1
+            shuffle deck
+            return (1, card) to deck shuffle
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        cost {
+            banish self
+        }
+        on_resolve {
+            take_control of (1, monster, opponent controls)
+        }
+    }
+
+}

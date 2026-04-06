@@ -1,0 +1,41 @@
+// Edge Imp Cotton Eater
+// Transpiled from c73240432.lua
+
+card "Edge Imp Cotton Eater" {
+    password: 73240432
+    type: Pendulum Monster
+    attribute: DARK
+    race: Fiend
+    level: 7
+    scale: 1
+    atk: 2400
+    def: 1600
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            draw 1
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            deal_damage to opponent: 1000
+        }
+    }
+
+}

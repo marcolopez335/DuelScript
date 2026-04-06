@@ -1,0 +1,37 @@
+// Centerfrog
+// Transpiled from c47346782.lua
+
+card "Centerfrog" {
+    password: 47346782
+    type: Effect Monster
+    attribute: WATER
+    race: Aqua
+    level: 2
+    atk: 100
+    def: 2000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_summoned
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            take_control of (1, monster, opponent controls)
+            take_control of (1, monster, opponent controls)
+        }
+    }
+
+}

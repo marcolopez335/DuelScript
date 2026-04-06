@@ -1,5 +1,5 @@
 // Genex Ally Volcannon
-// Migrated from c56511382.lua
+// Transpiled from c56511382.lua
 
 card "Genex Ally Volcannon" {
     password: 56511382
@@ -12,9 +12,13 @@ card "Genex Ally Volcannon" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
+        cost {
+            send self to gy
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 1000
         }
     }
 

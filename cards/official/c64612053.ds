@@ -1,5 +1,5 @@
 // Rescue-ACE Fire Attacker
-// Migrated from c64612053.lua
+// Transpiled from c64612053.lua
 
 card "Rescue-ACE Fire Attacker" {
     password: 64612053
@@ -16,16 +16,18 @@ card "Rescue-ACE Fire Attacker" {
         optional: true
         trigger: when_summoned
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         on_resolve {
-            draw 2 // TODO: verify count
+            draw 2
+            shuffle deck
+            discard (1, card)
         }
     }
 

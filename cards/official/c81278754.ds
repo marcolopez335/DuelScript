@@ -1,0 +1,30 @@
+// Flip Flop Frog
+// Transpiled from c81278754.lua
+
+card "Flip Flop Frog" {
+    password: 81278754
+    type: Effect Monster
+    attribute: WATER
+    race: Aqua
+    level: 2
+    atk: 500
+    def: 200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_flipped
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

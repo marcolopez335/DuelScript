@@ -1,0 +1,33 @@
+// Performage Stilts Launcher
+// Transpiled from c4081665.lua
+
+card "Performage Stilts Launcher" {
+    password: 4081665
+    type: Effect Monster
+    attribute: EARTH
+    race: Spellcaster
+    level: 6
+    atk: 2200
+    def: 0
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            banish self
+        }
+        on_resolve {
+            deal_damage to opponent: 1000
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

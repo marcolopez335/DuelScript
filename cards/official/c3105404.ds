@@ -1,5 +1,5 @@
 // Brilliant Spark
-// Migrated from c3105404.lua
+// Transpiled from c3105404.lua
 
 card "Brilliant Spark" {
     password: 3105404
@@ -8,21 +8,18 @@ card "Brilliant Spark" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
+        damage_step: true
         trigger: when_destroyed
         on_resolve {
-            deal_damage to opponent: 1000 // TODO: verify
+            deal_damage to opponent: 1000
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_2
         optional: true
-        condition: in_gy
-        cost {
-            discard self // TODO: verify target
-        }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

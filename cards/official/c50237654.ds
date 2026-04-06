@@ -1,0 +1,44 @@
+// The Dark Magicians
+// Transpiled from c50237654.lua
+
+card "The Dark Magicians" {
+    password: 50237654
+    type: Fusion Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 8
+    atk: 2800
+    def: 2300
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            draw 1
+            set (1, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

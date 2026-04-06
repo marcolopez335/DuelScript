@@ -1,0 +1,47 @@
+// Amorphage Envy
+// Transpiled from c33300669.lua
+
+card "Amorphage Envy" {
+    password: 33300669
+    type: Pendulum Monster
+    attribute: EARTH
+    race: Dragon
+    level: 4
+    scale: 5
+    atk: 0
+    def: 2050
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_flipped
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
+        on_resolve {
+            tribute (1, monster, you controls)
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

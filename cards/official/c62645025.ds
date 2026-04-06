@@ -1,5 +1,5 @@
 // The Phantom Knights of Wrong Magnetring
-// Migrated from c62645025.lua
+// Transpiled from c62645025.lua
 
 card "The Phantom Knights of Wrong Magnetring" {
     password: 62645025
@@ -9,15 +9,18 @@ card "The Phantom Knights of Wrong Magnetring" {
         speed: spell_speed_1
         trigger: when attack_declared
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            negate attack
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_2
         optional: true
+        cost {
+            send self to gy
+        }
         on_resolve {
-            draw 2 // TODO: verify count
+            draw 1
         }
     }
 

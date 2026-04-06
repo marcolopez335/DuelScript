@@ -1,0 +1,25 @@
+// Primordial Soup
+// Transpiled from c78933589.lua
+
+card "Primordial Soup" {
+    password: 78933589
+    type: Continuous Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            return (1, card) to deck shuffle
+            shuffle deck
+            draw 1
+        }
+    }
+
+}

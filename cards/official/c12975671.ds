@@ -1,0 +1,40 @@
+// First Penguin
+// Transpiled from c12975671.lua
+
+card "First Penguin" {
+    password: 12975671
+    type: Effect Monster
+    attribute: WATER
+    race: Winged Beast
+    level: 1
+    atk: 100
+    def: 100
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            discard (1, card)
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+            shuffle deck
+            change_battle_position (1, monster)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

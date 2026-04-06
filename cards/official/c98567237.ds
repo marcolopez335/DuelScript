@@ -1,5 +1,5 @@
 // Fiendsmith's Tract
-// Migrated from c98567237.lua
+// Transpiled from c98567237.lua
 
 card "Fiendsmith's Tract" {
     password: 98567237
@@ -9,19 +9,20 @@ card "Fiendsmith's Tract" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            shuffle deck
+            discard (1, card)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
+        once_per_turn: soft
         cost {
             banish self
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

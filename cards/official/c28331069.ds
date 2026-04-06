@@ -1,5 +1,5 @@
 // Neo Galaxy-Eyes Photon Dragon - Photon Howling
-// Migrated from c28331069.lua
+// Transpiled from c28331069.lua
 
 card "Neo Galaxy-Eyes Photon Dragon - Photon Howling" {
     password: 28331069
@@ -10,12 +10,6 @@ card "Neo Galaxy-Eyes Photon Dragon - Photon Howling" {
     atk: 4500
     def: 3000
 
-    materials {
-        require: 2+ monster
-        same_level: true
-        method: xyz
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -25,7 +19,8 @@ card "Neo Galaxy-Eyes Photon Dragon - Photon Howling" {
         optional: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
+            attach (1, card) to self as_material
         }
     }
 
@@ -36,7 +31,7 @@ card "Neo Galaxy-Eyes Photon Dragon - Photon Howling" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            negate effect
+            tribute (1, monster, you controls)
         }
     }
 

@@ -1,5 +1,5 @@
 // Infernal Strike Fighter
-// Migrated from c66122213.lua
+// Transpiled from c66122213.lua
 
 card "Infernal Strike Fighter" {
     password: 66122213
@@ -10,12 +10,6 @@ card "Infernal Strike Fighter" {
     atk: 2600
     def: 1800
 
-    materials {
-        require: 1 tuner monster
-        require: 1+ non-tuner monster
-        method: synchro
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -25,17 +19,18 @@ card "Infernal Strike Fighter" {
         once_per_turn: soft
         optional: true
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 1000
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_destroyed
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

@@ -1,5 +1,5 @@
 // Trickstar Bloom
-// Migrated from c77307161.lua
+// Transpiled from c77307161.lua
 
 card "Trickstar Bloom" {
     password: 77307161
@@ -8,11 +8,6 @@ card "Trickstar Bloom" {
     race: Fairy
     link: 1
     atk: 100
-
-    materials {
-        require: 2+ effect monster
-        method: link
-    }
 
     summon_condition {
         cannot_normal_summon: true
@@ -23,7 +18,7 @@ card "Trickstar Bloom" {
         optional: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            draw 2 // TODO: verify count
+            draw 1
         }
     }
 
@@ -31,9 +26,10 @@ card "Trickstar Bloom" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        damage_step: true
         trigger: when_destroyed
         on_resolve {
-            deal_damage to opponent: 1000 // TODO: verify
+            deal_damage to opponent: 1000
         }
     }
 

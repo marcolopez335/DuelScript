@@ -1,5 +1,5 @@
 // Frodi, Generaider Boss of Swords
-// Migrated from c40998517.lua
+// Transpiled from c40998517.lua
 
 card "Frodi, Generaider Boss of Swords" {
     password: 40998517
@@ -14,9 +14,12 @@ card "Frodi, Generaider Boss of Swords" {
         speed: spell_speed_2
         once_per_turn: hard
         optional: true
+        cost {
+            tribute self
+        }
         on_resolve {
-            draw 2 // TODO: verify count
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            draw 1
         }
     }
 

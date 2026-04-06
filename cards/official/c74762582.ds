@@ -1,5 +1,5 @@
 // Subterror Fiendess
-// Migrated from c74762582.lua
+// Transpiled from c74762582.lua
 
 card "Subterror Fiendess" {
     password: 74762582
@@ -14,20 +14,24 @@ card "Subterror Fiendess" {
         speed: spell_speed_2
         once_per_turn: hard
         optional: true
+        activate_from: [hand, monster_zone]
+        damage_step: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         cost {
             send self to gy
         }
         on_resolve {
             negate activation
+            send (1, card) to gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            change_battle_position (1, monster)
+            special_summon (1, monster) from gy
         }
     }
 

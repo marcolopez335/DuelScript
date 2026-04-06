@@ -1,5 +1,5 @@
 // Supreme King Dragon Clear Wing
-// Migrated from c70771599.lua
+// Transpiled from c70771599.lua
 
 card "Supreme King Dragon Clear Wing" {
     password: 70771599
@@ -10,12 +10,6 @@ card "Supreme King Dragon Clear Wing" {
     atk: 2500
     def: 2000
 
-    materials {
-        require: 1 tuner monster
-        require: 1+ non-tuner monster
-        method: synchro
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -25,24 +19,27 @@ card "Supreme King Dragon Clear Wing" {
         optional: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 1000
         }
     }
 
     effect "Effect 3" {
         speed: spell_speed_1
-        condition: in_gy
+        cost {
+            tribute self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

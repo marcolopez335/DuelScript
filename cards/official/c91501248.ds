@@ -1,5 +1,5 @@
 // Pot of The Forbidden
-// Migrated from c91501248.lua
+// Transpiled from c91501248.lua
 
 card "Pot of The Forbidden" {
     password: 91501248
@@ -15,9 +15,11 @@ card "Pot of The Forbidden" {
         once_per_turn: hard
         optional: true
         on_resolve {
-            draw 2 // TODO: verify count
-            destroy (1+, card, either_player controls) // TODO: verify
-            add_to_hand (1, card) from gy // TODO: verify
+            draw 1
+            add_to_hand (1, card) from gy
+            destroy (1+, card, either_player controls)
+            return (1, card) to deck shuffle
+            shuffle deck
         }
     }
 

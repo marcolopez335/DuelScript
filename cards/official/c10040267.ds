@@ -1,0 +1,43 @@
+// Fossil Machine Skull Buggy
+// Transpiled from c10040267.lua
+
+card "Fossil Machine Skull Buggy" {
+    password: 10040267
+    type: Fusion Monster
+    attribute: EARTH
+    race: Rock
+    level: 4
+    atk: 1400
+    def: 1200
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            deal_damage to opponent: 1000
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            banish self
+        }
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // Summoner of Illusions
-// Migrated from c14644902.lua
+// Transpiled from c14644902.lua
 
 card "Summoner of Illusions" {
     password: 14644902
@@ -13,16 +13,17 @@ card "Summoner of Illusions" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            tribute (1, monster, you controls)
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_end_phase
         on_resolve {
-            destroy (1+, card, either_player controls) // TODO: verify
+            destroy (1+, card, either_player controls)
         }
     }
 

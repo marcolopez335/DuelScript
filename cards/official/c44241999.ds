@@ -1,0 +1,44 @@
+// Goblin Biker Troika Griare
+// Transpiled from c44241999.lua
+
+card "Goblin Biker Troika Griare" {
+    password: 44241999
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Warrior
+    rank: 3
+    atk: 1700
+    def: 0
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when attack_declared
+        on_resolve {
+            negate attack
+        }
+    }
+
+}

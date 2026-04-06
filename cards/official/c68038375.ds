@@ -1,0 +1,33 @@
+// Ninjitsu Art of Dancing Leaves
+// Transpiled from c68038375.lua
+
+card "Ninjitsu Art of Dancing Leaves" {
+    password: 68038375
+    type: Continuous Trap
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            tribute (1, monster, you controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_leaves_field
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

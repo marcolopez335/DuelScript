@@ -1,0 +1,46 @@
+// Wattuna
+// Transpiled from c10113611.lua
+
+card "Wattuna" {
+    password: 10113611
+    type: Effect Monster | Tuner
+    attribute: LIGHT
+    race: Thunder
+    level: 4
+    atk: 800
+    def: 700
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            tribute (1, monster, you controls)
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

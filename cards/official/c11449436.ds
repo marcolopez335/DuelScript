@@ -1,0 +1,37 @@
+// Glacier Aqua Madoor
+// Transpiled from c11449436.lua
+
+card "Glacier Aqua Madoor" {
+    password: 11449436
+    type: Effect Monster
+    attribute: WATER
+    race: Spellcaster
+    level: 6
+    atk: 1200
+    def: 3000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            discard (1, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            discard (1, card)
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

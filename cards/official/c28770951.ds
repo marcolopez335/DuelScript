@@ -1,0 +1,33 @@
+// Galaxy Cleric
+// Transpiled from c28770951.lua
+
+card "Galaxy Cleric" {
+    password: 28770951
+    type: Effect Monster
+    attribute: LIGHT
+    race: Spellcaster
+    level: 4
+    atk: 1500
+    def: 600
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            attach (1, card) to self as_material
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            return (1, card) to deck shuffle
+            shuffle deck
+            draw 2
+        }
+    }
+
+}

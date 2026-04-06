@@ -1,0 +1,37 @@
+// Ogdoadic Origin
+// Transpiled from c60448701.lua
+
+card "Ogdoadic Origin" {
+    password: 60448701
+    type: Field Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: when_destroyed
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        damage_step: true
+        trigger: when_destroyed
+        on_resolve {
+            mill 1
+        }
+    }
+
+}

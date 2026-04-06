@@ -1,5 +1,5 @@
 // Barrier Wave
-// Migrated from c96700602.lua
+// Transpiled from c96700602.lua
 
 card "Barrier Wave" {
     password: 96700602
@@ -8,8 +8,12 @@ card "Barrier Wave" {
     effect "Effect 1" {
         speed: spell_speed_1
         trigger: when attack_declared
+        cost {
+            tribute self
+        }
         on_resolve {
-            deal_damage to opponent: 1000 // TODO: verify
+            change_battle_position (1, monster)
+            deal_damage to opponent: 1000
         }
     }
 

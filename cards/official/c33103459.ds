@@ -1,5 +1,5 @@
 // Performapal Corn
-// Migrated from c33103459.lua
+// Transpiled from c33103459.lua
 
 card "Performapal Corn" {
     password: 33103459
@@ -12,18 +12,21 @@ card "Performapal Corn" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            change_battle_position (1, monster)
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_2
         optional: true
-        condition: in_gy
+        cost {
+            banish self
+        }
         on_resolve {
-            gain_lp: 1000 // TODO: verify
+            gain_lp: 1000
         }
     }
 

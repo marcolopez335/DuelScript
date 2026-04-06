@@ -1,5 +1,5 @@
 // Noble Knight's Shield-Bearer
-// Migrated from c34242278.lua
+// Transpiled from c34242278.lua
 
 card "Noble Knight's Shield-Bearer" {
     password: 34242278
@@ -14,20 +14,25 @@ card "Noble Knight's Shield-Bearer" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        damage_step: true
         trigger: when_summoned
+        cost {
+            banish self
+        }
         on_resolve {
-            draw 2 // TODO: verify count
+            draw 1
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
         once_per_turn: hard
+        activate_from: [hand, monster_zone]
         cost {
             banish self
         }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

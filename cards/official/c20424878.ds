@@ -1,0 +1,33 @@
+// Springans Rockey
+// Transpiled from c20424878.lua
+
+card "Springans Rockey" {
+    password: 20424878
+    type: Effect Monster
+    attribute: FIRE
+    race: Machine
+    level: 4
+    atk: 1800
+    def: 800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand, monster_zone]
+        on_resolve {
+            attach (1, card) to self as_material
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        damage_step: true
+        trigger: when_summoned
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

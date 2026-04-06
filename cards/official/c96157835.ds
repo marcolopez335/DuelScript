@@ -1,0 +1,51 @@
+// Raidraptor - Arsenal Falcon
+// Transpiled from c96157835.lua
+
+card "Raidraptor - Arsenal Falcon" {
+    password: 96157835
+    type: Xyz Monster
+    attribute: DARK
+    race: Winged Beast
+    rank: 7
+    atk: 2500
+    def: 2000
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+            attach (1, card) to self as_material
+        }
+    }
+
+}

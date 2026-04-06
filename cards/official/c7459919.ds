@@ -1,0 +1,42 @@
+// Blackwing - Zonda the Dusk
+// Transpiled from c7459919.lua
+
+card "Blackwing - Zonda the Dusk" {
+    password: 7459919
+    type: Effect Monster
+    attribute: DARK
+    race: Winged Beast
+    level: 6
+    atk: 2300
+    def: 900
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            banish self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+            deal_damage to opponent: 1000
+        }
+    }
+
+}

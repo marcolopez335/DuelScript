@@ -1,5 +1,5 @@
 // Enneacraft Reverth
-// Migrated from c80015408.lua
+// Transpiled from c80015408.lua
 
 card "Enneacraft Reverth" {
     password: 80015408
@@ -9,7 +9,9 @@ card "Enneacraft Reverth" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            draw 2 // TODO: verify count
+            return (1, card) to deck shuffle
+            shuffle deck
+            draw 1
         }
     }
 
@@ -17,12 +19,11 @@ card "Enneacraft Reverth" {
         speed: spell_speed_1
         optional: true
         trigger: when_summoned
-        condition: in_gy
         cost {
             banish self
         }
         on_resolve {
-            special_summon self from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

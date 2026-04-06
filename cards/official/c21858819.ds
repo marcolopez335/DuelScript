@@ -1,5 +1,5 @@
 // Number XX: Utopic Dark Infinity
-// Migrated from c21858819.lua
+// Transpiled from c21858819.lua
 
 card "Number XX: Utopic Dark Infinity" {
     password: 21858819
@@ -10,12 +10,6 @@ card "Number XX: Utopic Dark Infinity" {
     atk: 4000
     def: 4000
 
-    materials {
-        require: 2+ monster
-        same_level: true
-        method: xyz
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -24,19 +18,20 @@ card "Number XX: Utopic Dark Infinity" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        trigger: when_battle_destroyed
         cost {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            gain_lp: 1000 // TODO: verify
+            gain_lp: 1000
         }
     }
 

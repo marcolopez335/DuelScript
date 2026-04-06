@@ -1,5 +1,5 @@
 // Solfachord Happiness
-// Migrated from c93481594.lua
+// Transpiled from c93481594.lua
 
 card "Solfachord Happiness" {
     password: 93481594
@@ -8,8 +8,10 @@ card "Solfachord Happiness" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            special_summon self from gy // TODO: verify
-            add_to_hand (1, card) from gy // TODO: verify
+            discard (1, card)
+            add_to_hand (1, card) from gy
+            shuffle deck
+            special_summon (1, monster) from gy
         }
     }
 

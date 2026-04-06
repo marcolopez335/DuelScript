@@ -1,0 +1,31 @@
+// Tackle Crusader
+// Transpiled from c12467005.lua
+
+card "Tackle Crusader" {
+    password: 12467005
+    type: Effect Monster
+    attribute: EARTH
+    race: Rock
+    level: 4
+    atk: 1500
+    def: 1800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            change_battle_position (1, monster)
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // Rucia of the White Forest
-// Migrated from c24779554.lua
+// Transpiled from c24779554.lua
 
 card "Rucia of the White Forest" {
     password: 24779554
@@ -14,25 +14,28 @@ card "Rucia of the White Forest" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
+        cost {
+            send self to gy
+        }
         on_resolve {
-            draw 2 // TODO: verify count
+            draw 1
         }
     }
 
     effect "Effect 3" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
-        condition: in_gy
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            return (1, card) to deck shuffle
+            special_summon (1, monster) from gy
         }
     }
 

@@ -1,0 +1,38 @@
+// Ghostrick Jiangshi
+// Transpiled from c80885284.lua
+
+card "Ghostrick Jiangshi" {
+    password: 80885284
+    type: Effect Monster
+    attribute: DARK
+    race: Zombie
+    level: 3
+    atk: 400
+    def: 1800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: when_flipped
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

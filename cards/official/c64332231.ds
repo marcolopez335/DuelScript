@@ -1,5 +1,5 @@
 // Hieratic Sun Dragon Overlord of Heliopolis
-// Migrated from c64332231.lua
+// Transpiled from c64332231.lua
 
 card "Hieratic Sun Dragon Overlord of Heliopolis" {
     password: 64332231
@@ -22,12 +22,13 @@ card "Hieratic Sun Dragon Overlord of Heliopolis" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         cost {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            tribute (1, monster, you controls)
+            destroy (1+, card, either_player controls)
         }
     }
 

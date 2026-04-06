@@ -1,5 +1,5 @@
 // Number 56: Gold Rat
-// Migrated from c55935416.lua
+// Transpiled from c55935416.lua
 
 card "Number 56: Gold Rat" {
     password: 55935416
@@ -22,12 +22,13 @@ card "Number 56: Gold Rat" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         cost {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            draw 2 // TODO: verify count
+            draw 1
+            return (1, card) to deck shuffle
         }
     }
 

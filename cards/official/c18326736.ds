@@ -1,0 +1,57 @@
+// Tellarknight Ptolemaeus
+// Transpiled from c18326736.lua
+
+card "Tellarknight Ptolemaeus" {
+    password: 18326736
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Warrior
+    rank: 4
+    atk: 550
+    def: 2600
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            attach (1, card) to self as_material
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: during_end_phase
+        on_resolve {
+            attach (1, card) to self as_material
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

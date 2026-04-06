@@ -1,5 +1,5 @@
 // Psi-Curse
-// Migrated from c16678947.lua
+// Transpiled from c16678947.lua
 
 card "Psi-Curse" {
     password: 16678947
@@ -7,8 +7,10 @@ card "Psi-Curse" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        trigger: when_battle_destroyed
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 1000
         }
     }
 

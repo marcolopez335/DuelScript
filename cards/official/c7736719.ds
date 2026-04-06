@@ -1,5 +1,5 @@
 // Vortex Trooper
-// Migrated from c7736719.lua
+// Transpiled from c7736719.lua
 
 card "Vortex Trooper" {
     password: 7736719
@@ -15,7 +15,9 @@ card "Vortex Trooper" {
         optional: true
         trigger: when_summoned
         on_resolve {
-            draw 2 // TODO: verify count
+            return (1, card) to deck shuffle
+            shuffle deck
+            draw 2
         }
     }
 
@@ -23,7 +25,7 @@ card "Vortex Trooper" {
         speed: spell_speed_1
         trigger: when_destroyed
         on_resolve {
-            draw 2 // TODO: verify count
+            draw 1
         }
     }
 

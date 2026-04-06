@@ -1,0 +1,33 @@
+// Bloom Diva the Melodious Choir
+// Transpiled from c84988419.lua
+
+card "Bloom Diva the Melodious Choir" {
+    password: 84988419
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 6
+    atk: 1000
+    def: 2000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            deal_damage to opponent: 1000
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

@@ -1,0 +1,57 @@
+// Number 38: Hope Harbinger Dragon Titanic Galaxy
+// Transpiled from c63767246.lua
+
+card "Number 38: Hope Harbinger Dragon Titanic Galaxy" {
+    password: 63767246
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Dragon
+    rank: 8
+    atk: 3000
+    def: 2500
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            negate effect
+            attach (1, card) to self as_material
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when attack_declared
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_destroyed
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

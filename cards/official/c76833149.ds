@@ -1,0 +1,42 @@
+// Melffy Mommy
+// Transpiled from c76833149.lua
+
+card "Melffy Mommy" {
+    password: 76833149
+    type: Xyz Monster
+    attribute: EARTH
+    race: Beast
+    rank: 2
+    atk: 1000
+    def: 1000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            attach (1, card) to self as_material
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when attack_declared
+        on_resolve {
+            deal_damage to opponent: 1000
+        }
+    }
+
+}

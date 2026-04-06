@@ -1,0 +1,38 @@
+// Evoltile Pholis
+// Transpiled from c89776023.lua
+
+card "Evoltile Pholis" {
+    password: 89776023
+    type: Effect Monster
+    attribute: FIRE
+    race: Reptile
+    level: 2
+    atk: 900
+    def: 300
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            set (1, card)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            tribute (1, monster, you controls)
+        }
+    }
+
+}

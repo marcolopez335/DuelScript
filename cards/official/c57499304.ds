@@ -1,5 +1,5 @@
 // Reincarnation of the Seventh Emperors
-// Migrated from c57499304.lua
+// Transpiled from c57499304.lua
 
 card "Reincarnation of the Seventh Emperors" {
     password: 57499304
@@ -8,17 +8,17 @@ card "Reincarnation of the Seventh Emperors" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            banish (1+, card)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_end_phase
         on_resolve {
-            special_summon self from gy // TODO: verify
-            deal_damage to opponent: 1000 // TODO: verify
+            special_summon (1, monster) from gy
+            deal_damage to opponent: 1000
         }
     }
 

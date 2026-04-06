@@ -1,0 +1,32 @@
+// Lyrilusc - Celestine Wagtail
+// Transpiled from c46576366.lua
+
+card "Lyrilusc - Celestine Wagtail" {
+    password: 46576366
+    type: Effect Monster
+    attribute: WIND
+    race: Winged Beast
+    level: 1
+    atk: 200
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            attach (1, card) to self as_material
+        }
+    }
+
+}

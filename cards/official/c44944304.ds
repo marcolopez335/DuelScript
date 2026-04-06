@@ -1,0 +1,49 @@
+// Performapal Laugh Maker
+// Transpiled from c44944304.lua
+
+card "Performapal Laugh Maker" {
+    password: 44944304
+    type: Pendulum Monster
+    attribute: LIGHT
+    race: Spellcaster
+    level: 8
+    scale: 5
+    atk: 2500
+    def: 2000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            gain_lp: 1000
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when attack_declared
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

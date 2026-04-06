@@ -1,5 +1,5 @@
 // Cyber Angel Natasha
-// Migrated from c99427357.lua
+// Transpiled from c99427357.lua
 
 card "Cyber Angel Natasha" {
     password: 99427357
@@ -16,9 +16,9 @@ card "Cyber Angel Natasha" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            gain_lp: 1000 // TODO: verify
+            gain_lp: 1000
         }
     }
 
@@ -33,9 +33,12 @@ card "Cyber Angel Natasha" {
 
     effect "Effect 3" {
         speed: spell_speed_1
-        condition: in_gy
+        cost {
+            banish self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
+            take_control of (1, monster, opponent controls)
         }
     }
 

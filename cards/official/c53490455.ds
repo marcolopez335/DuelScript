@@ -1,0 +1,42 @@
+// Salamangreat Raccoon
+// Transpiled from c53490455.lua
+
+card "Salamangreat Raccoon" {
+    password: 53490455
+    type: Effect Monster
+    attribute: FIRE
+    race: Cyberse
+    level: 1
+    atk: 400
+    def: 800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_attacked
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            gain_lp: 1000
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_battle_destroyed
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // F.A. Test Run
-// Migrated from c38459905.lua
+// Transpiled from c38459905.lua
 
 card "F.A. Test Run" {
     password: 38459905
@@ -9,20 +9,20 @@ card "F.A. Test Run" {
         speed: spell_speed_1
         once_per_turn: soft
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            change_battle_position (1, monster)
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
-        condition: in_gy
+        once_per_turn: soft
         cost {
             banish self
         }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            special_summon (1, monster) from gy // TODO: verify
+            destroy (1+, card, either_player controls)
+            special_summon (1, monster) from gy
         }
     }
 

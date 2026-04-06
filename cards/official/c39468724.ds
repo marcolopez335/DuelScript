@@ -1,0 +1,51 @@
+// Nekroz of Areadbhair
+// Transpiled from c39468724.lua
+
+card "Nekroz of Areadbhair" {
+    password: 39468724
+    type: Ritual Monster
+    attribute: WATER
+    race: Warrior
+    level: 10
+    atk: 3300
+    def: 3200
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            discard self
+        }
+        on_resolve {
+            tribute (1, monster, you controls)
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        damage_step: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        cost {
+            tribute self
+        }
+        on_resolve {
+            negate activation
+            banish (1+, card)
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // Predaplant Ambulomelides
-// Migrated from c66309175.lua
+// Transpiled from c66309175.lua
 
 card "Predaplant Ambulomelides" {
     password: 66309175
@@ -9,11 +9,6 @@ card "Predaplant Ambulomelides" {
     level: 5
     atk: 1000
     def: 2500
-
-    materials {
-        require: 2+ monster
-        method: fusion
-    }
 
     summon_condition {
         cannot_normal_summon: true
@@ -25,15 +20,16 @@ card "Predaplant Ambulomelides" {
         optional: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            tribute (1, monster, you controls)
+            special_summon (1, monster) from gy
         }
     }
 

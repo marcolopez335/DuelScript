@@ -1,5 +1,5 @@
 // Gemini Counter
-// Migrated from c81601517.lua
+// Transpiled from c81601517.lua
 
 card "Gemini Counter" {
     password: 81601517
@@ -9,8 +9,9 @@ card "Gemini Counter" {
         speed: spell_speed_1
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
-            negate activation and destroy
+            change_battle_position (1, monster)
+            negate activation
+            destroy (1+, card, either_player controls)
         }
     }
 

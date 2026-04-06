@@ -1,0 +1,51 @@
+// Kerzebs, the Gaoled Glutton
+// Transpiled from c94503794.lua
+
+card "Kerzebs, the Gaoled Glutton" {
+    password: 94503794
+    type: Xyz Monster
+    attribute: DARK
+    race: Beast
+    rank: 7
+    atk: 700
+    def: 2500
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            attach (1, card) to self as_material
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: during_end_phase
+        on_resolve {
+            set (1, card)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

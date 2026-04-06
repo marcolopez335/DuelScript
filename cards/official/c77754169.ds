@@ -1,0 +1,39 @@
+// Super Armored Robot Armed Black Iron 'C'
+// Transpiled from c77754169.lua
+
+card "Super Armored Robot Armed Black Iron 'C'" {
+    password: 77754169
+    type: Effect Monster
+    attribute: EARTH
+    race: Insect
+    level: 8
+    atk: 2400
+    def: 2800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,0 +1,29 @@
+// Dangerous Machine Type-6
+// Transpiled from c76895648.lua
+
+card "Dangerous Machine Type-6" {
+    password: 76895648
+    type: Continuous Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
+        on_resolve {
+            discard (1, card)
+            discard (1, card)
+            draw 1
+            draw 1
+            destroy (1+, card, either_player controls)
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

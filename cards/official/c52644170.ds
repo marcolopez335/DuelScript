@@ -1,0 +1,46 @@
+// Crossmind Archfiend
+// Transpiled from c52644170.lua
+
+card "Crossmind Archfiend" {
+    password: 52644170
+    type: Synchro Monster
+    attribute: DARK
+    race: Psychic
+    level: 8
+    atk: 2500
+    def: 2800
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        damage_step: true
+        cost {
+            tribute self
+        }
+        on_resolve {
+            gain_lp: 1000
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

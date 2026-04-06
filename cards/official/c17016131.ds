@@ -1,0 +1,37 @@
+// Pride of the Plunder Patroll
+// Transpiled from c17016131.lua
+
+card "Pride of the Plunder Patroll" {
+    password: 17016131
+    type: Continuous Trap
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            draw 1
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            draw 1
+            send (1, card) to gy
+            shuffle deck
+        }
+    }
+
+}

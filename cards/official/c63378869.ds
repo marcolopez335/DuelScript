@@ -1,0 +1,41 @@
+// Aiza the Dragoness of Deranged Devotion
+// Transpiled from c63378869.lua
+
+card "Aiza the Dragoness of Deranged Devotion" {
+    password: 63378869
+    type: Effect Monster
+    attribute: FIRE
+    race: Dragon
+    level: 4
+    atk: 1500
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 1000
+            deal_damage to opponent: 1000
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

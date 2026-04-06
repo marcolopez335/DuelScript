@@ -1,5 +1,5 @@
 // Goblin Bikers Gone Bonkers
-// Migrated from c46014517.lua
+// Transpiled from c46014517.lua
 
 card "Goblin Bikers Gone Bonkers" {
     password: 46014517
@@ -10,12 +10,6 @@ card "Goblin Bikers Gone Bonkers" {
     atk: 2500
     def: 2000
 
-    materials {
-        require: 2+ monster
-        same_level: true
-        method: xyz
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -24,16 +18,16 @@ card "Goblin Bikers Gone Bonkers" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            banish (1, card) // TODO: verify
+            attach (1, card) to self as_material
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         on_resolve {
-            banish (1, card) // TODO: verify
+            send (1, card) to gy
         }
     }
 

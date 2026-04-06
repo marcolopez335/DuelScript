@@ -1,0 +1,56 @@
+// Number 85: Crazy Box
+// Transpiled from c42421606.lua
+
+card "Number 85: Crazy Box" {
+    password: 42421606
+    type: Xyz Monster
+    attribute: DARK
+    race: Fiend
+    rank: 4
+    atk: 3000
+    def: 300
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            draw 1
+            discard (1, card)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,0 +1,56 @@
+// Number 49: Fortune Tune
+// Transpiled from c16259549.lua
+
+card "Number 49: Fortune Tune" {
+    password: 16259549
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Winged Beast
+    rank: 3
+    atk: 400
+    def: 900
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
+        on_resolve {
+            gain_lp: 1000
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: when_sent_to gy
+        on_resolve {
+            return (1, card) to deck shuffle
+            return (1, card) to deck shuffle
+        }
+    }
+
+}

@@ -1,0 +1,38 @@
+// Ghostrick Specter
+// Transpiled from c81907872.lua
+
+card "Ghostrick Specter" {
+    password: 81907872
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 600
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+            draw 1
+        }
+    }
+
+}

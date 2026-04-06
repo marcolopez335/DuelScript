@@ -1,0 +1,53 @@
+// Number 24: Dragulas the Vampiric Dragon
+// Transpiled from c93713837.lua
+
+card "Number 24: Dragulas the Vampiric Dragon" {
+    password: 93713837
+    type: Xyz Monster
+    attribute: DARK
+    race: Wyrm
+    rank: 6
+    atk: 2400
+    def: 2800
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: when_flipped
+        on_resolve {
+            send (1, card) to gy
+        }
+    }
+
+}

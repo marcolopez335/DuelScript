@@ -1,5 +1,5 @@
 // Edge Hammer
-// Migrated from c84361420.lua
+// Transpiled from c84361420.lua
 
 card "Edge Hammer" {
     password: 84361420
@@ -7,8 +7,12 @@ card "Edge Hammer" {
 
     effect "Effect 1" {
         speed: spell_speed_1
+        cost {
+            tribute self
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 1000
         }
     }
 

@@ -1,5 +1,5 @@
 // Burning Land
-// Migrated from c24294108.lua
+// Transpiled from c24294108.lua
 
 card "Burning Land" {
     password: 24294108
@@ -8,16 +8,16 @@ card "Burning Land" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_standby_phase
         on_resolve {
-            deal_damage to opponent: 1000 // TODO: verify
+            deal_damage to opponent: 1000
         }
     }
 

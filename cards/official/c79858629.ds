@@ -1,5 +1,5 @@
 // Exosister Irene
-// Migrated from c79858629.lua
+// Transpiled from c79858629.lua
 
 card "Exosister Irene" {
     password: 79858629
@@ -14,16 +14,18 @@ card "Exosister Irene" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            draw 2 // TODO: verify count
+            draw 1
+            gain_lp: 800
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            attach (1, card) to self as_material
+            special_summon (1, monster) from gy
         }
     }
 

@@ -1,0 +1,28 @@
+// Zoodiac Combo
+// Transpiled from c73881652.lua
+
+card "Zoodiac Combo" {
+    password: 73881652
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            attach (1, card) to self as_material
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        cost {
+            banish self
+        }
+        on_resolve {
+            return (1, card) to deck shuffle
+            shuffle deck
+            draw 1
+        }
+    }
+
+}

@@ -1,0 +1,36 @@
+// Madolche Baaple
+// Transpiled from c49374988.lua
+
+card "Madolche Baaple" {
+    password: 49374988
+    type: Effect Monster
+    attribute: EARTH
+    race: Beast
+    level: 3
+    atk: 0
+    def: 1800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_sent_to gy
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

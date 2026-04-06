@@ -1,0 +1,48 @@
+// Number 79: Battlin' Boxer Nova Kaiser
+// Transpiled from c71921856.lua
+
+card "Number 79: Battlin' Boxer Nova Kaiser" {
+    password: 71921856
+    type: Xyz Monster
+    attribute: FIRE
+    race: Warrior
+    rank: 4
+    atk: 2300
+    def: 1600
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            attach (1, card) to self as_material
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // Frozen Rose
-// Migrated from c53503015.lua
+// Transpiled from c53503015.lua
 
 card "Frozen Rose" {
     password: 53503015
@@ -9,16 +9,18 @@ card "Frozen Rose" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_end_phase
         on_resolve {
-            draw 2 // TODO: verify count
+            draw 2
+            shuffle deck
+            discard (1, card)
         }
     }
 

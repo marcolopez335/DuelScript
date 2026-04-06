@@ -1,0 +1,43 @@
+// Battlewasp - Azusa the Ghost Bow
+// Transpiled from c27565379.lua
+
+card "Battlewasp - Azusa the Ghost Bow" {
+    password: 27565379
+    type: Synchro Monster | Tuner
+    attribute: WIND
+    race: Insect
+    level: 5
+    atk: 2200
+    def: 1600
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        on_resolve {
+            deal_damage to opponent: 1000
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_battle_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

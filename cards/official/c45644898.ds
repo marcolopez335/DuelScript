@@ -1,5 +1,5 @@
 // Master with Eyes of Blue
-// Migrated from c45644898.lua
+// Transpiled from c45644898.lua
 
 card "Master with Eyes of Blue" {
     password: 45644898
@@ -15,16 +15,19 @@ card "Master with Eyes of Blue" {
         optional: true
         trigger: when_summoned
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
         once_per_turn: hard
-        condition: in_gy
+        cost {
+            send self to deck
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            send (1, card) to gy
+            special_summon (1, monster) from gy
         }
     }
 

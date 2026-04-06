@@ -1,0 +1,44 @@
+// Mermail Abyssnerei
+// Transpiled from c71133680.lua
+
+card "Mermail Abyssnerei" {
+    password: 71133680
+    type: Effect Monster
+    attribute: WATER
+    race: Aqua
+    level: 3
+    atk: 1200
+    def: 2000
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        cost {
+            discard self
+        }
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            draw 1
+            discard (1, card)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

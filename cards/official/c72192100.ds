@@ -1,5 +1,5 @@
 // Desrook Archfiend
-// Migrated from c72192100.lua
+// Transpiled from c72192100.lua
 
 card "Desrook Archfiend" {
     password: 72192100
@@ -12,30 +12,31 @@ card "Desrook Archfiend" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         trigger: during_standby_phase
         on_resolve {
-            destroy (1+, card, either_player controls) // TODO: verify
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
         on_resolve {
-            destroy (1+, card, either_player controls) // TODO: verify
             negate effect
+            destroy (1+, card, either_player controls)
         }
     }
 
     effect "Effect 3" {
         speed: spell_speed_2
         optional: true
+        damage_step: true
         trigger: when_sent_to gy
         cost {
             send self to gy
         }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

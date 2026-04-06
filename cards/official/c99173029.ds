@@ -1,0 +1,40 @@
+// Spiritual Energy Settle Machine
+// Transpiled from c99173029.lua
+
+card "Spiritual Energy Settle Machine" {
+    password: 99173029
+    type: Continuous Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: when_leaves_field
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            discard (1, card)
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

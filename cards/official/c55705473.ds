@@ -1,5 +1,5 @@
 // Baobaboon
-// Migrated from c55705473.lua
+// Transpiled from c55705473.lua
 
 card "Baobaboon" {
     password: 55705473
@@ -15,7 +15,10 @@ card "Baobaboon" {
         optional: true
         trigger: when_summoned
         on_resolve {
-            draw 2 // TODO: verify count
+            draw 1
+            shuffle deck
+            return (1, card) to deck shuffle
+            return (1, card) to deck shuffle
         }
     }
 
@@ -24,7 +27,7 @@ card "Baobaboon" {
         optional: true
         trigger: when_destroyed
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

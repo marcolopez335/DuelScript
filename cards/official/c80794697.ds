@@ -1,5 +1,5 @@
 // Flame Bufferlo
-// Migrated from c80794697.lua
+// Transpiled from c80794697.lua
 
 card "Flame Bufferlo" {
     password: 80794697
@@ -14,8 +14,11 @@ card "Flame Bufferlo" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        damage_step: true
+        trigger: when_leaves_field
         on_resolve {
-            draw 2 // TODO: verify count
+            discard (1, card)
+            draw 2
         }
     }
 

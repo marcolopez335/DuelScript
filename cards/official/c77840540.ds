@@ -1,5 +1,5 @@
 // Cocoon of Ultra Evolution
-// Migrated from c77840540.lua
+// Transpiled from c77840540.lua
 
 card "Cocoon of Ultra Evolution" {
     password: 77840540
@@ -8,19 +8,21 @@ card "Cocoon of Ultra Evolution" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            tribute (1, monster, you controls)
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
         once_per_turn: hard
-        condition: in_gy
         cost {
             banish self
         }
         on_resolve {
-            draw 2 // TODO: verify count
+            return (1, card) to deck shuffle
+            shuffle deck
+            draw 1
         }
     }
 

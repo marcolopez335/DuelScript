@@ -1,5 +1,5 @@
 // Hyper Galaxy
-// Migrated from c83512285.lua
+// Transpiled from c83512285.lua
 
 card "Hyper Galaxy" {
     password: 83512285
@@ -8,8 +8,12 @@ card "Hyper Galaxy" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
+        cost {
+            tribute self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            tribute (1, monster, you controls)
+            special_summon (1, monster) from gy
         }
     }
 

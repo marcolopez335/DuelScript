@@ -1,0 +1,41 @@
+// Zoodiac Tigermortar
+// Transpiled from c11510448.lua
+
+card "Zoodiac Tigermortar" {
+    password: 11510448
+    type: Xyz Monster
+    attribute: EARTH
+    race: Beast-Warrior
+    rank: 4
+    atk: ?
+    def: ?
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            attach (1, card) to self as_material
+        }
+    }
+
+}

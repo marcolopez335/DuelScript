@@ -1,0 +1,47 @@
+// Flower Cardian Cherry Blossom with Curtain
+// Transpiled from c5489987.lua
+
+card "Flower Cardian Cherry Blossom with Curtain" {
+    password: 5489987
+    type: Effect Monster | Spirit
+    attribute: DARK
+    race: Warrior
+    level: 3
+    atk: 2000
+    def: 2000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        cost {
+            reveal self
+        }
+        on_resolve {
+            draw 1
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        damage_step: true
+        cost {
+            discard self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

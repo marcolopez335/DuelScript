@@ -1,0 +1,36 @@
+// Ghostrick Skeleton
+// Transpiled from c51196805.lua
+
+card "Ghostrick Skeleton" {
+    password: 51196805
+    type: Effect Monster
+    attribute: DARK
+    race: Zombie
+    level: 3
+    atk: 1200
+    def: 1100
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: when_flipped
+        on_resolve {
+            banish (1+, card)
+        }
+    }
+
+}

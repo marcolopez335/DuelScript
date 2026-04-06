@@ -1,0 +1,39 @@
+// Card 32986898
+// Transpiled from c32986898.lua
+
+card "Card 32986898" {
+    password: 32986898
+    type: Link Monster
+    attribute: LIGHT
+    race: Machine
+    link: 3
+    atk: 1000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 1000
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

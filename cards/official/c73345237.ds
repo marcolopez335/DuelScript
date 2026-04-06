@@ -1,0 +1,49 @@
+// Benghalancer the Resurgent
+// Transpiled from c73345237.lua
+
+card "Benghalancer the Resurgent" {
+    password: 73345237
+    type: Link Monster
+    attribute: LIGHT
+    race: Plant
+    link: 4
+    atk: 2500
+
+    materials {
+        require: 2+ effect monster
+        method: link
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            deal_damage to opponent: 1000
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            banish self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

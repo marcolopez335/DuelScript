@@ -1,0 +1,31 @@
+// Turbo Synchron
+// Transpiled from c67270095.lua
+
+card "Turbo Synchron" {
+    password: 67270095
+    type: Effect Monster | Tuner
+    attribute: WIND
+    race: Machine
+    level: 1
+    atk: 100
+    def: 500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when attack_declared
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

@@ -1332,6 +1332,140 @@ fn parse_game_action(pair: Pair<Rule>) -> Result<GameAction, ParseError> {
                 .map(parse_string).unwrap_or_default();
             Ok(GameAction::Recall { label })
         }
+        Rule::send_to_deck_action => {
+            let target = parse_self_or_target_first(inner.clone())?;
+            let text = inner.as_str();
+            let position = if text.contains("top") { DeckPosition::Top }
+                else if text.contains("bottom") { DeckPosition::Bottom }
+                else { DeckPosition::Shuffle };
+            Ok(GameAction::SendToDeck { target, position })
+        }
+        Rule::release_action => {
+            Ok(GameAction::Release { target: parse_self_or_target(inner)? })
+        }
+        Rule::discard_all_action => {
+            let whose = if inner.as_str().contains("opponent") { Player::Opponent } else { Player::You };
+            Ok(GameAction::DiscardAll { whose })
+        }
+        Rule::shuffle_hand_action => {
+            let text = inner.as_str();
+            let whose = if text.contains("opponents") { Some(Player::Opponent) }
+                else if text.contains("yours") { Some(Player::You) }
+                else { None };
+            Ok(GameAction::ShuffleHand { whose })
+        }
+        Rule::shuffle_deck_action => {
+            let text = inner.as_str();
+            let whose = if text.contains("opponents") { Some(Player::Opponent) }
+                else if text.contains("yours") { Some(Player::You) }
+                else { None };
+            Ok(GameAction::ShuffleDeck { whose })
+        }
+        Rule::change_position_action => {
+            // change_position (target) to position
+            let target = inner.clone().into_inner().find(|p| p.as_rule() == Rule::target_expr)
+                .ok_or(ParseError::MissingField("change_position target"))?;
+            Ok(GameAction::ChangeBattlePosition { target: parse_target_expr(target)? })
+        }
+        Rule::set_spell_trap_action => {
+            // Use existing SetFaceDown since they're essentially the same
+            let target = parse_self_or_target_first(inner)?;
+            match target {
+                SelfOrTarget::Self_ => Ok(GameAction::SetFaceDown { target: TargetExpr::SelfCard }),
+                SelfOrTarget::Target(t) => Ok(GameAction::SetFaceDown { target: t }),
+            }
+        }
+        Rule::equip_to_action => {
+            let targets: Vec<_> = inner.into_inner()
+                .filter(|p| p.as_rule() == Rule::target_expr)
+                .collect();
+            if targets.len() < 2 {
+                return Err(ParseError::MissingField("equip targets"));
+            }
+            Ok(GameAction::Equip {
+                card: parse_target_expr(targets[0].clone())?,
+                to: parse_target_expr(targets[1].clone())?,
+            })
+        }
+        Rule::overlay_action => {
+            let mats = inner.clone().into_inner().find(|p| p.as_rule() == Rule::target_expr)
+                .ok_or(ParseError::MissingField("overlay materials"))?;
+            let target = parse_self_or_target_last(inner)?;
+            Ok(GameAction::Overlay {
+                materials: parse_target_expr(mats)?,
+                target,
+            })
+        }
+        Rule::move_to_field_action => {
+            let target = parse_self_or_target_first(inner.clone())?;
+            let position = inner.into_inner().find(|p| p.as_rule() == Rule::battle_position)
+                .map(parse_battle_position).transpose()?;
+            Ok(GameAction::MoveToField { target, position })
+        }
+        Rule::excavate_action => {
+            let expr = inner.clone().into_inner().find(|p| p.as_rule() == Rule::expr)
+                .ok_or(ParseError::MissingField("excavate count"))?;
+            let text = inner.as_str();
+            let from = if text.contains("opponent") { MillSource::OpponentDeck } else { MillSource::YourDeck };
+            Ok(GameAction::Excavate { count: parse_expr(expr)?, from })
+        }
+        Rule::normal_summon_action => {
+            Ok(GameAction::NormalSummon { target: parse_self_or_target(inner)? })
+        }
+        Rule::yes_no_action => {
+            let mut yes_actions = vec![];
+            let mut no_actions = vec![];
+            let mut in_else = false;
+            for child in inner.into_inner() {
+                match child.as_rule() {
+                    Rule::game_action => {
+                        let action = parse_game_action(child)?;
+                        if in_else { no_actions.push(action); } else { yes_actions.push(action); }
+                    }
+                    _ => if child.as_str() == "else" { in_else = true; }
+                }
+            }
+            Ok(GameAction::YesNo { yes_actions, no_actions })
+        }
+        Rule::coin_flip_action => {
+            let mut heads = vec![];
+            let mut tails = vec![];
+            let mut in_tails = false;
+            for child in inner.into_inner() {
+                match child.as_rule() {
+                    Rule::game_action => {
+                        let action = parse_game_action(child)?;
+                        if in_tails { tails.push(action); } else { heads.push(action); }
+                    }
+                    _ => if child.as_str() == "tails" { in_tails = true; }
+                }
+            }
+            Ok(GameAction::CoinFlip { heads, tails })
+        }
+        Rule::change_level_action => {
+            let target = parse_self_or_target_first(inner.clone())?;
+            let expr = inner.into_inner().find(|p| p.as_rule() == Rule::expr)
+                .ok_or(ParseError::MissingField("level value"))?;
+            Ok(GameAction::ChangeLevel { target, value: parse_expr(expr)? })
+        }
+        Rule::change_attribute_action => {
+            let target = parse_self_or_target_first(inner.clone())?;
+            let attr = inner.into_inner().find(|p| p.as_rule() == Rule::attribute)
+                .ok_or(ParseError::MissingField("attribute"))?;
+            Ok(GameAction::ChangeAttribute { target, attribute: parse_attribute(attr)? })
+        }
+        Rule::change_race_action => {
+            let target = parse_self_or_target_first(inner.clone())?;
+            let race = inner.into_inner().find(|p| p.as_rule() == Rule::race)
+                .ok_or(ParseError::MissingField("race"))?;
+            Ok(GameAction::ChangeRace { target, race: parse_race(race)? })
+        }
+        Rule::negate_effects_action => {
+            let target = parse_self_or_target_first(inner.clone())?;
+            let duration = inner.into_inner().find(|p| p.as_rule() == Rule::duration)
+                .map(parse_duration).transpose()?;
+            Ok(GameAction::NegateEffects { target, duration })
+        }
         _ => Err(ParseError::UnknownRule(inner.as_str().to_string())),
     }
 }

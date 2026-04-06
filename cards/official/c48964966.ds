@@ -1,5 +1,5 @@
 // Athena
-// Migrated from c48964966.lua
+// Transpiled from c48964966.lua
 
 card "Athena" {
     password: 48964966
@@ -12,9 +12,12 @@ card "Athena" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
+        cost {
+            send self to gy
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
@@ -22,7 +25,7 @@ card "Athena" {
         speed: spell_speed_1
         trigger: when_summoned by_special_summon
         on_resolve {
-            deal_damage to opponent: 1000 // TODO: verify
+            deal_damage to opponent: 1000
         }
     }
 
@@ -30,15 +33,15 @@ card "Athena" {
         speed: spell_speed_1
         trigger: when_summoned
         on_resolve {
-            deal_damage to opponent: 1000 // TODO: verify
+            deal_damage to opponent: 1000
         }
     }
 
     effect "Effect 4" {
         speed: spell_speed_1
-        trigger: when_flipped
+        trigger: when_summoned by_flip_summon
         on_resolve {
-            deal_damage to opponent: 1000 // TODO: verify
+            deal_damage to opponent: 1000
         }
     }
 

@@ -1,5 +1,5 @@
 // Salamangreat Pyro Phoenix
-// Migrated from c31313405.lua
+// Transpiled from c31313405.lua
 
 card "Salamangreat Pyro Phoenix" {
     password: 31313405
@@ -8,11 +8,6 @@ card "Salamangreat Pyro Phoenix" {
     race: Cyberse
     link: 4
     atk: 2800
-
-    materials {
-        require: 2+ effect monster
-        method: link
-    }
 
     summon_condition {
         cannot_normal_summon: true
@@ -23,7 +18,7 @@ card "Salamangreat Pyro Phoenix" {
         optional: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
@@ -31,17 +26,17 @@ card "Salamangreat Pyro Phoenix" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 3" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            deal_damage to opponent: 1000 // TODO: verify
+            deal_damage to opponent: 1000
         }
     }
 

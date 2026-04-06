@@ -1,5 +1,5 @@
 // Torrential Reborn
-// Migrated from c7092142.lua
+// Transpiled from c7092142.lua
 
 card "Torrential Reborn" {
     password: 7092142
@@ -8,9 +8,11 @@ card "Torrential Reborn" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
+        damage_step: true
         trigger: when_sent_to gy
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
+            deal_damage to opponent: 1000
         }
     }
 

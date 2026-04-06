@@ -1,5 +1,5 @@
 // Hate Buster
-// Migrated from c93895605.lua
+// Transpiled from c93895605.lua
 
 card "Hate Buster" {
     password: 93895605
@@ -9,7 +9,8 @@ card "Hate Buster" {
         speed: spell_speed_1
         trigger: when_attacked
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 1000
         }
     }
 

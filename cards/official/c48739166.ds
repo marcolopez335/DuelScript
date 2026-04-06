@@ -1,0 +1,41 @@
+// Number 101: Silent Honor ARK
+// Transpiled from c48739166.lua
+
+card "Number 101: Silent Honor ARK" {
+    password: 48739166
+    type: Xyz Monster
+    attribute: WATER
+    race: Aqua
+    rank: 4
+    atk: 2100
+    def: 1000
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            attach (1, card) to self as_material
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

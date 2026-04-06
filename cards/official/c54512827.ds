@@ -1,0 +1,47 @@
+// Ghostrick Lantern
+// Transpiled from c54512827.lua
+
+card "Ghostrick Lantern" {
+    password: 54512827
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 800
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when attack_declared
+        on_resolve {
+            negate attack
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_attacked
+        on_resolve {
+            negate attack
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

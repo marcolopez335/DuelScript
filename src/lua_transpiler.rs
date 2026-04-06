@@ -21,7 +21,10 @@ impl DuelApiCall {
     pub fn to_ds_action(&self) -> Option<String> {
         match self.method.as_str() {
             "Draw" => {
-                let count = self.args.get(1).map(|s| s.as_str()).unwrap_or("1");
+                // Only use numeric count; fallback to 1 for variable names
+                let count = self.args.get(1)
+                    .and_then(|s| s.parse::<i32>().ok())
+                    .unwrap_or(1);
                 Some(format!("draw {}", count))
             }
             "Destroy" => Some("destroy (1+, card, either_player controls)".to_string()),
@@ -35,33 +38,36 @@ impl DuelApiCall {
             "NegateAttack" => Some("negate attack".to_string()),
             "NegateSummon" => Some("negate summon".to_string()),
             "Damage" => {
-                let amount = self.args.get(1).map(|s| s.as_str()).unwrap_or("0");
+                let amount = self.args.get(1)
+                    .and_then(|s| s.parse::<i32>().ok())
+                    .unwrap_or(1000);
                 Some(format!("deal_damage to opponent: {}", amount))
             }
             "Recover" => {
-                let amount = self.args.get(1).map(|s| s.as_str()).unwrap_or("0");
+                let amount = self.args.get(1)
+                    .and_then(|s| s.parse::<i32>().ok())
+                    .unwrap_or(1000);
                 Some(format!("gain_lp: {}", amount))
             }
-            "Release" => Some("release (1, monster, you controls)".to_string()),
-            "ChangePosition" => Some("change_position (1, monster)".to_string()),
-            "SSet" => Some("set (1, card)".to_string()),
-            "Equip" => Some("equip (1, card) to (1, monster)".to_string()),
-            "Overlay" => Some("overlay (1, card) to self".to_string()),
-            "CreateToken" => Some("create_token { atk: 0 def: 0 }".to_string()),
-            "GetControl" => Some("take_control of (1, monster, opponent controls)".to_string()),
-            "DiscardHand" => Some("discard_all your_hand".to_string()),
-            "ShuffleHand" => Some("shuffle deck".to_string()),
-            "ShuffleDeck" => Some("shuffle deck".to_string()),
             "DiscardDeck" => {
-                let count = self.args.get(1).map(|s| s.as_str()).unwrap_or("1");
+                let count = self.args.get(1)
+                    .and_then(|s| s.parse::<i32>().ok())
+                    .unwrap_or(1);
                 Some(format!("mill {}", count))
             }
+            "Release" => Some("tribute (1, monster, you controls)".to_string()),
+            "ChangePosition" => Some("change_battle_position (1, monster)".to_string()),
+            "SSet" => Some("set (1, card)".to_string()),
+            "Equip" => Some("equip (1, card) to (1, monster)".to_string()),
+            "Overlay" => Some("attach (1, card) to self as_material".to_string()),
+            "CreateToken" => Some("create_token { atk: 0 def: 0 }".to_string()),
+            "GetControl" => Some("take_control of (1, monster, opponent controls)".to_string()),
+            "DiscardHand" => Some("discard (1, card)".to_string()),
+            "ShuffleHand" => Some("shuffle deck".to_string()),
+            "ShuffleDeck" => Some("shuffle deck".to_string()),
             "Discard" => Some("discard (1, card)".to_string()),
             "MoveToField" => Some("special_summon (1, monster) from gy".to_string()),
-            "PayLPCost" => {
-                // This is an action, not a cost — used in some operation functions
-                Some("pay_lp 1000".to_string())
-            }
+            "PayLPCost" => None, // pay_lp belongs in cost blocks, not on_resolve
             "SelectYesNo" => None, // Engine handles player choice
             _ => None,
         }
@@ -98,10 +104,11 @@ pub fn transpile_lua_to_ds(
     let mut total_actions = 0usize;
     let mut mapped_actions = 0usize;
 
-    // Header
-    ds.push_str(&format!("// {}\n", card_name));
+    // Header — escape quotes in card name
+    let safe_name = card_name.replace('"', "'");
+    ds.push_str(&format!("// {}\n", safe_name));
     ds.push_str(&format!("// Transpiled from c{}.lua\n\n", passcode));
-    ds.push_str(&format!("card \"{}\" {{\n", card_name));
+    ds.push_str(&format!("card \"{}\" {{\n", safe_name));
     ds.push_str(&format!("    password: {}\n", passcode));
 
     // CDB stats
@@ -393,7 +400,7 @@ fn builtin_cost_to_ds(cost_key: &str) -> Option<String> {
     if cost_key.contains("SelfTribute")  { return Some("tribute self".to_string()); }
     if cost_key.contains("SelfToGrave")  { return Some("send self to gy".to_string()); }
     if cost_key.contains("SelfReveal")   { return Some("reveal self".to_string()); }
-    if cost_key.contains("SelfToDeck")   { return Some("send_to_deck self".to_string()); }
+    if cost_key.contains("SelfToDeck")   { return Some("send self to deck".to_string()); }
     if cost_key.contains("DetachFromSelf") { return Some("detach 1 overlay_unit from self".to_string()); }
     if cost_key.contains("PayLP") || cost_key.contains("PayLp") {
         // Try to extract amount

@@ -1,0 +1,41 @@
+// Feedran, the Winds of Mischief
+// Transpiled from c92597893.lua
+
+card "Feedran, the Winds of Mischief" {
+    password: 92597893
+    type: Effect Monster
+    attribute: WIND
+    race: Dragon
+    level: 3
+    atk: 1700
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        trigger: when_summoned
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            change_battle_position (1, monster)
+            add_to_hand (1, card) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

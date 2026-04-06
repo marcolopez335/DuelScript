@@ -1,5 +1,5 @@
 // Number C103: Ragnafinity
-// Migrated from c20785975.lua
+// Transpiled from c20785975.lua
 
 card "Number C103: Ragnafinity" {
     password: 20785975
@@ -22,23 +22,24 @@ card "Number C103: Ragnafinity" {
 
     effect "Effect 1" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         cost {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            banish (1, card) // TODO: verify
-            deal_damage to opponent: 1000 // TODO: verify
+            deal_damage to opponent: 1000
+            banish (1+, card)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
         optional: true
+        damage_step: true
         trigger: when_sent_to gy
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 

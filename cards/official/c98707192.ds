@@ -1,0 +1,40 @@
+// Ghostrick Mary
+// Transpiled from c98707192.lua
+
+card "Ghostrick Mary" {
+    password: 98707192
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 100
+    def: 1600
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        damage_step: true
+        cost {
+            discard self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

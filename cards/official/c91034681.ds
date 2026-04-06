@@ -1,5 +1,5 @@
 // Frightfur Daredevil
-// Migrated from c91034681.lua
+// Transpiled from c91034681.lua
 
 card "Frightfur Daredevil" {
     password: 91034681
@@ -10,11 +10,6 @@ card "Frightfur Daredevil" {
     atk: 3000
     def: 2200
 
-    materials {
-        require: 2+ monster
-        method: fusion
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -23,7 +18,7 @@ card "Frightfur Daredevil" {
         speed: spell_speed_1
         optional: true
         on_resolve {
-            deal_damage to opponent: 1000 // TODO: verify
+            deal_damage to opponent: 1000
         }
     }
 
@@ -31,8 +26,10 @@ card "Frightfur Daredevil" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        damage_step: true
+        trigger: when_leaves_field
         on_resolve {
-            deal_damage to opponent: 1000 // TODO: verify
+            deal_damage to opponent: 1000
         }
     }
 

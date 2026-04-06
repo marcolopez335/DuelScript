@@ -1,0 +1,43 @@
+// Super Quantal Mech Beast Grampulse
+// Transpiled from c85252081.lua
+
+card "Super Quantal Mech Beast Grampulse" {
+    password: 85252081
+    type: Xyz Monster
+    attribute: WATER
+    race: Machine
+    rank: 3
+    atk: 1800
+    def: 2800
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            attach (1, card) to self as_material
+        }
+    }
+
+}

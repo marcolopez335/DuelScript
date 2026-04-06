@@ -1,0 +1,25 @@
+// Morphtronic Engine
+// Transpiled from c7817703.lua
+
+card "Morphtronic Engine" {
+    password: 7817703
+    type: Equip Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 1000
+        }
+    }
+
+}

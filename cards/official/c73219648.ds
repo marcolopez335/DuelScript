@@ -1,0 +1,37 @@
+// Vilepawn Archfiend
+// Transpiled from c73219648.lua
+
+card "Vilepawn Archfiend" {
+    password: 73219648
+    type: Effect Monster
+    attribute: EARTH
+    race: Fiend
+    level: 2
+    atk: 1200
+    def: 200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            negate effect
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

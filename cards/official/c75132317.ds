@@ -1,0 +1,34 @@
+// Brotherhood of the Fire Fist - Snake
+// Transpiled from c75132317.lua
+
+card "Brotherhood of the Fire Fist - Snake" {
+    password: 75132317
+    type: Effect Monster
+    attribute: FIRE
+    race: Beast-Warrior
+    level: 4
+    atk: 1800
+    def: 600
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            set (1, card)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            draw 1
+        }
+    }
+
+}

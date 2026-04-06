@@ -1,5 +1,5 @@
 // Number 15: Gimmick Puppet Giant Grinder
-// Migrated from c88120966.lua
+// Transpiled from c88120966.lua
 
 card "Number 15: Gimmick Puppet Giant Grinder" {
     password: 88120966
@@ -22,12 +22,13 @@ card "Number 15: Gimmick Puppet Giant Grinder" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         cost {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 1000
         }
     }
 

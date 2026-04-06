@@ -1,5 +1,5 @@
 // Trap Hole of Spikes
-// Migrated from c75902998.lua
+// Transpiled from c75902998.lua
 
 card "Trap Hole of Spikes" {
     password: 75902998
@@ -9,7 +9,8 @@ card "Trap Hole of Spikes" {
         speed: spell_speed_1
         trigger: when attack_declared
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 1000
         }
     }
 

@@ -1,0 +1,38 @@
+// Flower Cardian Zebra Grass
+// Transpiled from c17141718.lua
+
+card "Flower Cardian Zebra Grass" {
+    password: 17141718
+    type: Effect Monster
+    attribute: DARK
+    race: Warrior
+    level: 8
+    atk: 100
+    def: 100
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_summoned
+        on_resolve {
+            return (1, card) to deck shuffle
+            shuffle deck
+            draw 1
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

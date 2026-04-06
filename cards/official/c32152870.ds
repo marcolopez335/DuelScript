@@ -1,5 +1,5 @@
 // Scareclaw Decline
-// Migrated from c32152870.lua
+// Transpiled from c32152870.lua
 
 card "Scareclaw Decline" {
     password: 32152870
@@ -8,19 +8,19 @@ card "Scareclaw Decline" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
+            change_battle_position (1, monster)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
         once_per_turn: hard
-        condition: in_gy
         cost {
             banish self
         }
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

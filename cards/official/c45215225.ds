@@ -1,0 +1,41 @@
+// Fluffal Angel
+// Transpiled from c45215225.lua
+
+card "Fluffal Angel" {
+    password: 45215225
+    type: Pendulum Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 2
+    scale: 8
+    atk: 600
+    def: 1200
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            tribute self
+        }
+        on_resolve {
+            discard (1, card)
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

@@ -1,0 +1,31 @@
+// Gladiator Beast Laquari
+// Transpiled from c78868776.lua
+
+card "Gladiator Beast Laquari" {
+    password: 78868776
+    type: Effect Monster
+    attribute: FIRE
+    race: Beast-Warrior
+    level: 4
+    atk: 1800
+    def: 400
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        cost {
+            send self to deck
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

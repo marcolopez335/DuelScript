@@ -1,5 +1,5 @@
 // Sorcerer of Sebek
-// Migrated from c39767432.lua
+// Transpiled from c39767432.lua
 
 card "Sorcerer of Sebek" {
     password: 39767432
@@ -8,11 +8,6 @@ card "Sorcerer of Sebek" {
     race: Aqua
     link: 2
     atk: 2000
-
-    materials {
-        require: 2+ effect monster
-        method: link
-    }
 
     summon_condition {
         cannot_normal_summon: true
@@ -23,16 +18,18 @@ card "Sorcerer of Sebek" {
         once_per_turn: hard
         optional: true
         on_resolve {
-            gain_lp: 1000 // TODO: verify
+            gain_lp: 1000
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        damage_step: true
         on_resolve {
-            deal_damage to opponent: 1000 // TODO: verify
+            deal_damage to opponent: 1000
+            deal_damage to opponent: 1000
         }
     }
 

@@ -1,0 +1,52 @@
+// Odd-Eyes Rebellion Dragon Overlord
+// Transpiled from c98452268.lua
+
+card "Odd-Eyes Rebellion Dragon Overlord" {
+    password: 98452268
+    type: Xyz Monster
+    attribute: DARK
+    race: Dragon
+    rank: 7
+    scale: 4
+    atk: 3000
+    def: 2500
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            special_summon (1, monster) from gy
+            attach (1, card) to self as_material
+            special_summon (1, monster) from gy
+            attach (1, card) to self as_material
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

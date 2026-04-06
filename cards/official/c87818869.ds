@@ -1,5 +1,5 @@
 // Hyper-Rank-Up-Magic Ultimate Force
-// Migrated from c87818869.lua
+// Transpiled from c87818869.lua
 
 card "Hyper-Rank-Up-Magic Ultimate Force" {
     password: 87818869
@@ -8,16 +8,20 @@ card "Hyper-Rank-Up-Magic Ultimate Force" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            attach (1, card) to self as_material
+            special_summon (1, monster) from gy
+            attach (1, card) to self as_material
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_2
         once_per_turn: soft
+        damage_step: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            send (1, card) to gy
+            destroy (1+, card, either_player controls)
         }
     }
 

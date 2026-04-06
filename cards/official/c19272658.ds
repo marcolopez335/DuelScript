@@ -1,0 +1,27 @@
+// Xyz Bento
+// Transpiled from c19272658.lua
+
+card "Xyz Bento" {
+    password: 19272658
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_battle_destroyed
+        on_resolve {
+            attach (1, card) to self as_material
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        cost {
+            banish self
+        }
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+}

@@ -1,0 +1,34 @@
+// Aqua Spirit
+// Transpiled from c40916023.lua
+
+card "Aqua Spirit" {
+    password: 40916023
+    type: Effect Monster | Spirit
+    attribute: WATER
+    race: Aqua
+    level: 4
+    atk: 1600
+    def: 1200
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        trigger: during_standby_phase
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

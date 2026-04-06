@@ -1,5 +1,5 @@
 // Raidraptor - Revolution Falcon - Air Raid
-// Migrated from c79985120.lua
+// Transpiled from c79985120.lua
 
 card "Raidraptor - Revolution Falcon - Air Raid" {
     password: 79985120
@@ -25,7 +25,8 @@ card "Raidraptor - Revolution Falcon - Air Raid" {
         optional: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 1000
         }
     }
 
@@ -34,7 +35,8 @@ card "Raidraptor - Revolution Falcon - Air Raid" {
         optional: true
         trigger: when_sent_to gy
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
+            attach (1, card) to self as_material
         }
     }
 

@@ -1,5 +1,5 @@
 // Link Disciple
-// Migrated from c32995276.lua
+// Transpiled from c32995276.lua
 
 card "Link Disciple" {
     password: 32995276
@@ -9,11 +9,6 @@ card "Link Disciple" {
     link: 1
     atk: 500
 
-    materials {
-        require: 2+ effect monster
-        method: link
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
@@ -21,8 +16,13 @@ card "Link Disciple" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
+        cost {
+            tribute self
+        }
         on_resolve {
-            draw 2 // TODO: verify count
+            draw 1
+            shuffle deck
+            return (1, card) to deck shuffle
         }
     }
 

@@ -1,0 +1,41 @@
+// Red-Eyes Black Fullmetal Dragon
+// Transpiled from c80870883.lua
+
+card "Red-Eyes Black Fullmetal Dragon" {
+    password: 80870883
+    type: Effect Monster | Spirit
+    attribute: DARK
+    race: Machine
+    level: 8
+    atk: 3400
+    def: 2400
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            reveal self
+        }
+        on_resolve {
+            set (1, card)
+            return (1, card) to deck shuffle
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        damage_step: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            negate activation
+            deal_damage to opponent: 1000
+        }
+    }
+
+}

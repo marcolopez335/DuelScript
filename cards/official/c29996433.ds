@@ -1,0 +1,37 @@
+// Dinowrestler Capoeiraptor
+// Transpiled from c29996433.lua
+
+card "Dinowrestler Capoeiraptor" {
+    password: 29996433
+    type: Effect Monster
+    attribute: EARTH
+    race: Dinosaur
+    level: 4
+    atk: 1800
+    def: 0
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: during_standby_phase
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

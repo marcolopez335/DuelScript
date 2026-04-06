@@ -1,0 +1,36 @@
+// Kozmo Goodwitch
+// Transpiled from c67050396.lua
+
+card "Kozmo Goodwitch" {
+    password: 67050396
+    type: Effect Monster
+    attribute: LIGHT
+    race: Psychic
+    level: 4
+    atk: 1800
+    def: 1000
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        cost {
+            banish self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            pay_lp 1000
+        }
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+}

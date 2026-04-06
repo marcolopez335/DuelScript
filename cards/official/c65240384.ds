@@ -1,0 +1,30 @@
+// Big Shield Gardna
+// Transpiled from c65240384.lua
+
+card "Big Shield Gardna" {
+    password: 65240384
+    type: Effect Monster
+    attribute: EARTH
+    race: Warrior
+    level: 4
+    atk: 100
+    def: 2600
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        damage_step: true
+        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+        on_resolve {
+            change_battle_position (1, monster)
+            negate activation
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+}

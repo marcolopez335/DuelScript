@@ -1,5 +1,5 @@
 // Magicians' Souls
-// Migrated from c97631303.lua
+// Transpiled from c97631303.lua
 
 card "Magicians' Souls" {
     password: 97631303
@@ -13,16 +13,24 @@ card "Magicians' Souls" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
+        cost {
+            send self to gy
+        }
         on_resolve {
-            special_summon self from gy // TODO: verify
+            special_summon (1, monster) from gy
+            send (1, card) to gy
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
+        cost {
+            send self to gy
+        }
         on_resolve {
-            draw 2 // TODO: verify count
+            draw 1
         }
     }
 

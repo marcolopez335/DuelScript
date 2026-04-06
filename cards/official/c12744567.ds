@@ -1,0 +1,43 @@
+// Number C101: Silent Honor DARK
+// Transpiled from c12744567.lua
+
+card "Number C101: Silent Honor DARK" {
+    password: 12744567
+    type: Xyz Monster
+    attribute: WATER
+    race: Aqua
+    rank: 5
+    atk: 2800
+    def: 1500
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            attach (1, card) to self as_material
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+            gain_lp: 1000
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

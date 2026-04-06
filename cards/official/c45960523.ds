@@ -1,5 +1,5 @@
 // Metaphys Daedalus
-// Migrated from c45960523.lua
+// Transpiled from c45960523.lua
 
 card "Metaphys Daedalus" {
     password: 45960523
@@ -15,17 +15,20 @@ card "Metaphys Daedalus" {
         optional: true
         trigger: when_summoned by_special_summon
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
         trigger: during_standby_phase
+        cost {
+            send self to deck
+        }
         on_resolve {
-            banish (1, card) // TODO: verify
+            banish (1+, card)
         }
     }
 

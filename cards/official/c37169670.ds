@@ -1,0 +1,41 @@
+// Hyper Psychic Blaster/Assault Mode
+// Transpiled from c37169670.lua
+
+card "Hyper Psychic Blaster/Assault Mode" {
+    password: 37169670
+    type: Effect Monster | Spirit
+    attribute: EARTH
+    race: Psychic
+    level: 11
+    atk: 3500
+    def: 3000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            deal_damage to opponent: 1000
+            gain_lp: 1000
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_destroyed
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

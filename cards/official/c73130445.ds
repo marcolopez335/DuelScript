@@ -1,5 +1,5 @@
 // Performapal Lizardraw
-// Migrated from c73130445.lua
+// Transpiled from c73130445.lua
 
 card "Performapal Lizardraw" {
     password: 73130445
@@ -15,18 +15,19 @@ card "Performapal Lizardraw" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            draw 2 // TODO: verify count
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            draw 1
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        damage_step: true
         trigger: when_destroyed
         on_resolve {
-            draw 2 // TODO: verify count
+            draw 1
         }
     }
 

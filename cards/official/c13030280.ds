@@ -1,0 +1,43 @@
+// CXyz Comics Hero Legend Arthur
+// Transpiled from c13030280.lua
+
+card "CXyz Comics Hero Legend Arthur" {
+    password: 13030280
+    type: Xyz Monster
+    attribute: EARTH
+    race: Warrior
+    rank: 5
+    atk: 3000
+    def: 2400
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            banish (1+, card)
+            deal_damage to opponent: 1000
+        }
+    }
+
+}

@@ -1,5 +1,5 @@
 // Metaphys Ascension
-// Migrated from c54199839.lua
+// Transpiled from c54199839.lua
 
 card "Metaphys Ascension" {
     password: 54199839
@@ -8,11 +8,9 @@ card "Metaphys Ascension" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
-        cost {
-            discard self // TODO: verify target
-        }
         on_resolve {
-            draw 2 // TODO: verify count
+            draw 1
+            banish (1+, card)
         }
     }
 
@@ -20,8 +18,9 @@ card "Metaphys Ascension" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
+        trigger: when_banished
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1, card) from gy
         }
     }
 

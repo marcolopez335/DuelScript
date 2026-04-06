@@ -1,5 +1,5 @@
 // Chain Detonation
-// Migrated from c51449743.lua
+// Transpiled from c51449743.lua
 
 card "Chain Detonation" {
     password: 51449743
@@ -8,8 +8,9 @@ card "Chain Detonation" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
-            deal_damage to opponent: 1000 // TODO: verify
+            deal_damage to opponent: 1000
+            add_to_hand (1, card) from gy
+            return (1, card) to deck shuffle
         }
     }
 

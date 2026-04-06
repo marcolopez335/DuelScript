@@ -1,0 +1,43 @@
+// Ultimate Conductor Tyranno
+// Transpiled from c18940556.lua
+
+card "Ultimate Conductor Tyranno" {
+    password: 18940556
+    type: Effect Monster | Spirit
+    attribute: LIGHT
+    race: Dinosaur
+    level: 10
+    atk: 3500
+    def: 3200
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            change_battle_position (1, monster)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            deal_damage to opponent: 1000
+            send (1, card) to gy
+        }
+    }
+
+}

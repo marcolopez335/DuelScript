@@ -1,0 +1,44 @@
+// Jinzo - Layered
+// Transpiled from c99666430.lua
+
+card "Jinzo - Layered" {
+    password: 99666430
+    type: Xyz Monster
+    attribute: DARK
+    race: Machine
+    rank: 6
+    atk: 2400
+    def: 1500
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            take_control of (1, monster, opponent controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            tribute (1, monster, you controls)
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

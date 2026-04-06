@@ -1,5 +1,5 @@
 // Centaur Mina
-// Migrated from c33129626.lua
+// Transpiled from c33129626.lua
 
 card "Centaur Mina" {
     password: 33129626
@@ -10,22 +10,19 @@ card "Centaur Mina" {
     atk: 2200
     def: 1600
 
-    materials {
-        require: 2+ monster
-        method: fusion
-    }
-
     summon_condition {
         cannot_normal_summon: true
     }
 
     effect "Effect 1" {
         speed: spell_speed_2
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        damage_step: true
         trigger: opponent_activates [search | special_summon | send_to_gy | draw]
         on_resolve {
             negate activation
+            change_battle_position (1, monster)
         }
     }
 
@@ -33,16 +30,17 @@ card "Centaur Mina" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 3" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        trigger: when_used_as_material
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

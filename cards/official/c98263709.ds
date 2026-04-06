@@ -1,0 +1,45 @@
+// Galaxy Mirror Sage
+// Transpiled from c98263709.lua
+
+card "Galaxy Mirror Sage" {
+    password: 98263709
+    type: Effect Monster
+    attribute: LIGHT
+    race: Spellcaster
+    level: 3
+    atk: 0
+    def: 800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            gain_lp: 1000
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_flipped
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        damage_step: true
+        trigger: when_sent_to gy
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

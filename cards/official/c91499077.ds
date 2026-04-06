@@ -1,0 +1,44 @@
+// Gagaga Samurai
+// Transpiled from c91499077.lua
+
+card "Gagaga Samurai" {
+    password: 91499077
+    type: Xyz Monster
+    attribute: EARTH
+    race: Warrior
+    rank: 4
+    atk: 1900
+    def: 1600
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_attacked
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

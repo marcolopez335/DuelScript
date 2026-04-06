@@ -1,5 +1,5 @@
 // U.A. Locker Room
-// Migrated from c49936169.lua
+// Transpiled from c49936169.lua
 
 card "U.A. Locker Room" {
     password: 49936169
@@ -9,7 +9,11 @@ card "U.A. Locker Room" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            draw 2 // TODO: verify count
+            add_to_hand (1, card) from gy
+            gain_lp: 500
+            return (1, card) to deck shuffle
+            shuffle deck
+            draw 1
         }
     }
 

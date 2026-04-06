@@ -1,0 +1,37 @@
+// Predaplant Moray Nepenthes
+// Transpiled from c22011689.lua
+
+card "Predaplant Moray Nepenthes" {
+    password: 22011689
+    type: Effect Monster
+    attribute: DARK
+    race: Plant
+    level: 4
+    atk: 1600
+    def: 1000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            destroy (1+, card, either_player controls)
+            gain_lp: 1000
+        }
+    }
+
+}

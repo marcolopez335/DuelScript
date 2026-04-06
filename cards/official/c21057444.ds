@@ -1,5 +1,5 @@
 // Marincess Springirl
-// Migrated from c21057444.lua
+// Transpiled from c21057444.lua
 
 card "Marincess Springirl" {
     password: 21057444
@@ -13,17 +13,22 @@ card "Marincess Springirl" {
     effect "Effect 1" {
         speed: spell_speed_1
         once_per_turn: hard
+        cost {
+            banish self
+        }
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         optional: true
+        trigger: when_used_as_material
         on_resolve {
-            deal_damage to opponent: 1000 // TODO: verify
+            mill 1
+            deal_damage to opponent: 1000
         }
     }
 

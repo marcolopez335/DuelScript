@@ -1,0 +1,30 @@
+// Koa'ki Meiru Beetle
+// Transpiled from c39037517.lua
+
+card "Koa'ki Meiru Beetle" {
+    password: 39037517
+    type: Effect Monster
+    attribute: EARTH
+    race: Insect
+    level: 4
+    atk: 1900
+    def: 1500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+}

@@ -1,0 +1,27 @@
+// Tearlaments Metanoise
+// Transpiled from c38436986.lua
+
+card "Tearlaments Metanoise" {
+    password: 38436986
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            change_battle_position (1, monster)
+            send (1, card) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        trigger: when_sent_to gy
+        on_resolve {
+            add_to_hand (1, card) from gy
+        }
+    }
+
+}

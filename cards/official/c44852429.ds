@@ -1,0 +1,47 @@
+// D/D/D Cursed King Siegfried
+// Transpiled from c44852429.lua
+
+card "D/D/D Cursed King Siegfried" {
+    password: 44852429
+    type: Synchro Monster
+    attribute: DARK
+    race: Fiend
+    level: 8
+    atk: 2800
+    def: 2200
+
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        on_resolve {
+            negate effect
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_sent_to gy
+        on_resolve {
+            gain_lp: 1000
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+}

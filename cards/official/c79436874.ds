@@ -1,5 +1,5 @@
 // R.B. VALCan Rocket
-// Migrated from c79436874.lua
+// Transpiled from c79436874.lua
 
 card "R.B. VALCan Rocket" {
     password: 79436874
@@ -12,12 +12,13 @@ card "R.B. VALCan Rocket" {
 
     effect "Effect 2" {
         speed: spell_speed_1
-        once_per_turn: hard
+        once_per_turn: soft
         cost {
-            pay_lp 1000 // TODO: verify amount
+            pay_lp 1000
         }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 1000
         }
     }
 

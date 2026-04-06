@@ -1,0 +1,30 @@
+// Reversible Beetle
+// Transpiled from c45702357.lua
+
+card "Reversible Beetle" {
+    password: 45702357
+    type: Effect Monster
+    attribute: EARTH
+    race: Insect
+    level: 3
+    atk: 1100
+    def: 1500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            return (1, card) to deck shuffle
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: when_summoned
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+}

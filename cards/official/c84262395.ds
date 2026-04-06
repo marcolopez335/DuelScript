@@ -1,5 +1,5 @@
 // Earthbound Release
-// Migrated from c84262395.lua
+// Transpiled from c84262395.lua
 
 card "Earthbound Release" {
     password: 84262395
@@ -8,8 +8,12 @@ card "Earthbound Release" {
     effect "Effect 1" {
         speed: spell_speed_1
         trigger: when_summoned
+        cost {
+            tribute self
+        }
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
+            deal_damage to opponent: 1000
         }
     }
 

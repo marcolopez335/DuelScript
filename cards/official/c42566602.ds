@@ -1,5 +1,5 @@
 // Coral Dragon
-// Migrated from c42566602.lua
+// Transpiled from c42566602.lua
 
 card "Coral Dragon" {
     password: 42566602
@@ -22,12 +22,9 @@ card "Coral Dragon" {
 
     effect "Effect 1" {
         speed: spell_speed_1
-        once_per_turn: hard
-        cost {
-            discard self // TODO: verify target
-        }
+        once_per_turn: soft
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 
@@ -37,7 +34,7 @@ card "Coral Dragon" {
         optional: true
         trigger: when_sent_to gy
         on_resolve {
-            draw 2 // TODO: verify count
+            draw 1
         }
     }
 

@@ -1,0 +1,49 @@
+// Albion the Sanctifire Dragon
+// Transpiled from c38811586.lua
+
+card "Albion the Sanctifire Dragon" {
+    password: 38811586
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 8
+    atk: 3000
+    def: 2500
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        on_resolve {
+            reveal self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            tribute (1, monster, you controls)
+            special_summon (1, monster) from gy
+        }
+    }
+
+}
