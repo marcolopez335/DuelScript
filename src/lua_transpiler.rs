@@ -145,11 +145,12 @@ pub fn transpile_lua_to_ds(
         // preserved verbatim. For cards using Xyz/Synchro/Link procedures,
         // we still rely on the materials block.
 
-        let effect_type = resolve_lua_constant_expr(effect.effect_type.as_deref().unwrap_or("0"));
-        let category    = resolve_lua_constant_expr(effect.category.as_deref().unwrap_or("0"));
-        let code        = resolve_lua_constant_expr(effect.code.as_deref().unwrap_or("0"));
-        let property    = resolve_lua_constant_expr(effect.property.as_deref().unwrap_or("0"));
-        let range       = resolve_lua_constant_expr(effect.range.as_deref().unwrap_or("0"));
+        let id_val = passcode as u32;
+        let effect_type = resolve_lua_constant_expr_with_id(effect.effect_type.as_deref().unwrap_or("0"), id_val);
+        let category    = resolve_lua_constant_expr_with_id(effect.category.as_deref().unwrap_or("0"), id_val);
+        let code        = resolve_lua_constant_expr_with_id(effect.code.as_deref().unwrap_or("0"), id_val);
+        let property    = resolve_lua_constant_expr_with_id(effect.property.as_deref().unwrap_or("0"), id_val);
+        let range       = resolve_lua_constant_expr_with_id(effect.range.as_deref().unwrap_or("0"), id_val);
 
         ds.push_str(&format!("    raw_effect \"Effect {}\" {{\n", i + 1));
         if effect_type != 0 { ds.push_str(&format!("        effect_type: {}\n", effect_type)); }
@@ -562,9 +563,9 @@ fn parse_number_or_expr(s: &str, table: &std::collections::HashMap<String, u32>)
     if any { Some(total) } else { None }
 }
 
-/// Resolve a Lua constant expression like "EFFECT_TYPE_ACTIVATE+EFFECT_TYPE_IGNITION"
-/// into a single u32. Supports + and | (bitwise OR) and common constants.
-pub fn resolve_lua_constant_expr(expr: &str) -> u32 {
+/// Resolve a Lua constant expression. `id_value` is the card's passcode,
+/// used to substitute the common `id` variable (from `local s,id=GetID()`).
+pub fn resolve_lua_constant_expr_with_id(expr: &str, id_value: u32) -> u32 {
     let cleaned = expr.trim();
     if cleaned.is_empty() { return 0; }
 
@@ -572,6 +573,11 @@ pub fn resolve_lua_constant_expr(expr: &str) -> u32 {
     for part in cleaned.split(|c| c == '+' || c == '|') {
         let t = part.trim();
         if t.is_empty() { continue; }
+        // The `id` variable always refers to the card's passcode
+        if t == "id" {
+            total |= id_value;
+            continue;
+        }
         if let Ok(n) = t.parse::<u32>() {
             total |= n;
             continue;
@@ -582,7 +588,6 @@ pub fn resolve_lua_constant_expr(expr: &str) -> u32 {
                 continue;
             }
         }
-        // Try the full table first (embedded constant.lua), fall back to hardcoded
         if let Some(v) = constant_table().get(t) {
             total |= v;
         } else {
@@ -590,6 +595,11 @@ pub fn resolve_lua_constant_expr(expr: &str) -> u32 {
         }
     }
     total
+}
+
+/// Back-compat wrapper without id substitution.
+pub fn resolve_lua_constant_expr(expr: &str) -> u32 {
+    resolve_lua_constant_expr_with_id(expr, 0)
 }
 
 pub fn lookup_lua_constant(name: &str) -> u32 {
