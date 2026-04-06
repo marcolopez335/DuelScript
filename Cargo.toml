@@ -13,6 +13,8 @@ default = []
 cdb = ["rusqlite"]
 # Enable Python bindings via PyO3
 python = ["pyo3"]
+# Enable Lua transpiler (function body walking for accurate action mapping)
+lua_transpiler = []
 
 [dependencies]
 pest        = "2.7"
@@ -22,6 +24,9 @@ thiserror   = "1.0"
 rusqlite    = { version = "0.31", features = ["bundled"], optional = true }
 # Optional — enable with: duelscript = { features = ["python"] }
 pyo3        = { version = "0.22", features = ["extension-module"], optional = true }
+# Optional — enable with: duelscript = { features = ["lua_transpiler"] }
+# full_moon Lua parser — disabled until rustc 1.89+ (smol_str dep)
+# full_moon = { version = "1.1", optional = true }
 
 [lib]
 name = "duelscript"

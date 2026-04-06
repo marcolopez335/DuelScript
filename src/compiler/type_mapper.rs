@@ -228,6 +228,12 @@ pub fn trigger_to_event_code(trigger: &Option<TriggerExpr>) -> u32 {
                 Phase::EndPhase         => EVENT_PHASE + PHASE_END,
                 _                       => EVENT_FREE_CHAIN,
             },
+            TriggerExpr::WhenBattleDestroyed          => 1029, // EVENT_BATTLE_DESTROYED
+            TriggerExpr::WhenDestroysByBattle         => 1030, // EVENT_BATTLE_DESTROYING (approximate)
+            TriggerExpr::WhenLeavesField              => 1015, // EVENT_LEAVE_FIELD
+            TriggerExpr::WhenUsedAsMaterial(_)        => 1108, // EVENT_BE_MATERIAL
+            TriggerExpr::WhenBattleDamage(_)          => 1111, // EVENT_BATTLE_DAMAGE (approximate)
+            TriggerExpr::WhenBanished(_)              => EVENT_REMOVE,
             TriggerExpr::WhenAction(action) => match action {
                 TriggerAction::AttackDeclared => EVENT_ATTACK_ANNOUNCE,
                 _ => EVENT_FREE_CHAIN,

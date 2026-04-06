@@ -13,6 +13,8 @@ pub mod cdb;
 pub mod migrate;
 #[cfg(feature = "python")]
 pub mod python;
+#[cfg(feature = "lua_transpiler")]
+pub mod lua_transpiler;
 
 pub use parser::{parse, ParseError};
 pub use validator::{validate, validate_card, ValidationError, ValidationReport, Severity};

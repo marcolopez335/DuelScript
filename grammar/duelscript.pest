@@ -264,6 +264,8 @@ effect_body_clause = {
   | frequency_decl
   | optional_decl
   | timing_qualifier_decl
+  | activate_from_clause
+  | damage_step_decl
   | condition_clause
   | trigger_clause
   | cost_clause
@@ -271,6 +273,11 @@ effect_body_clause = {
   | on_resolve_clause
   | restriction_block
 }
+
+// Where this effect can activate from (e.g., hand traps that also work from GY)
+activate_from_clause = { "activate_from" ~ ":" ~ "[" ~ zone ~ ("," ~ zone)* ~ "]" }
+// Can this effect activate during the damage step?
+damage_step_decl     = { "damage_step" ~ ":" ~ boolean }
 
 // ── Continuous Effect Block ───────────────────────────────────
 continuous_effect_block = { "continuous_effect" ~ string? ~ "{" ~ continuous_body ~ "}" }
@@ -419,15 +426,28 @@ trigger_expr   = {
   | when_tributed_trigger
   | when_summoned_trigger
   | when_destroyed_trigger
+  | when_battle_destroyed_trigger
+  | when_destroys_by_battle_trigger
   | when_sent_to_trigger
+  | when_leaves_field_trigger
   | when_flipped_trigger
   | when_attacked_trigger
+  | when_used_as_material_trigger
+  | when_battle_damage_trigger
+  | when_banished_trigger
   | on_nth_summon_trigger
   | standby_phase_trigger
   | end_phase_trigger
   | during_phase_trigger
   | when_action_trigger
 }
+
+when_battle_destroyed_trigger   = { "when_battle_destroyed" }
+when_destroys_by_battle_trigger = { "when_destroys_by_battle" }
+when_leaves_field_trigger       = { "when_leaves_field" }
+when_used_as_material_trigger   = { "when_used_as_material" ~ ("for" ~ ("fusion" | "synchro" | "xyz" | "link" | "ritual" | "any"))? }
+when_battle_damage_trigger      = { "when_battle_damage" ~ ("to" ~ ("you" | "opponent" | "either"))? }
+when_banished_trigger           = { "when_banished" ~ ("by" ~ destruction_cause)? }
 
 opponent_activates_trigger    = { "opponent_activates" ~ "[" ~ trigger_action ~ ("|" ~ trigger_action)* ~ "]" }
 when_tribute_summoned_trigger = { "when_tribute_summoned" ~ ("using" ~ tribute_filter)? }
@@ -554,7 +574,60 @@ game_action = {
   | register_effect_action
   | store_action
   | recall_action
+  | send_to_deck_action
+  | release_action
+  | discard_all_action
+  | shuffle_hand_action
+  | shuffle_deck_action
+  | change_position_action
+  | set_spell_trap_action
+  | equip_to_action
+  | overlay_action
+  | move_to_field_action
+  | excavate_action
+  | normal_summon_action
+  | yes_no_action
+  | coin_flip_action
+  | change_level_action
+  | change_attribute_action
+  | change_race_action
+  | negate_effects_action
 }
+
+// Send card(s) to deck (top, bottom, or shuffle)
+send_to_deck_action   = { "send_to_deck" ~ ("self" | target_expr) ~ ("top" | "bottom" | "shuffle")? }
+// Release/tribute as a resolution action (not cost)
+release_action        = { "release" ~ ("self" | target_expr) }
+// Discard entire hand
+discard_all_action    = { "discard_all" ~ ("your_hand" | "opponent_hand") }
+// Shuffle hand into deck then redraw
+shuffle_hand_action   = { "shuffle_hand" ~ ("yours" | "opponents")? }
+// Shuffle deck
+shuffle_deck_action   = { "shuffle_deck" ~ ("yours" | "opponents")? }
+// Change monster battle position
+change_position_action = { "change_position" ~ ("self" | target_expr) ~ ("to" ~ battle_position)? }
+// Set a spell/trap from hand
+set_spell_trap_action = { "set_spell_trap" ~ ("self" | target_expr) }
+// Equip a card to a monster
+equip_to_action       = { "equip" ~ ("self" | target_expr) ~ "to" ~ ("self" | target_expr) }
+// Attach as overlay material (Xyz)
+overlay_action        = { "overlay" ~ target_expr ~ "to" ~ ("self" | target_expr) }
+// Move card to field (special placement)
+move_to_field_action  = { "move_to_field" ~ ("self" | target_expr) ~ ("in" ~ battle_position)? }
+// Excavate (look at top N cards of deck)
+excavate_action       = { "excavate" ~ expr ~ "from" ~ ("your_deck" | "opponent_deck") }
+// Force a Normal Summon
+normal_summon_action  = { "normal_summon" ~ ("self" | target_expr) }
+// Player yes/no choice
+yes_no_action         = { "if_player_chooses" ~ "{" ~ game_action+ ~ "}" ~ ("else" ~ "{" ~ game_action+ ~ "}")? }
+// Coin flip
+coin_flip_action      = { "flip_coin" ~ "{" ~ "heads" ~ "{" ~ game_action+ ~ "}" ~ "tails" ~ "{" ~ game_action+ ~ "}" ~ "}" }
+// Change level/attribute/race
+change_level_action     = { "change_level" ~ ("self" | target_expr) ~ "to" ~ expr }
+change_attribute_action = { "change_attribute" ~ ("self" | target_expr) ~ "to" ~ attribute }
+change_race_action      = { "change_race" ~ ("self" | target_expr) ~ "to" ~ race }
+// Negate effects of target until duration
+negate_effects_action   = { "negate_effects" ~ ("self" | target_expr) ~ duration? }
 
 // Now uses expr for dynamic counts
 draw_action                   = { "draw" ~ expr }

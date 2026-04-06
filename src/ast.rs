@@ -295,6 +295,10 @@ pub struct EffectBody {
     pub timing:       TimingQualifier,
     /// Whether timing was explicitly declared in the source (vs defaulted)
     pub timing_explicit: bool,
+    /// Where this effect can activate from (overrides default)
+    pub activate_from: Vec<Zone>,
+    /// Can activate during the damage step
+    pub damage_step:  bool,
     pub condition:    Option<ConditionExpr>,
     pub trigger:      Option<TriggerExpr>,
     pub cost:         Vec<CostAction>,
@@ -311,6 +315,8 @@ impl Default for EffectBody {
             optional:     false,
             timing:       TimingQualifier::When,
             timing_explicit: false,
+            activate_from: vec![],
+            damage_step:  false,
             condition:    None,
             trigger:      None,
             cost:         vec![],
@@ -543,9 +549,15 @@ pub enum TriggerExpr {
     WhenTributeSummoned(Option<CardFilter>),
     WhenTributed(Option<TributeFor>),
     WhenDestroyed(Option<DestructionCause>),
+    WhenBattleDestroyed,
+    WhenDestroysByBattle,
     WhenSentTo { zone: Zone, cause: Option<DestructionCause> },
+    WhenLeavesField,
     WhenFlipped,
     WhenAttacked,
+    WhenUsedAsMaterial(Option<SummonMethodType>),
+    WhenBattleDamage(Option<Player>),
+    WhenBanished(Option<DestructionCause>),
     OnNthSummon(u32),
     DuringStandbyPhase(Option<PhaseOwner>),
     DuringEndPhase,
@@ -747,6 +759,63 @@ pub enum GameAction {
 
     /// Recall previously stored cards/value
     Recall { label: String },
+
+    // ── Extended Actions (v0.5.1) ─────────────────────────────
+
+    /// Send card(s) to deck (top, bottom, or shuffle in)
+    SendToDeck { target: SelfOrTarget, position: DeckPosition },
+
+    /// Release/tribute a card as a resolution action (not cost)
+    Release { target: SelfOrTarget },
+
+    /// Discard all cards in hand
+    DiscardAll { whose: Player },
+
+    /// Shuffle a player's hand into deck
+    ShuffleHand { whose: Option<Player> },
+
+    /// Shuffle a player's deck
+    ShuffleDeck { whose: Option<Player> },
+
+    /// Set a spell/trap from hand to the S/T zone
+    SetSpellTrap { target: SelfOrTarget },
+
+    /// Move a card to the field (special placement)
+    MoveToField { target: SelfOrTarget, position: Option<BattlePosition> },
+
+    /// Excavate (look at top N cards of deck)
+    Excavate { count: Expr, from: MillSource },
+
+    /// Force a Normal Summon
+    NormalSummon { target: SelfOrTarget },
+
+    /// Player yes/no choice
+    YesNo { yes_actions: Vec<GameAction>, no_actions: Vec<GameAction> },
+
+    /// Coin flip
+    CoinFlip { heads: Vec<GameAction>, tails: Vec<GameAction> },
+
+    /// Change monster's level
+    ChangeLevel { target: SelfOrTarget, value: Expr },
+
+    /// Change monster's attribute
+    ChangeAttribute { target: SelfOrTarget, attribute: Attribute },
+
+    /// Change monster's race/type
+    ChangeRace { target: SelfOrTarget, race: Race },
+
+    /// Negate a card's effects (with optional duration)
+    NegateEffects { target: SelfOrTarget, duration: Option<Duration> },
+
+    /// Overlay (attach) cards as Xyz material
+    Overlay { materials: TargetExpr, target: SelfOrTarget },
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum DeckPosition {
+    Top,
+    Bottom,
+    Shuffle,
 }
 
 #[derive(Debug, Clone)]
