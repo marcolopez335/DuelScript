@@ -1,5 +1,5 @@
 # DuelScript Language Reference
-## Version 0.5 — Canonical Specification
+## Version 0.7 — Canonical Specification
 
 ---
 
@@ -674,6 +674,211 @@ on_resolve {
     for_each (1+, monster, you controls) in monster_zone {
         modifier: atk +500
     }
+}
+```
+
+---
+
+## Phase 1–3 Features (v0.7)
+
+These constructs complete Lua parity for complex cards. All parse cleanly;
+each has a runtime hook in `DuelScriptRuntime` (see the engine integration
+guide for what each hook must do).
+
+### Flip Effects
+
+Distinct from a `when_flipped` trigger — this is the flip monster's
+activation effect (maps to `EFFECT_TYPE_FLIP`).
+
+```
+flip_effect "Gain LP" {
+    on_resolve {
+        gain_lp: count((1+, "Galaxy" monster, you controls, gy)) * 500
+    }
+}
+```
+
+### Continuous Effect Scope
+
+By default continuous effects apply `field`-wide. Use `scope: self` for
+effects that only modify the card they live on.
+
+```
+continuous_effect "Self buff" {
+    scope: self
+    modifier: atk + count((1+, dragon, you controls, gy)) * 100
+}
+```
+
+### Flag Effects (persistent state)
+
+Set a named flag on a card with custom survive/reset behavior. Flags are
+queried with `has_flag` in conditions.
+
+```
+on_resolve {
+    set_flag "flipped_once" on self {
+        survives: [leave_field, to_gy]
+        resets_on: [end_of_duel]
+    }
+}
+
+effect "Revive" {
+    trigger: when_sent_to gy by card_effect
+    condition: has_flag "flipped_once" on self
+    on_resolve { /* ... */ }
+}
+```
+
+Valid reset events: `leave_field`, `to_gy`, `to_hand`, `to_deck`,
+`banished`, `flip`, `chain_end`, `turn_end`, `phase_end`, `end_of_duel`,
+`control_change`, `overlay`.
+
+### History Queries
+
+Check what happened to a card previously. Useful for "if this was on the
+field before being sent to the GY" patterns.
+
+```
+condition: previous_location == field
+condition: previous_position == face_up
+condition: sent_to_gy_reason includes [battle, card_effect]
+```
+
+### Target Stat Accessors
+
+In expressions, you now have access to base and original stats:
+
+```
+modifier: atk + target.base_atk / 2
+```
+
+Available: `target.atk`, `target.def`, `target.level`, `target.base_atk`,
+`target.base_def`, `target.original_atk`, `target.original_def`.
+
+### Named Bindings
+
+A cost captures a card into a named binding; `on_resolve` references it
+via `name.field`.
+
+```
+cost {
+    reveal (1, fusion monster, extra_deck) as revealed
+    send (1, monster, deck, where: name in revealed.material_list) to gy as captured
+}
+on_resolve {
+    change_name self to captured.name until end_phase
+}
+```
+
+Binding fields resolved at runtime: `code`, `atk`, `def`, `level`, `name`.
+The engine's `get_binding_field` determines what's supported.
+
+### Change Name / Code
+
+Prisma-style name copying:
+
+```
+on_resolve {
+    change_name self to captured.name
+    change_name self to "Dark Magician" until end_phase
+    change_code self to 46986414
+}
+```
+
+### Random Selection
+
+Append `random` to a discard/select to skip the player-choice prompt:
+
+```
+on_resolve {
+    discard (1, card) random
+}
+```
+
+### Custom Events
+
+Cards can emit and listen for class-level events. Used for
+cross-card coordination (e.g., "summoned this chain" tracking).
+
+```
+on_resolve {
+    emit_event "summoned_this_chain_updated"
+}
+
+effect "React" {
+    trigger: on_custom_event "summoned_this_chain_updated"
+    on_resolve { /* ... */ }
+}
+```
+
+### Global Handlers
+
+Class-level event handlers registered once per duel regardless of how many
+copies of the card exist. Use this when every copy of a card must share
+one handler (e.g., Maiden of Blue Tears tracks all summons this chain).
+
+```
+global_handler "track summons" {
+    trigger: when_summoned by_special_summon
+    on_event {
+        emit_event "summoned_this_chain_updated"
+    }
+}
+```
+
+### Global State
+
+Class-level tracked state shared across all instances of a card.
+
+```
+global_state "summoned_this_chain" {
+    type: card_group
+    tracks: (1+, monster)
+    resets_on: chain_end
+}
+```
+
+`type` is one of `card_group`, `counter`, `flag`. The engine maintains the
+group; scripts query it via target-expr zone filters.
+
+### Announcements (Mind Crush–style)
+
+Prompt the player to name a card, attribute, race, type, or level as a
+cost. Combine with a filter.
+
+```
+cost {
+    announce card {
+        filter: not extra_deck_monster
+    } as announced
+}
+```
+
+Announcement kinds: `card`, `attribute`, `race`, `type`, `level N`.
+Filter presets: `not extra_deck_monster`, `main_deck_monster`, `monster`,
+`spell`, `trap`, `any`.
+
+### Confirm Cards
+
+Show cards to a player.
+
+```
+on_resolve {
+    confirm hand to: opponent     // show opponent their own hand
+    confirm self to: opponent     // show this card to the opponent
+    confirm (1+, monster, you controls) to: both
+}
+```
+
+### Set from Zone
+
+`set_spell_trap` now accepts a `from` clause (Maiden of Blue Tears
+sets a Normal Spell from GY):
+
+```
+on_resolve {
+    set_spell_trap (1, spell, you controls, gy) from gy
 }
 ```
 

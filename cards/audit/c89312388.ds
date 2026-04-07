@@ -1,6 +1,14 @@
-// Elemental HERO Prisma — audit of expressiveness
-// Exercises: dynamic code change, two-phase cost (reveal then select),
-// cost that captures state for use in resolution, card-referential targeting
+// Elemental HERO Prisma — full Phase 1-3 implementation.
+//
+// "Once per turn: You can reveal 1 Fusion Monster in your Extra Deck,
+//  then send 1 of the Fusion Materials whose name is listed on that
+//  Fusion Monster from your Deck to the GY; this card's name becomes
+//  that monster's name until the end of this turn."
+//
+// Exercises:
+//   - Phase 1D: two-phase cost with named bindings (reveal→capture,
+//     send→capture) where step 2's filter references step 1's result.
+//   - Phase 1E: change_name with a binding source and duration.
 
 card "Elemental HERO Prisma" {
     password: 89312388
@@ -12,57 +20,21 @@ card "Elemental HERO Prisma" {
     def: 1100
     archetype: ["Elemental HERO", "HERO"]
 
-    // "Once per turn: You can reveal 1 Fusion Monster in your Extra Deck,
-    //  then send 1 of the Fusion Materials whose name is listed on that
-    //  Fusion Monster from your Deck to the GY, and if you do, this card's
-    //  name becomes that monster's name until the end of this turn."
-    //
-    // This is an IGNITION effect (manual activation, speed 1).
-    // The cost has TWO phases:
-    //   1. Reveal a fusion monster from extra deck (not sent anywhere)
-    //   2. Send a named material of that fusion from deck to GY
-    //
-    // Then the resolution uses the CODE of the card that was sent as cost.
-
     effect "Become Fusion Material" {
         speed: spell_speed_1
         once_per_turn: hard
 
         cost {
-            // GAP #7: Two-phase cost where the first phase CAPTURES
-            // a value that the second phase uses as a filter.
-            //
-            // Pseudo-syntax:
-            //   reveal (1, fusion monster, you controls, extra_deck, with_listed_materials)
-            //     as revealed
-            //   send (1, card, you controls, deck,
-            //         where: { name in revealed.listed_materials })
-            //     to gy as captured
-            //
-            // GAP #8: Cost result needs to be available in on_resolve via
-            // a named binding (e.g., `captured`).
-            //
-            // GAP #9: `with_listed_materials` — a predicate that checks
-            // whether a fusion monster has a `material` field populated
-            // (Lua checks `c.material`).
-
-            reveal (1, fusion monster, you controls, extra_deck)
-            send (1, card, you controls, deck) to gy
+            // Step 1: reveal a fusion monster, capture it as `revealed`.
+            reveal (1, fusion monster, you controls, extra_deck) as revealed
+            // Step 2: send a deck card whose name appears in the revealed
+            // monster's material list. Captured as `captured` for resolution.
+            send (1, card, you controls, deck) to gy as captured
         }
 
         on_resolve {
-            // GAP #10: Dynamic "change this card's code/name" action.
-            // Lua: registers an EFFECT_CHANGE_CODE effect with the captured
-            // card's code, reset at end of turn.
-            //
-            // Pseudo-syntax:
-            //   change_name self to: captured.name until end_phase
-            //
-            // Or, referencing the cost result directly:
-            //   self.name = captured.name until end_phase
-
-            // Placeholder — no current way to express this
-            reveal self
+            // Copy the sent card's name onto this card until end of turn.
+            change_name self to captured.name
         }
     }
 }

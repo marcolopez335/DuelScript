@@ -40,6 +40,47 @@ pub struct Card {
     pub win_condition:       Option<WinCondition>,
     /// v0.6: Raw effect blocks with explicit bitfields (transpiler output)
     pub raw_effects:         Vec<RawEffect>,
+    /// Phase 1B: Flip effects (EFFECT_TYPE_FLIP)
+    pub flip_effects:        Vec<FlipEffect>,
+    /// Phase 2: Class-level event handlers (registered once per duel)
+    pub global_handlers:     Vec<GlobalHandler>,
+    /// Phase 2: Class-level tracked state (shared across all instances)
+    pub global_states:       Vec<GlobalState>,
+}
+
+/// Phase 2: Class-level event handler. Registered once per duel regardless
+/// of how many copies of the card exist.
+#[derive(Debug, Clone)]
+pub struct GlobalHandler {
+    pub name:      Option<String>,
+    pub trigger:   TriggerExpr,
+    pub condition: Option<ConditionExpr>,
+    pub on_event:  Vec<GameAction>,
+}
+
+/// Phase 2: Class-level tracked state.
+#[derive(Debug, Clone)]
+pub struct GlobalState {
+    pub name:      String,
+    pub kind:      GlobalStateKind,
+    pub tracks:    Option<TargetExpr>,
+    pub resets_on: Option<FlagReset>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum GlobalStateKind { CardGroup, Counter, Flag }
+
+/// Phase 1B: A flip effect — distinct from a "when_flipped" trigger.
+/// Maps to EFFECT_TYPE_SINGLE | EFFECT_TYPE_FLIP in the engine.
+#[derive(Debug, Clone)]
+pub struct FlipEffect {
+    pub name:        Option<String>,
+    pub frequency:   Frequency,
+    pub optional:    bool,
+    pub condition:   Option<ConditionExpr>,
+    pub cost:        Vec<CostAction>,
+    pub on_activate: Vec<GameAction>,
+    pub on_resolve:  Vec<GameAction>,
 }
 
 /// v0.6: A raw effect with explicit engine bitfields.
@@ -130,6 +171,8 @@ pub enum Race {
     WingedBeast, Fiend, Fairy, Insect, Dinosaur, Reptile,
     Fish, SeaSerpent, Aqua, Pyro, Thunder, Rock, Plant, Machine,
     Psychic, DivineBeast, Wyrm, Cyberse,
+    CreatorGod, Illusion, Cyborg, MagicalKnight, HighDragon, OmegaPsychic,
+    Unknown,
 }
 
 // ── Link Arrows ───────────────────────────────────────────────
@@ -159,6 +202,9 @@ pub enum Expr {
     Count { target: Box<TargetExpr>, zone: Option<Zone> },
     /// Binary operation: left op right
     BinOp { left: Box<Expr>, op: BinOp, right: Box<Expr> },
+    /// Reference to a named binding field: `captured.atk`, `revealed.name`.
+    /// Resolved at runtime against the binding environment.
+    BindingRef { name: String, field: String },
 }
 
 impl Expr {
@@ -178,7 +224,7 @@ impl Expr {
 pub enum BinOp { Add, Sub, Mul, Div }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Stat { Atk, Def, Level, Rank }
+pub enum Stat { Atk, Def, Level, Rank, BaseAtk, BaseDef, OriginalAtk, OriginalDef }
 
 // ── Summon Conditions ─────────────────────────────────────────
 
@@ -351,11 +397,25 @@ impl Default for EffectBody {
 #[derive(Debug, Clone)]
 pub struct ContinuousEffect {
     pub name:         Option<String>,
+    /// Phase 1B: `self` = EFFECT_TYPE_SINGLE, `field` = EFFECT_TYPE_FIELD
+    pub scope:        ContinuousScope,
     pub while_cond:   Option<ConditionExpr>,
     pub apply_to:     Option<TargetExpr>,
     pub modifiers:    Vec<ModifierDecl>,
     pub restrictions: Vec<RestrictionRule>,
     pub cannots:      Vec<CannotBlock>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ContinuousScope {
+    /// Default for self-targeted effects (EFFECT_TYPE_SINGLE)
+    Self_,
+    /// Default for apply_to effects (EFFECT_TYPE_FIELD)
+    Field,
+}
+
+impl Default for ContinuousScope {
+    fn default() -> Self { ContinuousScope::Field }
 }
 
 #[derive(Debug, Clone)]
@@ -574,6 +634,39 @@ pub enum SimpleCondition {
     History(HistoryQuery),
     /// v0.6: compound predicate on self
     Predicate(Predicate),
+    /// Phase 1A: check if a flag is set
+    HasFlag { name: String, target: Option<SelfOrTarget> },
+    /// Phase 1A: check where this card used to be
+    PreviousLocation(Zone),
+    /// Phase 1A: check previous position
+    PreviousPosition(PreviousPosition),
+    /// Phase 1A: check why this card was sent somewhere
+    SentByReason(Vec<DestructionCause>),
+    /// Phase 1A: has this card's effect activated this turn
+    ThisEffectActivatedThisTurn,
+    /// Phase 1A: was this card flipped this turn
+    ThisCardWasFlippedThisTurn,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum PreviousPosition { FaceUp, FaceDown }
+
+/// Events that can reset (or be survived by) a flag effect.
+/// These correspond to EDOPro's RESET_* constants.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum FlagReset {
+    LeaveField,
+    ToGy,
+    ToHand,
+    ToDeck,
+    Banished,
+    Flip,
+    ChainEnd,
+    TurnEnd,
+    PhaseEnd,
+    EndOfDuel,
+    ControlChange,
+    Overlay,
 }
 
 /// Categories that can appear in a chain link — maps to engine CATEGORY_* constants
@@ -619,6 +712,8 @@ pub enum TriggerExpr {
     DuringEndPhase,
     DuringPhase(Phase),
     WhenAction(TriggerAction),
+    /// Phase 2: listen for a custom event emitted via `emit_event`.
+    OnCustomEvent(String),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -676,6 +771,43 @@ pub enum CostAction {
     RemoveCounter { count: u32, name: String, from: SelfOrTarget },
     Detach { count: u32, from: SelfOrTarget },
     Reveal(SelfOrTarget),
+    /// Phase 3: announce a card/attribute/race/type/level as cost.
+    Announce { kind: AnnounceKind, filter: Option<AnnounceFilter> },
+    /// A cost with a named binding: `reveal X as captured`.
+    /// The inner cost is executed and its selected card(s) are bound
+    /// to `name` for later reference in on_resolve.
+    Bound { name: String, inner: Box<CostAction> },
+}
+
+/// Phase 3: what kind of value is being announced.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum AnnounceKind {
+    Card,
+    Attribute,
+    Race,
+    Type,
+    Level(Option<u32>),
+}
+
+/// Phase 3: constraints on announceable values.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum AnnounceFilter {
+    NotExtraDeckMonster,
+    MainDeckMonster,
+    Monster,
+    Spell,
+    Trap,
+    Any,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ConfirmAudience { You, Opponent, Both }
+
+#[derive(Debug, Clone)]
+pub enum ConfirmTarget {
+    Hand,
+    SelfCard,
+    Target(TargetExpr),
 }
 
 #[derive(Debug, Clone)]
@@ -772,7 +904,7 @@ pub enum GameAction {
 
     Mill { count: Expr, from: MillSource },
 
-    Discard { target: SelfOrTarget },
+    Discard { target: SelfOrTarget, random: bool },
     Tribute { target: SelfOrTarget },
 
     SetScale { target: SelfOrTarget, value: Expr },
@@ -816,6 +948,22 @@ pub enum GameAction {
     /// Recall previously stored cards/value
     Recall { label: String },
 
+    /// Phase 1A: Register a flag effect on this card or a target.
+    /// The flag persists until its reset conditions fire.
+    SetFlag {
+        name: String,
+        target: Option<SelfOrTarget>,
+        survives: Vec<FlagReset>,
+        resets_on: Vec<FlagReset>,
+        value: Option<Expr>,
+    },
+
+    /// Phase 1A: Clear a previously-set flag.
+    ClearFlag {
+        name: String,
+        target: Option<SelfOrTarget>,
+    },
+
     /// "A, and if you do, B" — B only resolves if A succeeded
     AndIfYouDo { actions: Vec<GameAction> },
     /// "A; then B" — B resolves unconditionally after A
@@ -841,7 +989,9 @@ pub enum GameAction {
     ShuffleDeck { whose: Option<Player> },
 
     /// Set a spell/trap from hand to the S/T zone
-    SetSpellTrap { target: SelfOrTarget },
+    SetSpellTrap { target: SelfOrTarget, from: Option<Zone> },
+    /// Phase 3: Show cards to a player.
+    Confirm { target: ConfirmTarget, audience: ConfirmAudience },
 
     /// Move a card to the field (special placement)
     MoveToField { target: SelfOrTarget, position: Option<BattlePosition> },
@@ -867,11 +1017,30 @@ pub enum GameAction {
     /// Change monster's race/type
     ChangeRace { target: SelfOrTarget, race: Race },
 
+    /// Phase 2: Emit a named custom event.
+    EmitEvent(String),
+
+    /// Change monster's displayed name (Prisma-style).
+    ChangeName { target: SelfOrTarget, source: NameSource, duration: Option<Duration> },
+
+    /// Change monster's internal card code/passcode.
+    ChangeCode { target: SelfOrTarget, source: NameSource, duration: Option<Duration> },
+
     /// Negate a card's effects (with optional duration)
     NegateEffects { target: SelfOrTarget, duration: Option<Duration> },
 
     /// Overlay (attach) cards as Xyz material
     Overlay { materials: TargetExpr, target: SelfOrTarget },
+}
+
+#[derive(Debug, Clone)]
+pub enum NameSource {
+    /// Literal string: `to "Dark Magician"`
+    Literal(String),
+    /// Binding reference: `to captured.name`
+    Binding { name: String, field: String },
+    /// Numeric card code: `to 46986414`
+    Code(u32),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

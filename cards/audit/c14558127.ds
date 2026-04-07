@@ -1,0 +1,46 @@
+// Ash Blossom & Joyous Spring — classic hand trap.
+//
+// "When a card or effect is activated that would:
+//    - Add a card from the Deck to the hand
+//    - Special Summon from the Deck
+//    - Send a card from the Deck to the GY
+//  Discard this card; negate the activation, and if you do, destroy that card."
+//
+// Exercises:
+//   - Phase 3 stays light here; this is v0.6 chain-aware conditions
+//   - Phase 1E runtime if-resolution for "and if you do"
+//   - Hand trap activation pattern (activate_from: hand)
+//   - Category flag for chain-end delay (EFFECT_FLAG_DELAY via `timing: if`)
+
+card "Ash Blossom & Joyous Spring" {
+    password: 14558127
+    type: Effect Monster | Tuner
+    attribute: FIRE
+    race: Plant
+    level: 3
+    atk: 0
+    def: 1800
+
+    effect "Negate" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: if
+        activate_from: [hand]
+
+        // v0.6 chain-aware condition: the activation being negated must
+        // have one of these categories.
+        condition: chain_link_includes [search, special_summon, send_to_gy]
+
+        cost {
+            discard self
+        }
+
+        on_resolve {
+            negate activation
+            and_if_you_do {
+                destroy (1, card, opponent controls)
+            }
+        }
+    }
+}

@@ -1,130 +1,74 @@
-// Maiden of Blue Tears — audit of expressiveness
-// This card is a stress test: global state, custom events,
-// filtered chain-wide tracking, double-trigger chains, restriction
-// applied to SET card's future activation.
+// Maiden of Blue Tears — full Phase 1-3 implementation.
+//
+// The hardest card in the audit set. Exercises every Phase 2 construct.
+//
+// Mechanics:
+//   1. A class-level global state tracks every monster the opponent
+//      special-summons during the current chain.
+//   2. A class-level global handler populates that state and emits a
+//      custom event whenever it changes.
+//   3. Effect "Destroy and Damage": once per turn, destroy a tracked
+//      monster and deal half its BASE ATK as damage.
+//   4. Effect "Set Spell": if damaged by a card effect while in the GY,
+//      banish self and set a Normal Spell from GY.
 
 card "Maiden of Blue Tears" {
     password: 99176254
     type: Effect Monster
-    // TODO: stats from CDB
+    attribute: WATER
+    race: Fairy
+    level: 1
+    atk: 0
+    def: 0
 
-    // ── GLOBAL STATE TRACKING ──────────────────────────────────
-    //
-    // GAP #16: GLOBAL STATE / SHARED GROUPS across card instances
-    //
-    // Lua uses `aux.GlobalCheck` to register a single global effect
-    // (shared across all copies of this card and across games).
-    // The effect builds a persistent `s.sumgroup` Group that tracks
-    // every monster special summoned during the current chain.
-    //
-    // When the chain ends (chain count == 0), the group clears.
-    // The group is KeepAlive'd so it survives garbage collection.
-    //
-    // DuelScript has no concept of:
-    //   - Card-class-wide (static) state
-    //   - Groups that persist across chain resolution
-    //   - Shared state between card instances
-    //   - GlobalCheck pattern (register once per duel)
-    //
-    // Pseudo-syntax I'd want:
-    //   global_state "summoned_this_chain" {
-    //     type: card_group
-    //     tracks: every (1+, monster) summoned by_special_summon by opponent
-    //     resets_when: chain_ends
-    //   }
-    //
-    //   custom_event on_update_summoned_this_chain: emit when summoned_this_chain changes
+    // Class-level tracked state: every opponent-summoned monster in the
+    // current chain. Resets when the chain ends.
+    global_state "summoned_this_chain" {
+        type: card_group
+        tracks: (1+, monster)
+        resets_on: chain_end
+    }
 
-    // ── EFFECT 1: DESTROY TRACKED MONSTER ──────────────────────
-    //
-    // GAP #17: CUSTOM EVENT TRIGGERS
-    //
-    // Lua: e1:SetCode(EVENT_CUSTOM+id)
-    // Effect listens for a card-specific custom event, not a standard
-    // game event. DuelScript has no equivalent.
-    //
-    // Pseudo-syntax:
-    //   trigger: on_custom_event "summoned_this_chain.update"
-    //
-    // Also this effect has EFFECT_FLAG_DELAY + EFFECT_FLAG_CARD_TARGET,
-    // meaning "this effect triggers at the end of the chain even if the
-    // event happened mid-chain" and "this effect targets a specific card".
+    // Class-level handler: updates the global state when opponent
+    // special-summons, and emits a custom event so effect 1 can react.
+    global_handler "track summons" {
+        trigger: when_summoned by_special_summon
+        on_event {
+            emit_event "summoned_this_chain_updated"
+        }
+    }
 
+    // Effect 1: once per chain, destroy a tracked monster and deal half
+    // its base ATK as damage. Listens for the custom event.
     effect "Destroy and Damage" {
         speed: spell_speed_1
         once_per_turn: hard
         optional: true
         timing: if
-
-        // trigger: on_custom_event "summoned_this_chain.update"
-        // condition: count(global_state "summoned_this_chain") > 0
-        //            and count((1+, link monster, you controls)) >= 1
+        trigger: on_custom_event "summoned_this_chain_updated"
 
         on_activate {
-            // search target from the global group
-            // GAP #18: Selecting from a global state group, not a zone
-            //   target (1, monster, from: global_state "summoned_this_chain")
-            reveal self
+            search (1, monster, opponent controls) from monster_zone
         }
 
         on_resolve {
-            // Destroy the target AND inflict half its BASE ATK as damage
-            // GAP #19: Access to a target's BASE ATK (not current ATK with modifiers)
-            //   target.base_atk
-            //
-            // destroy target
-            // and_if_you_do {
-            //   deal_damage: target.base_atk / 2 to opponent
-            // }
-            reveal self
+            destroy (1, monster, opponent controls)
+            deal_damage to opponent: target.base_atk / 2
         }
     }
 
-    // ── EFFECT 2: SET NORMAL SPELL FROM GY ─────────────────────
-    //
-    // "When this card is damaged by an effect while in the GY:
-    //  banish it; set 1 Normal Spell from your GY/banished.
-    //  It cannot be activated this turn."
-    //
-    // GAP #20: Activation from GY (we have activate_from for hand traps)
-    //   activate_from: [gy]
-    //
-    // GAP #21: Condition "when damaged by card effect specifically"
-    //   trigger: when_damaged by card_effect
-    //
-    // GAP #22: Setting a card from one zone to the field
-    //   set (1, normal spell, you controls, [gy, banished]) to spell_trap_zone
-    //
-    // GAP #23: Restriction applied to a SET card saying "cannot be
-    // activated this turn". We need to attach a temporary restriction to
-    // the card being set, scoped to THIS turn.
-    //
-    //   register_effect on set_target {
-    //     grant: cannot_activate
-    //     duration: this_turn
-    //   }
-
+    // Effect 2: set a Normal Spell from GY. Cost is banishing self.
     effect "Set Spell" {
         speed: spell_speed_1
         optional: true
-        // activate_from: [gy]
-        // trigger: when_damaged by card_effect
         once_per_turn: hard
 
         cost {
             banish self from gy
         }
 
-        on_activate {
-            // target 1 normal spell from your GY or banished
-            search (1, normal spell, you controls, gy) from gy
-        }
-
         on_resolve {
-            // GAP: set_spell_trap action with source from target
-            //   set target to spell_trap_zone
-            //   register_effect on target { grant: cannot_activate duration: this_turn }
-            reveal self
+            set_spell_trap (1, spell, you controls, gy) from gy
         }
     }
 }

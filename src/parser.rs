@@ -93,6 +93,9 @@ fn parse_card(pair: Pair<Rule>) -> Result<Card, ParseError> {
         equip_effects: vec![],
         win_condition: None,
         raw_effects: vec![],
+        flip_effects: vec![],
+        global_handlers: vec![],
+        global_states: vec![],
     };
 
     let body = inner.next().ok_or(ParseError::MissingField("card body"))?;
@@ -116,6 +119,9 @@ fn parse_card(pair: Pair<Rule>) -> Result<Card, ParseError> {
             }
             Rule::raw_effect_block       => card.raw_effects.push(parse_raw_effect_block(field)?),
             Rule::effect_block           => card.effects.push(parse_effect_block(field)?),
+            Rule::flip_effect_block      => card.flip_effects.push(parse_flip_effect_block(field)?),
+            Rule::global_handler_block   => card.global_handlers.push(parse_global_handler(field)?),
+            Rule::global_state_block     => card.global_states.push(parse_global_state(field)?),
             Rule::continuous_effect_block => card.continuous_effects.push(parse_continuous_effect(field)?),
             Rule::replacement_effect_block => card.replacement_effects.push(parse_replacement_effect(field)?),
             Rule::equip_effect_block     => card.equip_effects.push(parse_equip_effect(field)?),
@@ -561,6 +567,143 @@ fn parse_effect_block(pair: Pair<Rule>) -> Result<Effect, ParseError> {
     Ok(Effect { name, body })
 }
 
+fn parse_flip_effect_block(pair: Pair<Rule>) -> Result<FlipEffect, ParseError> {
+    let mut fe = FlipEffect {
+        name: None,
+        frequency: Frequency::default(),
+        optional: false,
+        condition: None,
+        cost: vec![],
+        on_activate: vec![],
+        on_resolve: vec![],
+    };
+    for child in pair.into_inner() {
+        match child.as_rule() {
+            Rule::string => fe.name = Some(parse_string(child)),
+            Rule::flip_effect_body => {
+                for item in child.into_inner() {
+                    match item.as_rule() {
+                        Rule::frequency_decl => fe.frequency = parse_frequency(item)?,
+                        Rule::optional_decl => {
+                            fe.optional = item.into_inner().next()
+                                .map(|p| p.as_str() == "true").unwrap_or(false);
+                        }
+                        Rule::condition_clause => {
+                            if let Some(c) = item.into_inner().find(|p| p.as_rule() == Rule::condition_expr) {
+                                fe.condition = Some(parse_condition_expr(c)?);
+                            }
+                        }
+                        Rule::cost_clause => {
+                            for action in item.into_inner() {
+                                if action.as_rule() == Rule::cost_action {
+                                    fe.cost.push(parse_cost_action(action)?);
+                                }
+                            }
+                        }
+                        Rule::on_activate_clause => {
+                            for action in item.into_inner() {
+                                if action.as_rule() == Rule::game_action {
+                                    fe.on_activate.push(parse_game_action(action)?);
+                                }
+                            }
+                        }
+                        Rule::on_resolve_clause => {
+                            for action in item.into_inner() {
+                                if action.as_rule() == Rule::game_action {
+                                    fe.on_resolve.push(parse_game_action(action)?);
+                                }
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+    Ok(fe)
+}
+
+fn parse_global_handler(pair: Pair<Rule>) -> Result<GlobalHandler, ParseError> {
+    let mut name = None;
+    let mut trigger: Option<TriggerExpr> = None;
+    let mut condition = None;
+    let mut on_event = vec![];
+    for child in pair.into_inner() {
+        match child.as_rule() {
+            Rule::string => name = Some(parse_string(child)),
+            Rule::global_handler_body => {
+                for item in child.into_inner() {
+                    match item.as_rule() {
+                        Rule::trigger_clause => {
+                            if let Some(t) = item.into_inner().find(|p| p.as_rule() == Rule::trigger_expr) {
+                                trigger = Some(parse_trigger_expr(t)?);
+                            }
+                        }
+                        Rule::condition_clause => {
+                            if let Some(c) = item.into_inner().find(|p| p.as_rule() == Rule::condition_expr) {
+                                condition = Some(parse_condition_expr(c)?);
+                            }
+                        }
+                        Rule::on_event_clause => {
+                            for action in item.into_inner() {
+                                if action.as_rule() == Rule::game_action {
+                                    on_event.push(parse_game_action(action)?);
+                                }
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+    Ok(GlobalHandler {
+        name,
+        trigger: trigger.ok_or(ParseError::MissingField("global_handler trigger"))?,
+        condition,
+        on_event,
+    })
+}
+
+fn parse_global_state(pair: Pair<Rule>) -> Result<GlobalState, ParseError> {
+    let mut name = String::new();
+    let mut kind = GlobalStateKind::CardGroup;
+    let mut tracks = None;
+    let mut resets_on = None;
+    for child in pair.into_inner() {
+        match child.as_rule() {
+            Rule::string => name = parse_string(child),
+            Rule::global_state_body => {
+                for item in child.into_inner() {
+                    match item.as_rule() {
+                        Rule::global_state_kind => {
+                            let text = item.as_str();
+                            kind = if text.contains("counter") { GlobalStateKind::Counter }
+                                else if text.contains("flag") { GlobalStateKind::Flag }
+                                else { GlobalStateKind::CardGroup };
+                        }
+                        Rule::global_state_tracks => {
+                            if let Some(t) = item.into_inner().find(|p| p.as_rule() == Rule::target_expr) {
+                                tracks = Some(parse_target_expr(t)?);
+                            }
+                        }
+                        Rule::global_state_reset => {
+                            if let Some(r) = item.into_inner().find(|p| p.as_rule() == Rule::flag_reset) {
+                                resets_on = Some(parse_flag_reset(r));
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+    Ok(GlobalState { name, kind, tracks, resets_on })
+}
+
 fn parse_effect_body(pair: Pair<Rule>) -> Result<EffectBody, ParseError> {
     let mut body = EffectBody::default();
     for item in pair.into_inner() {
@@ -649,6 +792,7 @@ fn parse_continuous_effect(pair: Pair<Rule>) -> Result<ContinuousEffect, ParseEr
     let mut modifiers = vec![];
     let mut restrictions = vec![];
     let mut cannots = vec![];
+    let mut scope = ContinuousScope::default();
 
     for child in pair.into_inner() {
         match child.as_rule() {
@@ -656,6 +800,10 @@ fn parse_continuous_effect(pair: Pair<Rule>) -> Result<ContinuousEffect, ParseEr
             Rule::continuous_body => {
                 for inner in child.into_inner() {
                     match inner.as_rule() {
+                        Rule::scope_clause => {
+                            let text = inner.as_str();
+                            scope = if text.contains("self") { ContinuousScope::Self_ } else { ContinuousScope::Field };
+                        }
                         Rule::while_clause => {
                             if let Some(c) = inner.into_inner().find(|p| p.as_rule() == Rule::condition_expr) {
                                 while_cond = Some(parse_condition_expr(c)?);
@@ -686,7 +834,7 @@ fn parse_continuous_effect(pair: Pair<Rule>) -> Result<ContinuousEffect, ParseEr
             _ => {}
         }
     }
-    Ok(ContinuousEffect { name, while_cond, apply_to, modifiers, restrictions, cannots })
+    Ok(ContinuousEffect { name, scope, while_cond, apply_to, modifiers, restrictions, cannots })
 }
 
 fn parse_modifier_decl(pair: Pair<Rule>) -> Result<ModifierDecl, ParseError> {
@@ -1032,7 +1180,11 @@ fn parse_expr_atom(pair: Pair<Rule>) -> Result<Expr, ParseError> {
         }
         Rule::target_stat_expr => {
             let text = pair.as_str();
-            let stat = if text.ends_with("atk") { Stat::Atk }
+            let stat = if text.ends_with("base_atk") { Stat::BaseAtk }
+                else if text.ends_with("base_def") { Stat::BaseDef }
+                else if text.ends_with("original_atk") { Stat::OriginalAtk }
+                else if text.ends_with("original_def") { Stat::OriginalDef }
+                else if text.ends_with("atk") { Stat::Atk }
                 else if text.ends_with("def") { Stat::Def }
                 else { Stat::Level };
             Ok(Expr::TargetStat(stat))
@@ -1041,6 +1193,12 @@ fn parse_expr_atom(pair: Pair<Rule>) -> Result<Expr, ParseError> {
             let player = if pair.as_str() == "your_lp" { Player::You } else { Player::Opponent };
             Ok(Expr::PlayerLp(player))
         }
+        Rule::binding_ref_expr => {
+            let mut parts = pair.into_inner();
+            let name = parts.next().ok_or(ParseError::MissingField("binding name"))?.as_str().to_string();
+            let field = parts.next().ok_or(ParseError::MissingField("binding field"))?.as_str().to_string();
+            Ok(Expr::BindingRef { name, field })
+        }
         _ => Err(ParseError::UnknownRule(pair.as_str().to_string())),
     }
 }
@@ -1048,7 +1206,28 @@ fn parse_expr_atom(pair: Pair<Rule>) -> Result<Expr, ParseError> {
 // ── Cost Actions ──────────────────────────────────────────────
 
 fn parse_cost_action(pair: Pair<Rule>) -> Result<CostAction, ParseError> {
-    let inner = pair.into_inner().next().ok_or(ParseError::MissingField("cost action"))?;
+    let mut primitive: Option<CostAction> = None;
+    let mut binding: Option<String> = None;
+    for child in pair.into_inner() {
+        match child.as_rule() {
+            Rule::cost_primitive => primitive = Some(parse_cost_primitive(child)?),
+            Rule::binding_decl => {
+                if let Some(id) = child.into_inner().find(|p| p.as_rule() == Rule::ident) {
+                    binding = Some(id.as_str().to_string());
+                }
+            }
+            _ => {}
+        }
+    }
+    let prim = primitive.ok_or(ParseError::MissingField("cost primitive"))?;
+    Ok(match binding {
+        Some(name) => CostAction::Bound { name, inner: Box::new(prim) },
+        None => prim,
+    })
+}
+
+fn parse_cost_primitive(pair: Pair<Rule>) -> Result<CostAction, ParseError> {
+    let inner = pair.into_inner().next().ok_or(ParseError::MissingField("cost primitive"))?;
     match inner.as_rule() {
         Rule::pay_lp_cost => {
             let expr = inner.into_inner().find(|p| p.as_rule() == Rule::expr)
@@ -1088,6 +1267,39 @@ fn parse_cost_action(pair: Pair<Rule>) -> Result<CostAction, ParseError> {
         Rule::reveal_cost => {
             Ok(CostAction::Reveal(parse_self_or_target(inner)?))
         }
+        Rule::announce_cost => {
+            let mut kind = AnnounceKind::Card;
+            let mut filter = None;
+            for c in inner.into_inner() {
+                match c.as_rule() {
+                    Rule::announce_kind => {
+                        let text = c.as_str();
+                        kind = if text.starts_with("card") { AnnounceKind::Card }
+                            else if text.starts_with("attribute") { AnnounceKind::Attribute }
+                            else if text.starts_with("race") { AnnounceKind::Race }
+                            else if text.starts_with("type") { AnnounceKind::Type }
+                            else if text.starts_with("level") {
+                                let n = c.into_inner().find(|p| p.as_rule() == Rule::unsigned)
+                                    .and_then(|p| p.as_str().parse().ok());
+                                AnnounceKind::Level(n)
+                            } else { AnnounceKind::Card };
+                    }
+                    Rule::announce_filter => {
+                        if let Some(f) = c.into_inner().find(|p| p.as_rule() == Rule::announce_filter_expr) {
+                            let text = f.as_str();
+                            filter = Some(if text.contains("not") { AnnounceFilter::NotExtraDeckMonster }
+                                else if text == "main_deck_monster" { AnnounceFilter::MainDeckMonster }
+                                else if text == "monster" { AnnounceFilter::Monster }
+                                else if text == "spell" { AnnounceFilter::Spell }
+                                else if text == "trap" { AnnounceFilter::Trap }
+                                else { AnnounceFilter::Any });
+                        }
+                    }
+                    _ => {}
+                }
+            }
+            Ok(CostAction::Announce { kind, filter })
+        }
         _ => {
             if inner.as_str() == "none" {
                 Ok(CostAction::None)
@@ -1119,9 +1331,8 @@ fn parse_game_action(pair: Pair<Rule>) -> Result<GameAction, ParseError> {
         }
         Rule::negate_action => {
             let mut what = None;
-            let mut and_destroy = false;
             let text = inner.as_str();
-            and_destroy = text.contains("and") && text.contains("destroy");
+            let and_destroy = text.contains("and") && text.contains("destroy");
             for child in inner.into_inner() {
                 if child.as_rule() == Rule::negate_target {
                     what = Some(match child.as_str() {
@@ -1306,7 +1517,8 @@ fn parse_game_action(pair: Pair<Rule>) -> Result<GameAction, ParseError> {
             Ok(GameAction::Mill { count: parse_expr(expr)?, from })
         }
         Rule::discard_action => {
-            Ok(GameAction::Discard { target: parse_self_or_target(inner)? })
+            let random = inner.clone().into_inner().any(|p| p.as_rule() == Rule::selection_mode);
+            Ok(GameAction::Discard { target: parse_self_or_target(inner)?, random })
         }
         Rule::tribute_action => {
             Ok(GameAction::Tribute { target: parse_self_or_target(inner)? })
@@ -1436,6 +1648,56 @@ fn parse_game_action(pair: Pair<Rule>) -> Result<GameAction, ParseError> {
                 .map(parse_string).unwrap_or_default();
             Ok(GameAction::Recall { label })
         }
+        Rule::set_flag_action => {
+            let name = inner.clone().into_inner().find(|p| p.as_rule() == Rule::string)
+                .map(parse_string).unwrap_or_default();
+            let mut target = None;
+            let mut survives = Vec::new();
+            let mut resets_on = Vec::new();
+            let mut value = None;
+            let text = inner.as_str();
+            for child in inner.into_inner() {
+                match child.as_rule() {
+                    Rule::target_expr => {
+                        target = Some(SelfOrTarget::Target(parse_target_expr(child)?));
+                    }
+                    Rule::flag_option => {
+                        let opt_text = child.as_str();
+                        if opt_text.starts_with("survives") {
+                            for r in child.into_inner().filter(|p| p.as_rule() == Rule::flag_reset) {
+                                survives.push(parse_flag_reset(r));
+                            }
+                        } else if opt_text.starts_with("resets_on") {
+                            for r in child.into_inner().filter(|p| p.as_rule() == Rule::flag_reset) {
+                                resets_on.push(parse_flag_reset(r));
+                            }
+                        } else if opt_text.starts_with("value") {
+                            value = child.into_inner().find(|p| p.as_rule() == Rule::expr)
+                                .map(parse_expr).transpose()?;
+                        }
+                    }
+                    _ => {}
+                }
+            }
+            // If "on self" was used as a literal
+            if text.contains(" on self") && target.is_none() {
+                target = Some(SelfOrTarget::Self_);
+            }
+            Ok(GameAction::SetFlag { name, target, survives, resets_on, value })
+        }
+        Rule::clear_flag_action => {
+            let name = inner.clone().into_inner().find(|p| p.as_rule() == Rule::string)
+                .map(parse_string).unwrap_or_default();
+            let text = inner.as_str();
+            let target = if text.contains(" on self") {
+                Some(SelfOrTarget::Self_)
+            } else {
+                inner.into_inner().find(|p| p.as_rule() == Rule::target_expr)
+                    .map(|t| parse_target_expr(t).map(SelfOrTarget::Target))
+                    .transpose()?
+            };
+            Ok(GameAction::ClearFlag { name, target })
+        }
         Rule::and_if_you_do_action => {
             let actions = inner.into_inner()
                 .filter(|p| p.as_rule() == Rule::game_action)
@@ -1493,12 +1755,37 @@ fn parse_game_action(pair: Pair<Rule>) -> Result<GameAction, ParseError> {
             Ok(GameAction::ChangeBattlePosition { target: parse_target_expr(target)? })
         }
         Rule::set_spell_trap_action => {
-            // Use existing SetFaceDown since they're essentially the same
-            let target = parse_self_or_target_first(inner)?;
-            match target {
-                SelfOrTarget::Self_ => Ok(GameAction::SetFaceDown { target: TargetExpr::SelfCard }),
-                SelfOrTarget::Target(t) => Ok(GameAction::SetFaceDown { target: t }),
+            let target = parse_self_or_target_first(inner.clone())?;
+            let from = inner.into_inner().find(|p| p.as_rule() == Rule::zone)
+                .map(parse_zone).transpose()?;
+            Ok(GameAction::SetSpellTrap { target, from })
+        }
+        Rule::confirm_action => {
+            let mut target = ConfirmTarget::Hand;
+            let mut audience = ConfirmAudience::Opponent;
+            for c in inner.into_inner() {
+                match c.as_rule() {
+                    Rule::confirm_target => {
+                        let text = c.as_str();
+                        target = if text == "hand" { ConfirmTarget::Hand }
+                            else if text == "self" { ConfirmTarget::SelfCard }
+                            else {
+                                let t = c.into_inner().find(|p| p.as_rule() == Rule::target_expr)
+                                    .ok_or(ParseError::MissingField("confirm target"))?;
+                                ConfirmTarget::Target(parse_target_expr(t)?)
+                            };
+                    }
+                    Rule::confirm_audience => {
+                        audience = match c.as_str() {
+                            "you" => ConfirmAudience::You,
+                            "both" => ConfirmAudience::Both,
+                            _ => ConfirmAudience::Opponent,
+                        };
+                    }
+                    _ => {}
+                }
             }
+            Ok(GameAction::Confirm { target, audience })
         }
         Rule::equip_to_action => {
             let targets: Vec<_> = inner.into_inner()
@@ -1585,12 +1872,50 @@ fn parse_game_action(pair: Pair<Rule>) -> Result<GameAction, ParseError> {
                 .ok_or(ParseError::MissingField("race"))?;
             Ok(GameAction::ChangeRace { target, race: parse_race(race)? })
         }
+        Rule::emit_event_action => {
+            let name = inner.into_inner().find(|p| p.as_rule() == Rule::string)
+                .ok_or(ParseError::MissingField("event name"))?;
+            Ok(GameAction::EmitEvent(parse_string(name)))
+        }
+        Rule::change_name_action => {
+            let target = parse_self_or_target_first(inner.clone())?;
+            let source = inner.clone().into_inner().find(|p| p.as_rule() == Rule::name_source)
+                .ok_or(ParseError::MissingField("name source"))
+                .and_then(parse_name_source)?;
+            let duration = inner.into_inner().find(|p| p.as_rule() == Rule::duration)
+                .map(parse_duration).transpose()?;
+            Ok(GameAction::ChangeName { target, source, duration })
+        }
+        Rule::change_code_action => {
+            let target = parse_self_or_target_first(inner.clone())?;
+            let source = inner.clone().into_inner().find(|p| p.as_rule() == Rule::name_source)
+                .ok_or(ParseError::MissingField("code source"))
+                .and_then(parse_name_source)?;
+            let duration = inner.into_inner().find(|p| p.as_rule() == Rule::duration)
+                .map(parse_duration).transpose()?;
+            Ok(GameAction::ChangeCode { target, source, duration })
+        }
         Rule::negate_effects_action => {
             let target = parse_self_or_target_first(inner.clone())?;
             let duration = inner.into_inner().find(|p| p.as_rule() == Rule::duration)
                 .map(parse_duration).transpose()?;
             Ok(GameAction::NegateEffects { target, duration })
         }
+        _ => Err(ParseError::UnknownRule(inner.as_str().to_string())),
+    }
+}
+
+fn parse_name_source(pair: Pair<Rule>) -> Result<NameSource, ParseError> {
+    let inner = pair.into_inner().next().ok_or(ParseError::MissingField("name source"))?;
+    match inner.as_rule() {
+        Rule::string => Ok(NameSource::Literal(parse_string(inner))),
+        Rule::binding_ref_expr => {
+            let mut parts = inner.into_inner();
+            let name = parts.next().ok_or(ParseError::MissingField("binding name"))?.as_str().to_string();
+            let field = parts.next().ok_or(ParseError::MissingField("binding field"))?.as_str().to_string();
+            Ok(NameSource::Binding { name, field })
+        }
+        Rule::unsigned => Ok(NameSource::Code(parse_unsigned(inner)?)),
         _ => Err(ParseError::UnknownRule(inner.as_str().to_string())),
     }
 }
@@ -1828,6 +2153,38 @@ fn parse_condition_expr(pair: Pair<Rule>) -> Result<ConditionExpr, ParseError> {
 fn parse_simple_condition(pair: Pair<Rule>) -> Result<SimpleCondition, ParseError> {
     let inner = pair.into_inner().next().ok_or(ParseError::MissingField("simple condition"))?;
     match inner.as_rule() {
+        Rule::has_flag_condition => {
+            let name = inner.clone().into_inner().find(|p| p.as_rule() == Rule::string)
+                .map(parse_string).unwrap_or_default();
+            let target = inner.into_inner().find(|p| p.as_rule() == Rule::target_expr)
+                .map(|t| parse_target_expr(t).map(SelfOrTarget::Target))
+                .transpose()?;
+            Ok(SimpleCondition::HasFlag { name, target })
+        }
+        Rule::history_condition => {
+            let text = inner.as_str();
+            if text.starts_with("previous_location") {
+                let zone = inner.into_inner().find(|p| p.as_rule() == Rule::zone)
+                    .ok_or(ParseError::MissingField("previous_location zone"))?;
+                Ok(SimpleCondition::PreviousLocation(parse_zone(zone)?))
+            } else if text.starts_with("previous_position") {
+                let pos = if text.contains("face_up") { PreviousPosition::FaceUp }
+                    else { PreviousPosition::FaceDown };
+                Ok(SimpleCondition::PreviousPosition(pos))
+            } else if text.starts_with("sent_by_reason") {
+                let reasons = inner.into_inner()
+                    .filter(|p| p.as_rule() == Rule::destruction_cause)
+                    .map(parse_destruction_cause)
+                    .collect::<Result<Vec<_>, _>>()?;
+                Ok(SimpleCondition::SentByReason(reasons))
+            } else if text.starts_with("this_effect_activated_this_turn") {
+                Ok(SimpleCondition::ThisEffectActivatedThisTurn)
+            } else if text.starts_with("this_card_was_flipped_this_turn") {
+                Ok(SimpleCondition::ThisCardWasFlippedThisTurn)
+            } else {
+                Err(ParseError::UnknownRule(text.to_string()))
+            }
+        }
         Rule::chain_includes_condition => {
             let categories = inner.into_inner()
                 .filter(|p| p.as_rule() == Rule::chain_category)
@@ -2017,6 +2374,11 @@ fn parse_trigger_expr(pair: Pair<Rule>) -> Result<TriggerExpr, ParseError> {
                 .ok_or(ParseError::MissingField("trigger action"))?;
             Ok(TriggerExpr::WhenAction(parse_trigger_action(action)?))
         }
+        Rule::on_custom_event_trigger => {
+            let name = inner.into_inner().find(|p| p.as_rule() == Rule::string)
+                .ok_or(ParseError::MissingField("custom event name"))?;
+            Ok(TriggerExpr::OnCustomEvent(parse_string(name)))
+        }
         _ => Err(ParseError::UnknownRule(inner.as_str().to_string())),
     }
 }
@@ -2142,9 +2504,16 @@ fn parse_race(pair: Pair<Rule>) -> Result<Race, ParseError> {
         "Machine"      => Ok(Race::Machine),
         "Psychic"      => Ok(Race::Psychic),
         "Divine-Beast" => Ok(Race::DivineBeast),
-        "Wyrm"         => Ok(Race::Wyrm),
-        "Cyberse"      => Ok(Race::Cyberse),
-        other          => Err(ParseError::UnknownRace(other.to_string())),
+        "Wyrm"          => Ok(Race::Wyrm),
+        "Cyberse"       => Ok(Race::Cyberse),
+        "Creator-God"   => Ok(Race::CreatorGod),
+        "Illusion"      => Ok(Race::Illusion),
+        "Cyborg"        => Ok(Race::Cyborg),
+        "Magical Knight"=> Ok(Race::MagicalKnight),
+        "High Dragon"   => Ok(Race::HighDragon),
+        "Omega Psychic" => Ok(Race::OmegaPsychic),
+        "Unknown"       => Ok(Race::Unknown),
+        other           => Err(ParseError::UnknownRace(other.to_string())),
     }
 }
 
@@ -2226,6 +2595,24 @@ fn parse_summon_method(pair: Pair<Rule>) -> Result<SummonMethod, ParseError> {
         "by_xyz_summon"     => Ok(SummonMethod::ByXyzSummon),
         "by_link_summon"    => Ok(SummonMethod::ByLinkSummon),
         other => Err(ParseError::UnknownRule(other.to_string())),
+    }
+}
+
+fn parse_flag_reset(pair: Pair<Rule>) -> FlagReset {
+    match pair.as_str() {
+        "leave_field"    => FlagReset::LeaveField,
+        "to_gy"          => FlagReset::ToGy,
+        "to_hand"        => FlagReset::ToHand,
+        "to_deck"        => FlagReset::ToDeck,
+        "banished"       => FlagReset::Banished,
+        "flip"           => FlagReset::Flip,
+        "chain_end"      => FlagReset::ChainEnd,
+        "turn_end"       => FlagReset::TurnEnd,
+        "phase_end"      => FlagReset::PhaseEnd,
+        "end_of_duel"    => FlagReset::EndOfDuel,
+        "control_change" => FlagReset::ControlChange,
+        "overlay"        => FlagReset::Overlay,
+        _                => FlagReset::ChainEnd,
     }
 }
 

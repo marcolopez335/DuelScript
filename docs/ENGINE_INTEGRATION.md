@@ -127,10 +127,14 @@ impl DuelScriptRuntime for MyRuntime {
     }
     fn get_card_stat(&self, card_id: u32, stat: &Stat) -> i32 {
         match stat {
-            Stat::Atk => self.game_state.get_atk(card_id),
-            Stat::Def => self.game_state.get_def(card_id),
-            Stat::Level => self.game_state.get_level(card_id) as i32,
-            Stat::Rank => self.game_state.get_rank(card_id) as i32,
+            Stat::Atk         => self.game_state.get_atk(card_id),
+            Stat::Def         => self.game_state.get_def(card_id),
+            Stat::Level       => self.game_state.get_level(card_id) as i32,
+            Stat::Rank        => self.game_state.get_rank(card_id) as i32,
+            Stat::BaseAtk     => self.game_state.get_base_atk(card_id),
+            Stat::BaseDef     => self.game_state.get_base_def(card_id),
+            Stat::OriginalAtk => self.game_state.get_original_atk(card_id),
+            Stat::OriginalDef => self.game_state.get_original_def(card_id),
         }
     }
     fn effect_card_id(&self) -> u32 { self.card_id }
@@ -165,6 +169,155 @@ impl DuelScriptRuntime for MyRuntime {
     // ... see callback_gen.rs for the full trait definition
 }
 ```
+
+---
+
+## Step 4b: Phase 1–3 Trait Methods (Advanced Features)
+
+DuelScript has a set of advanced features — flag effects, custom events, named
+bindings, change_code, history queries — that all plug in through additional
+`DuelScriptRuntime` methods. Every method below has a **default no-op
+implementation**, so your engine compiles without them and cards that don't use
+those features run fine. Implement them as your cards need them.
+
+### Custom Events (Phase 2)
+
+Cards can emit and listen for named custom events. One card calls
+`emit_event "summoned_this_chain_updated"` and another uses
+`trigger: on_custom_event "summoned_this_chain_updated"` to react.
+
+```rust
+fn raise_custom_event(&mut self, name: &str, cards: &[u32]) {
+    // Hash the name to a stable event code in your EVENT_CUSTOM range,
+    // then raise it via your duel's event bus.
+    let code = EVENT_CUSTOM + stable_hash(name);
+    self.duel.raise_event(code, cards);
+}
+```
+
+The default `trigger_to_event_code` in `type_mapper` maps
+`OnCustomEvent(name)` to `EVENT_FREE_CHAIN` — override this in your engine
+adapter if you want first-class custom event routing.
+
+### Confirm Cards (Phase 3)
+
+`confirm hand to: opponent` shows a player's hand to someone.
+
+```rust
+fn confirm_cards(&mut self, owner: u8, audience: u8, cards: &[u32]) {
+    // audience: 0=you, 1=opponent, 2=both
+    if cards.is_empty() {
+        // empty slice = reveal the whole hand of `owner`
+        let hand = self.game_state.get_hand(owner);
+        self.ui.reveal(audience, &hand);
+    } else {
+        self.ui.reveal(audience, cards);
+    }
+}
+```
+
+### Announcements (Phase 3)
+
+`announce card { filter: not extra_deck_monster } as announced` prompts the
+player to name a card. The runtime returns an opaque token; later actions use
+`get_announcement(token)` or the binding mechanism to read it back.
+
+```rust
+fn announce(&mut self, player: u8, kind: u8, filter_mask: u32) -> u32 {
+    // kind: 0=card, 1=attribute, 2=race, 3=type, 4=level
+    self.ui.prompt_announcement(player, kind, filter_mask)
+}
+fn get_announcement(&self, token: u32) -> u32 {
+    self.announcements.get(&token).copied().unwrap_or(0)
+}
+```
+
+### Flag Effects (Phase 1A)
+
+`set_flag "flipped_once" on self { survives: [leave_field, to_gy] }` stores a
+persistent flag on a card. The masks use the `RESET_*` constants in
+`duelscript::compiler::type_mapper`:
+
+```rust
+use duelscript::compiler::type_mapper::{
+    RESET_LEAVE_FIELD, RESET_TO_GY, RESET_CHAIN_END, // ...
+};
+
+fn register_flag(&mut self, card_id: u32, name: &str,
+                 survives_mask: u32, resets_mask: u32) {
+    // Translate the DuelScript mask bits to your engine's reset flags,
+    // then call your equivalent of RegisterFlagEffect.
+    let engine_mask = self.translate_reset_mask(survives_mask, resets_mask);
+    self.duel.register_flag(card_id, stable_hash(name), engine_mask);
+}
+fn has_flag(&self, card_id: u32, name: &str) -> bool {
+    self.duel.has_flag(card_id, stable_hash(name))
+}
+fn clear_flag(&mut self, card_id: u32, name: &str) {
+    self.duel.clear_flag(card_id, stable_hash(name));
+}
+```
+
+### History Queries (Phase 1A)
+
+For conditions like `previous_location == field` or `previous_position == face_up`:
+
+```rust
+fn previous_location(&self, card_id: u32) -> u32 {
+    self.game_state.card(card_id).previous_location
+}
+fn previous_position(&self, card_id: u32) -> u32 {
+    self.game_state.card(card_id).previous_position
+}
+fn sent_by_reason(&self, card_id: u32) -> u32 {
+    self.game_state.card(card_id).last_move_reason
+}
+```
+
+### Named Bindings (Phase 1D)
+
+`cost { reveal (1, fusion monster, extra_deck) as revealed }` captures a
+selection that later actions reference via `revealed.name` or `revealed.atk`.
+The runtime is the keeper of the binding environment for the current effect:
+
+```rust
+fn bind_last_selection(&mut self, name: &str) {
+    // Called right after the inner cost runs. Snapshot whatever the
+    // engine's "last selected group" was under `name`.
+    let last = self.last_selection.clone();
+    self.bindings.insert(name.to_string(), last);
+}
+fn get_binding_card(&self, name: &str) -> Option<u32> {
+    self.bindings.get(name).and_then(|cards| cards.first().copied())
+}
+fn get_binding_field(&self, name: &str, field: &str) -> i32 {
+    let Some(&card) = self.bindings.get(name).and_then(|c| c.first()) else { return 0 };
+    match field {
+        "atk"   => self.game_state.get_atk(card),
+        "def"   => self.game_state.get_def(card),
+        "level" => self.game_state.get_level(card) as i32,
+        "code"  => self.game_state.get_code(card) as i32,
+        "name"  => 0, // names are strings; bind via code and resolve in-engine
+        _       => 0,
+    }
+}
+```
+
+**Important:** the binding environment must be reset between effect
+resolutions. A common approach is to clear it at the start of each
+`operation` callback.
+
+### Change Name / Code (Phase 1E)
+
+Prisma-style name copying maps to the engine's `EFFECT_CHANGE_CODE`:
+
+```rust
+fn change_card_code(&mut self, card_id: u32, code: u32, duration_mask: u32) {
+    self.duel.add_effect(card_id, EFFECT_CHANGE_CODE, code, duration_mask);
+}
+```
+
+`duration_mask == 0` means "until end of turn"; interpret as your engine needs.
 
 ---
 

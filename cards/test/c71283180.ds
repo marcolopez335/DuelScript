@@ -1,0 +1,23 @@
+// Karma Cut — canonical hand-written version.
+// Normal Trap — Discard 1 card; target 1 face-up monster your opponent
+// controls; banish that target, then both players banish all monsters
+// with the same name from their hands, fields, and Graveyards.
+//
+// For the test we exercise just the core: discard cost + banish a target.
+
+card "Karma Cut" {
+    type: Normal Trap
+    password: 71283180
+
+    effect "Discard and Banish" {
+        speed: spell_speed_2
+
+        cost {
+            discard (1, card, you controls)
+        }
+
+        on_resolve {
+            banish (1, monster, opponent controls)
+        }
+    }
+}

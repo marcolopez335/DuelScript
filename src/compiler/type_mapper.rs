@@ -242,6 +242,11 @@ pub fn trigger_to_event_code(trigger: &Option<TriggerExpr>) -> u32 {
                 TriggerAction::AttackDeclared => EVENT_ATTACK_ANNOUNCE,
                 _ => EVENT_FREE_CHAIN,
             },
+            // Phase 2: custom events use EVENT_CUSTOM + a hash of the name.
+            // The engine-specific backend is responsible for interning the
+            // name to a stable offset; here we surface FREE_CHAIN so the
+            // generic path doesn't misroute.
+            TriggerExpr::OnCustomEvent(_) => EVENT_FREE_CHAIN,
         },
     }
 }
@@ -361,4 +366,43 @@ pub fn chain_category_to_constant(cat: &ChainCategory) -> u32 {
         ChainCategory::Destroy      => CATEGORY_DESTROY,
         ChainCategory::Negate       => CATEGORY_NEGATE,
     }
+}
+
+// ── Phase 1A: Flag reset masks ────────────────────────────────
+// Bit layout is engine-specific but we define a stable layout here that
+// DuelScript-aware engines can translate. Each reset event is 1 bit.
+pub const RESET_LEAVE_FIELD:    u32 = 1 << 0;
+pub const RESET_TO_GY:          u32 = 1 << 1;
+pub const RESET_TO_HAND:        u32 = 1 << 2;
+pub const RESET_TO_DECK:        u32 = 1 << 3;
+pub const RESET_BANISHED:       u32 = 1 << 4;
+pub const RESET_FLIP:           u32 = 1 << 5;
+pub const RESET_CHAIN_END:      u32 = 1 << 6;
+pub const RESET_TURN_END:       u32 = 1 << 7;
+pub const RESET_PHASE_END:      u32 = 1 << 8;
+pub const RESET_END_OF_DUEL:    u32 = 1 << 9;
+pub const RESET_CONTROL_CHANGE: u32 = 1 << 10;
+pub const RESET_OVERLAY:        u32 = 1 << 11;
+
+/// Turn a slice of FlagReset values into the engine reset mask.
+pub fn flag_reset_mask(resets: &[crate::ast::FlagReset]) -> u32 {
+    use crate::ast::FlagReset::*;
+    let mut mask = 0;
+    for r in resets {
+        mask |= match r {
+            LeaveField    => RESET_LEAVE_FIELD,
+            ToGy          => RESET_TO_GY,
+            ToHand        => RESET_TO_HAND,
+            ToDeck        => RESET_TO_DECK,
+            Banished      => RESET_BANISHED,
+            Flip          => RESET_FLIP,
+            ChainEnd      => RESET_CHAIN_END,
+            TurnEnd       => RESET_TURN_END,
+            PhaseEnd      => RESET_PHASE_END,
+            EndOfDuel     => RESET_END_OF_DUEL,
+            ControlChange => RESET_CONTROL_CHANGE,
+            Overlay       => RESET_OVERLAY,
+        };
+    }
+    mask
 }

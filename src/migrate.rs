@@ -11,9 +11,8 @@
 // ============================================================
 
 use std::{
-    collections::HashMap,
     fs,
-    path::{Path, PathBuf},
+    path::Path,
 };
 
 // ── Public API ────────────────────────────────────────────────
@@ -66,7 +65,7 @@ pub fn generate_from_lua_with_cdb(
     let effects = extract_effects(lua_source);
     let meta = extract_card_meta(lua_source);
     let mut ds = String::new();
-    let mut notes = Vec::new();
+    let notes = Vec::new();
     let mut all_mapped = true;
 
     // Header

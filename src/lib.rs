@@ -11,6 +11,8 @@ pub mod engine;
 pub mod compiler;
 pub mod cdb;
 pub mod migrate;
+pub mod fmt;
+pub mod test_harness;
 #[cfg(feature = "python")]
 pub mod python;
 #[cfg(feature = "lua_transpiler")]
@@ -22,6 +24,7 @@ pub use database::{CardDatabase, LoadError, LoadErrorKind};
 pub use cdb::{CdbReader, CdbCard, CdbError, CdbRegion, MergedCard, merge_databases};
 pub use migrate::{generate_from_lua, migrate_directory, MigrationResult, Confidence};
 pub use compiler::compile_card;
+pub use fmt::format_source;
 pub use engine::bridge::{
     DuelScriptEngine, GameContext, GameEvent, GameEventKind,
     CardHandle, EffectActivation, ChainLink,

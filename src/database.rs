@@ -15,7 +15,7 @@ use std::{
 
 use crate::{
     ast::*,
-    parser::{parse, ParseError},
+    parser::parse,
     validator::{validate, ValidationReport},
 };
 

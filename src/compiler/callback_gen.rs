@@ -23,7 +23,17 @@ use super::type_mapper;
 ///
 /// Each method maps to a common game operation. The engine
 /// translates these into its internal API calls.
-pub trait DuelScriptRuntime: Send + Sync {
+/// Trait that engines implement to expose game state and operations
+/// to compiled DuelScript closures.
+///
+/// Note: this trait is intentionally NOT `Send + Sync`. Implementations
+/// frequently wrap engine state via `Rc<RefCell>` (single-threaded
+/// reference counting), and forcing `Send + Sync` here would be
+/// incompatible. The closures stored in `GeneratedCallbacks` are still
+/// `Send + Sync` because they don't capture any runtime state — they
+/// receive `&mut dyn DuelScriptRuntime` as a parameter, and the runtime
+/// trait object can have any thread requirements the engine chooses.
+pub trait DuelScriptRuntime {
     // ── Queries ──────────────────────────────────────────────
     fn get_lp(&self, player: u8) -> i32;
     fn get_hand_count(&self, player: u8) -> usize;
@@ -93,6 +103,58 @@ pub trait DuelScriptRuntime: Send + Sync {
 
     // ── Count matching cards ─────────────────────────────────
     fn count_matching(&self, player: u8, location: u32, filter: &CardFilter) -> usize;
+
+    // ── Phase 2: Custom events ───────────────────────────────
+    // Emit a named custom event. The engine should map `name` to a
+    // stable event code (typically `EVENT_CUSTOM + hash(name)`) and
+    // raise it on the duel's event bus so other effects can react.
+    fn raise_custom_event(&mut self, _name: &str, _cards: &[u32]) {}
+
+    // ── Phase 3: Confirm cards ───────────────────────────────
+    // Show cards to a player. `audience` is 0=you, 1=opponent, 2=both.
+    // `cards` is empty when the whole hand of `owner` should be shown.
+    fn confirm_cards(&mut self, _owner: u8, _audience: u8, _cards: &[u32]) {}
+
+    // ── Phase 3: Announce ────────────────────────────────────
+    // Prompt a player to announce a value. Returns an opaque u32 token
+    // that can later be looked up via `get_announcement`. `kind` is the
+    // announcement type (0=card, 1=attribute, 2=race, 3=type, 4=level)
+    // and `filter_mask` is an engine-specific OPCODE filter.
+    fn announce(&mut self, _player: u8, _kind: u8, _filter_mask: u32) -> u32 { 0 }
+    fn get_announcement(&self, _token: u32) -> u32 { 0 }
+
+    // ── Phase 1A: Flag effects ───────────────────────────────
+    // Register a flag on a card with custom survive/reset behavior.
+    // `survives_mask` and `resets_mask` are engine-specific bitmasks
+    // (see the reset_mask_to_bits helper in type_mapper). The flag can
+    // be queried later via `has_flag` and removed via `clear_flag`.
+    fn register_flag(&mut self, _card_id: u32, _name: &str, _survives_mask: u32, _resets_mask: u32) {}
+    fn clear_flag(&mut self, _card_id: u32, _name: &str) {}
+    fn has_flag(&self, _card_id: u32, _name: &str) -> bool { false }
+
+    // ── Phase 1B: History queries ────────────────────────────
+    // "Was this card previously on the field / face-up / sent by battle?"
+    // Implemented in the engine by inspecting prior-state fields.
+    fn previous_location(&self, _card_id: u32) -> u32 { 0 }
+    fn previous_position(&self, _card_id: u32) -> u32 { 0 }
+    fn sent_by_reason(&self, _card_id: u32) -> u32 { 0 }
+
+    // ── Phase 1D: Named bindings ─────────────────────────────
+    // Bindings let a cost capture a card, which later actions can
+    // reference via `captured.name` / `captured.atk` / etc. The runtime
+    // is the keeper of the binding environment for the current effect.
+    fn set_binding(&mut self, _name: &str, _card_id: u32) {}
+    /// Bind `name` to whatever card(s) the most recent cost/target step
+    /// selected. The engine is expected to track its last selection group.
+    fn bind_last_selection(&mut self, _name: &str) {}
+    fn get_binding_card(&self, _name: &str) -> Option<u32> { None }
+    fn get_binding_field(&self, _name: &str, _field: &str) -> i32 { 0 }
+
+    // ── Phase 1E: Change name / code ─────────────────────────
+    // Apply an EFFECT_CHANGE_CODE-style modifier to a card. `code` is
+    // the card passcode to swap in. `duration_mask` encodes
+    // until_end_of_turn / permanently / etc.
+    fn change_card_code(&mut self, _card_id: u32, _code: u32, _duration_mask: u32) {}
 }
 
 // ── Generated Callback Types ──────────────────────────────────
@@ -216,6 +278,16 @@ fn eval_simple_condition(cond: &SimpleCondition, rt: &dyn DuelScriptRuntime) -> 
         }
         SimpleCondition::Predicate(_) => {
             // TODO: evaluate predicate against self
+            true
+        }
+        // Phase 1A: flag & history conditions — engine runtime support needed
+        SimpleCondition::HasFlag { .. }
+        | SimpleCondition::PreviousLocation(_)
+        | SimpleCondition::PreviousPosition(_)
+        | SimpleCondition::SentByReason(_)
+        | SimpleCondition::ThisEffectActivatedThisTurn
+        | SimpleCondition::ThisCardWasFlippedThisTurn => {
+            // TODO: wire to engine's flag/history tracking
             true
         }
     }
@@ -356,6 +428,18 @@ fn generate_cost(
                         return true; // simplified
                     }
                 }
+                CostAction::Announce { .. } => {
+                    // Phase 3: announcements are always payable.
+                    if check_only { return true; }
+                }
+                CostAction::Bound { name, inner: _ } => {
+                    // The inner cost (reveal/send/etc) runs through the
+                    // standard selection flow; we then snapshot whatever
+                    // was selected under `name`. The engine is responsible
+                    // for the actual binding storage.
+                    if check_only { return true; }
+                    rt.bind_last_selection(name);
+                }
             }
         }
         true
@@ -440,14 +524,25 @@ fn execute_action(action: &GameAction, rt: &mut dyn DuelScriptRuntime, player: u
                 rt.destroy(&cards);
             }
         }
-        GameAction::SpecialSummon { target, .. } => {
+        GameAction::SpecialSummon { target, position, .. } => {
+            // Position bits: ATK=0x1, DEF=0x2, FACEUP=0x5, FACEDOWN=0xA.
+            // Default to face-up attack position when unspecified.
+            let pos = match position {
+                Some(BattlePosition::AttackPosition) => 0x1,
+                Some(BattlePosition::DefensePosition) => 0x2,
+                Some(BattlePosition::FaceDownDefense) => 0xA,
+                None => 0x1,
+            };
             match target {
                 SelfOrTarget::Self_ => {
                     let card_id = rt.effect_card_id();
-                    rt.special_summon(card_id, player, 0x1); // face-up attack
+                    rt.special_summon(card_id, player, pos);
                 }
-                SelfOrTarget::Target(_) => {
-                    // TODO: resolve target and summon
+                SelfOrTarget::Target(t) => {
+                    let cards = resolve_target_cards(t, rt, player);
+                    for card_id in cards {
+                        rt.special_summon(card_id, player, pos);
+                    }
                 }
             }
         }
@@ -511,7 +606,7 @@ fn execute_action(action: &GameAction, rt: &mut dyn DuelScriptRuntime, player: u
             let amt = eval_expr_runtime(amount, rt);
             rt.recover(player, amt);
         }
-        GameAction::Discard { target } => {
+        GameAction::Discard { target, random: _ } => {
             match target {
                 SelfOrTarget::Self_ => {
                     let card_id = rt.effect_card_id();
@@ -800,6 +895,61 @@ fn execute_action(action: &GameAction, rt: &mut dyn DuelScriptRuntime, player: u
         GameAction::ChangeAttribute { .. } | GameAction::ChangeRace { .. } => {
             // Engine handles attribute/race modification
         }
+        GameAction::ChangeName { target, source, duration: _ } => {
+            let card_ids = match target {
+                SelfOrTarget::Self_ => vec![rt.effect_card_id()],
+                SelfOrTarget::Target(t) => resolve_target_cards(t, rt, player),
+            };
+            let code: u32 = match source {
+                NameSource::Code(n) => *n,
+                NameSource::Literal(_) => 0, // engine resolves by name lookup
+                NameSource::Binding { name, .. } => {
+                    rt.get_binding_field(name, "code") as u32
+                }
+            };
+            for id in card_ids {
+                rt.change_card_code(id, code, 0);
+            }
+        }
+        GameAction::ChangeCode { target, source, duration: _ } => {
+            let card_ids = match target {
+                SelfOrTarget::Self_ => vec![rt.effect_card_id()],
+                SelfOrTarget::Target(t) => resolve_target_cards(t, rt, player),
+            };
+            let code: u32 = match source {
+                NameSource::Code(n) => *n,
+                NameSource::Literal(_) => 0,
+                NameSource::Binding { name, .. } => {
+                    rt.get_binding_field(name, "code") as u32
+                }
+            };
+            for id in card_ids {
+                rt.change_card_code(id, code, 0);
+            }
+        }
+        GameAction::EmitEvent(name) => {
+            rt.raise_custom_event(name, &[rt.effect_card_id()]);
+        }
+        GameAction::Confirm { target, audience } => {
+            let aud = match audience {
+                ConfirmAudience::You => 0u8,
+                ConfirmAudience::Opponent => 1u8,
+                ConfirmAudience::Both => 2u8,
+            };
+            match target {
+                ConfirmTarget::Hand => {
+                    // Empty list signals "reveal entire hand of owner"
+                    rt.confirm_cards(player, aud, &[]);
+                }
+                ConfirmTarget::SelfCard => {
+                    rt.confirm_cards(player, aud, &[rt.effect_card_id()]);
+                }
+                ConfirmTarget::Target(t) => {
+                    let cards = resolve_target_cards(t, rt, player);
+                    rt.confirm_cards(player, aud, &cards);
+                }
+            }
+        }
         GameAction::NegateEffects { target, .. } => {
             let _cards = match target {
                 SelfOrTarget::Self_ => vec![rt.effect_card_id()],
@@ -815,6 +965,26 @@ fn execute_action(action: &GameAction, rt: &mut dyn DuelScriptRuntime, player: u
             };
             for mat_id in mats {
                 rt.attach_material(mat_id, target_id);
+            }
+        }
+        GameAction::SetFlag { name, target, survives, resets_on, value: _ } => {
+            let card_ids = match target {
+                Some(SelfOrTarget::Target(t)) => resolve_target_cards(t, rt, player),
+                _ => vec![rt.effect_card_id()],
+            };
+            let survives_mask = type_mapper::flag_reset_mask(survives);
+            let resets_mask = type_mapper::flag_reset_mask(resets_on);
+            for id in card_ids {
+                rt.register_flag(id, name, survives_mask, resets_mask);
+            }
+        }
+        GameAction::ClearFlag { name, target } => {
+            let card_ids = match target {
+                Some(SelfOrTarget::Target(t)) => resolve_target_cards(t, rt, player),
+                _ => vec![rt.effect_card_id()],
+            };
+            for id in card_ids {
+                rt.clear_flag(id, name);
             }
         }
         // Sequential resolution semantics (v0.6)
@@ -883,6 +1053,7 @@ fn eval_expr_runtime(expr: &Expr, rt: &dyn DuelScriptRuntime) -> i32 {
                 _ => 0,
             }
         }
+        Expr::BindingRef { name, field } => rt.get_binding_field(name, field),
         Expr::BinOp { left, op, right } => {
             let l = eval_expr_runtime(left, rt);
             let r = eval_expr_runtime(right, rt);

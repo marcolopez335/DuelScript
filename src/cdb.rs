@@ -147,7 +147,7 @@ impl CdbCard {
             0x400000   => "Creator-God",
             0x800000   => "Wyrm",
             0x1000000  => "Cyberse",
-            _          => "UNKNOWN",
+            _          => "Unknown",
         }
     }
 
@@ -251,6 +251,28 @@ impl CdbCard {
         out
     }
 
+    /// Sprint 15: Decode the link arrow bitmask (stored in `def` for
+    /// link monsters in BabelCdb) into the DSL's named arrows.
+    /// Returns an empty Vec for non-link cards.
+    pub fn link_arrow_names(&self) -> Vec<&'static str> {
+        if !self.is_link() { return Vec::new(); }
+        // EDOPro LINK_MARKER bits stored in `def`:
+        //   0x001 BL, 0x002 B,  0x004 BR
+        //   0x008 L,            0x020 R
+        //   0x040 TL, 0x080 T,  0x100 TR
+        let mask = self.def as u32;
+        let mut out = Vec::new();
+        if mask & 0x040 != 0 { out.push("top_left"); }
+        if mask & 0x080 != 0 { out.push("top"); }
+        if mask & 0x100 != 0 { out.push("top_right"); }
+        if mask & 0x008 != 0 { out.push("left"); }
+        if mask & 0x020 != 0 { out.push("right"); }
+        if mask & 0x001 != 0 { out.push("bottom_left"); }
+        if mask & 0x002 != 0 { out.push("bottom"); }
+        if mask & 0x004 != 0 { out.push("bottom_right"); }
+        out
+    }
+
     pub fn ds_type_line(&self) -> String {
         let mut parts = Vec::new();
 
@@ -259,10 +281,19 @@ impl CdbCard {
         else if self.is_xyz() { parts.push("Xyz Monster"); }
         else if self.is_link(){ parts.push("Link Monster"); }
         else if self.is_ritual() && self.is_monster() { parts.push("Ritual Monster"); }
-        else if self.is_pendulum() { parts.push("Pendulum Monster"); }
         else if self.is_normal() { parts.push("Normal Monster"); }
         else if self.is_effect() { parts.push("Effect Monster"); }
-        else if self.is_spell() {
+        // Pendulum is a property, not a base type — `Pendulum Monster`
+        // alone fails validation because pendulums must also be either
+        // Normal or Effect monsters. Emit it as a secondary qualifier.
+        if self.is_pendulum() && self.is_monster() { parts.push("Pendulum Monster"); }
+        // Backstop: any monster card that didn't match a base type yet
+        // gets "Effect Monster" so the validator accepts it.
+        if self.is_monster() && parts.is_empty() {
+            parts.push("Effect Monster");
+        }
+        // ── spells/traps below — pendulum check above doesn't apply
+        if self.is_spell() {
             if self.is_ritual()    { parts.push("Ritual Spell"); }
             else if self.is_quick_play() { parts.push("Quick-Play Spell"); }
             else if self.is_continuous() { parts.push("Continuous Spell"); }

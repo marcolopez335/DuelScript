@@ -30,12 +30,14 @@ expr_atom = {
   | self_stat_expr
   | target_stat_expr
   | player_lp_expr
+  | binding_ref_expr
   | unsigned
 }
+binding_ref_expr = ${ ident ~ "." ~ ident }
 expr_op        = { "+" | "-" | "*" | "/" }
 count_expr     = { "count" ~ "(" ~ target_expr ~ ("in" ~ zone)? ~ ")" }
 self_stat_expr = @{ "self." ~ ("atk" | "def" | "level" | "rank") }
-target_stat_expr = @{ "target." ~ ("atk" | "def" | "level") }
+target_stat_expr = @{ "target." ~ ("base_atk" | "base_def" | "original_atk" | "original_def" | "atk" | "def" | "level") }
 player_lp_expr = { "your_lp" | "opponent_lp" }
 
 // ── Entry Point ───────────────────────────────────────────────
@@ -53,13 +55,40 @@ card_body_item = {
   | counter_system_block
   | pendulum_block
   | raw_effect_block
+  | flip_effect_block
   | effect_block
   | continuous_effect_block
   | replacement_effect_block
   | equip_effect_block
   | win_condition_block
+  | global_handler_block
+  | global_state_block
   | card_field
 }
+
+// Phase 2: class-level event handler, registered once per duel regardless
+// of how many copies of the card exist. Used for tracking groups that
+// must be shared across all instances (see Maiden of Blue Tears).
+global_handler_block = { "global_handler" ~ string? ~ "{" ~ global_handler_body ~ "}" }
+global_handler_body  = {
+    trigger_clause
+  ~ condition_clause?
+  ~ on_event_clause
+}
+on_event_clause = { "on_event" ~ "{" ~ game_action+ ~ "}" }
+
+// Phase 2: class-level tracked state (e.g. "summoned_this_chain").
+// The engine maintains the group; scripts can query it via target_expr
+// with `from: global_state "name"`.
+global_state_block = { "global_state" ~ string ~ "{" ~ global_state_body ~ "}" }
+global_state_body  = {
+    global_state_kind
+  ~ global_state_tracks?
+  ~ global_state_reset?
+}
+global_state_kind   = { "type" ~ ":" ~ ("card_group" | "counter" | "flag") }
+global_state_tracks = { "tracks" ~ ":" ~ target_expr }
+global_state_reset  = { "resets_on" ~ ":" ~ flag_reset }
 
 // ── Summon Condition Block ────────────────────────────────────
 summon_condition_block = { "summon_condition" ~ "{" ~ summon_rule+ ~ "}" }
@@ -157,7 +186,12 @@ race = {
   | "Beast" | "Winged Beast" | "Fiend" | "Fairy" | "Insect"
   | "Dinosaur" | "Reptile" | "Fish" | "Sea Serpent" | "Aqua"
   | "Pyro" | "Thunder" | "Rock" | "Plant" | "Machine"
-  | "Psychic" | "Divine-Beast" | "Wyrm" | "Cyberse"
+  | "Psychic" | "Divine-Beast" | "Creator-God" | "Wyrm" | "Cyberse"
+  | "Illusion" | "Cyborg" | "Magical Knight" | "High Dragon"
+  | "Omega Psychic"
+  // Backstop for unrecognized races during migration; the validator
+  // can flag this separately.
+  | "Unknown"
 }
 
 // ── Link Arrows ───────────────────────────────────────────────
@@ -259,6 +293,20 @@ counter_name_decl   = { "name"        ~ ":" ~ string }
 counter_placed_when = { "placed_when" ~ ":" ~ trigger_expr }
 counter_max_decl    = { "max"         ~ ":" ~ (unsigned | "none") }
 
+// ── Flip Effect Block (Phase 1B) ──────────────────────────────
+// A dedicated flip effect — card's face-up activation effect triggered by
+// being flipped. This is distinct from a generic `trigger: when_flipped`.
+// Maps to EFFECT_TYPE_FLIP (0x20) in the engine.
+flip_effect_block = { "flip_effect" ~ string? ~ "{" ~ flip_effect_body ~ "}" }
+flip_effect_body  = {
+    frequency_decl?
+  ~ optional_decl?
+  ~ condition_clause?
+  ~ cost_clause?
+  ~ on_activate_clause?
+  ~ on_resolve_clause?
+}
+
 // ── Raw Effect Block (v0.6) ──────────────────────────────────
 // Direct bitfield declaration — bypasses type_mapper.
 // Used by the transpiler to preserve exact Lua values.
@@ -306,12 +354,17 @@ damage_step_decl     = { "damage_step" ~ ":" ~ boolean }
 // ── Continuous Effect Block ───────────────────────────────────
 continuous_effect_block = { "continuous_effect" ~ string? ~ "{" ~ continuous_body ~ "}" }
 continuous_body = {
-    while_clause?
+    scope_clause?
+  ~ while_clause?
   ~ apply_to_clause?
   ~ modifier_list
   ~ restriction_block*
   ~ cannot_block*
 }
+// Phase 1B: scope: self | field
+// `self` = EFFECT_TYPE_SINGLE (only affects this card)
+// `field` = EFFECT_TYPE_FIELD (affects others via apply_to)
+scope_clause = { "scope" ~ ":" ~ ("self" | "field") }
 while_clause    = { "while"    ~ ":" ~ condition_expr }
 apply_to_clause = { "apply_to" ~ ":" ~ target_expr }
 modifier_list   = { modifier_decl+ }
@@ -429,6 +482,8 @@ condition_clause = { "condition" ~ ":" ~ condition_expr }
 condition_expr   = { composite_condition | simple_condition }
 simple_condition = {
     chain_includes_condition
+  | has_flag_condition
+  | history_condition
   | zone_condition
   | field_condition
   | board_condition
@@ -457,6 +512,22 @@ composite_condition      = { simple_condition ~ (("and" | "or") ~ simple_conditi
 
 // Chain-aware condition for hand traps (e.g., Ash Blossom)
 chain_includes_condition = { "chain_link_includes" ~ "[" ~ chain_category ~ ("," ~ chain_category)* ~ "]" }
+
+// ── Flag Effect Conditions (v0.6 Phase 1A) ──────────────────
+// has_flag "name"             — does this card have a flag registered?
+// has_flag "name" on target   — does a specific card have the flag?
+has_flag_condition = { "has_flag" ~ string ~ ("on" ~ ("self" | target_expr))? }
+
+// previous_location: field   — was this card on the field before?
+// previous_position: face_up — was this card face-up previously?
+// sent_by_reason: [battle, card_effect]
+history_condition = {
+    "previous_location" ~ ":" ~ zone
+  | "previous_position" ~ ":" ~ ("face_up" | "face_down")
+  | "sent_by_reason" ~ ":" ~ "[" ~ destruction_cause ~ ("," ~ destruction_cause)* ~ "]"
+  | "this_effect_activated_this_turn"
+  | "this_card_was_flipped_this_turn"
+}
 chain_category = {
     "search" | "special_summon" | "send_to_gy" | "add_to_hand"
   | "draw" | "banish" | "mill" | "destroy" | "negate"
@@ -484,7 +555,10 @@ trigger_expr   = {
   | end_phase_trigger
   | during_phase_trigger
   | when_action_trigger
+  | on_custom_event_trigger
 }
+// Phase 2: listen for a custom event by name (emitted via emit_event).
+on_custom_event_trigger = { "on_custom_event" ~ string }
 
 when_battle_destroyed_trigger   = { "when_battle_destroyed" }
 when_destroys_by_battle_trigger = { "when_destroys_by_battle" }
@@ -546,7 +620,9 @@ duration = {
 
 // ── Cost ──────────────────────────────────────────────────────
 cost_clause = { "cost" ~ "{" ~ cost_action+ ~ "}" }
-cost_action = {
+cost_action = { cost_primitive ~ binding_decl? }
+binding_decl = { "as" ~ ident }
+cost_primitive = {
     pay_lp_cost
   | discard_cost
   | tribute_cost
@@ -555,6 +631,7 @@ cost_action = {
   | remove_counter_cost
   | detach_cost
   | reveal_cost
+  | announce_cost
   | "none"
 }
 // pay_lp now uses expr for dynamic costs (e.g., pay half your lp)
@@ -618,6 +695,8 @@ game_action = {
   | register_effect_action
   | store_action
   | recall_action
+  | set_flag_action
+  | clear_flag_action
   | and_if_you_do_action
   | then_action
   | also_action
@@ -638,8 +717,34 @@ game_action = {
   | change_level_action
   | change_attribute_action
   | change_race_action
+  | change_name_action
+  | change_code_action
+  | emit_event_action
+  | confirm_action
   | negate_effects_action
 }
+// Phase 2: emit a custom event. Other effects can listen via
+// `trigger: on_custom_event "name"`.
+emit_event_action = { "emit_event" ~ string }
+
+// ── Flag Effects (Phase 1A) ──────────────────────────────────
+// set_flag "name" { survives: [leave_field, to_gy]  resets_on: [chain_end] }
+// clear_flag "name"
+set_flag_action   = {
+    "set_flag" ~ string ~ ("on" ~ ("self" | target_expr))? ~
+    ("{" ~ flag_option* ~ "}")?
+}
+flag_option       = {
+    "survives" ~ ":" ~ "[" ~ flag_reset ~ ("," ~ flag_reset)* ~ "]"
+  | "resets_on" ~ ":" ~ "[" ~ flag_reset ~ ("," ~ flag_reset)* ~ "]"
+  | "value" ~ ":" ~ expr
+}
+flag_reset        = {
+    "leave_field" | "to_gy" | "to_hand" | "to_deck" | "banished"
+  | "flip" | "chain_end" | "turn_end" | "phase_end" | "end_of_duel"
+  | "control_change" | "overlay"
+}
+clear_flag_action = { "clear_flag" ~ string ~ ("on" ~ ("self" | target_expr))? }
 
 // Sequential resolution: "A, and if you do, B" — B only if A succeeded
 and_if_you_do_action = { "and_if_you_do" ~ "{" ~ game_action+ ~ "}" }
@@ -661,7 +766,24 @@ shuffle_deck_action   = { "shuffle_deck" ~ ("yours" | "opponents")? }
 // Change monster battle position
 change_position_action = { "change_position" ~ ("self" | target_expr) ~ ("to" ~ battle_position)? }
 // Set a spell/trap from hand
-set_spell_trap_action = { "set_spell_trap" ~ ("self" | target_expr) }
+set_spell_trap_action = { "set_spell_trap" ~ ("self" | target_expr) ~ ("from" ~ zone)? }
+// Phase 3: confirm (show) cards to a player. Used for face-down reveals
+// and hand reveals. Target can be a card selector or `hand`.
+confirm_action      = { "confirm" ~ confirm_target ~ "to" ~ ":" ~ confirm_audience }
+confirm_target      = { "hand" | "self" | target_expr }
+confirm_audience    = { "you" | "opponent" | "both" }
+// Phase 3: announce a card/type/race/level. Used as cost (Mind Crush-style).
+announce_cost       = { "announce" ~ announce_kind ~ ("{" ~ announce_filter ~ "}")? }
+announce_kind       = { "card" | "attribute" | "race" | "level" ~ unsigned? | "type" }
+announce_filter     = { "filter" ~ ":" ~ announce_filter_expr }
+announce_filter_expr = {
+    "not" ~ "extra_deck_monster"
+  | "main_deck_monster"
+  | "monster"
+  | "spell"
+  | "trap"
+  | "any"
+}
 // Equip a card to a monster
 equip_to_action       = { "equip" ~ ("self" | target_expr) ~ "to" ~ ("self" | target_expr) }
 // Attach as overlay material (Xyz)
@@ -680,6 +802,12 @@ coin_flip_action      = { "flip_coin" ~ "{" ~ "heads" ~ "{" ~ game_action+ ~ "}"
 change_level_action     = { "change_level" ~ ("self" | target_expr) ~ "to" ~ expr }
 change_attribute_action = { "change_attribute" ~ ("self" | target_expr) ~ "to" ~ attribute }
 change_race_action      = { "change_race" ~ ("self" | target_expr) ~ "to" ~ race }
+// Phase 1E: change card name/code (Prisma-style name copying).
+// Takes either a literal string ("Dark Magician"), a binding ref
+// (captured.name) or the keyword `self` to reset.
+change_name_action      = { "change_name" ~ ("self" | target_expr) ~ "to" ~ name_source ~ duration? }
+change_code_action      = { "change_code" ~ ("self" | target_expr) ~ "to" ~ name_source ~ duration? }
+name_source             = { string | binding_ref_expr | unsigned }
 // Negate effects of target until duration
 negate_effects_action   = { "negate_effects" ~ ("self" | target_expr) ~ duration? }
 
@@ -703,7 +831,7 @@ def_modifier_action           = {
   | "set_def"    ~ target_expr ~ "to" ~ expr ~ duration?
 }
 banish_action                 = { "banish" ~ ("self" | target_expr) ~ ("from" ~ zone)? ~ "face_down"? }
-return_action                 = { "return" ~ ("self" | target_expr) ~ "to" ~ ("hand" | "deck" | "extra_deck") ~ "shuffle"? }
+return_action                 = { "return" ~ ("self" | target_expr) ~ "to" ~ ( ("deck" ~ "shuffle"?) | "extra_deck" | "hand" ) }
 set_face_down_action          = { "set" ~ target_expr }
 flip_face_down_action         = { "flip_face_down" ~ target_expr }
 change_battle_position_action = { "change_battle_position" ~ target_expr }
@@ -745,7 +873,9 @@ damage_action     = { "deal_damage" ~ "to" ~ ("opponent" | "you" | "both_players
 gain_lp_action    = { "gain_lp" ~ ":" ~ expr }
 shuffle_action    = { "shuffle" ~ zone }
 mill_action       = { "mill" ~ expr ~ ("from" ~ ("your_deck" | "opponent_deck"))? }
-discard_action    = { "discard" ~ ("self" | target_expr) }
+discard_action    = { "discard" ~ ("self" | target_expr) ~ selection_mode? }
+// Phase 1E: how the player selects the target. Default is normal choice.
+selection_mode    = { "random" | "at_random" }
 tribute_action    = { "tribute" ~ ("self" | target_expr) }
 
 // NEW: Set pendulum scale

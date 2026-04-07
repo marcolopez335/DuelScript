@@ -15,6 +15,8 @@ cdb = ["rusqlite"]
 python = ["pyo3"]
 # Enable Lua transpiler (function body walking for accurate action mapping)
 lua_transpiler = []
+# Enable LSP server (tower-lsp + tokio)
+lsp = ["tower-lsp", "tokio", "serde_json", "serde"]
 
 [dependencies]
 pest        = "2.7"
@@ -24,9 +26,11 @@ thiserror   = "1.0"
 rusqlite    = { version = "0.31", features = ["bundled"], optional = true }
 # Optional — enable with: duelscript = { features = ["python"] }
 pyo3        = { version = "0.22", features = ["extension-module"], optional = true }
-# Optional — enable with: duelscript = { features = ["lua_transpiler"] }
-# full_moon Lua parser — disabled until rustc 1.89+ (smol_str dep)
-# full_moon = { version = "1.1", optional = true }
+# Optional — enable with: duelscript = { features = ["lsp"] }
+tower-lsp   = { version = "0.20", optional = true }
+tokio       = { version = "1", features = ["io-std", "rt-multi-thread", "macros"], optional = true }
+serde       = { version = "1", features = ["derive"], optional = true }
+serde_json  = { version = "1", optional = true }
 
 [lib]
 name = "duelscript"
@@ -39,6 +43,11 @@ path = "src/bin/duelscript.rs"
 [[bin]]
 name = "migrate_batch"
 path = "src/bin/migrate_batch.rs"
+
+[[bin]]
+name = "duelscript_lsp"
+path = "src/bin/duelscript_lsp.rs"
+required-features = ["lsp"]
 
 [[example]]
 name = "parse_card"

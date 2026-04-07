@@ -19,6 +19,7 @@ fn main() {
     }
 
     let lua_dir = Path::new(&args[1]);
+    #[cfg_attr(not(feature = "cdb"), allow(unused_variables))]
     let cdb_path = Path::new(&args[2]);
     let output_dir = Path::new(&args[3]);
     let write_all = args.get(4).map(|s| s == "--all").unwrap_or(false);
@@ -50,6 +51,7 @@ fn main() {
         }
     };
     #[cfg(not(feature = "cdb"))]
+    #[allow(unused_variables)]
     let cdb: Option<()> = None;
 
     println!("Migrating from {} to {}", lua_dir.display(), output_dir.display());
@@ -110,6 +112,7 @@ fn main() {
         #[cfg(feature = "cdb")]
         let cdb_card = cdb.as_ref().and_then(|c| c.get(passcode));
         #[cfg(not(feature = "cdb"))]
+        #[allow(unused_variables)]
         let cdb_card: Option<&()> = None;
 
         // Use transpiler if available, otherwise fall back to old migrator
@@ -154,9 +157,14 @@ fn main() {
                     written += 1;
                 }
             }
-            Err(_) => {
+            Err(e) => {
                 parse_fail += 1;
                 skipped += 1;
+                if parse_fail <= 5 {
+                    eprintln!("Parse fail c{}: {:?}", passcode, e);
+                    let failed_path = output_dir.join(format!("c{}.failed.ds", passcode));
+                    let _ = fs::write(&failed_path, &ds_content);
+                }
             }
         }
     }

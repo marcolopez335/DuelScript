@@ -38,6 +38,67 @@ pub fn validate_card(card: &Card, errors: &mut Vec<ValidationError>) {
     check_win_condition_validity(&ctx, errors);
     check_counter_system_validity(&ctx, errors);
     check_continuous_effect_validity(&ctx, errors);
+    check_flip_effects(&ctx, errors);
+    check_flag_references(&ctx, errors);
+}
+
+// ── Phase 1B: Flip effects must live on Flip monsters ────────
+fn check_flip_effects(ctx: &CardCtx, errors: &mut Vec<ValidationError>) {
+    if ctx.card.flip_effects.is_empty() { return; }
+    let is_flip_monster = ctx.card.card_types.iter().any(|t| matches!(t, CardType::Flip));
+    if !is_flip_monster {
+        errors.push(warn(
+            &ctx.card.name,
+            "flip_effect block defined on a non-Flip monster — add 'Flip' to the type declaration",
+        ));
+    }
+}
+
+// ── Phase 1A: has_flag should reference a name that set_flag uses ────
+fn check_flag_references(ctx: &CardCtx, errors: &mut Vec<ValidationError>) {
+    let mut set_names: std::collections::HashSet<String> = Default::default();
+    let mut referenced: Vec<String> = vec![];
+
+    fn walk_actions(actions: &[GameAction], set_names: &mut std::collections::HashSet<String>) {
+        for a in actions {
+            if let GameAction::SetFlag { name, .. } = a {
+                set_names.insert(name.clone());
+            }
+        }
+    }
+    fn walk_simple(s: &SimpleCondition, out: &mut Vec<String>) {
+        if let SimpleCondition::HasFlag { name, .. } = s {
+            out.push(name.clone());
+        }
+    }
+    fn walk_cond(cond: &ConditionExpr, out: &mut Vec<String>) {
+        match cond {
+            ConditionExpr::Simple(s) => walk_simple(s, out),
+            ConditionExpr::And(list) | ConditionExpr::Or(list) => {
+                for c in list { walk_simple(c, out); }
+            }
+        }
+    }
+
+    for e in &ctx.card.effects {
+        walk_actions(&e.body.on_activate, &mut set_names);
+        walk_actions(&e.body.on_resolve, &mut set_names);
+        if let Some(c) = &e.body.condition { walk_cond(c, &mut referenced); }
+    }
+    for fe in &ctx.card.flip_effects {
+        walk_actions(&fe.on_activate, &mut set_names);
+        walk_actions(&fe.on_resolve, &mut set_names);
+        if let Some(c) = &fe.condition { walk_cond(c, &mut referenced); }
+    }
+
+    for name in &referenced {
+        if !set_names.contains(name) {
+            errors.push(warn(
+                &ctx.card.name,
+                &format!("has_flag \"{}\" referenced but no set_flag \"{}\" in this card — flag may come from another card or is a typo", name, name),
+            ));
+        }
+    }
 }
 
 // ── Card Context ──────────────────────────────────────────────
@@ -52,6 +113,7 @@ struct CardCtx<'a> {
     is_xyz: bool,
     is_pendulum: bool,
     is_normal_monster: bool,
+    #[allow(dead_code)]
     is_effect_monster: bool,
 }
 
@@ -272,13 +334,19 @@ fn check_type_consistency(ctx: &CardCtx, errors: &mut Vec<ValidationError>) {
         errors.push(err(ctx.name(), "'Tuner' subtype requires a monster type"));
     }
 
-    // Pendulum must have Effect Monster or Normal Monster
+    // Pendulum must declare a base monster type. Any of the canonical
+    // monster categories satisfies it (Fusion Pendulum, Synchro Pendulum,
+    // Xyz Pendulum are all valid card categories in real Yu-Gi-Oh).
     if ctx.is_pendulum {
         let has_base = ctx.card.card_types.iter().any(|t| matches!(t,
             CardType::NormalMonster | CardType::EffectMonster
+            | CardType::FusionMonster | CardType::SynchroMonster
+            | CardType::XyzMonster | CardType::RitualMonster
         ));
         if !has_base {
-            errors.push(err(ctx.name(), "Pendulum Monster must also declare 'Normal Monster' or 'Effect Monster'"));
+            errors.push(err(ctx.name(),
+                "Pendulum Monster must also declare a base monster type \
+                 (Normal/Effect/Fusion/Synchro/Xyz/Ritual)"));
         }
     }
 

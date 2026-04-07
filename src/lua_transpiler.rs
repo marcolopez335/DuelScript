@@ -19,6 +19,13 @@ pub struct DuelApiCall {
 impl DuelApiCall {
     /// Map this Lua API call to a DuelScript action string.
     pub fn to_ds_action(&self) -> Option<String> {
+        self.to_ds_action_with_context("")
+    }
+
+    /// Context-aware version: infers controller/zone/filter from the
+    /// surrounding function body text. Looks for tokens like
+    /// `LOCATION_MZONE`, `LOCATION_SZONE`, `1-tp`, `tp` to refine.
+    pub fn to_ds_action_with_context(&self, body: &str) -> Option<String> {
         match self.method.as_str() {
             "Draw" => {
                 // Only use numeric count; fallback to 1 for variable names
@@ -27,11 +34,38 @@ impl DuelApiCall {
                     .unwrap_or(1);
                 Some(format!("draw {}", count))
             }
-            "Destroy" => Some("destroy (1+, card, either_player controls)".to_string()),
-            "Remove" => Some("banish (1+, card)".to_string()),
-            "SendtoGrave" | "SendToGrave" => Some("send (1, card) to gy".to_string()),
-            "SendtoHand" | "SendToHand" => Some("add_to_hand (1, card) from gy".to_string()),
-            "SendtoDeck" | "SendToDeck" => Some("return (1, card) to deck shuffle".to_string()),
+            "Destroy" => {
+                // Destroy accepts a target with the source zone inlined
+                // (destroy (1+, monster, opp) OR destroy (1+, card, you, gy)).
+                let t = infer_target_struct(body, FilterHint::Card);
+                Some(format!("destroy {}", render_target_with_inline_zone(&t)))
+            }
+            "Remove" => {
+                let t = infer_target_struct(body, FilterHint::Card);
+                Some(format!("banish {}", render_target_with_inline_zone(&t)))
+            }
+            "SendtoGrave" | "SendToGrave" => {
+                // send (..., zone) to gy — the zone is where we pull the
+                // card FROM. Defaults to just target_expr when unknown.
+                let t = infer_target_struct(body, FilterHint::Card);
+                Some(format!("send {} to gy", render_target_with_inline_zone(&t)))
+            }
+            "SendtoHand" | "SendToHand" => {
+                // Two flavors: "return to hand" when the source is the
+                // field (bounce cards), and "add_to_hand … from <zone>"
+                // when the source is GY / deck / banished (search cards).
+                let t = infer_target_struct(body, FilterHint::Card);
+                if t.source_is_field {
+                    Some(format!("return {} to hand", t.target_expr()))
+                } else {
+                    let from = t.source_zone.unwrap_or("gy");
+                    Some(format!("add_to_hand {} from {}", t.target_expr(), from))
+                }
+            }
+            "SendtoDeck" | "SendToDeck" => {
+                let t = infer_target_struct(body, FilterHint::Card);
+                Some(format!("return {} to deck shuffle", t.target_expr()))
+            }
             "SpecialSummon" => Some("special_summon (1, monster) from gy".to_string()),
             "NegateEffect" => Some("negate effect".to_string()),
             "NegateActivation" => Some("negate activation".to_string()),
@@ -63,8 +97,8 @@ impl DuelApiCall {
             "CreateToken" => Some("create_token { atk: 0 def: 0 }".to_string()),
             "GetControl" => Some("take_control of (1, monster, opponent controls)".to_string()),
             "DiscardHand" => Some("discard (1, card)".to_string()),
-            "ShuffleHand" => Some("shuffle deck".to_string()),
-            "ShuffleDeck" => Some("shuffle deck".to_string()),
+            "ShuffleHand" => Some("shuffle_hand".to_string()),
+            "ShuffleDeck" => Some("shuffle_deck".to_string()),
             "Discard" => Some("discard (1, card)".to_string()),
             "MoveToField" => Some("special_summon (1, monster) from gy".to_string()),
             "PayLPCost" => None, // pay_lp belongs in cost blocks, not on_resolve
@@ -456,12 +490,28 @@ pub fn transpile_lua_to_ds(
             ds.push_str(&format!("    attribute: {}\n", cdb.attribute_name()));
             ds.push_str(&format!("    race: {}\n", cdb.race_name()));
             if cdb.is_xyz() { ds.push_str(&format!("    rank: {}\n", cdb.actual_level())); }
-            else if cdb.is_link() { ds.push_str(&format!("    link: {}\n", cdb.actual_level())); }
+            else if cdb.is_link() {
+                ds.push_str(&format!("    link: {}\n", cdb.actual_level()));
+                let arrows = cdb.link_arrow_names();
+                if !arrows.is_empty() {
+                    ds.push_str(&format!("    link_arrows: [{}]\n", arrows.join(", ")));
+                }
+            }
             else { ds.push_str(&format!("    level: {}\n", cdb.actual_level())); }
             if cdb.is_pendulum() { ds.push_str(&format!("    scale: {}\n", cdb.pendulum_scale())); }
             ds.push_str(&format!("    atk: {}\n", cdb.atk_str()));
             if !cdb.is_link() { ds.push_str(&format!("    def: {}\n", cdb.def_str())); }
         }
+    } else {
+        // Sprint 15: CDB miss → emit a placeholder type line so the
+        // file at least parses + validates. Hand-correct later.
+        ds.push_str("    // FIXME: card not found in CDB — type/stats are placeholders\n");
+        ds.push_str("    type: Effect Monster\n");
+        ds.push_str("    attribute: DARK\n");
+        ds.push_str("    race: Fiend\n");
+        ds.push_str("    level: 1\n");
+        ds.push_str("    atk: 0\n");
+        ds.push_str("    def: 0\n");
     }
     ds.push('\n');
 
@@ -512,8 +562,18 @@ pub fn transpile_lua_to_ds(
         if let Some(ref cost_key) = effect.cost_fn {
             let cost_name = cost_key.trim_start_matches("s.").trim_start_matches("Cost.");
             if cost_key.contains("Cost.") {
-                if let Some(ds_cost) = builtin_cost_to_ds(cost_key) {
-                    ds.push_str(&format!("        cost {{\n            {}\n        }}\n", ds_cost));
+                // Sprint 13: try compound decomposition first (Cost.AND
+                // splits into multiple lines), then fall back to single.
+                let mut compound = extract_compound_cost(cost_key);
+                if compound.is_empty() {
+                    if let Some(single) = builtin_cost_to_ds(cost_key) {
+                        compound.push(single);
+                    }
+                }
+                if !compound.is_empty() {
+                    ds.push_str("        cost {\n");
+                    for c in &compound { ds.push_str(&format!("            {}\n", c)); }
+                    ds.push_str("        }\n");
                 }
             } else if let Some(body_calls) = functions.get(cost_name) {
                 let costs: Vec<String> = body_calls.iter()
@@ -541,9 +601,14 @@ pub fn transpile_lua_to_ds(
                     total_actions += 1;
                 }
             } else if let Some(body_calls) = functions.get(op_name) {
+                // Phase 9: gather context from operation, target, and any
+                // filter helper functions referenced. We pass the full Lua
+                // source as context — the analyzer scans it for zone-arg
+                // patterns and IsSpellTrap-style hints anywhere in the file.
+                let body_text = lua_source;
                 for call in body_calls {
                     total_actions += 1;
-                    if let Some(action) = call.to_ds_action() {
+                    if let Some(action) = call.to_ds_action_with_context(body_text) {
                         ds.push_str(&format!("            {}\n", action));
                         has_actions = true;
                         mapped_actions += 1;
@@ -800,6 +865,244 @@ fn extract_first_arg(line: &str, fn_name: &str) -> Option<String> {
     if arg.is_empty() { None } else { Some(arg) }
 }
 
+// ── Phase 9 helpers: target pattern inference ────────────────
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FilterHint {
+    Card,
+    Monster,
+    Spell,
+    Trap,
+}
+
+impl FilterHint {
+    fn as_str(self) -> &'static str {
+        match self {
+            FilterHint::Card => "card",
+            FilterHint::Monster => "monster",
+            FilterHint::Spell => "spell",
+            FilterHint::Trap => "trap",
+        }
+    }
+}
+
+/// Structured inference result: separates target expression (filter +
+/// controller) from the source zone so callsites can build actions
+/// like `destroy (1+, monster, opp) from gy` correctly, without
+/// duplicating zone info or leaving the `from` suffix dangling.
+#[derive(Debug, Clone)]
+pub struct InferredTarget {
+    pub filter: &'static str,
+    pub controller: &'static str,
+    pub source_zone: Option<&'static str>,
+    /// True when the body indicates the source is the field itself
+    /// (MZONE or SZONE). Used to decide `return … to hand` vs
+    /// `add_to_hand … from gy` / `from deck`.
+    pub source_is_field: bool,
+}
+
+impl InferredTarget {
+    /// Render as `(1+, filter, controller)` — zone lives on the `from` suffix.
+    pub fn target_expr(&self) -> String {
+        format!("(1+, {}, {})", self.filter, self.controller)
+    }
+    /// Render with a `from <zone>` suffix when the source is a specific zone.
+    pub fn with_from_suffix(&self) -> String {
+        match self.source_zone {
+            Some(z) if !self.source_is_field => format!("{} from {}", self.target_expr(), z),
+            _ => self.target_expr(),
+        }
+    }
+}
+
+/// Back-compat wrapper: renders the full `(1+, ..., zone)` target expression
+/// used by destroy/banish-style actions where the zone is inlined.
+pub fn infer_target_from_body(body: &str, default_filter: FilterHint) -> String {
+    let t = infer_target_struct(body, default_filter);
+    render_target_with_inline_zone(&t)
+}
+
+/// Renders an inferred target with an inlined `, <zone>` when the source
+/// is a non-field zone. Used by destroy/banish where the DSL expects the
+/// zone to live inside the target expression.
+pub fn render_target_with_inline_zone(t: &InferredTarget) -> String {
+    match t.source_zone {
+        Some(z) if !t.source_is_field => format!("(1+, {}, {}, {})", t.filter, t.controller, z),
+        _ => t.target_expr(),
+    }
+}
+
+/// Structured version of `infer_target_from_body`. Parses GetMatchingGroup-
+/// style args and filter callbacks to build an `InferredTarget`.
+pub fn infer_target_struct(body: &str, default_filter: FilterHint) -> InferredTarget {
+    let b = body;
+
+    // ── Find the first GetMatchingGroup / IsExistingMatchingCard / etc. ──
+    let needles = [
+        "Duel.GetMatchingGroup(",
+        "Duel.IsExistingMatchingCard(",
+        "Duel.GetMatchingGroupCount(",
+        "Duel.SelectMatchingCard(",
+        "Duel.GetFieldGroup(",
+    ];
+    let (self_zones, opp_zones) = find_zone_args(b, &needles)
+        .unwrap_or((String::from("UNKNOWN"), String::from("UNKNOWN")));
+
+    let self_has_mzone = self_zones.contains("LOCATION_MZONE") || self_zones.contains("LOCATION_ONFIELD");
+    let self_has_szone = self_zones.contains("LOCATION_SZONE") || self_zones.contains("LOCATION_ONFIELD");
+    let self_has_grave = self_zones.contains("LOCATION_GRAVE");
+    let self_has_hand  = self_zones.contains("LOCATION_HAND");
+    let self_has_deck  = self_zones.contains("LOCATION_DECK");
+
+    let opp_has_mzone = opp_zones.contains("LOCATION_MZONE") || opp_zones.contains("LOCATION_ONFIELD");
+    let opp_has_szone = opp_zones.contains("LOCATION_SZONE") || opp_zones.contains("LOCATION_ONFIELD");
+    let opp_has_grave = opp_zones.contains("LOCATION_GRAVE");
+    let opp_has_hand  = opp_zones.contains("LOCATION_HAND");
+    let opp_has_deck  = opp_zones.contains("LOCATION_DECK");
+
+    let self_any = self_has_mzone || self_has_szone || self_has_grave || self_has_hand || self_has_deck;
+    let opp_any  = opp_has_mzone  || opp_has_szone  || opp_has_grave  || opp_has_hand  || opp_has_deck;
+
+    // Controller from self/opp zone presence.
+    let controller = match (self_any, opp_any) {
+        (true,  true)  => "either_player controls",
+        (true,  false) => "you controls",
+        (false, true)  => "opponent controls",
+        (false, false) => "either_player controls", // unknown — historical default
+    };
+
+    // Filter inference: look at zone hints AND explicit type checks in the filter callback.
+    // First check explicit Card.IsType / c:IsType / IsSpellTrap / etc.
+    let filter = if b.contains("Card.IsType(c,TYPE_MONSTER")
+        || b.contains("Card.IsType(c, TYPE_MONSTER")
+        || b.contains("c:IsType(TYPE_MONSTER")
+        || b.contains("c:IsMonster()")
+    {
+        "monster"
+    } else if b.contains("Card.IsType(c,TYPE_SPELL")
+        || b.contains("Card.IsType(c, TYPE_SPELL")
+        || b.contains("c:IsType(TYPE_SPELL")
+        || b.contains("c:IsSpell()")
+    {
+        "spell"
+    } else if b.contains("Card.IsType(c,TYPE_TRAP")
+        || b.contains("Card.IsType(c, TYPE_TRAP")
+        || b.contains("c:IsType(TYPE_TRAP")
+        || b.contains("c:IsTrap()")
+    {
+        "trap"
+    } else if b.contains("c:IsSpellTrap()")
+        || b.contains("Card.IsSpellTrap")
+    {
+        // Spell-or-trap predicate. We use "spell" as the closest single
+        // filter; full spell|trap support is a language gap.
+        "spell"
+    } else {
+        // Fall back to zone-based inference.
+        let m_only = (self_has_mzone || opp_has_mzone)
+            && !(self_has_szone || opp_has_szone);
+        let s_only = (self_has_szone || opp_has_szone)
+            && !(self_has_mzone || opp_has_mzone);
+        if m_only { "monster" }
+        else if s_only { "spell" }
+        else { default_filter.as_str() }
+    };
+
+    // Dominant source zone — used by the `from <zone>` suffix. We
+    // strongly prefer non-field zones when present, so bounce-from-field
+    // patterns don't accidentally become `from gy` and vice versa.
+    let source_is_field = (self_has_mzone || opp_has_mzone || self_has_szone || opp_has_szone)
+        && !(self_has_grave || opp_has_grave || self_has_hand || opp_has_hand || self_has_deck || opp_has_deck);
+
+    let source_zone: Option<&'static str> = if self_has_grave || opp_has_grave {
+        Some("gy")
+    } else if self_has_hand || opp_has_hand {
+        Some("hand")
+    } else if self_has_deck || opp_has_deck {
+        Some("deck")
+    } else {
+        None
+    };
+
+    InferredTarget { filter, controller, source_zone, source_is_field }
+}
+
+/// For each of the candidate function-call needles, find the first
+/// occurrence and return the (self_zones, opp_zones) arg pair, which is
+/// always at positions 3 and 4 (0-indexed: filter, tp, self_zones, opp_zones).
+fn find_zone_args(body: &str, needles: &[&str]) -> Option<(String, String)> {
+    for needle in needles {
+        let mut start = 0;
+        while let Some(pos) = body[start..].find(needle) {
+            let abs = start + pos;
+            let after_paren = abs + needle.len();
+            // Find matching close paren
+            let mut depth = 1;
+            let bytes = body.as_bytes();
+            let mut end = after_paren;
+            while end < bytes.len() && depth > 0 {
+                match bytes[end] {
+                    b'(' => depth += 1,
+                    b')' => depth -= 1,
+                    _ => {}
+                }
+                end += 1;
+            }
+            if depth != 0 { return None; }
+            let inner = &body[after_paren..end-1];
+            // Split by commas at top-level (depth==0)
+            let args = split_top_level_args(inner);
+            // Expect: filter, tp, self_zones, opp_zones, exception, [extra...]
+            if args.len() >= 4 {
+                return Some((args[2].trim().to_string(), args[3].trim().to_string()));
+            }
+            start = abs + needle.len();
+        }
+    }
+    None
+}
+
+fn split_top_level_args(s: &str) -> Vec<&str> {
+    let mut out = Vec::new();
+    let bytes = s.as_bytes();
+    let mut depth = 0i32;
+    let mut start = 0;
+    for (i, &b) in bytes.iter().enumerate() {
+        match b {
+            b'(' | b'{' | b'[' => depth += 1,
+            b')' | b'}' | b']' => depth -= 1,
+            b',' if depth == 0 => {
+                out.push(&s[start..i]);
+                start = i + 1;
+            }
+            _ => {}
+        }
+    }
+    if start < s.len() { out.push(&s[start..]); }
+    out
+}
+
+/// Extract the raw text of a named card function (e.g. "operation").
+/// Returns the body between `function s.<name>(...)` and the matching
+/// `end`. Used by the Phase 9 context-aware target inference.
+pub fn extract_function_body_text(source: &str, fn_name: &str) -> String {
+    let lines: Vec<&str> = source.lines().collect();
+    let needle = format!("function s.{}(", fn_name);
+    for (i, line) in lines.iter().enumerate() {
+        if line.contains(&needle) {
+            let mut out = String::new();
+            for j in (i+1)..lines.len() {
+                let l = lines[j].trim();
+                if l == "end" || l.starts_with("function ") { break; }
+                out.push_str(lines[j]);
+                out.push('\n');
+            }
+            return out;
+        }
+    }
+    String::new()
+}
+
 fn extract_function_bodies(source: &str) -> std::collections::HashMap<String, Vec<DuelApiCall>> {
     let mut fns = std::collections::HashMap::new();
     let lines: Vec<&str> = source.lines().collect();
@@ -837,11 +1140,26 @@ fn extract_function_bodies(source: &str) -> std::collections::HashMap<String, Ve
     fns
 }
 
+/// Extract the contents of the first balanced `(...)` group in `s`.
+/// Handles arbitrary nesting depth so callers like cost extraction
+/// see the full inner expression.
 fn extract_paren(s: &str) -> String {
-    if let Some(start) = s.find('(') {
-        if let Some(end) = s[start..].find(')') {
-            return s[start+1..start+end].trim().to_string();
+    let bytes = s.as_bytes();
+    let start = match s.find('(') { Some(i) => i, None => return String::new() };
+    let mut depth = 0i32;
+    let mut i = start;
+    while i < bytes.len() {
+        match bytes[i] {
+            b'(' => depth += 1,
+            b')' => {
+                depth -= 1;
+                if depth == 0 {
+                    return s[start+1..i].trim().to_string();
+                }
+            }
+            _ => {}
         }
+        i += 1;
     }
     String::new()
 }
@@ -1076,17 +1394,74 @@ fn builtin_cost_to_ds(cost_key: &str) -> Option<String> {
     if cost_key.contains("SelfToDeck")   { return Some("send self to deck".to_string()); }
     if cost_key.contains("DetachFromSelf") { return Some("detach 1 overlay_unit from self".to_string()); }
     if cost_key.contains("PayLP") || cost_key.contains("PayLp") {
-        // Try to extract amount
-        if let Some(start) = cost_key.find("PayLP(").or(cost_key.find("PayLp(")) {
-            let rest = &cost_key[start+6..];
-            if let Some(end) = rest.find(')') {
-                return Some(format!("pay_lp {}", &rest[..end]));
-            }
+        if let Some(amount) = extract_paylp_amount(cost_key) {
+            return Some(format!("pay_lp {}", amount));
         }
         return Some("pay_lp 1000".to_string());
     }
     if cost_key.contains("Discard") { return Some("discard (1, card)".to_string()); }
     None
+}
+
+/// Sprint 13: Walk a `Cost.AND(...)` / `Cost.OR(...)` / direct
+/// `Cost.X(...)` expression and emit one DS cost line per primitive.
+/// Returns a Vec because compound costs decompose to multiple lines.
+fn extract_compound_cost(cost_key: &str) -> Vec<String> {
+    let mut out = Vec::new();
+    if cost_key.contains("Cost.PayLPCost") || cost_key.contains("Cost.PayLP") {
+        let amount = extract_paylp_amount(cost_key).unwrap_or_else(|| "1000".to_string());
+        out.push(format!("pay_lp {}", amount));
+    }
+    if cost_key.contains("Cost.Discard") || cost_key.contains("Cost.SelfDiscard") {
+        // Try to detect a count: Cost.Discard(n) or Cost.Discard()
+        let count = extract_first_int(cost_key, "Cost.Discard").unwrap_or(1);
+        if count == 1 {
+            out.push("discard (1, card, you controls)".to_string());
+        } else {
+            out.push(format!("discard ({}, card, you controls)", count));
+        }
+    }
+    if cost_key.contains("Cost.SelfBanish") {
+        out.push("banish self".to_string());
+    }
+    if cost_key.contains("Cost.SelfTribute") || cost_key.contains("Cost.SelfRelease") {
+        out.push("tribute self".to_string());
+    }
+    if cost_key.contains("Cost.SelfToGrave") || cost_key.contains("Cost.SelfToGY") {
+        out.push("send self to gy".to_string());
+    }
+    if cost_key.contains("Cost.RemoveOverlayCard") || cost_key.contains("Cost.DetachFromSelf") {
+        let count = extract_first_int(cost_key, "Cost.RemoveOverlayCard")
+            .or_else(|| extract_first_int(cost_key, "Cost.DetachFromSelf"))
+            .unwrap_or(1);
+        out.push(format!("detach {} overlay_unit from self", count));
+    }
+    out
+}
+
+/// Extract a numeric arg from a Cost.PayLPCost(...) or PayLP(...) call.
+fn extract_paylp_amount(s: &str) -> Option<String> {
+    for needle in &["Cost.PayLPCost(", "Cost.PayLP(", "PayLPCost(", "PayLP("] {
+        if let Some(start) = s.find(needle) {
+            let rest = &s[start + needle.len()..];
+            if let Some(end) = rest.find(')').or(rest.find(',')) {
+                let amount = rest[..end].trim();
+                if !amount.is_empty() && amount.chars().all(|c| c.is_ascii_digit()) {
+                    return Some(amount.to_string());
+                }
+            }
+        }
+    }
+    None
+}
+
+/// Extract the first integer arg from a `<func>(...)` substring of `s`.
+fn extract_first_int(s: &str, func: &str) -> Option<i32> {
+    let needle = format!("{}(", func);
+    let start = s.find(&needle)?;
+    let rest = &s[start + needle.len()..];
+    let end = rest.find(',').or(rest.find(')'))?;
+    rest[..end].trim().parse::<i32>().ok()
 }
 
 fn inline_to_action(op_key: &str) -> Option<String> {
@@ -1095,6 +1470,60 @@ fn inline_to_action(op_key: &str) -> Option<String> {
     if op_key.contains("NegateEffect")     { return Some("negate effect".to_string()); }
     if op_key.contains("Duel.Draw")        { return Some("draw 1".to_string()); }
     if op_key.contains("Duel.Destroy")     { return Some("destroy (1, card)".to_string()); }
+
+    // ── Phase 1-3 migrator patterns ────────────────────────────
+    // Custom events: Duel.RaiseEvent(..., EVENT_CUSTOM+id, ...)
+    if op_key.contains("Duel.RaiseEvent") && op_key.contains("EVENT_CUSTOM") {
+        return Some("emit_event \"custom\"".to_string());
+    }
+    // Confirm cards: Duel.ConfirmCards(player, group)
+    if op_key.contains("Duel.ConfirmCards") {
+        return Some("confirm hand to: opponent".to_string());
+    }
+    // Announce card: Duel.AnnounceCard(player, ...)
+    if op_key.contains("Duel.AnnounceCard") {
+        return Some("announce card as announced".to_string());
+    }
+    // Random discard: Duel.DiscardHand(p, n, ..., REASON_RANDOM)
+    if op_key.contains("Duel.DiscardHand") && op_key.contains("REASON_RANDOM") {
+        return Some("discard (1, card) random".to_string());
+    }
+    // Flag effect: c:RegisterFlagEffect(...)
+    if op_key.contains("RegisterFlagEffect") {
+        return Some("set_flag \"tracked\" on self".to_string());
+    }
+    // Change code: EFFECT_CHANGE_CODE
+    if op_key.contains("EFFECT_CHANGE_CODE") {
+        return Some("change_code self to 0".to_string());
+    }
+    // History queries get emitted as conditions at the caller level;
+    // we don't surface them from inline_to_action.
+    None
+}
+
+/// Phase 1-3: map a raw Lua condition snippet to a DuelScript condition,
+/// if we recognize a well-known pattern. Returns None for unmatched input.
+#[allow(dead_code)]
+pub fn condition_to_ds(cond: &str) -> Option<String> {
+    // Duel.GetPreviousLocation(ev) & LOCATION_ONFIELD
+    if cond.contains("GetPreviousLocation") && cond.contains("LOCATION_ONFIELD") {
+        return Some("previous_location == field".to_string());
+    }
+    if cond.contains("GetPreviousPosition") && cond.contains("POS_FACEUP") {
+        return Some("previous_position == face_up".to_string());
+    }
+    // IsReason(REASON_BATTLE)
+    if cond.contains("IsReason") && cond.contains("REASON_BATTLE") {
+        return Some("sent_by_reason == battle".to_string());
+    }
+    // c:GetFlagEffect(id) > 0
+    if cond.contains("GetFlagEffect") {
+        return Some("has_flag \"tracked\" on self".to_string());
+    }
+    // aux.GlobalCheck — signals a global handler is needed upstream
+    if cond.contains("aux.GlobalCheck") {
+        return Some("/* global_handler needed */".to_string());
+    }
     None
 }
 

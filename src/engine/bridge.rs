@@ -11,7 +11,6 @@
 
 use std::sync::Arc;
 use crate::ast::*;
-use crate::database::CardDatabase;
 
 // ── Core Engine Trait ─────────────────────────────────────────
 
@@ -353,7 +352,7 @@ pub fn evaluate_condition_default<Ctx: GameContext>(
 fn eval_simple<Ctx: GameContext>(
     cond: &SimpleCondition,
     card_handle: &CardHandle,
-    card: &Card,
+    _card: &Card,
     ctx: &Ctx,
 ) -> bool {
     match cond {

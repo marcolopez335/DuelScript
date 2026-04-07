@@ -24,6 +24,9 @@ pub trait ExprContext {
 
     /// Count cards matching a target expression, optionally in a specific zone
     fn count_matching(&self, target: &TargetExpr, zone: &Option<Zone>) -> i32;
+    /// Look up a field on a named binding (e.g. `captured.atk`).
+    /// Default returns 0 for engines that don't support bindings.
+    fn binding_field(&self, _name: &str, _field: &str) -> i32 { 0 }
 }
 
 /// Evaluate an expression against a runtime context.
@@ -36,6 +39,7 @@ pub fn eval_expr(expr: &Expr, ctx: &dyn ExprContext) -> i32 {
         Expr::TargetStat(stat) => ctx.target_stat(stat),
         Expr::PlayerLp(player) => ctx.player_lp(player),
         Expr::Count { target, zone } => ctx.count_matching(target, zone),
+        Expr::BindingRef { name, field } => ctx.binding_field(name, field),
         Expr::BinOp { left, op, right } => {
             let l = eval_expr(left, ctx);
             let r = eval_expr(right, ctx);
@@ -77,16 +81,16 @@ mod tests {
     impl ExprContext for MockContext {
         fn self_stat(&self, stat: &Stat) -> i32 {
             match stat {
-                Stat::Atk => 2500,
-                Stat::Def => 2000,
+                Stat::Atk | Stat::BaseAtk | Stat::OriginalAtk => 2500,
+                Stat::Def | Stat::BaseDef | Stat::OriginalDef => 2000,
                 Stat::Level => 7,
                 Stat::Rank => 4,
             }
         }
         fn target_stat(&self, stat: &Stat) -> i32 {
             match stat {
-                Stat::Atk => 1800,
-                Stat::Def => 1500,
+                Stat::Atk | Stat::BaseAtk | Stat::OriginalAtk => 1800,
+                Stat::Def | Stat::BaseDef | Stat::OriginalDef => 1500,
                 Stat::Level => 4,
                 Stat::Rank => 0,
             }

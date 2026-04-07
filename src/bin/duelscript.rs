@@ -13,7 +13,7 @@ use std::{
     path::{Path, PathBuf},
     process,
 };
-use duelscript::{parse, validator::{validate, ValidationReport, Severity}};
+use duelscript::{parse, validator::{validate, ValidationReport}};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -179,33 +179,70 @@ fn cmd_inspect(target: &Path) {
 }
 
 fn cmd_fmt(target: &Path) {
-    // Formatter stub — in v0.4 this will rewrite .ds files with canonical style
-    // For now it validates and reports what would change
+    // Sprint 19: real formatter via brace-aware reflow.
+    //
+    // Reads each .ds file, applies the canonical formatting pass,
+    // verifies the result still parses, and writes the file back
+    // if it changed. Set DUELSCRIPT_FMT_CHECK=1 to dry-run instead
+    // (exit non-zero if any file would change).
+    let check_only = std::env::var("DUELSCRIPT_FMT_CHECK").ok().as_deref() == Some("1");
     let files = collect_ds_files(target);
     if files.is_empty() {
         eprintln!("No .ds files found at: {}", target.display());
         process::exit(1);
     }
 
-    println!("duelscript fmt — formatter (v0.3 stub)");
-    println!("Full formatting pass coming in v0.4.");
-    println!("Checking {} file(s) for parse validity:\n", files.len());
+    println!("duelscript fmt — formatting {} file(s){}\n",
+        files.len(), if check_only { " (check only)" } else { "" });
 
-    let mut ok = 0;
-    let mut fail = 0;
+    let mut changed = 0;
+    let mut clean = 0;
+    let mut errors = 0;
+
     for path in &files {
         let source = match fs::read_to_string(path) {
             Ok(s)  => s,
-            Err(e) => { eprintln!("  ✗ {} — read error: {}", path.display(), e); fail += 1; continue; }
+            Err(e) => {
+                eprintln!("  ✗ {} — read error: {}", path.display(), e);
+                errors += 1;
+                continue;
+            }
         };
-        match parse(&source) {
-            Ok(_)  => { println!("  ✓ {}", path.display()); ok += 1; }
-            Err(e) => { println!("  ✗ {} — {}", path.display(), e); fail += 1; }
+        let formatted = duelscript::format_source(&source);
+
+        // Sanity check: the formatted output must still parse.
+        if let Err(e) = parse(&formatted) {
+            eprintln!("  ✗ {} — fmt produced invalid output: {}", path.display(), e);
+            errors += 1;
+            continue;
+        }
+
+        if formatted == source {
+            clean += 1;
+            continue;
+        }
+        changed += 1;
+        if check_only {
+            println!("  Δ {}", path.display());
+        } else {
+            match fs::write(path, &formatted) {
+                Ok(_)  => println!("  ✓ {}", path.display()),
+                Err(e) => {
+                    eprintln!("  ✗ {} — write error: {}", path.display(), e);
+                    errors += 1;
+                }
+            }
         }
     }
 
-    println!("\n{} ok, {} failed", ok, fail);
-    if fail > 0 { process::exit(1); }
+    println!("\n{} formatted, {} clean, {} errors",
+        if check_only { 0 } else { changed }, clean, errors);
+    if check_only && changed > 0 {
+        eprintln!("{} file(s) need formatting (run without DUELSCRIPT_FMT_CHECK=1 to apply)",
+            changed);
+        process::exit(1);
+    }
+    if errors > 0 { process::exit(1); }
 }
 
 // ── File Collection ───────────────────────────────────────────

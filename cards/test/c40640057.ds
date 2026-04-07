@@ -1,0 +1,25 @@
+// Sangan-style "when summoned, search" — canonical test card.
+// When this card is Normal Summoned, draw 1 card.
+// (We use draw instead of search to keep the assertion simple.)
+//
+// This is the smallest possible trigger-effect monster: it has a
+// `when_summoned` trigger, an on_resolve action, and no cost or target.
+
+card "Test Trigger Monster" {
+    type: Effect Monster
+    password: 40640057
+    attribute: DARK
+    race: Fiend
+    level: 3
+    atk: 1000
+    def: 600
+
+    effect "Draw on Summon" {
+        speed: spell_speed_1
+        trigger: when_summoned
+
+        on_resolve {
+            draw 1
+        }
+    }
+}

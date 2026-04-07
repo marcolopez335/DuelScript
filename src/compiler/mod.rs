@@ -70,9 +70,11 @@ pub fn compile_card(card: &Card) -> CompiledCard {
     }
 
     // v0.6: Raw effects bypass type_mapper inference — used by transpiler
-    // to preserve exact Lua metadata without any inference
+    // to preserve exact Lua metadata without any inference. The DSL-level
+    // actions inside the raw_effect body still need callbacks generated
+    // so the engine can actually execute them.
     for raw in &card.raw_effects {
-        effects.push(compile_raw_effect(raw));
+        effects.push(compile_raw_effect(raw, card));
     }
 
     // For spells/traps: ACTIVATE effects first, then continuous
@@ -114,12 +116,15 @@ pub fn compile_card(card: &Card) -> CompiledCard {
 /// - Xyz.AddProcedure → 2 effects (check + proc)
 /// - Synchro/Link/Fusion.AddProcedure → 1 effect (proc only)
 /// v0.6: Compile a raw_effect block — exact pass-through of bitfields
-fn compile_raw_effect(raw: &RawEffect) -> CompiledEffect {
-    // Synthesize an EffectBody for the source field (used by callback_gen)
+fn compile_raw_effect(raw: &RawEffect, card: &Card) -> CompiledEffect {
+    // Synthesize an EffectBody so callback_gen can produce real closures
+    // for the DSL-level actions inside this raw_effect block.
     let mut body = EffectBody::default();
     body.cost = raw.cost.clone();
     body.on_activate = raw.on_activate.clone();
     body.on_resolve = raw.on_resolve.clone();
+
+    let callbacks = callback_gen::generate_callbacks(&body, card);
 
     CompiledEffect {
         effect_type: raw.effect_type,
@@ -128,12 +133,7 @@ fn compile_raw_effect(raw: &RawEffect) -> CompiledEffect {
         property: raw.property,
         range: raw.range,
         count_limit: raw.count_limit.map(|(c, code)| CountLimit { count: c, code }),
-        callbacks: callback_gen::GeneratedCallbacks {
-            condition: None,
-            cost: None,
-            target: None,
-            operation: None,
-        },
+        callbacks,
         source: body,
     }
 }
@@ -278,7 +278,7 @@ fn compile_replacement_effect(re: &ReplacementEffect, card: &Card) -> CompiledEf
     }
 }
 
-fn compile_equip_effect(eq: &EquipEffect, card: &Card) -> CompiledEffect {
+fn compile_equip_effect(eq: &EquipEffect, _card: &Card) -> CompiledEffect {
     let _ = eq; // Equip effects are complex — the modifiers are applied as EFFECT_TYPE_EQUIP
 
     let body = EffectBody::default();
@@ -305,7 +305,7 @@ fn compile_equip_effect(eq: &EquipEffect, card: &Card) -> CompiledEffect {
 /// EVENT_SUMMON, EVENT_FLIP_SUMMON, EVENT_SPSUMMON (like Lua's Clone pattern).
 fn compile_effect_expanded(effect: &Effect, card: &Card) -> Vec<CompiledEffect> {
     // Check if this is a "negate summon" pattern on a trap (like Solemn Judgment)
-    if (card.is_trap() || card.is_spell()) {
+    if card.is_trap() || card.is_spell() {
         if let Some(TriggerExpr::WhenSummoned(None)) = &effect.body.trigger {
             // Expand to 3 events: summon, flip summon, special summon
             let events = vec![
