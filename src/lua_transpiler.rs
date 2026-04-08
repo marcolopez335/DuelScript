@@ -1165,6 +1165,60 @@ pub fn transpile_lua_to_ds(
         // accuracy denominator counts this as a real action so the
         // card moves out of StructureOnly.
         let code_str = effect.code.as_deref().unwrap_or("");
+
+        // Sprint 41: grant-style continuous codes that have no
+        // operation function — they take effect via property bits
+        // alone. We emit a register_effect block (which carries a
+        // grant: clause) so the card moves out of StructureOnly.
+        let grant = if code_str.contains("EFFECT_INDESTRUCTABLE_BATTLE") {
+            Some("cannot_be_destroyed_by_battle")
+        } else if code_str.contains("EFFECT_INDESTRUCTABLE_EFFECT")
+                || code_str.contains("EFFECT_INDESTRUCTIBLE_EFFECT") {
+            Some("cannot_be_destroyed_by_effect")
+        } else if code_str.contains("EFFECT_CANNOT_BE_BATTLE_TARGET")
+               || code_str.contains("EFFECT_CANNOT_SELECT_BATTLE_TARGET") {
+            Some("cannot_be_targeted_by_card_effects")
+        } else if code_str.contains("EFFECT_CANNOT_DIRECT_ATTACK") {
+            Some("cannot_attack_directly")
+        } else if code_str.contains("EFFECT_DIRECT_ATTACK") {
+            Some("direct_attack")
+        } else if code_str.contains("EFFECT_PIERCE") {
+            Some("piercing")
+        } else if code_str.contains("EFFECT_ATTACK_ALL") {
+            Some("attack_all_opponent_monsters")
+        } else if code_str.contains("EFFECT_DOUBLE_ATTACK") {
+            Some("double_attack")
+        } else if code_str.contains("EFFECT_TRIPLE_ATTACK") {
+            Some("triple_attack")
+        } else if code_str.contains("EFFECT_CANNOT_ATTACK") {
+            Some("cannot_attack")
+        } else if code_str.contains("EFFECT_IMMUNE_EFFECT")
+               || code_str.contains("EFFECT_UNAFFECTED") {
+            Some("unaffected_by_card_effects")
+        } else if code_str.contains("EFFECT_CANNOT_BE_EFFECT_TARGET") {
+            Some("cannot_be_targeted_by_card_effects")
+        } else {
+            None
+        };
+        if let Some(g) = grant {
+            ds.push_str(&format!("    raw_effect \"Effect {}\" {{\n", i + 1));
+            if effect_type != 0 { ds.push_str(&format!("        effect_type: {}\n", effect_type)); }
+            if category != 0    { ds.push_str(&format!("        category: {}\n", category)); }
+            if code != 0        { ds.push_str(&format!("        code: {}\n", code)); }
+            if property != 0    { ds.push_str(&format!("        property: {}\n", property)); }
+            if range != 0       { ds.push_str(&format!("        range: {}\n", range)); }
+            ds.push_str("        on_resolve {\n");
+            ds.push_str(&format!(
+                "            register_effect on self {{ grant: {} duration: until_end_of_turn }}\n",
+                g
+            ));
+            ds.push_str("        }\n");
+            ds.push_str("    }\n\n");
+            mapped_actions += 1;
+            total_actions += 1;
+            continue;
+        }
+
         let is_atk_mod = code_str.contains("EFFECT_UPDATE_ATTACK");
         let is_def_mod = code_str.contains("EFFECT_UPDATE_DEFENSE");
         // EFFECT_UPDATE_LEVEL exists but the DSL `modifier:` action
