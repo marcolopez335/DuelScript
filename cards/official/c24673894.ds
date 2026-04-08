@@ -11,6 +11,10 @@ card "Changing Destiny" {
         property: 16
         on_resolve {
             negate attack
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
             gain_lp: 1000
             deal_damage to opponent: 1000
         }

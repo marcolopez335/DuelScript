@@ -18,6 +18,10 @@ card "Uni-Zombie" {
         count_limit: (1, 49959355)
         on_resolve {
             discard (1, card)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -29,6 +33,10 @@ card "Uni-Zombie" {
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, you controls, deck) to gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
                 duration: until_end_of_turn

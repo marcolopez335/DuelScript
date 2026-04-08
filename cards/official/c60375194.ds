@@ -12,6 +12,10 @@ card "Vendread Daybreak" {
         count_limit: (1, 60375194)
         on_resolve {
             destroy (1+, card, either_player controls)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

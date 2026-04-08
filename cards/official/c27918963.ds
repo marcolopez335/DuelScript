@@ -35,6 +35,10 @@ card "Yosen Training Grounds" {
         range: 8
         count_limit: (1, 27918963)
         on_resolve {
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
             return (1+, monster, you controls) to hand
             reveal (1+, card, opponent controls)
         }

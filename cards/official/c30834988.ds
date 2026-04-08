@@ -19,6 +19,10 @@ card "All-Out Attacks" {
         range: 8
         on_resolve {
             change_battle_position (1, monster)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
             set_flag "tracked" on self
             send (1+, card, either_player controls) to gy
         }

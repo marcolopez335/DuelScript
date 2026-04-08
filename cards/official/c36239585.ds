@@ -33,6 +33,10 @@ card "Ghostrick Fairy" {
         on_resolve {
             send (1+, monster, you controls) to gy
             set (1, card)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
             change_battle_position (1, monster)
         }
     }

@@ -22,6 +22,10 @@ card "Absolute King Back Jack" {
         on_resolve {
             reveal (1, card, opponent controls, deck)
             set (1, card)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
             send (1+, card, either_player controls) to gy
         }
     }

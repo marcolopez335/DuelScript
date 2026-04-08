@@ -2004,14 +2004,27 @@ fn extract_function_bodies(source: &str) -> std::collections::HashMap<String, Ve
                 // captures this; we emit it as a synthetic
                 // `RegisterEffect` call so to_ds_action_with_context's
                 // existing arm produces a sane skeleton.
-                if l.contains(":RegisterEffect(")
-                    && !l.contains("c:RegisterEffect")
-                    && !l.contains("Duel.RegisterEffect")
-                {
-                    calls.push(DuelApiCall {
-                        method: "RegisterEffect".to_string(),
-                        args: vec![],
-                    });
+                //
+                // Sprint 42: the previous exclusion `!contains("c:Reg…")`
+                // was too coarse — it also excluded `tc:RegisterEffect`
+                // and similar names containing "c:". The exclusion now
+                // only fires when the receiver is exactly `c` (the
+                // current handler in initial_effect, which we already
+                // track via the standalone c:RegisterEffect path in
+                // extract_effect_blocks).
+                if let Some(rpos) = l.find(":RegisterEffect(") {
+                    let before = &l[..rpos];
+                    let receiver = before.split(|c: char| !c.is_alphanumeric() && c != '_')
+                        .last()
+                        .unwrap_or("");
+                    let is_handler = receiver == "c";
+                    let is_duel = l.contains("Duel.RegisterEffect");
+                    if !is_handler && !is_duel {
+                        calls.push(DuelApiCall {
+                            method: "RegisterEffect".to_string(),
+                            args: vec![],
+                        });
+                    }
                 }
             }
 
