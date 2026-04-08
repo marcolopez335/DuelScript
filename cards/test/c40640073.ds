@@ -1,0 +1,16 @@
+// Restriction-style continuous reference: Gravity Bind.
+// "Level 4 or higher monsters cannot attack."
+//
+// Demonstrates: continuous_effect block with apply_to + cannot.
+
+card "Gravity Bind" {
+    type: Continuous Trap
+    password: 40640073
+
+    continuous_effect "No Heavy Attacks" {
+        scope: field
+        apply_to: (1+, monster, either_player controls)
+        modifier: atk + 0
+        cannot: attack
+    }
+}

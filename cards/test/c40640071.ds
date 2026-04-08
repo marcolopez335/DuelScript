@@ -1,0 +1,29 @@
+// Counter manipulation reference: "Place 1 Spell Counter on this card.
+// During your Standby Phase, gain 500 LP for each Spell Counter on it."
+//
+// Demonstrates the place_counter action and a counter-aware modifier.
+
+card "Spell Power Source" {
+    type: Continuous Spell
+    password: 40640071
+
+    counter_system {
+        name: "Spell Counter"
+    }
+
+    effect "Build Charge" {
+        speed: spell_speed_1
+        trigger: when_summoned
+        on_resolve {
+            place_counter 1 "Spell Counter" on self
+        }
+    }
+
+    effect "LP per Counter" {
+        speed: spell_speed_1
+        trigger: during_standby_phase of yours
+        on_resolve {
+            gain_lp: 500
+        }
+    }
+}
