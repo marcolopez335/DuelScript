@@ -15,9 +15,10 @@
 // not just hand-written test cards.
 //
 // We pick cards by sampling from cards/test (canonical) plus a
-// stratified sample from /tmp/ds_out_v9 (migrated). The migrated
-// path runs only when the directory exists — CI / fresh checkouts
-// without a populated /tmp/ds_out_v9 will skip cleanly.
+// stratified sample from cards/official (the migrator's batch
+// output). The migrated path runs only when cards/official is
+// populated — fresh checkouts that haven't run migrate_batch will
+// skip cleanly.
 // ============================================================
 
 use std::fs;
@@ -25,7 +26,7 @@ use std::path::Path;
 
 use duelscript::test_harness::{compile_file, MockRuntime};
 
-const SAMPLE_SIZE: usize = 50;
+const SAMPLE_SIZE: usize = 200;
 
 fn try_run_card(path: &Path, rt: &mut MockRuntime) -> Result<(usize, usize), String> {
     let compiled = compile_file(path).map_err(|e| format!("compile: {}", e))?;
@@ -95,22 +96,22 @@ fn corpus_smoke_test_canonical_cards() {
 
 #[test]
 fn corpus_smoke_test_migrated_cards() {
-    let dir = Path::new("/tmp/ds_out_v9");
+    let dir = Path::new("cards/official");
     if !dir.exists() {
-        eprintln!("[skip] /tmp/ds_out_v9 not present — re-run migration first");
+        eprintln!("[skip] cards/official not present — run migrate_batch first");
         return;
     }
 
     // Sample SAMPLE_SIZE files across the alphabetical span so we hit
     // a mix of card categories without biasing toward any one prefix.
-    let mut all: Vec<_> = fs::read_dir(dir).expect("read ds_out_v9")
+    let mut all: Vec<_> = fs::read_dir(dir).expect("read cards/official")
         .filter_map(|e| e.ok().map(|e| e.path()))
         .filter(|p| p.extension().and_then(|s| s.to_str()) == Some("ds"))
         .collect();
     all.sort();
 
     if all.is_empty() {
-        eprintln!("[skip] no .ds files in /tmp/ds_out_v9");
+        eprintln!("[skip] no .ds files in cards/official");
         return;
     }
 
