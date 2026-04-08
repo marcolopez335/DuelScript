@@ -41,7 +41,8 @@ impl RuntimeCall {
 // ── Mock card snapshot ───────────────────────────────────────
 
 /// A simple stand-in for a real card. Just enough fields to satisfy
-/// the runtime's stat queries and filter checks.
+/// the runtime's stat queries, filter checks, and Sprint 25 predicate
+/// queries (race / attribute / type bitmasks).
 #[derive(Debug, Clone)]
 pub struct CardSnapshot {
     pub id: u32,
@@ -52,6 +53,14 @@ pub struct CardSnapshot {
     pub is_monster: bool,
     pub is_spell: bool,
     pub is_trap: bool,
+    /// EDOPro RACE_X bitmask. 0 if unknown.
+    pub race: u64,
+    /// EDOPro ATTRIBUTE_X bitmask. 0 if unknown.
+    pub attribute: u64,
+    /// EDOPro TYPE_X bitmask (TYPE_MONSTER | TYPE_EFFECT | etc.).
+    pub type_bits: u64,
+    /// Archetype names this card belongs to (for is_archetype predicate).
+    pub archetypes: Vec<String>,
 }
 
 impl CardSnapshot {
@@ -59,6 +68,9 @@ impl CardSnapshot {
         Self {
             id, name: name.to_string(), atk, def, level,
             is_monster: true, is_spell: false, is_trap: false,
+            race: 0, attribute: 0,
+            type_bits: 0x1 | 0x20, // TYPE_MONSTER + TYPE_EFFECT
+            archetypes: Vec::new(),
         }
     }
 
@@ -66,6 +78,9 @@ impl CardSnapshot {
         Self {
             id, name: name.to_string(), atk: 0, def: 0, level: 0,
             is_monster: false, is_spell: true, is_trap: false,
+            race: 0, attribute: 0,
+            type_bits: 0x2, // TYPE_SPELL
+            archetypes: Vec::new(),
         }
     }
 
@@ -73,7 +88,24 @@ impl CardSnapshot {
         Self {
             id, name: name.to_string(), atk: 0, def: 0, level: 0,
             is_monster: false, is_spell: false, is_trap: true,
+            race: 0, attribute: 0,
+            type_bits: 0x4, // TYPE_TRAP
+            archetypes: Vec::new(),
         }
+    }
+
+    /// Sprint 25 builder: attach race/attribute bitmasks.
+    pub fn with_race(mut self, race_bits: u64) -> Self {
+        self.race = race_bits;
+        self
+    }
+    pub fn with_attribute(mut self, attr_bits: u64) -> Self {
+        self.attribute = attr_bits;
+        self
+    }
+    pub fn with_archetype(mut self, name: &str) -> Self {
+        self.archetypes.push(name.to_string());
+        self
     }
 }
 
@@ -247,6 +279,23 @@ impl DuelScriptRuntime for MockRuntime {
             Stat::Level => card.level as i32,
             Stat::Rank  => card.level as i32,
         }
+    }
+    // Sprint 25: card-attribute queries.
+    fn get_card_race(&self, card_id: u32) -> u64 {
+        self.state.cards.get(&card_id).map(|c| c.race).unwrap_or(0)
+    }
+    fn get_card_attribute(&self, card_id: u32) -> u64 {
+        self.state.cards.get(&card_id).map(|c| c.attribute).unwrap_or(0)
+    }
+    fn get_card_type(&self, card_id: u32) -> u64 {
+        self.state.cards.get(&card_id).map(|c| c.type_bits).unwrap_or(0)
+    }
+    fn get_card_code(&self, card_id: u32) -> u32 { card_id }
+    fn get_card_name(&self, card_id: u32) -> String {
+        self.state.cards.get(&card_id).map(|c| c.name.clone()).unwrap_or_default()
+    }
+    fn get_card_archetypes(&self, card_id: u32) -> Vec<String> {
+        self.state.cards.get(&card_id).map(|c| c.archetypes.clone()).unwrap_or_default()
     }
     fn effect_card_id(&self) -> u32 { self.effect_card_id }
     fn effect_player(&self) -> u8 { self.effect_player }

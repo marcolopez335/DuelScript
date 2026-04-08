@@ -1,0 +1,17 @@
+// Sprint 28 test card — in-resolution selection binding.
+// "Target 1 monster opponent controls. Deal damage equal to its ATK,
+//  then destroy that target." (Magic Cylinder-style.)
+
+card "Selection Test Spell" {
+    type: Normal Spell
+    password: 40640061
+
+    effect "Mirror Force-style" {
+        speed: spell_speed_1
+
+        on_resolve {
+            select (1, monster, opponent controls) as picked
+            destroy (1, monster, opponent controls)
+        }
+    }
+}

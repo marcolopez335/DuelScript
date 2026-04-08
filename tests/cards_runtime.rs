@@ -273,6 +273,111 @@ fn heavy_storm_destroys_all_spells() {
         p0_st, p1_st, rt.dump_calls());
 }
 
+// ── Sprint 23: card-query predicates ─────────────────────────
+
+#[test]
+fn predicate_filters_by_level_and_atk() {
+    // The predicate is `where { level <= 4 and atk >= 1500 }` against
+    // opponent's monsters. Only monsters meeting BOTH conditions
+    // should get destroyed.
+    let card = load("cards/test/c40640059.ds");
+    assert_eq!(card.card_id, 40640059);
+
+    let mut rt = DuelScenario::new()
+        .cards([
+            // Should be destroyed: lvl 4, atk 1800 ✓
+            CardSnapshot::monster(70781052, "Sword Hunter", 1800, 1700, 4),
+            // Should survive: lvl 8 (too high) ✗
+            CardSnapshot::monster(89943723, "Lava Golem", 3000, 2500, 8),
+            // Should survive: lvl 4 OK, atk 800 too low ✗
+            CardSnapshot::monster(40640100, "Weak Mon",     800, 1000, 4),
+            // Should be destroyed: lvl 3, atk 1500 ✓ (boundary case)
+            CardSnapshot::monster(40640101, "Mid Mon",     1500, 1000, 3),
+        ])
+        .player(1).monsters([70781052, 89943723, 40640100, 40640101])
+        .activated_by(0, 40640059)
+        .build();
+
+    run_effect(&mut rt, &card.effects[0]);
+
+    // Survivors: Lava Golem (level too high) + Weak Mon (atk too low).
+    let survivors: Vec<u32> = rt.state.players[1].field_monsters.clone();
+    assert!(survivors.contains(&89943723),
+        "Lava Golem (lvl 8) should survive — predicate level <= 4");
+    assert!(survivors.contains(&40640100),
+        "Weak Mon (800 atk) should survive — predicate atk >= 1500");
+    assert!(!survivors.contains(&70781052),
+        "Sword Hunter (lvl 4, 1800 atk) should be destroyed");
+    assert!(!survivors.contains(&40640101),
+        "Mid Mon (lvl 3, 1500 atk) should be destroyed (boundary)");
+    assert_eq!(survivors.len(), 2, "exactly 2 monsters should survive");
+}
+
+// ── Sprint 28: in-resolution selection binding ───────────────
+
+#[test]
+fn select_action_binds_target_for_subsequent_actions() {
+    let card = load("cards/test/c40640061.ds");
+    let mut rt = DuelScenario::new()
+        .cards([
+            CardSnapshot::monster(80000010, "Lava Golem", 3000, 2500, 8),
+        ])
+        .player(1).monsters([80000010])
+        .activated_by(0, 40640061)
+        .build();
+
+    run_effect(&mut rt, &card.effects[0]);
+
+    // The select action should call set_binding(name="picked", card_id=80000010)
+    assert!(rt.was_called_with("set_binding", "name=\"picked\""),
+        "select action should bind 'picked'. Calls:\n{}", rt.dump_calls());
+    // The destroy should also have run
+    assert!(rt.call_count("destroy") >= 1,
+        "destroy should fire after select");
+    assert_eq!(rt.state.players[1].field_monsters.len(), 0,
+        "monster should be destroyed");
+}
+
+// ── Sprint 25: predicate filters by race ─────────────────────
+
+#[test]
+fn predicate_filters_by_race() {
+    // Card destroys opponent monsters that are level <= 4 AND race == Warrior.
+    let card = load("cards/test/c40640060.ds");
+
+    // RACE_WARRIOR = 0x1
+    let warrior = 0x1u64;
+    let dragon  = 0x2000u64;
+
+    let mut rt = DuelScenario::new()
+        .cards([
+            // Should be destroyed: lvl 4 Warrior ✓✓
+            CardSnapshot::monster(80000001, "Lv4 Warrior", 1500, 1000, 4)
+                .with_race(warrior),
+            // Should survive: lvl 4 Dragon (wrong race)
+            CardSnapshot::monster(80000002, "Lv4 Dragon",  1500, 1000, 4)
+                .with_race(dragon),
+            // Should survive: lvl 8 Warrior (level too high)
+            CardSnapshot::monster(80000003, "Lv8 Warrior", 2500, 2000, 8)
+                .with_race(warrior),
+            // Should be destroyed: lvl 3 Warrior ✓✓
+            CardSnapshot::monster(80000004, "Lv3 Warrior", 1200, 800,  3)
+                .with_race(warrior),
+        ])
+        .player(1).monsters([80000001, 80000002, 80000003, 80000004])
+        .activated_by(0, 40640060)
+        .build();
+
+    run_effect(&mut rt, &card.effects[0]);
+
+    let survivors: Vec<u32> = rt.state.players[1].field_monsters.clone();
+    assert!(survivors.contains(&80000002), "Dragon should survive (wrong race)");
+    assert!(survivors.contains(&80000003), "Lv8 Warrior should survive (too high)");
+    assert!(!survivors.contains(&80000001), "Lv4 Warrior should die");
+    assert!(!survivors.contains(&80000004), "Lv3 Warrior should die");
+    assert_eq!(survivors.len(), 2, "exactly 2 monsters should survive");
+}
+
 // ── Sprint 7: cards exercising the expanded DuelApi ──────────
 
 #[test]

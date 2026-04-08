@@ -45,6 +45,16 @@ pub trait DuelScriptRuntime {
     fn card_matches_filter(&self, card_id: u32, filter: &CardFilter) -> bool;
     fn get_card_stat(&self, card_id: u32, stat: &Stat) -> i32;
 
+    /// Sprint 25: card-attribute queries used by predicate filters.
+    /// Returns 0 / sentinel for unknown cards. The race/attribute/type
+    /// values are EDOPro-style bitfields (e.g., RACE_WARRIOR = 0x1).
+    fn get_card_race(&self, _card_id: u32) -> u64 { 0 }
+    fn get_card_attribute(&self, _card_id: u32) -> u64 { 0 }
+    fn get_card_type(&self, _card_id: u32) -> u64 { 0 }
+    fn get_card_code(&self, card_id: u32) -> u32 { card_id }
+    fn get_card_name(&self, _card_id: u32) -> String { String::new() }
+    fn get_card_archetypes(&self, _card_id: u32) -> Vec<String> { Vec::new() }
+
     /// Get the card_id of the effect's owner
     fn effect_card_id(&self) -> u32;
     /// Get the activating player (0 or 1)
@@ -930,6 +940,15 @@ fn execute_action(action: &GameAction, rt: &mut dyn DuelScriptRuntime, player: u
         GameAction::EmitEvent(name) => {
             rt.raise_custom_event(name, &[rt.effect_card_id()]);
         }
+        // Sprint 28: in-resolution selection binding. Resolve targets,
+        // pick the first card (deterministic), and bind it under `name`
+        // so subsequent BindingRef expressions can reach it.
+        GameAction::Select { target, name } => {
+            let cards = resolve_target_cards(target, rt, player);
+            if let Some(&first) = cards.first() {
+                rt.set_binding(name, first);
+            }
+        }
         GameAction::Confirm { target, audience } => {
             let aud = match audience {
                 ConfirmAudience::You => 0u8,
@@ -1073,7 +1092,7 @@ fn resolve_target_cards(target: &TargetExpr, rt: &dyn DuelScriptRuntime, player:
     let opponent = 1 - player;
     match target {
         TargetExpr::SelfCard => vec![rt.effect_card_id()],
-        TargetExpr::Counted { filter, controller, zone, .. } => {
+        TargetExpr::Counted { filter, controller, zone, predicate, .. } => {
             let ctrl = match controller {
                 Some(ControllerRef::You)         => player,
                 Some(ControllerRef::Opponent)     => opponent,
@@ -1084,34 +1103,153 @@ fn resolve_target_cards(target: &TargetExpr, rt: &dyn DuelScriptRuntime, player:
                 .unwrap_or(type_mapper::LOCATION_ONFIELD);
 
             let all_cards = rt.get_field_cards(ctrl, location);
-            let matching: Vec<u32> = all_cards.into_iter()
+            let mut matching: Vec<u32> = all_cards.into_iter()
                 .filter(|&cid| rt.card_matches_filter(cid, filter))
                 .collect();
 
-            // For EitherPlayer, also check opponent
+            // For EitherPlayer, also check opponent's cards.
             if matches!(controller, Some(ControllerRef::EitherPlayer)) {
-                let mut combined = matching;
                 let opp_cards = rt.get_field_cards(opponent, location);
-                combined.extend(opp_cards.into_iter()
+                matching.extend(opp_cards.into_iter()
                     .filter(|&cid| rt.card_matches_filter(cid, filter)));
-                combined
-            } else {
-                matching
             }
+
+            // Sprint 23: apply the predicate filter on top.
+            if let Some(pred) = predicate {
+                matching.retain(|&cid| eval_predicate(pred, cid, rt));
+            }
+            matching
         }
         TargetExpr::Filter(filter) => {
-            // Unscoped filter — search player's field
             let all = rt.get_field_cards(player, type_mapper::LOCATION_ONFIELD);
             all.into_iter()
                 .filter(|&cid| rt.card_matches_filter(cid, filter))
                 .collect()
         }
-        TargetExpr::WithPredicate { filter, .. } => {
-            // v0.6: TODO — evaluate predicate. For now, fall back to filter only
+        TargetExpr::WithPredicate { filter, predicate, .. } => {
             let all = rt.get_field_cards(player, type_mapper::LOCATION_ONFIELD);
             all.into_iter()
                 .filter(|&cid| rt.card_matches_filter(cid, filter))
+                .filter(|&cid| eval_predicate(predicate, cid, rt))
                 .collect()
         }
+    }
+}
+
+/// Sprint 23: evaluate a Predicate against a single card_id.
+/// Walks the AST and queries the runtime for each leaf.
+fn eval_predicate(pred: &Predicate, card_id: u32, rt: &dyn DuelScriptRuntime) -> bool {
+    match pred {
+        Predicate::And(parts) => parts.iter().all(|p| eval_predicate(p, card_id, rt)),
+        Predicate::Or(parts)  => parts.iter().any(|p| eval_predicate(p, card_id, rt)),
+        Predicate::Not(inner) => !eval_predicate(inner, card_id, rt),
+        Predicate::Compare { field, op, value } => {
+            let lhs = pred_field_value(field, card_id, rt);
+            let rhs = pred_value_to_i32(value);
+            match op {
+                CompareOp::Gte => lhs >= rhs,
+                CompareOp::Lte => lhs <= rhs,
+                CompareOp::Gt  => lhs >  rhs,
+                CompareOp::Lt  => lhs <  rhs,
+                CompareOp::Eq  => lhs == rhs,
+                CompareOp::Neq => lhs != rhs,
+            }
+        }
+        // Property/state checks fall through to the runtime; the trait
+        // exposes the most-needed ones (is_face_up, has_flag, etc.).
+        // Anything we don't yet have a method for defaults to true so
+        // cards don't accidentally get filtered to nothing.
+        Predicate::Is(_)
+        | Predicate::Has(_)
+        | Predicate::Location(_)
+        | Predicate::Controller(_)
+        | Predicate::StateCheck(_)
+        | Predicate::Archetype(_)
+        | Predicate::SummonedBy(_) => true,
+    }
+}
+
+/// Read a numeric value off the candidate card for predicate comparison.
+/// Sprint 25: Race/Attribute/Type/Name now query the runtime.
+fn pred_field_value(field: &PredField, card_id: u32, rt: &dyn DuelScriptRuntime) -> i32 {
+    match field {
+        PredField::Atk           => rt.get_card_stat(card_id, &Stat::Atk),
+        PredField::Def           => rt.get_card_stat(card_id, &Stat::Def),
+        PredField::Level         => rt.get_card_stat(card_id, &Stat::Level),
+        PredField::Rank          => rt.get_card_stat(card_id, &Stat::Rank),
+        PredField::OriginalAtk   => rt.get_card_stat(card_id, &Stat::OriginalAtk),
+        PredField::OriginalDef   => rt.get_card_stat(card_id, &Stat::OriginalDef),
+        PredField::OriginalLevel => rt.get_card_stat(card_id, &Stat::Level),
+        PredField::LinkRating    => rt.get_card_stat(card_id, &Stat::Level),
+        PredField::Scale         => 0,
+        PredField::CardId        => rt.get_card_code(card_id) as i32,
+        PredField::Race          => rt.get_card_race(card_id) as i32,
+        PredField::Attribute     => rt.get_card_attribute(card_id) as i32,
+        PredField::Type          => rt.get_card_type(card_id) as i32,
+        PredField::Name          => 0, // strings need separate handling
+    }
+}
+
+/// Coerce a PredValue to i32 for numeric comparisons. Race/Attribute
+/// values use the EDOPro bitfield discriminant of their AST variant
+/// (matches what the runtime returns).
+fn pred_value_to_i32(value: &PredValue) -> i32 {
+    match value {
+        PredValue::Number(n)    => *n,
+        PredValue::Race(r)      => race_to_bits(r) as i32,
+        PredValue::Attribute(a) => attribute_to_bits(a) as i32,
+        PredValue::CardType(_)  => 0,
+        PredValue::String(_)    => 0,
+        PredValue::FieldRef(_)  => 0,
+    }
+}
+
+/// Map an AST Race to the EDOPro RACE_X bitfield.
+fn race_to_bits(r: &Race) -> u64 {
+    match r {
+        Race::Warrior      => 0x1,
+        Race::Spellcaster  => 0x2,
+        Race::Fairy        => 0x4,
+        Race::Fiend        => 0x8,
+        Race::Zombie       => 0x10,
+        Race::Machine      => 0x20,
+        Race::Aqua         => 0x40,
+        Race::Pyro         => 0x80,
+        Race::Rock         => 0x100,
+        Race::WingedBeast  => 0x200,
+        Race::Plant        => 0x400,
+        Race::Insect       => 0x800,
+        Race::Thunder      => 0x1000,
+        Race::Dragon       => 0x2000,
+        Race::Beast        => 0x4000,
+        Race::BeastWarrior => 0x8000,
+        Race::Dinosaur     => 0x10000,
+        Race::Fish         => 0x20000,
+        Race::SeaSerpent   => 0x40000,
+        Race::Reptile      => 0x80000,
+        Race::Psychic      => 0x100000,
+        Race::DivineBeast  => 0x200000,
+        Race::CreatorGod   => 0x400000,
+        Race::Wyrm         => 0x800000,
+        Race::Cyberse      => 0x1000000,
+        Race::Illusion     => 0x2000000,
+        Race::Cyborg       => 0x4000000,
+        Race::MagicalKnight => 0x8000000,
+        Race::HighDragon   => 0x10000000,
+        Race::OmegaPsychic => 0x20000000,
+        Race::Unknown      => 0,
+    }
+}
+
+/// Map an AST Attribute to the EDOPro ATTRIBUTE_X bitfield.
+fn attribute_to_bits(a: &Attribute) -> u64 {
+    match a {
+        Attribute::Earth  => 0x1,
+        Attribute::Water  => 0x2,
+        Attribute::Fire   => 0x4,
+        Attribute::Wind   => 0x8,
+        Attribute::Light  => 0x10,
+        Attribute::Dark   => 0x20,
+        Attribute::Divine => 0x40,
     }
 }

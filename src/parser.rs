@@ -1321,6 +1321,18 @@ fn parse_game_action(pair: Pair<Rule>) -> Result<GameAction, ParseError> {
                 .ok_or(ParseError::MissingField("draw count"))?;
             Ok(GameAction::Draw { count: parse_expr(expr)? })
         }
+        Rule::select_action => {
+            // select <target_expr> as <ident>
+            let target = inner.clone().into_inner()
+                .find(|p| p.as_rule() == Rule::target_expr)
+                .ok_or(ParseError::MissingField("select target"))
+                .and_then(parse_target_expr)?;
+            let name = inner.into_inner()
+                .find(|p| p.as_rule() == Rule::ident)
+                .ok_or(ParseError::MissingField("select binding name"))?
+                .as_str().to_string();
+            Ok(GameAction::Select { target, name })
+        }
         Rule::special_summon_action => {
             let target = parse_self_or_target_first(inner.clone())?;
             let from = inner.clone().into_inner().find(|p| p.as_rule() == Rule::zone)
@@ -2649,30 +2661,29 @@ fn parse_target_expr(pair: Pair<Rule>) -> Result<TargetExpr, ParseError> {
 
     match inner.as_rule() {
         Rule::counted_target => {
+            let inner_text = inner.as_str();
+            let count_or_more = inner_text.contains('+');
             let mut count = 1u32;
-            let mut count_or_more = false;
             let mut filter = CardFilter::Card;
             let mut controller = None;
             let mut zone = None;
             let mut qualifiers = vec![];
+            let mut predicate = None;
 
             for child in inner.into_inner() {
                 match child.as_rule() {
                     Rule::unsigned => {
                         count = child.as_str().parse().unwrap_or(1);
-                        // Check for "+" in the parent text
                     }
                     Rule::card_filter => filter = parse_card_filter(child)?,
                     Rule::controller_ref => controller = Some(parse_controller_ref(child)?),
                     Rule::zone => zone = Some(parse_zone(child)?),
                     Rule::target_qualifier => qualifiers.push(parse_target_qualifier(child)?),
-                    _ => {
-                        // Check for "+" count_or_more marker
-                        if child.as_str() == "+" { count_or_more = true; }
-                    }
+                    Rule::where_clause => predicate = Some(parse_where_clause(child)?),
+                    _ => {}
                 }
             }
-            Ok(TargetExpr::Counted { count, count_or_more, filter, controller, zone, qualifiers, predicate: None })
+            Ok(TargetExpr::Counted { count, count_or_more, filter, controller, zone, qualifiers, predicate })
         }
         Rule::filter_target => {
             let filter = inner.into_inner().next()
@@ -2684,6 +2695,283 @@ fn parse_target_expr(pair: Pair<Rule>) -> Result<TargetExpr, ParseError> {
         }
         _ => Err(ParseError::UnknownRule(inner.as_str().to_string())),
     }
+}
+
+// ── Sprint 23: predicate parser ──────────────────────────────
+//
+// Wires the existing predicate grammar (predicate → pred_or →
+// pred_and → pred_not → pred_atom → (pred_comparison | pred_is_check
+// | pred_has_check | pred_location | pred_controller | pred_state |
+// pred_archetype | pred_method)) into the AST that's been waiting
+// for it since v0.6. Used by `where (...)` clauses on counted_target.
+
+fn parse_where_clause(pair: Pair<Rule>) -> Result<Predicate, ParseError> {
+    let inner = pair.into_inner()
+        .find(|p| p.as_rule() == Rule::predicate)
+        .ok_or(ParseError::MissingField("where body"))?;
+    parse_predicate(inner)
+}
+
+fn parse_predicate(pair: Pair<Rule>) -> Result<Predicate, ParseError> {
+    let inner = pair.into_inner()
+        .find(|p| p.as_rule() == Rule::pred_or)
+        .ok_or(ParseError::MissingField("predicate body"))?;
+    parse_pred_or(inner)
+}
+
+fn parse_pred_or(pair: Pair<Rule>) -> Result<Predicate, ParseError> {
+    let parts: Vec<Predicate> = pair.into_inner()
+        .filter(|p| p.as_rule() == Rule::pred_and)
+        .map(parse_pred_and)
+        .collect::<Result<_, _>>()?;
+    if parts.len() == 1 {
+        Ok(parts.into_iter().next().unwrap())
+    } else {
+        Ok(Predicate::Or(parts.into_iter().filter_map(|p| match p {
+            Predicate::And(items) if items.len() == 1 => items.into_iter().next(),
+            other => Some(other),
+        }).collect()))
+    }
+}
+
+fn parse_pred_and(pair: Pair<Rule>) -> Result<Predicate, ParseError> {
+    let parts: Vec<Predicate> = pair.into_inner()
+        .filter(|p| p.as_rule() == Rule::pred_not)
+        .map(parse_pred_not)
+        .collect::<Result<_, _>>()?;
+    if parts.len() == 1 {
+        Ok(parts.into_iter().next().unwrap())
+    } else {
+        Ok(Predicate::And(parts))
+    }
+}
+
+fn parse_pred_not(pair: Pair<Rule>) -> Result<Predicate, ParseError> {
+    let text = pair.as_str().trim_start();
+    let negated = text.starts_with("not");
+    let atom = pair.into_inner()
+        .find(|p| p.as_rule() == Rule::pred_atom)
+        .ok_or(ParseError::MissingField("pred_not atom"))?;
+    let inner = parse_pred_atom(atom)?;
+    Ok(if negated { Predicate::Not(Box::new(inner)) } else { inner })
+}
+
+fn parse_pred_atom(pair: Pair<Rule>) -> Result<Predicate, ParseError> {
+    let inner = pair.into_inner().next()
+        .ok_or(ParseError::MissingField("pred_atom inner"))?;
+    match inner.as_rule() {
+        Rule::predicate       => parse_predicate(inner),
+        Rule::pred_comparison => parse_pred_comparison(inner),
+        Rule::pred_is_check   => parse_pred_is_check(inner),
+        Rule::pred_has_check  => parse_pred_has_check(inner),
+        Rule::pred_location   => parse_pred_location(inner),
+        Rule::pred_controller => parse_pred_controller(inner),
+        Rule::pred_state      => parse_pred_state(inner),
+        Rule::pred_archetype  => parse_pred_archetype(inner),
+        Rule::pred_method     => parse_pred_method(inner),
+        _ => Err(ParseError::UnknownRule(inner.as_str().to_string())),
+    }
+}
+
+fn parse_pred_comparison(pair: Pair<Rule>) -> Result<Predicate, ParseError> {
+    // pred_comparison = pred_field ~ compare_op ~ pred_value
+    let mut inner = pair.into_inner();
+    let field_pair = inner.next().ok_or(ParseError::MissingField("pred field"))?;
+    let op_pair    = inner.next().ok_or(ParseError::MissingField("pred op"))?;
+    let value_pair = inner.next().ok_or(ParseError::MissingField("pred value"))?;
+    let field = parse_pred_field(field_pair)?;
+    let op    = parse_pred_compare_op(op_pair)?;
+    let value = parse_pred_value(value_pair)?;
+    Ok(Predicate::Compare { field, op, value })
+}
+
+fn parse_pred_field(pair: Pair<Rule>) -> Result<PredField, ParseError> {
+    match pair.as_str() {
+        "atk"            => Ok(PredField::Atk),
+        "def"            => Ok(PredField::Def),
+        "level"          => Ok(PredField::Level),
+        "rank"           => Ok(PredField::Rank),
+        "link_rating"    => Ok(PredField::LinkRating),
+        "scale"          => Ok(PredField::Scale),
+        "original_atk"   => Ok(PredField::OriginalAtk),
+        "original_def"   => Ok(PredField::OriginalDef),
+        "original_level" => Ok(PredField::OriginalLevel),
+        "race"           => Ok(PredField::Race),
+        "attribute"      => Ok(PredField::Attribute),
+        "type"           => Ok(PredField::Type),
+        "card_id"        => Ok(PredField::CardId),
+        "name"           => Ok(PredField::Name),
+        other            => Err(ParseError::UnknownRule(other.to_string())),
+    }
+}
+
+fn parse_pred_compare_op(pair: Pair<Rule>) -> Result<CompareOp, ParseError> {
+    match pair.as_str() {
+        ">=" => Ok(CompareOp::Gte),
+        "<=" => Ok(CompareOp::Lte),
+        ">"  => Ok(CompareOp::Gt),
+        "<"  => Ok(CompareOp::Lt),
+        "==" => Ok(CompareOp::Eq),
+        "!=" => Ok(CompareOp::Neq),
+        other => Err(ParseError::UnknownRule(other.to_string())),
+    }
+}
+
+fn parse_pred_value(pair: Pair<Rule>) -> Result<PredValue, ParseError> {
+    let inner = pair.into_inner().next()
+        .ok_or(ParseError::MissingField("pred_value inner"))?;
+    match inner.as_rule() {
+        Rule::unsigned   => Ok(PredValue::Number(parse_unsigned(inner)? as i32)),
+        Rule::attribute  => Ok(PredValue::Attribute(parse_attribute(inner)?)),
+        Rule::race       => Ok(PredValue::Race(parse_race(inner)?)),
+        Rule::card_type  => {
+            // Reuse the existing card_type parser which yields a CardType
+            let ct = parse_card_type(inner)?;
+            Ok(PredValue::CardType(ct))
+        }
+        Rule::string     => Ok(PredValue::String(parse_string(inner))),
+        Rule::pred_field => Ok(PredValue::FieldRef(parse_pred_field(inner)?)),
+        _ => Err(ParseError::UnknownRule(inner.as_str().to_string())),
+    }
+}
+
+fn parse_pred_is_check(pair: Pair<Rule>) -> Result<Predicate, ParseError> {
+    // pred_is_check = "is_" ~ is_property
+    let prop = pair.into_inner()
+        .find(|p| p.as_rule() == Rule::is_property)
+        .ok_or(ParseError::MissingField("is_property"))?;
+    let p = match prop.as_str() {
+        "face_up"            => IsProperty::FaceUp,
+        "face_down"          => IsProperty::FaceDown,
+        "attack_position"    => IsProperty::AttackPosition,
+        "defense_position"   => IsProperty::DefensePosition,
+        "tuner"              => IsProperty::Tuner,
+        "non_tuner"          => IsProperty::NonTuner,
+        "effect_monster"     => IsProperty::EffectMonster,
+        "normal_monster"     => IsProperty::NormalMonster,
+        "fusion"             => IsProperty::Fusion,
+        "synchro"            => IsProperty::Synchro,
+        "xyz"                => IsProperty::Xyz,
+        "link"               => IsProperty::Link,
+        "pendulum"           => IsProperty::Pendulum,
+        "ritual"             => IsProperty::Ritual,
+        "token"              => IsProperty::Token,
+        "monster"            => IsProperty::Monster,
+        "spell"              => IsProperty::Spell,
+        "trap"               => IsProperty::Trap,
+        "normal_summoned"    => IsProperty::NormalSummoned,
+        "special_summoned"   => IsProperty::SpecialSummoned,
+        "flip_summoned"      => IsProperty::FlipSummoned,
+        "tribute_summoned"   => IsProperty::TributeSummoned,
+        "extra_deck_monster" => IsProperty::ExtraDeckMonster,
+        "public"             => IsProperty::Public,
+        "hidden"             => IsProperty::Hidden,
+        "counter_trap"       => IsProperty::CounterTrap,
+        "continuous"         => IsProperty::Continuous,
+        "equip"              => IsProperty::Equip,
+        "field_spell"        => IsProperty::FieldSpell,
+        "quick_play"         => IsProperty::QuickPlay,
+        other                => return Err(ParseError::UnknownRule(other.to_string())),
+    };
+    Ok(Predicate::Is(p))
+}
+
+fn parse_pred_has_check(pair: Pair<Rule>) -> Result<Predicate, ParseError> {
+    let prop = pair.into_inner()
+        .find(|p| p.as_rule() == Rule::has_property)
+        .ok_or(ParseError::MissingField("has_property"))?;
+    let text = prop.as_str();
+    let p = if text.starts_with("counter") {
+        // counter ("name")?
+        let name = prop.into_inner()
+            .find(|p| p.as_rule() == Rule::ident)
+            .map(|p| p.as_str().to_string());
+        HasProperty::Counter(name)
+    } else {
+        match text {
+            "material"                 => HasProperty::Material,
+            "level"                    => HasProperty::Level,
+            "been_destroyed_this_turn" => HasProperty::BeenDestroyedThisTurn,
+            "been_activated_this_turn" => HasProperty::BeenActivatedThisTurn,
+            "been_summoned_this_turn"  => HasProperty::BeenSummonedThisTurn,
+            "left_field_this_turn"     => HasProperty::LeftFieldThisTurn,
+            "targeted_this_turn"       => HasProperty::TargetedThisTurn,
+            other                      => return Err(ParseError::UnknownRule(other.to_string())),
+        }
+    };
+    Ok(Predicate::Has(p))
+}
+
+fn parse_pred_location(pair: Pair<Rule>) -> Result<Predicate, ParseError> {
+    let text = pair.as_str().trim();
+    let mut inner = pair.into_inner();
+    if text.starts_with("previous_location") {
+        let zone = inner.find(|p| p.as_rule() == Rule::zone)
+            .ok_or(ParseError::MissingField("zone"))?;
+        return Ok(Predicate::Location(LocationPred::Previous(parse_zone(zone)?)));
+    }
+    if text.starts_with("in_location") {
+        let zones: Vec<Zone> = inner
+            .filter(|p| p.as_rule() == Rule::zone)
+            .map(parse_zone)
+            .collect::<Result<_, _>>()?;
+        return Ok(Predicate::Location(LocationPred::OneOf(zones)));
+    }
+    // location: <zone>
+    let zone = inner.find(|p| p.as_rule() == Rule::zone)
+        .ok_or(ParseError::MissingField("zone"))?;
+    Ok(Predicate::Location(LocationPred::Exact(parse_zone(zone)?)))
+}
+
+fn parse_pred_controller(pair: Pair<Rule>) -> Result<Predicate, ParseError> {
+    let text = pair.as_str().trim();
+    if text == "controlled_by_you" {
+        return Ok(Predicate::Controller(ControllerPred::You));
+    }
+    if text == "controlled_by_opponent" {
+        return Ok(Predicate::Controller(ControllerPred::Opponent));
+    }
+    let cr = pair.into_inner()
+        .find(|p| p.as_rule() == Rule::controller_ref)
+        .ok_or(ParseError::MissingField("controller_ref"))?;
+    Ok(Predicate::Controller(ControllerPred::Is(parse_controller_ref(cr)?)))
+}
+
+fn parse_pred_state(pair: Pair<Rule>) -> Result<Predicate, ParseError> {
+    let s = match pair.as_str() {
+        "can_be_special_summoned" => StateCheck::CanBeSpecialSummoned,
+        "can_be_destroyed"        => StateCheck::CanBeDestroyed,
+        "can_be_targeted"         => StateCheck::CanBeTargeted,
+        "can_be_banished"         => StateCheck::CanBeBanished,
+        "can_be_tributed"         => StateCheck::CanBeTributed,
+        "can_be_flipped"          => StateCheck::CanBeFlipped,
+        "disabled"                => StateCheck::Disabled,
+        "negated"                 => StateCheck::Negated,
+        "unaffected_by_effects"   => StateCheck::UnaffectedByEffects,
+        other                     => return Err(ParseError::UnknownRule(other.to_string())),
+    };
+    Ok(Predicate::StateCheck(s))
+}
+
+fn parse_pred_archetype(pair: Pair<Rule>) -> Result<Predicate, ParseError> {
+    let text = pair.as_str().trim_start();
+    let s = pair.into_inner()
+        .find(|p| p.as_rule() == Rule::string)
+        .ok_or(ParseError::MissingField("archetype string"))?;
+    let name = parse_string(s);
+    Ok(if text.starts_with("named") {
+        Predicate::Archetype(ArchetypePred::Named(name))
+    } else {
+        Predicate::Archetype(ArchetypePred::InArchetype(name))
+    })
+}
+
+fn parse_pred_method(pair: Pair<Rule>) -> Result<Predicate, ParseError> {
+    let m = pair.into_inner()
+        .find(|p| p.as_rule() == Rule::summon_method)
+        .ok_or(ParseError::MissingField("summon_method"))?;
+    let method = parse_summon_method(m)?;
+    Ok(Predicate::SummonedBy(method))
 }
 
 fn parse_card_filter(pair: Pair<Rule>) -> Result<CardFilter, ParseError> {

@@ -101,10 +101,73 @@ impl DuelApiCall {
             "ShuffleDeck" => Some("shuffle_deck".to_string()),
             "Discard" => Some("discard (1, card)".to_string()),
             "MoveToField" => Some("special_summon (1, monster) from gy".to_string()),
+            // Sprint 26: more action mutators recognized.
+            // RegisterEffect needs a body block — emit a valid skeleton
+            // that the validator will accept (empty restriction grant).
+            "RegisterEffect" => Some(
+                "register_effect on self {\n                grant: cannot_be_destroyed_by_battle\n                duration: until_end_of_turn\n            }".to_string()
+            ),
+            "RegisterFlagEffect" => Some("set_flag \"tracked\" on self".to_string()),
+            "BreakEffect" => None, // sequencing marker, no action
+            "SpecialSummonStep" => Some("special_summon (1, monster) from gy".to_string()),
+            "SpecialSummonComplete" => None, // multi-step finalizer
+            "SetTargetCard" | "SetTargetPlayer" | "SetTargetParam" | "SetOperationInfo"
+                | "SetPossibleOperationInfo" | "Hint" | "HintSelection" => None,
+            "RaiseEvent" => Some("emit_event \"custom\"".to_string()),
+            "AnnounceCard" => None, // announcement is a cost-side concept
+            // ── Selection family — these mark targets, action follows ──
+            "SelectMatchingCard" | "SelectTarget" | "SelectYesNo"
+                | "GetMatchingGroup" | "GetFirstTarget" | "GetTargetCards"
+                | "GetMatchingGroupCount" | "GetFieldGroupCount"
+                | "IsExistingMatchingCard" | "IsExistingTarget" => None,
+            // ── Pure queries — silently skip ──
+            "GetLocationCount" | "GetFlagEffect" | "GetCurrentChain"
+                | "GetCurrentPhase" | "GetTurnPlayer" | "GetTurnCount"
+                | "GetLP" | "IsTurnPlayer" | "IsExistingMatchingCardEx"
+                | "GetChainInfo" | "GetChainMaterial"
+                | "GetAttacker" | "GetAttackTarget" | "IsAttackCanceled"
+                | "IsPlayerCanDraw" | "IsPlayerCanSpecialSummon"
+                | "IsPlayerCanSpecialSummonMonster"
+                | "IsPlayerAffectedByEffect" | "IsPlayerCanRemove"
+                | "IsPlayerCanDiscardDeck" | "IsPlayerCanDiscardDeckAsCost"
+                | "GetFieldCard" | "GetFieldGroup" | "GetFieldCardCount"
+                | "GetCounter" | "RemoveCounter" | "AddCounter"
+                | "GetFlagEffectLabel" | "ResetFlagEffect"
+                | "GetEnvironment" | "IsEnvironment" => None,
             "PayLPCost" => None, // pay_lp belongs in cost blocks, not on_resolve
-            "SelectYesNo" => None, // Engine handles player choice
             _ => None,
         }
+    }
+
+    /// Sprint 26: True if this Lua call is a query / metadata setter
+    /// rather than a state-mutating action. Used by the migrator to
+    /// avoid counting queries against the accuracy denominator —
+    /// queries shouldn't make a card look "less complete" just because
+    /// they appear in target/condition functions.
+    pub fn is_query_or_metadata(&self) -> bool {
+        matches!(self.method.as_str(),
+            "SetOperationInfo" | "SetPossibleOperationInfo" | "Hint" | "HintSelection"
+            | "SetTargetCard" | "SetTargetPlayer" | "SetTargetParam"
+            | "BreakEffect" | "SpecialSummonComplete"
+            | "SelectMatchingCard" | "SelectTarget" | "SelectYesNo"
+            | "GetMatchingGroup" | "GetFirstTarget" | "GetTargetCards"
+            | "GetMatchingGroupCount" | "GetFieldGroupCount"
+            | "IsExistingMatchingCard" | "IsExistingTarget"
+            | "GetLocationCount" | "GetFlagEffect" | "GetCurrentChain"
+            | "GetCurrentPhase" | "GetTurnPlayer" | "GetTurnCount"
+            | "GetLP" | "IsTurnPlayer" | "IsExistingMatchingCardEx"
+            | "GetChainInfo" | "GetChainMaterial"
+            | "GetAttacker" | "GetAttackTarget" | "IsAttackCanceled"
+            | "IsPlayerCanDraw" | "IsPlayerCanSpecialSummon"
+            | "IsPlayerCanSpecialSummonMonster"
+            | "IsPlayerAffectedByEffect" | "IsPlayerCanRemove"
+            | "IsPlayerCanDiscardDeck" | "IsPlayerCanDiscardDeckAsCost"
+            | "GetFieldCard" | "GetFieldGroup" | "GetFieldCardCount"
+            | "GetCounter" | "RemoveCounter" | "AddCounter"
+            | "GetFlagEffectLabel" | "ResetFlagEffect"
+            | "GetEnvironment" | "IsEnvironment"
+            | "PayLPCost"
+        )
     }
 
     /// Map this Lua API call to a DuelScript cost string.
@@ -158,7 +221,19 @@ fn extract_effects_from_helper_body(body: &str) -> Vec<EffectBlock> {
                 if let Some(e) = vars.get_mut(&var_name) {
                     if l.contains(":SetType(")       { e.effect_type = Some(extract_paren(l)); }
                     if l.contains(":SetCategory(")   { e.category = Some(extract_paren(l)); }
-                    if l.contains(":SetCode(")       { e.code = Some(extract_paren(l)); }
+                    if l.contains(":SetCode(") {
+                        let code_text = extract_paren(l);
+                        // Sprint 29: detect replacement-effect codes and tag the
+                        // EffectBlock so emission produces a replacement_effect_block.
+                        if code_text.contains("EFFECT_DESTROY_REPLACE") {
+                            e.replacement_kind = Some("destroyed_by_any".to_string());
+                        } else if code_text.contains("EFFECT_BATTLE_DESTROYING") {
+                            e.replacement_kind = Some("destroyed_by_battle".to_string());
+                        } else if code_text.contains("EFFECT_SEND_REPLACE") {
+                            e.replacement_kind = Some("sent_to_gy".to_string());
+                        }
+                        e.code = Some(code_text);
+                    }
                     if l.contains(":SetProperty(")   { e.property = Some(extract_paren(l)); }
                     if l.contains(":SetRange(")      { e.range = Some(extract_paren(l)); }
                     if l.contains(":SetCountLimit(") { e.count_limit = Some(extract_paren(l)); }
@@ -296,6 +371,23 @@ pub fn helper_map() -> &'static std::collections::HashMap<String, Vec<EffectBloc
             ..Default::default()
         };
 
+        // Sprint 24: builder that also attaches helper-supplied DSL
+        // actions/costs. Use this for helpers whose semantics we can
+        // express directly in DSL — the migrator emits the actions
+        // verbatim into the on_resolve block instead of `reveal self`.
+        let mk_with_actions = |
+            et: &str, code: &str, cat: &str, range: &str,
+            actions: &[&str], costs: &[&str],
+        | EffectBlock {
+            effect_type: if et.is_empty() { None } else { Some(et.to_string()) },
+            code: if code.is_empty() { None } else { Some(code.to_string()) },
+            category: if cat.is_empty() { None } else { Some(cat.to_string()) },
+            range: if range.is_empty() { None } else { Some(range.to_string()) },
+            helper_actions: actions.iter().map(|s| s.to_string()).collect(),
+            helper_costs: costs.iter().map(|s| s.to_string()).collect(),
+            ..Default::default()
+        };
+
         // Helper to insert with both aux. and Auxiliary. aliases
         let mut add = |name: &str, effects: Vec<EffectBlock>| {
             m.insert(format!("aux.{}", name), effects.clone());
@@ -303,62 +395,122 @@ pub fn helper_map() -> &'static std::collections::HashMap<String, Vec<EffectBloc
         };
 
         // === Equipment helpers ===
-        // AddEquipProcedure: registers 1 activation effect (the equip action)
+        // AddEquipProcedure: registers an "equip self to target" activation.
+        // Sprint 24: now carries the on_resolve action so cards using this
+        // helper get a real DSL action instead of `reveal self`.
         add("AddEquipProcedure", vec![
-            mk("EFFECT_TYPE_ACTIVATE", "EVENT_FREE_CHAIN", "CATEGORY_EQUIP", ""),
+            mk_with_actions(
+                "EFFECT_TYPE_ACTIVATE", "EVENT_FREE_CHAIN", "CATEGORY_EQUIP", "",
+                &["equip self to (1, monster, you controls)"],
+                &[],
+            ),
         ]);
 
         // === Summon procedure helpers ===
         // Registered by the core procedure files (proc_*.lua), but declared
         // in utility.lua for convenience wrappers.
         add("AddContactFusionProcedure", vec![
-            mk("EFFECT_TYPE_FIELD", "EFFECT_SPSUMMON_PROC", "", "LOCATION_EXTRA"),
+            mk_with_actions(
+                "EFFECT_TYPE_FIELD", "EFFECT_SPSUMMON_PROC", "", "LOCATION_EXTRA",
+                &["special_summon self from extra_deck"],
+                &[],
+            ),
         ]);
 
         // === Ritual helpers ===
         // These register the ritual spell activation + special summon effect
         add("AddRitualProcGreater", vec![
-            mk("EFFECT_TYPE_ACTIVATE", "EVENT_FREE_CHAIN", "CATEGORY_SPECIAL_SUMMON", ""),
+            mk_with_actions(
+                "EFFECT_TYPE_ACTIVATE", "EVENT_FREE_CHAIN", "CATEGORY_SPECIAL_SUMMON", "",
+                &["ritual_summon (1, ritual monster) from hand"],
+                &[],
+            ),
         ]);
         add("AddRitualProcEqual", vec![
-            mk("EFFECT_TYPE_ACTIVATE", "EVENT_FREE_CHAIN", "CATEGORY_SPECIAL_SUMMON", ""),
+            mk_with_actions(
+                "EFFECT_TYPE_ACTIVATE", "EVENT_FREE_CHAIN", "CATEGORY_SPECIAL_SUMMON", "",
+                &["ritual_summon (1, ritual monster) from hand"],
+                &[],
+            ),
         ]);
         add("AddRitualProcGreaterCode", vec![
-            mk("EFFECT_TYPE_ACTIVATE", "EVENT_FREE_CHAIN", "CATEGORY_SPECIAL_SUMMON", ""),
+            mk_with_actions(
+                "EFFECT_TYPE_ACTIVATE", "EVENT_FREE_CHAIN", "CATEGORY_SPECIAL_SUMMON", "",
+                &["ritual_summon (1, ritual monster) from hand"],
+                &[],
+            ),
         ]);
         add("AddRitualProcEqualCode", vec![
-            mk("EFFECT_TYPE_ACTIVATE", "EVENT_FREE_CHAIN", "CATEGORY_SPECIAL_SUMMON", ""),
+            mk_with_actions(
+                "EFFECT_TYPE_ACTIVATE", "EVENT_FREE_CHAIN", "CATEGORY_SPECIAL_SUMMON", "",
+                &["ritual_summon (1, ritual monster) from hand"],
+                &[],
+            ),
         ]);
         add("AddRitualProcGreaterCode2", vec![
-            mk("EFFECT_TYPE_ACTIVATE", "EVENT_FREE_CHAIN", "CATEGORY_SPECIAL_SUMMON", ""),
+            mk_with_actions(
+                "EFFECT_TYPE_ACTIVATE", "EVENT_FREE_CHAIN", "CATEGORY_SPECIAL_SUMMON", "",
+                &["ritual_summon (1, ritual monster) from hand"],
+                &[],
+            ),
         ]);
 
         // === Neos / Elemental HERO helpers ===
-        // EnableNeosReturn: registers 2 effects (trigger_f + trigger_o, both FIELD)
+        // EnableNeosReturn: returns this monster to the Extra Deck during
+        // the End Phase. Two effects: mandatory trigger + optional trigger,
+        // depending on which Lua variant the script uses.
         add("EnableNeosReturn", vec![
-            mk("EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F", "EVENT_PHASE+PHASE_END", "CATEGORY_TODECK", "LOCATION_MZONE"),
-            mk("EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O", "EVENT_PHASE+PHASE_END", "CATEGORY_TODECK", "LOCATION_MZONE"),
+            mk_with_actions(
+                "EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F", "EVENT_PHASE+PHASE_END",
+                "CATEGORY_TODECK", "LOCATION_MZONE",
+                &["return self to deck shuffle"],
+                &[],
+            ),
+            mk_with_actions(
+                "EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O", "EVENT_PHASE+PHASE_END",
+                "CATEGORY_TODECK", "LOCATION_MZONE",
+                &["return self to deck shuffle"],
+                &[],
+            ),
         ]);
 
         // === Code / archetype helpers ===
+        // EnableChangeCode: marks the card as having an alternate name.
+        // No DSL action — this is metadata for the engine.
         add("EnableChangeCode", vec![
             mk("EFFECT_TYPE_SINGLE", "EFFECT_CHANGE_CODE", "", ""),
         ]);
 
         // === Union helpers ===
+        // AddUnionProcedure: registers (1) ignition to equip self,
+        // (2) ignition to special summon back, (3) equip limit, (4)
+        // destroy-instead-of-equipped trigger. The first two have
+        // direct DSL expressions; the last two are pure metadata.
         add("AddUnionProcedure", vec![
-            mk("EFFECT_TYPE_IGNITION", "", "", "LOCATION_MZONE"),
-            mk("EFFECT_TYPE_IGNITION", "", "", "LOCATION_SZONE"),
+            mk_with_actions(
+                "EFFECT_TYPE_IGNITION", "", "", "LOCATION_MZONE",
+                &["equip self to (1, monster, you controls)"],
+                &[],
+            ),
+            mk_with_actions(
+                "EFFECT_TYPE_IGNITION", "", "", "LOCATION_SZONE",
+                &["special_summon self from spell_trap_zone"],
+                &[],
+            ),
             mk("EFFECT_TYPE_SINGLE", "EFFECT_EQUIP_LIMIT", "", ""),
             mk("EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS", "EVENT_DESTROYED", "", ""),
         ]);
 
         // === Persistent / protection helpers ===
+        // AddPersistentProcedure: triggers an effect when the card leaves
+        // the field. Most cards using this restore something on leave.
         add("AddPersistentProcedure", vec![
             mk("EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F", "EVENT_LEAVE_FIELD", "", "LOCATION_MZONE"),
         ]);
 
         // === Normal summon variants ===
+        // These register CANNOT_SUMMON / CANNOT_MSET restrictions —
+        // pure metadata, no on_resolve action.
         add("AddNormalSummonProcedure", vec![
             mk("EFFECT_TYPE_SINGLE", "EFFECT_CANNOT_SUMMON", "", ""),
         ]);
@@ -367,15 +519,173 @@ pub fn helper_map() -> &'static std::collections::HashMap<String, Vec<EffectBloc
         ]);
 
         // === Kaiju / Lava monsters ===
+        // Sprint 24: tribute opponent's monster to special summon yourself
+        // from your hand to their side of the field.
         add("AddKaijuProcedure", vec![
-            mk("EFFECT_TYPE_IGNITION", "", "CATEGORY_SPECIAL_SUMMON+CATEGORY_RELEASE", "LOCATION_HAND"),
+            mk_with_actions(
+                "EFFECT_TYPE_IGNITION", "", "CATEGORY_SPECIAL_SUMMON+CATEGORY_RELEASE",
+                "LOCATION_HAND",
+                &["special_summon self from hand"],
+                &["tribute (1, monster, opponent controls)"],
+            ),
         ]);
         add("AddLavaProcedure", vec![
-            mk("EFFECT_TYPE_IGNITION", "", "CATEGORY_SPECIAL_SUMMON", "LOCATION_HAND"),
+            mk_with_actions(
+                "EFFECT_TYPE_IGNITION", "", "CATEGORY_SPECIAL_SUMMON",
+                "LOCATION_HAND",
+                &["special_summon self from hand"],
+                &[],
+            ),
         ]);
         add("AddMaleficSummonProcedure", vec![
-            mk("EFFECT_TYPE_FIELD", "EFFECT_SPSUMMON_PROC", "", "LOCATION_HAND"),
+            mk_with_actions(
+                "EFFECT_TYPE_FIELD", "EFFECT_SPSUMMON_PROC", "", "LOCATION_HAND",
+                &["special_summon self from hand"],
+                &[],
+            ),
         ]);
+
+        // === Sprint 24: spirit / pendulum / synchro / xyz / link / fusion ===
+        // These are the core summon procedure helpers that map to a
+        // materials block in the migrator's output. We DON'T register
+        // them here because the materials section already handles the
+        // procedure-specific bits. The helpers below cover patterns
+        // OUTSIDE that path.
+
+        // AddSpiritProcedure: bounces self to hand at end phase if it
+        // didn't get there earlier. Used by Spirit monsters.
+        add("AddSpiritProcedure", vec![
+            mk_with_actions(
+                "EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F", "EVENT_PHASE+PHASE_END",
+                "CATEGORY_TOHAND", "LOCATION_MZONE",
+                &["return self to hand"],
+                &[],
+            ),
+        ]);
+
+        // GenericContactFusion: special-summon self from extra deck by
+        // sending the listed materials from the field to the GY.
+        add("GenericContactFusion", vec![
+            mk_with_actions(
+                "EFFECT_TYPE_FIELD", "EFFECT_SPSUMMON_PROC", "", "LOCATION_EXTRA",
+                &["special_summon self from extra_deck"],
+                &["send (1+, monster, you controls) to gy"],
+            ),
+        ]);
+
+        // AddSearchProc: when summoned, search a card matching `filter`
+        // from the deck. Used by ~hundreds of "on summon: add X to hand"
+        // monsters. The filter argument is opaque to the migrator so we
+        // emit a permissive default; users hand-correct as needed.
+        add("AddSearchProc", vec![
+            mk_with_actions(
+                "EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F", "EVENT_SUMMON_SUCCESS",
+                "CATEGORY_TOHAND+CATEGORY_SEARCH", "",
+                &["add_to_hand (1, monster, you controls) from deck"],
+                &[],
+            ),
+        ]);
+
+        // AddCodeList: pure metadata declaring archetype membership by
+        // passcode list. The migrator doesn't need to emit anything —
+        // the archetype block in the card header already covers it.
+        add("AddCodeList", vec![]);
+
+        // === Sprint 27: more high-value helpers ===
+
+        // GenericMaximumModeProcedure: Rush Maximum Mode (3-card setup).
+        add("GenericMaximumModeProcedure", vec![
+            mk_with_actions(
+                "EFFECT_TYPE_FIELD", "EFFECT_SPSUMMON_PROC", "", "LOCATION_HAND",
+                &["special_summon self from hand"],
+                &[],
+            ),
+        ]);
+
+        // AddNormalDrawProcedure: when summoned, draw N cards.
+        // Found on a small set of "draw on summon" monsters.
+        add("AddNormalDrawProcedure", vec![
+            mk_with_actions(
+                "EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F", "EVENT_SUMMON_SUCCESS",
+                "CATEGORY_DRAW", "",
+                &["draw 1"],
+                &[],
+            ),
+        ]);
+
+        // AddProcAccelerator / AddProcedureAccelerator: Bingo / Diviner-style
+        // self-revival from hand by tributing matching cards. Best-effort
+        // expansion: tribute 1 monster, summon self.
+        add("AddProcAccelerator", vec![
+            mk_with_actions(
+                "EFFECT_TYPE_FIELD", "EFFECT_SPSUMMON_PROC", "", "LOCATION_HAND",
+                &["special_summon self from hand"],
+                &["tribute (1, monster, you controls)"],
+            ),
+        ]);
+
+        // EnableUnionAttack: union attack-bonus side effect.
+        add("EnableUnionAttack", vec![
+            mk("EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS",
+               "EVENT_DESTROYED", "", ""),
+        ]);
+
+        // GlobalCheck: registers a one-shot duel-scope init effect.
+        // The actual init body lives in a separate function we can't
+        // easily inline; users hand-correct the global_handler block.
+        add("GlobalCheck", vec![]);
+
+        // AddNormalSummonAndSet: a card that can be either normal-summoned
+        // or set with custom rules. Pure metadata, no on_resolve action.
+        add("AddNormalSummonAndSet", vec![
+            mk("EFFECT_TYPE_SINGLE", "EFFECT_CANNOT_SUMMON", "", ""),
+            mk("EFFECT_TYPE_SINGLE", "EFFECT_CANNOT_MSET", "", ""),
+        ]);
+
+        // RegisterClientHint: pure cosmetic hint registration.
+        add("RegisterClientHint", vec![]);
+
+        // ChangeBattleDamage: Sangan-style damage redirection.
+        add("ChangeBattleDamage", vec![
+            mk("EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS",
+               "EVENT_BATTLE_DAMAGE", "", ""),
+        ]);
+
+        // AddValuesReset: per-effect reset hook. Pure metadata.
+        add("AddValuesReset", vec![]);
+
+        // RemoveUntil: temporary banish that returns later.
+        add("RemoveUntil", vec![
+            mk_with_actions(
+                "EFFECT_TYPE_ACTIVATE", "EVENT_FREE_CHAIN",
+                "CATEGORY_REMOVE", "",
+                &["banish (1+, monster, opponent controls)"],
+                &[],
+            ),
+        ]);
+
+        // ToHandOrElse: tries to add to hand; otherwise sends to GY.
+        add("ToHandOrElse", vec![
+            mk_with_actions(
+                "EFFECT_TYPE_ACTIVATE", "EVENT_FREE_CHAIN",
+                "CATEGORY_TOHAND", "",
+                &["add_to_hand (1, card, you controls) from gy"],
+                &[],
+            ),
+        ]);
+
+        // DelayedOperation: chain-end delayed effect.
+        add("DelayedOperation", vec![
+            mk_with_actions(
+                "EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F", "EVENT_CHAIN_END",
+                "", "LOCATION_MZONE",
+                &["destroy (1+, monster, opponent controls)"],
+                &[],
+            ),
+        ]);
+
+        // CostWithReplace: cost with a replacement payment.
+        add("CostWithReplace", vec![]);
 
         // === Extra deck monster helpers ===
         add("AddContactCondition", vec![
@@ -397,6 +707,74 @@ pub fn helper_map() -> &'static std::collections::HashMap<String, Vec<EffectBloc
             mk("EFFECT_TYPE_SINGLE", "EFFECT_INDESTRUCTABLE_EFFECT", "", ""),
             mk("EFFECT_TYPE_SINGLE", "EFFECT_INDESTRUCTABLE_BATTLE", "", ""),
         ]);
+
+        // === Sprint 31: Procedure-module helpers ===
+        // The proc_*.lua files expose Ritual.X / Fusion.X / Synchro.X /
+        // Pendulum.X namespaces with their own procedure functions.
+        // ProjectIgnis cards call these directly (without the aux. prefix),
+        // so we need entries for the bare module names too. Each entry
+        // produces an EFFECT_TYPE_ACTIVATE registration with semantic
+        // ritual/fusion/etc. summon actions.
+
+        let mut add_module = |module: &str, effects: Vec<EffectBlock>| {
+            m.insert(format!("{}", module), effects);
+        };
+
+        // Ritual procedure modules — register a ritual summon activation.
+        // The card is the ritual SPELL, summoning a ritual MONSTER.
+        for fname in &[
+            "Ritual.AddProcGreater",
+            "Ritual.AddProcEqual",
+            "Ritual.AddProcGreaterCode",
+            "Ritual.AddProcEqualCode",
+            "Ritual.AddProcGreaterCode2",
+            "Ritual.CreateProc",
+        ] {
+            add_module(fname, vec![
+                mk_with_actions(
+                    "EFFECT_TYPE_ACTIVATE", "EVENT_FREE_CHAIN", "CATEGORY_SPECIAL_SUMMON", "",
+                    &["ritual_summon (1, ritual monster) using (1+, monster, you controls)"],
+                    &[],
+                ),
+            ]);
+        }
+
+        // Fusion procedure modules — these can be on either the FUSION
+        // monster (declaring its materials) or on a SPELL (Polymerization-
+        // style). The materials block path handles the monster case;
+        // here we register the spell case. The is_fusion_monster gate
+        // in the materials path prevents double-emission.
+        for fname in &[
+            "Fusion.AddProcMix",
+            "Fusion.AddProcMixN",
+            "Fusion.AddProcMixRep",
+            "Fusion.AddContactProc",
+            "Fusion.CreateSummonEff",
+        ] {
+            // Empty effects — the materials block + monster type tells
+            // the engine everything it needs. No on_resolve action.
+            add_module(fname, vec![]);
+        }
+
+        // Synchro / Xyz / Link / Pendulum AddProcedure — same idea.
+        // Materials block already handles them; the helper entry is
+        // here so the helper-loop sees them as known and doesn't
+        // misclassify them as unrecognized aux calls.
+        for fname in &[
+            "Synchro.AddProcedure",
+            "Xyz.AddProcedure",
+            "Link.AddProcedure",
+            "Pendulum.AddProcedure",
+            "Spirit.AddProcedure",
+            "Gemini.AddProcedure",
+        ] {
+            add_module(fname, vec![]);
+        }
+
+        // Synchro.NonTuner / Synchro.NonTunerEx — material filter helpers,
+        // not effect builders. Empty entries.
+        add_module("Synchro.NonTuner", vec![]);
+        add_module("Synchro.NonTunerEx", vec![]);
 
         m
     })
@@ -452,16 +830,19 @@ pub fn transpile_lua_to_ds(
             if depth <= 0 { break; }
             continue;
         }
-        // Look for helper calls: aux.X(...) or Auxiliary.X(...)
-        // Must be a bare call at statement position, not nested in another expr
+        // Look for helper calls: aux.X(...) / Auxiliary.X(...) / Module.X{...}.
+        // Must be a bare call at statement position, not nested in another expr.
+        // Sprint 31: also match the table-arg form `helper{...}` since
+        // ProjectIgnis cards use both styles interchangeably.
         if !l.starts_with("function ") && !l.contains(":Set") && !l.contains("RegisterEffect") {
             for (helper_name, helper_effects) in helpers.iter() {
-                // Match only if the line starts with the helper name
-                // followed by "(". E.g., "aux.EnableNeosReturn(c)" but not
-                // "local foo = aux.EnableNeosReturn(c)" (assignment) and not
-                // "-- uses aux.EnableNeosReturn" (comment).
-                let pattern_call = format!("{}(", helper_name);
-                if l.starts_with(&pattern_call) || l.starts_with(&format!("local _ = {}", pattern_call)) {
+                let paren_call  = format!("{}(", helper_name);
+                let table_call  = format!("{}{{", helper_name);
+                let local_paren = format!("local _ = {}", paren_call);
+                let local_table = format!("local _ = {}", table_call);
+                if l.starts_with(&paren_call) || l.starts_with(&table_call)
+                   || l.starts_with(&local_paren) || l.starts_with(&local_table)
+                {
                     for eff in helper_effects {
                         effects.push(eff.clone());
                     }
@@ -515,13 +896,46 @@ pub fn transpile_lua_to_ds(
     }
     ds.push('\n');
 
-    // Materials
+    // Materials — Sprint 27: gated on CDB card type. We only emit
+    // a materials block when the CDB says the card actually IS an
+    // Extra Deck monster (Fusion / Synchro / Xyz / Link) or a Ritual
+    // monster. Spell cards that use Fusion.AddProcMix as part of
+    // their effect (Polymerization-style) shouldn't get a materials
+    // block — that's reserved for the monster, not the spell.
+    let is_fusion_monster  = cdb_card.map(|c| c.is_fusion() && c.is_monster()).unwrap_or(false);
+    let is_synchro_monster = cdb_card.map(|c| c.is_synchro() && c.is_monster()).unwrap_or(false);
+    let is_xyz_monster     = cdb_card.map(|c| c.is_xyz() && c.is_monster()).unwrap_or(false);
+    let is_link_monster    = cdb_card.map(|c| c.is_link() && c.is_monster()).unwrap_or(false);
+    let is_ritual_monster  = cdb_card.map(|c| c.is_ritual() && c.is_monster()).unwrap_or(false);
+
+    let mut emitted_materials = false;
+    let mut emitted_revive_limit = false;
     for line in lua_source.lines() {
         let l = line.trim();
-        if l.contains("Xyz.AddProcedure")     { ds.push_str("    materials {\n        require: 2+ monster\n        same_level: true\n        method: xyz\n    }\n\n"); }
-        if l.contains("Synchro.AddProcedure") { ds.push_str("    materials {\n        require: 1 tuner monster\n        require: 1+ non-tuner monster\n        method: synchro\n    }\n\n"); }
-        if l.contains("Link.AddProcedure")    { ds.push_str("    materials {\n        require: 2+ effect monster\n        method: link\n    }\n\n"); }
-        if l.contains("EnableReviveLimit")    { ds.push_str("    summon_condition {\n        cannot_normal_summon: true\n    }\n\n"); break; }
+        if !emitted_materials {
+            if l.contains("Xyz.AddProcedure") && is_xyz_monster {
+                ds.push_str("    materials {\n        require: 2+ monster\n        same_level: true\n        method: xyz\n    }\n\n");
+                emitted_materials = true;
+            } else if l.contains("Synchro.AddProcedure") && is_synchro_monster {
+                ds.push_str("    materials {\n        require: 1 tuner monster\n        require: 1+ non-tuner monster\n        method: synchro\n    }\n\n");
+                emitted_materials = true;
+            } else if l.contains("Link.AddProcedure") && is_link_monster {
+                ds.push_str("    materials {\n        require: 2+ effect monster\n        method: link\n    }\n\n");
+                emitted_materials = true;
+            } else if (l.contains("Fusion.AddProcMix") || l.contains("Fusion.AddContactProc")
+                    || l.contains("Fusion.CreateSummonEff")) && is_fusion_monster {
+                ds.push_str("    materials {\n        require: 2+ monster\n        method: fusion\n    }\n\n");
+                emitted_materials = true;
+            } else if (l.contains("Ritual.AddProcGreater") || l.contains("Ritual.CreateProc"))
+                  && is_ritual_monster {
+                ds.push_str("    materials {\n        require: 1+ monster\n        method: ritual\n    }\n\n");
+                emitted_materials = true;
+            }
+        }
+        if !emitted_revive_limit && l.contains("EnableReviveLimit") {
+            ds.push_str("    summon_condition {\n        cannot_normal_summon: true\n    }\n\n");
+            emitted_revive_limit = true;
+        }
     }
 
     // v0.6: Emit raw_effect blocks with exact Lua bitfields
@@ -539,6 +953,20 @@ pub fn transpile_lua_to_ds(
         let code        = resolve_lua_constant_expr_with_id(effect.code.as_deref().unwrap_or("0"), id_val);
         let property    = resolve_lua_constant_expr_with_id(effect.property.as_deref().unwrap_or("0"), id_val);
         let range       = resolve_lua_constant_expr_with_id(effect.range.as_deref().unwrap_or("0"), id_val);
+
+        // Sprint 29: replacement effects get a dedicated block.
+        // The raw_effect form would still parse but loses the
+        // "instead_of: X do { ... }" semantic structure that
+        // hand-authors and the engine adapter need.
+        if let Some(ref kind) = effect.replacement_kind {
+            ds.push_str(&format!("    replacement_effect \"Effect {}\" {{\n", i + 1));
+            ds.push_str(&format!("        instead_of: {}\n", kind));
+            ds.push_str("        do: {\n");
+            ds.push_str("            banish self\n");
+            ds.push_str("        }\n");
+            ds.push_str("    }\n\n");
+            continue;
+        }
 
         ds.push_str(&format!("    raw_effect \"Effect {}\" {{\n", i + 1));
         if effect_type != 0 { ds.push_str(&format!("        effect_type: {}\n", effect_type)); }
@@ -558,8 +986,17 @@ pub fn transpile_lua_to_ds(
             ds.push_str(&format!("        count_limit: ({}, {})\n", count, code_val));
         }
 
-        // Cost — resolve function body
-        if let Some(ref cost_key) = effect.cost_fn {
+        // Cost — resolve function body or helper-supplied costs.
+        // Sprint 24: helper-injected costs take precedence over the
+        // function-walking path because helpers carry semantic intent
+        // that's lost when we only see metadata.
+        if !effect.helper_costs.is_empty() {
+            ds.push_str("        cost {\n");
+            for c in &effect.helper_costs {
+                ds.push_str(&format!("            {}\n", c));
+            }
+            ds.push_str("        }\n");
+        } else if let Some(ref cost_key) = effect.cost_fn {
             let cost_name = cost_key.trim_start_matches("s.").trim_start_matches("Cost.");
             if cost_key.contains("Cost.") {
                 // Sprint 13: try compound decomposition first (Cost.AND
@@ -587,11 +1024,20 @@ pub fn transpile_lua_to_ds(
             }
         }
 
-        // Operation — resolve function body
+        // Operation — helper actions take precedence, then fall back
+        // to the Lua function-body walker.
         ds.push_str("        on_resolve {\n");
         let mut has_actions = false;
 
-        if let Some(ref op_key) = effect.operation_fn {
+        // Sprint 24: helper-supplied actions go in first.
+        if !effect.helper_actions.is_empty() {
+            for a in &effect.helper_actions {
+                ds.push_str(&format!("            {}\n", a));
+                has_actions = true;
+                mapped_actions += 1;
+                total_actions += 1;
+            }
+        } else if let Some(ref op_key) = effect.operation_fn {
             let op_name = op_key.trim_start_matches("s.");
             if op_key.contains("Duel.") {
                 if let Some(action) = inline_to_action(op_key) {
@@ -607,6 +1053,10 @@ pub fn transpile_lua_to_ds(
                 // patterns and IsSpellTrap-style hints anywhere in the file.
                 let body_text = lua_source;
                 for call in body_calls {
+                    // Sprint 26: queries don't count toward action total.
+                    if call.is_query_or_metadata() {
+                        continue;
+                    }
                     total_actions += 1;
                     if let Some(action) = call.to_ds_action_with_context(body_text) {
                         ds.push_str(&format!("            {}\n", action));
@@ -671,6 +1121,20 @@ struct EffectBlock {
     target_fn: Option<String>,
     condition_fn: Option<String>,
     operation_fn: Option<String>,
+    /// Sprint 24: helper-supplied DSL action lines that go directly
+    /// into the on_resolve block. Set by helper expansions when the
+    /// migrator can't walk a function body to recover semantics.
+    /// Each entry is a complete DSL statement (e.g., `"draw 1"`).
+    helper_actions: Vec<String>,
+    /// Helper-supplied DSL cost lines. Same idea as helper_actions
+    /// but for the cost block.
+    helper_costs: Vec<String>,
+    /// Sprint 29: when this effect is a replacement effect (e.g.
+    /// EFFECT_DESTROY_REPLACE), the migrator emits a
+    /// replacement_effect_block instead of a raw_effect block.
+    /// The string identifies the replaced event for the
+    /// `instead_of:` clause.
+    replacement_kind: Option<String>,
 }
 
 /// Create effect blocks that helper functions (aux.AddXxxProcedure etc.)
@@ -746,22 +1210,10 @@ fn extract_effect_blocks(source: &str) -> Vec<EffectBlock> {
             continue;
         }
 
-        // Detect helper function calls and emit synthetic effects
-        for helper in &[
-            "aux.AddEquipProcedure",
-            "aux.AddContactFusionProcedure",
-            "aux.AddRitualProcGreater",
-            "aux.AddRitualProcEqual",
-            "aux.AddRitualProcGreaterCode",
-            "aux.AddRitualProcEqualCode",
-            "aux.EnableChangeCode",
-        ] {
-            if l.contains(helper) {
-                for eff in helper_effects(helper) {
-                    registered_order.push(eff);
-                }
-            }
-        }
+        // Sprint 24: helper detection lives in transpile_lua_to_ds via
+        // helper_map() which carries semantic actions. The old per-line
+        // hand-coded list here used to emit synthetic effects with no
+        // actions, producing duplicate raw_effect blocks. Removed.
 
         // Pattern: local eN = Effect.CreateEffect(c)
         if l.contains("Effect.CreateEffect") {
@@ -792,7 +1244,19 @@ fn extract_effect_blocks(source: &str) -> Vec<EffectBlock> {
                 if let Some(e) = vars.get_mut(&var_name) {
                     if l.contains(":SetType(")       { e.effect_type = Some(extract_paren(l)); }
                     if l.contains(":SetCategory(")   { e.category = Some(extract_paren(l)); }
-                    if l.contains(":SetCode(")       { e.code = Some(extract_paren(l)); }
+                    if l.contains(":SetCode(") {
+                        let code_text = extract_paren(l);
+                        // Sprint 29: detect replacement-effect codes and tag the
+                        // EffectBlock so emission produces a replacement_effect_block.
+                        if code_text.contains("EFFECT_DESTROY_REPLACE") {
+                            e.replacement_kind = Some("destroyed_by_any".to_string());
+                        } else if code_text.contains("EFFECT_BATTLE_DESTROYING") {
+                            e.replacement_kind = Some("destroyed_by_battle".to_string());
+                        } else if code_text.contains("EFFECT_SEND_REPLACE") {
+                            e.replacement_kind = Some("sent_to_gy".to_string());
+                        }
+                        e.code = Some(code_text);
+                    }
                     if l.contains(":SetProperty(")   { e.property = Some(extract_paren(l)); }
                     if l.contains(":SetRange(")      { e.range = Some(extract_paren(l)); }
                     if l.contains(":SetCountLimit(") { e.count_limit = Some(extract_paren(l)); }

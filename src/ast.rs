@@ -1020,6 +1020,11 @@ pub enum GameAction {
     /// Phase 2: Emit a named custom event.
     EmitEvent(String),
 
+    /// Sprint 28: select cards and bind them to a name for use by
+    /// subsequent actions. The bound name can be referenced via
+    /// `<name>.atk` etc. through the Phase 1D binding ref system.
+    Select { target: TargetExpr, name: String },
+
     /// Change monster's displayed name (Prisma-style).
     ChangeName { target: SelfOrTarget, source: NameSource, duration: Option<Duration> },
 

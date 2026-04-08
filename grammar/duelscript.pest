@@ -651,7 +651,8 @@ on_resolve_clause  = { "on_resolve"  ~ "{" ~ game_action+ ~ "}" }
 
 // ── Game Actions ──────────────────────────────────────────────
 game_action = {
-    draw_action
+    select_action
+  | draw_action
   | special_summon_action
   | negate_action
   | destroy_action
@@ -812,6 +813,17 @@ name_source             = { string | binding_ref_expr | unsigned }
 negate_effects_action   = { "negate_effects" ~ ("self" | target_expr) ~ duration? }
 
 // Now uses expr for dynamic counts
+// Sprint 28: select N cards and bind them to a name. Subsequent
+// actions can reference the selection via `<name>.atk`, `<name>.code`,
+// etc. through the existing binding-ref system from Phase 1D.
+//
+//   on_resolve {
+//       select (1, monster, opponent controls) as target
+//       deal_damage to opponent: target.atk / 2
+//       destroy (1, monster, opponent controls)
+//   }
+select_action                  = { "select" ~ target_expr ~ "as" ~ ident }
+
 draw_action                   = { "draw" ~ expr }
 special_summon_action         = { "special_summon" ~ ("self" | target_expr) ~ ("from" ~ zone)? ~ ("in" ~ battle_position)? }
 negate_action                 = { "negate" ~ negate_target? ~ ("and" ~ "destroy")? }
@@ -958,8 +970,15 @@ counted_target = {
   ~ ("," ~ controller_ref ~ "controls")?
   ~ ("," ~ zone)?
   ~ ("," ~ target_qualifier)*
+  ~ ("," ~ where_clause)?
   ~ ")"
 }
+
+// Sprint 23: where_clause attaches an existing `predicate` (defined
+// further below in the v0.6 Extensions section) to a counted_target.
+// The actual rule definition is in the v0.6 extensions block —
+// using `where { predicate }` syntax with explicit braces. We just
+// reference the rule here so counted_target can compose it.
 
 filter_target = { card_filter }
 
