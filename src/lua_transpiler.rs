@@ -241,6 +241,8 @@ fn extract_effects_from_helper_body(body: &str) -> Vec<EffectBlock> {
                     if l.contains(":SetTarget(")     { e.target_fn = Some(extract_paren(l)); }
                     if l.contains(":SetCondition(")  { e.condition_fn = Some(extract_paren(l)); }
                     if l.contains(":SetOperation(")  { e.operation_fn = Some(extract_paren(l)); }
+                    if l.contains(":SetValue(")      { e.value = Some(extract_paren(l)); }
+                    if l.contains(":SetTargetRange(") { e.target_range = Some(extract_paren(l)); }
                 }
             }
             continue;
@@ -261,28 +263,47 @@ fn extract_effects_from_helper_body(body: &str) -> Vec<EffectBlock> {
 
 /// Count `end` tokens as whole words in a line (ignoring identifiers like `friend`).
 fn count_end_tokens(line: &str) -> i32 {
+    count_keyword_occurrences(line, &["end"])
+}
+
+/// Sprint 35: count block-opener keyword tokens on a line.
+/// `then`, `do`, and `function` open blocks in Lua. We use this
+/// alongside count_end_tokens to balance depth in the function
+/// body walker.
+fn count_open_tokens(line: &str) -> i32 {
+    count_keyword_occurrences(line, &["then", "do", "function"])
+}
+
+fn count_keyword_occurrences(line: &str, keywords: &[&str]) -> i32 {
     let mut count = 0i32;
     let chars: Vec<char> = line.chars().collect();
     let n = chars.len();
-    let mut i = 0;
-    while i < n {
-        // Skip until start of potential "end"
-        if chars[i] == 'e' && i + 3 <= n && chars[i+1] == 'n' && chars[i+2] == 'd' {
-            let before = if i == 0 { true } else {
-                let c = chars[i-1];
-                !(c.is_alphanumeric() || c == '_')
-            };
-            let after = if i + 3 >= n { true } else {
-                let c = chars[i+3];
-                !(c.is_alphanumeric() || c == '_')
-            };
-            if before && after {
-                count += 1;
-                i += 3;
-                continue;
+    for kw in keywords {
+        let kw_chars: Vec<char> = kw.chars().collect();
+        let kw_len = kw_chars.len();
+        let mut i = 0;
+        while i + kw_len <= n {
+            let mut matches = true;
+            for k in 0..kw_len {
+                if chars[i + k] != kw_chars[k] { matches = false; break; }
             }
+            if matches {
+                let before = if i == 0 { true } else {
+                    let c = chars[i - 1];
+                    !(c.is_alphanumeric() || c == '_')
+                };
+                let after = if i + kw_len >= n { true } else {
+                    let c = chars[i + kw_len];
+                    !(c.is_alphanumeric() || c == '_')
+                };
+                if before && after {
+                    count += 1;
+                    i += kw_len;
+                    continue;
+                }
+            }
+            i += 1;
         }
-        i += 1;
     }
     count
 }
@@ -968,6 +989,42 @@ pub fn transpile_lua_to_ds(
             continue;
         }
 
+        // Sprint 33: continuous stat modifiers. EFFECT_UPDATE_ATTACK /
+        // _DEFENSE / _LEVEL with a literal SetValue → emit a raw_effect
+        // block whose on_resolve carries the modifier action. The
+        // accuracy denominator counts this as a real action so the
+        // card moves out of StructureOnly.
+        let code_str = effect.code.as_deref().unwrap_or("");
+        let is_atk_mod = code_str.contains("EFFECT_UPDATE_ATTACK");
+        let is_def_mod = code_str.contains("EFFECT_UPDATE_DEFENSE");
+        // EFFECT_UPDATE_LEVEL exists but the DSL `modifier:` action
+        // only supports atk/def. Skip the level case for now; the
+        // raw_effect path handles it.
+        if (is_atk_mod || is_def_mod) && effect.value.is_some() {
+            let raw_value = effect.value.as_deref().unwrap_or("0").trim();
+            // Only handle literal numeric values; dynamic SetValue
+            // functions need expression-level transpilation.
+            if raw_value.chars().all(|c| c.is_ascii_digit() || c == '-') && !raw_value.is_empty() {
+                let stat = if is_atk_mod { "atk" } else { "def" };
+                let sign = if raw_value.starts_with('-') { "-" } else { "+" };
+                let mag = raw_value.trim_start_matches('-');
+
+                ds.push_str(&format!("    raw_effect \"Effect {}\" {{\n", i + 1));
+                if effect_type != 0 { ds.push_str(&format!("        effect_type: {}\n", effect_type)); }
+                if category != 0    { ds.push_str(&format!("        category: {}\n", category)); }
+                if code != 0        { ds.push_str(&format!("        code: {}\n", code)); }
+                if property != 0    { ds.push_str(&format!("        property: {}\n", property)); }
+                if range != 0       { ds.push_str(&format!("        range: {}\n", range)); }
+                ds.push_str("        on_resolve {\n");
+                ds.push_str(&format!("            modifier: {} {} {}\n", stat, sign, mag));
+                ds.push_str("        }\n");
+                ds.push_str("    }\n\n");
+                mapped_actions += 1;
+                total_actions += 1;
+                continue;
+            }
+        }
+
         ds.push_str(&format!("    raw_effect \"Effect {}\" {{\n", i + 1));
         if effect_type != 0 { ds.push_str(&format!("        effect_type: {}\n", effect_type)); }
         if category != 0    { ds.push_str(&format!("        category: {}\n", category)); }
@@ -1069,9 +1126,12 @@ pub fn transpile_lua_to_ds(
             }
         }
 
-        if !has_actions {
-            ds.push_str("            reveal self\n");
-        }
+        // Sprint 34: drop the `reveal self` placeholder. The grammar
+        // now accepts an empty on_resolve block. Cards that genuinely
+        // have no recognizable on_resolve action just get `on_resolve {}`,
+        // which is a clean signal to hand-authors that the slot is
+        // unfilled rather than a confusing fake-action.
+        let _ = has_actions;
         ds.push_str("        }\n");
         ds.push_str("    }\n\n");
     }
@@ -1135,6 +1195,13 @@ struct EffectBlock {
     /// The string identifies the replaced event for the
     /// `instead_of:` clause.
     replacement_kind: Option<String>,
+    /// Sprint 33: literal value passed to e:SetValue(N). Used by
+    /// continuous EFFECT_UPDATE_ATTACK/DEFENSE/LEVEL effects to know
+    /// the modifier amount. None for dynamic-function values.
+    value: Option<String>,
+    /// Sprint 33: target_range from e:SetTargetRange(self_loc, opp_loc).
+    /// Used to infer who the continuous modifier applies to.
+    target_range: Option<String>,
 }
 
 /// Create effect blocks that helper functions (aux.AddXxxProcedure etc.)
@@ -1223,6 +1290,53 @@ fn extract_effect_blocks(source: &str) -> Vec<EffectBlock> {
             continue;
         }
 
+        // Sprint 32: procedure-module effect creation patterns.
+        //   local e1 = Fusion.CreateSummonEff(c, ...)
+        //   local e1 = Synchro.CreateSummonEff(...)
+        //   local e1 = Ritual.AddProcGreater({...})
+        //   local e1 = Ritual.AddProcEqual({...})
+        // These are equivalent to Effect.CreateEffect + a procedure-
+        // specific summon registration, but the procedure module call
+        // does both in one shot. We synthesize an EffectBlock with the
+        // right effect_type/code/category and a helper-supplied action.
+        let proc_create = if l.contains("Fusion.CreateSummonEff") {
+            Some(("fusion_summon (1, fusion monster) using (1+, monster, you controls)",
+                  "CATEGORY_SPECIAL_SUMMON+CATEGORY_FUSION_SUMMON"))
+        } else if l.contains("Synchro.CreateSummonEff") {
+            Some(("synchro_summon (1, synchro monster) using (1+, monster, you controls)",
+                  "CATEGORY_SPECIAL_SUMMON+CATEGORY_SYNCHRO_SUMMON"))
+        } else if l.contains("Xyz.CreateSummonEff") {
+            Some(("xyz_summon (1, xyz monster) using (1+, monster, you controls)",
+                  "CATEGORY_SPECIAL_SUMMON+CATEGORY_XYZ_SUMMON"))
+        } else if l.contains("Link.CreateSummonEff") {
+            Some(("link_summon (1, link monster) using (1+, monster, you controls)",
+                  "CATEGORY_SPECIAL_SUMMON+CATEGORY_LINK_SUMMON"))
+        } else if l.contains("Ritual.AddProcGreater") || l.contains("Ritual.AddProcEqual")
+               || l.contains("Ritual.CreateProc") {
+            Some(("ritual_summon (1, ritual monster) using (1+, monster, you controls)",
+                  "CATEGORY_SPECIAL_SUMMON"))
+        } else {
+            None
+        };
+        if let Some((action, category)) = proc_create {
+            let block = EffectBlock {
+                effect_type: Some("EFFECT_TYPE_ACTIVATE".to_string()),
+                code: Some("EVENT_FREE_CHAIN".to_string()),
+                category: Some(category.to_string()),
+                helper_actions: vec![action.to_string()],
+                ..Default::default()
+            };
+            // If the line assigns to a variable (`local e1 = Module.X(...)`),
+            // record it as a tracked variable so subsequent SetX() calls
+            // can attach more metadata. Otherwise push directly.
+            if let Some(name) = extract_lhs_var(l) {
+                vars.insert(name, block);
+            } else {
+                registered_order.push(block);
+            }
+            continue;
+        }
+
         // Pattern: local eN = eM:Clone()
         if l.contains(":Clone()") {
             if let Some(name) = extract_lhs_var(l) {
@@ -1264,6 +1378,8 @@ fn extract_effect_blocks(source: &str) -> Vec<EffectBlock> {
                     if l.contains(":SetTarget(")     { e.target_fn = Some(extract_paren(l)); }
                     if l.contains(":SetCondition(")  { e.condition_fn = Some(extract_paren(l)); }
                     if l.contains(":SetOperation(")  { e.operation_fn = Some(extract_paren(l)); }
+                    if l.contains(":SetValue(")      { e.value = Some(extract_paren(l)); }
+                    if l.contains(":SetTargetRange(") { e.target_range = Some(extract_paren(l)); }
                 }
             }
             continue;
@@ -1577,10 +1693,29 @@ fn extract_function_bodies(source: &str) -> std::collections::HashMap<String, Ve
                 .strip_prefix("function s.").unwrap_or("")
                 .split('(').next().unwrap_or("").to_string();
 
+            // Sprint 35: track block depth so we don't break on `end`
+            // tokens that close inner if/for/while/do blocks. The
+            // function header itself opens depth 1; we close at the
+            // matching outer `end`.
             let mut calls = Vec::new();
+            let mut depth: i32 = 1;
             for j in (i+1)..lines.len() {
                 let l = lines[j].trim();
-                if l == "end" || l.starts_with("function ") { break; }
+
+                // Hit a sibling function declaration → previous one
+                // implicitly ended (defensive; shouldn't happen with
+                // well-formed Lua but mirrors the old behavior).
+                if l.starts_with("function ") { break; }
+
+                // Compute open + close deltas for this line. Both
+                // counters count whole-word tokens (so `endpoint`
+                // doesn't count as `end`). For one-line forms like
+                // `if X then Y end`, opens=1 close=1, net 0.
+                let opens = count_open_tokens(l);
+                let closes = count_end_tokens(l);
+                depth += opens;
+                depth -= closes;
+                if depth <= 0 { break; }
 
                 // Extract Duel.X(...) calls
                 if let Some(pos) = l.find("Duel.") {
@@ -1602,6 +1737,14 @@ fn extract_function_bodies(source: &str) -> std::collections::HashMap<String, Ve
         }
     }
     fns
+}
+
+/// Count the `end` tokens on a line (as whole words, not inside
+/// identifiers). Handles single-line forms like `if X then Y end`.
+#[allow(dead_code)]
+fn count_end_tokens_local(line: &str) -> i32 {
+    // Reuse the existing count_end_tokens helper.
+    count_end_tokens(line)
 }
 
 /// Extract the contents of the first balanced `(...)` group in `s`.
