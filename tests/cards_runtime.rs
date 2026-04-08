@@ -566,6 +566,57 @@ fn maiden_of_blue_tears_emit_event_runs() {
     // emit_event, which it does (the audit card uses it).
 }
 
+// ── Sprint 47: Sprint 39-44 patterns ─────────────────────────
+
+#[test]
+fn beastworld_aegis_compiles_with_grant_modifiers() {
+    // Sprint 41 grant codes — continuous_effect with multiple
+    // grant: clauses on apply_to.
+    let card = load("cards/test/c40640083.ds");
+    assert_eq!(card.card_id, 40640083);
+    assert!(!card.effects.is_empty(), "Beastworld Aegis should compile to ≥1 effect");
+
+    // The effect carries a real continuous-modifier signature.
+    let eff = &card.effects[0];
+    assert!(eff.effect_type != 0, "continuous effect should have non-zero effect_type");
+}
+
+#[test]
+fn aegis_of_the_selected_compiles_with_register_effect() {
+    // Sprint 42 — register_effect on selected target with grants.
+    let card = load("cards/test/c40640084.ds");
+    assert_eq!(card.card_id, 40640084);
+    assert!(!card.effects.is_empty(), "Aegis of the Selected should compile to ≥1 effect");
+
+    // Walk the operation closure to ensure register_effect doesn't panic.
+    let mut rt = DuelScenario::new()
+        .cards([
+            CardSnapshot::monster(46986414, "Dark Magician", 2500, 2100, 7),
+        ])
+        .player(0).monsters([46986414])
+        .activated_by(0, 40640084)
+        .build();
+    if let Some(op) = &card.effects[0].callbacks.operation {
+        op(&mut rt);
+    }
+}
+
+#[test]
+fn pendulum_recovery_compiles_with_send_to_extra_deck() {
+    // Sprint 39 — send X to extra_deck action.
+    let card = load("cards/test/c40640085.ds");
+    assert_eq!(card.card_id, 40640085);
+    assert!(!card.effects.is_empty(), "Pendulum Recovery should compile to ≥1 effect");
+
+    // Smoke-run the operation against an empty runtime.
+    let mut rt = DuelScenario::new()
+        .activated_by(0, 40640085)
+        .build();
+    if let Some(op) = &card.effects[0].callbacks.operation {
+        op(&mut rt);
+    }
+}
+
 // ── Test 5: Pot of Greed in a duel scenario ──────────────────
 
 #[test]
