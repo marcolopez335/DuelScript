@@ -439,19 +439,65 @@ material compatibility, timing declarations, and more.
 
 ## Migration from Lua
 
-```rust
-use duelscript::migrate::{generate_from_lua, migrate_directory, Confidence};
+DuelScript ships with a Lua-to-DSL transpiler that converts a
+ProjectIgnis CardScripts directory into `.ds` files in one shot,
+joining the result with BabelCdb stats. From the duelscript repo
+root:
 
-// Single file
-let result = generate_from_lua(lua_source, 55144522, "Pot of Greed");
-println!("Confidence: {}", result.confidence.label());
-std::fs::write("c55144522.ds", &result.ds_content)?;
-
-// Batch — entire directory
-let results = migrate_directory(Path::new("CardScripts/official"));
-let high = results.iter().filter(|r| r.confidence == Confidence::High).count();
-println!("{}/{} cards migrated at HIGH confidence", high, results.len());
+```bash
+cargo run --release --bin migrate_batch \
+    --features "cdb,lua_transpiler" -- \
+    /path/to/CardScripts/official/ \
+    /path/to/BabelCdb/cards.cdb \
+    cards/official/ --all
 ```
+
+The library API:
+
+```rust
+use duelscript::lua_transpiler::transpile_lua_to_ds;
+use duelscript::cdb::CdbReader;
+
+let cdb = CdbReader::open("cards.cdb")?;
+let lua = std::fs::read_to_string("c55144522.lua")?;
+let cdb_card = cdb.get(55144522);
+let result = transpile_lua_to_ds(&lua, 55144522, "Pot of Greed", cdb_card);
+
+println!("Tier: {:?}", result.accuracy);
+std::fs::write("c55144522.ds", &result.ds_content)?;
+```
+
+The `accuracy` field tells you how completely the migrator captured
+the Lua semantics:
+
+| Tier            | Meaning                                                  |
+|-----------------|----------------------------------------------------------|
+| `Full`          | All Duel.X / aux.X / property-based actions mapped       |
+| `High`          | >70% of actions mapped                                   |
+| `Partial`       | Some actions mapped, others left as raw_effect           |
+| `StructureOnly` | Effect structure preserved, no actions extracted         |
+| `Failed`        | Lua source couldn't be parsed                            |
+
+### Current corpus coverage
+
+Against the full ProjectIgnis CardScripts/official directory
+(13,298 cards) at the time of the latest sprint:
+
+| Tier            | Cards   | %      |
+|-----------------|---------|--------|
+| Full            | 10,597  | 79.7%  |
+| High            |    962  |  7.2%  |
+| Partial         |  1,027  |  7.7%  |
+| StructureOnly   |    700  |  5.3%  |
+| Failed          |      0  |  0.0%  |
+
+All 13,298 cards parse cleanly through the validator with **0
+errors and 0 warnings**. A 2,000-card stride-sampled compile sweep
+achieves a 100% success rate with an average of 2.6 effects per
+card. The remaining StructureOnly cards are Effect-less vanilla
+monsters and a long tail of cards using EDOPro effect codes (chain
+manipulation, LP cost change, GY redirect) whose semantics don't
+map to any single DSL action.
 
 ---
 
