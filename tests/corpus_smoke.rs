@@ -27,6 +27,7 @@ use std::path::Path;
 use duelscript::test_harness::{compile_file, MockRuntime};
 
 const SAMPLE_SIZE: usize = 200;
+const FULL_COMPILE_BATCH_SIZE: usize = 2000;
 
 fn try_run_card(path: &Path, rt: &mut MockRuntime) -> Result<(usize, usize), String> {
     let compiled = compile_file(path).map_err(|e| format!("compile: {}", e))?;
@@ -165,4 +166,86 @@ fn corpus_smoke_test_migrated_cards() {
     // Anything lower means a regression worth chasing.
     assert!(success_rate >= 90.0,
         "corpus smoke success rate too low: {:.1}% (need ≥ 90%)", success_rate);
+}
+
+/// Sprint 45: bulk compile-only sweep across the corpus.
+///
+/// The smoke test above runs only 200 sampled cards through the
+/// full compile + closure pipeline. This test takes a bigger swing
+/// — it compiles up to FULL_COMPILE_BATCH_SIZE cards from
+/// cards/official just to verify they all produce a valid
+/// CompiledCard with at least one effect (or zero, for vanilla
+/// monsters). It does NOT run any operation closures because
+/// running 2000+ closures would dominate test runtime.
+///
+/// Failures here mean the compiler can't ingest some valid .ds
+/// file the validator already accepted — a regression that
+/// breaks the engine's ability to load real cards at startup.
+#[test]
+fn corpus_bulk_compile_sweep() {
+    let dir = Path::new("cards/official");
+    if !dir.exists() {
+        eprintln!("[skip] cards/official not present — run migrate_batch first");
+        return;
+    }
+
+    let mut all: Vec<_> = fs::read_dir(dir).expect("read cards/official")
+        .filter_map(|e| e.ok().map(|e| e.path()))
+        .filter(|p| p.extension().and_then(|s| s.to_str()) == Some("ds"))
+        .collect();
+    all.sort();
+
+    if all.is_empty() {
+        eprintln!("[skip] no .ds files in cards/official");
+        return;
+    }
+
+    // Stride-sample so we hit every prefix range, not just the early
+    // ones. With ~13K cards and a 2K batch the stride is ~6.
+    let stride = (all.len() / FULL_COMPILE_BATCH_SIZE).max(1);
+    let sample: Vec<_> = all.into_iter()
+        .step_by(stride)
+        .take(FULL_COMPILE_BATCH_SIZE)
+        .collect();
+
+    let mut compile_failures = 0usize;
+    let mut empty_compiled = 0usize;
+    let mut total_effects = 0usize;
+    let mut failures = Vec::new();
+
+    for p in &sample {
+        match compile_file(p) {
+            Ok(cc) => {
+                if cc.effects.is_empty() {
+                    empty_compiled += 1;
+                } else {
+                    total_effects += cc.effects.len();
+                }
+            }
+            Err(e) => {
+                compile_failures += 1;
+                if failures.len() < 10 {
+                    failures.push(format!("{}: {}", p.display(), e));
+                }
+            }
+        }
+    }
+
+    eprintln!();
+    eprintln!("=== Sprint 45: bulk compile sweep ===");
+    eprintln!("  Compiled:         {}/{}", sample.len() - compile_failures, sample.len());
+    eprintln!("  Compile failures: {}", compile_failures);
+    eprintln!("  Empty (vanilla):  {}", empty_compiled);
+    eprintln!("  Total effects:    {}", total_effects);
+    eprintln!("  Avg effects/card: {:.1}",
+        total_effects as f64 / (sample.len() - compile_failures - empty_compiled).max(1) as f64);
+
+    if !failures.is_empty() {
+        eprintln!();
+        eprintln!("First failures:");
+        for f in &failures { eprintln!("  {}", f); }
+    }
+
+    assert_eq!(compile_failures, 0,
+        "{} cards failed to compile", compile_failures);
 }
