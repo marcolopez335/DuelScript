@@ -1,0 +1,21 @@
+// Grant-restriction reference: a continuous trap that grants
+// piercing + double_attack + cannot_be_destroyed_by_battle to all
+// monsters you control while it's face-up on the field.
+//
+// Demonstrates the continuous_effect path with multiple grant
+// modifier_decls — the same shape the migrator now emits for
+// raw_effect blocks whose `code` matches one of the well-known
+// EFFECT_X codes (EFFECT_PIERCE, EFFECT_DOUBLE_ATTACK, …).
+
+card "Beastworld Aegis" {
+    type: Continuous Trap
+    password: 40640083
+
+    continuous_effect "Empower the Pack" {
+        scope: field
+        apply_to: (1+, monster, you controls)
+        grant: piercing
+        grant: double_attack
+        grant: cannot_be_destroyed_by_battle
+    }
+}

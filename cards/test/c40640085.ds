@@ -1,0 +1,18 @@
+// Send-to-extra-deck reference: a Normal Spell that lets you
+// shuffle a Pendulum monster from your GY back into the Extra
+// Deck face-up. Demonstrates the `send X to extra_deck` action,
+// matched in Sprint 39 to the Lua `Duel.SendtoExtraP` API call.
+
+card "Pendulum Recovery" {
+    type: Normal Spell
+    password: 40640085
+
+    effect "Reclaim Pendulum" {
+        speed: spell_speed_1
+        once_per_turn: hard
+
+        on_resolve {
+            send (1, "Pendulum" monster, you controls, gy) to extra_deck
+        }
+    }
+}
