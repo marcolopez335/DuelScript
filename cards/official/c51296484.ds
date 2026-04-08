@@ -25,6 +25,7 @@ card "Saffira, Dragon Queen of the Voiceless Voice" {
         on_resolve {
             send (1+, card, you controls, deck) to gy
             add_to_hand (1+, card, you controls) from deck
+            reveal (1+, card, opponent controls)
         }
     }
 
@@ -37,6 +38,15 @@ card "Saffira, Dragon Queen of the Voiceless Voice" {
         cost {
             banish self
         }
+        on_resolve {
+            ritual_summon (1, ritual monster) using (1+, monster, you controls)
+        }
+    }
+
+    raw_effect "Effect 3" {
+        effect_type: 16
+        category: 512
+        code: 1002
         on_resolve {
             ritual_summon (1, ritual monster) using (1+, monster, you controls)
         }

@@ -38,6 +38,7 @@ card "Gravekeeper's Trap" {
         count_limit: (1, 98715423)
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
+            reveal (1+, card, opponent controls)
         }
     }
 
@@ -60,6 +61,17 @@ card "Gravekeeper's Trap" {
         code: 1110
         on_resolve {
             set_flag "tracked" on self
+        }
+    }
+
+    raw_effect "Effect 7" {
+        effect_type: 2050
+        code: 1110
+        count_limit: (1, 0)
+        on_resolve {
+            reveal (1+, card, opponent controls)
+            send (1+, monster, you controls, gy) to gy
+            shuffle_hand
         }
     }
 

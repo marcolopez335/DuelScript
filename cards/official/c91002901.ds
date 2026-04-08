@@ -12,6 +12,7 @@ card "Duel Evolution - Assault Zone" {
         count_limit: (1, 91002901)
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
+            reveal (1+, card, opponent controls)
         }
     }
 
@@ -48,6 +49,22 @@ card "Duel Evolution - Assault Zone" {
                 grant: cannot_be_destroyed_by_battle
                 duration: until_end_of_turn
             }
+        }
+    }
+
+    raw_effect "Effect 5" {
+        effect_type: 2
+        code: 158
+        property: 384
+        on_resolve {
+        }
+    }
+
+    raw_effect "Effect 6" {
+        effect_type: 2050
+        code: 1017
+        on_resolve {
+            set_flag "tracked" on self
         }
     }
 

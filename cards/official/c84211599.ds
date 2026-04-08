@@ -11,7 +11,9 @@ card "Pot of Prosperity" {
         code: 1002
         count_limit: (1, 84211599)
         on_resolve {
+            reveal (1, card, opponent controls, deck)
             add_to_hand (1+, card, either_player controls) from gy
+            reveal (1+, card, opponent controls)
             shuffle_hand
             send (1+, card, either_player controls) to gy
             register_effect on self {

@@ -33,9 +33,27 @@ card "Silent Wolf Calupo" {
         range: 4
         count_limit: (1, 15947754)
         on_resolve {
+            reveal (1+, card, opponent controls)
             send (1+, card, you controls, hand) to gy
             send (1+, card, you controls, hand) to gy
             add_to_hand (1+, card, you controls) from hand
+        }
+    }
+
+    raw_effect "Effect 4" {
+        effect_type: 4
+        code: 100
+        property: 256
+        on_resolve {
+            modifier: atk + 500
+        }
+    }
+
+    raw_effect "Effect 5" {
+        effect_type: 1
+        code: 76
+        property: 1024
+        on_resolve {
         }
     }
 

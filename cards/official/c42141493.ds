@@ -30,4 +30,52 @@ card "Mulcharmy Fuwalos" {
         }
     }
 
+    raw_effect "Effect 2" {
+        effect_type: 2
+        code: 6
+        property: 67635200
+        on_resolve {
+        }
+    }
+
+    raw_effect "Effect 3" {
+        effect_type: 2050
+        code: 1102
+        on_resolve {
+            draw 1
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+        }
+    }
+
+    raw_effect "Effect 4" {
+        effect_type: 2050
+        code: 4608
+        count_limit: (1, 0)
+        on_resolve {
+            return (1+, card, either_player controls) to deck shuffle
+        }
+    }
+
+    raw_effect "Effect 5" {
+        effect_type: 2050
+        code: 1022
+        on_resolve {
+            draw 1
+        }
+    }
+
+    raw_effect "Effect 6" {
+        effect_type: 2050
+        code: 1022
+        on_resolve {
+        }
+    }
+
 }

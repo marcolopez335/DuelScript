@@ -22,4 +22,31 @@ card "Cherubidamn Irisfiel" {
         }
     }
 
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 2097152
+        code: 1102
+        property: 65536
+        on_resolve {
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+        }
+    }
+
+    replacement_effect "Effect 3" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
+        }
+    }
+
+    raw_effect "Effect 4" {
+        effect_type: 2
+        code: 100
+        on_resolve {
+        }
+    }
+
 }

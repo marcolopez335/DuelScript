@@ -11,6 +11,7 @@ card "Majesty of the White Dragons" {
         code: 1002
         count_limit: (1, 43219114)
         on_resolve {
+            reveal (1+, card, opponent controls)
             destroy (1+, card, opponent controls)
         }
     }
@@ -24,6 +25,15 @@ card "Majesty of the White Dragons" {
         cost {
             banish self
         }
+        on_resolve {
+            ritual_summon (1, ritual monster) using (1+, monster, you controls)
+        }
+    }
+
+    raw_effect "Effect 3" {
+        effect_type: 16
+        category: 512
+        code: 1002
         on_resolve {
             ritual_summon (1, ritual monster) using (1+, monster, you controls)
         }

@@ -17,6 +17,7 @@ card "Materiactor Exareptor" {
         count_limit: (1, 37426272)
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
+            reveal (1+, card, opponent controls)
             special_summon (1, monster) from gy
         }
     }
@@ -31,6 +32,15 @@ card "Materiactor Exareptor" {
             discard (1, card, you controls)
         }
         on_resolve {
+        }
+    }
+
+    raw_effect "Effect 3" {
+        effect_type: 1
+        code: 100
+        property: 1024
+        on_resolve {
+            modifier: atk + 1500
         }
     }
 

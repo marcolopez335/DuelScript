@@ -108,6 +108,17 @@ impl DuelApiCall {
                 "register_effect on self {\n                grant: cannot_be_destroyed_by_battle\n                duration: until_end_of_turn\n            }".to_string()
             ),
             "RegisterFlagEffect" => Some("set_flag \"tracked\" on self".to_string()),
+            "ConfirmCards" => Some("reveal (1+, card, opponent controls)".to_string()),
+            "ConfirmDecktop" => Some("reveal (1, card, opponent controls, deck)".to_string()),
+            "DisableCardPosition" => None,
+            "Adjustall" => None, // forces a state-update pass; no semantic action
+            "BattleDestroy" => Some("destroy (1, monster)".to_string()),
+            "ChangeAttackTarget" => None,
+            "ChainAttack" => None,
+            "Tribute" => Some("tribute (1, monster, you controls)".to_string()),
+            "ReturnToField" => Some("special_summon (1, monster) from gy".to_string()),
+            "MoveSequence" => None,
+            "Swap" => None,
             "BreakEffect" => None, // sequencing marker, no action
             "SpecialSummonStep" => Some("special_summon (1, monster) from gy".to_string()),
             "SpecialSummonComplete" => None, // multi-step finalizer
@@ -743,6 +754,9 @@ pub fn helper_map() -> &'static std::collections::HashMap<String, Vec<EffectBloc
 
         // Ritual procedure modules — register a ritual summon activation.
         // The card is the ritual SPELL, summoning a ritual MONSTER.
+        // Sprint 39: extended with the remaining Ritual.* entry points
+        // (AddWholeLevelTribute / Target / Operation) so the matching
+        // ritual SPELL cards stop landing in StructureOnly.
         for fname in &[
             "Ritual.AddProcGreater",
             "Ritual.AddProcEqual",
@@ -750,6 +764,9 @@ pub fn helper_map() -> &'static std::collections::HashMap<String, Vec<EffectBloc
             "Ritual.AddProcEqualCode",
             "Ritual.AddProcGreaterCode2",
             "Ritual.CreateProc",
+            "Ritual.AddWholeLevelTribute",
+            "Ritual.Target",
+            "Ritual.Operation",
         ] {
             add_module(fname, vec![
                 mk_with_actions(
@@ -852,18 +869,30 @@ pub fn transpile_lua_to_ds(
             continue;
         }
         // Look for helper calls: aux.X(...) / Auxiliary.X(...) / Module.X{...}.
-        // Must be a bare call at statement position, not nested in another expr.
-        // Sprint 31: also match the table-arg form `helper{...}` since
-        // ProjectIgnis cards use both styles interchangeably.
+        // Sprint 31: match both `helper(` and `helper{` styles.
+        // Sprint 39: helpers are commonly assigned to a local variable
+        // (`local e1 = Module.X(...)`). The earlier strict-prefix
+        // matcher only caught bare statements and a single-named
+        // `local _ = Module.X(...)` form, so cards using
+        // `local e1=Ritual.AddProcGreater({...})` were missed and
+        // ended up in StructureOnly even though their helper has a
+        // mapping. Strip a `local <ident> = ` / `local <ident>=`
+        // prefix before checking, so any local-binding form works.
         if !l.starts_with("function ") && !l.contains(":Set") && !l.contains("RegisterEffect") {
+            // Strip an optional `local <ident> [=]? ` prefix.
+            let stripped = if let Some(rest) = l.strip_prefix("local ") {
+                if let Some(eq) = rest.find('=') {
+                    rest[eq + 1..].trim_start()
+                } else {
+                    rest
+                }
+            } else {
+                l
+            };
             for (helper_name, helper_effects) in helpers.iter() {
-                let paren_call  = format!("{}(", helper_name);
-                let table_call  = format!("{}{{", helper_name);
-                let local_paren = format!("local _ = {}", paren_call);
-                let local_table = format!("local _ = {}", table_call);
-                if l.starts_with(&paren_call) || l.starts_with(&table_call)
-                   || l.starts_with(&local_paren) || l.starts_with(&local_table)
-                {
+                let paren_call = format!("{}(", helper_name);
+                let table_call = format!("{}{{", helper_name);
+                if stripped.starts_with(&paren_call) || stripped.starts_with(&table_call) {
                     for eff in helper_effects {
                         effects.push(eff.clone());
                     }
@@ -1213,7 +1242,16 @@ pub fn transpile_lua_to_ds(
 
     ds.push_str("}\n");
 
-    let accuracy = if total_actions == 0 {
+    // Sprint 39: distinguish "vanilla" cards (no Effect.CreateEffect at
+    // all) from "structure-only" (has effects but couldn't extract any
+    // actions). Vanilla cards are perfectly captured — there's nothing
+    // to translate — so they belong in Full, not StructureOnly.
+    let has_effect_creation = lua_source.contains("Effect.CreateEffect");
+    let accuracy = if !has_effect_creation && total_actions == 0 {
+        // Pure vanilla / procedure-only card. Materials + summon
+        // condition tell the engine everything; no further behavior.
+        TranspileAccuracy::Full
+    } else if total_actions == 0 {
         TranspileAccuracy::StructureOnly
     } else if mapped_actions == total_actions {
         TranspileAccuracy::Full
@@ -1341,8 +1379,20 @@ fn extract_effect_blocks(source: &str) -> Vec<EffectBlock> {
             continue;
         }
 
-        // Track block depth so we know when initial_effect ends
-        if l.starts_with("function ") { depth += 1; }
+        // Track block depth so we know when initial_effect ends.
+        //
+        // Sprint 39: anonymous inline functions passed to SetCost/
+        // SetTarget/SetCondition/SetOperation use the form `function(`
+        // (no space) and close with `end)` or `end,`. We must count
+        // those `function(` openers, otherwise the matching `end)`/
+        // `end,` lines decrement depth without a paired increment and
+        // we exit initial_effect prematurely — losing every effect
+        // declared after the first SetCost/SetTarget call.
+        //
+        // count_keyword_occurrences handles whole-word matching so we
+        // don't double-count `function` when the line actually says
+        // something like `local f = somefunction(x)`.
+        depth += count_keyword_occurrences(l, &["function"]);
         if l.contains(" do ") || l.ends_with(" do") || l.starts_with("if ") || l.ends_with(" then") {
             depth += 1;
         }
