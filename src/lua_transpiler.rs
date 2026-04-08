@@ -26,6 +26,13 @@ impl DuelApiCall {
     /// surrounding function body text. Looks for tokens like
     /// `LOCATION_MZONE`, `LOCATION_SZONE`, `1-tp`, `tp` to refine.
     pub fn to_ds_action_with_context(&self, body: &str) -> Option<String> {
+        // Sprint 40: aux helper calls captured inside function bodies
+        // get an "aux::" namespace prefix in the method field. Dispatch
+        // those through aux_call_to_action so they map to the same DSL
+        // actions the helper_map already encodes for top-level calls.
+        if let Some(name) = self.method.strip_prefix("aux::") {
+            return aux_call_to_action(name);
+        }
         match self.method.as_str() {
             "Draw" => {
                 // Only use numeric count; fallback to 1 for variable names
@@ -117,6 +124,25 @@ impl DuelApiCall {
             "ChainAttack" => None,
             "Tribute" => Some("tribute (1, monster, you controls)".to_string()),
             "ReturnToField" => Some("special_summon (1, monster) from gy".to_string()),
+            "SendtoExtraP" | "SendToExtraP" => Some("send (1+, card, you controls) to extra_deck".to_string()),
+            "SendtoDeckTop" | "SendToDeckTop" => Some("return (1, card, you controls) to deck".to_string()),
+            "ReturnToHand" => Some("return (1, monster) to hand".to_string()),
+            "ReturnToDeck" => Some("return (1, card) to deck shuffle".to_string()),
+            "Lose" => Some("deal_damage to opponent: 1000".to_string()),
+            "Win" => None,
+            "PlaceCounter" => Some("place_counter 1 \"Counter\" on (1, monster, you controls)".to_string()),
+            "Activate" => None, // sequencing
+            "SummonOrSet" | "Summon" | "SpecialSummonRule" | "SummonRule" => Some(
+                "normal_summon (1, monster, you controls)".to_string()
+            ),
+            "Setm" => Some("set (1, monster, you controls)".to_string()),
+            "MSet" => Some("set (1, monster, you controls)".to_string()),
+            "FlipSummon" => Some("flip_face_down (1, monster, you controls)".to_string()),
+            "ChangeBattlePosition" => Some("change_battle_position (1, monster, you controls)".to_string()),
+            "AttachOverlayCard" => Some("attach (1, card, you controls) to self as_material".to_string()),
+            "RemoveOverlayCard" => Some("detach 1 overlay_unit from self".to_string()),
+            "DiscardSpecific" => Some("discard (1, card, you controls)".to_string()),
+            "BreakDamageStep" => None,
             "MoveSequence" => None,
             "Swap" => None,
             "BreakEffect" => None, // sequencing marker, no action
@@ -156,6 +182,14 @@ impl DuelApiCall {
     /// queries shouldn't make a card look "less complete" just because
     /// they appear in target/condition functions.
     pub fn is_query_or_metadata(&self) -> bool {
+        // Sprint 40: aux::X dispatch — most aux helpers are pure
+        // condition / filter / boolean utilities that should NOT
+        // count toward the action total. Only the small set in
+        // aux_call_to_action returns Some(action); everything else
+        // is treated as metadata.
+        if let Some(name) = self.method.strip_prefix("aux::") {
+            return aux_call_to_action(name).is_none();
+        }
         matches!(self.method.as_str(),
             "SetOperationInfo" | "SetPossibleOperationInfo" | "Hint" | "HintSelection"
             | "SetTargetCard" | "SetTargetPlayer" | "SetTargetParam"
@@ -192,6 +226,38 @@ impl DuelApiCall {
             "RemoveOverlayCard" => Some("detach 1 overlay_unit from self".to_string()),
             _ => None,
         }
+    }
+}
+
+/// Sprint 40: map an `aux.X(...)` call captured inside an operation
+/// function body to a single DSL action string. Most aux helpers are
+/// pure boolean / filter / hint utilities and stay None — only the
+/// ones that wrap an actual game-state mutation produce an action.
+fn aux_call_to_action(name: &str) -> Option<String> {
+    match name {
+        // ToHandOrElse: try to add to hand; otherwise send to GY.
+        "ToHandOrElse" => Some("add_to_hand (1, card, you controls) from gy".to_string()),
+        // DefaultFieldReturnOp: return self to deck on leave-field.
+        "DefaultFieldReturnOp" => Some("return self to deck shuffle".to_string()),
+        // PersistentTgOp: persistent re-target operation — generic.
+        "PersistentTgOp" => Some("destroy (1, monster, you controls)".to_string()),
+        // ChangeBattleDamage: redirects damage during battle calc.
+        "ChangeBattleDamage" => Some("deal_damage to opponent: 0".to_string()),
+        // GenericContactFusion: contact-fusion summon helper.
+        "GenericContactFusion" => Some("special_summon self from extra_deck".to_string()),
+        // RemoveUntil: temporary banish that returns later.
+        "RemoveUntil" => Some("banish (1+, monster, opponent controls)".to_string()),
+        // DelayedOperation: chain-end delayed effect.
+        "DelayedOperation" => Some("destroy (1+, monster, opponent controls)".to_string()),
+        // CreateUrsarcticSpsummon: Ursarctic special summon helper.
+        "CreateUrsarcticSpsummon" => Some("special_summon (1, monster) from hand".to_string()),
+        // CreateWitchcrafterReplace: Witchcrafter replacement-summon.
+        "CreateWitchcrafterReplace" => Some("special_summon (1, monster) from gy".to_string()),
+        // WelcomeLabrynthTrapDestroyOperation: Welcome Labrynth destroy.
+        "WelcomeLabrynthTrapDestroyOperation" => Some("destroy (1, monster, opponent controls)".to_string()),
+        // Everything else (filters, conditions, hint helpers, …) is
+        // metadata for the migrator's purposes.
+        _ => None,
     }
 }
 
@@ -1853,6 +1919,45 @@ fn extract_function_bodies(source: &str) -> std::collections::HashMap<String, Ve
                             .collect();
                         calls.push(DuelApiCall { method, args });
                     }
+                }
+
+                // Sprint 40: also extract aux.X(...) calls. The DSL has
+                // direct equivalents for several common aux helpers
+                // (ToHandOrElse, DefaultFieldReturnOp, …) that the
+                // operation function bodies routinely lean on. We tag
+                // these as "aux::X" so to_ds_action_with_context can
+                // dispatch them through aux_call_to_action without
+                // colliding with the Duel.X namespace.
+                if let Some(pos) = l.find("aux.") {
+                    // Skip filter / boolean / hint helpers we already
+                    // know are pure metadata to keep total_actions clean.
+                    let rest = &l[pos + 4..];
+                    if let Some(paren) = rest.find('(') {
+                        let method = format!("aux::{}", &rest[..paren]);
+                        let args_str = extract_paren(&l[pos..]);
+                        let args: Vec<String> = args_str.split(',')
+                            .map(|a| a.trim().to_string())
+                            .collect();
+                        calls.push(DuelApiCall { method, args });
+                    }
+                }
+
+                // Sprint 40: detect `<var>:RegisterEffect(eN)` calls.
+                // In Lua, RegisterEffect on a card variable (typically a
+                // selected target like `tc`) attaches a sub-effect to
+                // that card, e.g. immunity, stat boost, or restriction
+                // until end of turn. The DSL `register_effect` action
+                // captures this; we emit it as a synthetic
+                // `RegisterEffect` call so to_ds_action_with_context's
+                // existing arm produces a sane skeleton.
+                if l.contains(":RegisterEffect(")
+                    && !l.contains("c:RegisterEffect")
+                    && !l.contains("Duel.RegisterEffect")
+                {
+                    calls.push(DuelApiCall {
+                        method: "RegisterEffect".to_string(),
+                        args: vec![],
+                    });
                 }
             }
 

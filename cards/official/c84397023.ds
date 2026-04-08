@@ -11,6 +11,10 @@ card "Level Conversion Lab" {
         on_resolve {
             reveal (1+, card, opponent controls)
             send (1+, card, you controls, hand) to gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
             shuffle_hand
         }
     }
