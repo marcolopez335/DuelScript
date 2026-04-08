@@ -10,6 +10,10 @@ card "Noh-P.U.N.K. Deer Note" {
     atk: 2100
     def: 1800
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 640
@@ -17,7 +21,7 @@ card "Noh-P.U.N.K. Deer Note" {
         count_limit: (1, 6609736)
         on_resolve {
             special_summon (1, monster) from gy
-            send (1, card) to gy
+            send (1+, monster, either_player controls) to gy
         }
     }
 
@@ -29,6 +33,10 @@ card "Noh-P.U.N.K. Deer Note" {
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

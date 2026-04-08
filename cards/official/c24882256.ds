@@ -7,10 +7,16 @@ card "Fire Phoenix @Ignister" {
     attribute: FIRE
     race: Cyberse
     link: 3
+    link_arrows: [left, right, bottom]
     atk: 2300
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -21,6 +27,10 @@ card "Fire Phoenix @Ignister" {
         count_limit: (1, 24882256)
         on_resolve {
             deal_damage to opponent: 1000
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -31,7 +41,7 @@ card "Fire Phoenix @Ignister" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, opponent controls)
         }
     }
 
@@ -40,7 +50,6 @@ card "Fire Phoenix @Ignister" {
         code: 1014
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 

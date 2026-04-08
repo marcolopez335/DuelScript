@@ -10,6 +10,10 @@ card "Black Luster Soldier - Sacred Soldier" {
     atk: 3000
     def: 2500
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 36
@@ -17,8 +21,8 @@ card "Black Luster Soldier - Sacred Soldier" {
         property: 16400
         count_limit: (1, 92510265)
         on_resolve {
-            send (1, card) to gy
-            banish (1+, card)
+            send (1+, card, either_player controls) to gy
+            banish (1+, card, either_player controls)
         }
     }
 
@@ -29,8 +33,8 @@ card "Black Luster Soldier - Sacred Soldier" {
         property: 16400
         count_limit: (1, 92510265)
         on_resolve {
-            send (1, card) to gy
-            banish (1+, card)
+            send (1+, card, either_player controls) to gy
+            banish (1+, card, either_player controls)
         }
     }
 
@@ -40,7 +44,7 @@ card "Black Luster Soldier - Sacred Soldier" {
         code: 1139
         property: 16
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

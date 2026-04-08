@@ -17,7 +17,11 @@ card "Salamangreat of Fire" {
         property: 65536
         count_limit: (1, 11962031)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -28,7 +32,11 @@ card "Salamangreat of Fire" {
         property: 65536
         count_limit: (1, 11962031)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -42,7 +50,7 @@ card "Salamangreat of Fire" {
             banish self
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls, deck)
         }
     }
 

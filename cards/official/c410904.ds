@@ -10,14 +10,18 @@ card "Awakening of the Possessed - Rasenryu" {
     atk: 2000
     def: 200
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
         property: 262144
         range: 3
         on_resolve {
-            send (1, card) to gy
-            shuffle deck
+            send (1+, spell, you controls) to gy
+            shuffle_deck
         }
     }
 
@@ -27,7 +31,7 @@ card "Awakening of the Possessed - Rasenryu" {
         code: 1102
         count_limit: (1, 410904)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, spell, you controls) to hand
         }
     }
 
@@ -38,7 +42,7 @@ card "Awakening of the Possessed - Rasenryu" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, spell, you controls) to hand
         }
     }
 

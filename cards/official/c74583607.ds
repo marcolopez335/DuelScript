@@ -14,6 +14,11 @@ card "D/D/D Flame King Genghis" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 130
         category: 512
@@ -32,7 +37,7 @@ card "D/D/D Flame King Genghis" {
         code: 1029
         property: 81936
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

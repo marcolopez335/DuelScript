@@ -9,7 +9,6 @@ card "Guardragon Shield" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -20,17 +19,13 @@ card "Guardragon Shield" {
         range: 256
         count_limit: (1, 50186558)
         on_resolve {
-            reveal self
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 50
-        range: 256
-        count_limit: (1, 0)
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 3" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

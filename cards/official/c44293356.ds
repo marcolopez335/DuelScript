@@ -14,6 +14,11 @@ card "Megalith Notrah Plura" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         range: 2
@@ -22,7 +27,11 @@ card "Megalith Notrah Plura" {
             reveal self
         }
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -35,7 +44,8 @@ card "Megalith Notrah Plura" {
         count_limit: (1, 0)
         on_resolve {
             negate activation
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, opponent controls)
+            tribute (1, monster, you controls)
         }
     }
 

@@ -3,13 +3,17 @@
 
 card "D/D/D Chaos King Apocalypse" {
     password: 83303851
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
     level: 7
     scale: 4
     atk: 2700
     def: 2000
+
+    summon_condition {
+        tributes_required: 2
+    }
 
     raw_effect "Effect 1" {
         effect_type: 64
@@ -31,7 +35,15 @@ card "D/D/D Chaos King Apocalypse" {
         range: 18
         count_limit: (1, 83303851)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            destroy (1+, monster, you controls, gy)
             special_summon (1, monster) from gy
         }
     }

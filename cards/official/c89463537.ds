@@ -14,12 +14,16 @@ card "Nekroz of Unicore" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,10 +34,10 @@ card "Nekroz of Unicore" {
         range: 2
         count_limit: (1, 89463537)
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 
@@ -42,7 +46,6 @@ card "Nekroz of Unicore" {
         code: 2
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

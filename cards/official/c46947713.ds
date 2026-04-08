@@ -7,10 +7,16 @@ card "Transcode Talker" {
     attribute: EARTH
     race: Cyberse
     link: 3
+    link_arrows: [top, right, bottom]
     atk: 2300
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -18,7 +24,7 @@ card "Transcode Talker" {
         code: 100
         range: 4
         on_resolve {
-            reveal self
+            modifier: atk + 500
         }
     }
 
@@ -27,7 +33,6 @@ card "Transcode Talker" {
         code: 71
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

@@ -14,6 +14,11 @@ card "Futsu no Mitama no Mitsurugi" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 130
         category: 512
@@ -33,7 +38,7 @@ card "Futsu no Mitama no Mitsurugi" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
             special_summon (1, monster) from gy
         }
     }

@@ -10,12 +10,15 @@ card "Master Peace, the True Dracoverlord" {
     atk: 2950
     def: 2950
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 157
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -38,7 +41,18 @@ card "Master Peace, the True Dracoverlord" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

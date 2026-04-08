@@ -10,13 +10,17 @@ card "Sylvan Hermitree" {
     atk: 2700
     def: 1800
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 65600
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
             draw 1
         }
     }
@@ -25,7 +29,6 @@ card "Sylvan Hermitree" {
         effect_type: 513
         code: 1014
         on_resolve {
-            reveal self
         }
     }
 

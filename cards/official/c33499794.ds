@@ -9,7 +9,6 @@ card "Nemleria Repeter" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -19,7 +18,13 @@ card "Nemleria Repeter" {
         range: 8
         count_limit: (1, 33499794)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, opponent controls) to hand
+            set_flag "tracked" on self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            send (1+, monster, opponent controls) to gy
         }
     }
 

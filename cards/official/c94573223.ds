@@ -10,13 +10,18 @@ card "Inzektor Giga-Mantis" {
     atk: 2400
     def: 0
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 262144
         property: 16
         range: 2
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
+            equip (1, card) to (1, monster)
         }
     }
 
@@ -24,7 +29,6 @@ card "Inzektor Giga-Mantis" {
         effect_type: 4
         code: 103
         on_resolve {
-            reveal self
         }
     }
 

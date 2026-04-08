@@ -3,13 +3,17 @@
 
 card "Amorphage Sloth" {
     password: 32687071
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: EARTH
     race: Dragon
     level: 6
     scale: 3
     atk: 2250
     def: 0
+
+    summon_condition {
+        tributes_required: 1
+    }
 
     raw_effect "Effect 1" {
         effect_type: 2050
@@ -19,7 +23,7 @@ card "Amorphage Sloth" {
         count_limit: (1, 0)
         on_resolve {
             tribute (1, monster, you controls)
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls)
         }
     }
 
@@ -29,7 +33,6 @@ card "Amorphage Sloth" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -38,7 +41,6 @@ card "Amorphage Sloth" {
         code: 65
         range: 512
         on_resolve {
-            reveal self
         }
     }
 

@@ -7,10 +7,16 @@ card "Exceed the Pendulum" {
     attribute: LIGHT
     race: Spellcaster
     link: 3
+    link_arrows: [bottom_left, bottom, bottom_right]
     atk: 2000
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,6 @@ card "Exceed the Pendulum" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +35,7 @@ card "Exceed the Pendulum" {
         property: 65536
         count_limit: (1, 92812851)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

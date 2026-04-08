@@ -3,7 +3,7 @@
 
 card "Han-Shi Kyudo Spirit" {
     password: 53270092
-    type: Pendulum Monster | Flip
+    type: Effect Monster | Pendulum Monster | Flip
     attribute: WIND
     race: Warrior
     level: 5
@@ -11,13 +11,17 @@ card "Han-Shi Kyudo Spirit" {
     atk: 2400
     def: 1000
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 514
         category: 8
         code: 1102
         range: 512
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, card, you controls) to hand
         }
     }
 
@@ -26,8 +30,8 @@ card "Han-Shi Kyudo Spirit" {
         category: 131080
         code: 1100
         on_resolve {
-            add_to_hand (1, card) from gy
-            add_to_hand (1, card) from gy
+            return (1+, card, you controls) to hand
+            return (1+, card, you controls) to hand
         }
     }
 

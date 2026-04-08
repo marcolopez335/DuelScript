@@ -10,6 +10,10 @@ card "Carpiponica, Mystical Beast of the Forest" {
     atk: 1000
     def: 2600
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 528
@@ -17,7 +21,7 @@ card "Carpiponica, Mystical Beast of the Forest" {
         property: 81936
         count_limit: (1, 85055821)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, monster, you controls) to deck shuffle
             special_summon (1, monster) from gy
         }
     }
@@ -29,7 +33,7 @@ card "Carpiponica, Mystical Beast of the Forest" {
         property: 81920
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from gy
         }
     }
 
@@ -40,7 +44,7 @@ card "Carpiponica, Mystical Beast of the Forest" {
         property: 81920
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from gy
         }
     }
 

@@ -662,8 +662,26 @@ fn check_summon_conditions(ctx: &CardCtx, errors: &mut Vec<ValidationError>) {
 
 fn check_replacement_effect_validity(ctx: &CardCtx, errors: &mut Vec<ValidationError>) {
     for re in &ctx.card.replacement_effects {
-        // Replacement effects on spells/traps are unusual
-        if ctx.is_spell || ctx.is_trap {
+        // Replacement effects on one-shot spells/traps are unusual.
+        // Continuous Spells, Equip Spells, Field Spells, and Continuous
+        // Traps routinely host self-protection effects. Additionally,
+        // many Normal Spells use the "banish self instead of being
+        // destroyed" pattern (e.g. Neos Fusion) — that's idiomatic, not
+        // unusual, so we exempt single-action `banish self` replacements.
+        let is_persistent_spell_trap = ctx.card.card_types.iter().any(|t| matches!(
+            t,
+            CardType::ContinuousSpell | CardType::EquipSpell
+                | CardType::FieldSpell | CardType::ContinuousTrap
+        ));
+        let is_banish_self_idiom = re.do_actions.len() == 1
+            && matches!(
+                &re.do_actions[0],
+                GameAction::Banish { target: SelfOrTarget::Self_, .. }
+            );
+        if (ctx.is_spell || ctx.is_trap)
+            && !is_persistent_spell_trap
+            && !is_banish_self_idiom
+        {
             errors.push(warn(
                 ctx.name(),
                 "Replacement effects on Spells/Traps are unusual — verify this is the intended behavior",

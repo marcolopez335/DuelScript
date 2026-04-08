@@ -3,7 +3,7 @@
 
 card "D/D Savant Thomas" {
     password: 41546
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
     level: 8
@@ -11,13 +11,17 @@ card "D/D Savant Thomas" {
     atk: 1800
     def: 2600
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 8
         range: 512
         count_limit: (1, 41546)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 
@@ -29,6 +33,11 @@ card "D/D Savant Thomas" {
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
+            special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

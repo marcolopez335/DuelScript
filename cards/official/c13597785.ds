@@ -10,6 +10,10 @@ card "Elfnote Lucina" {
     atk: 2500
     def: 1800
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
@@ -17,7 +21,6 @@ card "Elfnote Lucina" {
         range: 2
         count_limit: (1, 13597785)
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,7 +30,7 @@ card "Elfnote Lucina" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, opponent controls) to hand
         }
     }
 
@@ -38,7 +41,7 @@ card "Elfnote Lucina" {
         range: 2048
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, opponent controls) to hand
         }
     }
 

@@ -9,7 +9,6 @@ card "Card Scanner" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -19,8 +18,10 @@ card "Card Scanner" {
         range: 8
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            add_to_hand (1+, card, opponent controls) from hand
+            shuffle_hand
+            add_to_hand (1+, card, opponent controls) from hand
+            shuffle_hand
         }
     }
 
@@ -30,7 +31,7 @@ card "Card Scanner" {
         code: 1029
         property: 65536
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, opponent controls) to deck shuffle
         }
     }
 

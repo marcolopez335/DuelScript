@@ -10,12 +10,16 @@ card "Infernal Incinerator" {
     atk: 2800
     def: 1800
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 33
         property: 263168
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, either_player controls) to gy
             tribute (1, monster, you controls)
         }
     }
@@ -25,7 +29,7 @@ card "Infernal Incinerator" {
         code: 37
         property: 263168
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, either_player controls) to gy
             tribute (1, monster, you controls)
         }
     }
@@ -36,7 +40,6 @@ card "Infernal Incinerator" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

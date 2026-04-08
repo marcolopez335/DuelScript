@@ -10,13 +10,16 @@ card "Performapal Clay Breaker" {
     atk: 2000
     def: 1000
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 2097152
         code: 1134
         count_limit: (1, 8820526)
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,7 +30,7 @@ card "Performapal Clay Breaker" {
         range: 16
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

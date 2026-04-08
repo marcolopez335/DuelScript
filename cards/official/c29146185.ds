@@ -10,13 +10,17 @@ card "World of Prophecy" {
     atk: 2900
     def: 2400
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 8
         code: 1102
         property: 16400
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from hand
         }
     }
 
@@ -25,7 +29,7 @@ card "World of Prophecy" {
         category: 1
         code: 297581641
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, you controls, hand)
         }
     }
 

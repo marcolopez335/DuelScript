@@ -10,6 +10,10 @@ card "Dracotail Urgula" {
     atk: 2400
     def: 1000
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 1
@@ -18,8 +22,8 @@ card "Dracotail Urgula" {
         count_limit: (1, 70871153)
         on_resolve {
             set (1, card)
-            shuffle deck
-            destroy (1+, card, either_player controls)
+            shuffle_deck
+            destroy (1+, spell, either_player controls)
         }
     }
 
@@ -30,8 +34,8 @@ card "Dracotail Urgula" {
         range: 16
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
-            add_to_hand (1, card) from gy
+            return (1+, spell, either_player controls) to deck shuffle
+            return (1+, spell, either_player controls) to hand
         }
     }
 

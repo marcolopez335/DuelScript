@@ -3,7 +3,7 @@
 
 card "Abyss Actor - Wild Hope" {
     password: 51391183
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
     level: 4
@@ -17,7 +17,10 @@ card "Abyss Actor - Wild Hope" {
         range: 512
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -27,7 +30,6 @@ card "Abyss Actor - Wild Hope" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 
@@ -38,7 +40,7 @@ card "Abyss Actor - Wild Hope" {
         property: 65536
         count_limit: (1, 51391183)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, you controls) to hand
         }
     }
 

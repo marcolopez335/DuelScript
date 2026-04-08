@@ -17,7 +17,6 @@ card "Shaman of the Ashened City" {
         range: 2
         count_limit: (1, 35151572)
         on_resolve {
-            reveal self
         }
     }
 
@@ -28,9 +27,9 @@ card "Shaman of the Ashened City" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
-            shuffle deck
-            add_to_hand (1, card) from gy
+            return (1+, card, either_player controls) to deck shuffle
+            shuffle_deck
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

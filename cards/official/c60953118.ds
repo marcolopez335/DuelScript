@@ -10,15 +10,22 @@ card "Arcana Force XIV - Temperance" {
     atk: 2400
     def: 2400
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         code: 1134
         range: 2
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -27,7 +34,6 @@ card "Arcana Force XIV - Temperance" {
         category: 16777216
         code: 1100
         on_resolve {
-            reveal self
         }
     }
 
@@ -36,7 +42,6 @@ card "Arcana Force XIV - Temperance" {
         category: 16777216
         code: 1102
         on_resolve {
-            reveal self
         }
     }
 
@@ -45,7 +50,6 @@ card "Arcana Force XIV - Temperance" {
         category: 16777216
         code: 1101
         on_resolve {
-            reveal self
         }
     }
 

@@ -1,0 +1,51 @@
+// Talons of Shurilane
+// Transpiled from c74150658.lua
+
+card "Talons of Shurilane" {
+    password: 74150658
+    type: Effect Monster
+    attribute: LIGHT
+    race: Unknown
+    level: 6
+    atk: 2100
+    def: 2050
+
+    summon_condition {
+        tributes_required: 1
+    }
+
+    raw_effect "Effect 1" {
+        effect_type: 2
+        code: 42
+        range: 4
+        on_resolve {
+        }
+    }
+
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 520
+        code: 1002
+        property: 16
+        range: 2
+        count_limit: (1, 74150658)
+        on_resolve {
+            add_to_hand (1+, card, either_player controls) from gy
+            special_summon (1, monster) from gy
+        }
+    }
+
+    raw_effect "Effect 3" {
+        effect_type: 256
+        category: 9
+        code: 1027
+        property: 16
+        range: 4
+        count_limit: (1, 0)
+        on_resolve {
+            add_to_hand (1+, card, either_player controls) from gy
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

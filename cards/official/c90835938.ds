@@ -10,6 +10,10 @@ card "Starry Night, Starry Dragon" {
     atk: 2500
     def: 2300
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 1
@@ -34,7 +38,6 @@ card "Starry Night, Starry Dragon" {
         effect_type: 1
         code: 42
         on_resolve {
-            reveal self
         }
     }
 
@@ -42,7 +45,6 @@ card "Starry Night, Starry Dragon" {
         effect_type: 1
         code: 41
         on_resolve {
-            reveal self
         }
     }
 
@@ -53,7 +55,11 @@ card "Starry Night, Starry Dragon" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, either_player controls)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

@@ -9,7 +9,6 @@ card "Sylvan Waterslide" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -19,7 +18,7 @@ card "Sylvan Waterslide" {
         code: 1130
         range: 8
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
         }
     }
 
@@ -29,9 +28,9 @@ card "Sylvan Waterslide" {
         code: 1113
         range: 8
         on_resolve {
-            send (1, card) to gy
-            add_to_hand (1, card) from gy
-            shuffle deck
+            send (1+, card, either_player controls) to gy
+            add_to_hand (1+, card, either_player controls) from gy
+            shuffle_hand
         }
     }
 

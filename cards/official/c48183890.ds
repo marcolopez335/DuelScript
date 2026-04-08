@@ -7,10 +7,16 @@ card "Traptrix Atypus" {
     attribute: EARTH
     race: Insect
     link: 3
+    link_arrows: [left, right, bottom]
     atk: 1800
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,6 @@ card "Traptrix Atypus" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -28,7 +33,7 @@ card "Traptrix Atypus" {
         code: 100
         range: 4
         on_resolve {
-            reveal self
+            modifier: atk + 1000
         }
     }
 
@@ -39,7 +44,8 @@ card "Traptrix Atypus" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            banish (1+, card, you controls, gy)
+            destroy (1+, card, you controls, gy)
         }
     }
 

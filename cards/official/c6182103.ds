@@ -14,6 +14,11 @@ card "Myutant Ultimus" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         category: 268435460
@@ -26,7 +31,7 @@ card "Myutant Ultimus" {
         }
         on_resolve {
             negate activation
-            banish (1+, card)
+            banish (1+, card, either_player controls)
         }
     }
 
@@ -37,7 +42,7 @@ card "Myutant Ultimus" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

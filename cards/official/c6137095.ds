@@ -10,12 +10,13 @@ card "Malfunction" {
         category: 268435456
         code: 1027
         cost {
-            pay_lp 1000
+            pay_lp 500
         }
         on_resolve {
             negate activation
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
             change_battle_position (1, monster)
+            emit_event "custom"
         }
     }
 

@@ -14,6 +14,11 @@ card "Mirrorjade the Iceblade Dragon" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         category: 4
@@ -24,7 +29,7 @@ card "Mirrorjade the Iceblade Dragon" {
             send self to gy
         }
         on_resolve {
-            reveal self
+            banish (1+, monster, opponent controls)
         }
     }
 
@@ -34,7 +39,10 @@ card "Mirrorjade the Iceblade Dragon" {
         code: 1015
         property: 114688
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

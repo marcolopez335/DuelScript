@@ -9,7 +9,6 @@ card "Insect Invitation" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -18,7 +17,6 @@ card "Insect Invitation" {
         code: 122
         range: 8
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,8 +27,8 @@ card "Insect Invitation" {
         range: 8
         count_limit: (1, 86527709)
         on_resolve {
-            return (1, card) to deck shuffle
-            shuffle deck
+            return (1+, card, either_player controls) to deck shuffle
+            shuffle_deck
             draw 1
         }
     }

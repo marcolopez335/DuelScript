@@ -7,10 +7,16 @@ card "Ojama Emperor" {
     attribute: LIGHT
     race: Beast
     link: 3
+    link_arrows: [bottom_left, bottom, bottom_right]
     atk: 0
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,7 @@ card "Ojama Emperor" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
+            modifier: atk + 3000
         }
     }
 
@@ -29,7 +35,6 @@ card "Ojama Emperor" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -37,7 +42,6 @@ card "Ojama Emperor" {
         effect_type: 1
         code: 202
         on_resolve {
-            reveal self
         }
     }
 
@@ -49,6 +53,14 @@ card "Ojama Emperor" {
         count_limit: (1, 34031284)
         on_resolve {
             special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

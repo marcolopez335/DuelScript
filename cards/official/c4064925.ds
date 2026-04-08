@@ -11,7 +11,7 @@ card "Ancient Gear Advance" {
         code: 1002
         count_limit: (1, 4064925)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 
@@ -26,6 +26,10 @@ card "Ancient Gear Advance" {
         }
         on_resolve {
             draw 1
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -33,7 +37,7 @@ card "Ancient Gear Advance" {
         effect_type: 2050
         code: 1106
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
         }
     }
 
@@ -41,7 +45,7 @@ card "Ancient Gear Advance" {
         effect_type: 2050
         code: 1107
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
         }
     }
 
@@ -49,7 +53,7 @@ card "Ancient Gear Advance" {
         effect_type: 2050
         code: 1016
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
         }
     }
 
@@ -57,7 +61,7 @@ card "Ancient Gear Advance" {
         effect_type: 2050
         code: 1102
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
         }
     }
 

@@ -3,7 +3,7 @@
 
 card "D/D/D/D Dimensional King Arc Crisis" {
     password: 71398055
-    type: Fusion Monster
+    type: Fusion Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
     level: 12
@@ -15,12 +15,20 @@ card "D/D/D/D Dimensional King Arc Crisis" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2049
         code: 1102
         property: 1024
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -32,6 +40,9 @@ card "D/D/D/D Dimensional King Arc Crisis" {
         count_limit: (1, 71398055)
         on_resolve {
             destroy (1+, card, either_player controls)
+            special_summon (1, monster) from gy
+            special_summon (1, monster) from gy
+            special_summon (1, monster) from gy
         }
     }
 
@@ -42,7 +53,6 @@ card "D/D/D/D Dimensional King Arc Crisis" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 
@@ -50,7 +60,6 @@ card "D/D/D/D Dimensional King Arc Crisis" {
         effect_type: 1
         code: 193
         on_resolve {
-            reveal self
         }
     }
 

@@ -7,10 +7,16 @@ card "Gold Pride - Nytro Blaster" {
     attribute: DARK
     race: Pyro
     link: 2
+    link_arrows: [top, bottom]
     atk: 2300
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -20,8 +26,8 @@ card "Gold Pride - Nytro Blaster" {
         range: 4
         count_limit: (1, 58884063)
         on_resolve {
-            destroy (1+, card, either_player controls)
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, opponent controls, gy)
+            destroy (1+, card, opponent controls, gy)
         }
     }
 
@@ -32,7 +38,7 @@ card "Gold Pride - Nytro Blaster" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, opponent controls) to deck shuffle
             special_summon (1, monster) from gy
         }
     }

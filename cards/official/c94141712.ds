@@ -10,13 +10,16 @@ card "Armed Dragon Thunder LV7" {
     atk: 2800
     def: 1000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 114
         property: 131072
         range: 20
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +32,7 @@ card "Armed Dragon Thunder LV7" {
             send self to gy
         }
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, you controls, hand) to gy
             special_summon (1, monster) from gy
         }
     }
@@ -41,7 +44,7 @@ card "Armed Dragon Thunder LV7" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from hand
         }
     }
 

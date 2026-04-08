@@ -3,20 +3,24 @@
 
 card "Foucault's Cannon" {
     password: 43785278
-    type: Pendulum Monster
+    type: Normal Monster | Pendulum Monster
     attribute: DARK
     race: Spellcaster
     level: 5
     scale: 2
     atk: 2200
     def: 1200
+    flavor: "[ Pendulum Effect ] Once per turn, during the End Phase, if this card was activated this turn: You can target 1 face-up Spell/Trap Card on the field; destroy it. ---------------------------------------- [ Flavor Text ] A mechanized life form, roving through space-time. But the mysterious thing is that its memory i... m...stly gone. W...at is t...e reason? D..... refuse t... b.... interfered w...h?"
+
+    summon_condition {
+        tributes_required: 1
+    }
 
     raw_effect "Effect 1" {
         effect_type: 16
         code: 1002
         range: 2
         on_resolve {
-            reveal self
         }
     }
 
@@ -28,7 +32,7 @@ card "Foucault's Cannon" {
         range: 512
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, either_player controls)
         }
     }
 

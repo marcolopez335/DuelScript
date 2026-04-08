@@ -10,6 +10,10 @@ card "Bio-Insect Armor" {
     atk: 1500
     def: 2000
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 262144
@@ -17,7 +21,8 @@ card "Bio-Insect Armor" {
         range: 18
         count_limit: (1, 3084730)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls) to gy
+            equip (1, card) to (1, monster)
         }
     }
 
@@ -25,7 +30,7 @@ card "Bio-Insect Armor" {
         effect_type: 4
         code: 100
         on_resolve {
-            reveal self
+            modifier: atk + 1500
         }
     }
 
@@ -33,7 +38,7 @@ card "Bio-Insect Armor" {
         effect_type: 4
         code: 104
         on_resolve {
-            reveal self
+            modifier: def + 2000
         }
     }
 

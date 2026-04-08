@@ -10,6 +10,10 @@ card "Mermail Abyssleed" {
     atk: 2700
     def: 1000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 512
@@ -25,7 +29,7 @@ card "Mermail Abyssleed" {
         code: 1102
         property: 16
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from hand
         }
     }
 
@@ -39,7 +43,7 @@ card "Mermail Abyssleed" {
             tribute self
         }
         on_resolve {
-            send (1, card) to gy
+            send (1+, spell, you controls, hand) to gy
         }
     }
 

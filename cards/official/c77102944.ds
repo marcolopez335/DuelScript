@@ -7,10 +7,16 @@ card "Appliancer Laundry Dragon" {
     attribute: WATER
     race: Machine
     link: 1
+    link_arrows: [top]
     atk: 1500
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -18,7 +24,6 @@ card "Appliancer Laundry Dragon" {
         code: 239
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +31,6 @@ card "Appliancer Laundry Dragon" {
         effect_type: 1
         code: 201
         on_resolve {
-            reveal self
         }
     }
 
@@ -34,7 +38,6 @@ card "Appliancer Laundry Dragon" {
         effect_type: 1
         code: 200
         on_resolve {
-            reveal self
         }
     }
 
@@ -44,7 +47,7 @@ card "Appliancer Laundry Dragon" {
         code: 1138
         count_limit: (1, 0)
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, either_player controls)
         }
     }
 

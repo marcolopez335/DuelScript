@@ -14,6 +14,12 @@ card "Lavalval Salamander" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 65536
@@ -22,10 +28,10 @@ card "Lavalval Salamander" {
         count_limit: (1, 67797569)
         on_resolve {
             draw 1
-            shuffle deck
-            send (1, card) to gy
-            return (1, card) to deck shuffle
-            shuffle deck
+            shuffle_hand
+            send (1+, monster, opponent controls) to gy
+            return (1+, monster, opponent controls) to deck shuffle
+            shuffle_deck
         }
     }
 

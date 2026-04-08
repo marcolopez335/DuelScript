@@ -26,7 +26,8 @@ card "Number 80: Rhapsody in Berserk" {
         property: 16
         range: 4
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
+            equip (1, card) to (1, monster)
         }
     }
 
@@ -40,7 +41,7 @@ card "Number 80: Rhapsody in Berserk" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, either_player controls)
         }
     }
 

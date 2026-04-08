@@ -12,7 +12,6 @@ card "Rise to Full Height" {
         property: 16400
         count_limit: (1, 19254117)
         on_resolve {
-            reveal self
         }
     }
 
@@ -25,7 +24,10 @@ card "Rise to Full Height" {
             banish self
         }
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

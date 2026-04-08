@@ -10,6 +10,10 @@ card "Deus X-Krawler" {
     atk: 2000
     def: 3000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         category: 268435457
@@ -18,7 +22,7 @@ card "Deus X-Krawler" {
         range: 4
         on_resolve {
             negate activation
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, deck)
         }
     }
 
@@ -27,7 +31,6 @@ card "Deus X-Krawler" {
         code: 1001
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 
@@ -36,7 +39,7 @@ card "Deus X-Krawler" {
         code: 1020
         range: 4
         on_resolve {
-            reveal self
+            negate effect
         }
     }
 
@@ -47,7 +50,7 @@ card "Deus X-Krawler" {
         property: 65536
         count_limit: (1, 62587693)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 

@@ -9,7 +9,12 @@ card "Yummy☆Surprise" {
         effect_type: 16
         code: 1002
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, card, either_player controls) to hand
+            special_summon (1, monster) from gy
+            return (1+, card, either_player controls) to hand
+            shuffle_hand
+            send (1+, card, either_player controls) to gy
+            special_summon (1, monster) from gy
         }
     }
 

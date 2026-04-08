@@ -16,7 +16,15 @@ card "Cyberdark Chimera" {
         range: 4
         count_limit: (1, 5370235)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from hand
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -27,7 +35,7 @@ card "Cyberdark Chimera" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, you controls, hand) to gy
         }
     }
 

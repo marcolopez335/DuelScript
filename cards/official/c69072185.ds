@@ -3,7 +3,7 @@
 
 card "Amorphage Goliath" {
     password: 69072185
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: EARTH
     race: Dragon
     level: 8
@@ -11,13 +11,16 @@ card "Amorphage Goliath" {
     atk: 2750
     def: 0
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2050
         code: 1019
         property: 1024
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,7 +30,6 @@ card "Amorphage Goliath" {
         property: 416
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -39,7 +41,7 @@ card "Amorphage Goliath" {
         count_limit: (1, 0)
         on_resolve {
             tribute (1, monster, you controls)
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls)
         }
     }
 
@@ -49,7 +51,6 @@ card "Amorphage Goliath" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

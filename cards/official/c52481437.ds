@@ -10,6 +10,10 @@ card "Super Express Bullet Train" {
     atk: 3000
     def: 0
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 512
@@ -24,7 +28,7 @@ card "Super Express Bullet Train" {
         effect_type: 1
         code: 96
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls) to gy
         }
     }
 
@@ -33,7 +37,6 @@ card "Super Express Bullet Train" {
         code: 1014
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 
@@ -45,7 +48,7 @@ card "Super Express Bullet Train" {
         range: 16
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, card, you controls) to hand
         }
     }
 

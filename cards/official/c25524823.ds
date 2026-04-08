@@ -10,6 +10,10 @@ card "Gravekeeper's Oracle" {
     atk: 2000
     def: 1500
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 32
@@ -23,7 +27,7 @@ card "Gravekeeper's Oracle" {
         effect_type: 129
         code: 1100
         on_resolve {
-            reveal self
+            destroy (1+, monster, either_player controls)
         }
     }
 
@@ -31,7 +35,6 @@ card "Gravekeeper's Oracle" {
         effect_type: 1
         code: 251
         on_resolve {
-            reveal self
         }
     }
 

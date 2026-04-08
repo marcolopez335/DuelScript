@@ -14,13 +14,18 @@ card "Dhampir Vampire Sheridan" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 242
         property: 384
         range: 64
         on_resolve {
-            reveal self
         }
     }
 
@@ -34,7 +39,7 @@ card "Dhampir Vampire Sheridan" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
         }
     }
 
@@ -59,7 +64,8 @@ card "Dhampir Vampire Sheridan" {
         property: 1024
         range: 4
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
+            emit_event "custom"
         }
     }
 

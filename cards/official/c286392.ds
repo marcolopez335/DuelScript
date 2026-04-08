@@ -14,6 +14,12 @@ card "Jet Warrior" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 8
@@ -21,7 +27,7 @@ card "Jet Warrior" {
         property: 81936
         count_limit: (1, 286392)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

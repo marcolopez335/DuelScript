@@ -10,12 +10,15 @@ card "Machina Metalcruncher" {
     atk: 2800
     def: 0
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 32
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,8 +29,8 @@ card "Machina Metalcruncher" {
         property: 81920
         count_limit: (1, 69838761)
         on_resolve {
-            shuffle deck
-            add_to_hand (1, card) from gy
+            shuffle_deck
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -38,8 +41,8 @@ card "Machina Metalcruncher" {
         property: 81920
         count_limit: (1, 69838761)
         on_resolve {
-            shuffle deck
-            add_to_hand (1, card) from gy
+            shuffle_deck
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 

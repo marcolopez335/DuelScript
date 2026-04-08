@@ -7,10 +7,16 @@ card "Longirsu, the Orcust Orchestrator" {
     attribute: DARK
     race: Machine
     link: 3
+    link_arrows: [top_left, top, bottom_right]
     atk: 2500
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,6 @@ card "Longirsu, the Orcust Orchestrator" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,9 +35,9 @@ card "Longirsu, the Orcust Orchestrator" {
         range: 4
         count_limit: (1, 76145142)
         on_resolve {
-            return (1, card) to deck shuffle
-            shuffle deck
-            send (1, card) to gy
+            return (1+, monster, opponent controls) to deck shuffle
+            shuffle_deck
+            send (1+, monster, opponent controls) to gy
         }
     }
 
@@ -44,9 +49,9 @@ card "Longirsu, the Orcust Orchestrator" {
         range: 4
         count_limit: (1, 76145142)
         on_resolve {
-            return (1, card) to deck shuffle
-            shuffle deck
-            send (1, card) to gy
+            return (1+, monster, opponent controls) to deck shuffle
+            shuffle_deck
+            send (1+, monster, opponent controls) to gy
         }
     }
 

@@ -9,7 +9,6 @@ card "Crusadia Revival" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -18,7 +17,7 @@ card "Crusadia Revival" {
         code: 100
         range: 256
         on_resolve {
-            reveal self
+            modifier: atk + 500
         }
     }
 
@@ -28,7 +27,10 @@ card "Crusadia Revival" {
         range: 256
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

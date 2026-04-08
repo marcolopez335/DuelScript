@@ -10,6 +10,10 @@ card "Dracotail Pan" {
     atk: 2700
     def: 1700
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 1
@@ -18,8 +22,8 @@ card "Dracotail Pan" {
         count_limit: (1, 44482554)
         on_resolve {
             set (1, card)
-            shuffle deck
-            destroy (1+, card, either_player controls)
+            shuffle_deck
+            destroy (1+, spell, either_player controls)
         }
     }
 
@@ -30,7 +34,7 @@ card "Dracotail Pan" {
         range: 16
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, spell, either_player controls) to deck shuffle
             special_summon (1, monster) from gy
         }
     }

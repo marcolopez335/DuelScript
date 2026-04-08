@@ -18,10 +18,14 @@ card "Fire Cracker" {
         range: 2
         count_limit: (1, 81109178)
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
             deal_damage to opponent: 1000
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -30,7 +34,6 @@ card "Fire Cracker" {
         code: 1111
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

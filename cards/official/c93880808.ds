@@ -10,6 +10,10 @@ card "Arcana Triumph Joker" {
     atk: ?
     def: 2500
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 512
@@ -28,7 +32,6 @@ card "Arcana Triumph Joker" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -37,7 +40,7 @@ card "Arcana Triumph Joker" {
         category: 1
         range: 4
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls, hand)
         }
     }
 

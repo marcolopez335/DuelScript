@@ -7,6 +7,7 @@ card "Gouki The Giant Ogre" {
     attribute: EARTH
     race: Warrior
     link: 4
+    link_arrows: [left, right, bottom_left, bottom_right]
     atk: 3000
 
     materials {
@@ -24,7 +25,6 @@ card "Gouki The Giant Ogre" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -34,7 +34,6 @@ card "Gouki The Giant Ogre" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -45,7 +44,8 @@ card "Gouki The Giant Ogre" {
         property: 49152
         range: 4
         on_resolve {
-            reveal self
+            negate activation
+            send (1+, card, either_player controls) to gy
         }
     }
 
@@ -57,7 +57,6 @@ card "Gouki The Giant Ogre" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 

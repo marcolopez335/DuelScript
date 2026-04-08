@@ -10,6 +10,10 @@ card "Prediction Princess Bibliomuse" {
     atk: 2500
     def: 2500
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 512
@@ -27,7 +31,7 @@ card "Prediction Princess Bibliomuse" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 
@@ -37,7 +41,6 @@ card "Prediction Princess Bibliomuse" {
         property: 128
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -46,7 +49,6 @@ card "Prediction Princess Bibliomuse" {
         code: 41
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

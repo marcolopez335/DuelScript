@@ -11,8 +11,12 @@ card "Kewl Tune Synchro" {
         code: 1002
         count_limit: (2, 78058681)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            add_to_hand (1+, monster, either_player controls) from gy
+            shuffle_hand
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

@@ -10,6 +10,10 @@ card "Virtual World Kirin - Lili" {
     atk: 1800
     def: 600
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 544
@@ -17,9 +21,13 @@ card "Virtual World Kirin - Lili" {
         range: 2
         count_limit: (1, 49966326)
         on_resolve {
-            send (1, card) to gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            send (1+, card, you controls, deck) to gy
             special_summon (1, monster) from gy
-            send (1, card) to gy
+            send (1+, card, you controls, deck) to gy
         }
     }
 

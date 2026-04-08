@@ -3,7 +3,7 @@
 
 card "D/D Proud Chevalier" {
     password: 17979378
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
     level: 5
@@ -11,16 +11,19 @@ card "D/D Proud Chevalier" {
     atk: 2000
     def: 700
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         property: 16
         range: 512
         count_limit: (1, 0)
         cost {
-            pay_lp 1000
+            pay_lp 500
         }
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +33,6 @@ card "D/D Proud Chevalier" {
         property: 131072
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -40,7 +42,6 @@ card "D/D Proud Chevalier" {
         property: 131072
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -49,7 +50,7 @@ card "D/D Proud Chevalier" {
         category: 131080
         code: 1100
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

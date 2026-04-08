@@ -6,30 +6,22 @@ card "Power Pickaxe" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
-        on_resolve {
-            reveal self
-        }
-    }
-
-    raw_effect "Effect 2" {
         effect_type: 64
         category: 2097156
         property: 16
         range: 8
         count_limit: (1, 0)
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, either_player controls)
         }
     }
 
-    raw_effect "Effect 3" {
+    raw_effect "Effect 2" {
         effect_type: 16
         category: 262144
         code: 1002
         on_resolve {
-            reveal self
+            equip self to (1, monster, you controls)
         }
     }
 

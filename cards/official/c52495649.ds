@@ -14,12 +14,16 @@ card "Balameuniere de Nouvelles" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2049
         code: 1102
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +34,7 @@ card "Balameuniere de Nouvelles" {
         property: 65536
         count_limit: (1, 52495649)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 

@@ -7,10 +7,16 @@ card "Muckraker From the Underworld" {
     attribute: DARK
     race: Fiend
     link: 2
+    link_arrows: [left, bottom]
     atk: 1000
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -18,16 +24,13 @@ card "Muckraker From the Underworld" {
         code: 239
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 50
-        range: 4
-        on_resolve {
-            tribute (1, monster, you controls)
+    replacement_effect "Effect 2" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 
@@ -40,6 +43,10 @@ card "Muckraker From the Underworld" {
         on_resolve {
             discard (1, card)
             special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

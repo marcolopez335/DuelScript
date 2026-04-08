@@ -14,6 +14,12 @@ card "Lycoris Lilyreaper" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 1048576
@@ -22,7 +28,7 @@ card "Lycoris Lilyreaper" {
         range: 4
         count_limit: (1, 81916745)
         on_resolve {
-            reveal self
+            gain_lp: 1000
         }
     }
 
@@ -32,7 +38,7 @@ card "Lycoris Lilyreaper" {
         property: 1024
         range: 4
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
         }
     }
 
@@ -47,7 +53,7 @@ card "Lycoris Lilyreaper" {
             banish self
         }
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, either_player controls) to gy
         }
     }
 

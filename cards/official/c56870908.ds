@@ -9,7 +9,6 @@ card "Yum☆Yum☆Yummys" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -19,6 +18,11 @@ card "Yum☆Yum☆Yummys" {
         range: 8
         on_resolve {
             gain_lp: 500
+            gain_lp: 500
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -29,10 +33,10 @@ card "Yum☆Yum☆Yummys" {
         range: 8
         count_limit: (1, 56870908)
         cost {
-            pay_lp 1000
+            pay_lp 500
         }
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, either_player controls) to gy
             special_summon (1, monster) from gy
         }
     }
@@ -45,10 +49,9 @@ card "Yum☆Yum☆Yummys" {
         range: 8
         count_limit: (1, 0)
         cost {
-            pay_lp 1000
+            pay_lp 100
         }
         on_resolve {
-            reveal self
         }
     }
 

@@ -14,12 +14,16 @@ card "Dragonecro Nethersoul Dragon" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 42
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,6 +33,7 @@ card "Dragonecro Nethersoul Dragon" {
         code: 1141
         on_resolve {
             create_token { atk: 0 def: 0 }
+            special_summon (1, monster) from gy
         }
     }
 

@@ -11,8 +11,11 @@ card "Successor Soul" {
         code: 1002
         property: 16
         count_limit: (1, 69145169)
+        cost {
+            tribute self
+        }
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, opponent controls) to gy
             special_summon (1, monster) from gy
         }
     }
@@ -22,7 +25,7 @@ card "Successor Soul" {
         code: 1130
         property: 1024
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
         }
     }
 

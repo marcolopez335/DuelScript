@@ -10,12 +10,15 @@ card "Gizmek Makami, the Ferocious Fanged Fortress" {
     atk: 2150
     def: 2150
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 32
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +29,7 @@ card "Gizmek Makami, the Ferocious Fanged Fortress" {
         property: 114688
         count_limit: (1, 46809548)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from hand
         }
     }
 
@@ -37,7 +40,7 @@ card "Gizmek Makami, the Ferocious Fanged Fortress" {
         property: 114688
         count_limit: (1, 46809548)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from hand
         }
     }
 
@@ -48,7 +51,7 @@ card "Gizmek Makami, the Ferocious Fanged Fortress" {
         property: 114688
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, monster, you controls) to deck shuffle
         }
     }
 

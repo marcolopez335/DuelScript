@@ -3,7 +3,7 @@
 
 card "Odd-Eyes Raging Dragon" {
     password: 86238081
-    type: Xyz Monster
+    type: Xyz Monster | Pendulum Monster
     attribute: DARK
     race: Dragon
     rank: 7
@@ -13,6 +13,12 @@ card "Odd-Eyes Raging Dragon" {
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
     }
 
     raw_effect "Effect 1" {
@@ -29,7 +35,6 @@ card "Odd-Eyes Raging Dragon" {
         code: 1102
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 
@@ -37,7 +42,6 @@ card "Odd-Eyes Raging Dragon" {
         effect_type: 1
         code: 251
         on_resolve {
-            reveal self
         }
     }
 
@@ -45,7 +49,6 @@ card "Odd-Eyes Raging Dragon" {
         effect_type: 1
         code: 194
         on_resolve {
-            reveal self
         }
     }
 
@@ -58,7 +61,7 @@ card "Odd-Eyes Raging Dragon" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, deck)
         }
     }
 

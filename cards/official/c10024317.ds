@@ -3,13 +3,17 @@
 
 card "Parametalfoes Melcaster" {
     password: 10024317
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: FIRE
     race: Psychic
     level: 7
     scale: 1
     atk: 2000
     def: 2500
+
+    summon_condition {
+        tributes_required: 2
+    }
 
     raw_effect "Effect 1" {
         effect_type: 64
@@ -18,7 +22,7 @@ card "Parametalfoes Melcaster" {
         range: 512
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls, deck)
             set (1, card)
         }
     }
@@ -30,7 +34,11 @@ card "Parametalfoes Melcaster" {
         property: 65536
         count_limit: (1, 10024317)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

@@ -11,10 +11,14 @@ card "Seventh Tachyon" {
         code: 1002
         count_limit: (1, 7477101)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
-            shuffle deck
-            return (1, card) to deck shuffle
+            add_to_hand (1+, card, you controls) from deck
+            shuffle_hand
+            shuffle_deck
+            return (1+, card, you controls) to deck shuffle
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

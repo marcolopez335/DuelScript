@@ -7,10 +7,16 @@ card "Miasma Necromancer" {
     attribute: DARK
     race: Spellcaster
     link: 2
+    link_arrows: [left, right]
     atk: 1800
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -20,7 +26,11 @@ card "Miasma Necromancer" {
         property: 65536
         count_limit: (1, 69176851)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -33,7 +43,6 @@ card "Miasma Necromancer" {
             send self to gy
         }
         on_resolve {
-            reveal self
         }
     }
 
@@ -43,7 +52,6 @@ card "Miasma Necromancer" {
         property: 128
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

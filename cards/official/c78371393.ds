@@ -10,11 +10,14 @@ card "Yubel" {
     atk: 0
     def: 0
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 42
         on_resolve {
-            reveal self
         }
     }
 
@@ -22,7 +25,6 @@ card "Yubel" {
         effect_type: 1
         code: 201
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +32,6 @@ card "Yubel" {
         effect_type: 2049
         code: 1131
         on_resolve {
-            reveal self
         }
     }
 
@@ -52,7 +53,7 @@ card "Yubel" {
         count_limit: (1, 0)
         on_resolve {
             tribute (1, monster, you controls)
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, gy)
         }
     }
 

@@ -10,14 +10,18 @@ card "Danger! Bigfoot!" {
     atk: 3000
     def: 0
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 66176
         code: 1002
         range: 2
         on_resolve {
-            shuffle deck
-            send (1, card) to gy
+            shuffle_hand
+            send (1+, card, opponent controls, hand) to gy
             special_summon (1, monster) from gy
             draw 1
         }
@@ -30,7 +34,7 @@ card "Danger! Bigfoot!" {
         property: 65552
         count_limit: (1, 43316238)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, opponent controls, hand)
         }
     }
 
@@ -41,7 +45,7 @@ card "Danger! Bigfoot!" {
         property: 65552
         count_limit: (1, 43316238)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, opponent controls, hand)
         }
     }
 

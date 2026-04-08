@@ -16,7 +16,6 @@ card "Blue Duston" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +25,6 @@ card "Blue Duston" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -35,7 +33,6 @@ card "Blue Duston" {
         code: 248
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -44,7 +41,11 @@ card "Blue Duston" {
         category: 4
         code: 1029
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, either_player controls)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

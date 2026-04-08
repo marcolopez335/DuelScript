@@ -11,8 +11,12 @@ card "Nadir Servant" {
         code: 1002
         count_limit: (1, 1984618)
         on_resolve {
-            send (1, card) to gy
-            add_to_hand (1, card) from gy
+            send (1+, monster, you controls, gy) to gy
+            add_to_hand (1+, monster, you controls) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

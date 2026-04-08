@@ -9,7 +9,6 @@ card "Noble Knights of the Round Table" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -18,7 +17,11 @@ card "Noble Knights of the Round Table" {
         code: 4608
         range: 256
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, you controls, gy) to gy
+            special_summon (1, monster) from gy
+            equip (1, card) to (1, monster)
+            add_to_hand (1+, monster, you controls) from gy
+            draw 1
         }
     }
 

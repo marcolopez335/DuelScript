@@ -7,10 +7,16 @@ card "Aromalilith Rosemary" {
     attribute: DARK
     race: Plant
     link: 3
+    link_arrows: [bottom_left, bottom, bottom_right]
     atk: 2200
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -20,7 +26,7 @@ card "Aromalilith Rosemary" {
         property: 65536
         count_limit: (1, 30989084)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from hand
         }
     }
 
@@ -32,7 +38,7 @@ card "Aromalilith Rosemary" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
         }
     }
 
@@ -46,7 +52,7 @@ card "Aromalilith Rosemary" {
             tribute self
         }
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, you controls, hand)
             gain_lp: 1000
         }
     }

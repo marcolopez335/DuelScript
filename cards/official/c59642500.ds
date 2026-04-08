@@ -14,12 +14,16 @@ card "Masked HERO Anki" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,7 +31,6 @@ card "Masked HERO Anki" {
         effect_type: 1
         code: 74
         on_resolve {
-            reveal self
         }
     }
 
@@ -35,7 +38,6 @@ card "Masked HERO Anki" {
         effect_type: 1
         code: 208
         on_resolve {
-            reveal self
         }
     }
 
@@ -45,7 +47,7 @@ card "Masked HERO Anki" {
         code: 1139
         count_limit: (1, 59642500)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 

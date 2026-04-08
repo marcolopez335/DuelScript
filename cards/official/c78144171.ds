@@ -14,6 +14,12 @@ card "Dark Armed, the Dragon of Annihilation" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 5
@@ -23,8 +29,8 @@ card "Dark Armed, the Dragon of Annihilation" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
-            banish (1+, card)
+            destroy (1+, monster, you controls, gy)
+            banish (1+, monster, you controls, gy)
         }
     }
 

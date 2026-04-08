@@ -10,12 +10,16 @@ card "Mefist the Infernal General" {
     atk: 1800
     def: 1700
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 513
         category: 128
         code: 1143
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
         }
     }
 
@@ -23,7 +27,6 @@ card "Mefist the Infernal General" {
         effect_type: 1
         code: 203
         on_resolve {
-            reveal self
         }
     }
 

@@ -3,7 +3,7 @@
 
 card "Refrain the Melodious Songstress" {
     password: 64881644
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: LIGHT
     race: Fairy
     level: 4
@@ -18,7 +18,7 @@ card "Refrain the Melodious Songstress" {
         range: 512
         count_limit: (1, 64881644)
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, you controls, deck) to gy
         }
     }
 
@@ -29,7 +29,7 @@ card "Refrain the Melodious Songstress" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 
@@ -40,7 +40,7 @@ card "Refrain the Melodious Songstress" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 

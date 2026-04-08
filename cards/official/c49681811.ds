@@ -10,12 +10,15 @@ card "Freed the Matchless General" {
     atk: 2300
     def: 1700
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 2
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -25,7 +28,7 @@ card "Freed the Matchless General" {
         range: 4
         on_resolve {
             negate effect
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, you controls, deck)
         }
     }
 
@@ -34,7 +37,6 @@ card "Freed the Matchless General" {
         code: 141
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -44,7 +46,7 @@ card "Freed the Matchless General" {
         code: 1113
         range: 4
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 

@@ -14,12 +14,17 @@ card "Ryzeal Duo Drive" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 100
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -40,7 +45,7 @@ card "Ryzeal Duo Drive" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 

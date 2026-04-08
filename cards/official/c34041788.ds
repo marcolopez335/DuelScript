@@ -11,19 +11,16 @@ card "Endymion Empire" {
         code: 1002
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            add_to_hand (1+, monster, you controls) from deck
+            shuffle_hand
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 50
-        range: 8
-        count_limit: (1, 0)
-        on_resolve {
-            destroy (1+, card, either_player controls)
+    replacement_effect "Effect 2" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

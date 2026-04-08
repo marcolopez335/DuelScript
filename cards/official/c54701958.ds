@@ -14,13 +14,17 @@ card "Lunalight Liger Dancer" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 1
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -28,7 +32,6 @@ card "Lunalight Liger Dancer" {
         effect_type: 1
         code: 194
         on_resolve {
-            reveal self
         }
     }
 
@@ -42,7 +45,7 @@ card "Lunalight Liger Dancer" {
             send self to gy
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, opponent controls)
         }
     }
 

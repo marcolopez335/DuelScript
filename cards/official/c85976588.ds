@@ -10,6 +10,10 @@ card "Elfnote Fortuna" {
     atk: 2200
     def: 1800
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
@@ -17,7 +21,6 @@ card "Elfnote Fortuna" {
         range: 2
         count_limit: (1, 85976588)
         on_resolve {
-            reveal self
         }
     }
 
@@ -37,7 +40,7 @@ card "Elfnote Fortuna" {
         range: 2048
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, spell, either_player controls) to hand
         }
     }
 

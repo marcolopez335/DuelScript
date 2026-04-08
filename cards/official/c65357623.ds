@@ -11,7 +11,6 @@ card "Zombie Power Struggle" {
         code: 1002
         property: 16400
         on_resolve {
-            reveal self
         }
     }
 
@@ -21,7 +20,7 @@ card "Zombie Power Struggle" {
         range: 16
         count_limit: (1, 65357623)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to deck shuffle
             set (1, card)
         }
     }

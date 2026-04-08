@@ -10,16 +10,20 @@ card "Heart of the Blue-Eyes" {
     atk: 3000
     def: 2500
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 131080
         range: 2
         count_limit: (1, 0)
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -29,7 +33,6 @@ card "Heart of the Blue-Eyes" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -40,7 +43,7 @@ card "Heart of the Blue-Eyes" {
         range: 16
         count_limit: (1, 0)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, deck) to gy
             special_summon (1, monster) from gy
         }
     }
@@ -52,7 +55,7 @@ card "Heart of the Blue-Eyes" {
         range: 16
         count_limit: (1, 0)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, deck) to gy
             special_summon (1, monster) from gy
         }
     }
@@ -61,7 +64,7 @@ card "Heart of the Blue-Eyes" {
         effect_type: 2050
         code: 1022
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
         }
     }
 

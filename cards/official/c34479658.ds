@@ -10,6 +10,10 @@ card "Dark Alligator" {
     atk: 2500
     def: 2300
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 1536
@@ -24,7 +28,6 @@ card "Dark Alligator" {
         effect_type: 1
         code: 251
         on_resolve {
-            reveal self
         }
     }
 
@@ -34,7 +37,7 @@ card "Dark Alligator" {
         code: 1029
         property: 65536
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 

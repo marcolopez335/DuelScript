@@ -17,7 +17,8 @@ card "Whitebeard, the Plunder Patroll Helm" {
         range: 4
         count_limit: (1, 31374201)
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
+            equip (1, card) to (1, monster)
         }
     }
 
@@ -29,6 +30,10 @@ card "Whitebeard, the Plunder Patroll Helm" {
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

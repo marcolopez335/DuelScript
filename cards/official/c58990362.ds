@@ -3,7 +3,7 @@
 
 card "Zefraniu, Secret of the Yang Zing" {
     password: 58990362
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: EARTH
     race: Wyrm
     level: 6
@@ -11,13 +11,16 @@ card "Zefraniu, Secret of the Yang Zing" {
     atk: 0
     def: 2600
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 22
         property: 3584
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,7 +30,7 @@ card "Zefraniu, Secret of the Yang Zing" {
         code: 1102
         count_limit: (1, 58990362)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 
@@ -38,7 +41,7 @@ card "Zefraniu, Secret of the Yang Zing" {
         property: 16384
         count_limit: (1, 58990362)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 

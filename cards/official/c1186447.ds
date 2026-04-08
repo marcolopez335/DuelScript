@@ -3,7 +3,7 @@
 
 card "Horoscope Sorcerer, the Stargazer Magician" {
     password: 1186447
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Spellcaster
     level: 5
@@ -11,13 +11,18 @@ card "Horoscope Sorcerer, the Stargazer Magician" {
     atk: 1200
     def: 2400
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2050
         code: 1020
         range: 512
         on_resolve {
+            set_flag "tracked" on self
             negate effect
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls)
         }
     }
 
@@ -27,7 +32,7 @@ card "Horoscope Sorcerer, the Stargazer Magician" {
         range: 2
         count_limit: (1, 0)
         cost {
-            discard (1, card)
+            discard (1, card, you controls)
         }
         on_resolve {
             special_summon (1, monster) from gy
@@ -41,7 +46,7 @@ card "Horoscope Sorcerer, the Stargazer Magician" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, you controls) to hand
         }
     }
 
@@ -52,8 +57,8 @@ card "Horoscope Sorcerer, the Stargazer Magician" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
-            add_to_hand (1, card) from gy
+            destroy (1+, monster, you controls)
+            return (1+, monster, you controls) to hand
         }
     }
 

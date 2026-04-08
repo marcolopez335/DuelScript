@@ -10,15 +10,19 @@ card "Arcana Force XV - The Fiend" {
     atk: 2500
     def: 2500
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 131080
         range: 2
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, either_player controls) to hand
         }
     }
 
@@ -27,7 +31,6 @@ card "Arcana Force XV - The Fiend" {
         category: 16777216
         code: 1100
         on_resolve {
-            reveal self
         }
     }
 
@@ -36,7 +39,6 @@ card "Arcana Force XV - The Fiend" {
         category: 16777216
         code: 1102
         on_resolve {
-            reveal self
         }
     }
 
@@ -45,7 +47,6 @@ card "Arcana Force XV - The Fiend" {
         category: 16777216
         code: 1101
         on_resolve {
-            reveal self
         }
     }
 

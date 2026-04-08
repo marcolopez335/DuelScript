@@ -14,6 +14,11 @@ card "Heosvarog the Mechanical Dawn" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 8
@@ -21,7 +26,10 @@ card "Heosvarog the Mechanical Dawn" {
         property: 65536
         count_limit: (1, 8963089)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -36,7 +44,7 @@ card "Heosvarog the Mechanical Dawn" {
             banish self
         }
         on_resolve {
-            reveal self
+            negate activation
         }
     }
 

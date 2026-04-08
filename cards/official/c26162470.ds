@@ -9,7 +9,6 @@ card "Fandora, the Flying Fighting Furtress" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -18,7 +17,6 @@ card "Fandora, the Flying Fighting Furtress" {
         code: 100
         range: 256
         on_resolve {
-            reveal self
         }
     }
 
@@ -28,8 +26,8 @@ card "Fandora, the Flying Fighting Furtress" {
         range: 256
         count_limit: (1, 26162470)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            return (1+, monster, you controls) to hand
+            shuffle_hand
             discard (1, card)
         }
     }

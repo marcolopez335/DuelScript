@@ -14,12 +14,18 @@ card "Epurrely Happiness" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 2228232
         code: 1141
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 
@@ -27,7 +33,6 @@ card "Epurrely Happiness" {
         effect_type: 2049
         code: 1138
         on_resolve {
-            reveal self
         }
     }
 
@@ -39,7 +44,7 @@ card "Epurrely Happiness" {
         count_limit: (3, 0)
         on_resolve {
             attach (1, card) to self as_material
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 

@@ -14,6 +14,12 @@ card "Goblin Biker Big Gabonga" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 131080
@@ -21,7 +27,7 @@ card "Goblin Biker Big Gabonga" {
         property: 65536
         count_limit: (1, 34001672)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 

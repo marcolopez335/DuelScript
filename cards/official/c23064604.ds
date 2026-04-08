@@ -10,13 +10,18 @@ card "Erebus the Underworld Monarch" {
     atk: 2800
     def: 1000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 48
         code: 1100
         property: 65536
         on_resolve {
-            send (1, card) to gy
+            send (1+, spell, you controls, hand) to gy
+            return (1+, spell, you controls) to deck shuffle
         }
     }
 
@@ -28,7 +33,7 @@ card "Erebus the Underworld Monarch" {
         range: 16
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from hand
         }
     }
 

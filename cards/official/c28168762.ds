@@ -7,10 +7,16 @@ card "Sunvine Gardna" {
     attribute: EARTH
     race: Plant
     link: 1
+    link_arrows: [top]
     atk: 600
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -20,7 +26,7 @@ card "Sunvine Gardna" {
         property: 16384
         range: 4
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, either_player controls)
         }
     }
 
@@ -29,7 +35,10 @@ card "Sunvine Gardna" {
         code: 1130
         range: 4
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -37,7 +46,10 @@ card "Sunvine Gardna" {
         effect_type: 129
         code: 1140
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

@@ -18,7 +18,7 @@ card "Battlewasp - Dart the Hunter" {
         range: 2
         count_limit: (1, 91283212)
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
             deal_damage to opponent: 1000
@@ -31,7 +31,10 @@ card "Battlewasp - Dart the Hunter" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

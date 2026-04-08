@@ -14,6 +14,12 @@ card "Artifact Durendal" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         code: 1002
@@ -23,9 +29,10 @@ card "Artifact Durendal" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            return (1, card) to deck shuffle
-            shuffle deck
-            shuffle deck
+            return (1+, spell, opponent controls) to deck shuffle
+            shuffle_deck
+            shuffle_deck
+            draw 1
             draw 1
         }
     }

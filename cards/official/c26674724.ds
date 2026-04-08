@@ -14,12 +14,16 @@ card "Nekroz of Brionac" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,10 +33,10 @@ card "Nekroz of Brionac" {
         range: 2
         count_limit: (1, 26674724)
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 
@@ -43,7 +47,7 @@ card "Nekroz of Brionac" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, monster, you controls) to deck shuffle
         }
     }
 

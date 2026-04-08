@@ -16,6 +16,10 @@ card "Berlineth the Firestorm Vassal" {
         range: 2
         count_limit: (1, 59808784)
         on_resolve {
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
             special_summon (1, monster) from gy
         }
     }
@@ -27,8 +31,12 @@ card "Berlineth the Firestorm Vassal" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            banish (1+, card)
-            shuffle deck
+            banish (1+, card, you controls, hand)
+            shuffle_hand
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

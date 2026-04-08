@@ -16,7 +16,6 @@ card "Jinzo - Jector" {
         property: 131072
         range: 20
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,8 +28,8 @@ card "Jinzo - Jector" {
             tribute self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            return (1+, monster, opponent controls) to hand
+            shuffle_hand
             special_summon (1, monster) from gy
         }
     }

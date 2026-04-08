@@ -10,6 +10,10 @@ card "U.A. Rival Rebounder" {
     atk: 2200
     def: 2300
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
@@ -17,7 +21,7 @@ card "U.A. Rival Rebounder" {
         range: 2
         count_limit: (1, 17264592)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, you controls) to hand
         }
     }
 

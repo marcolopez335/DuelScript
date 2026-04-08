@@ -10,6 +10,10 @@ card "Aether, the Empowering Dragon" {
     atk: 2300
     def: 1600
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 8
@@ -17,7 +21,7 @@ card "Aether, the Empowering Dragon" {
         property: 16
         count_limit: (1, 56804361)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

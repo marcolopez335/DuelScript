@@ -10,6 +10,10 @@ card "Poseidra, the Atlantean Dragon" {
     atk: 2800
     def: 1600
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 512
@@ -27,7 +31,7 @@ card "Poseidra, the Atlantean Dragon" {
         category: 8
         code: 1102
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, spell, either_player controls) to hand
         }
     }
 

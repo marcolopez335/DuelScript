@@ -14,11 +14,15 @@ card "Charmers of the Grand Circle" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 251
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +33,9 @@ card "Charmers of the Grand Circle" {
         property: 65536
         count_limit: (1, 48016074)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
+            add_to_hand (1+, spell, you controls) from deck
+            special_summon (1, monster) from gy
         }
     }
 

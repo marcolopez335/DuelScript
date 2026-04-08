@@ -7,10 +7,16 @@ card "S-Force Justify" {
     attribute: LIGHT
     race: Cyberse
     link: 3
+    link_arrows: [top_left, top, top_right]
     atk: 2600
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,6 @@ card "S-Force Justify" {
         property: 3072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -31,7 +36,6 @@ card "S-Force Justify" {
         range: 4
         count_limit: (1, 35334193)
         on_resolve {
-            reveal self
         }
     }
 
@@ -40,7 +44,7 @@ card "S-Force Justify" {
         category: 4
         code: 1132
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, either_player controls)
         }
     }
 

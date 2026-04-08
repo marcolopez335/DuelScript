@@ -9,7 +9,7 @@ card "Magellanica, the Deep Sea City" {
         effect_type: 16
         code: 1002
         on_resolve {
-            shuffle deck
+            shuffle_deck
         }
     }
 
@@ -19,7 +19,6 @@ card "Magellanica, the Deep Sea City" {
         range: 256
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 
@@ -31,8 +30,12 @@ card "Magellanica, the Deep Sea City" {
         range: 256
         count_limit: (1, 0)
         on_resolve {
-            banish (1+, card)
-            shuffle deck
+            banish (1+, card, you controls, deck)
+            shuffle_hand
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

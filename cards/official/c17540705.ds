@@ -3,7 +3,7 @@
 
 card "Performapal Dag Daggerman" {
     password: 17540705
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: EARTH
     race: Warrior
     level: 5
@@ -11,12 +11,15 @@ card "Performapal Dag Daggerman" {
     atk: 2000
     def: 600
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 16
         code: 1002
         range: 2
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,7 +30,7 @@ card "Performapal Dag Daggerman" {
         range: 512
         count_limit: (1, 17540705)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from hand
         }
     }
 
@@ -36,7 +39,6 @@ card "Performapal Dag Daggerman" {
         code: 1102
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 

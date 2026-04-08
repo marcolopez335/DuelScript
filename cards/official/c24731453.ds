@@ -10,6 +10,10 @@ card "Snow Plow Hustle Rustle" {
     atk: 2500
     def: 3000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 130
         category: 524801
@@ -17,7 +21,7 @@ card "Snow Plow Hustle Rustle" {
         range: 2
         on_resolve {
             special_summon (1, monster) from gy
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, you controls)
             deal_damage to opponent: 1000
         }
     }
@@ -28,7 +32,6 @@ card "Snow Plow Hustle Rustle" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

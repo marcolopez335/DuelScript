@@ -14,6 +14,12 @@ card "Number 44: Sky Pegasus" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 1
@@ -25,6 +31,7 @@ card "Number 44: Sky Pegasus" {
         }
         on_resolve {
             negate effect
+            destroy (1+, card, either_player controls)
         }
     }
 

@@ -10,13 +10,17 @@ card "Grapha, Dragon Lord of Dark World" {
     atk: 2700
     def: 1800
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
         property: 262144
         range: 16
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, you controls) to hand
         }
     }
 
@@ -25,9 +29,9 @@ card "Grapha, Dragon Lord of Dark World" {
         code: 1014
         property: 16
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls)
             special_summon (1, monster) from gy
-            shuffle deck
+            shuffle_hand
         }
     }
 

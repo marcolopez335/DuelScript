@@ -6,21 +6,30 @@ card "Brilliant Fusion" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 2049
-        code: 1015
-        property: 128
+        effect_type: 16
+        category: 1073742336
+        code: 1002
+        count_limit: (1, 7394770)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            fusion_summon (1, fusion monster) using (1+, monster, you controls)
         }
     }
 
     raw_effect "Effect 2" {
+        effect_type: 2049
+        code: 1015
+        property: 128
+        on_resolve {
+            destroy (1+, spell, you controls, deck)
+        }
+    }
+
+    raw_effect "Effect 3" {
         effect_type: 64
         category: 6291456
         range: 8
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 

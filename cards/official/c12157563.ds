@@ -6,6 +6,16 @@ card "Forbidden Ritual Art" {
     type: Normal Trap
 
     raw_effect "Effect 1" {
+        effect_type: 16
+        category: 4
+        code: 1002
+        count_limit: (1, 0)
+        on_resolve {
+            ritual_summon (1, ritual monster) using (1+, monster, you controls)
+        }
+    }
+
+    raw_effect "Effect 2" {
         effect_type: 256
         code: 1002
         range: 16
@@ -14,7 +24,10 @@ card "Forbidden Ritual Art" {
             banish self
         }
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

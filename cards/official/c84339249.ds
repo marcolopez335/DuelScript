@@ -10,12 +10,15 @@ card "Protecting Spirit Loagaeth" {
     atk: 2400
     def: 2100
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         code: 1029
         property: 65552
         on_resolve {
-            reveal self
         }
     }
 
@@ -38,7 +41,7 @@ card "Protecting Spirit Loagaeth" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, either_player controls)
             change_battle_position (1, monster)
         }
     }

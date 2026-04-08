@@ -14,11 +14,16 @@ card "Vahram, the Magistus Divinity Dragon" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 4
         code: 41
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +34,7 @@ card "Vahram, the Magistus Divinity Dragon" {
         property: 65536
         count_limit: (1, 61272280)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, opponent controls)
         }
     }
 
@@ -40,7 +45,7 @@ card "Vahram, the Magistus Divinity Dragon" {
         range: 8
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, opponent controls)
         }
     }
 

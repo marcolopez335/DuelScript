@@ -13,7 +13,10 @@ card "Ghost Meets Girl - A Masterful Mayakashi Shiranui Saga" {
             tribute self
         }
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -28,7 +31,7 @@ card "Ghost Meets Girl - A Masterful Mayakashi Shiranui Saga" {
             banish self
         }
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
         }
     }
 

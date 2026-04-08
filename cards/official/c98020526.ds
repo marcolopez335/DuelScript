@@ -9,7 +9,6 @@ card "Majestic Mirage" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -20,8 +19,15 @@ card "Majestic Mirage" {
         property: 65536
         range: 8
         on_resolve {
+            set_flag "tracked" on self
             special_summon (1, monster) from gy
-            banish (1+, card)
+            set_flag "tracked" on self
+            banish (1+, monster, opponent controls, gy)
+            set_flag "tracked" on self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

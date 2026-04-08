@@ -7,10 +7,16 @@ card "Infinitrack Fortress Megaclops" {
     attribute: EARTH
     race: Machine
     link: 3
+    link_arrows: [right, bottom_left, bottom_right]
     atk: 4000
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,6 @@ card "Infinitrack Fortress Megaclops" {
         property: 393216
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,7 +32,6 @@ card "Infinitrack Fortress Megaclops" {
         effect_type: 1
         code: 42
         on_resolve {
-            reveal self
         }
     }
 
@@ -40,6 +44,10 @@ card "Infinitrack Fortress Megaclops" {
         on_resolve {
             special_summon (1, monster) from gy
             attach (1, card) to self as_material
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

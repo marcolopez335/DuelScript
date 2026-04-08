@@ -10,6 +10,11 @@ card "Lunalight Cat Dancer" {
     atk: 2400
     def: 2000
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     summon_condition {
         cannot_normal_summon: true
     }
@@ -18,7 +23,6 @@ card "Lunalight Cat Dancer" {
         effect_type: 1
         code: 42
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +34,10 @@ card "Lunalight Cat Dancer" {
             tribute self
         }
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

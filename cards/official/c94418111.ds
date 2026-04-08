@@ -15,7 +15,6 @@ card "Magical Musketeer Wild" {
         code: 311
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -24,7 +23,6 @@ card "Magical Musketeer Wild" {
         code: 15
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -36,8 +34,8 @@ card "Magical Musketeer Wild" {
         range: 4
         count_limit: (1, 94418111)
         on_resolve {
-            return (1, card) to deck shuffle
-            shuffle deck
+            return (1+, card, either_player controls) to deck shuffle
+            shuffle_deck
             draw 1
         }
     }

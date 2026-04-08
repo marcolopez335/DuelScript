@@ -10,6 +10,10 @@ card "Rafale, Champion Fur Hire" {
     atk: 2800
     def: 2200
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 131080
@@ -17,9 +21,10 @@ card "Rafale, Champion Fur Hire" {
         property: 65536
         count_limit: (1, 38916526)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
-            send (1, card) to gy
+            return (1+, monster, you controls) to hand
+            shuffle_hand
+            send (1+, monster, you controls) to gy
+            shuffle_deck
         }
     }
 
@@ -32,7 +37,7 @@ card "Rafale, Champion Fur Hire" {
         count_limit: (1, 0)
         on_resolve {
             negate activation
-            send (1, card) to gy
+            send (1+, monster, you controls) to gy
         }
     }
 

@@ -10,6 +10,10 @@ card "Pharaonic Advent" {
     atk: 2000
     def: 2000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 512
@@ -29,7 +33,6 @@ card "Pharaonic Advent" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -42,7 +45,11 @@ card "Pharaonic Advent" {
             tribute self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, trap, you controls) from deck
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

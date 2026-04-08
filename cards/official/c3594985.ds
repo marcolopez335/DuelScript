@@ -3,7 +3,7 @@
 
 card "Majespecter Draco - Ryu" {
     password: 3594985
-    type: Xyz Monster
+    type: Xyz Monster | Pendulum Monster
     attribute: WIND
     race: Spellcaster
     rank: 4
@@ -15,14 +15,20 @@ card "Majespecter Draco - Ryu" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 131081
         range: 512
         count_limit: (1, 3594985)
         on_resolve {
-            add_to_hand (1, card) from gy
-            destroy (1+, card, either_player controls)
+            add_to_hand (1+, monster, you controls) from deck
+            destroy (1+, monster, you controls, deck)
         }
     }
 

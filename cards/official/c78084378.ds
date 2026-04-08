@@ -10,6 +10,11 @@ card "Diplexer Chimera" {
     atk: 2000
     def: 800
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     summon_condition {
         cannot_normal_summon: true
     }
@@ -22,7 +27,10 @@ card "Diplexer Chimera" {
             tribute self
         }
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -33,7 +41,7 @@ card "Diplexer Chimera" {
         property: 114688
         count_limit: (1, 78084378)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

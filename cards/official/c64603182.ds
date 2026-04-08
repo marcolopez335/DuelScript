@@ -10,13 +10,16 @@ card "Ancient Gear Dark Golem" {
     atk: 3000
     def: 3000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 114
         property: 131072
         range: 20
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,8 +30,24 @@ card "Ancient Gear Dark Golem" {
         property: 65536
         count_limit: (1, 64603182)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            add_to_hand (1+, card, you controls) from deck
+            shuffle_hand
             discard (1, card)
         }
     }
@@ -40,8 +59,24 @@ card "Ancient Gear Dark Golem" {
         property: 65536
         count_limit: (1, 64603182)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            add_to_hand (1+, card, you controls) from deck
+            shuffle_hand
             discard (1, card)
         }
     }
@@ -52,7 +87,6 @@ card "Ancient Gear Dark Golem" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

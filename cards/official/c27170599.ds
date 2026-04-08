@@ -13,6 +13,11 @@ card "Ghostrick or Treat" {
         count_limit: (1, 27170599)
         on_resolve {
             change_battle_position (1, monster)
+            emit_event "custom"
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

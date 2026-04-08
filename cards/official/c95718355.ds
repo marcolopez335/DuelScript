@@ -10,6 +10,10 @@ card "Regenesis Archfiend" {
     atk: 2500
     def: 2500
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
@@ -17,7 +21,7 @@ card "Regenesis Archfiend" {
         range: 2
         count_limit: (1, 95718355)
         on_resolve {
-            shuffle deck
+            shuffle_hand
         }
     }
 
@@ -28,7 +32,7 @@ card "Regenesis Archfiend" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from hand
         }
     }
 
@@ -39,7 +43,7 @@ card "Regenesis Archfiend" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from hand
         }
     }
 
@@ -50,7 +54,7 @@ card "Regenesis Archfiend" {
         range: 16
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from hand
         }
     }
 

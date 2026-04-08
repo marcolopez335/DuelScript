@@ -7,10 +7,16 @@ card "Spright Sprind" {
     attribute: FIRE
     race: Thunder
     link: 2
+    link_arrows: [top_right, bottom_left]
     atk: 1400
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -18,7 +24,6 @@ card "Spright Sprind" {
         code: 239
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +34,7 @@ card "Spright Sprind" {
         property: 65536
         count_limit: (1, 72329844)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, deck) to gy
         }
     }
 
@@ -44,7 +49,7 @@ card "Spright Sprind" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 

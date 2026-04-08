@@ -10,6 +10,10 @@ card "U.A. Blockbacker" {
     atk: 1600
     def: 2700
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
@@ -17,7 +21,7 @@ card "U.A. Blockbacker" {
         range: 2
         count_limit: (1, 34614289)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, you controls) to hand
         }
     }
 

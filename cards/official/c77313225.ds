@@ -14,6 +14,12 @@ card "Rciela, Sinister Soul of the White Forest" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 131080
@@ -24,7 +30,7 @@ card "Rciela, Sinister Soul of the White Forest" {
             send self to gy
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from hand
         }
     }
 
@@ -33,7 +39,7 @@ card "Rciela, Sinister Soul of the White Forest" {
         code: 100
         range: 4
         on_resolve {
-            reveal self
+            modifier: atk + 500
         }
     }
 
@@ -42,7 +48,6 @@ card "Rciela, Sinister Soul of the White Forest" {
         code: 41
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

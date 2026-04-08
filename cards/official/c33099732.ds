@@ -9,7 +9,6 @@ card "Overload Future Fusion" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -17,7 +16,15 @@ card "Overload Future Fusion" {
         effect_type: 64
         range: 8
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, gy) to gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

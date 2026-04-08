@@ -7,10 +7,16 @@ card "Gravity Controller" {
     attribute: DARK
     race: Psychic
     link: 1
+    link_arrows: [bottom_left]
     atk: 1000
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -18,7 +24,6 @@ card "Gravity Controller" {
         code: 239
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +31,6 @@ card "Gravity Controller" {
         effect_type: 1
         code: 42
         on_resolve {
-            reveal self
         }
     }
 
@@ -35,7 +39,7 @@ card "Gravity Controller" {
         category: 16
         code: 1132
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to deck shuffle
         }
     }
 

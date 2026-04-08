@@ -16,9 +16,11 @@ card "Valkyrie Vierte" {
         range: 4
         count_limit: (1, 81558967)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
-            send (1, card) to gy
+            add_to_hand (1+, card, you controls) from deck
+            shuffle_hand
+            send (1+, card, you controls, deck) to gy
+            send (1+, card, you controls, deck) to gy
+            shuffle_deck
         }
     }
 

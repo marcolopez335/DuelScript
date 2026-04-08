@@ -3,7 +3,7 @@
 
 card "Abyss Actor - Twinkle Little Star" {
     password: 7279373
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
     level: 4
@@ -17,7 +17,6 @@ card "Abyss Actor - Twinkle Little Star" {
         property: 3584
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,7 +26,10 @@ card "Abyss Actor - Twinkle Little Star" {
         range: 512
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -37,7 +39,6 @@ card "Abyss Actor - Twinkle Little Star" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -45,7 +46,6 @@ card "Abyss Actor - Twinkle Little Star" {
         effect_type: 1
         code: 42
         on_resolve {
-            reveal self
         }
     }
 

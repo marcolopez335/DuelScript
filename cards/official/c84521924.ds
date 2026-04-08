@@ -7,10 +7,16 @@ card "GranSolfachord Coolia" {
     attribute: LIGHT
     race: Fairy
     link: 3
+    link_arrows: [bottom_left, bottom, bottom_right]
     atk: 2700
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,6 @@ card "GranSolfachord Coolia" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -28,7 +33,6 @@ card "GranSolfachord Coolia" {
         code: 13
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -38,7 +42,6 @@ card "GranSolfachord Coolia" {
         property: 1024
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -51,7 +54,7 @@ card "GranSolfachord Coolia" {
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
-            send (1, card) to gy
+            send (1+, card, you controls, deck) to gy
         }
     }
 

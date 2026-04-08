@@ -26,7 +26,6 @@ card "Raidraptor - Ultimate Falcon" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -37,7 +36,14 @@ card "Raidraptor - Ultimate Falcon" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -47,7 +53,7 @@ card "Raidraptor - Ultimate Falcon" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            deal_damage to opponent: 1000
         }
     }
 

@@ -9,7 +9,6 @@ card "Pendulum Dimension" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -19,7 +18,8 @@ card "Pendulum Dimension" {
         code: 1102
         range: 8
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
+            set_flag "tracked" on self
         }
     }
 
@@ -29,7 +29,8 @@ card "Pendulum Dimension" {
         code: 1102
         range: 8
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
+            set_flag "tracked" on self
         }
     }
 
@@ -40,6 +41,7 @@ card "Pendulum Dimension" {
         range: 8
         on_resolve {
             special_summon (1, monster) from gy
+            set_flag "tracked" on self
         }
     }
 
@@ -49,7 +51,6 @@ card "Pendulum Dimension" {
         property: 1312
         range: 8
         on_resolve {
-            reveal self
         }
     }
 

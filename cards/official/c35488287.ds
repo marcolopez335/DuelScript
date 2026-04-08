@@ -10,6 +10,10 @@ card "Brotherhood of the Fire Fist - Panda" {
     atk: 2100
     def: 400
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 130
         category: 512
@@ -18,18 +22,19 @@ card "Brotherhood of the Fire Fist - Panda" {
         range: 2
         count_limit: (1, 35488287)
         on_resolve {
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
             special_summon (1, monster) from gy
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 50
-        range: 4
-        count_limit: (1, 0)
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 2" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

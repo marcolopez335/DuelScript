@@ -17,6 +17,8 @@ card "Mira Match" {
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
+            shuffle_hand
+            shuffle_deck
         }
     }
 
@@ -31,7 +33,7 @@ card "Mira Match" {
             send self to gy
         }
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, hand) to gy
             negate activation
         }
     }

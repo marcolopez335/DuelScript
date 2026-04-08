@@ -3,7 +3,7 @@
 
 card "Clock Arc" {
     password: 87468732
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Machine
     level: 4
@@ -28,7 +28,6 @@ card "Clock Arc" {
         property: 131072
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -38,7 +37,6 @@ card "Clock Arc" {
         property: 131072
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -46,7 +44,7 @@ card "Clock Arc" {
         effect_type: 2049
         code: 1102
         on_resolve {
-            reveal self
+            destroy (1, card)
         }
     }
 
@@ -54,7 +52,6 @@ card "Clock Arc" {
         effect_type: 1
         code: 42
         on_resolve {
-            reveal self
         }
     }
 
@@ -66,7 +63,7 @@ card "Clock Arc" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls)
             special_summon (1, monster) from gy
         }
     }

@@ -3,7 +3,7 @@
 
 card "Stargazer Magician" {
     password: 94415058
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Spellcaster
     level: 5
@@ -11,12 +11,19 @@ card "Stargazer Magician" {
     atk: 1200
     def: 2400
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2050
         code: 1130
         range: 512
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -25,7 +32,10 @@ card "Stargazer Magician" {
         code: 1131
         range: 512
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -35,7 +45,6 @@ card "Stargazer Magician" {
         property: 131072
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -45,7 +54,6 @@ card "Stargazer Magician" {
         property: 131072
         range: 512
         on_resolve {
-            reveal self
         }
     }
 

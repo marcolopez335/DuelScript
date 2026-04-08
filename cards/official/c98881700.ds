@@ -10,6 +10,10 @@ card "Crystal Shark" {
     atk: 1100
     def: 800
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 2097664
@@ -17,6 +21,10 @@ card "Crystal Shark" {
         range: 18
         count_limit: (1, 98881700)
         on_resolve {
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
             special_summon (1, monster) from gy
         }
     }
@@ -27,7 +35,6 @@ card "Crystal Shark" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

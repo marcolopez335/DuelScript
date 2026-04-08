@@ -7,10 +7,16 @@ card "Galaxy-Eyes Solflare Dragon" {
     attribute: LIGHT
     race: Dragon
     link: 2
+    link_arrows: [bottom_left, bottom_right]
     atk: 2000
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -20,7 +26,7 @@ card "Galaxy-Eyes Solflare Dragon" {
         property: 65552
         count_limit: (1, 3356494)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from hand
         }
     }
 
@@ -35,7 +41,7 @@ card "Galaxy-Eyes Solflare Dragon" {
             send self to gy
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls, hand)
         }
     }
 

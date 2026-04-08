@@ -16,7 +16,6 @@ card "Farfa, Malebranche of the Burning Abyss" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -37,7 +36,11 @@ card "Farfa, Malebranche of the Burning Abyss" {
         property: 65552
         count_limit: (1, 36553319)
         on_resolve {
-            banish (1+, card)
+            banish (1+, spell, you controls)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

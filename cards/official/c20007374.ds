@@ -10,7 +10,12 @@ card "Converging Wishes" {
         category: 512
         code: 1002
         on_resolve {
+            special_summon (1, monster) from gy
             equip (1, card) to (1, monster)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -18,7 +23,6 @@ card "Converging Wishes" {
         effect_type: 4
         code: 100
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +34,6 @@ card "Converging Wishes" {
             banish self
         }
         on_resolve {
-            reveal self
         }
     }
 

@@ -6,11 +6,18 @@ card "Neos Fusion" {
     type: Normal Spell
 
     raw_effect "Effect 1" {
-        effect_type: 2050
-        code: 50
-        range: 16
+        effect_type: 16
+        category: 1073742336
+        code: 1002
         on_resolve {
-            banish (1+, card)
+            fusion_summon (1, fusion monster) using (1+, monster, you controls)
+        }
+    }
+
+    replacement_effect "Effect 2" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

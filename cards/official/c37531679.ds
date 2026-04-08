@@ -14,7 +14,7 @@ card "Salamandra, the Flying Flame Dragon" {
         effect_type: 4
         code: 100
         on_resolve {
-            reveal self
+            modifier: atk + 700
         }
     }
 
@@ -25,7 +25,7 @@ card "Salamandra, the Flying Flame Dragon" {
         range: 18
         count_limit: (1, 37531679)
         on_resolve {
-            send (1, card) to gy
+            send (1+, spell, you controls, deck) to gy
             equip (1, card) to (1, monster)
         }
     }
@@ -37,7 +37,7 @@ card "Salamandra, the Flying Flame Dragon" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 

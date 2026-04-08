@@ -13,9 +13,11 @@ card "Slash Draw" {
         on_resolve {
             mill 1
             draw 1
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
             destroy (1+, card, either_player controls)
             deal_damage to opponent: 1000
+            shuffle_hand
+            return (1+, card, either_player controls) to deck shuffle
         }
     }
 

@@ -10,11 +10,14 @@ card "Great Dezard" {
     atk: 1900
     def: 2300
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2049
         code: 1139
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +29,7 @@ card "Great Dezard" {
         range: 4
         on_resolve {
             negate activation
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, hand)
         }
     }
 

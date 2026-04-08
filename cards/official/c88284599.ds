@@ -10,6 +10,10 @@ card "Sauravis, Dragon Sage of the Voiceless Voice" {
     atk: 2600
     def: 2800
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
@@ -17,7 +21,7 @@ card "Sauravis, Dragon Sage of the Voiceless Voice" {
         range: 2
         count_limit: (1, 88284599)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, spell, you controls) to deck shuffle
         }
     }
 
@@ -29,7 +33,7 @@ card "Sauravis, Dragon Sage of the Voiceless Voice" {
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
-            return (1, card) to deck shuffle
+            return (1+, spell, you controls) to deck shuffle
         }
     }
 

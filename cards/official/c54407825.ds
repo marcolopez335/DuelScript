@@ -9,7 +9,6 @@ card "Earthshattering Event" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -20,7 +19,15 @@ card "Earthshattering Event" {
         property: 16
         range: 8
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to deck shuffle
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

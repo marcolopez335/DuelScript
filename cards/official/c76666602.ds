@@ -14,13 +14,18 @@ card "The Dragon that Devours the Dogma" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 100
         property: 131072
         range: 4
         on_resolve {
-            reveal self
+            modifier: atk + 500
         }
     }
 
@@ -30,7 +35,6 @@ card "The Dragon that Devours the Dogma" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -41,7 +45,7 @@ card "The Dragon that Devours the Dogma" {
         property: 65536
         count_limit: (1, 76666602)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, monster, either_player controls) to deck shuffle
         }
     }
 
@@ -52,7 +56,7 @@ card "The Dragon that Devours the Dogma" {
         range: 16
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, either_player controls) from gy
         }
     }
 

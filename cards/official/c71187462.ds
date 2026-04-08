@@ -17,7 +17,6 @@ card "Blackwing - Vata the Emblem of Wandering" {
         range: 2
         count_limit: (1, 71187462)
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,8 +26,12 @@ card "Blackwing - Vata the Emblem of Wandering" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, deck) to gy
             special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

@@ -3,7 +3,7 @@
 
 card "Supreme King Z-ARC" {
     password: 13331639
-    type: Fusion Monster
+    type: Fusion Monster | Pendulum Monster
     attribute: DARK
     race: Dragon
     level: 12
@@ -15,12 +15,16 @@ card "Supreme King Z-ARC" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +34,6 @@ card "Supreme King Z-ARC" {
         property: 2048
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -41,7 +44,7 @@ card "Supreme King Z-ARC" {
         range: 512
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, deck)
         }
     }
 
@@ -50,7 +53,7 @@ card "Supreme King Z-ARC" {
         category: 1
         code: 1102
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, deck)
         }
     }
 
@@ -60,7 +63,6 @@ card "Supreme King Z-ARC" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -70,7 +72,6 @@ card "Supreme King Z-ARC" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

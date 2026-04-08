@@ -7,10 +7,16 @@ card "Celestial Knightlord Parshath" {
     attribute: LIGHT
     race: Fairy
     link: 3
+    link_arrows: [bottom_left, bottom, bottom_right]
     atk: 2400
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,7 @@ card "Celestial Knightlord Parshath" {
         range: 4
         count_limit: (1, 48589580)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from hand
         }
     }
 

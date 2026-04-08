@@ -14,12 +14,16 @@ card "Nekroz of Areadbhair" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,11 +33,11 @@ card "Nekroz of Areadbhair" {
         range: 2
         count_limit: (1, 39468724)
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
             tribute (1, monster, you controls)
-            send (1, card) to gy
+            send (1+, monster, you controls, deck) to gy
         }
     }
 
@@ -49,7 +53,7 @@ card "Nekroz of Areadbhair" {
         }
         on_resolve {
             negate activation
-            banish (1+, card)
+            banish (1+, monster, you controls, deck)
         }
     }
 

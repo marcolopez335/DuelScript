@@ -7,10 +7,16 @@ card "Knightmare Gryphon" {
     attribute: LIGHT
     race: Fiend
     link: 4
+    link_arrows: [top, left, right, bottom]
     atk: 2500
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,7 @@ card "Knightmare Gryphon" {
         property: 65552
         count_limit: (1, 65330383)
         cost {
-            discard (1, card)
+            discard (1, card, you controls)
         }
         on_resolve {
             set (1, card)
@@ -33,7 +39,6 @@ card "Knightmare Gryphon" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

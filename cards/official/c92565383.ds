@@ -1,0 +1,49 @@
+// Cornfield Coatl
+// Transpiled from c92565383.lua
+
+card "Cornfield Coatl" {
+    password: 92565383
+    type: Effect Monster
+    attribute: WIND
+    race: Unknown
+    level: 4
+    atk: 500
+    def: 1700
+
+    raw_effect "Effect 1" {
+        effect_type: 2
+        code: 42
+        range: 4
+        on_resolve {
+        }
+    }
+
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 131080
+        range: 2
+        count_limit: (1, 92565383)
+        cost {
+            discard (1, card, you controls)
+        }
+        on_resolve {
+            add_to_hand (1+, monster, you controls) from deck
+        }
+    }
+
+    raw_effect "Effect 3" {
+        effect_type: 256
+        category: 16385
+        code: 1027
+        range: 20
+        count_limit: (1, 0)
+        cost {
+            banish self
+        }
+        on_resolve {
+            negate effect
+            destroy (1+, monster, you controls, deck)
+        }
+    }
+
+}

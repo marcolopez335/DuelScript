@@ -7,17 +7,22 @@ card "Sky Striker Ace - Hayate" {
     attribute: WIND
     race: Machine
     link: 1
+    link_arrows: [bottom_left]
     atk: 1500
 
     summon_condition {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ effect monster
+        method: link
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 74
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +31,7 @@ card "Sky Striker Ace - Hayate" {
         category: 32
         code: 1138
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, deck) to gy
         }
     }
 

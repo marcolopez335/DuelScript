@@ -10,13 +10,17 @@ card "Fallen Angel of Roses" {
     atk: 2400
     def: 1300
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
         property: 262144
         range: 2
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, you controls) to hand
         }
     }
 

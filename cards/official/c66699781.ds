@@ -17,7 +17,11 @@ card "Chaos Mirage Dragon" {
         range: 4
         count_limit: (1, 66699781)
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -28,7 +32,7 @@ card "Chaos Mirage Dragon" {
         property: 65552
         count_limit: (1, 0)
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, either_player controls)
         }
     }
 

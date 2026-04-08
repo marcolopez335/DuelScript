@@ -14,6 +14,12 @@ card "Raidraptor - Stranger Falcon" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 524289
@@ -35,6 +41,7 @@ card "Raidraptor - Stranger Falcon" {
         code: 1014
         property: 65552
         on_resolve {
+            special_summon (1, monster) from gy
             attach (1, card) to self as_material
         }
     }

@@ -7,10 +7,16 @@ card "G Golem Dignified Trilithon" {
     attribute: EARTH
     race: Cyberse
     link: 4
+    link_arrows: [top, left, right, bottom]
     atk: 3200
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -18,7 +24,6 @@ card "G Golem Dignified Trilithon" {
         code: 191
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,7 +32,6 @@ card "G Golem Dignified Trilithon" {
         code: 344
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -39,7 +43,6 @@ card "G Golem Dignified Trilithon" {
             send self to gy
         }
         on_resolve {
-            reveal self
         }
     }
 
@@ -51,7 +54,7 @@ card "G Golem Dignified Trilithon" {
         count_limit: (1, 50546029)
         on_resolve {
             negate effect
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, hand)
         }
     }
 

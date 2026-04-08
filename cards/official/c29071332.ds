@@ -14,13 +14,20 @@ card "Armory Arm" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 262144
         property: 16
         range: 4
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, either_player controls) to gy
+            equip (1, card) to (1, monster)
         }
     }
 
@@ -37,7 +44,7 @@ card "Armory Arm" {
         effect_type: 4
         code: 100
         on_resolve {
-            reveal self
+            modifier: atk + 1000
         }
     }
 

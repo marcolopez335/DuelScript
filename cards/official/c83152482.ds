@@ -7,10 +7,16 @@ card "Union Carrier" {
     attribute: LIGHT
     race: Machine
     link: 2
+    link_arrows: [right, bottom]
     atk: 1000
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -18,7 +24,6 @@ card "Union Carrier" {
         code: 239
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +34,10 @@ card "Union Carrier" {
         range: 4
         count_limit: (1, 83152482)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

@@ -14,6 +14,12 @@ card "Ancient Fairy Life Dragon" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 196616
@@ -22,7 +28,7 @@ card "Ancient Fairy Life Dragon" {
         count_limit: (1, 43321985)
         on_resolve {
             draw 1
-            add_to_hand (1, card) from gy
+            return (1+, card, either_player controls) to hand
         }
     }
 
@@ -31,7 +37,6 @@ card "Ancient Fairy Life Dragon" {
         code: 190
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

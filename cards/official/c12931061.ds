@@ -11,7 +11,7 @@ card "U.A. Hyper Stadium" {
         code: 1002
         count_limit: (1, 12931061)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from gy
         }
     }
 
@@ -22,7 +22,11 @@ card "U.A. Hyper Stadium" {
             pay_lp your_lp / 2
         }
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            set_flag "tracked" on self
         }
     }
 

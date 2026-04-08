@@ -14,6 +14,12 @@ card "T.G. Over Dragonar" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 512
@@ -21,6 +27,10 @@ card "T.G. Over Dragonar" {
         property: 65536
         count_limit: (1, 68989420)
         on_resolve {
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
             special_summon (1, monster) from gy
         }
     }

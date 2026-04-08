@@ -14,6 +14,12 @@ card "Vola-Chemicritter Methydraco" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 512
@@ -29,7 +35,6 @@ card "Vola-Chemicritter Methydraco" {
         code: 332
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -39,7 +44,6 @@ card "Vola-Chemicritter Methydraco" {
         property: 128
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -52,7 +56,7 @@ card "Vola-Chemicritter Methydraco" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, hand) to gy
         }
     }
 

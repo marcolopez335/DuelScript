@@ -10,16 +10,20 @@ card "Kairo Ryu-Ge Emva" {
     atk: 3000
     def: 2000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 131080
         range: 2
         count_limit: (1, 20904475)
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 
@@ -37,7 +41,7 @@ card "Kairo Ryu-Ge Emva" {
         effect_type: 2050
         code: 1014
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
         }
     }
 

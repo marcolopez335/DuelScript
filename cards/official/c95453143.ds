@@ -14,6 +14,12 @@ card "Hundred Eyes Dragon" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         range: 4
@@ -22,7 +28,6 @@ card "Hundred Eyes Dragon" {
             banish self
         }
         on_resolve {
-            reveal self
         }
     }
 
@@ -31,7 +36,7 @@ card "Hundred Eyes Dragon" {
         category: 131080
         code: 1014
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from gy
         }
     }
 

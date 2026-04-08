@@ -3,13 +3,18 @@
 
 card "Qliphort Scout" {
     password: 65518099
-    type: Pendulum Monster
+    type: Normal Monster | Pendulum Monster
     attribute: EARTH
     race: Machine
     level: 5
     scale: 9
     atk: 1000
     def: 2800
+    flavor: "[ Pendulum Effect ] You cannot Special Summon monsters, except 'Qli' monsters. This effect cannot be negated. Once per turn: You can pay 800 LP; add 1 'Qli' card from your Deck to your hand, except 'Qliphort Scout'. ---------------------------------------- [ Flavor Text ] Booting in Replica Mode... An error has occurred while executing C:/sophia/zefra.exe Unknown publisher. Allow C:/tierra/qliphort.exe ? <Y/N>...[Y] Booting in Autonomy Mode..."
+
+    summon_condition {
+        tributes_required: 1
+    }
 
     raw_effect "Effect 1" {
         effect_type: 2
@@ -17,7 +22,6 @@ card "Qliphort Scout" {
         property: 3584
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,10 +31,10 @@ card "Qliphort Scout" {
         range: 512
         count_limit: (1, 0)
         cost {
-            pay_lp 1000
+            pay_lp 800
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 

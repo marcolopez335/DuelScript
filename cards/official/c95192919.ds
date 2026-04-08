@@ -10,13 +10,16 @@ card "Simorgh, Lord of the Storm" {
     atk: 2900
     def: 2000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 71
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -31,7 +34,7 @@ card "Simorgh, Lord of the Storm" {
             tribute self
         }
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to deck shuffle
         }
     }
 
@@ -42,7 +45,7 @@ card "Simorgh, Lord of the Storm" {
         range: 16
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

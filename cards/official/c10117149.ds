@@ -3,7 +3,7 @@
 
 card "Deskbot 005" {
     password: 10117149
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: EARTH
     race: Machine
     level: 5
@@ -11,13 +11,16 @@ card "Deskbot 005" {
     atk: 500
     def: 500
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 22
         property: 3584
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,7 +30,7 @@ card "Deskbot 005" {
         code: 1100
         property: 65552
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, either_player controls)
         }
     }
 
@@ -37,7 +40,7 @@ card "Deskbot 005" {
         code: 1102
         property: 65552
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, either_player controls)
         }
     }
 
@@ -47,7 +50,6 @@ card "Deskbot 005" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

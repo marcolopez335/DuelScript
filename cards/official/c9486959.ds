@@ -30,7 +30,11 @@ card "Onibimaru Soul Sweeper" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            banish (1+, card)
+            banish (1+, monster, either_player controls)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -40,7 +44,7 @@ card "Onibimaru Soul Sweeper" {
         code: 1029
         property: 81936
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, monster, either_player controls) to deck shuffle
         }
     }
 
@@ -49,7 +53,6 @@ card "Onibimaru Soul Sweeper" {
         code: 1019
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 

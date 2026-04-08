@@ -9,7 +9,6 @@ card "Pyramid of Wonders" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -18,17 +17,13 @@ card "Pyramid of Wonders" {
         code: 100
         range: 8
         on_resolve {
-            reveal self
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 50
-        range: 8
-        count_limit: (1, 0)
-        on_resolve {
-            send (1, card) to gy
+    replacement_effect "Effect 3" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

@@ -14,6 +14,12 @@ card "Garden Rose Flora" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 513
@@ -21,7 +27,11 @@ card "Garden Rose Flora" {
         range: 4
         count_limit: (1, 76524506)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            destroy (1+, spell, either_player controls)
             create_token { atk: 0 def: 0 }
             special_summon (1, monster) from gy
         }
@@ -33,7 +43,6 @@ card "Garden Rose Flora" {
         code: 1002
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

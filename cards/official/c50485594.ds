@@ -3,7 +3,7 @@
 
 card "Rescue Hamster" {
     password: 50485594
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: EARTH
     race: Beast
     level: 4
@@ -20,7 +20,7 @@ card "Rescue Hamster" {
             banish self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 
@@ -29,7 +29,6 @@ card "Rescue Hamster" {
         code: 1100
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 
@@ -41,7 +40,12 @@ card "Rescue Hamster" {
             tribute self
         }
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
+            special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

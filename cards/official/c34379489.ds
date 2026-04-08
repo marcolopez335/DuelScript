@@ -3,7 +3,7 @@
 
 card "Performapal Bubblebowwow" {
     password: 34379489
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: EARTH
     race: Beast
     level: 6
@@ -11,12 +11,14 @@ card "Performapal Bubblebowwow" {
     atk: 2300
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: 2050
-        code: 50
-        range: 512
-        on_resolve {
-            destroy (1+, card, either_player controls)
+    summon_condition {
+        tributes_required: 1
+    }
+
+    replacement_effect "Effect 1" {
+        instead_of: destroyed_by_any
+        do: {
+            return self to extra_deck
         }
     }
 
@@ -24,7 +26,10 @@ card "Performapal Bubblebowwow" {
         effect_type: 129
         code: 1102
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

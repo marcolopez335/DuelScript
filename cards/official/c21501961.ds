@@ -11,8 +11,11 @@ card "Pair Bear Scare!!" {
         code: 1002
         count_limit: (1, 0)
         on_resolve {
-            shuffle deck
-            shuffle deck
+            shuffle_hand
+            shuffle_deck
+            gain_lp: 2000
+            gain_lp: 2000
+            destroy (1+, card, you controls, hand)
         }
     }
 
@@ -22,7 +25,7 @@ card "Pair Bear Scare!!" {
         code: 1014
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from hand
         }
     }
 

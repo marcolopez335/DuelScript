@@ -10,6 +10,10 @@ card "Firewall Phantom" {
     atk: 2000
     def: 1300
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 131208
@@ -17,8 +21,8 @@ card "Firewall Phantom" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            add_to_hand (1+, spell, you controls) from deck
+            shuffle_hand
             discard (1, card)
         }
     }
@@ -32,7 +36,10 @@ card "Firewall Phantom" {
             banish self
         }
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

@@ -7,6 +7,7 @@ card "Quadborrel Dragon" {
     attribute: DARK
     race: Dragon
     link: 2
+    link_arrows: [left, bottom]
     atk: 1000
 
     materials {
@@ -25,7 +26,11 @@ card "Quadborrel Dragon" {
         range: 4
         count_limit: (1, 29296344)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            destroy (1+, card, you controls, gy)
             special_summon (1, monster) from gy
         }
     }

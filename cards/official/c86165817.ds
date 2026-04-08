@@ -14,11 +14,15 @@ card "Evil HERO Malicious Bane" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,7 +31,6 @@ card "Evil HERO Malicious Bane" {
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -37,7 +40,6 @@ card "Evil HERO Malicious Bane" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -47,7 +49,6 @@ card "Evil HERO Malicious Bane" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -57,7 +58,11 @@ card "Evil HERO Malicious Bane" {
         range: 4
         count_limit: (1, 86165817)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            destroy (1+, monster, opponent controls)
         }
     }
 

@@ -7,10 +7,16 @@ card "Golden Allure Queen" {
     attribute: DARK
     race: Spellcaster
     link: 3
+    link_arrows: [left, right, bottom]
     atk: 2500
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -29,7 +35,6 @@ card "Golden Allure Queen" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -41,6 +46,10 @@ card "Golden Allure Queen" {
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

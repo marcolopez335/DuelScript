@@ -10,6 +10,10 @@ card "Ancient Warriors - Savage Don Ying" {
     atk: 2200
     def: 1800
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 131080
@@ -17,7 +21,7 @@ card "Ancient Warriors - Savage Don Ying" {
         property: 65536
         count_limit: (1, 79582540)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 
@@ -28,7 +32,7 @@ card "Ancient Warriors - Savage Don Ying" {
         property: 65536
         count_limit: (1, 79582540)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 
@@ -38,7 +42,6 @@ card "Ancient Warriors - Savage Don Ying" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -48,7 +51,6 @@ card "Ancient Warriors - Savage Don Ying" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -60,7 +62,7 @@ card "Ancient Warriors - Savage Don Ying" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            banish (1+, card)
+            banish (1+, monster, you controls, deck)
             draw 1
         }
     }

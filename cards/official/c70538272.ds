@@ -14,6 +14,11 @@ card "Filia Regis" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         category: 12
@@ -22,8 +27,8 @@ card "Filia Regis" {
         range: 4
         count_limit: (1, 70538272)
         on_resolve {
-            banish (1+, card)
-            add_to_hand (1, card) from gy
+            banish (1+, monster, you controls)
+            return (1+, monster, you controls) to hand
         }
     }
 
@@ -34,7 +39,7 @@ card "Filia Regis" {
         range: 16
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, you controls) to hand
             special_summon (1, monster) from gy
         }
     }

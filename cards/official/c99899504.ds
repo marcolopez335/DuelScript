@@ -10,6 +10,10 @@ card "Skull Flame" {
     atk: 2600
     def: 2000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 512
@@ -27,7 +31,7 @@ card "Skull Flame" {
         property: 16
         range: 4
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from hand
         }
     }
 

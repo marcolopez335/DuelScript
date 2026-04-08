@@ -11,7 +11,6 @@ card "Synchro Transmission" {
         code: 1002
         count_limit: (1, 35817848)
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +25,7 @@ card "Synchro Transmission" {
             banish self
         }
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to deck shuffle
             draw 1
         }
     }

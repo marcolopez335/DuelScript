@@ -3,7 +3,7 @@
 
 card "Abyss Actor - Sassy Rookie" {
     password: 51028231
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
     level: 4
@@ -11,12 +11,10 @@ card "Abyss Actor - Sassy Rookie" {
     atk: 1700
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: 2050
-        code: 50
-        range: 512
-        on_resolve {
-            destroy (1+, card, either_player controls)
+    replacement_effect "Effect 1" {
+        instead_of: destroyed_by_any
+        do: {
+            return self to extra_deck
         }
     }
 
@@ -27,7 +25,6 @@ card "Abyss Actor - Sassy Rookie" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 
@@ -47,7 +44,7 @@ card "Abyss Actor - Sassy Rookie" {
         code: 1029
         property: 65552
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, deck)
         }
     }
 

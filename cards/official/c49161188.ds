@@ -14,11 +14,15 @@ card "Gilti-Gearfried the Magical Steel Knight" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2049
         code: 1102
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +30,6 @@ card "Gilti-Gearfried the Magical Steel Knight" {
         effect_type: 1
         code: 251
         on_resolve {
-            reveal self
         }
     }
 
@@ -39,7 +42,6 @@ card "Gilti-Gearfried the Magical Steel Knight" {
             banish self
         }
         on_resolve {
-            reveal self
         }
     }
 
@@ -51,7 +53,7 @@ card "Gilti-Gearfried the Magical Steel Knight" {
         count_limit: (1, 0)
         on_resolve {
             negate effect
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, either_player controls)
         }
     }
 

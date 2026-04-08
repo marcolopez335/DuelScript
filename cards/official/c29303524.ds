@@ -10,11 +10,14 @@ card "Seleglare the Luminous Lunar Dragon" {
     atk: 2400
     def: 1000
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 32
         on_resolve {
-            reveal self
         }
     }
 
@@ -22,7 +25,6 @@ card "Seleglare the Luminous Lunar Dragon" {
         effect_type: 1
         code: 36
         on_resolve {
-            reveal self
         }
     }
 
@@ -34,7 +36,7 @@ card "Seleglare the Luminous Lunar Dragon" {
         range: 4
         count_limit: (1, 29303524)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
             take_control of (1, monster, opponent controls)
         }
     }

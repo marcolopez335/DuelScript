@@ -10,6 +10,10 @@ card "Wynn the Wind Channeler" {
     atk: 1850
     def: 1500
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 131080
@@ -19,7 +23,11 @@ card "Wynn the Wind Channeler" {
             send self to gy
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from hand
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

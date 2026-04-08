@@ -14,6 +14,12 @@ card "Sangenpai Transcendent Dragion" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 4096
@@ -29,7 +35,6 @@ card "Sangenpai Transcendent Dragion" {
         code: 191
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -39,7 +44,6 @@ card "Sangenpai Transcendent Dragion" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -51,7 +55,7 @@ card "Sangenpai Transcendent Dragion" {
         count_limit: (1, 18969888)
         on_resolve {
             special_summon (1, monster) from gy
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, either_player controls)
         }
     }
 
@@ -59,7 +63,7 @@ card "Sangenpai Transcendent Dragion" {
         effect_type: 2050
         code: 1130
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
         }
     }
 

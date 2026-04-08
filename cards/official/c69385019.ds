@@ -7,10 +7,16 @@ card "Mermail King - Neptabyss" {
     attribute: WATER
     race: Sea Serpent
     link: 3
+    link_arrows: [bottom_left, bottom, bottom_right]
     atk: 2400
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,6 @@ card "Mermail King - Neptabyss" {
         property: 128
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -42,7 +47,7 @@ card "Mermail King - Neptabyss" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from gy
         }
     }
 

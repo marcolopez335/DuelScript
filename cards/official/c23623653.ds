@@ -16,20 +16,16 @@ card "Spiritual Beast Tamer Lara" {
         range: 2
         count_limit: (1, 23623653)
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
-            reveal self
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 50
-        range: 20
-        count_limit: (1, 0)
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 2" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

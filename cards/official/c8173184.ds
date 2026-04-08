@@ -7,10 +7,16 @@ card "Repair Genex Controller" {
     attribute: DARK
     race: Machine
     link: 1
+    link_arrows: [left]
     atk: 1200
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,7 @@ card "Repair Genex Controller" {
         code: 1102
         property: 65536
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from gy
         }
     }
 
@@ -31,7 +37,14 @@ card "Repair Genex Controller" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

@@ -14,12 +14,16 @@ card "Shinobaroness Peacock" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +33,7 @@ card "Shinobaroness Peacock" {
         code: 1102
         property: 65536
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, spell, you controls) to deck shuffle
             special_summon (1, monster) from gy
         }
     }

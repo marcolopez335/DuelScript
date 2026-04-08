@@ -14,6 +14,11 @@ card "Vendread Battlelord" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         range: 4
@@ -22,7 +27,10 @@ card "Vendread Battlelord" {
             banish self
         }
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -33,8 +41,8 @@ card "Vendread Battlelord" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
-            send (1, card) to gy
+            add_to_hand (1+, monster, you controls) from gy
+            send (1+, monster, you controls, gy) to gy
         }
     }
 

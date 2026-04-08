@@ -9,7 +9,6 @@ card "The Deal of Destiny" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -18,7 +17,6 @@ card "The Deal of Destiny" {
         code: 1029
         range: 8
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +28,7 @@ card "The Deal of Destiny" {
         range: 8
         count_limit: (1, 32245230)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
             special_summon (1, monster) from gy
             attach (1, card) to self as_material
         }

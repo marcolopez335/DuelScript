@@ -1,34 +1,44 @@
 // Azamina Moa Regina
-// Migrated from c46174776.lua
+// Transpiled from c46174776.lua
 
 card "Azamina Moa Regina" {
     password: 46174776
-    // TODO: type, attribute, race, level, atk, def from CDB
+    type: Fusion Monster
+    attribute: DARK
+    race: Unknown
+    level: 8
+    atk: 3000
+    def: 2000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
 
     materials {
         require: 2+ monster
         method: fusion
     }
 
-    summon_condition {
-        cannot_normal_summon: true
-    }
-
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
+    raw_effect "Effect 1" {
+        effect_type: 64
+        category: 512
+        property: 16
+        range: 4
+        count_limit: (1, 46174776)
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
-        trigger: opponent_activates [search | special_summon | send_to_gy | draw]
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 1
+        code: 1027
+        property: 16
+        range: 4
+        count_limit: (1, 0)
         on_resolve {
-            destroy (1, card, opponent controls) // TODO: verify target
+            destroy (1+, card, either_player controls)
         }
     }
 

@@ -3,13 +3,18 @@
 
 card "Dragonpit Magician" {
     password: 51531505
-    type: Pendulum Monster
+    type: Normal Monster | Pendulum Monster
     attribute: WATER
     race: Spellcaster
     level: 7
     scale: 8
     atk: 900
     def: 2700
+    flavor: "[ Pendulum Effect ] Once per turn, if you have a 'Magician' card in your other Pendulum Zone: You can discard 1 Pendulum Monster, then target 1 Spell/Trap Card on the field; destroy it. ---------------------------------------- [ Flavor Text ] This gifted magician can awaken the energy stored in the deep places of the earth, known as the Pits of the Dragon. His stoic approach wins him few friends, and he often bends to the desires of his pupil."
+
+    summon_condition {
+        tributes_required: 2
+    }
 
     raw_effect "Effect 1" {
         effect_type: 64
@@ -18,7 +23,7 @@ card "Dragonpit Magician" {
         range: 512
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, either_player controls)
         }
     }
 

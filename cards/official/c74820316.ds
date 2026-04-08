@@ -7,10 +7,16 @@ card "Enlilgirsu, the Orcust Mekk-Knight" {
     attribute: DARK
     race: Machine
     link: 4
+    link_arrows: [top_right, left, right, bottom_left]
     atk: 2600
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -20,9 +26,9 @@ card "Enlilgirsu, the Orcust Mekk-Knight" {
         range: 4
         count_limit: (1, 74820316)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to hand
+            shuffle_hand
+            return (1+, card, either_player controls) to deck shuffle
             take_control of (1, monster, opponent controls)
         }
     }
@@ -35,9 +41,9 @@ card "Enlilgirsu, the Orcust Mekk-Knight" {
         range: 4
         count_limit: (1, 74820316)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to hand
+            shuffle_hand
+            return (1+, card, either_player controls) to deck shuffle
             take_control of (1, monster, opponent controls)
         }
     }
@@ -51,7 +57,7 @@ card "Enlilgirsu, the Orcust Mekk-Knight" {
             banish self
         }
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
         }
     }
 
@@ -65,7 +71,7 @@ card "Enlilgirsu, the Orcust Mekk-Knight" {
             banish self
         }
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
         }
     }
 

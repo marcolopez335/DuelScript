@@ -3,7 +3,7 @@
 
 card "Gigathunder Giclops" {
     password: 17241941
-    type: Pendulum Monster | Tuner
+    type: Effect Monster | Pendulum Monster | Tuner
     attribute: WIND
     race: Thunder
     level: 4
@@ -27,7 +27,6 @@ card "Gigathunder Giclops" {
         code: 60
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -49,7 +48,7 @@ card "Gigathunder Giclops" {
         property: 65552
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, either_player controls)
         }
     }
 
@@ -60,7 +59,7 @@ card "Gigathunder Giclops" {
         property: 81920
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, either_player controls) from gy
         }
     }
 

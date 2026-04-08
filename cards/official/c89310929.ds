@@ -14,6 +14,12 @@ card "Mist Valley Thunder Lord" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         category: 2097160
@@ -22,7 +28,7 @@ card "Mist Valley Thunder Lord" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

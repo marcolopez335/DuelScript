@@ -10,13 +10,16 @@ card "Shield of the Millennium Dynasty" {
     atk: 0
     def: 3000
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 41
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -34,9 +37,12 @@ card "Shield of the Millennium Dynasty" {
         category: 512
         range: 8
         count_limit: (1, 0)
+        cost {
+            pay_lp your_lp / 2
+        }
         on_resolve {
             special_summon (1, monster) from gy
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from hand
         }
     }
 

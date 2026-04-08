@@ -6,37 +6,29 @@ card "Abyss-scale of the Kraken" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: 4
+        code: 100
         on_resolve {
-            reveal self
+            modifier: atk + 400
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 4
-        code: 100
-        on_resolve {
-            reveal self
-        }
-    }
-
-    raw_effect "Effect 3" {
         effect_type: 2050
         code: 1020
         range: 8
         on_resolve {
             negate effect
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
         }
     }
 
-    raw_effect "Effect 4" {
+    raw_effect "Effect 3" {
         effect_type: 16
         category: 262144
         code: 1002
         on_resolve {
-            reveal self
+            equip self to (1, monster, you controls)
         }
     }
 

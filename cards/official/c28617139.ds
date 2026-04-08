@@ -11,7 +11,7 @@ card "Simorgh Onslaught" {
         code: 1002
         count_limit: (1, 28617139)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 
@@ -22,7 +22,11 @@ card "Simorgh Onslaught" {
             banish self
         }
         on_resolve {
-            shuffle deck
+            shuffle_hand
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

@@ -20,7 +20,6 @@ card "Carnot the Eternal Machine" {
         property: 263168
         range: 18
         on_resolve {
-            reveal self
         }
     }
 
@@ -32,7 +31,6 @@ card "Carnot the Eternal Machine" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 
@@ -41,7 +39,7 @@ card "Carnot the Eternal Machine" {
         category: 16
         code: 1014
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to deck shuffle
         }
     }
 
@@ -49,7 +47,7 @@ card "Carnot the Eternal Machine" {
         effect_type: 2050
         code: 1022
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
         }
     }
 

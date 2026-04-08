@@ -3,7 +3,7 @@
 
 card "Enato Enneacraft - 'oknirIA'" {
     password: 55965529
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: EARTH
     race: Machine
     level: 1
@@ -16,7 +16,6 @@ card "Enato Enneacraft - 'oknirIA'" {
         code: 1001
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,11 +25,11 @@ card "Enato Enneacraft - 'oknirIA'" {
         range: 512
         count_limit: (1, 55965529)
         cost {
-            pay_lp 1000
+            pay_lp 900
         }
         on_resolve {
-            shuffle deck
-            add_to_hand (1, card) from gy
+            shuffle_deck
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -53,7 +52,7 @@ card "Enato Enneacraft - 'oknirIA'" {
         property: 256
         range: 4
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -62,7 +61,7 @@ card "Enato Enneacraft - 'oknirIA'" {
         category: 16
         code: 1001
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, you controls) to deck shuffle
         }
     }
 

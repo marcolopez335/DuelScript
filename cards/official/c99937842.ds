@@ -14,6 +14,12 @@ card "T.G. Star Guardian" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 8
@@ -21,7 +27,7 @@ card "T.G. Star Guardian" {
         property: 65552
         count_limit: (1, 99937842)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, either_player controls) from gy
         }
     }
 
@@ -41,7 +47,6 @@ card "T.G. Star Guardian" {
         code: 1002
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

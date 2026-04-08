@@ -14,13 +14,17 @@ card "El Shaddoll Anoyatyllis" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 394240
         range: 64
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +34,6 @@ card "El Shaddoll Anoyatyllis" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -40,7 +43,7 @@ card "El Shaddoll Anoyatyllis" {
         code: 1014
         property: 81936
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, either_player controls) from gy
         }
     }
 

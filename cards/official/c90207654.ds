@@ -7,10 +7,16 @@ card "Gullveig of the Nordic Ascendant" {
     attribute: LIGHT
     race: Fairy
     link: 1
+    link_arrows: [bottom_left]
     atk: 800
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -20,8 +26,24 @@ card "Gullveig of the Nordic Ascendant" {
         property: 65536
         count_limit: (1, 90207654)
         on_resolve {
-            banish (1+, card)
+            banish (1+, monster, you controls, hand)
             special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -31,7 +53,6 @@ card "Gullveig of the Nordic Ascendant" {
         property: 128
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -41,7 +62,6 @@ card "Gullveig of the Nordic Ascendant" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

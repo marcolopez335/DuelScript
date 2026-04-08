@@ -3,13 +3,17 @@
 
 card "D/D Count Surveyor" {
     password: 5997110
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
     level: 8
     scale: 1
     atk: 2000
     def: 2000
+
+    summon_condition {
+        tributes_required: 2
+    }
 
     raw_effect "Effect 1" {
         effect_type: 130
@@ -29,7 +33,7 @@ card "D/D Count Surveyor" {
         range: 2
         count_limit: (1, 5997110)
         cost {
-            discard (1, card)
+            discard (1, card, you controls)
         }
         on_resolve {
             special_summon (1, monster) from gy
@@ -43,7 +47,7 @@ card "D/D Count Surveyor" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, opponent controls) to hand
         }
     }
 
@@ -54,7 +58,7 @@ card "D/D Count Surveyor" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, opponent controls) to hand
         }
     }
 

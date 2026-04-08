@@ -10,13 +10,16 @@ card "Helpoemer" {
     atk: 2000
     def: 1400
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 394240
         range: 16
         on_resolve {
-            reveal self
         }
     }
 
@@ -24,7 +27,6 @@ card "Helpoemer" {
         effect_type: 2049
         code: 1140
         on_resolve {
-            reveal self
         }
     }
 
@@ -35,7 +37,7 @@ card "Helpoemer" {
         range: 16
         count_limit: (1, 0)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
         }
     }
 

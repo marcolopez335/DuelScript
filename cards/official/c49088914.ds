@@ -17,9 +17,13 @@ card "Virtual World Mai-Hime - Lulu" {
         range: 2
         count_limit: (1, 49088914)
         on_resolve {
-            send (1, card) to gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            send (1+, card, you controls, deck) to gy
             special_summon (1, monster) from gy
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 

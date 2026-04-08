@@ -9,7 +9,6 @@ card "Iron Core Specimen Lab" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -20,7 +19,8 @@ card "Iron Core Specimen Lab" {
         range: 256
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            shuffle_hand
+            destroy (1+, monster, you controls, hand)
         }
     }
 
@@ -31,7 +31,7 @@ card "Iron Core Specimen Lab" {
         property: 8404992
         range: 256
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from hand
         }
     }
 
@@ -39,7 +39,8 @@ card "Iron Core Specimen Lab" {
         effect_type: 2050
         code: 1010
         on_resolve {
-            reveal self
+            emit_event "custom"
+            emit_event "custom"
         }
     }
 

@@ -3,7 +3,7 @@
 
 card "Parametalfoes Azortless" {
     password: 37491810
-    type: Fusion Monster
+    type: Fusion Monster | Pendulum Monster
     attribute: FIRE
     race: Psychic
     level: 7
@@ -13,6 +13,11 @@ card "Parametalfoes Azortless" {
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ monster
+        method: fusion
     }
 
     raw_effect "Effect 1" {
@@ -34,7 +39,7 @@ card "Parametalfoes Azortless" {
         property: 81936
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to deck shuffle
             destroy (1+, card, either_player controls)
         }
     }

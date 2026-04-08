@@ -14,6 +14,12 @@ card "Maestroke the Symphony Djinn" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 4096
@@ -28,12 +34,10 @@ card "Maestroke the Symphony Djinn" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 50
-        range: 4
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 2" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

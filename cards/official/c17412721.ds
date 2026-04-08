@@ -14,13 +14,18 @@ card "Elder Entity Norden" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 512
         code: 1102
         property: 16400
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
         }
     }
 
@@ -28,7 +33,7 @@ card "Elder Entity Norden" {
         effect_type: 2049
         code: 1015
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, either_player controls)
         }
     }
 

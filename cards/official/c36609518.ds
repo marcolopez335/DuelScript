@@ -7,6 +7,7 @@ card "Evil★Twin Lil-la" {
     attribute: DARK
     race: Fiend
     link: 2
+    link_arrows: [left, bottom]
     atk: 1100
 
     materials {
@@ -25,7 +26,7 @@ card "Evil★Twin Lil-la" {
         property: 81936
         count_limit: (1, 36609518)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls)
         }
     }
 
@@ -36,6 +37,10 @@ card "Evil★Twin Lil-la" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
             special_summon (1, monster) from gy
         }
     }

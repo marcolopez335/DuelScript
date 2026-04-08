@@ -10,12 +10,16 @@ card "Hade-Hane" {
     atk: 900
     def: 1000
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 161
         category: 8
         property: 65552
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

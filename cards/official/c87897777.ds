@@ -3,13 +3,17 @@
 
 card "Vaylantz Mad Marquess" {
     password: 87897777
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: FIRE
     race: Machine
     level: 6
     scale: 1
     atk: 1700
     def: 1700
+
+    summon_condition {
+        tributes_required: 1
+    }
 
     raw_effect "Effect 1" {
         effect_type: 64
@@ -27,7 +31,8 @@ card "Vaylantz Mad Marquess" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, spell, you controls) to hand
+            shuffle_deck
         }
     }
 

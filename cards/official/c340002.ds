@@ -10,12 +10,15 @@ card "Performapal Elephammer" {
     atk: 2600
     def: 1800
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 32
         property: 262144
         on_resolve {
-            reveal self
         }
     }
 
@@ -23,7 +26,6 @@ card "Performapal Elephammer" {
         effect_type: 1
         code: 85
         on_resolve {
-            reveal self
         }
     }
 
@@ -32,7 +34,7 @@ card "Performapal Elephammer" {
         category: 8
         code: 1130
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, spell, opponent controls) to hand
         }
     }
 

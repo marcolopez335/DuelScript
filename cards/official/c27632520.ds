@@ -3,6 +3,13 @@
 
 card "Fairy Tail - Wickat" {
     password: 27632520
+    // FIXME: card not found in CDB — type/stats are placeholders
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 0
+    def: 0
 
     summon_condition {
         cannot_normal_summon: true
@@ -13,7 +20,6 @@ card "Fairy Tail - Wickat" {
         code: 1
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +32,7 @@ card "Fairy Tail - Wickat" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, deck) to gy
         }
     }
 
@@ -39,7 +45,7 @@ card "Fairy Tail - Wickat" {
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
-            send (1, card) to gy
+            send (1+, card, you controls, deck) to gy
         }
     }
 

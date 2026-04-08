@@ -6,6 +6,15 @@ card "Earthbound Fusion" {
     type: Quick-Play Spell
 
     raw_effect "Effect 1" {
+        effect_type: 16
+        category: 1073742336
+        code: 1002
+        on_resolve {
+            fusion_summon (1, fusion monster) using (1+, monster, you controls)
+        }
+    }
+
+    raw_effect "Effect 2" {
         effect_type: 64
         category: 512
         range: 16
@@ -14,6 +23,10 @@ card "Earthbound Fusion" {
             banish self
         }
         on_resolve {
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
             special_summon (1, monster) from gy
         }
     }

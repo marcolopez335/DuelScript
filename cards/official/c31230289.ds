@@ -10,6 +10,10 @@ card "Doodle Beast - Stego" {
     atk: 1200
     def: 1800
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 512
@@ -27,8 +31,8 @@ card "Doodle Beast - Stego" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            return (1+, spell, you controls) to hand
+            shuffle_hand
             discard (1, card)
         }
     }
@@ -40,8 +44,8 @@ card "Doodle Beast - Stego" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            return (1+, spell, you controls) to hand
+            shuffle_hand
             discard (1, card)
         }
     }

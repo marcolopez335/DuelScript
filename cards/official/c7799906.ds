@@ -3,13 +3,17 @@
 
 card "Performapal Smile Sorcerer" {
     password: 7799906
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: LIGHT
     race: Spellcaster
     level: 8
     scale: 1
     atk: 2500
     def: 2000
+
+    summon_condition {
+        tributes_required: 2
+    }
 
     raw_effect "Effect 1" {
         effect_type: 130
@@ -30,7 +34,7 @@ card "Performapal Smile Sorcerer" {
         property: 81920
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 
@@ -41,7 +45,7 @@ card "Performapal Smile Sorcerer" {
         property: 81920
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 
@@ -53,6 +57,10 @@ card "Performapal Smile Sorcerer" {
         count_limit: (1, 0)
         on_resolve {
             draw 1
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

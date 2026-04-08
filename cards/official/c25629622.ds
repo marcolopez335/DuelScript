@@ -3,13 +3,17 @@
 
 card "Abyss Actor - Superstar" {
     password: 25629622
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
     level: 7
     scale: 3
     atk: 2500
     def: 1800
+
+    summon_condition {
+        tributes_required: 2
+    }
 
     raw_effect "Effect 1" {
         effect_type: 64
@@ -20,7 +24,7 @@ card "Abyss Actor - Superstar" {
             tribute self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 
@@ -28,7 +32,6 @@ card "Abyss Actor - Superstar" {
         effect_type: 2049
         code: 1100
         on_resolve {
-            reveal self
         }
     }
 
@@ -36,7 +39,6 @@ card "Abyss Actor - Superstar" {
         effect_type: 2049
         code: 1102
         on_resolve {
-            reveal self
         }
     }
 
@@ -45,7 +47,6 @@ card "Abyss Actor - Superstar" {
         code: 1026
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -55,6 +56,10 @@ card "Abyss Actor - Superstar" {
         count_limit: (1, 0)
         on_resolve {
             set (1, card)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

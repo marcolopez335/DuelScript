@@ -3,6 +3,13 @@
 
 card "Fairy Tail - Matchlille" {
     password: 19144622
+    // FIXME: card not found in CDB — type/stats are placeholders
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 0
+    def: 0
 
     raw_effect "Effect 1" {
         effect_type: 64
@@ -11,6 +18,10 @@ card "Fairy Tail - Matchlille" {
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -21,7 +32,7 @@ card "Fairy Tail - Matchlille" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, spell, either_player controls) to hand
         }
     }
 
@@ -32,7 +43,7 @@ card "Fairy Tail - Matchlille" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, spell, either_player controls) to hand
         }
     }
 
@@ -41,10 +52,9 @@ card "Fairy Tail - Matchlille" {
         range: 4
         count_limit: (1, 0)
         cost {
-            pay_lp 1000
+            pay_lp 500
         }
         on_resolve {
-            reveal self
         }
     }
 

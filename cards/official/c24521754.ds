@@ -10,6 +10,10 @@ card "Goldilocks the Battle Landscaper" {
     atk: 0
     def: 3000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2049
         code: 1100
@@ -31,7 +35,7 @@ card "Goldilocks the Battle Landscaper" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            destroy (1+, card, either_player controls)
         }
     }
 
@@ -41,7 +45,7 @@ card "Goldilocks the Battle Landscaper" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
+            modifier: atk + 3000
         }
     }
 

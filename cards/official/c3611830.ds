@@ -3,13 +3,17 @@
 
 card "Endymion, the Mighty Master of Magic" {
     password: 3611830
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Spellcaster
     level: 7
     scale: 8
     atk: 2800
     def: 1700
+
+    summon_condition {
+        tributes_required: 2
+    }
 
     raw_effect "Effect 1" {
         effect_type: 64
@@ -30,7 +34,7 @@ card "Endymion, the Mighty Master of Magic" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, card, either_player controls) to hand
             destroy (1+, card, either_player controls)
         }
     }
@@ -41,7 +45,6 @@ card "Endymion, the Mighty Master of Magic" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -51,7 +54,6 @@ card "Endymion, the Mighty Master of Magic" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -60,7 +62,6 @@ card "Endymion, the Mighty Master of Magic" {
         code: 1019
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 
@@ -69,7 +70,7 @@ card "Endymion, the Mighty Master of Magic" {
         category: 131080
         code: 1140
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, card, either_player controls) to hand
         }
     }
 

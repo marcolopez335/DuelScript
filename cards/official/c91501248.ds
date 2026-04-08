@@ -10,16 +10,20 @@ card "Pot of The Forbidden" {
     atk: 2000
     def: 3000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 161
         property: 65536
         count_limit: (1, 91501248)
         on_resolve {
             draw 1
-            add_to_hand (1, card) from gy
-            destroy (1+, card, either_player controls)
-            return (1, card) to deck shuffle
-            shuffle deck
+            return (1+, spell, either_player controls) to hand
+            destroy (1+, spell, either_player controls)
+            return (1+, spell, either_player controls) to deck shuffle
+            shuffle_hand
         }
     }
 

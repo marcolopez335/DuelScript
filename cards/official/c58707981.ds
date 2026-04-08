@@ -3,7 +3,7 @@
 
 card "Disablaster the Negation Fortress" {
     password: 58707981
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: LIGHT
     race: Machine
     level: 5
@@ -11,12 +11,16 @@ card "Disablaster the Negation Fortress" {
     atk: 500
     def: 2000
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2050
         code: 1020
         range: 512
         on_resolve {
-            reveal self
+            negate effect
         }
     }
 
@@ -25,7 +29,7 @@ card "Disablaster the Negation Fortress" {
         code: 1020
         range: 4
         on_resolve {
-            reveal self
+            negate effect
         }
     }
 
@@ -36,7 +40,6 @@ card "Disablaster the Negation Fortress" {
         range: 2
         count_limit: (1, 58707981)
         on_resolve {
-            reveal self
         }
     }
 

@@ -10,6 +10,10 @@ card "Pharaonic Guardian Sphinx" {
     atk: 2300
     def: 3000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 4096
@@ -25,7 +29,7 @@ card "Pharaonic Guardian Sphinx" {
         code: 1101
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, monster, opponent controls) to deck shuffle
         }
     }
 

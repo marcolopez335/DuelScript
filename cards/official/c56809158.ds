@@ -10,6 +10,10 @@ card "Mekk-Knight Red Moon" {
     atk: 2300
     def: 2600
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
@@ -17,7 +21,6 @@ card "Mekk-Knight Red Moon" {
         range: 2
         count_limit: (1, 56809158)
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +33,7 @@ card "Mekk-Knight Red Moon" {
             banish self
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, either_player controls)
         }
     }
 

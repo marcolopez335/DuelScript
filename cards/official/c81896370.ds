@@ -10,12 +10,16 @@ card "Swift Birdman Joe" {
     atk: 2300
     def: 1400
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 513
         category: 8
         code: 1100
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, spell, either_player controls) to hand
         }
     }
 
@@ -23,7 +27,6 @@ card "Swift Birdman Joe" {
         effect_type: 1
         code: 251
         on_resolve {
-            reveal self
         }
     }
 

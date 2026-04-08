@@ -19,16 +19,14 @@ card "Marincess Basilalima" {
             banish self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, trap, you controls) from deck
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 50
-        range: 16
-        on_resolve {
-            banish (1+, card)
+    replacement_effect "Effect 2" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 
@@ -38,7 +36,6 @@ card "Marincess Basilalima" {
         property: 81936
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 

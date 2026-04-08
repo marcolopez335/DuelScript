@@ -7,10 +7,16 @@ card "Firewall Dragon Darkfluid - Neo Tempest Terahertz" {
     attribute: DARK
     race: Cyberse
     link: 5
+    link_arrows: [top, left, right, bottom_left, bottom_right]
     atk: 3000
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -18,7 +24,7 @@ card "Firewall Dragon Darkfluid - Neo Tempest Terahertz" {
         code: 1020
         range: 4
         on_resolve {
-            reveal self
+            negate effect
         }
     }
 
@@ -30,7 +36,7 @@ card "Firewall Dragon Darkfluid - Neo Tempest Terahertz" {
         range: 4
         count_limit: (1, 64211118)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, deck) to gy
         }
     }
 
@@ -38,7 +44,6 @@ card "Firewall Dragon Darkfluid - Neo Tempest Terahertz" {
         effect_type: 1
         code: 346
         on_resolve {
-            reveal self
         }
     }
 

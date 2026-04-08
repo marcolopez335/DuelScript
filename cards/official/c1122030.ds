@@ -11,7 +11,7 @@ card "Artmage Vandalism -Assault-" {
         code: 1002
         count_limit: (1, 1122030)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -21,16 +21,13 @@ card "Artmage Vandalism -Assault-" {
         range: 8
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 50
-        range: 8
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 3" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

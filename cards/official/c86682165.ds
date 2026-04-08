@@ -14,6 +14,12 @@ card "Icejade Gymir Aegirine" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         category: 4
@@ -21,7 +27,15 @@ card "Icejade Gymir Aegirine" {
         range: 4
         count_limit: (1, 86682165)
         on_resolve {
-            banish (1+, card)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            banish (1+, card, opponent controls, gy)
         }
     }
 

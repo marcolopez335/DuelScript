@@ -7,10 +7,16 @@ card "Magical Musket Mastermind Caspar" {
     attribute: LIGHT
     race: Fiend
     link: 2
+    link_arrows: [top, bottom]
     atk: 2000
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -21,6 +27,8 @@ card "Magical Musket Mastermind Caspar" {
         count_limit: (1, 3287359)
         on_resolve {
             special_summon (1, monster) from gy
+            special_summon (1, monster) from gy
+            set (1, card)
         }
     }
 
@@ -29,7 +37,6 @@ card "Magical Musket Mastermind Caspar" {
         code: 311
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -38,7 +45,6 @@ card "Magical Musket Mastermind Caspar" {
         code: 15
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

@@ -14,13 +14,18 @@ card "Cupsy★Yummy Way" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 240
         property: 1152
         range: 64
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +35,6 @@ card "Cupsy★Yummy Way" {
         property: 1152
         range: 64
         on_resolve {
-            reveal self
         }
     }
 
@@ -41,9 +45,9 @@ card "Cupsy★Yummy Way" {
         property: 65536
         count_limit: (1, 31603289)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
-            send (1, card) to gy
+            add_to_hand (1+, monster, you controls) from deck
+            shuffle_hand
+            send (1+, monster, you controls, deck) to gy
         }
     }
 

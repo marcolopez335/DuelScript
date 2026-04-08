@@ -10,13 +10,16 @@ card "Simorgh, Bird of Ancestry" {
     atk: 2900
     def: 2000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 115
         property: 131072
         range: 2
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +29,6 @@ card "Simorgh, Bird of Ancestry" {
         property: 131072
         range: 2
         on_resolve {
-            reveal self
         }
     }
 
@@ -35,7 +37,6 @@ card "Simorgh, Bird of Ancestry" {
         code: 151
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -44,7 +45,6 @@ card "Simorgh, Bird of Ancestry" {
         code: 152
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -54,7 +54,7 @@ card "Simorgh, Bird of Ancestry" {
         code: 1100
         property: 16
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 
@@ -62,7 +62,6 @@ card "Simorgh, Bird of Ancestry" {
         effect_type: 1
         code: 251
         on_resolve {
-            reveal self
         }
     }
 

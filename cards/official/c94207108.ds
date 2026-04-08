@@ -7,10 +7,16 @@ card "Marincess Wonder Heart" {
     attribute: WATER
     race: Cyberse
     link: 4
+    link_arrows: [left, right, bottom_left, bottom_right]
     atk: 2400
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,15 @@ card "Marincess Wonder Heart" {
         code: 1134
         range: 4
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -37,7 +51,6 @@ card "Marincess Wonder Heart" {
         effect_type: 1
         code: 76
         on_resolve {
-            reveal self
         }
     }
 
@@ -45,7 +58,6 @@ card "Marincess Wonder Heart" {
         effect_type: 1
         code: 71
         on_resolve {
-            reveal self
         }
     }
 
@@ -53,7 +65,6 @@ card "Marincess Wonder Heart" {
         effect_type: 1
         code: 41
         on_resolve {
-            reveal self
         }
     }
 
@@ -61,7 +72,6 @@ card "Marincess Wonder Heart" {
         effect_type: 1
         code: 42
         on_resolve {
-            reveal self
         }
     }
 

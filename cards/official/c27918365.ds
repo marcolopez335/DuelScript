@@ -10,6 +10,10 @@ card "World Legacy - 'World Crown'" {
     atk: 2000
     def: 2000
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
@@ -17,7 +21,6 @@ card "World Legacy - 'World Crown'" {
         range: 2
         count_limit: (1, 27918365)
         on_resolve {
-            reveal self
         }
     }
 
@@ -32,7 +35,7 @@ card "World Legacy - 'World Crown'" {
         }
         on_resolve {
             negate activation
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, you controls, deck)
         }
     }
 
@@ -43,7 +46,7 @@ card "World Legacy - 'World Crown'" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 

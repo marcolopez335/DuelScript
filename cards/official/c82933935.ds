@@ -3,14 +3,22 @@
 
 card "Mimighoul Flower" {
     password: 82933935
+    // FIXME: card not found in CDB — type/stats are placeholders
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 0
+    def: 0
 
     raw_effect "Effect 1" {
         effect_type: 545
         category: 139272
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            add_to_hand (1+, card, you controls) from deck
+            shuffle_hand
+            take_control of (1, monster, opponent controls)
         }
     }
 
@@ -20,7 +28,8 @@ card "Mimighoul Flower" {
         range: 2
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
+            special_summon (1, monster) from gy
         }
     }
 

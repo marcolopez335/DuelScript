@@ -3,7 +3,7 @@
 
 card "Dinomist Spinos" {
     password: 5067884
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: WATER
     race: Machine
     level: 5
@@ -11,12 +11,14 @@ card "Dinomist Spinos" {
     atk: 2500
     def: 1800
 
-    raw_effect "Effect 1" {
-        effect_type: 2050
-        code: 50
-        range: 512
-        on_resolve {
-            destroy (1+, card, either_player controls)
+    summon_condition {
+        tributes_required: 1
+    }
+
+    replacement_effect "Effect 1" {
+        instead_of: destroyed_by_any
+        do: {
+            return self to extra_deck
         }
     }
 
@@ -27,7 +29,6 @@ card "Dinomist Spinos" {
             tribute self
         }
         on_resolve {
-            reveal self
         }
     }
 

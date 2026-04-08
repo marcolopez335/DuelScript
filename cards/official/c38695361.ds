@@ -17,10 +17,13 @@ card "Envoy of Chaos" {
         property: 16400
         range: 2
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -34,7 +37,7 @@ card "Envoy of Chaos" {
             banish self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from gy
         }
     }
 

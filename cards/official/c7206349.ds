@@ -9,7 +9,6 @@ card "Vernusylph in Full Bloom" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -18,7 +17,7 @@ card "Vernusylph in Full Bloom" {
         code: 100
         range: 256
         on_resolve {
-            reveal self
+            modifier: atk + 1000
         }
     }
 
@@ -43,8 +42,8 @@ card "Vernusylph in Full Bloom" {
         range: 256
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            return (1+, monster, you controls) to hand
+            shuffle_hand
         }
     }
 

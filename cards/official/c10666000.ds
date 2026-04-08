@@ -14,6 +14,12 @@ card "Number 1: Infection Buzzking" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 130
         category: 67108864
@@ -32,7 +38,7 @@ card "Number 1: Infection Buzzking" {
         property: 65536
         count_limit: (1, 10666000)
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, opponent controls, gy) to gy
         }
     }
 
@@ -46,7 +52,8 @@ card "Number 1: Infection Buzzking" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            reveal self
+            destroy (1+, monster, opponent controls, gy)
+            deal_damage to opponent: 1000
         }
     }
 

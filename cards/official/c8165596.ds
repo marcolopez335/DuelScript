@@ -14,13 +14,18 @@ card "Number 90: Galaxy-Eyes Photon Lord" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 41
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -35,7 +40,7 @@ card "Number 90: Galaxy-Eyes Photon Lord" {
         }
         on_resolve {
             negate effect
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, deck)
         }
     }
 

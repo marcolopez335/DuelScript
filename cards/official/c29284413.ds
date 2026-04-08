@@ -10,6 +10,10 @@ card "Joker's Knight" {
     atk: 2000
     def: 1400
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 512
@@ -31,8 +35,8 @@ card "Joker's Knight" {
         range: 16
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
-            add_to_hand (1, card) from gy
+            return (1+, monster, you controls) to deck shuffle
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 

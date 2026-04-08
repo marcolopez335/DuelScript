@@ -3,7 +3,7 @@
 
 card "Nekroz of Metaltron" {
     password: 13408726
-    type: Ritual Monster
+    type: Ritual Monster | Pendulum Monster
     attribute: LIGHT
     race: Wyrm
     level: 9
@@ -15,6 +15,11 @@ card "Nekroz of Metaltron" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 130
         category: 4
@@ -23,7 +28,7 @@ card "Nekroz of Metaltron" {
         range: 512
         count_limit: (1, 13408726)
         on_resolve {
-            banish (1+, card)
+            banish (1+, spell, either_player controls)
         }
     }
 
@@ -35,7 +40,7 @@ card "Nekroz of Metaltron" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            banish (1+, card)
+            banish (1+, spell, either_player controls)
         }
     }
 
@@ -45,7 +50,6 @@ card "Nekroz of Metaltron" {
         property: 128
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

@@ -10,6 +10,10 @@ card "Krystal Dragon" {
     atk: 2500
     def: 1000
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         category: 131080
@@ -17,7 +21,7 @@ card "Krystal Dragon" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 

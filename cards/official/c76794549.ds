@@ -3,7 +3,7 @@
 
 card "Astrograph Sorcerer" {
     password: 76794549
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Spellcaster
     level: 7
@@ -11,13 +11,19 @@ card "Astrograph Sorcerer" {
     atk: 2500
     def: 2000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 513
         range: 512
         count_limit: (1, 76794549)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, either_player controls, gy)
+            special_summon (1, monster) from gy
+            special_summon (1, monster) from gy
         }
     }
 
@@ -29,7 +35,7 @@ card "Astrograph Sorcerer" {
         range: 2
         on_resolve {
             special_summon (1, monster) from gy
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, either_player controls) from gy
         }
     }
 
@@ -49,7 +55,6 @@ card "Astrograph Sorcerer" {
         effect_type: 2050
         code: 1029
         on_resolve {
-            reveal self
         }
     }
 

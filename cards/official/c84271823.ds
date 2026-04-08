@@ -7,10 +7,16 @@ card "Puzzlomino, the Drop-n-Deleter" {
     attribute: LIGHT
     race: Spellcaster
     link: 2
+    link_arrows: [right, bottom]
     atk: 1300
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -21,7 +27,6 @@ card "Puzzlomino, the Drop-n-Deleter" {
         range: 4
         count_limit: (1, 84271823)
         on_resolve {
-            reveal self
         }
     }
 
@@ -32,7 +37,7 @@ card "Puzzlomino, the Drop-n-Deleter" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, either_player controls)
         }
     }
 

@@ -7,10 +7,16 @@ card "Dragunity Lord - Georgius" {
     attribute: WIND
     race: Dragon
     link: 4
+    link_arrows: [left, right, bottom_left, bottom_right]
     atk: 2400
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,6 @@ card "Dragunity Lord - Georgius" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -56,7 +61,7 @@ card "Dragunity Lord - Georgius" {
             send self to gy
         }
         on_resolve {
-            reveal self
+            negate effect
         }
     }
 

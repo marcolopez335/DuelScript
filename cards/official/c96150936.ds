@@ -7,19 +7,22 @@ card "Madolche Fresh Sistart" {
     attribute: EARTH
     race: Fairy
     link: 2
+    link_arrows: [bottom_left, bottom_right]
     atk: 1500
 
     summon_condition {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: 2049
-        code: 50
-        property: 131072
-        range: 4
-        on_resolve {
-            return (1, card) to deck shuffle
+    materials {
+        require: 2+ effect monster
+        method: link
+    }
+
+    replacement_effect "Effect 1" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 
@@ -28,7 +31,6 @@ card "Madolche Fresh Sistart" {
         code: 41
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -38,7 +40,6 @@ card "Madolche Fresh Sistart" {
         property: 128
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

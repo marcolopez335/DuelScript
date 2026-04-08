@@ -7,10 +7,16 @@ card "Codebreaker Virus Swordsman" {
     attribute: DARK
     race: Warrior
     link: 2
+    link_arrows: [top, bottom]
     atk: 2300
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,7 @@ card "Codebreaker Virus Swordsman" {
         code: 1102
         count_limit: (1, 84121193)
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
         }
     }
 
@@ -28,7 +34,6 @@ card "Codebreaker Virus Swordsman" {
         code: 1014
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 

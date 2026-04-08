@@ -14,6 +14,12 @@ card "Dante, Traveler of the Burning Abyss" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 2097152
@@ -23,7 +29,6 @@ card "Dante, Traveler of the Burning Abyss" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            reveal self
         }
     }
 
@@ -33,7 +38,6 @@ card "Dante, Traveler of the Burning Abyss" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 
@@ -43,7 +47,7 @@ card "Dante, Traveler of the Burning Abyss" {
         code: 1014
         property: 65552
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

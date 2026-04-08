@@ -10,6 +10,10 @@ card "Silk Bomb Moth" {
     atk: 2400
     def: 1000
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 528
@@ -17,7 +21,7 @@ card "Silk Bomb Moth" {
         count_limit: (1, 18300894)
         on_resolve {
             special_summon (1, monster) from gy
-            return (1, card) to deck shuffle
+            return (1+, monster, you controls) to deck shuffle
         }
     }
 
@@ -29,6 +33,7 @@ card "Silk Bomb Moth" {
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
+            banish (1+, monster, you controls, gy)
         }
     }
 
@@ -40,6 +45,7 @@ card "Silk Bomb Moth" {
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
+            banish (1+, monster, you controls, gy)
         }
     }
 

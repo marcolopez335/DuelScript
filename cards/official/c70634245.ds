@@ -14,12 +14,18 @@ card "Legendary Lord Six Samurai - Enishi" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 100
         range: 4
         on_resolve {
-            reveal self
+            modifier: atk + 500
         }
     }
 
@@ -33,7 +39,7 @@ card "Legendary Lord Six Samurai - Enishi" {
             banish self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from gy
         }
     }
 

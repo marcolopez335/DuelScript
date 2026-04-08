@@ -10,6 +10,10 @@ card "Disenchanter" {
     atk: 2000
     def: 2300
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 8
@@ -17,7 +21,7 @@ card "Disenchanter" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, either_player controls) from gy
         }
     }
 

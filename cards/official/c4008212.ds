@@ -12,7 +12,11 @@ card "Break the Destiny" {
         property: 16
         count_limit: (1, 4008212)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, you controls, deck)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -26,7 +30,7 @@ card "Break the Destiny" {
             banish self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 

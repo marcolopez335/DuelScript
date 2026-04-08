@@ -3,7 +3,7 @@
 
 card "Dinomist Pteran" {
     password: 64973287
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: WATER
     race: Machine
     level: 4
@@ -11,12 +11,10 @@ card "Dinomist Pteran" {
     atk: 1800
     def: 1200
 
-    raw_effect "Effect 1" {
-        effect_type: 2050
-        code: 50
-        range: 512
-        on_resolve {
-            destroy (1+, card, either_player controls)
+    replacement_effect "Effect 1" {
+        instead_of: destroyed_by_any
+        do: {
+            return self to extra_deck
         }
     }
 
@@ -25,7 +23,7 @@ card "Dinomist Pteran" {
         category: 131080
         code: 1139
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 

@@ -14,6 +14,11 @@ card "Union Controller" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 131080
@@ -21,7 +26,7 @@ card "Union Controller" {
         property: 65536
         count_limit: (1, 2133971)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, you controls) to hand
         }
     }
 

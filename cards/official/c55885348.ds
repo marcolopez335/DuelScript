@@ -10,13 +10,17 @@ card "Kozmo Dark Destroyer" {
     atk: 3000
     def: 1800
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 1
         code: 1100
         property: 65552
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, deck)
         }
     }
 
@@ -26,7 +30,7 @@ card "Kozmo Dark Destroyer" {
         code: 1102
         property: 65552
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, deck)
         }
     }
 
@@ -36,7 +40,6 @@ card "Kozmo Dark Destroyer" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

@@ -19,7 +19,6 @@ card "The Bystial Alba Los" {
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -38,7 +37,6 @@ card "The Bystial Alba Los" {
         code: 2
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -48,7 +46,11 @@ card "The Bystial Alba Los" {
         code: 1015
         property: 65536
         on_resolve {
-            banish (1+, card)
+            banish (1+, monster, you controls)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

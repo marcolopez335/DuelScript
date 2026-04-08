@@ -3,7 +3,7 @@
 
 card "D/D/D Zero Doom Queen Machinex" {
     password: 20715411
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
     level: 8
@@ -11,12 +11,15 @@ card "D/D/D Zero Doom Queen Machinex" {
     atk: 3000
     def: 0
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 16
         code: 1002
         range: 2
         on_resolve {
-            reveal self
         }
     }
 
@@ -38,7 +41,7 @@ card "D/D/D Zero Doom Queen Machinex" {
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, deck)
         }
     }
 

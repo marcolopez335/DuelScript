@@ -15,7 +15,6 @@ card "Dodger Dragon" {
         code: 26
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -23,7 +22,10 @@ card "Dodger Dragon" {
         effect_type: 2049
         code: 1100
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

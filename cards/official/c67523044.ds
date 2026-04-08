@@ -11,9 +11,9 @@ card "Ground Xeno" {
         code: 1002
         count_limit: (1, 67523044)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
-            destroy (1+, card, either_player controls)
+            add_to_hand (1+, card, you controls) from deck
+            shuffle_hand
+            destroy (1+, card, you controls, deck)
         }
     }
 
@@ -26,7 +26,6 @@ card "Ground Xeno" {
             banish self
         }
         on_resolve {
-            reveal self
         }
     }
 

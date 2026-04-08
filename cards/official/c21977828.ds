@@ -10,13 +10,18 @@ card "Inzektor Giga-Weevil" {
     atk: 0
     def: 2600
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 262144
         property: 16
         range: 2
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
+            equip (1, card) to (1, monster)
         }
     }
 
@@ -24,7 +29,6 @@ card "Inzektor Giga-Weevil" {
         effect_type: 4
         code: 107
         on_resolve {
-            reveal self
         }
     }
 

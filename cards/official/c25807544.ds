@@ -9,7 +9,6 @@ card "Noble Arms Museum" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -18,7 +17,7 @@ card "Noble Arms Museum" {
         code: 100
         range: 256
         on_resolve {
-            reveal self
+            modifier: atk + 500
         }
     }
 
@@ -28,10 +27,10 @@ card "Noble Arms Museum" {
         range: 256
         count_limit: (1, 0)
         cost {
-            pay_lp 1000
+            pay_lp 1200
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -43,6 +42,10 @@ card "Noble Arms Museum" {
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

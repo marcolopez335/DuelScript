@@ -19,7 +19,6 @@ card "Dogmatika Nexus" {
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +29,7 @@ card "Dogmatika Nexus" {
         range: 2
         on_resolve {
             special_summon (1, monster) from gy
-            banish (1+, card)
+            banish (1+, monster, either_player controls, gy)
         }
     }
 
@@ -39,7 +38,7 @@ card "Dogmatika Nexus" {
         category: 524289
         code: 1132
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, either_player controls, gy)
             deal_damage to opponent: 1000
         }
     }

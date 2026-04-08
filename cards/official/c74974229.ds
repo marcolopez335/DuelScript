@@ -7,10 +7,16 @@ card "Alien Shocktrooper M-Frame" {
     attribute: LIGHT
     race: Reptile
     link: 2
+    link_arrows: [bottom_left, bottom_right]
     atk: 1900
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -23,7 +29,6 @@ card "Alien Shocktrooper M-Frame" {
             send self to gy
         }
         on_resolve {
-            reveal self
         }
     }
 

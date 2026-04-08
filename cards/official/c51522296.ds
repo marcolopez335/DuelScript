@@ -14,12 +14,16 @@ card "Dogmatika Alba Zoa" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -28,7 +32,6 @@ card "Dogmatika Alba Zoa" {
         code: 1
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -38,7 +41,8 @@ card "Dogmatika Alba Zoa" {
         range: 4
         count_limit: (1, 51522296)
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, opponent controls) to gy
+            return (1+, monster, opponent controls) to deck shuffle
         }
     }
 

@@ -491,10 +491,13 @@ fn raigeki_raw_effect_destroys_field_via_compiled_closure() {
 
     assert!(rt.call_count("destroy") >= 1,
         "Raigeki should call destroy(). Calls:\n{}", rt.dump_calls());
-    let total_field_after = rt.state.players[0].field_monsters.len()
-                          + rt.state.players[1].field_monsters.len();
-    assert_eq!(total_field_after, 0,
-        "all monsters should be cleared from the field");
+    // Raigeki destroys all of the opponent's monsters. Player 0 (the
+    // activator) keeps Dark Magician; player 1 loses Lava Golem and
+    // Sword Hunter.
+    assert_eq!(rt.state.players[0].field_monsters.len(), 1,
+        "activator's monsters should be untouched");
+    assert_eq!(rt.state.players[1].field_monsters.len(), 0,
+        "all of opponent's monsters should be destroyed");
 }
 
 // ── Phase 1A: flag effects end-to-end ────────────────────────

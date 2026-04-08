@@ -10,6 +10,10 @@ card "Cyber Tutubon" {
     atk: 1800
     def: 1600
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
@@ -26,7 +30,7 @@ card "Cyber Tutubon" {
         code: 1017
         property: 65552
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

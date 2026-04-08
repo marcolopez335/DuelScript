@@ -3,7 +3,7 @@
 
 card "Go! - D/D/D Divine Zero King Rage" {
     password: 40227329
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
     level: 10
@@ -11,13 +11,16 @@ card "Go! - D/D/D Divine Zero King Rage" {
     atk: 0
     def: 0
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 82
         property: 2048
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,7 +30,6 @@ card "Go! - D/D/D Divine Zero King Rage" {
         property: 2048
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -37,7 +39,6 @@ card "Go! - D/D/D Divine Zero King Rage" {
         range: 512
         count_limit: (1, 40227329)
         on_resolve {
-            reveal self
         }
     }
 
@@ -48,7 +49,16 @@ card "Go! - D/D/D Divine Zero King Rage" {
             tribute self
         }
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            set_flag "tracked" on self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -57,7 +67,6 @@ card "Go! - D/D/D Divine Zero King Rage" {
         category: 2097152
         code: 1130
         on_resolve {
-            reveal self
         }
     }
 
@@ -65,7 +74,6 @@ card "Go! - D/D/D Divine Zero King Rage" {
         effect_type: 1
         code: 201
         on_resolve {
-            reveal self
         }
     }
 
@@ -73,7 +81,6 @@ card "Go! - D/D/D Divine Zero King Rage" {
         effect_type: 1
         code: 42
         on_resolve {
-            reveal self
         }
     }
 

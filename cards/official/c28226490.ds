@@ -14,12 +14,16 @@ card "Tearlaments Kaleido-Heart" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 235
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +34,7 @@ card "Tearlaments Kaleido-Heart" {
         property: 65552
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, you controls) to deck shuffle
         }
     }
 
@@ -42,7 +46,7 @@ card "Tearlaments Kaleido-Heart" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, you controls) to deck shuffle
         }
     }
 
@@ -54,7 +58,7 @@ card "Tearlaments Kaleido-Heart" {
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
-            send (1, card) to gy
+            send (1+, card, you controls, deck) to gy
         }
     }
 

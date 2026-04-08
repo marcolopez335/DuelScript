@@ -10,6 +10,10 @@ card "Scrypton" {
     atk: 1500
     def: 1500
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 512
@@ -30,7 +34,7 @@ card "Scrypton" {
         property: 65552
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, monster, you controls) to deck shuffle
         }
     }
 

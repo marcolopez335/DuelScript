@@ -10,12 +10,14 @@ card "Archfiend Empress" {
     atk: 2900
     def: 2100
 
-    raw_effect "Effect 1" {
-        effect_type: 2050
-        code: 50
-        range: 4
-        on_resolve {
-            reveal self
+    summon_condition {
+        tributes_required: 2
+    }
+
+    replacement_effect "Effect 1" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

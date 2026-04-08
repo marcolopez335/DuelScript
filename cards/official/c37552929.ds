@@ -1,0 +1,46 @@
+// Maiden of the Millennium Moon
+// Transpiled from c37552929.lua
+
+card "Maiden of the Millennium Moon" {
+    password: 37552929
+    type: Effect Monster
+    attribute: LIGHT
+    race: Unknown
+    level: 4
+    atk: 1500
+    def: 1300
+
+    raw_effect "Effect 1" {
+        effect_type: 2
+        code: 42
+        range: 4
+        on_resolve {
+        }
+    }
+
+    raw_effect "Effect 2" {
+        effect_type: 64
+        range: 2
+        count_limit: (1, 37552929)
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    raw_effect "Effect 3" {
+        effect_type: 130
+        category: 1049088
+        code: 1027
+        property: 65536
+        range: 8
+        count_limit: (1, 0)
+        on_resolve {
+            special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+        }
+    }
+
+}

@@ -10,6 +10,10 @@ card "Dark Magician Girl the Magician's Apprentice" {
     atk: 2000
     def: 1700
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
@@ -17,7 +21,7 @@ card "Dark Magician Girl the Magician's Apprentice" {
         range: 2
         count_limit: (1, 2501624)
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, you controls, hand) to gy
         }
     }
 
@@ -28,7 +32,7 @@ card "Dark Magician Girl the Magician's Apprentice" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from hand
         }
     }
 
@@ -39,7 +43,7 @@ card "Dark Magician Girl the Magician's Apprentice" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from hand
         }
     }
 
@@ -49,7 +53,6 @@ card "Dark Magician Girl the Magician's Apprentice" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

@@ -10,6 +10,10 @@ card "Masked HERO Furnace" {
     atk: 2200
     def: 1000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 131208
@@ -19,8 +23,8 @@ card "Masked HERO Furnace" {
             reveal self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            add_to_hand (1+, card, you controls) from deck
+            shuffle_hand
             discard (1, card)
         }
     }

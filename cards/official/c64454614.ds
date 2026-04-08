@@ -7,6 +7,7 @@ card "Arcana Extra Joker" {
     attribute: LIGHT
     race: Warrior
     link: 3
+    link_arrows: [top, bottom_left, bottom_right]
     atk: 2800
 
     materials {
@@ -27,7 +28,7 @@ card "Arcana Extra Joker" {
         count_limit: (1, 0)
         on_resolve {
             negate activation
-            send (1, card) to gy
+            send (1+, card, you controls, hand) to gy
         }
     }
 
@@ -37,7 +38,7 @@ card "Arcana Extra Joker" {
         code: 1140
         on_resolve {
             special_summon (1, monster) from gy
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from hand
         }
     }
 

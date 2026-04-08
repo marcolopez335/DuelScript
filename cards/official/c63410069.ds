@@ -14,13 +14,19 @@ card "Desert Locusts" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 513
         category: 128
         code: 1102
         count_limit: (1, 63410069)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
         }
     }
 
@@ -30,7 +36,6 @@ card "Desert Locusts" {
         code: 1002
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

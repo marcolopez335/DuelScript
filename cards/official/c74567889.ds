@@ -7,10 +7,16 @@ card "Dark Infant @Ignister" {
     attribute: DARK
     race: Cyberse
     link: 1
+    link_arrows: [left]
     atk: 500
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -20,7 +26,7 @@ card "Dark Infant @Ignister" {
         property: 65536
         count_limit: (1, 74567889)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -30,7 +36,6 @@ card "Dark Infant @Ignister" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 

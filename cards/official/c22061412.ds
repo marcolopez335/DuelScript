@@ -14,13 +14,18 @@ card "Elemental HERO The Shining" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 8
         code: 1014
         property: 16400
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, either_player controls) from gy
         }
     }
 
@@ -30,7 +35,6 @@ card "Elemental HERO The Shining" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -39,7 +43,6 @@ card "Elemental HERO The Shining" {
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 

@@ -7,6 +7,7 @@ card "Dinowrestler King T Wrextle" {
     attribute: EARTH
     race: Dinosaur
     link: 3
+    link_arrows: [bottom_left, bottom, bottom_right]
     atk: 3000
 
     materials {
@@ -24,7 +25,6 @@ card "Dinowrestler King T Wrextle" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -33,7 +33,6 @@ card "Dinowrestler King T Wrextle" {
         code: 332
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -44,7 +43,14 @@ card "Dinowrestler King T Wrextle" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

@@ -1,0 +1,47 @@
+// Custom event reference: emit_event + on_custom_event flow.
+//
+// "When this card is Normal Summoned, draw 1 card. When a card is
+//  drawn this way, you can banish 1 card from your hand to add a
+//  Spell from your Deck to your hand."
+//
+// Demonstrates the Phase-2 custom event pipeline outside of a
+// global_handler — emit_event sits inside a regular `on_resolve`,
+// and a second effect on the same card listens via
+// `trigger: on_custom_event`. Useful for chaining intra-card effects
+// without leaning on engine-internal triggers.
+
+card "Echo Caller" {
+    type: Effect Monster
+    password: 40640078
+    attribute: LIGHT
+    race: Spellcaster
+    level: 3
+    atk: 1200
+    def: 800
+
+    effect "Draw on Summon" {
+        speed: spell_speed_1
+        trigger: when_summoned by_normal_summon
+        on_resolve {
+            draw 1
+            emit_event "echo_drew_a_card"
+        }
+    }
+
+    effect "Echo Search" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: on_custom_event "echo_drew_a_card"
+
+        cost {
+            banish (1, card, you controls, hand) from hand
+        }
+
+        on_resolve {
+            search (1, spell, you controls) from deck
+            add_to_hand (1, spell, you controls) from deck
+        }
+    }
+}

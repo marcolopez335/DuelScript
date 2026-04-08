@@ -14,7 +14,6 @@ card "Reptia Egg" {
         effect_type: 1
         code: 42
         on_resolve {
-            reveal self
         }
     }
 
@@ -23,7 +22,6 @@ card "Reptia Egg" {
         code: 1100
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 
@@ -36,7 +34,11 @@ card "Reptia Egg" {
             tribute self
         }
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

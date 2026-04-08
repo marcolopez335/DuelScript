@@ -3,6 +3,13 @@
 
 card "Vidrium the Power Patron of Chaos Extermination" {
     password: 70488851
+    // FIXME: card not found in CDB — type/stats are placeholders
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 0
+    def: 0
 
     summon_condition {
         cannot_normal_summon: true
@@ -14,7 +21,7 @@ card "Vidrium the Power Patron of Chaos Extermination" {
         property: 263168
         range: 80
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, monster, you controls) to deck shuffle
         }
     }
 
@@ -23,8 +30,13 @@ card "Vidrium the Power Patron of Chaos Extermination" {
         range: 512
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls, gy)
             special_summon (1, monster) from gy
+            destroy (1+, monster, you controls, gy)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -35,7 +47,7 @@ card "Vidrium the Power Patron of Chaos Extermination" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from gy
         }
     }
 
@@ -44,7 +56,7 @@ card "Vidrium the Power Patron of Chaos Extermination" {
         category: 4
         code: 1102
         on_resolve {
-            banish (1+, card)
+            banish (1+, monster, you controls, gy)
         }
     }
 
@@ -54,7 +66,6 @@ card "Vidrium the Power Patron of Chaos Extermination" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

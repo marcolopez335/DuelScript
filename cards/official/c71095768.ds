@@ -7,10 +7,16 @@ card "Bujinki Ahashima" {
     attribute: LIGHT
     race: Beast-Warrior
     link: 2
+    link_arrows: [top, bottom_right]
     atk: 1500
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -18,7 +24,6 @@ card "Bujinki Ahashima" {
         code: 239
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +34,7 @@ card "Bujinki Ahashima" {
         property: 65536
         count_limit: (1, 71095768)
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
         }
     }
 
@@ -41,7 +46,7 @@ card "Bujinki Ahashima" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, you controls, gy)
         }
     }
 
@@ -49,7 +54,6 @@ card "Bujinki Ahashima" {
         effect_type: 2050
         code: 1202
         on_resolve {
-            reveal self
         }
     }
 

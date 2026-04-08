@@ -14,12 +14,16 @@ card "Cyber End Dragon the Decisive Strike Dragon" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 251
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,10 +34,10 @@ card "Cyber End Dragon the Decisive Strike Dragon" {
         property: 65536
         count_limit: (1, 30275298)
         cost {
-            pay_lp 1000
+            pay_lp 4000
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -41,7 +45,6 @@ card "Cyber End Dragon the Decisive Strike Dragon" {
         effect_type: 1
         code: 203
         on_resolve {
-            reveal self
         }
     }
 
@@ -49,7 +52,6 @@ card "Cyber End Dragon the Decisive Strike Dragon" {
         effect_type: 1
         code: 194
         on_resolve {
-            reveal self
         }
     }
 

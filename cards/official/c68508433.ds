@@ -3,7 +3,7 @@
 
 card "Master Spirit Tech Force - Pendulum Ruler" {
     password: 68508433
-    type: Fusion Monster
+    type: Fusion Monster | Pendulum Monster
     attribute: LIGHT
     race: Machine
     level: 12
@@ -15,14 +15,19 @@ card "Master Spirit Tech Force - Pendulum Ruler" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 131080
         range: 512
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
-            add_to_hand (1, card) from gy
+            return (1+, card, you controls) to deck shuffle
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -32,7 +37,6 @@ card "Master Spirit Tech Force - Pendulum Ruler" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -41,7 +45,6 @@ card "Master Spirit Tech Force - Pendulum Ruler" {
         code: 85
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -55,7 +58,7 @@ card "Master Spirit Tech Force - Pendulum Ruler" {
             tribute self
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, deck)
             deal_damage to opponent: 1600
         }
     }

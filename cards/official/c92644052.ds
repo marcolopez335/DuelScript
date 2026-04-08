@@ -3,7 +3,7 @@
 
 card "Performapal Duelist Extraordinaire" {
     password: 92644052
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: LIGHT
     race: Spellcaster
     level: 4
@@ -18,8 +18,12 @@ card "Performapal Duelist Extraordinaire" {
         range: 512
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
-            banish (1+, card)
+            add_to_hand (1+, monster, you controls) from deck
+            banish (1+, monster, you controls, deck)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -28,7 +32,7 @@ card "Performapal Duelist Extraordinaire" {
         category: 131080
         code: 1143
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 
@@ -39,7 +43,7 @@ card "Performapal Duelist Extraordinaire" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            banish (1+, card)
+            banish (1+, monster, you controls, deck)
         }
     }
 
@@ -50,8 +54,8 @@ card "Performapal Duelist Extraordinaire" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
-            send (1, card) to gy
+            add_to_hand (1+, monster, you controls) from deck
+            send (1+, monster, you controls, deck) to gy
             negate attack
         }
     }

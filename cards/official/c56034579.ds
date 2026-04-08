@@ -19,8 +19,8 @@ card "GMX Chairman Kimridge" {
             reveal self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
-            return (1, card) to deck shuffle
+            add_to_hand (1+, card, you controls) from gy
+            return (1+, card, you controls) to deck shuffle
         }
     }
 
@@ -31,7 +31,8 @@ card "GMX Chairman Kimridge" {
         property: 65552
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, you controls) to deck shuffle
+            destroy (1+, card, you controls, gy)
         }
     }
 

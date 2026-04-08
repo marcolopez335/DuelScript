@@ -12,15 +12,14 @@ card "Trickstar Festival" {
         count_limit: (1, 62481203)
         on_resolve {
             create_token { atk: 0 def: 0 }
+            special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 50
-        range: 16
-        on_resolve {
-            banish (1+, card)
+    replacement_effect "Effect 2" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

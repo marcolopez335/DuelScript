@@ -7,10 +7,16 @@ card "R.B. The Brute Blues" {
     attribute: WIND
     race: Machine
     link: 3
+    link_arrows: [bottom_left, bottom, bottom_right]
     atk: 1500
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,6 @@ card "R.B. The Brute Blues" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,7 +32,6 @@ card "R.B. The Brute Blues" {
         effect_type: 1
         code: 194
         on_resolve {
-            reveal self
         }
     }
 
@@ -37,7 +41,6 @@ card "R.B. The Brute Blues" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -47,7 +50,6 @@ card "R.B. The Brute Blues" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -57,7 +59,7 @@ card "R.B. The Brute Blues" {
         range: 4
         count_limit: (1, 32216688)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 

@@ -14,6 +14,12 @@ card "Kewl Tune Track Maker" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 131080
@@ -21,7 +27,7 @@ card "Kewl Tune Track Maker" {
         property: 65536
         count_limit: (1, 42781164)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -32,7 +38,7 @@ card "Kewl Tune Track Maker" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -41,7 +47,6 @@ card "Kewl Tune Track Maker" {
         code: 21142671
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 

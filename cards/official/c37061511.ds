@@ -14,13 +14,18 @@ card "Water Leviathan @Ignister" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 8
         code: 1102
         property: 65536
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, opponent controls) to hand
         }
     }
 
@@ -31,7 +36,7 @@ card "Water Leviathan @Ignister" {
         range: 4
         count_limit: (1, 37061511)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, monster, opponent controls) to deck shuffle
         }
     }
 
@@ -41,7 +46,6 @@ card "Water Leviathan @Ignister" {
         code: 1134
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

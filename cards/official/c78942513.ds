@@ -11,7 +11,11 @@ card "Purushaddoll Aeon" {
         code: 1002
         property: 16400
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, hand) to gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

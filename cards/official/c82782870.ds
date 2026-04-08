@@ -17,7 +17,7 @@ card "Mitsurugi no Mikoto, Kusanagi" {
         property: 65552
         count_limit: (1, 82782870)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 
@@ -28,7 +28,7 @@ card "Mitsurugi no Mikoto, Kusanagi" {
         property: 65552
         count_limit: (1, 82782870)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 
@@ -39,17 +39,14 @@ card "Mitsurugi no Mikoto, Kusanagi" {
         property: 65552
         count_limit: (1, 82782870)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 50
-        range: 4
-        count_limit: (1, 0)
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 4" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

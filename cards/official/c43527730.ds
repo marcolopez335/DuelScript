@@ -6,22 +6,13 @@ card "Mikanko Water Arabesque" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: 4
+        code: 41
         on_resolve {
-            reveal self
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 4
-        code: 41
-        on_resolve {
-            reveal self
-        }
-    }
-
-    raw_effect "Effect 3" {
         effect_type: 64
         category: 520
         range: 8
@@ -29,16 +20,16 @@ card "Mikanko Water Arabesque" {
         on_resolve {
             special_summon (1, monster) from gy
             equip (1, card) to (1, monster)
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from hand
         }
     }
 
-    raw_effect "Effect 4" {
+    raw_effect "Effect 3" {
         effect_type: 16
         category: 262144
         code: 1002
         on_resolve {
-            reveal self
+            equip self to (1, monster, you controls)
         }
     }
 

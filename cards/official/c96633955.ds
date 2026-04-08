@@ -14,13 +14,18 @@ card "Swordsoul Supreme Sovereign - Chengying" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 100
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +35,6 @@ card "Swordsoul Supreme Sovereign - Chengying" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -39,7 +43,6 @@ card "Swordsoul Supreme Sovereign - Chengying" {
         code: 100
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -48,17 +51,13 @@ card "Swordsoul Supreme Sovereign - Chengying" {
         code: 104
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: 2049
-        code: 50
-        property: 131072
-        range: 4
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 5" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 
@@ -70,7 +69,7 @@ card "Swordsoul Supreme Sovereign - Chengying" {
         range: 4
         count_limit: (1, 96633955)
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, opponent controls)
         }
     }
 

@@ -10,12 +10,15 @@ card "Dark General Freed" {
     atk: 2300
     def: 1700
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -24,7 +27,6 @@ card "Dark General Freed" {
         code: 2
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -34,7 +36,7 @@ card "Dark General Freed" {
         range: 4
         on_resolve {
             negate effect
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, you controls, deck)
         }
     }
 
@@ -43,7 +45,6 @@ card "Dark General Freed" {
         code: 141
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -53,7 +54,7 @@ card "Dark General Freed" {
         code: 1113
         range: 4
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 

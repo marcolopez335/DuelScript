@@ -7,10 +7,16 @@ card "Paleozoic Cambroraster" {
     attribute: WATER
     race: Aqua
     link: 2
+    link_arrows: [top, bottom]
     atk: 1200
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,6 @@ card "Paleozoic Cambroraster" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,18 +35,15 @@ card "Paleozoic Cambroraster" {
         range: 4
         count_limit: (1, 36346532)
         on_resolve {
-            send (1, card) to gy
+            send (1+, trap, you controls, deck) to gy
             set (1, card)
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 50
-        range: 20
-        count_limit: (1, 0)
-        on_resolve {
-            banish (1+, card)
+    replacement_effect "Effect 3" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

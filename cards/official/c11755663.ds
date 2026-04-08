@@ -10,6 +10,10 @@ card "Dinowrestler Martial Anga" {
     atk: 1600
     def: 0
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         code: 1134
@@ -18,7 +22,10 @@ card "Dinowrestler Martial Anga" {
             send self to gy
         }
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

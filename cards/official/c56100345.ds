@@ -10,13 +10,16 @@ card "Cyberdark Wurm" {
     atk: 800
     def: 2100
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 114
         property: 131072
         range: 20
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +33,7 @@ card "Cyberdark Wurm" {
         }
         on_resolve {
             special_summon (1, monster) from gy
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from gy
         }
     }
 

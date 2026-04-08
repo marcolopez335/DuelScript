@@ -3,6 +3,13 @@
 
 card "Doom Regina Archfiend" {
     password: 78744660
+    // FIXME: card not found in CDB — type/stats are placeholders
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 0
+    def: 0
 
     summon_condition {
         cannot_normal_summon: true
@@ -15,8 +22,8 @@ card "Doom Regina Archfiend" {
         range: 512
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
-            add_to_hand (1, card) from gy
+            destroy (1+, spell, opponent controls)
+            return (1+, spell, opponent controls) to hand
         }
     }
 
@@ -27,8 +34,8 @@ card "Doom Regina Archfiend" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
-            banish (1+, card)
+            destroy (1+, spell, opponent controls)
+            banish (1+, spell, opponent controls)
         }
     }
 
@@ -38,7 +45,6 @@ card "Doom Regina Archfiend" {
         property: 131072
         range: 4096
         on_resolve {
-            reveal self
         }
     }
 

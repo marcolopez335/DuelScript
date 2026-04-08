@@ -12,8 +12,8 @@ card "Dark World Punishment" {
         count_limit: (1, 3167439)
         on_resolve {
             negate summon
-            destroy (1+, card, either_player controls)
-            send (1, card) to gy
+            destroy (1+, card, you controls, hand)
+            send (1+, card, you controls, hand) to gy
         }
     }
 
@@ -24,18 +24,15 @@ card "Dark World Punishment" {
         count_limit: (1, 3167439)
         on_resolve {
             negate summon
-            destroy (1+, card, either_player controls)
-            send (1, card) to gy
+            destroy (1+, card, you controls, hand)
+            send (1+, card, you controls, hand) to gy
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 50
-        range: 16
-        count_limit: (1, 0)
-        on_resolve {
-            banish (1+, card)
+    replacement_effect "Effect 3" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

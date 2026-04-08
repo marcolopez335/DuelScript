@@ -7,10 +7,16 @@ card "Thunder Dragon Thunderstormech" {
     attribute: LIGHT
     race: Thunder
     link: 4
+    link_arrows: [left, right, bottom, bottom_right]
     atk: 2800
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -20,16 +26,14 @@ card "Thunder Dragon Thunderstormech" {
         range: 4
         count_limit: (1, 12081875)
         on_resolve {
-            reveal self
+            return (1+, monster, you controls) to deck shuffle
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 50
-        range: 4
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 2" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

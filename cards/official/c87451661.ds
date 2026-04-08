@@ -14,13 +14,18 @@ card "Scarred Dragon Archfiend" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 114
         property: 131072
         range: 20
         on_resolve {
-            reveal self
         }
     }
 
@@ -32,7 +37,7 @@ card "Scarred Dragon Archfiend" {
         count_limit: (1, 87451661)
         on_resolve {
             special_summon (1, monster) from gy
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, opponent controls)
         }
     }
 
@@ -40,7 +45,6 @@ card "Scarred Dragon Archfiend" {
         effect_type: 2049
         code: 1108
         on_resolve {
-            reveal self
         }
     }
 

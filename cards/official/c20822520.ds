@@ -12,9 +12,10 @@ card "Spellbook Library of the Heliosphere" {
         property: 2048
         count_limit: (1, 20822520)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
-            send (1, card) to gy
+            add_to_hand (1+, spell, you controls) from gy
+            shuffle_hand
+            send (1+, spell, you controls, gy) to gy
+            shuffle_deck
         }
     }
 
@@ -22,7 +23,7 @@ card "Spellbook Library of the Heliosphere" {
         effect_type: 2050
         code: 1027
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
         }
     }
 

@@ -16,7 +16,6 @@ card "Wightmare" {
         property: 131072
         range: 16
         on_resolve {
-            reveal self
         }
     }
 
@@ -25,10 +24,10 @@ card "Wightmare" {
         property: 16
         range: 2
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
             special_summon (1, monster) from gy
         }
     }

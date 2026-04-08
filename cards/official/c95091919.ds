@@ -10,13 +10,17 @@ card "Prototype Psychic Blaster" {
     atk: 2000
     def: 1500
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 512
         range: 2
         count_limit: (1, 95091919)
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
             special_summon (1, monster) from gy

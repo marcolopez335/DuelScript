@@ -3,7 +3,7 @@
 
 card "Couplet the Melodious Songstress" {
     password: 90276649
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: LIGHT
     race: Fairy
     level: 5
@@ -11,13 +11,16 @@ card "Couplet the Melodious Songstress" {
     atk: 1200
     def: 2000
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 22
         property: 3584
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,7 +30,7 @@ card "Couplet the Melodious Songstress" {
         range: 512
         count_limit: (1, 90276649)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, spell, you controls) to hand
         }
     }
 

@@ -14,6 +14,12 @@ card "Baromet the Sacred Sheep Shrub" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 65552
@@ -24,7 +30,7 @@ card "Baromet the Sacred Sheep Shrub" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, you controls) to deck shuffle
             draw 1
         }
     }

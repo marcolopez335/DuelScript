@@ -7,10 +7,16 @@ card "Masterking Archfiend" {
     attribute: DARK
     race: Fiend
     link: 2
+    link_arrows: [bottom_left, bottom_right]
     atk: 2000
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -20,7 +26,7 @@ card "Masterking Archfiend" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls, deck)
         }
     }
 
@@ -32,7 +38,7 @@ card "Masterking Archfiend" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, you controls, deck) to gy
         }
     }
 
@@ -44,9 +50,9 @@ card "Masterking Archfiend" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
             special_summon (1, monster) from gy
-            return (1, card) to deck shuffle
+            return (1+, monster, you controls) to deck shuffle
         }
     }
 
@@ -56,7 +62,6 @@ card "Masterking Archfiend" {
         property: 1024
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

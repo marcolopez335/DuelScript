@@ -11,7 +11,7 @@ card "Fortune Vision" {
         code: 1002
         count_limit: (1, 91407982)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -22,7 +22,11 @@ card "Fortune Vision" {
         range: 8
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -33,7 +37,10 @@ card "Fortune Vision" {
         range: 8
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

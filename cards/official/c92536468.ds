@@ -3,13 +3,17 @@
 
 card "D/D/D Rebel King Leonidas" {
     password: 92536468
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
     level: 7
     scale: 3
     atk: 2600
     def: 1200
+
+    summon_condition {
+        tributes_required: 2
+    }
 
     raw_effect "Effect 1" {
         effect_type: 130
@@ -18,6 +22,10 @@ card "D/D/D Rebel King Leonidas" {
         range: 512
         on_resolve {
             destroy (1+, card, either_player controls)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -28,6 +36,10 @@ card "D/D/D Rebel King Leonidas" {
         range: 512
         on_resolve {
             destroy (1+, card, either_player controls)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -35,7 +47,7 @@ card "D/D/D Rebel King Leonidas" {
         effect_type: 2050
         code: 1111
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
         }
     }
 

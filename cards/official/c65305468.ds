@@ -14,11 +14,16 @@ card "Number F0: Utopic Future" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 42
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +31,6 @@ card "Number F0: Utopic Future" {
         effect_type: 1
         code: 200
         on_resolve {
-            reveal self
         }
     }
 
@@ -34,7 +38,6 @@ card "Number F0: Utopic Future" {
         effect_type: 1
         code: 201
         on_resolve {
-            reveal self
         }
     }
 
@@ -47,13 +50,10 @@ card "Number F0: Utopic Future" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: 2049
-        code: 50
-        property: 131072
-        range: 4
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 5" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

@@ -10,14 +10,18 @@ card "Helshaddoll Hollow" {
     atk: 2900
     def: 2900
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 161
         category: 36
         property: 65552
         count_limit: (1, 92079625)
         on_resolve {
-            send (1, card) to gy
-            banish (1+, card)
+            send (1+, monster, either_player controls) to gy
+            banish (1+, monster, either_player controls)
         }
     }
 

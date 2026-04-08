@@ -3,7 +3,7 @@
 
 card "ReSolfachord Dreamia" {
     password: 92610868
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: WIND
     race: Fairy
     level: 2
@@ -17,7 +17,6 @@ card "ReSolfachord Dreamia" {
         property: 288
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -31,12 +30,10 @@ card "ReSolfachord Dreamia" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 50
-        range: 4
-        on_resolve {
-            destroy (1+, card, either_player controls)
+    replacement_effect "Effect 3" {
+        instead_of: destroyed_by_any
+        do: {
+            return self to extra_deck
         }
     }
 

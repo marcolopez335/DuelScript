@@ -11,10 +11,10 @@ card "Branded in High Spirits" {
         code: 1002
         count_limit: (1, 29948294)
         on_resolve {
-            shuffle deck
-            send (1, card) to gy
-            send (1, card) to gy
-            add_to_hand (1, card) from gy
+            shuffle_hand
+            send (1+, monster, either_player controls) to gy
+            send (1+, monster, either_player controls) to gy
+            add_to_hand (1+, monster, either_player controls) from gy
         }
     }
 
@@ -25,7 +25,7 @@ card "Branded in High Spirits" {
         range: 16
         count_limit: (1, 29948294)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, either_player controls) from gy
         }
     }
 
@@ -33,7 +33,7 @@ card "Branded in High Spirits" {
         effect_type: 2050
         code: 1014
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
         }
     }
 

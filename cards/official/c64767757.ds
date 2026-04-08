@@ -11,10 +11,11 @@ card "Materiactor Critical" {
         code: 1027
         count_limit: (1, 64767757)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            return (1+, monster, you controls) to hand
+            shuffle_hand
             negate activation
-            return (1, card) to deck shuffle
+            return (1+, monster, you controls) to deck shuffle
+            set (1, card)
         }
     }
 

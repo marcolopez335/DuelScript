@@ -26,18 +26,15 @@ card "Power Tool Dragon" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            shuffle deck
-            add_to_hand (1, card) from gy
+            shuffle_deck
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: 2049
-        code: 50
-        property: 131072
-        range: 4
-        on_resolve {
-            send (1, card) to gy
+    replacement_effect "Effect 2" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

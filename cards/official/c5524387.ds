@@ -7,6 +7,7 @@ card "Marincess Marbled Rock" {
     attribute: WATER
     race: Cyberse
     link: 3
+    link_arrows: [left, right, bottom]
     atk: 2500
 
     materials {
@@ -25,7 +26,7 @@ card "Marincess Marbled Rock" {
         range: 4
         count_limit: (1, 5524387)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from hand
         }
     }
 
@@ -34,7 +35,10 @@ card "Marincess Marbled Rock" {
         code: 1130
         range: 4
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

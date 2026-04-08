@@ -14,6 +14,12 @@ card "Majestic Star Dragon" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         category: 268435457
@@ -25,7 +31,8 @@ card "Majestic Star Dragon" {
         }
         on_resolve {
             negate activation
-            send (1, card) to gy
+            send (1+, card, opponent controls) to gy
+            destroy (1+, card, opponent controls)
         }
     }
 
@@ -36,7 +43,6 @@ card "Majestic Star Dragon" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 
@@ -45,7 +51,6 @@ card "Majestic Star Dragon" {
         code: 1027
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -57,7 +62,7 @@ card "Majestic Star Dragon" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, opponent controls) to deck shuffle
             special_summon (1, monster) from gy
         }
     }
@@ -66,7 +71,6 @@ card "Majestic Star Dragon" {
         effect_type: 1
         code: 251
         on_resolve {
-            reveal self
         }
     }
 

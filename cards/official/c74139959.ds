@@ -7,10 +7,16 @@ card "Cosmic Tree Irmistil" {
     attribute: EARTH
     race: Plant
     link: 5
+    link_arrows: [top_left, left, bottom_left, bottom, bottom_right]
     atk: 2000
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,6 +25,10 @@ card "Cosmic Tree Irmistil" {
         range: 4
         on_resolve {
             gain_lp: 1000
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -29,8 +39,10 @@ card "Cosmic Tree Irmistil" {
         property: 16384
         range: 4
         count_limit: (1, 0)
+        cost {
+            pay_lp your_lp / 2
+        }
         on_resolve {
-            reveal self
         }
     }
 

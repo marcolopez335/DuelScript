@@ -10,6 +10,10 @@ card "Amazement Abomination Arlekino" {
     atk: 2600
     def: 2200
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 131592
@@ -17,7 +21,7 @@ card "Amazement Abomination Arlekino" {
         count_limit: (1, 31600845)
         on_resolve {
             special_summon (1, monster) from gy
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from gy
         }
     }
 
@@ -29,7 +33,7 @@ card "Amazement Abomination Arlekino" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, you controls) to deck shuffle
             special_summon (1, monster) from gy
         }
     }

@@ -7,10 +7,16 @@ card "Crowley, the First Propheseer" {
     attribute: DARK
     race: Spellcaster
     link: 2
+    link_arrows: [bottom_left, bottom_right]
     atk: 1000
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,8 +25,8 @@ card "Crowley, the First Propheseer" {
         code: 1102
         count_limit: (1, 50756327)
         on_resolve {
-            shuffle deck
-            add_to_hand (1, card) from gy
+            shuffle_deck
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -30,7 +36,6 @@ card "Crowley, the First Propheseer" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 

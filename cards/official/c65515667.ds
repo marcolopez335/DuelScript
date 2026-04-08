@@ -10,6 +10,10 @@ card "Motor Kaiser" {
     atk: 2000
     def: 1400
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 256
@@ -19,7 +23,6 @@ card "Motor Kaiser" {
             reveal self
         }
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +33,7 @@ card "Motor Kaiser" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls, hand)
             create_token { atk: 0 def: 0 }
             special_summon (1, monster) from gy
         }

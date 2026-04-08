@@ -1,0 +1,52 @@
+// Silhouhatte Rabbit
+// Transpiled from c1528054.lua
+
+card "Silhouhatte Rabbit" {
+    password: 1528054
+    type: Link Monster
+    attribute: LIGHT
+    race: Unknown
+    link: 2
+    link_arrows: [bottom_left, bottom_right]
+    atk: 1500
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
+    }
+
+    raw_effect "Effect 1" {
+        effect_type: 2
+        code: 42
+        range: 4
+        on_resolve {
+        }
+    }
+
+    raw_effect "Effect 2" {
+        effect_type: 129
+        code: 1102
+        property: 65536
+        count_limit: (1, 1528054)
+        on_resolve {
+            set (1, card)
+        }
+    }
+
+    raw_effect "Effect 3" {
+        effect_type: 130
+        category: 1
+        code: 1102
+        property: 65552
+        range: 4
+        count_limit: (1, 0)
+        on_resolve {
+            destroy (1+, spell, you controls, deck)
+        }
+    }
+
+}

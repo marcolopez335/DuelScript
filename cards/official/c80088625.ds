@@ -7,10 +7,16 @@ card "Binary Blader" {
     attribute: EARTH
     race: Cyberse
     link: 2
+    link_arrows: [left, right]
     atk: 1800
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -18,7 +24,6 @@ card "Binary Blader" {
         code: 1130
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,7 +32,7 @@ card "Binary Blader" {
         category: 4
         code: 1138
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, either_player controls)
         }
     }
 

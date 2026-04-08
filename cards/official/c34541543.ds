@@ -1,0 +1,36 @@
+// Master Tao the Chanter
+// Transpiled from c34541543.lua
+
+card "Master Tao the Chanter" {
+    password: 34541543
+    type: Effect Monster
+    attribute: EARTH
+    race: Unknown
+    level: 3
+    atk: 1200
+    def: 900
+
+    raw_effect "Effect 1" {
+        effect_type: 2
+        code: 42
+        range: 4
+        on_resolve {
+        }
+    }
+
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 512
+        code: 1014
+        property: 65552
+        count_limit: (1, 34541543)
+        on_resolve {
+            special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+        }
+    }
+
+}

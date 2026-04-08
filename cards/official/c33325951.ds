@@ -14,13 +14,17 @@ card "Shinobaroness Shade Peacock" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 114
         property: 131072
         range: 6
         on_resolve {
-            reveal self
         }
     }
 
@@ -31,7 +35,7 @@ card "Shinobaroness Shade Peacock" {
         property: 65536
         count_limit: (1, 33325951)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 

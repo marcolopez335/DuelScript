@@ -10,7 +10,11 @@ card "Cynet Refresh" {
         category: 513
         code: 1130
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, either_player controls, gy)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -22,7 +26,6 @@ card "Cynet Refresh" {
             banish self
         }
         on_resolve {
-            reveal self
         }
     }
 

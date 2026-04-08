@@ -3,7 +3,7 @@
 
 card "SolSolfachord Gracia" {
     password: 91598270
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: WATER
     race: Fairy
     level: 5
@@ -11,12 +11,15 @@ card "SolSolfachord Gracia" {
     atk: 2100
     def: 1400
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2050
         code: 1102
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,7 +30,7 @@ card "SolSolfachord Gracia" {
         property: 81920
         count_limit: (1, 91598270)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 
@@ -38,7 +41,7 @@ card "SolSolfachord Gracia" {
         property: 81920
         count_limit: (1, 91598270)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 
@@ -47,7 +50,6 @@ card "SolSolfachord Gracia" {
         code: 1130
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

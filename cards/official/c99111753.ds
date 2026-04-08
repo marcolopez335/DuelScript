@@ -7,10 +7,16 @@ card "Security Dragon" {
     attribute: LIGHT
     race: Cyberse
     link: 2
+    link_arrows: [top, bottom]
     atk: 1100
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -20,7 +26,7 @@ card "Security Dragon" {
         range: 4
         count_limit: (1, 99111753)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

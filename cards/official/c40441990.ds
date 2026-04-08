@@ -15,10 +15,17 @@ card "World Legacy - 'World Key'" {
         range: 4
         count_limit: (1, 40441990)
         cost {
-            discard (1, card)
+            discard (1, card, you controls)
         }
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -28,7 +35,7 @@ card "World Legacy - 'World Key'" {
         code: 1132
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to deck shuffle
         }
     }
 

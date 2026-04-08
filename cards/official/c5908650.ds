@@ -10,6 +10,10 @@ card "Shopina the Melodious Maestra" {
     atk: 2300
     def: 1700
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 8
@@ -17,7 +21,7 @@ card "Shopina the Melodious Maestra" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

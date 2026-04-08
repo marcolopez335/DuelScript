@@ -10,17 +10,35 @@ card "Saffira, Dragon Queen of the Voiceless Voice" {
     atk: 2500
     def: 2400
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 131112
         range: 2
         count_limit: (1, 51296484)
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
-            send (1, card) to gy
-            add_to_hand (1, card) from gy
+            send (1+, card, you controls, deck) to gy
+            add_to_hand (1+, card, you controls) from deck
+        }
+    }
+
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 512
+        code: 1002
+        range: 16
+        count_limit: (1, 0)
+        cost {
+            banish self
+        }
+        on_resolve {
+            ritual_summon (1, ritual monster) using (1+, monster, you controls)
         }
     }
 

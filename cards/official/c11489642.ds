@@ -12,6 +12,10 @@ card "Triangle O" {
         count_limit: (1, 11489642)
         on_resolve {
             destroy (1+, card, either_player controls)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -25,8 +29,9 @@ card "Triangle O" {
             banish self
         }
         on_resolve {
-            return (1, card) to deck shuffle
-            shuffle deck
+            return (1+, card, either_player controls) to deck shuffle
+            shuffle_deck
+            draw 3
         }
     }
 

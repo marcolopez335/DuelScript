@@ -3,6 +3,13 @@
 
 card "Crimson Blade Dragon" {
     password: 3294539
+    // FIXME: card not found in CDB — type/stats are placeholders
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 0
+    def: 0
 
     summon_condition {
         cannot_normal_summon: true
@@ -15,7 +22,7 @@ card "Crimson Blade Dragon" {
         property: 65536
         count_limit: (1, 3294539)
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
         }
     }
 
@@ -24,7 +31,7 @@ card "Crimson Blade Dragon" {
         category: 1
         code: 1132
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, gy)
         }
     }
 

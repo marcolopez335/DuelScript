@@ -10,12 +10,15 @@ card "Darklord Nergal" {
     atk: 2700
     def: 2500
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 203
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +33,7 @@ card "Darklord Nergal" {
             pay_lp 1000
         }
         on_resolve {
-            reveal self
+            return (1+, spell, either_player controls) to deck shuffle
         }
     }
 

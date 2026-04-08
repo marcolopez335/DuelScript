@@ -19,8 +19,9 @@ card "Altergeist Pixiel" {
             tribute self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            add_to_hand (1+, card, either_player controls) from gy
+            shuffle_hand
+            send (1+, card, either_player controls) to gy
         }
     }
 

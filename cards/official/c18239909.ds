@@ -14,6 +14,12 @@ card "Ignister Prominence, the Blasting Dracoslayer" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 17
@@ -22,7 +28,7 @@ card "Ignister Prominence, the Blasting Dracoslayer" {
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to deck shuffle
         }
     }
 

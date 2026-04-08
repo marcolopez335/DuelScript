@@ -10,7 +10,7 @@ card "Diamond Core of Koa'ki Meiru" {
         category: 131080
         code: 1002
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -21,7 +21,10 @@ card "Diamond Core of Koa'ki Meiru" {
             banish self
         }
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

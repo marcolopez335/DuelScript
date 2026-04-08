@@ -14,6 +14,12 @@ card "Junk Berserker" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 2097152
@@ -23,7 +29,6 @@ card "Junk Berserker" {
             banish self
         }
         on_resolve {
-            reveal self
         }
     }
 
@@ -32,7 +37,7 @@ card "Junk Berserker" {
         category: 1
         code: 1132
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls, gy)
         }
     }
 

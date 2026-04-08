@@ -14,6 +14,11 @@ card "Matador Archfiend" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 131080
@@ -21,7 +26,7 @@ card "Matador Archfiend" {
         property: 65536
         count_limit: (1, 7622360)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -29,7 +34,6 @@ card "Matador Archfiend" {
         effect_type: 1
         code: 42
         on_resolve {
-            reveal self
         }
     }
 
@@ -37,7 +41,6 @@ card "Matador Archfiend" {
         effect_type: 1
         code: 201
         on_resolve {
-            reveal self
         }
     }
 
@@ -46,7 +49,7 @@ card "Matador Archfiend" {
         category: 524289
         code: 1138
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, deck)
             deal_damage to opponent: 1000
         }
     }

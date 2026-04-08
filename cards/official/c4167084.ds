@@ -14,6 +14,11 @@ card "The First Darklord" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 1
@@ -21,7 +26,7 @@ card "The First Darklord" {
         property: 65536
         count_limit: (1, 4167084)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, gy)
         }
     }
 
@@ -29,7 +34,6 @@ card "The First Darklord" {
         effect_type: 1
         code: 251
         on_resolve {
-            reveal self
         }
     }
 
@@ -39,7 +43,6 @@ card "The First Darklord" {
         property: 128
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

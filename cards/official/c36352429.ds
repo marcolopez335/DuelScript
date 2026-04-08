@@ -10,13 +10,17 @@ card "Vampire Dragon" {
     atk: 2400
     def: 0
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 131080
         code: 1014
         property: 16384
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 

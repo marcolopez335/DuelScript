@@ -10,13 +10,14 @@ card "Alghoul Mazera" {
     atk: 2800
     def: 2300
 
-    raw_effect "Effect 1" {
-        effect_type: 2050
-        code: 50
-        range: 18
-        count_limit: (1, 45154513)
-        on_resolve {
-            banish (1+, card)
+    summon_condition {
+        tributes_required: 2
+    }
+
+    replacement_effect "Effect 1" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

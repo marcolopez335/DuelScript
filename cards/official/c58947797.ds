@@ -10,6 +10,10 @@ card "Vampire Duke" {
     atk: 2000
     def: 0
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 512
@@ -27,7 +31,7 @@ card "Vampire Duke" {
         property: 16384
         count_limit: (1, 58947797)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, opponent controls, deck) to gy
         }
     }
 
@@ -36,7 +40,6 @@ card "Vampire Duke" {
         code: 238
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 

@@ -14,12 +14,16 @@ card "Armed Neos" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +33,7 @@ card "Armed Neos" {
         code: 1102
         property: 65536
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, opponent controls)
         }
     }
 
@@ -37,7 +41,6 @@ card "Armed Neos" {
         effect_type: 129
         code: 1139
         on_resolve {
-            reveal self
         }
     }
 

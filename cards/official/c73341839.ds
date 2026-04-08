@@ -7,10 +7,16 @@ card "Miniborrel Dragon" {
     attribute: DARK
     race: Dragon
     link: 2
+    link_arrows: [left, right]
     atk: 800
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,7 @@ card "Miniborrel Dragon" {
         range: 16
         count_limit: (1, 73341839)
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
         }
     }
 

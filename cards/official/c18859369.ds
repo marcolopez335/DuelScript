@@ -16,7 +16,6 @@ card "Chaos Grepher" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +25,11 @@ card "Chaos Grepher" {
         range: 4
         count_limit: (1, 18859369)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, deck) to gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

@@ -14,12 +14,16 @@ card "Herald of Ultimateness" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -31,7 +35,7 @@ card "Herald of Ultimateness" {
         range: 4
         on_resolve {
             negate activation
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, hand)
         }
     }
 
@@ -42,7 +46,7 @@ card "Herald of Ultimateness" {
         range: 4
         on_resolve {
             negate summon
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, hand)
         }
     }
 

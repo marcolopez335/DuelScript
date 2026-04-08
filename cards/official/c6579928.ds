@@ -15,16 +15,14 @@ card "Secret Six Samurai - Kizaru" {
         category: 131080
         code: 1102
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, you controls) to hand
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 50
-        range: 16
-        on_resolve {
-            banish (1+, card)
+    replacement_effect "Effect 2" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

@@ -7,10 +7,16 @@ card "Beyond the Pendulum" {
     attribute: DARK
     race: Spellcaster
     link: 2
+    link_arrows: [bottom_left, bottom_right]
     atk: 1200
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,10 +25,22 @@ card "Beyond the Pendulum" {
         code: 1102
         property: 65536
         cost {
-            pay_lp 1000
+            pay_lp 1200
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -34,7 +52,7 @@ card "Beyond the Pendulum" {
         range: 4
         count_limit: (1, 22125101)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls, deck)
         }
     }
 

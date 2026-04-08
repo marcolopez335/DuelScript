@@ -16,7 +16,6 @@ card "Moissa Wight" {
         property: 131072
         range: 16
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,7 +26,11 @@ card "Moissa Wight" {
         property: 65536
         count_limit: (1, 19093698)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -38,7 +41,11 @@ card "Moissa Wight" {
         property: 65536
         count_limit: (1, 19093698)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -47,7 +54,6 @@ card "Moissa Wight" {
         code: 29
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

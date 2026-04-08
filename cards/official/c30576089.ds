@@ -10,6 +10,10 @@ card "Blue-Eyes Jet Dragon" {
     atk: 3000
     def: 0
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 130
         category: 512
@@ -28,7 +32,6 @@ card "Blue-Eyes Jet Dragon" {
         property: 256
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -39,7 +42,7 @@ card "Blue-Eyes Jet Dragon" {
         property: 16
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from gy
         }
     }
 

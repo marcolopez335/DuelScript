@@ -14,6 +14,12 @@ card "Heroic Champion - Magnum Excalibur" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         category: 2097152
@@ -21,10 +27,9 @@ card "Heroic Champion - Magnum Excalibur" {
         range: 4
         count_limit: (1, 0)
         cost {
-            detach 1 overlay_unit from self
+            detach 2 overlay_unit from self
         }
         on_resolve {
-            reveal self
         }
     }
 
@@ -36,7 +41,7 @@ card "Heroic Champion - Magnum Excalibur" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, gy) to gy
             equip (1, card) to (1, monster)
         }
     }
@@ -49,7 +54,7 @@ card "Heroic Champion - Magnum Excalibur" {
             banish self
         }
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, you controls) to deck shuffle
         }
     }
 

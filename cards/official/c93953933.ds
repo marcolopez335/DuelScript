@@ -19,9 +19,9 @@ card "Hydralander Orbit" {
             tribute self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
-            send (1, card) to gy
+            add_to_hand (1+, monster, you controls) from gy
+            shuffle_hand
+            send (1+, monster, you controls, gy) to gy
         }
     }
 
@@ -35,7 +35,7 @@ card "Hydralander Orbit" {
             banish self
         }
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, monster, you controls) to deck shuffle
         }
     }
 

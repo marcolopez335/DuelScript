@@ -14,13 +14,17 @@ card "Fossil Warrior Skull Bone" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 394240
         range: 64
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +34,6 @@ card "Fossil Warrior Skull Bone" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -43,7 +46,7 @@ card "Fossil Warrior Skull Bone" {
             banish self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 

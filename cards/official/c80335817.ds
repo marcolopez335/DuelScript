@@ -3,7 +3,7 @@
 
 card "Timebreaker Magician" {
     password: 80335817
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Spellcaster
     level: 3
@@ -16,7 +16,6 @@ card "Timebreaker Magician" {
         code: 47
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +25,6 @@ card "Timebreaker Magician" {
         property: 16
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -37,7 +35,11 @@ card "Timebreaker Magician" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, either_player controls)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

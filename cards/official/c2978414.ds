@@ -14,6 +14,12 @@ card "Number 46: Dragluon" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         range: 4
@@ -23,6 +29,12 @@ card "Number 46: Dragluon" {
         }
         on_resolve {
             special_summon (1, monster) from gy
+            take_control of (1, monster, opponent controls)
+            set_flag "tracked" on self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

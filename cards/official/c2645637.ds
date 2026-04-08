@@ -7,10 +7,16 @@ card "Yuki-Onna, the Absolute Zero Mayakashi" {
     attribute: WATER
     race: Zombie
     link: 4
+    link_arrows: [left, right, bottom_left, bottom_right]
     atk: 2900
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -18,7 +24,7 @@ card "Yuki-Onna, the Absolute Zero Mayakashi" {
         code: 1020
         range: 4
         on_resolve {
-            reveal self
+            negate effect
         }
     }
 
@@ -30,7 +36,6 @@ card "Yuki-Onna, the Absolute Zero Mayakashi" {
         range: 4
         count_limit: (2, 2645637)
         on_resolve {
-            reveal self
         }
     }
 
@@ -42,7 +47,6 @@ card "Yuki-Onna, the Absolute Zero Mayakashi" {
         range: 4
         count_limit: (2, 2645637)
         on_resolve {
-            reveal self
         }
     }
 

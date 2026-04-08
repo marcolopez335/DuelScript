@@ -15,10 +15,13 @@ card "Gouki Octostretch" {
         code: 1134
         range: 2
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -28,10 +31,13 @@ card "Gouki Octostretch" {
         property: 49152
         range: 2
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -42,7 +48,7 @@ card "Gouki Octostretch" {
         property: 65536
         count_limit: (1, 85008676)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 

@@ -10,6 +10,10 @@ card "Steelswarm Moth" {
     atk: 2400
     def: 0
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 8
@@ -19,7 +23,7 @@ card "Steelswarm Moth" {
             pay_lp 1000
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 
@@ -27,7 +31,6 @@ card "Steelswarm Moth" {
         effect_type: 1
         code: 251
         on_resolve {
-            reveal self
         }
     }
 

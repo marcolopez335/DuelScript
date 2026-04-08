@@ -9,7 +9,6 @@ card "Marshalling Field" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -19,7 +18,6 @@ card "Marshalling Field" {
         property: 2048
         range: 8
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,16 +27,13 @@ card "Marshalling Field" {
         range: 8
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 50
-        range: 8
-        on_resolve {
-            send (1, card) to gy
+    replacement_effect "Effect 4" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 
@@ -48,7 +43,7 @@ card "Marshalling Field" {
         code: 1014
         property: 81920
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, you controls) to hand
         }
     }
 

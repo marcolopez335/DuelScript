@@ -10,14 +10,18 @@ card "Danger! Dogman!" {
     atk: 2400
     def: 1000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 66176
         code: 1002
         range: 2
         on_resolve {
-            shuffle deck
-            send (1, card) to gy
+            shuffle_hand
+            send (1+, monster, opponent controls) to gy
             special_summon (1, monster) from gy
             draw 1
         }
@@ -30,7 +34,6 @@ card "Danger! Dogman!" {
         property: 65536
         count_limit: (1, 26302107)
         on_resolve {
-            reveal self
         }
     }
 
@@ -41,7 +44,6 @@ card "Danger! Dogman!" {
         property: 65536
         count_limit: (1, 26302107)
         on_resolve {
-            reveal self
         }
     }
 

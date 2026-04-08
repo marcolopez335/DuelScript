@@ -10,12 +10,15 @@ card "Transcendosaurus Meteorus" {
     atk: 3500
     def: 700
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +29,7 @@ card "Transcendosaurus Meteorus" {
         range: 2
         count_limit: (1, 31241087)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls, hand)
             special_summon (1, monster) from gy
         }
     }
@@ -38,7 +41,7 @@ card "Transcendosaurus Meteorus" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, you controls, hand) to gy
         }
     }
 
@@ -49,7 +52,7 @@ card "Transcendosaurus Meteorus" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, monster, you controls) to deck shuffle
             special_summon (1, monster) from gy
         }
     }

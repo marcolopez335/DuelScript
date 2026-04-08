@@ -3,7 +3,7 @@
 
 card "D/D/D Deviser King Deus Machinex" {
     password: 46593546
-    type: Xyz Monster
+    type: Xyz Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
     rank: 10
@@ -13,6 +13,12 @@ card "D/D/D Deviser King Deus Machinex" {
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
     }
 
     raw_effect "Effect 1" {
@@ -33,7 +39,8 @@ card "D/D/D Deviser King Deus Machinex" {
         code: 1027
         range: 4
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls)
+            attach (1, card) to self as_material
         }
     }
 

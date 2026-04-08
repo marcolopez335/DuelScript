@@ -14,12 +14,16 @@ card "Black Luster Soldier - Legendary Swordsman" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +33,11 @@ card "Black Luster Soldier - Legendary Swordsman" {
         code: 1113
         range: 2
         on_resolve {
-            add_to_hand (1, card) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            return (1+, card, opponent controls) to hand
         }
     }
 
@@ -39,7 +47,6 @@ card "Black Luster Soldier - Legendary Swordsman" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -47,7 +54,6 @@ card "Black Luster Soldier - Legendary Swordsman" {
         effect_type: 1
         code: 251
         on_resolve {
-            reveal self
         }
     }
 
@@ -56,7 +62,7 @@ card "Black Luster Soldier - Legendary Swordsman" {
         category: 16
         code: 1139
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, opponent controls) to deck shuffle
         }
     }
 

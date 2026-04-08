@@ -20,7 +20,6 @@ card "Rocket Arrow Express" {
         property: 263168
         range: 2
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +28,6 @@ card "Rocket Arrow Express" {
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -39,7 +37,6 @@ card "Rocket Arrow Express" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -49,7 +46,6 @@ card "Rocket Arrow Express" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -59,7 +55,6 @@ card "Rocket Arrow Express" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -69,7 +64,6 @@ card "Rocket Arrow Express" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -79,7 +73,6 @@ card "Rocket Arrow Express" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -90,7 +83,7 @@ card "Rocket Arrow Express" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
             destroy (1+, card, either_player controls)
         }
     }
@@ -100,7 +93,10 @@ card "Rocket Arrow Express" {
         code: 92
         property: 1024
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

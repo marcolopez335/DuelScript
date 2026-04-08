@@ -16,16 +16,14 @@ card "Secret Six Samurai - Genba" {
         code: 1100
         property: 16
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, either_player controls) from gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 50
-        range: 16
-        on_resolve {
-            banish (1+, card)
+    replacement_effect "Effect 2" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

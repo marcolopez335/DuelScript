@@ -14,6 +14,12 @@ card "Legendary Lord Six Samurai - Shi En" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 131080
@@ -21,7 +27,7 @@ card "Legendary Lord Six Samurai - Shi En" {
         property: 65536
         count_limit: (1, 34235530)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from gy
         }
     }
 
@@ -34,17 +40,14 @@ card "Legendary Lord Six Samurai - Shi En" {
         count_limit: (1, 0)
         on_resolve {
             negate activation
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls, gy)
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: 2049
-        code: 50
-        property: 131072
-        range: 4
-        on_resolve {
-            destroy (1+, card, either_player controls)
+    replacement_effect "Effect 3" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

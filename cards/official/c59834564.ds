@@ -10,13 +10,16 @@ card "Bonfire Colossus" {
     atk: 2600
     def: 2200
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
         property: 262144
         range: 2
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +29,7 @@ card "Bonfire Colossus" {
         code: 1102
         property: 16
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls)
         }
     }
 

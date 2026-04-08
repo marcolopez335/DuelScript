@@ -10,6 +10,10 @@ card "Ignoble Knight of Black Laundsallyn" {
     atk: 2000
     def: 800
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 512
@@ -31,7 +35,7 @@ card "Ignoble Knight of Black Laundsallyn" {
             tribute self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, you controls) to hand
         }
     }
 

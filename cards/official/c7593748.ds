@@ -14,6 +14,12 @@ card "Gimmick Puppet Gigantes Doll" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 8192
@@ -21,9 +27,17 @@ card "Gimmick Puppet Gigantes Doll" {
         range: 4
         count_limit: (1, 7593748)
         cost {
-            detach 1 overlay_unit from self
+            detach 2 overlay_unit from self
         }
         on_resolve {
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
             take_control of (1, monster, opponent controls)
         }
     }
@@ -37,7 +51,6 @@ card "Gimmick Puppet Gigantes Doll" {
             tribute self
         }
         on_resolve {
-            reveal self
         }
     }
 

@@ -14,12 +14,17 @@ card "Giant Mimighoul" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 74
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +35,7 @@ card "Giant Mimighoul" {
         property: 65536
         count_limit: (1, 16955631)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, opponent controls) to hand
         }
     }
 
@@ -44,7 +49,7 @@ card "Giant Mimighoul" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, opponent controls)
             deal_damage to opponent: 1000
         }
     }

@@ -11,9 +11,13 @@ card "Afterglow" {
         code: 1002
         count_limit: (1, 43575579)
         on_resolve {
-            banish (1+, card)
-            banish (1+, card)
-            return (1, card) to deck shuffle
+            banish (1+, card, you controls, gy)
+            banish (1+, card, you controls, gy)
+            return (1+, card, you controls) to deck shuffle
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

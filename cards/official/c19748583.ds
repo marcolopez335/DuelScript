@@ -17,7 +17,8 @@ card "Gwenhwyfar, Queen of Noble Arms" {
         range: 18
         count_limit: (1, 19748583)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
+            equip (1, card) to (1, monster)
         }
     }
 
@@ -25,16 +26,14 @@ card "Gwenhwyfar, Queen of Noble Arms" {
         effect_type: 4
         code: 100
         on_resolve {
-            reveal self
+            modifier: atk + 300
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: 2052
-        code: 50
-        property: 128
-        on_resolve {
-            destroy (1+, card, either_player controls)
+    replacement_effect "Effect 3" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

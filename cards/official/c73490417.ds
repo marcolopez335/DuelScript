@@ -10,13 +10,16 @@ card "Jungle Dweller" {
     atk: 2500
     def: 1800
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 71
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -40,8 +43,8 @@ card "Jungle Dweller" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
-            destroy (1+, card, either_player controls)
+            return (1+, monster, you controls) to deck shuffle
+            destroy (1+, monster, you controls, gy)
         }
     }
 

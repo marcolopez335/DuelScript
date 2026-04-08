@@ -14,6 +14,12 @@ card "Code Igniter" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 131080
@@ -21,18 +27,30 @@ card "Code Igniter" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 
     raw_effect "Effect 2" {
+        effect_type: 64
+        category: 512
+        code: 1002
+        range: 4
+        count_limit: (1, 0)
+        cost {
+            detach 1 overlay_unit from self
+        }
+        on_resolve {
+            ritual_summon (1, ritual monster) using (1+, monster, you controls)
+        }
+    }
+
+    raw_effect "Effect 3" {
         effect_type: 129
         category: 131080
         code: 1108
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 

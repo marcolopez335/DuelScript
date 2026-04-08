@@ -10,6 +10,10 @@ card "Gunkan Suship Uni" {
     atk: 900
     def: 500
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 528
@@ -18,7 +22,7 @@ card "Gunkan Suship Uni" {
         on_resolve {
             special_summon (1, monster) from gy
             special_summon (1, monster) from gy
-            return (1, card) to deck shuffle
+            return (1+, card, you controls) to deck shuffle
         }
     }
 
@@ -29,7 +33,7 @@ card "Gunkan Suship Uni" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 

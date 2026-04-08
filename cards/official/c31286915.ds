@@ -14,11 +14,16 @@ card "K9-X 'Ripper/M'" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 203
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +34,7 @@ card "K9-X 'Ripper/M'" {
         property: 65552
         count_limit: (1, 31286915)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to deck shuffle
         }
     }
 
@@ -40,7 +45,7 @@ card "K9-X 'Ripper/M'" {
         range: 4
         count_limit: (1, 0)
         cost {
-            detach 1 overlay_unit from self
+            detach 2 overlay_unit from self
         }
         on_resolve {
             negate effect

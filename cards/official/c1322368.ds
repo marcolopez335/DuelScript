@@ -7,10 +7,16 @@ card "SPYRAL Double Helix" {
     attribute: EARTH
     race: Warrior
     link: 2
+    link_arrows: [left, bottom]
     atk: 1900
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,6 @@ card "SPYRAL Double Helix" {
         property: 131072
         range: 20
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +35,7 @@ card "SPYRAL Double Helix" {
         count_limit: (1, 1322368)
         on_resolve {
             special_summon (1, monster) from gy
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from gy
         }
     }
 

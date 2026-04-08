@@ -10,6 +10,10 @@ card "Icejade Creation Kingfisher" {
     atk: 2500
     def: 2500
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 262144
@@ -17,7 +21,7 @@ card "Icejade Creation Kingfisher" {
         range: 6
         on_resolve {
             equip (1, card) to (1, monster)
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
         }
     }
 
@@ -25,7 +29,6 @@ card "Icejade Creation Kingfisher" {
         effect_type: 4
         code: 190
         on_resolve {
-            reveal self
         }
     }
 
@@ -37,7 +40,7 @@ card "Icejade Creation Kingfisher" {
         count_limit: (1, 66749546)
         on_resolve {
             special_summon (1, monster) from gy
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

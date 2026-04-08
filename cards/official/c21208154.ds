@@ -10,12 +10,15 @@ card "The Wicked Avatar" {
     atk: ?
     def: ?
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -25,7 +28,6 @@ card "The Wicked Avatar" {
         property: 2293760
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -35,7 +37,6 @@ card "The Wicked Avatar" {
         property: 2293760
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -43,7 +44,14 @@ card "The Wicked Avatar" {
         effect_type: 513
         code: 1100
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -51,7 +59,6 @@ card "The Wicked Avatar" {
         effect_type: 1
         code: 21208154
         on_resolve {
-            reveal self
         }
     }
 

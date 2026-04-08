@@ -16,10 +16,13 @@ card "Donyoribo @Ignister" {
         range: 2
         count_limit: (1, 14146794)
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -33,7 +36,10 @@ card "Donyoribo @Ignister" {
             banish self
         }
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

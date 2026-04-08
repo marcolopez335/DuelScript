@@ -7,6 +7,7 @@ card "Topologic Bomber Dragon" {
     attribute: DARK
     race: Cyberse
     link: 4
+    link_arrows: [top, bottom_left, bottom, bottom_right]
     atk: 3000
 
     materials {
@@ -24,7 +25,11 @@ card "Topologic Bomber Dragon" {
         code: 1102
         range: 4
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, either_player controls)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

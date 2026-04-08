@@ -10,6 +10,10 @@ card "Wandering Gryphon Rider" {
     atk: 2000
     def: 2800
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         category: 512
@@ -29,9 +33,9 @@ card "Wandering Gryphon Rider" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, you controls) to deck shuffle
             negate activation
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls)
         }
     }
 

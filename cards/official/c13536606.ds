@@ -7,10 +7,16 @@ card "V-LAN Hydra" {
     attribute: LIGHT
     race: Cyberse
     link: 3
+    link_arrows: [top, left, bottom]
     atk: 1900
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,6 @@ card "V-LAN Hydra" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -32,6 +37,11 @@ card "V-LAN Hydra" {
         on_resolve {
             tribute (1, monster, you controls)
             create_token { atk: 0 def: 0 }
+            special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

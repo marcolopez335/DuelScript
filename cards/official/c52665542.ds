@@ -9,7 +9,6 @@ card "Lightsworn Sanctuary" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -23,7 +22,7 @@ card "Lightsworn Sanctuary" {
             send self to gy
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from hand
         }
     }
 
@@ -33,16 +32,13 @@ card "Lightsworn Sanctuary" {
         property: 65536
         range: 8
         on_resolve {
-            reveal self
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 50
-        range: 8
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 4" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

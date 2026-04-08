@@ -11,7 +11,7 @@ card "Oracle of Zefra" {
         code: 1002
         count_limit: (1, 32354768)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 
@@ -22,7 +22,7 @@ card "Oracle of Zefra" {
         range: 256
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, monster, you controls) to deck shuffle
         }
     }
 
@@ -43,7 +43,7 @@ card "Oracle of Zefra" {
         range: 256
         count_limit: (1, 0)
         on_resolve {
-            shuffle deck
+            shuffle_deck
         }
     }
 
@@ -55,7 +55,7 @@ card "Oracle of Zefra" {
         count_limit: (1, 0)
         on_resolve {
             draw 1
-            shuffle deck
+            shuffle_hand
             discard (1, card)
         }
     }
@@ -66,7 +66,6 @@ card "Oracle of Zefra" {
         property: 1312
         range: 256
         on_resolve {
-            reveal self
         }
     }
 

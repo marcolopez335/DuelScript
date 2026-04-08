@@ -10,7 +10,6 @@ card "Ice Barrier" {
         category: 2113536
         code: 1130
         on_resolve {
-            reveal self
         }
     }
 
@@ -24,8 +23,12 @@ card "Ice Barrier" {
             banish self
         }
         on_resolve {
-            send (1, card) to gy
-            add_to_hand (1, card) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            send (1+, card, you controls, gy) to gy
+            add_to_hand (1+, card, you controls) from gy
         }
     }
 

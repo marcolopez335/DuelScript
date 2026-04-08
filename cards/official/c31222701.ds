@@ -10,8 +10,11 @@ card "Wavering Eyes" {
         category: 655361
         code: 1002
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, deck)
             deal_damage to opponent: 500
+            add_to_hand (1+, card, you controls) from deck
+            banish (1+, card, you controls, deck)
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 

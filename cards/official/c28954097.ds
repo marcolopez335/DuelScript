@@ -1,0 +1,49 @@
+// Mirror Swordknight
+// Transpiled from c28954097.lua
+
+card "Mirror Swordknight" {
+    password: 28954097
+    type: Effect Monster
+    attribute: LIGHT
+    race: Unknown
+    level: 4
+    atk: 1900
+    def: 300
+
+    raw_effect "Effect 1" {
+        effect_type: 2
+        code: 42
+        range: 4
+        on_resolve {
+        }
+    }
+
+    raw_effect "Effect 2" {
+        effect_type: 256
+        category: 512
+        code: 1002
+        range: 4
+        count_limit: (1, 28954097)
+        cost {
+            tribute self
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    raw_effect "Effect 3" {
+        effect_type: 256
+        category: 16384
+        code: 1027
+        range: 20
+        count_limit: (1, 0)
+        cost {
+            banish self
+        }
+        on_resolve {
+            negate effect
+        }
+    }
+
+}

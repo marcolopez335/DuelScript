@@ -15,7 +15,6 @@ card "Kuribandit" {
         code: 1100
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,8 +28,9 @@ card "Kuribandit" {
             tribute self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            add_to_hand (1+, spell, either_player controls) from gy
+            shuffle_hand
+            send (1+, spell, either_player controls) to gy
         }
     }
 

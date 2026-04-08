@@ -10,6 +10,10 @@ card "Koa'ki Meiru Ghoulungulate" {
     atk: 2500
     def: 1700
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2050
         code: 4608
@@ -17,16 +21,16 @@ card "Koa'ki Meiru Ghoulungulate" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            send (1+, monster, you controls, hand) to gy
+            shuffle_hand
+            destroy (1+, monster, you controls, hand)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 50
-        range: 4
-        on_resolve {
-            banish (1+, card)
+    replacement_effect "Effect 2" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

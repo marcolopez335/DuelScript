@@ -15,7 +15,12 @@ card "Red Reboot" {
         on_resolve {
             negate activation
             change_battle_position (1, monster)
+            emit_event "custom"
             set (1, card)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -23,7 +28,6 @@ card "Red Reboot" {
         effect_type: 1
         code: 15
         on_resolve {
-            reveal self
         }
     }
 

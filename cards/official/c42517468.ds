@@ -19,8 +19,14 @@ card "Ojama Pink" {
         on_resolve {
             draw 1
             draw 1
-            shuffle deck
+            shuffle_hand
             discard (1, card)
+            shuffle_hand
+            discard (1, card)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

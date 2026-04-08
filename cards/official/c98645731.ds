@@ -12,7 +12,10 @@ card "Pot of Duality" {
         property: 2048
         count_limit: (1, 98645731)
         on_resolve {
-            reveal self
+            add_to_hand (1+, card, either_player controls) from gy
+            shuffle_hand
+            send (1+, card, either_player controls) to gy
+            shuffle_deck
         }
     }
 

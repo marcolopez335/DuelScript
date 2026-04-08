@@ -10,6 +10,10 @@ card "Centur-Ion Emeth VI" {
     atk: 2000
     def: 3000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         category: 512
@@ -18,9 +22,13 @@ card "Centur-Ion Emeth VI" {
         range: 18
         count_limit: (1, 78888899)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
             special_summon (1, monster) from gy
             special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

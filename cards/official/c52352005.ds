@@ -14,6 +14,12 @@ card "XX-Saber Gottoms" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 128
@@ -22,7 +28,7 @@ card "XX-Saber Gottoms" {
             tribute self
         }
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
         }
     }
 
@@ -30,7 +36,6 @@ card "XX-Saber Gottoms" {
         effect_type: 1
         code: 251
         on_resolve {
-            reveal self
         }
     }
 

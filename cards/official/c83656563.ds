@@ -10,6 +10,11 @@ card "Fossil Machine Skull Wagon" {
     atk: 1700
     def: 1500
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     summon_condition {
         cannot_normal_summon: true
     }
@@ -20,7 +25,6 @@ card "Fossil Machine Skull Wagon" {
         property: 394240
         range: 64
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +34,6 @@ card "Fossil Machine Skull Wagon" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -54,7 +57,7 @@ card "Fossil Machine Skull Wagon" {
             banish self
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, either_player controls)
         }
     }
 

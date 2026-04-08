@@ -15,7 +15,6 @@ card "Yata-Garasu" {
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -23,7 +22,10 @@ card "Yata-Garasu" {
         effect_type: 513
         code: 1143
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

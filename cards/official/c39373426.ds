@@ -9,7 +9,6 @@ card "SPYRAL MISSION - Recapture" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -36,12 +35,10 @@ card "SPYRAL MISSION - Recapture" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 50
-        range: 16
-        on_resolve {
-            banish (1+, card)
+    replacement_effect "Effect 4" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

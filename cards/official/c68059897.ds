@@ -7,10 +7,16 @@ card "Maliss <Q> Red Ransom" {
     attribute: DARK
     race: Cyberse
     link: 3
+    link_arrows: [left, right, bottom]
     atk: 2300
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -18,7 +24,6 @@ card "Maliss <Q> Red Ransom" {
         code: 110
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +34,7 @@ card "Maliss <Q> Red Ransom" {
         property: 65536
         count_limit: (1, 68059897)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 
@@ -40,11 +45,11 @@ card "Maliss <Q> Red Ransom" {
         property: 65536
         count_limit: (1, 0)
         cost {
-            pay_lp 1000
+            pay_lp 900
         }
         on_resolve {
             special_summon (1, monster) from gy
-            banish (1+, card)
+            banish (1+, spell, you controls, deck)
         }
     }
 

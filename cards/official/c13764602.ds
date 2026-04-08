@@ -11,7 +11,7 @@ card "Perfect Sync - A-Un" {
         code: 1002
         count_limit: (1, 13764602)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 
@@ -21,6 +21,10 @@ card "Perfect Sync - A-Un" {
         range: 256
         count_limit: (1, 0)
         on_resolve {
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
             create_token { atk: 0 def: 0 }
             special_summon (1, monster) from gy
         }

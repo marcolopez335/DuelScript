@@ -14,14 +14,20 @@ card "Adamancipator Risen - Dragite" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 8
         range: 4
         count_limit: (1, 9464441)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            return (1+, card, opponent controls) to hand
+            shuffle_hand
         }
     }
 
@@ -34,7 +40,7 @@ card "Adamancipator Risen - Dragite" {
         count_limit: (1, 0)
         on_resolve {
             negate activation
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, opponent controls)
         }
     }
 

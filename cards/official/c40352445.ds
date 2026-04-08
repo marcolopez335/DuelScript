@@ -14,13 +14,17 @@ card "White Knight of Dogmatika" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 22
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -32,8 +36,8 @@ card "White Knight of Dogmatika" {
         range: 4
         count_limit: (1, 40352445)
         on_resolve {
-            send (1, card) to gy
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
+            send (1+, card, either_player controls) to gy
         }
     }
 

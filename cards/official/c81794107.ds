@@ -10,6 +10,10 @@ card "R.B. Lambda Cannon" {
     atk: 1200
     def: 1200
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 8
@@ -17,7 +21,7 @@ card "R.B. Lambda Cannon" {
         property: 65552
         count_limit: (1, 81794107)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, either_player controls) to hand
         }
     }
 
@@ -28,7 +32,7 @@ card "R.B. Lambda Cannon" {
         property: 65552
         count_limit: (1, 81794107)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, either_player controls) to hand
         }
     }
 
@@ -38,10 +42,12 @@ card "R.B. Lambda Cannon" {
         range: 4
         count_limit: (1, 0)
         cost {
-            pay_lp 1000
+            pay_lp 1200
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, either_player controls)
+            special_summon (1, monster) from gy
+            shuffle_hand
         }
     }
 

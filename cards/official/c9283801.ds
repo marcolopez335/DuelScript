@@ -11,11 +11,15 @@ card "The Monarchs Revolt" {
         code: 1002
         count_limit: (1, 9283801)
         cost {
-            discard (1, card)
+            discard (1, card, you controls)
         }
         on_resolve {
-            add_to_hand (1, card) from gy
-            send (1, card) to gy
+            add_to_hand (1+, card, you controls) from deck
+            send (1+, card, you controls, deck) to gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

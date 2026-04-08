@@ -10,13 +10,16 @@ card "Earthbound Immortal Aslla piscu" {
     atk: 2500
     def: 2500
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 141
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +29,6 @@ card "Earthbound Immortal Aslla piscu" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -34,7 +36,6 @@ card "Earthbound Immortal Aslla piscu" {
         effect_type: 1
         code: 74
         on_resolve {
-            reveal self
         }
     }
 
@@ -43,7 +44,7 @@ card "Earthbound Immortal Aslla piscu" {
         category: 524289
         code: 1015
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, opponent controls)
             deal_damage to opponent: 1000
         }
     }

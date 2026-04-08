@@ -10,13 +10,16 @@ card "Blackwing - Zonda the Dusk" {
     atk: 2300
     def: 900
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 22
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,7 +30,7 @@ card "Blackwing - Zonda the Dusk" {
         property: 65552
         count_limit: (1, 7459919)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from hand
         }
     }
 
@@ -38,7 +41,7 @@ card "Blackwing - Zonda the Dusk" {
         property: 65552
         count_limit: (1, 7459919)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from hand
         }
     }
 

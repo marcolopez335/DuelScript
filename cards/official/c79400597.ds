@@ -9,6 +9,9 @@ card "Evil Eye Repose" {
         effect_type: 16
         code: 1002
         count_limit: (1, 79400597)
+        cost {
+            banish self
+        }
         on_resolve {
             draw 1
         }
@@ -21,7 +24,7 @@ card "Evil Eye Repose" {
         range: 8
         count_limit: (1, 0)
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, you controls, gy)
         }
     }
 
@@ -31,7 +34,7 @@ card "Evil Eye Repose" {
         code: 1029
         property: 65552
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, gy) to gy
         }
     }
 

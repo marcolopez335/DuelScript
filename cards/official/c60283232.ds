@@ -10,13 +10,16 @@ card "Wheel Synchron" {
     atk: 800
     def: 1000
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 244
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +29,10 @@ card "Wheel Synchron" {
         range: 4
         count_limit: (1, 60283232)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -40,7 +46,6 @@ card "Wheel Synchron" {
             banish self
         }
         on_resolve {
-            reveal self
         }
     }
 

@@ -11,6 +11,10 @@ card "Call of the Forgotten" {
         count_limit: (1, 80749819)
         on_resolve {
             set (1, card)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -22,7 +26,7 @@ card "Call of the Forgotten" {
         range: 256
         count_limit: (1, 0)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, gy) to gy
         }
     }
 

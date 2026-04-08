@@ -15,7 +15,6 @@ card "Witch of the Black Rose" {
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -25,8 +24,9 @@ card "Witch of the Black Rose" {
         code: 1100
         on_resolve {
             draw 1
-            send (1, card) to gy
-            destroy (1+, card, either_player controls)
+            send (1+, monster, either_player controls) to gy
+            destroy (1+, monster, either_player controls)
+            shuffle_hand
         }
     }
 

@@ -3,7 +3,7 @@
 
 card "Abyss Actor - Curtain Raiser" {
     password: 44179224
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
     level: 4
@@ -27,7 +27,7 @@ card "Abyss Actor - Curtain Raiser" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
+            modifier: atk + 1100
         }
     }
 
@@ -40,7 +40,7 @@ card "Abyss Actor - Curtain Raiser" {
             send self to gy
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 

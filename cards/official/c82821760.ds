@@ -10,13 +10,16 @@ card "B.E.S. Big Core MK-3" {
     atk: 2700
     def: 1900
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
         property: 1310720
         range: 2
         on_resolve {
-            reveal self
         }
     }
 
@@ -25,7 +28,6 @@ card "B.E.S. Big Core MK-3" {
         category: 8388608
         code: 1100
         on_resolve {
-            reveal self
         }
     }
 
@@ -34,7 +36,6 @@ card "B.E.S. Big Core MK-3" {
         category: 8388608
         code: 1102
         on_resolve {
-            reveal self
         }
     }
 
@@ -42,7 +43,6 @@ card "B.E.S. Big Core MK-3" {
         effect_type: 1
         code: 42
         on_resolve {
-            reveal self
         }
     }
 
@@ -51,7 +51,7 @@ card "B.E.S. Big Core MK-3" {
         category: 1
         code: 1141
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, gy)
         }
     }
 
@@ -63,7 +63,7 @@ card "B.E.S. Big Core MK-3" {
             banish self
         }
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, you controls) to deck shuffle
         }
     }
 

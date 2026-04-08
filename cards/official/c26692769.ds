@@ -7,6 +7,7 @@ card "The Phantom Knights of Rusty Bardiche" {
     attribute: DARK
     race: Warrior
     link: 3
+    link_arrows: [right, bottom_left, bottom_right]
     atk: 2100
 
     materials {
@@ -24,7 +25,7 @@ card "The Phantom Knights of Rusty Bardiche" {
         range: 4
         count_limit: (1, 26692769)
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, you controls, deck) to gy
             set (1, card)
         }
     }
@@ -37,7 +38,7 @@ card "The Phantom Knights of Rusty Bardiche" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls, deck)
         }
     }
 
@@ -46,7 +47,6 @@ card "The Phantom Knights of Rusty Bardiche" {
         code: 239
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 

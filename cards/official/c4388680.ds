@@ -14,6 +14,11 @@ card "Revendread Slayer" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         category: 6291456
@@ -23,7 +28,6 @@ card "Revendread Slayer" {
             banish self
         }
         on_resolve {
-            reveal self
         }
     }
 
@@ -34,8 +38,8 @@ card "Revendread Slayer" {
         property: 65536
         count_limit: (1, 4388680)
         on_resolve {
-            add_to_hand (1, card) from gy
-            send (1, card) to gy
+            add_to_hand (1+, monster, you controls) from gy
+            send (1+, monster, you controls, gy) to gy
         }
     }
 

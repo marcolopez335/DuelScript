@@ -19,7 +19,6 @@ card "Moulinglacia the Elemental Lord" {
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +28,6 @@ card "Moulinglacia the Elemental Lord" {
         property: 262144
         range: 2
         on_resolve {
-            reveal self
         }
     }
 
@@ -39,7 +37,7 @@ card "Moulinglacia the Elemental Lord" {
         code: 1102
         count_limit: (1, 13959634)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, gy) to gy
         }
     }
 
@@ -48,7 +46,10 @@ card "Moulinglacia the Elemental Lord" {
         code: 1019
         property: 1536
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

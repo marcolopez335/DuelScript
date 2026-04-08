@@ -3,7 +3,7 @@
 
 card "Dragodies, the Empowered Warrior" {
     password: 65472618
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: LIGHT
     race: Warrior
     level: 4
@@ -17,7 +17,6 @@ card "Dragodies, the Empowered Warrior" {
         code: 1132
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,7 +26,10 @@ card "Dragodies, the Empowered Warrior" {
         code: 1029
         property: 65536
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

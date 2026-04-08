@@ -14,12 +14,18 @@ card "Laevatein, Generaider Boss of Shadows" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 100
         range: 4
         on_resolve {
-            reveal self
+            modifier: atk - 1000
         }
     }
 
@@ -28,7 +34,7 @@ card "Laevatein, Generaider Boss of Shadows" {
         code: 104
         range: 4
         on_resolve {
-            reveal self
+            modifier: def - 1000
         }
     }
 
@@ -42,6 +48,7 @@ card "Laevatein, Generaider Boss of Shadows" {
         }
         on_resolve {
             special_summon (1, monster) from gy
+            attach (1, card) to self as_material
         }
     }
 

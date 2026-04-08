@@ -14,14 +14,19 @@ card "Transonic Bird" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 131096
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
-            return (1, card) to deck shuffle
+            add_to_hand (1+, trap, you controls) from deck
+            return (1+, trap, you controls) to deck shuffle
         }
     }
 
@@ -32,7 +37,6 @@ card "Transonic Bird" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 
@@ -42,7 +46,6 @@ card "Transonic Bird" {
         code: 1017
         property: 65552
         on_resolve {
-            reveal self
         }
     }
 

@@ -3,7 +3,7 @@
 
 card "Speedroid Marble Machine" {
     password: 96708940
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: WIND
     race: Machine
     level: 2
@@ -28,7 +28,15 @@ card "Speedroid Marble Machine" {
         property: 16384
         count_limit: (1, 96708940)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

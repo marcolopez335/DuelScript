@@ -10,6 +10,10 @@ card "Elemental HERO Spirit of Neos" {
     atk: 2500
     def: 2000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 130
         category: 512
@@ -28,7 +32,7 @@ card "Elemental HERO Spirit of Neos" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 
@@ -38,7 +42,7 @@ card "Elemental HERO Spirit of Neos" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, spell, you controls) to deck shuffle
             special_summon (1, monster) from gy
         }
     }

@@ -10,13 +10,21 @@ card "Mementotlan Akihiron" {
     atk: 1700
     def: 1400
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         code: 1100
         property: 65536
         count_limit: (1, 54207171)
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -26,7 +34,11 @@ card "Mementotlan Akihiron" {
         property: 65536
         count_limit: (1, 54207171)
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -37,7 +49,7 @@ card "Mementotlan Akihiron" {
         property: 65552
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, either_player controls) from gy
         }
     }
 

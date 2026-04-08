@@ -3,7 +3,7 @@
 
 card "Superheavy Samurai Commander Shanawo" {
     password: 90587641
-    type: Synchro Monster
+    type: Synchro Monster | Pendulum Monster
     attribute: DARK
     race: Machine
     level: 8
@@ -13,6 +13,12 @@ card "Superheavy Samurai Commander Shanawo" {
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
     }
 
     raw_effect "Effect 1" {
@@ -30,7 +36,6 @@ card "Superheavy Samurai Commander Shanawo" {
         effect_type: 1
         code: 190
         on_resolve {
-            reveal self
         }
     }
 

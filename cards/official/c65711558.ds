@@ -7,10 +7,16 @@ card "Ancient Warriors Oath - Double Dragon Lords" {
     attribute: WIND
     race: Beast-Warrior
     link: 2
+    link_arrows: [bottom_left, bottom_right]
     atk: 1100
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -20,7 +26,7 @@ card "Ancient Warriors Oath - Double Dragon Lords" {
         property: 114688
         count_limit: (1, 65711558)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -29,7 +35,7 @@ card "Ancient Warriors Oath - Double Dragon Lords" {
         code: 100
         range: 4
         on_resolve {
-            reveal self
+            modifier: atk + 500
         }
     }
 
@@ -38,7 +44,7 @@ card "Ancient Warriors Oath - Double Dragon Lords" {
         code: 104
         range: 4
         on_resolve {
-            reveal self
+            modifier: def + 500
         }
     }
 
@@ -53,7 +59,7 @@ card "Ancient Warriors Oath - Double Dragon Lords" {
             send self to gy
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 

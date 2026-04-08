@@ -10,7 +10,6 @@ card "Battlewasp Wind" {
         code: 1002
         count_limit: (1, 67441879)
         on_resolve {
-            reveal self
         }
     }
 
@@ -22,7 +21,7 @@ card "Battlewasp Wind" {
         range: 8
         count_limit: (2, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 
@@ -32,7 +31,8 @@ card "Battlewasp Wind" {
         property: 1024
         range: 8
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
+            emit_event "custom"
         }
     }
 
@@ -42,7 +42,8 @@ card "Battlewasp Wind" {
         property: 1024
         range: 8
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
+            emit_event "custom"
         }
     }
 
@@ -52,7 +53,6 @@ card "Battlewasp Wind" {
         range: 8
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 

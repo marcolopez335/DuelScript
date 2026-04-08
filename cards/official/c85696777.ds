@@ -7,6 +7,7 @@ card "Harpie Conductor" {
     attribute: WIND
     race: Winged Beast
     link: 2
+    link_arrows: [bottom_left, bottom_right]
     atk: 1900
 
     materials {
@@ -24,17 +25,13 @@ card "Harpie Conductor" {
         property: 131072
         range: 20
         on_resolve {
-            reveal self
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 50
-        range: 4
-        count_limit: (1, 85696777)
-        on_resolve {
-            destroy (1+, card, either_player controls)
+    replacement_effect "Effect 2" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 
@@ -46,7 +43,7 @@ card "Harpie Conductor" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, you controls) to hand
         }
     }
 

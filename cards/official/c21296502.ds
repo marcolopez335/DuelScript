@@ -10,11 +10,14 @@ card "Toon Dark Magician" {
     atk: 2500
     def: 2100
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 85
         on_resolve {
-            reveal self
         }
     }
 
@@ -22,7 +25,6 @@ card "Toon Dark Magician" {
         effect_type: 1
         code: 74
         on_resolve {
-            reveal self
         }
     }
 
@@ -32,6 +34,7 @@ card "Toon Dark Magician" {
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
+            return (1+, spell, you controls) to hand
         }
     }
 

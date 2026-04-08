@@ -9,7 +9,6 @@ card "XYZ Hyper Cannon" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -20,8 +19,9 @@ card "XYZ Hyper Cannon" {
         range: 8
         count_limit: (1, 21723081)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, monster, you controls) to deck shuffle
             draw 1
+            destroy (1+, monster, you controls)
         }
     }
 

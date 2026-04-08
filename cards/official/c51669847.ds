@@ -3,12 +3,18 @@
 
 card "Null Power Patron Realm - Vidria" {
     password: 51669847
+    // FIXME: card not found in CDB — type/stats are placeholders
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 0
+    def: 0
 
     raw_effect "Effect 1" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -18,7 +24,7 @@ card "Null Power Patron Realm - Vidria" {
         range: 256
         count_limit: (1, 51669847)
         on_resolve {
-            banish (1+, card)
+            banish (1+, monster, you controls)
             special_summon (1, monster) from gy
         }
     }
@@ -28,7 +34,6 @@ card "Null Power Patron Realm - Vidria" {
         code: 100
         range: 256
         on_resolve {
-            reveal self
         }
     }
 
@@ -38,7 +43,6 @@ card "Null Power Patron Realm - Vidria" {
         property: 2048
         range: 256
         on_resolve {
-            reveal self
         }
     }
 

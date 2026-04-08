@@ -10,7 +10,7 @@ card "Toon Kingdom" {
         category: 4
         code: 1002
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, either_player controls)
         }
     }
 
@@ -20,7 +20,6 @@ card "Toon Kingdom" {
         property: 131072
         range: 256
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,16 +29,13 @@ card "Toon Kingdom" {
         property: 128
         range: 256
         on_resolve {
-            reveal self
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 50
-        range: 256
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 4" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

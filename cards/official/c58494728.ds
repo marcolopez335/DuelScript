@@ -10,13 +10,17 @@ card "Steelswarm Girastag" {
     atk: 2600
     def: 0
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 1048608
         code: 1100
         property: 16
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
             gain_lp: 1000
         }
     }
@@ -25,7 +29,6 @@ card "Steelswarm Girastag" {
         effect_type: 1
         code: 251
         on_resolve {
-            reveal self
         }
     }
 

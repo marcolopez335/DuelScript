@@ -10,12 +10,14 @@ card "Darklord Tezcatlipoca" {
     atk: 2800
     def: 2100
 
-    raw_effect "Effect 1" {
-        effect_type: 2050
-        code: 50
-        range: 2
-        on_resolve {
-            send (1, card) to gy
+    summon_condition {
+        tributes_required: 2
+    }
+
+    replacement_effect "Effect 1" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 
@@ -30,7 +32,7 @@ card "Darklord Tezcatlipoca" {
             pay_lp 1000
         }
         on_resolve {
-            reveal self
+            return (1+, spell, either_player controls) to deck shuffle
         }
     }
 

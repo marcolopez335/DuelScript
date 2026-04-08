@@ -14,11 +14,15 @@ card "Alba System Dogmatikalamity" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 193
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +30,7 @@ card "Alba System Dogmatikalamity" {
         effect_type: 1
         code: 96
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
         }
     }
 
@@ -36,7 +40,7 @@ card "Alba System Dogmatikalamity" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
         }
     }
 

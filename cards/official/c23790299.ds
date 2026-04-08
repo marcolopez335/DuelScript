@@ -7,10 +7,16 @@ card "Altergeist Memorygant" {
     attribute: DARK
     race: Spellcaster
     link: 4
+    link_arrows: [left, right, bottom_left, bottom_right]
     atk: 2800
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -24,7 +30,6 @@ card "Altergeist Memorygant" {
             tribute self
         }
         on_resolve {
-            reveal self
         }
     }
 
@@ -34,18 +39,14 @@ card "Altergeist Memorygant" {
         code: 1139
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls, gy)
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: 2049
-        code: 50
-        property: 131072
-        range: 4
-        count_limit: (1, 0)
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 3" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

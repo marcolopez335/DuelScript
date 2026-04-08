@@ -14,16 +14,21 @@ card "Illusion of Chaos" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 131096
         range: 2
         count_limit: (1, 12266229)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
-            shuffle deck
-            return (1, card) to deck shuffle
+            add_to_hand (1+, monster, you controls) from deck
+            shuffle_hand
+            shuffle_deck
+            return (1+, monster, you controls) to deck shuffle
         }
     }
 
@@ -34,7 +39,7 @@ card "Illusion of Chaos" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
             special_summon (1, monster) from gy
             negate effect
         }

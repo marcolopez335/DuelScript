@@ -14,6 +14,11 @@ card "Herald of Perfection" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         category: 268435457
@@ -25,7 +30,7 @@ card "Herald of Perfection" {
         }
         on_resolve {
             negate activation
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, hand)
         }
     }
 

@@ -12,7 +12,12 @@ card "A.I. Connect" {
         count_limit: (1, 79015062)
         on_resolve {
             special_summon (1, monster) from gy
-            return (1, card) to deck shuffle
+            return (1+, monster, you controls) to deck shuffle
+            add_to_hand (1+, monster, you controls) from deck
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

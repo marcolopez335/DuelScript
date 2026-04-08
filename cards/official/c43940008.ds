@@ -9,7 +9,6 @@ card "Duel Tower" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -20,7 +19,8 @@ card "Duel Tower" {
         range: 256
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            banish (1+, monster, you controls, deck)
+            special_summon (1, monster) from gy
         }
     }
 
@@ -30,7 +30,10 @@ card "Duel Tower" {
         range: 256
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

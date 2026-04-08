@@ -9,7 +9,6 @@ card "Eternal Favorite" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -19,7 +18,11 @@ card "Eternal Favorite" {
         range: 8
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

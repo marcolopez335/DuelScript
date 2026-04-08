@@ -1,0 +1,60 @@
+// Diabellze the White Witch
+// Transpiled from c60145298.lua
+
+card "Diabellze the White Witch" {
+    password: 60145298
+    type: Effect Monster
+    attribute: LIGHT
+    race: Unknown
+    level: 8
+    atk: 2500
+    def: 2100
+
+    summon_condition {
+        tributes_required: 2
+    }
+
+    raw_effect "Effect 1" {
+        effect_type: 2
+        code: 41
+        range: 4
+        on_resolve {
+        }
+    }
+
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 512
+        range: 2
+        count_limit: (1, 60145298)
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+    raw_effect "Effect 3" {
+        effect_type: 129
+        category: 32
+        code: 1100
+        property: 65536
+        count_limit: (1, 0)
+        on_resolve {
+            send (1+, spell, you controls) to gy
+        }
+    }
+
+    raw_effect "Effect 4" {
+        effect_type: 129
+        category: 32
+        code: 1102
+        property: 65536
+        count_limit: (1, 0)
+        on_resolve {
+            send (1+, spell, you controls) to gy
+        }
+    }
+
+}

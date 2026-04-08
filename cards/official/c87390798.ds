@@ -10,7 +10,10 @@ card "Abyss Script - Fantasy Magic" {
         code: 1002
         property: 16
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -20,7 +23,7 @@ card "Abyss Script - Fantasy Magic" {
         code: 1029
         property: 65552
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to deck shuffle
         }
     }
 

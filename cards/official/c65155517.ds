@@ -3,7 +3,7 @@
 
 card "Speedroid Colonel Clackers" {
     password: 65155517
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: WIND
     race: Machine
     level: 2
@@ -19,6 +19,10 @@ card "Speedroid Colonel Clackers" {
             banish self
         }
         on_resolve {
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
             special_summon (1, monster) from gy
         }
     }
@@ -30,7 +34,7 @@ card "Speedroid Colonel Clackers" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
         }
     }
 
@@ -41,7 +45,7 @@ card "Speedroid Colonel Clackers" {
         range: 64
         count_limit: (1, 0)
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, you controls, gy)
         }
     }
 

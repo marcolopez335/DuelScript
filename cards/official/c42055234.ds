@@ -10,6 +10,10 @@ card "Dragonmaid Tinkhec" {
     atk: 2700
     def: 1700
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         category: 2097152
@@ -18,10 +22,9 @@ card "Dragonmaid Tinkhec" {
         range: 2
         count_limit: (1, 42055234)
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
-            reveal self
         }
     }
 
@@ -31,7 +34,6 @@ card "Dragonmaid Tinkhec" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -42,7 +44,7 @@ card "Dragonmaid Tinkhec" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, you controls) to hand
             special_summon (1, monster) from gy
         }
     }

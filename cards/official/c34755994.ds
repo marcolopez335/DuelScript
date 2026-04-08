@@ -7,10 +7,16 @@ card "Artemis, the Magistus Moon Maiden" {
     attribute: LIGHT
     race: Spellcaster
     link: 1
+    link_arrows: [top]
     atk: 800
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -21,7 +27,8 @@ card "Artemis, the Magistus Moon Maiden" {
         range: 4
         count_limit: (1, 34755994)
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, you controls, deck) to gy
+            equip (1, card) to (1, monster)
         }
     }
 
@@ -33,7 +40,8 @@ card "Artemis, the Magistus Moon Maiden" {
         range: 4
         count_limit: (1, 34755994)
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, you controls, deck) to gy
+            equip (1, card) to (1, monster)
         }
     }
 
@@ -43,7 +51,7 @@ card "Artemis, the Magistus Moon Maiden" {
         range: 8
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 

@@ -10,6 +10,10 @@ card "Derk, Longing for the Blue Skies" {
     atk: 3000
     def: 2700
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 130
         category: 512
@@ -32,7 +36,7 @@ card "Derk, Longing for the Blue Skies" {
         }
         on_resolve {
             negate effect
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, hand)
         }
     }
 
@@ -42,7 +46,7 @@ card "Derk, Longing for the Blue Skies" {
         range: 32
         count_limit: (1, 0)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, hand) to gy
         }
     }
 

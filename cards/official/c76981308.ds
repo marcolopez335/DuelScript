@@ -9,7 +9,6 @@ card "Melffy Staring Contest" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -19,9 +18,9 @@ card "Melffy Staring Contest" {
         range: 8
         count_limit: (1, 76981308)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
-            return (1, card) to deck shuffle
+            add_to_hand (1+, monster, you controls) from hand
+            shuffle_deck
+            return (1+, monster, you controls) to deck shuffle
         }
     }
 
@@ -31,7 +30,6 @@ card "Melffy Staring Contest" {
         range: 8
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 

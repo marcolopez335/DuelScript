@@ -10,6 +10,10 @@ card "Darklord Nasten" {
     atk: 2600
     def: 2600
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 512
@@ -30,7 +34,7 @@ card "Darklord Nasten" {
             pay_lp 1000
         }
         on_resolve {
-            reveal self
+            return (1+, spell, you controls) to deck shuffle
         }
     }
 

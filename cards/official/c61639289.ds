@@ -3,13 +3,14 @@
 
 card "Igknight Crusader" {
     password: 61639289
-    type: Pendulum Monster
+    type: Normal Monster | Pendulum Monster
     attribute: FIRE
     race: Warrior
     level: 3
     scale: 2
     atk: 1600
     def: 300
+    flavor: "[ Pendulum Effect ] If you have an 'Igknight' card in your other Pendulum Zone: You can destroy both cards in your Pendulum Zones, and if you do, add 1 FIRE Warrior-Type monster from your Deck or Graveyard to your hand. ---------------------------------------- [ Flavor Text ] This impulsive Igknight warrior is fanatical about the causes he fights for. Because of this passion, his comrades try to keep him at arm's length."
 
     raw_effect "Effect 1" {
         effect_type: 64
@@ -17,7 +18,7 @@ card "Igknight Crusader" {
         range: 512
         on_resolve {
             destroy (1+, card, either_player controls)
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

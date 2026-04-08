@@ -14,12 +14,16 @@ card "Nekroz of Catastor" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +34,7 @@ card "Nekroz of Catastor" {
         range: 2
         count_limit: (1, 52846880)
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
             special_summon (1, monster) from gy

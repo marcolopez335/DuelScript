@@ -3,6 +3,13 @@
 
 card "Clown Crew 'Rehearsal'" {
     password: 20448151
+    // FIXME: card not found in CDB — type/stats are placeholders
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 0
+    def: 0
 
     raw_effect "Effect 1" {
         effect_type: 16
@@ -13,7 +20,21 @@ card "Clown Crew 'Rehearsal'" {
             tribute self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
+        }
+    }
+
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 512
+        code: 1002
+        range: 16
+        count_limit: (1, 0)
+        cost {
+            banish self
+        }
+        on_resolve {
+            ritual_summon (1, ritual monster) using (1+, monster, you controls)
         }
     }
 

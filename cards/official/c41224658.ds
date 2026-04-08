@@ -10,6 +10,10 @@ card "Ambitious Gofer" {
     atk: 2400
     def: 100
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 1
@@ -17,7 +21,9 @@ card "Ambitious Gofer" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            shuffle_hand
+            negate effect
+            destroy (1+, monster, opponent controls, hand)
         }
     }
 

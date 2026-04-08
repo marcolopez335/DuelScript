@@ -3,7 +3,7 @@
 
 card "DoSolfachord Coolia" {
     password: 80776622
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: WIND
     race: Fairy
     level: 8
@@ -11,12 +11,15 @@ card "DoSolfachord Coolia" {
     atk: 2700
     def: 2500
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2050
         code: 1102
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -37,7 +40,6 @@ card "DoSolfachord Coolia" {
         range: 4
         count_limit: (1, 80776622)
         on_resolve {
-            reveal self
         }
     }
 
@@ -48,7 +50,7 @@ card "DoSolfachord Coolia" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, trap, either_player controls)
         }
     }
 

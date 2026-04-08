@@ -15,7 +15,6 @@ card "Broomy" {
         code: 236
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +25,15 @@ card "Broomy" {
         count_limit: (1, 57985393)
         on_resolve {
             special_summon (1, monster) from gy
-            banish (1+, card)
+            banish (1+, monster, you controls, hand)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

@@ -3,7 +3,7 @@
 
 card "Tensei Ryu-Ge Anva" {
     password: 56322832
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Dragon
     level: 10
@@ -11,13 +11,16 @@ card "Tensei Ryu-Ge Anva" {
     atk: 3000
     def: 2100
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 22
         property: 3584
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,8 +29,9 @@ card "Tensei Ryu-Ge Anva" {
         code: 1020
         range: 512
         on_resolve {
+            set_flag "tracked" on self
             negate effect
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, gy)
         }
     }
 
@@ -51,7 +55,7 @@ card "Tensei Ryu-Ge Anva" {
         property: 65552
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, gy)
         }
     }
 

@@ -3,6 +3,13 @@
 
 card "Clown Crew Diablo" {
     password: 31533473
+    // FIXME: card not found in CDB — type/stats are placeholders
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 0
+    def: 0
 
     summon_condition {
         cannot_normal_summon: true
@@ -13,7 +20,6 @@ card "Clown Crew Diablo" {
         code: 203
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -22,7 +28,8 @@ card "Clown Crew Diablo" {
         code: 1017
         property: 65536
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, trap, either_player controls) to deck shuffle
+            set (1, card)
         }
     }
 

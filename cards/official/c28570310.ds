@@ -3,7 +3,7 @@
 
 card "Mythical Beast Garuda" {
     password: 28570310
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: LIGHT
     race: Spellcaster
     level: 4
@@ -18,7 +18,7 @@ card "Mythical Beast Garuda" {
         range: 512
         count_limit: (1, 28570310)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, either_player controls)
         }
     }
 
@@ -28,7 +28,6 @@ card "Mythical Beast Garuda" {
         property: 1024
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -38,7 +37,6 @@ card "Mythical Beast Garuda" {
         property: 65536
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -50,7 +48,7 @@ card "Mythical Beast Garuda" {
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, either_player controls) from gy
         }
     }
 
@@ -62,7 +60,7 @@ card "Mythical Beast Garuda" {
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, either_player controls) from gy
         }
     }
 

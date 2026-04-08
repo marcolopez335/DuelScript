@@ -10,11 +10,14 @@ card "Labyrinth Heavy Tank" {
     atk: 2400
     def: 2400
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 32
         on_resolve {
-            reveal self
         }
     }
 
@@ -22,7 +25,6 @@ card "Labyrinth Heavy Tank" {
         effect_type: 2049
         code: 1100
         on_resolve {
-            reveal self
         }
     }
 
@@ -33,7 +35,7 @@ card "Labyrinth Heavy Tank" {
         count_limit: (1, 35026117)
         on_resolve {
             special_summon (1, monster) from gy
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, hand)
         }
     }
 

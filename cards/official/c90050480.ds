@@ -14,12 +14,20 @@ card "Elemental HERO Cosmo Neos" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         code: 1102
         property: 65536
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -29,7 +37,7 @@ card "Elemental HERO Cosmo Neos" {
         code: 4608
         range: 4
         on_resolve {
-            reveal self
+            return self to deck shuffle
         }
     }
 
@@ -39,7 +47,7 @@ card "Elemental HERO Cosmo Neos" {
         code: 4608
         range: 4
         on_resolve {
-            reveal self
+            return self to deck shuffle
         }
     }
 

@@ -3,13 +3,17 @@
 
 card "Abyss Actor - Mellow Madonna" {
     password: 78310590
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
     level: 7
     scale: 0
     atk: 1800
     def: 2500
+
+    summon_condition {
+        tributes_required: 2
+    }
 
     raw_effect "Effect 1" {
         effect_type: 64
@@ -20,7 +24,11 @@ card "Abyss Actor - Mellow Madonna" {
             pay_lp 1000
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -30,7 +38,6 @@ card "Abyss Actor - Mellow Madonna" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -54,6 +61,10 @@ card "Abyss Actor - Mellow Madonna" {
         count_limit: (1, 78310592)
         on_resolve {
             special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

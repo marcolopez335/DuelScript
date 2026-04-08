@@ -16,7 +16,10 @@ card "Hydrojet Shark" {
         property: 262144
         range: 2
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -26,7 +29,7 @@ card "Hydrojet Shark" {
         range: 4
         count_limit: (1, 90315086)
         on_resolve {
-            send (1, card) to gy
+            send (1+, spell, either_player controls) to gy
         }
     }
 
@@ -39,7 +42,7 @@ card "Hydrojet Shark" {
             banish self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, spell, either_player controls) to hand
         }
     }
 

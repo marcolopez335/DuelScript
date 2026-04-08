@@ -3,7 +3,7 @@
 
 card "Odd-Eyes Arcray Dragon" {
     password: 6218704
-    type: Fusion Monster
+    type: Fusion Monster | Pendulum Monster
     attribute: LIGHT
     race: Dragon
     level: 12
@@ -15,12 +15,16 @@ card "Odd-Eyes Arcray Dragon" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -41,7 +45,7 @@ card "Odd-Eyes Arcray Dragon" {
         count_limit: (1, 6218704)
         on_resolve {
             special_summon (1, monster) from gy
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to deck shuffle
             special_summon (1, monster) from gy
         }
     }

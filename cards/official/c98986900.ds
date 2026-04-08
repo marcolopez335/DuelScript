@@ -14,13 +14,18 @@ card "Thelematech Clatis" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2050
         code: 1027
         property: 1024
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +34,6 @@ card "Thelematech Clatis" {
         code: 1022
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -39,18 +43,15 @@ card "Thelematech Clatis" {
         range: 4
         count_limit: (1, 98986900)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: 2049
-        code: 50
-        property: 131072
-        range: 4
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 4" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

@@ -10,6 +10,10 @@ card "Virtual World Roshi - Laolao" {
     atk: 0
     def: 2400
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 544
@@ -17,7 +21,12 @@ card "Virtual World Roshi - Laolao" {
         range: 2
         count_limit: (1, 86483512)
         on_resolve {
-            send (1, card) to gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            send (1+, monster, you controls, gy) to gy
+            special_summon (1, monster) from gy
             special_summon (1, monster) from gy
         }
     }

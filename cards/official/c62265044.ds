@@ -9,7 +9,6 @@ card "Dragon Ravine" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -18,7 +17,8 @@ card "Dragon Ravine" {
         range: 256
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from hand
+            send (1+, card, you controls, hand) to gy
         }
     }
 

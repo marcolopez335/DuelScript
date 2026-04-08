@@ -9,7 +9,6 @@ card "Vampire's Domain" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -18,10 +17,13 @@ card "Vampire's Domain" {
         range: 8
         count_limit: (1, 0)
         cost {
-            pay_lp 1000
+            pay_lp 500
         }
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

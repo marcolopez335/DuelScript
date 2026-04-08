@@ -14,13 +14,18 @@ card "Super Roboyarou" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 100
         property: 131072
         range: 4
         on_resolve {
-            reveal self
+            modifier: atk + 1000
         }
     }
 
@@ -29,7 +34,7 @@ card "Super Roboyarou" {
         category: 512
         range: 4
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to deck shuffle
             special_summon (1, monster) from gy
         }
     }

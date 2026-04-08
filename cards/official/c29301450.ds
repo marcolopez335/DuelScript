@@ -7,10 +7,16 @@ card "S:P Little Knight" {
     attribute: DARK
     race: Warrior
     link: 2
+    link_arrows: [left, right]
     atk: 1600
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -20,7 +26,11 @@ card "S:P Little Knight" {
         property: 65552
         count_limit: (1, 29301450)
         on_resolve {
-            banish (1+, card)
+            banish (1+, monster, either_player controls)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -28,7 +38,6 @@ card "S:P Little Knight" {
         effect_type: 1
         code: 251
         on_resolve {
-            reveal self
         }
     }
 
@@ -40,7 +49,6 @@ card "S:P Little Knight" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 

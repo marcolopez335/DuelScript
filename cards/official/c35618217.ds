@@ -18,7 +18,6 @@ card "Lunalight Kaleido Chick" {
             send self to gy
         }
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +28,7 @@ card "Lunalight Kaleido Chick" {
         property: 65552
         count_limit: (1, 35618217)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 
@@ -38,7 +37,10 @@ card "Lunalight Kaleido Chick" {
         code: 1011
         property: 65536
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

@@ -11,7 +11,15 @@ card "Sweet Dreams, Nemleria" {
         code: 1002
         count_limit: (1, 44843954)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -21,7 +29,6 @@ card "Sweet Dreams, Nemleria" {
         property: 16
         range: 16
         on_resolve {
-            reveal self
         }
     }
 

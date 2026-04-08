@@ -14,6 +14,11 @@ card "Magnum the Reliever" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 65552
@@ -21,7 +26,7 @@ card "Magnum the Reliever" {
         range: 4
         count_limit: (1, 43227)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, spell, you controls) to deck shuffle
             draw 1
         }
     }
@@ -37,7 +42,7 @@ card "Magnum the Reliever" {
             banish self
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, you controls, gy)
         }
     }
 

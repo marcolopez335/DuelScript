@@ -10,6 +10,10 @@ card "Dual Assembwurm" {
     atk: 2800
     def: 1000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 2097664
@@ -19,7 +23,7 @@ card "Dual Assembwurm" {
             banish self
         }
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
         }
     }
 
@@ -32,7 +36,7 @@ card "Dual Assembwurm" {
             banish self
         }
         on_resolve {
-            banish (1+, card)
+            banish (1+, monster, you controls, hand)
         }
     }
 

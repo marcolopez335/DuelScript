@@ -14,6 +14,12 @@ card "Jurrac Astero" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         code: 1102
@@ -34,7 +40,7 @@ card "Jurrac Astero" {
         }
         on_resolve {
             negate summon
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls, gy)
         }
     }
 

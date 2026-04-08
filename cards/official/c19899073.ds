@@ -14,6 +14,11 @@ card "Ame no Murakumo no Mitsurugi" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 1
@@ -21,7 +26,7 @@ card "Ame no Murakumo no Mitsurugi" {
         property: 65536
         count_limit: (1, 19899073)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, opponent controls)
         }
     }
 
@@ -32,7 +37,8 @@ card "Ame no Murakumo no Mitsurugi" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            discard (1, card)
+            negate effect
         }
     }
 
@@ -43,7 +49,7 @@ card "Ame no Murakumo no Mitsurugi" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, opponent controls) to hand
             special_summon (1, monster) from gy
         }
     }

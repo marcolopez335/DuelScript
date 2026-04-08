@@ -7,10 +7,16 @@ card "Brotherhood of the Fire Fist - Eagle" {
     attribute: FIRE
     race: Beast-Warrior
     link: 2
+    link_arrows: [bottom_left, bottom_right]
     atk: 1700
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,6 @@ card "Brotherhood of the Fire Fist - Eagle" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,8 +35,8 @@ card "Brotherhood of the Fire Fist - Eagle" {
         range: 4
         count_limit: (1, 46241344)
         on_resolve {
-            add_to_hand (1, card) from gy
-            send (1, card) to gy
+            add_to_hand (1+, monster, you controls) from deck
+            send (1+, monster, you controls, deck) to gy
         }
     }
 

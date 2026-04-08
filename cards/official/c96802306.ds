@@ -3,13 +3,18 @@
 
 card "Igknight Gallant" {
     password: 96802306
-    type: Pendulum Monster
+    type: Normal Monster | Pendulum Monster
     attribute: FIRE
     race: Warrior
     level: 6
     scale: 2
     atk: 2100
     def: 2200
+    flavor: "[ Pendulum Effect ] If you have an 'Igknight' card in your other Pendulum Zone: You can destroy both cards in your Pendulum Zones, and if you do, add 1 FIRE Warrior-Type monster from your Deck or Graveyard to your hand. ---------------------------------------- [ Flavor Text ] A leader of the most dashing Igknight commando unit. His greatest challenge is keeping the hot tempers of his men under control."
+
+    summon_condition {
+        tributes_required: 1
+    }
 
     raw_effect "Effect 1" {
         effect_type: 64
@@ -17,7 +22,7 @@ card "Igknight Gallant" {
         range: 512
         on_resolve {
             destroy (1+, card, either_player controls)
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

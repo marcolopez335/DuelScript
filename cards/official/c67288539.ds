@@ -7,6 +7,7 @@ card "Borrelcode Dragon" {
     attribute: DARK
     race: Dragon
     link: 3
+    link_arrows: [top, bottom_left, bottom_right]
     atk: 2500
 
     materials {
@@ -24,7 +25,6 @@ card "Borrelcode Dragon" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -34,7 +34,7 @@ card "Borrelcode Dragon" {
         code: 1132
         count_limit: (1, 67288539)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, either_player controls)
         }
     }
 
@@ -42,7 +42,6 @@ card "Borrelcode Dragon" {
         effect_type: 1
         code: 251
         on_resolve {
-            reveal self
         }
     }
 
@@ -55,7 +54,7 @@ card "Borrelcode Dragon" {
             banish self
         }
         on_resolve {
-            banish (1+, card)
+            banish (1+, monster, either_player controls)
             special_summon (1, monster) from gy
         }
     }

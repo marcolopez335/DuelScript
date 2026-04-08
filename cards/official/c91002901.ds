@@ -11,7 +11,7 @@ card "Duel Evolution - Assault Zone" {
         code: 1002
         count_limit: (1, 91002901)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from gy
         }
     }
 
@@ -20,7 +20,6 @@ card "Duel Evolution - Assault Zone" {
         code: 42
         range: 256
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +28,6 @@ card "Duel Evolution - Assault Zone" {
         code: 41
         range: 256
         on_resolve {
-            reveal self
         }
     }
 
@@ -38,10 +36,18 @@ card "Duel Evolution - Assault Zone" {
         range: 256
         count_limit: (1, 0)
         cost {
-            pay_lp 1000
+            pay_lp 2000
         }
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            set_flag "tracked" on self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

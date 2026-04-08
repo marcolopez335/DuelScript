@@ -20,7 +20,11 @@ card "Time Thief Temporwhal" {
             tribute self
         }
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, either_player controls)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -31,7 +35,7 @@ card "Time Thief Temporwhal" {
         range: 16
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
             special_summon (1, monster) from gy
         }
     }

@@ -16,19 +16,17 @@ card "Vylon Tetra" {
         code: 1014
         property: 65552
         cost {
-            pay_lp 1000
+            pay_lp 500
         }
         on_resolve {
             equip (1, card) to (1, monster)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: 2052
-        code: 50
-        property: 128
-        on_resolve {
-            destroy (1+, card, either_player controls)
+    replacement_effect "Effect 2" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

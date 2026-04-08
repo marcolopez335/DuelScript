@@ -1,0 +1,30 @@
+// Pendulum reference card.
+// Pendulum scales 1 + 7. Monster effect: when summoned, draw 1.
+// Pendulum effect: once per turn, if you have no other Pendulum
+// monsters, you can place a card from your hand into your Pendulum
+// Zone (handled by the engine's pendulum mechanics).
+
+card "Test Pendulum Mage" {
+    type: Effect Monster | Pendulum Monster
+    password: 40640076
+    attribute: LIGHT
+    race: Spellcaster
+    level: 4
+    scale: 4
+    atk: 1500
+    def: 1000
+
+    pendulum_effect {
+        on_resolve {
+            draw 1
+        }
+    }
+
+    effect "Draw on Summon" {
+        speed: spell_speed_1
+        trigger: when_summoned
+        on_resolve {
+            draw 1
+        }
+    }
+}

@@ -14,13 +14,18 @@ card "Lyrilusc - Ensemblue Robin" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 100
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -34,7 +39,7 @@ card "Lyrilusc - Ensemblue Robin" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, either_player controls) from gy
         }
     }
 
@@ -44,7 +49,7 @@ card "Lyrilusc - Ensemblue Robin" {
         code: 1014
         property: 81936
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, either_player controls) from gy
         }
     }
 

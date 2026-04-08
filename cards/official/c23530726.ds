@@ -7,10 +7,16 @@ card "Surgical Striker - S.P.E.C.T.R.A." {
     attribute: DARK
     race: Machine
     link: 4
+    link_arrows: [top, left, right, bottom]
     atk: 3000
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,6 @@ card "Surgical Striker - S.P.E.C.T.R.A." {
         property: 394240
         range: 64
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +34,7 @@ card "Surgical Striker - S.P.E.C.T.R.A." {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
+            modifier: atk - 3000
         }
     }
 
@@ -44,7 +49,7 @@ card "Surgical Striker - S.P.E.C.T.R.A." {
         }
         on_resolve {
             negate effect
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, you controls, gy)
         }
     }
 

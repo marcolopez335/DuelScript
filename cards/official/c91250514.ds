@@ -10,13 +10,17 @@ card "Tongue Twister" {
     atk: 400
     def: 300
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 513
         category: 65536
         code: 1014
         on_resolve {
             draw 2
-            banish (1+, card)
+            banish (1+, card, either_player controls)
         }
     }
 

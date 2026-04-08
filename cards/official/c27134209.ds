@@ -10,12 +10,15 @@ card "Beargram, Shelled Emperor of the Forest Crown" {
     atk: 3400
     def: 2900
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -25,7 +28,7 @@ card "Beargram, Shelled Emperor of the Forest Crown" {
         property: 263168
         range: 18
         on_resolve {
-            banish (1+, card)
+            banish (1+, monster, you controls, hand)
         }
     }
 
@@ -34,7 +37,6 @@ card "Beargram, Shelled Emperor of the Forest Crown" {
         code: 1027
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -44,7 +46,7 @@ card "Beargram, Shelled Emperor of the Forest Crown" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls, hand)
         }
     }
 

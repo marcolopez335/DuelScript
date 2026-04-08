@@ -14,7 +14,11 @@ card "Dverg of the Nordic Alfar" {
         effect_type: 2049
         code: 1100
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            set_flag "tracked" on self
         }
     }
 
@@ -24,7 +28,7 @@ card "Dverg of the Nordic Alfar" {
         code: 1014
         property: 16
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

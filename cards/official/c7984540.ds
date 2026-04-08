@@ -7,6 +7,7 @@ card "Sunavalon Daphne" {
     attribute: EARTH
     race: Plant
     link: 2
+    link_arrows: [left, right]
     atk: 0
 
     materials {
@@ -24,7 +25,6 @@ card "Sunavalon Daphne" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -37,7 +37,7 @@ card "Sunavalon Daphne" {
             tribute self
         }
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to deck shuffle
         }
     }
 

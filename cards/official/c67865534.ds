@@ -3,7 +3,7 @@
 
 card "Magician of Hope" {
     password: 67865534
-    type: Xyz Monster
+    type: Xyz Monster | Pendulum Monster
     attribute: LIGHT
     race: Spellcaster
     rank: 4
@@ -15,6 +15,12 @@ card "Magician of Hope" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 130
         category: 1
@@ -23,7 +29,7 @@ card "Magician of Hope" {
         count_limit: (1, 0)
         on_resolve {
             negate attack
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls, hand)
         }
     }
 

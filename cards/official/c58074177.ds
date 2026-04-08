@@ -3,7 +3,7 @@
 
 card "Odd-Eyes Wing Dragon" {
     password: 58074177
-    type: Synchro Monster
+    type: Synchro Monster | Pendulum Monster
     attribute: DARK
     race: Dragon
     level: 8
@@ -15,6 +15,12 @@ card "Odd-Eyes Wing Dragon" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 130
         category: 2097152
@@ -22,7 +28,6 @@ card "Odd-Eyes Wing Dragon" {
         range: 512
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 
@@ -33,7 +38,6 @@ card "Odd-Eyes Wing Dragon" {
         range: 4
         count_limit: (1, 58074177)
         on_resolve {
-            reveal self
         }
     }
 
@@ -44,7 +48,7 @@ card "Odd-Eyes Wing Dragon" {
         range: 4
         count_limit: (1, 58074177)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, trap, opponent controls)
         }
     }
 

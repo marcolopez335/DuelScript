@@ -3,7 +3,7 @@
 
 card "Majesty Pegasus, the Dracoslayer" {
     password: 92332424
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: WIND
     race: Spellcaster
     level: 4
@@ -17,8 +17,8 @@ card "Majesty Pegasus, the Dracoslayer" {
         range: 512
         count_limit: (1, 92332424)
         on_resolve {
-            add_to_hand (1, card) from gy
-            destroy (1+, card, either_player controls)
+            add_to_hand (1+, spell, you controls) from deck
+            destroy (1+, spell, you controls, deck)
         }
     }
 
@@ -27,10 +27,18 @@ card "Majesty Pegasus, the Dracoslayer" {
         code: 1002
         range: 2
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -41,8 +49,8 @@ card "Majesty Pegasus, the Dracoslayer" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            add_to_hand (1+, spell, you controls) from deck
+            shuffle_hand
             discard (1, card)
         }
     }

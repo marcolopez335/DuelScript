@@ -10,12 +10,15 @@ card "Ancient Gear Golem - Ultimate Pound" {
     atk: 3000
     def: 3000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -23,7 +26,6 @@ card "Ancient Gear Golem - Ultimate Pound" {
         effect_type: 1
         code: 203
         on_resolve {
-            reveal self
         }
     }
 
@@ -32,7 +34,6 @@ card "Ancient Gear Golem - Ultimate Pound" {
         code: 1139
         count_limit: (2, 0)
         on_resolve {
-            reveal self
         }
     }
 
@@ -42,8 +43,8 @@ card "Ancient Gear Golem - Ultimate Pound" {
         code: 1029
         property: 65536
         on_resolve {
-            add_to_hand (1, card) from gy
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from hand
+            add_to_hand (1+, monster, you controls) from hand
         }
     }
 

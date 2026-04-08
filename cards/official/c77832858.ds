@@ -10,6 +10,10 @@ card "Thestalos the Shadowfire Monarch" {
     atk: 3000
     def: 1000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 32
@@ -34,8 +38,8 @@ card "Thestalos the Shadowfire Monarch" {
         code: 1100
         property: 65536
         on_resolve {
-            banish (1+, card)
-            banish (1+, card)
+            banish (1+, monster, either_player controls)
+            banish (1+, monster, either_player controls)
             deal_damage to opponent: 1000
         }
     }
@@ -44,7 +48,6 @@ card "Thestalos the Shadowfire Monarch" {
         effect_type: 1
         code: 251
         on_resolve {
-            reveal self
         }
     }
 

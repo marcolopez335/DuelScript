@@ -10,12 +10,15 @@ card "Lord of the Heavenly Prison" {
     atk: 3000
     def: 3000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         range: 2
         count_limit: (1, 9822220)
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,6 +32,10 @@ card "Lord of the Heavenly Prison" {
         on_resolve {
             special_summon (1, monster) from gy
             set (1, card)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

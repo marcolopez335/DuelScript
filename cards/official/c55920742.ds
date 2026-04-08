@@ -10,6 +10,10 @@ card "Noh-P.U.N.K. Foxy Tune" {
     atk: 2300
     def: 2600
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 1048576
@@ -42,7 +46,7 @@ card "Noh-P.U.N.K. Foxy Tune" {
             send self to gy
         }
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, hand) to gy
             special_summon (1, monster) from gy
         }
     }

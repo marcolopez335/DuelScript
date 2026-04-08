@@ -14,6 +14,11 @@ card "Elemental HERO Glow Neos" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 1
@@ -21,7 +26,7 @@ card "Elemental HERO Glow Neos" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls)
             change_battle_position (1, monster)
         }
     }
@@ -32,7 +37,7 @@ card "Elemental HERO Glow Neos" {
         code: 4608
         range: 4
         on_resolve {
-            reveal self
+            return self to deck shuffle
         }
     }
 
@@ -42,7 +47,7 @@ card "Elemental HERO Glow Neos" {
         code: 4608
         range: 4
         on_resolve {
-            reveal self
+            return self to deck shuffle
         }
     }
 

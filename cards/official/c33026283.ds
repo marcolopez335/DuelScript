@@ -14,13 +14,17 @@ card "Dual Avatar - Empowered Kon-Gyo" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 6
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +33,7 @@ card "Dual Avatar - Empowered Kon-Gyo" {
         category: 8
         code: 1138
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, opponent controls) to hand
         }
     }
 

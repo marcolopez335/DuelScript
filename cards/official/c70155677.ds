@@ -3,7 +3,7 @@
 
 card "Dreaming Nemleria" {
     password: 70155677
-    type: Pendulum Monster | Spirit
+    type: Effect Monster | Pendulum Monster | Spirit
     attribute: LIGHT
     race: Fairy
     level: 1
@@ -30,7 +30,6 @@ card "Dreaming Nemleria" {
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -40,7 +39,6 @@ card "Dreaming Nemleria" {
         property: 263168
         range: 64
         on_resolve {
-            reveal self
         }
     }
 
@@ -50,8 +48,8 @@ card "Dreaming Nemleria" {
         code: 1102
         property: 65536
         on_resolve {
-            banish (1+, card)
-            return (1, card) to deck shuffle
+            banish (1+, card, either_player controls)
+            return (1+, card, either_player controls) to deck shuffle
         }
     }
 

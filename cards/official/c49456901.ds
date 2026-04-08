@@ -14,13 +14,19 @@ card "Number C104: Umbral Horror Masquerade" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 1
         code: 1102
         property: 16
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, either_player controls)
         }
     }
 
@@ -36,7 +42,7 @@ card "Number C104: Umbral Horror Masquerade" {
         }
         on_resolve {
             negate activation
-            send (1, card) to gy
+            send (1+, spell, either_player controls) to gy
         }
     }
 

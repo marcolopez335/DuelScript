@@ -7,10 +7,16 @@ card "Spirit with Eyes of Blue" {
     attribute: LIGHT
     race: Dragon
     link: 1
+    link_arrows: [bottom_left]
     atk: 300
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,6 @@ card "Spirit with Eyes of Blue" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +35,6 @@ card "Spirit with Eyes of Blue" {
         property: 65536
         count_limit: (1, 42097666)
         on_resolve {
-            reveal self
         }
     }
 
@@ -43,7 +47,7 @@ card "Spirit with Eyes of Blue" {
             tribute self
         }
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
         }
     }
 

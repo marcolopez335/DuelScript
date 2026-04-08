@@ -7,10 +7,16 @@ card "Decode Talker Integration" {
     attribute: DARK
     race: Cyberse
     link: 3
+    link_arrows: [top, bottom_left, bottom_right]
     atk: 2300
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,6 @@ card "Decode Talker Integration" {
         property: 131072
         range: 4096
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +34,6 @@ card "Decode Talker Integration" {
         property: 131072
         range: 4096
         on_resolve {
-            reveal self
         }
     }
 
@@ -43,7 +47,7 @@ card "Decode Talker Integration" {
             tribute self
         }
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
         }
     }
 

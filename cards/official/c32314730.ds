@@ -17,7 +17,9 @@ card "Koa'ki Meiru Crusader" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            send (1+, monster, you controls, hand) to gy
+            shuffle_hand
+            destroy (1+, monster, you controls, hand)
         }
     }
 
@@ -27,7 +29,7 @@ card "Koa'ki Meiru Crusader" {
         code: 1139
         property: 16
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from hand
         }
     }
 

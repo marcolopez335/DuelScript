@@ -7,10 +7,16 @@ card "Ragnaraika Chain Coils" {
     attribute: FIRE
     race: Reptile
     link: 4
+    link_arrows: [right, bottom_left, bottom, bottom_right]
     atk: 2900
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -20,7 +26,10 @@ card "Ragnaraika Chain Coils" {
         range: 4
         count_limit: (1, 6908161)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -31,8 +40,12 @@ card "Ragnaraika Chain Coils" {
         range: 16
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to deck shuffle
             special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

@@ -7,10 +7,16 @@ card "Xtra HERO Infernal Devicer" {
     attribute: DARK
     race: Fiend
     link: 2
+    link_arrows: [bottom_left, bottom]
     atk: 1700
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -20,7 +26,7 @@ card "Xtra HERO Infernal Devicer" {
         property: 65536
         count_limit: (1, 19324993)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -29,7 +35,6 @@ card "Xtra HERO Infernal Devicer" {
         code: 100
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -38,7 +43,6 @@ card "Xtra HERO Infernal Devicer" {
         code: 104
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

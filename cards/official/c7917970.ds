@@ -9,7 +9,6 @@ card "Dragunity Divine Wind" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -19,7 +18,10 @@ card "Dragunity Divine Wind" {
         range: 256
         count_limit: (1, 7917970)
         on_resolve {
-            reveal self
+            add_to_hand (1+, card, you controls) from gy
+            shuffle_hand
+            special_summon (1, monster) from gy
+            equip (1, card) to (1, monster)
         }
     }
 

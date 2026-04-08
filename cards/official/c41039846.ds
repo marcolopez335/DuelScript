@@ -10,6 +10,10 @@ card "Swarm of Crows" {
     atk: 1200
     def: 1800
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 4096
@@ -24,7 +28,7 @@ card "Swarm of Crows" {
         category: 128
         code: 1101
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
         }
     }
 
@@ -34,7 +38,6 @@ card "Swarm of Crows" {
         property: 394240
         range: 1
         on_resolve {
-            reveal self
         }
     }
 

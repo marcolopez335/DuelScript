@@ -10,6 +10,10 @@ card "Psiics, Moonlight of the Ghoti" {
     atk: 2400
     def: 0
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 131084
@@ -17,9 +21,9 @@ card "Psiics, Moonlight of the Ghoti" {
         property: 65536
         count_limit: (1, 26523337)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
-            banish (1+, card)
+            add_to_hand (1+, card, you controls) from deck
+            shuffle_hand
+            banish (1+, card, you controls, deck)
         }
     }
 
@@ -30,9 +34,9 @@ card "Psiics, Moonlight of the Ghoti" {
         property: 65536
         count_limit: (1, 26523337)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
-            banish (1+, card)
+            add_to_hand (1+, card, you controls) from deck
+            shuffle_hand
+            banish (1+, card, you controls, deck)
         }
     }
 

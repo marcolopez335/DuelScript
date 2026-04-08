@@ -26,7 +26,10 @@ card "Oboro-Guruma, the Wheeled Mayakashi" {
         property: 81920
         count_limit: (1, 30607616)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -38,7 +41,7 @@ card "Oboro-Guruma, the Wheeled Mayakashi" {
         range: 16
         count_limit: (1, 0)
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, you controls, gy)
             special_summon (1, monster) from gy
         }
     }

@@ -10,6 +10,10 @@ card "Earthbound Greater Linewalker" {
     atk: 2900
     def: 2900
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 512
@@ -26,7 +30,7 @@ card "Earthbound Greater Linewalker" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, you controls) to hand
         }
     }
 
@@ -37,7 +41,6 @@ card "Earthbound Greater Linewalker" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 

@@ -9,7 +9,6 @@ card "Decisive Battle of Golgonda" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -19,17 +18,13 @@ card "Decisive Battle of Golgonda" {
         property: 131072
         range: 24
         on_resolve {
-            reveal self
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 50
-        range: 8
-        count_limit: (1, 0)
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 3" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

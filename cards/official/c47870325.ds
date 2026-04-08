@@ -10,7 +10,7 @@ card "Smile Action" {
         category: 4
         code: 1002
         on_resolve {
-            reveal self
+            banish (1+, spell, either_player controls)
         }
     }
 
@@ -20,9 +20,13 @@ card "Smile Action" {
         code: 1130
         range: 256
         on_resolve {
-            add_to_hand (1, card) from gy
-            send (1, card) to gy
+            add_to_hand (1+, spell, either_player controls) from gy
+            send (1+, spell, either_player controls) to gy
             negate attack
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

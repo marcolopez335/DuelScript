@@ -10,6 +10,10 @@ card "Amaterasu" {
     atk: 3000
     def: 3000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         category: 65536
@@ -26,7 +30,7 @@ card "Amaterasu" {
         category: 4
         code: 1001
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, either_player controls)
         }
     }
 

@@ -10,7 +10,7 @@ card "Madolche Chateau" {
         category: 16
         code: 1002
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, monster, you controls) to deck shuffle
         }
     }
 
@@ -19,7 +19,7 @@ card "Madolche Chateau" {
         code: 100
         range: 256
         on_resolve {
-            reveal self
+            modifier: atk + 500
         }
     }
 
@@ -28,16 +28,14 @@ card "Madolche Chateau" {
         code: 104
         range: 256
         on_resolve {
-            reveal self
+            modifier: def + 500
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 52
-        range: 256
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 4" {
+        instead_of: sent_to_gy
+        do: {
+            banish self
         }
     }
 

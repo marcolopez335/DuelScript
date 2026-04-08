@@ -10,11 +10,15 @@ card "Dark Scorpion - Gorg the Strong" {
     atk: 1800
     def: 1500
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         code: 1143
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to deck shuffle
             mill 1
         }
     }

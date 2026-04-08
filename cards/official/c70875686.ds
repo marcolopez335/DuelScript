@@ -7,10 +7,16 @@ card "Prank-Kids Rip-Roarin-Roaster" {
     attribute: WATER
     race: Aqua
     link: 4
+    link_arrows: [top, left, right, bottom]
     atk: 3000
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -18,7 +24,6 @@ card "Prank-Kids Rip-Roarin-Roaster" {
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -31,7 +36,7 @@ card "Prank-Kids Rip-Roarin-Roaster" {
             tribute self
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, opponent controls)
         }
     }
 
@@ -42,7 +47,7 @@ card "Prank-Kids Rip-Roarin-Roaster" {
         property: 81936
         count_limit: (1, 70875686)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, spell, opponent controls) to hand
         }
     }
 

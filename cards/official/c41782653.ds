@@ -19,7 +19,6 @@ card "Overtex Qoatlus" {
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +28,7 @@ card "Overtex Qoatlus" {
         property: 262144
         range: 2
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, monster, either_player controls) to deck shuffle
         }
     }
 
@@ -41,9 +40,9 @@ card "Overtex Qoatlus" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, either_player controls)
             negate activation
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, either_player controls)
         }
     }
 
@@ -54,7 +53,7 @@ card "Overtex Qoatlus" {
         property: 65536
         count_limit: (1, 41782653)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, either_player controls) from gy
         }
     }
 

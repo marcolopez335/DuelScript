@@ -14,6 +14,12 @@ card "Tenyi Spirit - Mula Adhara" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 131080
@@ -21,7 +27,7 @@ card "Tenyi Spirit - Mula Adhara" {
         property: 65536
         count_limit: (1, 73121813)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, either_player controls) to hand
         }
     }
 
@@ -31,7 +37,6 @@ card "Tenyi Spirit - Mula Adhara" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -41,7 +46,6 @@ card "Tenyi Spirit - Mula Adhara" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -51,7 +55,6 @@ card "Tenyi Spirit - Mula Adhara" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

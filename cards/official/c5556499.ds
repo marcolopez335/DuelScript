@@ -10,13 +10,17 @@ card "Machina Fortress" {
     atk: 2500
     def: 1600
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
         property: 262144
         range: 18
         on_resolve {
-            reveal self
+            send (1+, card, you controls, hand) to gy
         }
     }
 
@@ -26,7 +30,7 @@ card "Machina Fortress" {
         code: 1140
         property: 16
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, hand)
         }
     }
 
@@ -35,8 +39,8 @@ card "Machina Fortress" {
         code: 1020
         range: 4
         on_resolve {
-            send (1, card) to gy
-            shuffle deck
+            send (1+, card, you controls, hand) to gy
+            shuffle_hand
         }
     }
 

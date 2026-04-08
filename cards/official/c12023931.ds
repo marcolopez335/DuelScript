@@ -7,10 +7,16 @@ card "Booster Dragon" {
     attribute: DARK
     race: Dragon
     link: 2
+    link_arrows: [bottom_left, bottom_right]
     atk: 1900
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,6 @@ card "Booster Dragon" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 

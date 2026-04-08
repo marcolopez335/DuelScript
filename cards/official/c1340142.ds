@@ -7,10 +7,16 @@ card "Varar, Vaalmonican Concord" {
     attribute: WATER
     race: Spellcaster
     link: 2
+    link_arrows: [bottom_left, bottom_right]
     atk: 3000
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,6 @@ card "Varar, Vaalmonican Concord" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +34,6 @@ card "Varar, Vaalmonican Concord" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -41,7 +45,7 @@ card "Varar, Vaalmonican Concord" {
         count_limit: (1, 0)
         on_resolve {
             negate summon
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls)
         }
     }
 

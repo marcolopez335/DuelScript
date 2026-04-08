@@ -10,6 +10,10 @@ card "Performapal Springoose" {
     atk: 1100
     def: 2400
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 8
@@ -20,7 +24,7 @@ card "Performapal Springoose" {
             banish self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

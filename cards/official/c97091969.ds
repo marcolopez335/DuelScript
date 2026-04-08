@@ -9,7 +9,6 @@ card "Armed Dragon Lightning" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -20,16 +19,14 @@ card "Armed Dragon Lightning" {
         range: 8
         count_limit: (1, 97091969)
         on_resolve {
-            reveal self
+            add_to_hand (1+, monster, you controls) from gy
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 50
-        range: 8
-        on_resolve {
-            send (1, card) to gy
+    replacement_effect "Effect 3" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

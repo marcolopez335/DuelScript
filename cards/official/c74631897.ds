@@ -1,0 +1,64 @@
+// Artmage Non-Finito
+// Transpiled from c74631897.lua
+
+card "Artmage Non-Finito" {
+    password: 74631897
+    type: Fusion Monster
+    attribute: EARTH
+    race: Unknown
+    level: 7
+    atk: 2400
+    def: 1500
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
+    raw_effect "Effect 1" {
+        effect_type: 2049
+        code: 1102
+        property: 1024
+        on_resolve {
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+        }
+    }
+
+    raw_effect "Effect 2" {
+        effect_type: 2
+        code: 34
+        property: 263168
+        range: 64
+        on_resolve {
+            send (1+, spell, you controls, hand) to gy
+            tribute (1, monster, you controls)
+        }
+    }
+
+    raw_effect "Effect 3" {
+        effect_type: 129
+        code: 1102
+        property: 65536
+        on_resolve {
+            set (1, card)
+        }
+    }
+
+    raw_effect "Effect 4" {
+        effect_type: 256
+        category: 1073742336
+        code: 1002
+        range: 4
+        count_limit: (1, 0)
+        on_resolve {
+        }
+    }
+
+}

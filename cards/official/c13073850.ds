@@ -3,7 +3,7 @@
 
 card "Qliphort Stealth" {
     password: 13073850
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: EARTH
     race: Machine
     level: 8
@@ -11,13 +11,16 @@ card "Qliphort Stealth" {
     atk: 2800
     def: 1000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 22
         property: 3072
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +29,7 @@ card "Qliphort Stealth" {
         code: 100
         range: 512
         on_resolve {
-            reveal self
+            modifier: atk + 300
         }
     }
 
@@ -34,7 +37,6 @@ card "Qliphort Stealth" {
         effect_type: 1
         code: 32
         on_resolve {
-            reveal self
         }
     }
 
@@ -42,7 +44,6 @@ card "Qliphort Stealth" {
         effect_type: 1
         code: 91
         on_resolve {
-            reveal self
         }
     }
 
@@ -50,7 +51,6 @@ card "Qliphort Stealth" {
         effect_type: 1
         code: 92
         on_resolve {
-            reveal self
         }
     }
 
@@ -60,7 +60,6 @@ card "Qliphort Stealth" {
         property: 393216
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -70,7 +69,7 @@ card "Qliphort Stealth" {
         code: 1100
         property: 16
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 
@@ -78,7 +77,6 @@ card "Qliphort Stealth" {
         effect_type: 1
         code: 251
         on_resolve {
-            reveal self
         }
     }
 

@@ -7,10 +7,16 @@ card "Unchained Soul of Rage" {
     attribute: DARK
     race: Fiend
     link: 2
+    link_arrows: [top, bottom]
     atk: 1800
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -21,7 +27,6 @@ card "Unchained Soul of Rage" {
         range: 4
         count_limit: (1, 67680512)
         on_resolve {
-            reveal self
         }
     }
 
@@ -32,7 +37,7 @@ card "Unchained Soul of Rage" {
         property: 81936
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

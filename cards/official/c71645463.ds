@@ -15,7 +15,6 @@ card "Dragunity Quirinus" {
         code: 42
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +25,7 @@ card "Dragunity Quirinus" {
         property: 65536
         count_limit: (1, 71645463)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 
@@ -37,7 +36,7 @@ card "Dragunity Quirinus" {
         property: 65536
         count_limit: (1, 71645463)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 
@@ -48,8 +47,8 @@ card "Dragunity Quirinus" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            add_to_hand (1+, spell, you controls) from deck
+            shuffle_hand
             special_summon (1, monster) from gy
         }
     }

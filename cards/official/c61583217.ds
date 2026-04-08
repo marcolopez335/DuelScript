@@ -9,7 +9,6 @@ card "Cynet Universe" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -18,7 +17,7 @@ card "Cynet Universe" {
         code: 100
         range: 256
         on_resolve {
-            reveal self
+            modifier: atk + 300
         }
     }
 
@@ -29,7 +28,7 @@ card "Cynet Universe" {
         range: 256
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, monster, either_player controls) to deck shuffle
         }
     }
 
@@ -38,7 +37,7 @@ card "Cynet Universe" {
         category: 32
         code: 1029
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, either_player controls) to gy
         }
     }
 

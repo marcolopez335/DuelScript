@@ -9,7 +9,6 @@ card "Mayakashi Mayhem" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -19,7 +18,15 @@ card "Mayakashi Mayhem" {
         code: 1102
         property: 83968
         on_resolve {
-            reveal self
+            draw 1
+            set_flag "tracked" on self
+            set (1, card)
+            set_flag "tracked" on self
+            send (1+, spell, you controls, deck) to gy
+            send (1+, spell, you controls, deck) to gy
+            set_flag "tracked" on self
+            deal_damage to opponent: 1000
+            set_flag "tracked" on self
         }
     }
 
@@ -30,7 +37,15 @@ card "Mayakashi Mayhem" {
         property: 83968
         range: 8
         on_resolve {
-            reveal self
+            draw 1
+            set_flag "tracked" on self
+            set (1, card)
+            set_flag "tracked" on self
+            send (1+, spell, you controls, deck) to gy
+            send (1+, spell, you controls, deck) to gy
+            set_flag "tracked" on self
+            deal_damage to opponent: 1000
+            set_flag "tracked" on self
         }
     }
 

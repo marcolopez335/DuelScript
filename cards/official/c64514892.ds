@@ -7,6 +7,7 @@ card "Fire Fighting Daruma Doll" {
     attribute: FIRE
     race: Beast-Warrior
     link: 2
+    link_arrows: [bottom_left, bottom_right]
     atk: 1500
 
     materials {
@@ -24,7 +25,6 @@ card "Fire Fighting Daruma Doll" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -35,7 +35,7 @@ card "Fire Fighting Daruma Doll" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, either_player controls)
         }
     }
 
@@ -45,7 +45,7 @@ card "Fire Fighting Daruma Doll" {
         code: 1139
         property: 16
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, spell, either_player controls) to hand
         }
     }
 

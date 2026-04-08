@@ -14,6 +14,11 @@ card "Centaur Mina" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         category: 268439552
@@ -24,6 +29,7 @@ card "Centaur Mina" {
         on_resolve {
             negate activation
             change_battle_position (1, monster)
+            emit_event "custom"
         }
     }
 
@@ -44,7 +50,7 @@ card "Centaur Mina" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, either_player controls)
         }
     }
 

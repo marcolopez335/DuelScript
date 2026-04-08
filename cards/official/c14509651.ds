@@ -10,12 +10,15 @@ card "Curse Necrofear" {
     atk: 2800
     def: 2200
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,7 +30,7 @@ card "Curse Necrofear" {
         count_limit: (1, 14509651)
         on_resolve {
             special_summon (1, monster) from gy
-            return (1, card) to deck shuffle
+            return (1+, spell, you controls) to deck shuffle
         }
     }
 
@@ -36,7 +39,6 @@ card "Curse Necrofear" {
         code: 1014
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 

@@ -10,13 +10,17 @@ card "Behemoth the King of a Hundred Battles" {
     atk: 2700
     def: 1500
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 2097160
         code: 1100
         property: 65552
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 
@@ -26,7 +30,7 @@ card "Behemoth the King of a Hundred Battles" {
         code: 1102
         property: 65552
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 
@@ -36,7 +40,6 @@ card "Behemoth the King of a Hundred Battles" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -47,7 +50,6 @@ card "Behemoth the King of a Hundred Battles" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 

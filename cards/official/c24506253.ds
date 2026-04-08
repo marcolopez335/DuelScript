@@ -10,12 +10,14 @@ card "Chronomaly Acambaro Figures" {
     atk: 1000
     def: 1800
 
-    raw_effect "Effect 1" {
-        effect_type: 2050
-        code: 50
-        range: 2
-        on_resolve {
-            send (1, card) to gy
+    summon_condition {
+        tributes_required: 1
+    }
+
+    replacement_effect "Effect 1" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 
@@ -29,6 +31,10 @@ card "Chronomaly Acambaro Figures" {
         }
         on_resolve {
             special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

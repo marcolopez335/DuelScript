@@ -14,6 +14,11 @@ card "The Duke of Demise" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2050
         code: 4098
@@ -21,7 +26,7 @@ card "The Duke of Demise" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls, hand)
         }
     }
 
@@ -31,7 +36,6 @@ card "The Duke of Demise" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -41,7 +45,6 @@ card "The Duke of Demise" {
         range: 4
         count_limit: (1, 45445571)
         on_resolve {
-            reveal self
         }
     }
 
@@ -55,7 +58,7 @@ card "The Duke of Demise" {
             banish self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from hand
         }
     }
 

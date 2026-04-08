@@ -14,13 +14,18 @@ card "Super Starslayer TY-PHON - Sky Crisis" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 6
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -33,7 +38,7 @@ card "Super Starslayer TY-PHON - Sky Crisis" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, you controls) to hand
         }
     }
 
@@ -41,7 +46,8 @@ card "Super Starslayer TY-PHON - Sky Crisis" {
         effect_type: 2050
         code: 1102
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
+            set_flag "tracked" on self
         }
     }
 

@@ -6,47 +6,41 @@ card "Cursed Copycat Noble Arms" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: 4
+        code: 100
         on_resolve {
-            reveal self
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: 4
-        code: 100
+        code: 104
         on_resolve {
-            reveal self
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 4
-        code: 104
-        on_resolve {
-            reveal self
-        }
-    }
-
-    raw_effect "Effect 4" {
         effect_type: 64
         category: 262657
         range: 8
         count_limit: (1, 23249029)
         on_resolve {
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
             special_summon (1, monster) from gy
             equip (1, card) to (1, monster)
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, deck)
         }
     }
 
-    raw_effect "Effect 5" {
+    raw_effect "Effect 4" {
         effect_type: 16
         category: 262144
         code: 1002
         on_resolve {
-            reveal self
+            equip self to (1, monster, you controls)
         }
     }
 

@@ -10,6 +10,10 @@ card "High Priestess of Prophecy" {
     atk: 2500
     def: 2100
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 512
@@ -29,7 +33,7 @@ card "High Priestess of Prophecy" {
             banish self
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, you controls, hand)
         }
     }
 

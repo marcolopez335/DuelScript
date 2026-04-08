@@ -3,13 +3,17 @@
 
 card "D/D Extra Surveyor" {
     password: 74387963
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
     level: 5
     scale: 4
     atk: 1000
     def: 0
+
+    summon_condition {
+        tributes_required: 1
+    }
 
     raw_effect "Effect 1" {
         effect_type: 130
@@ -19,7 +23,7 @@ card "D/D Extra Surveyor" {
         range: 512
         count_limit: (1, 74387963)
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, either_player controls)
         }
     }
 
@@ -29,10 +33,10 @@ card "D/D Extra Surveyor" {
         range: 2
         count_limit: (1, 0)
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 
@@ -43,7 +47,7 @@ card "D/D Extra Surveyor" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, either_player controls)
         }
     }
 

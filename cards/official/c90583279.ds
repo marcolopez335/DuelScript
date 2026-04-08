@@ -10,13 +10,17 @@ card "Yakusa, Lord of the Eight Thunders" {
     atk: 2000
     def: 2000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
         property: 262144
         range: 2
         on_resolve {
-            banish (1+, card)
+            banish (1+, monster, you controls, gy)
         }
     }
 
@@ -27,8 +31,8 @@ card "Yakusa, Lord of the Eight Thunders" {
         range: 4
         count_limit: (1, 90583279)
         on_resolve {
-            return (1, card) to deck shuffle
-            shuffle deck
+            return (1+, monster, you controls) to deck shuffle
+            shuffle_deck
             draw 1
         }
     }

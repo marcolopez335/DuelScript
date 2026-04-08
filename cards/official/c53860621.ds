@@ -20,7 +20,6 @@ card "Glowing Crossbow" {
         code: 76
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 
@@ -28,7 +27,7 @@ card "Glowing Crossbow" {
         effect_type: 4
         code: 100
         on_resolve {
-            reveal self
+            modifier: atk + 500
         }
     }
 
@@ -36,7 +35,7 @@ card "Glowing Crossbow" {
         effect_type: 4
         code: 104
         on_resolve {
-            reveal self
+            modifier: def + 500
         }
     }
 
@@ -47,7 +46,7 @@ card "Glowing Crossbow" {
         range: 8
         count_limit: (1, 53860621)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, hand) to gy
         }
     }
 
@@ -58,7 +57,7 @@ card "Glowing Crossbow" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from hand
         }
     }
 

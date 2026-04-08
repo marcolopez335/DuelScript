@@ -14,12 +14,16 @@ card "Thunder Dragon Colossus" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -38,17 +42,13 @@ card "Thunder Dragon Colossus" {
         code: 65
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: 2049
-        code: 50
-        property: 131072
-        range: 4
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 4" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

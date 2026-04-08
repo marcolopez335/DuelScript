@@ -7,10 +7,16 @@ card "Perfectron Hydradrive Dragon" {
     attribute: EARTH
     race: Cyberse
     link: 5
+    link_arrows: [left, right, bottom_left, bottom, bottom_right]
     atk: 5000
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -18,7 +24,7 @@ card "Perfectron Hydradrive Dragon" {
         category: 524289
         code: 1102
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, gy)
             deal_damage to opponent: 1000
         }
     }
@@ -28,7 +34,7 @@ card "Perfectron Hydradrive Dragon" {
         category: 524289
         code: 1141
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, gy)
             deal_damage to opponent: 1000
         }
     }
@@ -39,7 +45,6 @@ card "Perfectron Hydradrive Dragon" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -49,17 +54,13 @@ card "Perfectron Hydradrive Dragon" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: 2049
-        code: 50
-        property: 131072
-        range: 4
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 5" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

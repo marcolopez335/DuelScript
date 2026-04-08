@@ -12,6 +12,11 @@ card "Performapal Call" {
         property: 16
         on_resolve {
             negate attack
+            add_to_hand (1+, card, you controls) from deck
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

@@ -10,6 +10,10 @@ card "Wheel of Prophecy" {
     atk: 2700
     def: 1700
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 16
@@ -17,7 +21,8 @@ card "Wheel of Prophecy" {
         property: 16400
         count_limit: (1, 65961085)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, spell, either_player controls) to deck shuffle
+            send (1+, spell, either_player controls) to gy
         }
     }
 

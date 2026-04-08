@@ -17,7 +17,7 @@ card "Shiranui Smith" {
         property: 65536
         count_limit: (1, 62038047)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -26,7 +26,10 @@ card "Shiranui Smith" {
         code: 1011
         property: 81920
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

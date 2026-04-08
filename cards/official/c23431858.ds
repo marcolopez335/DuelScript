@@ -10,6 +10,10 @@ card "Tenyi Spirit - Vishuda" {
     atk: 1500
     def: 2500
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 512
@@ -30,7 +34,7 @@ card "Tenyi Spirit - Vishuda" {
             banish self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, you controls) to hand
         }
     }
 

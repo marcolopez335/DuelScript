@@ -5,12 +5,10 @@ card "Revendread Origin" {
     password: 94666032
     type: Ritual Spell
 
-    raw_effect "Effect 1" {
-        effect_type: 2050
-        code: 50
-        range: 16
-        on_resolve {
-            banish (1+, card)
+    replacement_effect "Effect 1" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

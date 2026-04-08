@@ -7,17 +7,26 @@ card "Link Devotee" {
     attribute: EARTH
     race: Cyberse
     link: 1
+    link_arrows: [top]
     atk: 500
 
     summon_condition {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ effect monster
+        method: link
+    }
+
     raw_effect "Effect 1" {
         effect_type: 513
         code: 1102
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -29,6 +38,7 @@ card "Link Devotee" {
         count_limit: (1, 48068378)
         on_resolve {
             create_token { atk: 0 def: 0 }
+            special_summon (1, monster) from gy
         }
     }
 
@@ -37,7 +47,6 @@ card "Link Devotee" {
         code: 1019
         property: 1152
         on_resolve {
-            reveal self
         }
     }
 

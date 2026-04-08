@@ -14,11 +14,15 @@ card "World Chalice Guardragon Almarduke" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 193
         on_resolve {
-            reveal self
         }
     }
 
@@ -31,7 +35,7 @@ card "World Chalice Guardragon Almarduke" {
             banish self
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls, gy)
             deal_damage to opponent: 1000
         }
     }

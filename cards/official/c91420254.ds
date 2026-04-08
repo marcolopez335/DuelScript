@@ -3,7 +3,7 @@
 
 card "Yosenju Shinchu R" {
     password: 91420254
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: WIND
     race: Rock
     level: 4
@@ -16,7 +16,10 @@ card "Yosenju Shinchu R" {
         range: 512
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -34,7 +37,6 @@ card "Yosenju Shinchu R" {
         code: 332
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

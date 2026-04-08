@@ -9,7 +9,6 @@ card "Aquarium Lighting" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -19,7 +18,6 @@ card "Aquarium Lighting" {
         code: 1134
         range: 8
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,6 +28,10 @@ card "Aquarium Lighting" {
         property: 81936
         on_resolve {
             special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

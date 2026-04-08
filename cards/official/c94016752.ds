@@ -12,10 +12,14 @@ card "Herald of the Abyss" {
         property: 2048
         count_limit: (1, 94016752)
         cost {
-            pay_lp 1000
+            pay_lp 1500
         }
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, opponent controls) to gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

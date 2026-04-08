@@ -7,10 +7,16 @@ card "Salamangreat Pyro Phoenix" {
     attribute: FIRE
     race: Cyberse
     link: 4
+    link_arrows: [top, left, right, bottom]
     atk: 2800
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,7 @@ card "Salamangreat Pyro Phoenix" {
         code: 1102
         property: 65536
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, opponent controls)
         }
     }
 

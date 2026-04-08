@@ -10,6 +10,10 @@ card "Exploderokket Dragon" {
     atk: 2000
     def: 2000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         category: 524289
@@ -18,7 +22,7 @@ card "Exploderokket Dragon" {
         range: 4
         count_limit: (1, 31353051)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, deck)
             deal_damage to opponent: 2000
             deal_damage to opponent: 2000
         }
@@ -29,7 +33,6 @@ card "Exploderokket Dragon" {
         code: 1014
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 

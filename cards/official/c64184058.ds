@@ -16,7 +16,6 @@ card "Destiny HERO - Decider" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,7 +26,10 @@ card "Destiny HERO - Decider" {
         property: 65536
         count_limit: (1, 64184058)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -38,7 +40,10 @@ card "Destiny HERO - Decider" {
         property: 65536
         count_limit: (1, 64184058)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -50,7 +55,11 @@ card "Destiny HERO - Decider" {
         range: 16
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

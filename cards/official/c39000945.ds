@@ -3,13 +3,17 @@
 
 card "Reflection of Endymion" {
     password: 39000945
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: LIGHT
     race: Spellcaster
     level: 7
     scale: 2
     atk: 1850
     def: 2700
+
+    summon_condition {
+        tributes_required: 2
+    }
 
     raw_effect "Effect 1" {
         effect_type: 64
@@ -26,7 +30,6 @@ card "Reflection of Endymion" {
         property: 1024
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -35,7 +38,6 @@ card "Reflection of Endymion" {
         code: 1022
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -45,7 +47,7 @@ card "Reflection of Endymion" {
         code: 1102
         property: 65552
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from hand
         }
     }
 
@@ -54,7 +56,6 @@ card "Reflection of Endymion" {
         code: 1019
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 
@@ -63,7 +64,7 @@ card "Reflection of Endymion" {
         category: 131080
         code: 1140
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from hand
         }
     }
 

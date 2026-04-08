@@ -15,7 +15,16 @@ card "Impcantation Inception" {
         }
         on_resolve {
             special_summon (1, monster) from gy
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from hand
+        }
+    }
+
+    raw_effect "Effect 2" {
+        effect_type: 16
+        category: 512
+        code: 1002
+        on_resolve {
+            ritual_summon (1, ritual monster) using (1+, monster, you controls)
         }
     }
 

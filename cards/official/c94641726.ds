@@ -14,13 +14,18 @@ card "Storm-Bane Dragon Destorbim" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 71
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -33,7 +38,7 @@ card "Storm-Bane Dragon Destorbim" {
             banish self
         }
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, you controls, gy)
         }
     }
 
@@ -47,7 +52,7 @@ card "Storm-Bane Dragon Destorbim" {
             banish self
         }
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, you controls, gy)
         }
     }
 

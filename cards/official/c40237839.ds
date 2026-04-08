@@ -10,17 +10,25 @@ card "Winged Kuriboh Sabatiel LV10" {
     atk: 300
     def: 200
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 131096
         range: 2
         count_limit: (1, 0)
         cost {
-            reveal self
+            pay_lp 1000
         }
         on_resolve {
-            add_to_hand (1, card) from gy
-            return (1, card) to deck shuffle
+            return (1+, spell, opponent controls) to hand
+            return (1+, spell, opponent controls) to deck shuffle
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

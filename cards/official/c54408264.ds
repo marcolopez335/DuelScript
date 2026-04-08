@@ -11,7 +11,11 @@ card "Magikey Battle" {
         code: 1002
         property: 16
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, monster, either_player controls) to deck shuffle
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

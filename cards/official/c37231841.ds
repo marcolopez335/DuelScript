@@ -9,7 +9,6 @@ card "Lighten the Load" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -19,8 +18,8 @@ card "Lighten the Load" {
         range: 8
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
-            shuffle deck
+            return (1+, card, you controls) to deck shuffle
+            shuffle_deck
             draw 1
         }
     }

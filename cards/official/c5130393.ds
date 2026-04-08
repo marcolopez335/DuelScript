@@ -29,10 +29,11 @@ card "Millennium Seeker" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            shuffle deck
+            shuffle_deck
             special_summon (1, monster) from gy
-            add_to_hand (1, card) from gy
-            shuffle deck
+            add_to_hand (1+, monster, opponent controls) from deck
+            shuffle_hand
+            special_summon (1, monster) from gy
         }
     }
 

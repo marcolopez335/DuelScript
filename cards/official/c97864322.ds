@@ -7,10 +7,16 @@ card "Emperor Charles the Great" {
     attribute: FIRE
     race: Warrior
     link: 1
+    link_arrows: [bottom]
     atk: 3000
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,6 @@ card "Emperor Charles the Great" {
         code: 1102
         property: 65552
         on_resolve {
-            reveal self
         }
     }
 
@@ -35,7 +40,7 @@ card "Emperor Charles the Great" {
         }
         on_resolve {
             negate activation
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls, hand)
         }
     }
 
@@ -43,7 +48,6 @@ card "Emperor Charles the Great" {
         effect_type: 1
         code: 76
         on_resolve {
-            reveal self
         }
     }
 
@@ -51,7 +55,6 @@ card "Emperor Charles the Great" {
         effect_type: 1
         code: 71
         on_resolve {
-            reveal self
         }
     }
 
@@ -59,7 +62,6 @@ card "Emperor Charles the Great" {
         effect_type: 1
         code: 41
         on_resolve {
-            reveal self
         }
     }
 
@@ -67,7 +69,6 @@ card "Emperor Charles the Great" {
         effect_type: 1
         code: 42
         on_resolve {
-            reveal self
         }
     }
 

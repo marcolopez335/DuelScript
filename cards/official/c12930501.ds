@@ -25,7 +25,11 @@ card "Dark Spell Regeneration" {
         }
         on_resolve {
             special_summon (1, monster) from gy
-            send (1, card) to gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            send (1+, spell, you controls, hand) to gy
         }
     }
 

@@ -30,7 +30,14 @@ card "Lava Golem" {
         code: 92
         property: 1024
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -39,7 +46,7 @@ card "Lava Golem" {
         category: 512
         range: 2
         on_resolve {
-            reveal self
+            special_summon self from hand
         }
     }
 

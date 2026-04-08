@@ -14,11 +14,20 @@ card "Hot Red Dragon Archfiend King Calamity" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         code: 1102
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -47,7 +56,6 @@ card "Hot Red Dragon Archfiend King Calamity" {
         code: 21142671
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 

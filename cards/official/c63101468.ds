@@ -14,6 +14,12 @@ card "Masterflare Hyperion" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         range: 4
@@ -22,7 +28,6 @@ card "Masterflare Hyperion" {
             send self to gy
         }
         on_resolve {
-            reveal self
         }
     }
 
@@ -37,7 +42,7 @@ card "Masterflare Hyperion" {
             banish self
         }
         on_resolve {
-            banish (1+, card)
+            banish (1+, monster, you controls, hand)
         }
     }
 

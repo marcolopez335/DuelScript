@@ -10,6 +10,10 @@ card "King Beast Barbaros" {
     atk: 3000
     def: 1200
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 512
@@ -33,7 +37,7 @@ card "King Beast Barbaros" {
             banish self
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls, gy)
         }
     }
 
@@ -41,7 +45,6 @@ card "King Beast Barbaros" {
         effect_type: 1
         code: 193
         on_resolve {
-            reveal self
         }
     }
 

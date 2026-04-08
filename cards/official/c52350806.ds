@@ -16,8 +16,8 @@ card "Danger! Mothman!" {
         code: 1002
         range: 2
         on_resolve {
-            shuffle deck
-            send (1, card) to gy
+            shuffle_hand
+            send (1+, card, opponent controls, hand) to gy
             special_summon (1, monster) from gy
             draw 1
         }
@@ -32,7 +32,9 @@ card "Danger! Mothman!" {
         on_resolve {
             draw 1
             draw 1
-            shuffle deck
+            shuffle_hand
+            discard (1, card)
+            shuffle_hand
             discard (1, card)
         }
     }
@@ -46,7 +48,9 @@ card "Danger! Mothman!" {
         on_resolve {
             draw 1
             draw 1
-            shuffle deck
+            shuffle_hand
+            discard (1, card)
+            shuffle_hand
             discard (1, card)
         }
     }

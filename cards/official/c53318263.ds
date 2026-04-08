@@ -10,6 +10,10 @@ card "Bahalutiya, the Grand Radiance" {
     atk: 2000
     def: 2400
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 130
         category: 256
@@ -17,7 +21,6 @@ card "Bahalutiya, the Grand Radiance" {
         property: 65536
         range: 2
         on_resolve {
-            reveal self
         }
     }
 
@@ -28,9 +31,9 @@ card "Bahalutiya, the Grand Radiance" {
         property: 67584
         count_limit: (1, 53318263)
         on_resolve {
-            banish (1+, card)
-            return (1, card) to deck shuffle
-            add_to_hand (1, card) from gy
+            banish (1+, card, either_player controls)
+            return (1+, card, either_player controls) to deck shuffle
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 
@@ -41,9 +44,9 @@ card "Bahalutiya, the Grand Radiance" {
         property: 67584
         count_limit: (1, 53318263)
         on_resolve {
-            banish (1+, card)
-            return (1, card) to deck shuffle
-            add_to_hand (1, card) from gy
+            banish (1+, card, either_player controls)
+            return (1+, card, either_player controls) to deck shuffle
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

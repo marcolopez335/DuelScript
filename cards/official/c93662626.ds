@@ -3,13 +3,18 @@
 
 card "Igknight Veteran" {
     password: 93662626
-    type: Pendulum Monster
+    type: Normal Monster | Pendulum Monster
     attribute: FIRE
     race: Warrior
     level: 6
     scale: 7
     atk: 1300
     def: 2700
+    flavor: "[ Pendulum Effect ] If you have an 'Igknight' card in your other Pendulum Zone: You can destroy both cards in your Pendulum Zones, and if you do, add 1 FIRE Warrior-Type monster from your Deck or Graveyard to your hand. ---------------------------------------- [ Flavor Text ] This grizzled leader of the bodyguards division acts as chaperone to the Cavalier, and is one of the few complainers about her recklessness (mostly to the Gallant, the only one who understands him)."
+
+    summon_condition {
+        tributes_required: 1
+    }
 
     raw_effect "Effect 1" {
         effect_type: 64
@@ -17,7 +22,7 @@ card "Igknight Veteran" {
         range: 512
         on_resolve {
             destroy (1+, card, either_player controls)
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

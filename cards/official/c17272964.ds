@@ -17,7 +17,6 @@ card "Mannadium Fearless" {
         range: 2
         count_limit: (1, 17272964)
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,6 +26,10 @@ card "Mannadium Fearless" {
         code: 1029
         property: 65536
         on_resolve {
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
             special_summon (1, monster) from gy
         }
     }

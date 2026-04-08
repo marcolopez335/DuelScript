@@ -10,6 +10,10 @@ card "Earthbound Immortal Red Nova" {
     atk: 3500
     def: 3000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         category: 544
@@ -20,7 +24,8 @@ card "Earthbound Immortal Red Nova" {
             banish self
         }
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, you controls, hand) to gy
+            special_summon (1, monster) from gy
             special_summon (1, monster) from gy
         }
     }

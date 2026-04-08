@@ -10,6 +10,10 @@ card "Crystal God Tistina" {
     atk: 2000
     def: 3000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 4128
@@ -17,7 +21,7 @@ card "Crystal God Tistina" {
         count_limit: (1, 86999951)
         on_resolve {
             change_battle_position (1, monster)
-            send (1, card) to gy
+            send (1+, monster, opponent controls) to gy
         }
     }
 
@@ -29,7 +33,7 @@ card "Crystal God Tistina" {
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)
-            send (1, card) to gy
+            send (1+, monster, opponent controls) to gy
         }
     }
 

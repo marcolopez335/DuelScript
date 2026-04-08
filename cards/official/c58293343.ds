@@ -14,12 +14,16 @@ card "Tyrant Burst Dragon" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,7 +31,6 @@ card "Tyrant Burst Dragon" {
         effect_type: 1
         code: 193
         on_resolve {
-            reveal self
         }
     }
 
@@ -37,7 +40,8 @@ card "Tyrant Burst Dragon" {
         property: 16
         range: 4
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
+            equip (1, card) to (1, monster)
         }
     }
 

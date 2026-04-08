@@ -10,12 +10,15 @@ card "Virtual World Oto-Hime - Toutou" {
     atk: 1200
     def: 1800
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 32
         property: 262144
         on_resolve {
-            reveal self
         }
     }
 
@@ -25,10 +28,14 @@ card "Virtual World Oto-Hime - Toutou" {
         range: 16
         count_limit: (1, 20799347)
         cost {
-            discard (1, card)
+            discard (1, card, you controls)
         }
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

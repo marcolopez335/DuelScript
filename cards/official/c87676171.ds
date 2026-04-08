@@ -14,6 +14,12 @@ card "Tistina, the Divinity that Defies Darkness" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 32
@@ -21,7 +27,7 @@ card "Tistina, the Divinity that Defies Darkness" {
         property: 65536
         count_limit: (1, 87676171)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, opponent controls) to gy
         }
     }
 
@@ -34,7 +40,6 @@ card "Tistina, the Divinity that Defies Darkness" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            reveal self
         }
     }
 
@@ -53,7 +58,6 @@ card "Tistina, the Divinity that Defies Darkness" {
         code: 1019
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 

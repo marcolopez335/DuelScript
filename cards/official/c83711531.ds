@@ -10,13 +10,16 @@ card "Red-Eyes Metal Claws Dragon" {
     atk: 2400
     def: 2000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 16
         property: 256
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -40,7 +43,7 @@ card "Red-Eyes Metal Claws Dragon" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, trap, you controls) to hand
         }
     }
 
@@ -51,7 +54,7 @@ card "Red-Eyes Metal Claws Dragon" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, trap, you controls) to hand
         }
     }
 

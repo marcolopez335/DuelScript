@@ -17,8 +17,12 @@ card "Kuribon" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
             gain_lp: 1000
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

@@ -3,6 +3,13 @@
 
 card "Apex Polymerization" {
     password: 44886582
+    // FIXME: card not found in CDB — type/stats are placeholders
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 0
+    def: 0
 
     raw_effect "Effect 1" {
         effect_type: 16
@@ -11,11 +18,11 @@ card "Apex Polymerization" {
         property: 16
         count_limit: (1, 44886582)
         cost {
-            pay_lp 1000
+            pay_lp 2000
         }
         on_resolve {
             special_summon (1, monster) from gy
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
         }
     }
 

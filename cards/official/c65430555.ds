@@ -10,6 +10,10 @@ card "Beetrooper Sting Lancer" {
     atk: 2400
     def: 1800
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         category: 528
@@ -19,7 +23,7 @@ card "Beetrooper Sting Lancer" {
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
-            return (1, card) to deck shuffle
+            return (1+, monster, you controls) to deck shuffle
         }
     }
 
@@ -30,7 +34,7 @@ card "Beetrooper Sting Lancer" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 
@@ -41,7 +45,7 @@ card "Beetrooper Sting Lancer" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 

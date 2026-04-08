@@ -14,6 +14,11 @@ card "Granguignol the Dusk Dragon" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 32
@@ -21,7 +26,7 @@ card "Granguignol the Dusk Dragon" {
         property: 65536
         count_limit: (1, 24915933)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, deck) to gy
         }
     }
 

@@ -10,12 +10,15 @@ card "Dragonmaid Cehrmba" {
     atk: 2800
     def: 1800
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 41
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -25,7 +28,7 @@ card "Dragonmaid Cehrmba" {
         range: 2
         count_limit: (1, 12163590)
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
             special_summon (1, monster) from gy
@@ -39,8 +42,8 @@ card "Dragonmaid Cehrmba" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            add_to_hand (1+, card, you controls) from gy
+            shuffle_hand
             special_summon (1, monster) from gy
         }
     }

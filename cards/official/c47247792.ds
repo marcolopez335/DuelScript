@@ -14,12 +14,16 @@ card "Conduction Warrior Plasma Magnum" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 127
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +34,7 @@ card "Conduction Warrior Plasma Magnum" {
         property: 65536
         count_limit: (1, 47247792)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -43,7 +47,6 @@ card "Conduction Warrior Plasma Magnum" {
             send self to gy
         }
         on_resolve {
-            reveal self
         }
     }
 

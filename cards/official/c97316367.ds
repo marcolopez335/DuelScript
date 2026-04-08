@@ -10,6 +10,10 @@ card "Infinitrack Tunneller" {
     atk: 2200
     def: 500
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 512
@@ -33,8 +37,8 @@ card "Infinitrack Tunneller" {
             banish self
         }
         on_resolve {
-            return (1, card) to deck shuffle
-            shuffle deck
+            return (1+, card, either_player controls) to deck shuffle
+            shuffle_deck
             draw 2
         }
     }

@@ -14,7 +14,6 @@ card "Noble Knight Brothers" {
         effect_type: 1
         code: 85
         on_resolve {
-            reveal self
         }
     }
 
@@ -24,6 +23,10 @@ card "Noble Knight Brothers" {
         code: 1100
         on_resolve {
             special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -34,8 +37,8 @@ card "Noble Knight Brothers" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
-            shuffle deck
+            return (1+, card, you controls) to deck shuffle
+            shuffle_deck
             draw 1
         }
     }

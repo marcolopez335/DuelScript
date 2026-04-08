@@ -3,7 +3,7 @@
 
 card "Performapal Gongato" {
     password: 9106362
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: EARTH
     race: Beast
     level: 1
@@ -17,7 +17,10 @@ card "Performapal Gongato" {
         range: 512
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -27,7 +30,10 @@ card "Performapal Gongato" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

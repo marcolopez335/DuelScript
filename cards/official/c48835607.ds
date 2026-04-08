@@ -7,10 +7,16 @@ card "Galatea-I, the Orcust Automaton" {
     attribute: DARK
     race: Machine
     link: 1
+    link_arrows: [bottom_left]
     atk: 0
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -18,7 +24,10 @@ card "Galatea-I, the Orcust Automaton" {
         code: 1102
         property: 1024
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -27,7 +36,6 @@ card "Galatea-I, the Orcust Automaton" {
         code: 238
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -40,7 +48,7 @@ card "Galatea-I, the Orcust Automaton" {
             send self to gy
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from hand
         }
     }
 
@@ -54,7 +62,7 @@ card "Galatea-I, the Orcust Automaton" {
             send self to gy
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from hand
         }
     }
 

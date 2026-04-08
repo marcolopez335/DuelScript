@@ -10,13 +10,16 @@ card "Clear Vice Dragon" {
     atk: ?
     def: 0
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 97811903
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,17 +29,13 @@ card "Clear Vice Dragon" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: 2049
-        code: 50
-        property: 131072
-        range: 4
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 3" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

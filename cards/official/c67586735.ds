@@ -10,13 +10,16 @@ card "Gouki Tagpartner" {
     atk: 1700
     def: 0
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 2097152
         code: 1108
         property: 65536
         on_resolve {
-            reveal self
         }
     }
 
@@ -28,7 +31,7 @@ card "Gouki Tagpartner" {
             banish self
         }
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, spell, either_player controls) to deck shuffle
         }
     }
 

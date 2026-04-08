@@ -14,6 +14,11 @@ card "Magikey Beast - Ansyalabolas" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 8
@@ -21,7 +26,7 @@ card "Magikey Beast - Ansyalabolas" {
         property: 65536
         count_limit: (1, 45655875)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from gy
         }
     }
 
@@ -40,7 +45,6 @@ card "Magikey Beast - Ansyalabolas" {
         effect_type: 1
         code: 204
         on_resolve {
-            reveal self
         }
     }
 

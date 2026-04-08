@@ -10,13 +10,17 @@ card "Quickdraw Synchron" {
     atk: 700
     def: 1400
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
         property: 262144
         range: 2
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, you controls, hand) to gy
         }
     }
 
@@ -25,7 +29,6 @@ card "Quickdraw Synchron" {
         code: 236
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -34,7 +37,6 @@ card "Quickdraw Synchron" {
         code: 20932152
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 

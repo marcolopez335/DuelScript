@@ -14,11 +14,15 @@ card "Ritual Beast Ulti-Apelio" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2049
         code: 1130
         on_resolve {
-            reveal self
         }
     }
 
@@ -31,7 +35,7 @@ card "Ritual Beast Ulti-Apelio" {
         on_resolve {
             special_summon (1, monster) from gy
             special_summon (1, monster) from gy
-            send (1, card) to gy
+            send (1+, monster, you controls) to gy
         }
     }
 

@@ -9,7 +9,6 @@ card "Ojama Pajama" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -20,17 +19,15 @@ card "Ojama Pajama" {
         range: 8
         count_limit: (1, 75884822)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
             discard (1, card)
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 50
-        range: 8
-        on_resolve {
-            banish (1+, card)
+    replacement_effect "Effect 3" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

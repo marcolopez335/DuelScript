@@ -7,10 +7,16 @@ card "Marincess Coral Triangle" {
     attribute: WATER
     race: Cyberse
     link: 3
+    link_arrows: [top, bottom_left, bottom_right]
     atk: 1500
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,7 @@ card "Marincess Coral Triangle" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from gy
         }
     }
 

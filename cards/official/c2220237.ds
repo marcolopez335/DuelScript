@@ -7,10 +7,16 @@ card "Secure Gardna" {
     attribute: LIGHT
     race: Cyberse
     link: 1
+    link_arrows: [right]
     atk: 1000
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -18,7 +24,6 @@ card "Secure Gardna" {
         code: 239
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +31,19 @@ card "Secure Gardna" {
         effect_type: 2049
         code: 1102
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            set_flag "tracked" on self
         }
     }
 
@@ -36,7 +53,6 @@ card "Secure Gardna" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -46,7 +62,6 @@ card "Secure Gardna" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

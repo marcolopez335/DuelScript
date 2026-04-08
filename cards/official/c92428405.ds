@@ -13,7 +13,11 @@ card "Soul of the Supreme King" {
             pay_lp your_lp / 2
         }
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -26,7 +30,8 @@ card "Soul of the Supreme King" {
             banish self
         }
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
+            special_summon (1, monster) from gy
         }
     }
 

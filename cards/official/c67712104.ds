@@ -7,6 +7,7 @@ card "Marincess Crystal Heart" {
     attribute: WATER
     race: Cyberse
     link: 2
+    link_arrows: [bottom_left, bottom_right]
     atk: 0
 
     materials {
@@ -24,7 +25,6 @@ card "Marincess Crystal Heart" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -33,7 +33,6 @@ card "Marincess Crystal Heart" {
         code: 1
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -42,7 +41,10 @@ card "Marincess Crystal Heart" {
         code: 1131
         range: 4
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

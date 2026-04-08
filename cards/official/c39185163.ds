@@ -10,6 +10,10 @@ card "Doomking Balerdroch" {
     atk: 2800
     def: 2000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 130
         category: 512
@@ -29,7 +33,9 @@ card "Doomking Balerdroch" {
         count_limit: (1, 0)
         on_resolve {
             negate effect
-            banish (1+, card)
+            set_flag "tracked" on self
+            banish (1+, monster, either_player controls)
+            set_flag "tracked" on self
         }
     }
 

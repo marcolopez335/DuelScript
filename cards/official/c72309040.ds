@@ -14,13 +14,18 @@ card "Ghoti of the Deep Beyond" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 103
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +35,7 @@ card "Ghoti of the Deep Beyond" {
         code: 1102
         property: 65536
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, either_player controls)
         }
     }
 

@@ -3,7 +3,7 @@
 
 card "Antihuman Intelligence ME-PSY-YA" {
     password: 58844135
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: LIGHT
     race: Cyberse
     level: 8
@@ -11,13 +11,16 @@ card "Antihuman Intelligence ME-PSY-YA" {
     atk: 2500
     def: 3000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 63
         property: 416
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -36,7 +39,10 @@ card "Antihuman Intelligence ME-PSY-YA" {
         code: 1100
         range: 4
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -45,7 +51,10 @@ card "Antihuman Intelligence ME-PSY-YA" {
         code: 1102
         range: 4
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

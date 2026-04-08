@@ -14,6 +14,12 @@ card "Askaan, the Bicorned Ghoti" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 4
@@ -21,7 +27,7 @@ card "Askaan, the Bicorned Ghoti" {
         property: 65552
         count_limit: (1, 46815301)
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, either_player controls)
         }
     }
 

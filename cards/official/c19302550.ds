@@ -3,7 +3,7 @@
 
 card "D/D Savant Newton" {
     password: 19302550
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
     level: 7
@@ -11,13 +11,16 @@ card "D/D Savant Newton" {
     atk: 0
     def: 0
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 22
         property: 3584
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -38,10 +41,10 @@ card "D/D Savant Newton" {
         range: 2
         count_limit: (1, 19302550)
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

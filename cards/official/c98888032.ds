@@ -16,7 +16,6 @@ card "Spore the Fairy Seed" {
         code: 1102
         property: 65536
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,6 +26,10 @@ card "Spore the Fairy Seed" {
         count_limit: (1, 98888032)
         on_resolve {
             special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

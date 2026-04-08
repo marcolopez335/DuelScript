@@ -14,6 +14,12 @@ card "Angelica, Princess of Noble Arms" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 131080
@@ -21,7 +27,7 @@ card "Angelica, Princess of Noble Arms" {
         property: 65536
         count_limit: (1, 36320744)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -32,7 +38,7 @@ card "Angelica, Princess of Noble Arms" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, deck) to gy
             special_summon (1, monster) from gy
         }
     }
@@ -44,7 +50,7 @@ card "Angelica, Princess of Noble Arms" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, deck) to gy
             special_summon (1, monster) from gy
         }
     }

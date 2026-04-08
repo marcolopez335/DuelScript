@@ -14,11 +14,15 @@ card "Bloom Prima the Melodious Choir" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 251
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +30,6 @@ card "Bloom Prima the Melodious Choir" {
         effect_type: 1
         code: 194
         on_resolve {
-            reveal self
         }
     }
 
@@ -36,7 +39,7 @@ card "Bloom Prima the Melodious Choir" {
         code: 1014
         property: 65552
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, either_player controls) from gy
         }
     }
 

@@ -10,13 +10,16 @@ card "Radiant Typhoon Krosea" {
     atk: 2200
     def: 1200
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 42
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +29,6 @@ card "Radiant Typhoon Krosea" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -49,7 +51,11 @@ card "Radiant Typhoon Krosea" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -60,7 +66,11 @@ card "Radiant Typhoon Krosea" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

@@ -11,7 +11,7 @@ card "Magical Meltdown" {
         code: 1002
         count_limit: (1, 47679935)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -20,7 +20,6 @@ card "Magical Meltdown" {
         code: 12
         range: 256
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +28,14 @@ card "Magical Meltdown" {
         code: 1102
         range: 256
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -38,7 +44,6 @@ card "Magical Meltdown" {
         code: 1026
         range: 256
         on_resolve {
-            reveal self
         }
     }
 

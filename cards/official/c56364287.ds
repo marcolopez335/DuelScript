@@ -16,7 +16,6 @@ card "Cyber Dragon Herz" {
         property: 131072
         range: 20
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +25,10 @@ card "Cyber Dragon Herz" {
         property: 65536
         count_limit: (1, 56364287)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -37,7 +39,7 @@ card "Cyber Dragon Herz" {
         property: 65536
         count_limit: (1, 56364287)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from gy
         }
     }
 

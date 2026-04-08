@@ -10,6 +10,10 @@ card "Veda Kalanta" {
     atk: 2500
     def: 2100
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 130
         category: 131592
@@ -19,7 +23,7 @@ card "Veda Kalanta" {
         count_limit: (1, 27015862)
         on_resolve {
             special_summon (1, monster) from gy
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from gy
         }
     }
 
@@ -31,7 +35,7 @@ card "Veda Kalanta" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls, gy)
         }
     }
 

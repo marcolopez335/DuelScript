@@ -10,12 +10,15 @@ card "Metal Shooter" {
     atk: 800
     def: 800
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 513
         category: 8388608
         code: 1100
         on_resolve {
-            reveal self
         }
     }
 
@@ -25,17 +28,13 @@ card "Metal Shooter" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: 2049
-        code: 50
-        property: 131072
-        range: 4
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 3" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

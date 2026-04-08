@@ -10,13 +10,19 @@ card "Pandemic Dragon" {
     atk: 2500
     def: 1000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 2097152
         range: 4
         count_limit: (1, 0)
+        cost {
+            pay_lp your_lp / 2
+        }
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,7 +33,7 @@ card "Pandemic Dragon" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, either_player controls)
         }
     }
 
@@ -36,7 +42,6 @@ card "Pandemic Dragon" {
         category: 2097152
         code: 1029
         on_resolve {
-            reveal self
         }
     }
 

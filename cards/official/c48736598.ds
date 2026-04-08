@@ -7,10 +7,16 @@ card "Codebreaker Virus Berserker" {
     attribute: DARK
     race: Warrior
     link: 3
+    link_arrows: [top, right, bottom]
     atk: 2800
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,7 @@ card "Codebreaker Virus Berserker" {
         code: 1102
         count_limit: (1, 48736598)
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
         }
     }
 
@@ -29,7 +35,7 @@ card "Codebreaker Virus Berserker" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, you controls, gy)
         }
     }
 

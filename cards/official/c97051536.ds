@@ -14,6 +14,11 @@ card "Infernoid Evil" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 32
@@ -24,7 +29,7 @@ card "Infernoid Evil" {
             banish self
         }
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, you controls, deck) to gy
         }
     }
 
@@ -35,7 +40,7 @@ card "Infernoid Evil" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 
@@ -46,7 +51,7 @@ card "Infernoid Evil" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 

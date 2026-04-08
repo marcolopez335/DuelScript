@@ -11,7 +11,11 @@ card "Pendulum Call" {
         code: 1002
         count_limit: (1, 53208660)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

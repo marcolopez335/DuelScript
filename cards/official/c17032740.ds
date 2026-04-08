@@ -14,13 +14,19 @@ card "Elemental HERO Chaos Neos" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 16777225
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls)
+            return (1+, card, you controls) to hand
         }
     }
 
@@ -30,7 +36,7 @@ card "Elemental HERO Chaos Neos" {
         code: 4608
         range: 4
         on_resolve {
-            reveal self
+            return self to deck shuffle
         }
     }
 
@@ -40,7 +46,7 @@ card "Elemental HERO Chaos Neos" {
         code: 4608
         range: 4
         on_resolve {
-            reveal self
+            return self to deck shuffle
         }
     }
 

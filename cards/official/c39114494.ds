@@ -9,7 +9,6 @@ card "Blessing of the Voiceless Voice" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -20,14 +19,31 @@ card "Blessing of the Voiceless Voice" {
         range: 8
         count_limit: (1, 39114494)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 
     raw_effect "Effect 3" {
-        code: 1100
+        effect_type: 130
+        category: 512
+        code: 1102
+        property: 65536
+        range: 8
+        count_limit: (1, 0)
         on_resolve {
-            reveal self
+            ritual_summon (1, ritual monster) using (1+, monster, you controls)
+        }
+    }
+
+    raw_effect "Effect 4" {
+        effect_type: 130
+        category: 512
+        code: 1100
+        property: 65536
+        range: 8
+        count_limit: (1, 0)
+        on_resolve {
+            ritual_summon (1, ritual monster) using (1+, monster, you controls)
         }
     }
 

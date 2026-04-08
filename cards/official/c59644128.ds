@@ -7,10 +7,16 @@ card "Gouki Jet Ogre" {
     attribute: EARTH
     race: Warrior
     link: 2
+    link_arrows: [left, bottom]
     atk: 2000
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -20,7 +26,7 @@ card "Gouki Jet Ogre" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, either_player controls)
             change_battle_position (1, monster)
         }
     }
@@ -31,7 +37,6 @@ card "Gouki Jet Ogre" {
         property: 65536
         count_limit: (1, 59644128)
         on_resolve {
-            reveal self
         }
     }
 

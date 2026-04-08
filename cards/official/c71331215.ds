@@ -10,7 +10,6 @@ card "War Rock Ordeal" {
         category: 8388608
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -20,6 +19,7 @@ card "War Rock Ordeal" {
         code: 1140
         range: 8
         on_resolve {
+            emit_event "custom"
             draw 1
         }
     }
@@ -29,7 +29,7 @@ card "War Rock Ordeal" {
         code: 131589
         range: 8
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, either_player controls) to gy
         }
     }
 

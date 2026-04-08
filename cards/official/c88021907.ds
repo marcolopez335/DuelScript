@@ -14,12 +14,16 @@ card "Primathmech Laplacian" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: 2050
-        code: 50
-        range: 4
-        on_resolve {
-            reveal self
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    replacement_effect "Effect 1" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 
@@ -33,7 +37,9 @@ card "Primathmech Laplacian" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            send (1, card) to gy
+            send (1+, spell, opponent controls, hand) to gy
+            send (1+, spell, opponent controls, hand) to gy
+            send (1+, spell, opponent controls, hand) to gy
         }
     }
 

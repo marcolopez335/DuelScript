@@ -10,6 +10,10 @@ card "Odd-Eyes Saber Dragon" {
     atk: 2800
     def: 2000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 544
@@ -18,7 +22,7 @@ card "Odd-Eyes Saber Dragon" {
             tribute self
         }
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, opponent controls) to gy
             special_summon (1, monster) from gy
         }
     }
@@ -28,7 +32,7 @@ card "Odd-Eyes Saber Dragon" {
         category: 1
         code: 1139
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, opponent controls)
         }
     }
 

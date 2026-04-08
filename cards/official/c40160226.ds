@@ -10,12 +10,15 @@ card "Mecha Sea Dragon Plesion" {
     atk: 2300
     def: 1800
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 32
         property: 262144
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +32,7 @@ card "Mecha Sea Dragon Plesion" {
             tribute self
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, opponent controls)
         }
     }
 

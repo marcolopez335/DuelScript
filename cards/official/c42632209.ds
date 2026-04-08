@@ -14,13 +14,18 @@ card "Geomathmech Final Sigma" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 1
         property: 131072
         range: 4096
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +35,6 @@ card "Geomathmech Final Sigma" {
         property: 131072
         range: 4096
         on_resolve {
-            reveal self
         }
     }
 
@@ -41,7 +45,7 @@ card "Geomathmech Final Sigma" {
         property: 65536
         count_limit: (1, 42632209)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 

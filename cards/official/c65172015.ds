@@ -14,12 +14,16 @@ card "A-to-Z-Dragon Buster Cannon" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 230
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -31,7 +35,7 @@ card "A-to-Z-Dragon Buster Cannon" {
         range: 4
         on_resolve {
             negate activation
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls)
         }
     }
 
@@ -47,7 +51,7 @@ card "A-to-Z-Dragon Buster Cannon" {
         on_resolve {
             special_summon (1, monster) from gy
             special_summon (1, monster) from gy
-            send (1, card) to gy
+            send (1+, card, you controls) to gy
         }
     }
 

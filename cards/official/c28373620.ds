@@ -14,13 +14,18 @@ card "Geri the Runick Fangs" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 8
         code: 1102
         property: 65552
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, either_player controls) from gy
         }
     }
 
@@ -30,7 +35,6 @@ card "Geri the Runick Fangs" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -40,7 +44,7 @@ card "Geri the Runick Fangs" {
         code: 1140
         property: 16
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, either_player controls)
         }
     }
 

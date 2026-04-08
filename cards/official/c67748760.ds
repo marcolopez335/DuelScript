@@ -10,6 +10,10 @@ card "Absorouter Dragon" {
     atk: 1200
     def: 2800
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
@@ -17,7 +21,6 @@ card "Absorouter Dragon" {
         range: 2
         count_limit: (1, 67748760)
         on_resolve {
-            reveal self
         }
     }
 
@@ -28,7 +31,7 @@ card "Absorouter Dragon" {
         property: 81920
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, you controls) to hand
         }
     }
 

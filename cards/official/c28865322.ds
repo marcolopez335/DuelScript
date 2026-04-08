@@ -3,13 +3,17 @@
 
 card "Aether, the Evil Empowering Dragon" {
     password: 28865322
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Dragon
     level: 6
     scale: 4
     atk: 2300
     def: 1600
+
+    summon_condition {
+        tributes_required: 1
+    }
 
     raw_effect "Effect 1" {
         effect_type: 64
@@ -21,7 +25,7 @@ card "Aether, the Evil Empowering Dragon" {
             banish self
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls, gy)
         }
     }
 
@@ -31,7 +35,7 @@ card "Aether, the Evil Empowering Dragon" {
         code: 1100
         property: 16400
         on_resolve {
-            banish (1+, card)
+            banish (1+, monster, you controls, gy)
         }
     }
 
@@ -41,7 +45,7 @@ card "Aether, the Evil Empowering Dragon" {
         code: 1102
         property: 16400
         on_resolve {
-            banish (1+, card)
+            banish (1+, monster, you controls, gy)
         }
     }
 

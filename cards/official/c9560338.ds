@@ -10,13 +10,18 @@ card "Reaper of Prophecy" {
     atk: 2000
     def: 1600
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 2228744
         code: 1100
         count_limit: (1, 9560338)
         on_resolve {
-            reveal self
+            add_to_hand (1+, spell, you controls) from gy
+            special_summon (1, monster) from gy
         }
     }
 
@@ -26,7 +31,8 @@ card "Reaper of Prophecy" {
         code: 1102
         count_limit: (1, 9560338)
         on_resolve {
-            reveal self
+            add_to_hand (1+, spell, you controls) from gy
+            special_summon (1, monster) from gy
         }
     }
 

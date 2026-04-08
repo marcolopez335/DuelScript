@@ -3,7 +3,7 @@
 
 card "Nirvana High Paladin" {
     password: 80896940
-    type: Synchro Monster
+    type: Synchro Monster | Pendulum Monster
     attribute: DARK
     race: Spellcaster
     level: 10
@@ -15,12 +15,17 @@ card "Nirvana High Paladin" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2050
         code: 1130
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +35,6 @@ card "Nirvana High Paladin" {
         code: 1141
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -40,7 +44,7 @@ card "Nirvana High Paladin" {
         code: 1102
         property: 65552
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, opponent controls) to hand
         }
     }
 
@@ -48,7 +52,6 @@ card "Nirvana High Paladin" {
         effect_type: 1
         code: 251
         on_resolve {
-            reveal self
         }
     }
 
@@ -56,7 +59,6 @@ card "Nirvana High Paladin" {
         effect_type: 129
         code: 1139
         on_resolve {
-            reveal self
         }
     }
 

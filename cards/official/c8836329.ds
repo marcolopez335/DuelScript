@@ -14,6 +14,11 @@ card "Raging Storm Dragon - Beaufort IX" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 130
         category: 16384
@@ -21,7 +26,7 @@ card "Raging Storm Dragon - Beaufort IX" {
         range: 2
         count_limit: (1, 8836329)
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
             negate attack
@@ -36,7 +41,7 @@ card "Raging Storm Dragon - Beaufort IX" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

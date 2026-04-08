@@ -10,6 +10,10 @@ card "Regenesis Warrior" {
     atk: 2500
     def: 2500
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
@@ -17,7 +21,6 @@ card "Regenesis Warrior" {
         range: 2
         count_limit: (1, 96540807)
         on_resolve {
-            reveal self
         }
     }
 
@@ -32,7 +35,7 @@ card "Regenesis Warrior" {
             tribute self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, either_player controls) to hand
         }
     }
 
@@ -43,7 +46,7 @@ card "Regenesis Warrior" {
         range: 16
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, either_player controls) to hand
         }
     }
 

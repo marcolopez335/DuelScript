@@ -7,10 +7,16 @@ card "Fiendsmith's Requiem" {
     attribute: LIGHT
     race: Fiend
     link: 1
+    link_arrows: [bottom]
     atk: 600
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -34,7 +40,7 @@ card "Fiendsmith's Requiem" {
         count_limit: (1, 2463794)
         on_resolve {
             equip (1, card) to (1, monster)
-            send (1, card) to gy
+            send (1+, card, you controls, hand) to gy
         }
     }
 

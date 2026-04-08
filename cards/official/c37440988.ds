@@ -14,12 +14,16 @@ card "Rainbow Overdragon" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -42,7 +46,6 @@ card "Rainbow Overdragon" {
             banish self
         }
         on_resolve {
-            reveal self
         }
     }
 
@@ -55,7 +58,7 @@ card "Rainbow Overdragon" {
             tribute self
         }
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to deck shuffle
         }
     }
 

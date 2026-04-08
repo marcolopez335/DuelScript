@@ -10,12 +10,15 @@ card "Black Dragon Ninja" {
     atk: 2800
     def: 1600
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +33,7 @@ card "Black Dragon Ninja" {
             send self to gy
         }
         on_resolve {
-            banish (1+, card)
+            banish (1+, monster, you controls, hand)
         }
     }
 
@@ -39,7 +42,9 @@ card "Black Dragon Ninja" {
         category: 512
         code: 1015
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
+            special_summon (1, monster) from gy
+            special_summon (1, monster) from gy
         }
     }
 
@@ -48,7 +53,6 @@ card "Black Dragon Ninja" {
         code: 1100
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 
@@ -57,7 +61,6 @@ card "Black Dragon Ninja" {
         code: 1102
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 

@@ -10,6 +10,10 @@ card "Mekk-Knight Blue Sky" {
     atk: 2000
     def: 2500
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
@@ -17,7 +21,6 @@ card "Mekk-Knight Blue Sky" {
         range: 2
         count_limit: (1, 20537097)
         on_resolve {
-            reveal self
         }
     }
 
@@ -28,7 +31,7 @@ card "Mekk-Knight Blue Sky" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, either_player controls) to hand
         }
     }
 
@@ -39,7 +42,7 @@ card "Mekk-Knight Blue Sky" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, either_player controls) to hand
         }
     }
 

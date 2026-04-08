@@ -14,12 +14,16 @@ card "Baelgrill de Nouvelles" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2049
         code: 1102
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +34,7 @@ card "Baelgrill de Nouvelles" {
         property: 65536
         count_limit: (1, 88890658)
         on_resolve {
-            reveal self
+            tribute (1, monster, you controls)
         }
     }
 

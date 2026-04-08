@@ -16,7 +16,11 @@ card "Sangan" {
         code: 1014
         count_limit: (1, 26202165)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, opponent controls) from deck
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

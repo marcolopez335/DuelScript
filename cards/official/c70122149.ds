@@ -11,7 +11,7 @@ card "Evil Eye Domain - Pareidolia" {
         code: 1002
         count_limit: (1, 70122149)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 
@@ -21,7 +21,10 @@ card "Evil Eye Domain - Pareidolia" {
         range: 256
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -31,7 +34,7 @@ card "Evil Eye Domain - Pareidolia" {
         code: 1029
         property: 114704
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 

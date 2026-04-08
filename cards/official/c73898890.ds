@@ -7,10 +7,16 @@ card "Dyna Mondo" {
     attribute: EARTH
     race: Cyberse
     link: 2
+    link_arrows: [top, bottom]
     atk: 2200
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -20,7 +26,7 @@ card "Dyna Mondo" {
         property: 65552
         count_limit: (1, 73898890)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to deck shuffle
         }
     }
 

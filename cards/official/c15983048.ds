@@ -15,7 +15,6 @@ card "Maginificent Magikey Mafteal" {
         code: 236
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -24,7 +23,6 @@ card "Maginificent Magikey Mafteal" {
         code: 238
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -32,7 +30,11 @@ card "Maginificent Magikey Mafteal" {
         effect_type: 64
         range: 2
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            set_flag "tracked" on self
         }
     }
 

@@ -14,6 +14,11 @@ card "Rindbrumm the Striking Dragon" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         category: 16392
@@ -22,7 +27,7 @@ card "Rindbrumm the Striking Dragon" {
         count_limit: (1, 51409648)
         on_resolve {
             negate effect
-            add_to_hand (1, card) from gy
+            return (1+, monster, either_player controls) to hand
         }
     }
 
@@ -35,7 +40,7 @@ card "Rindbrumm the Striking Dragon" {
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
-            banish (1+, card)
+            banish (1+, monster, either_player controls)
         }
     }
 

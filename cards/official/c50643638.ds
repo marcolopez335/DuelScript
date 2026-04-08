@@ -14,12 +14,17 @@ card "Chanbar, the Flashy Sportsknight" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 100
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,8 +35,8 @@ card "Chanbar, the Flashy Sportsknight" {
         range: 4
         count_limit: (1, 50643638)
         on_resolve {
-            send (1, card) to gy
-            destroy (1+, card, either_player controls)
+            send (1+, card, you controls, hand) to gy
+            destroy (1+, card, you controls, hand)
         }
     }
 
@@ -42,7 +47,7 @@ card "Chanbar, the Flashy Sportsknight" {
         range: 16
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, hand)
             special_summon (1, monster) from gy
         }
     }

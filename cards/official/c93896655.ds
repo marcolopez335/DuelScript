@@ -7,10 +7,16 @@ card "Sunavalon Dryas" {
     attribute: EARTH
     race: Plant
     link: 1
+    link_arrows: [bottom]
     atk: 0
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,7 @@ card "Sunavalon Dryas" {
         code: 1102
         property: 81920
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 
@@ -27,7 +33,6 @@ card "Sunavalon Dryas" {
         effect_type: 1
         code: 251
         on_resolve {
-            reveal self
         }
     }
 
@@ -37,7 +42,6 @@ card "Sunavalon Dryas" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

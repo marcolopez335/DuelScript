@@ -3,7 +3,7 @@
 
 card "Dinomist Rex" {
     password: 63251695
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: WATER
     race: Machine
     level: 5
@@ -11,13 +11,17 @@ card "Dinomist Rex" {
     atk: 2400
     def: 2200
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2050
         code: 1020
         range: 512
         on_resolve {
             negate effect
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, opponent controls, hand)
         }
     }
 
@@ -28,7 +32,7 @@ card "Dinomist Rex" {
             tribute self
         }
         on_resolve {
-            reveal self
+            return (1+, card, opponent controls) to deck shuffle
         }
     }
 

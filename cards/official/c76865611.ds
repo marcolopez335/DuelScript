@@ -16,7 +16,6 @@ card "Morphtronic Lantron" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -25,7 +24,6 @@ card "Morphtronic Lantron" {
         code: 1019
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 
@@ -33,7 +31,10 @@ card "Morphtronic Lantron" {
         effect_type: 513
         code: 1140
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

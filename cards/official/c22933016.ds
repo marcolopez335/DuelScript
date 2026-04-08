@@ -13,6 +13,10 @@ card "A.I.dle Reborn" {
         count_limit: (1, 22933016)
         on_resolve {
             special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -27,7 +31,7 @@ card "A.I.dle Reborn" {
             banish self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from hand
         }
     }
 

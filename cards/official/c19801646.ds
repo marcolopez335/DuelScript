@@ -10,13 +10,16 @@ card "The Legendary Fisherman II" {
     atk: 2200
     def: 1800
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 114
         property: 131072
         range: 20
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +29,6 @@ card "The Legendary Fisherman II" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -36,7 +38,7 @@ card "The Legendary Fisherman II" {
         code: 1015
         property: 83968
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 

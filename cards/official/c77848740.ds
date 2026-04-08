@@ -27,7 +27,11 @@ card "Madolche Petingcessoeur" {
         property: 81920
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -36,7 +40,7 @@ card "Madolche Petingcessoeur" {
         category: 16
         code: 1014
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, you controls) to deck shuffle
         }
     }
 

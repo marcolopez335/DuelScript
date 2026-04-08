@@ -14,13 +14,17 @@ card "Legendary Flame Lord" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2050
         code: 1027
         property: 1024
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +33,6 @@ card "Legendary Flame Lord" {
         code: 1022
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -38,7 +41,7 @@ card "Legendary Flame Lord" {
         category: 1
         range: 4
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, either_player controls)
         }
     }
 

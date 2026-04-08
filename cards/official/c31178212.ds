@@ -3,13 +3,17 @@
 
 card "Majespecter Unicorn - Kirin" {
     password: 31178212
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: WIND
     race: Spellcaster
     level: 6
     scale: 2
     atk: 2000
     def: 2000
+
+    summon_condition {
+        tributes_required: 1
+    }
 
     raw_effect "Effect 1" {
         effect_type: 256
@@ -19,7 +23,7 @@ card "Majespecter Unicorn - Kirin" {
         range: 4
         count_limit: (1, 31178212)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 
@@ -29,7 +33,6 @@ card "Majespecter Unicorn - Kirin" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -39,7 +42,6 @@ card "Majespecter Unicorn - Kirin" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

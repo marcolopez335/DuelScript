@@ -6,39 +6,31 @@ card "Phantasm Spiral Crash" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: 4
+        code: 203
         on_resolve {
-            reveal self
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 4
-        code: 203
-        on_resolve {
-            reveal self
-        }
-    }
-
-    raw_effect "Effect 3" {
         effect_type: 130
         category: 512
         code: 1143
         range: 8
         count_limit: (1, 48308134)
         on_resolve {
+            special_summon (1, monster) from gy
             equip (1, card) to (1, monster)
             change_battle_position (1, monster)
         }
     }
 
-    raw_effect "Effect 4" {
+    raw_effect "Effect 3" {
         effect_type: 16
         category: 262144
         code: 1002
         on_resolve {
-            reveal self
+            equip self to (1, monster, you controls)
         }
     }
 

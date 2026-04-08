@@ -14,12 +14,16 @@ card "Supreme Arcanite Magician" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 513
         category: 8388608
         code: 1102
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,7 +31,6 @@ card "Supreme Arcanite Magician" {
         effect_type: 1
         code: 100
         on_resolve {
-            reveal self
         }
     }
 
@@ -37,6 +40,7 @@ card "Supreme Arcanite Magician" {
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
+            draw 1
         }
     }
 

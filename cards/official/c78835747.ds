@@ -3,7 +3,7 @@
 
 card "Performapal Kaleidoscorp" {
     password: 78835747
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: LIGHT
     race: Insect
     level: 6
@@ -11,12 +11,16 @@ card "Performapal Kaleidoscorp" {
     atk: 100
     def: 2300
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 100
         range: 512
         on_resolve {
-            reveal self
+            modifier: atk + 300
         }
     }
 
@@ -26,7 +30,6 @@ card "Performapal Kaleidoscorp" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 

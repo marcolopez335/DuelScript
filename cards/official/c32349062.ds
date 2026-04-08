@@ -3,13 +3,17 @@
 
 card "D/D Dog" {
     password: 32349062
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
     level: 6
     scale: 3
     atk: 2000
     def: 2000
+
+    summon_condition {
+        tributes_required: 1
+    }
 
     raw_effect "Effect 1" {
         effect_type: 64
@@ -18,7 +22,7 @@ card "D/D Dog" {
         range: 512
         count_limit: (1, 32349062)
         on_resolve {
-            reveal self
+            destroy (1+, trap, either_player controls)
         }
     }
 
@@ -30,7 +34,6 @@ card "D/D Dog" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 
@@ -40,7 +43,7 @@ card "D/D Dog" {
         property: 1024
         range: 4
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
         }
     }
 

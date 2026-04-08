@@ -6,53 +6,41 @@ card "Power of the Guardians" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
-        on_resolve {
-            reveal self
-        }
-    }
-
-    raw_effect "Effect 2" {
         effect_type: 514
         category: 8388608
         code: 1130
         range: 8
         on_resolve {
-            reveal self
+        }
+    }
+
+    raw_effect "Effect 2" {
+        effect_type: 4
+        code: 100
+        on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
         effect_type: 4
-        code: 100
+        code: 104
         on_resolve {
-            reveal self
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: 4
-        code: 104
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 4" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2052
-        code: 50
-        on_resolve {
-            reveal self
-        }
-    }
-
-    raw_effect "Effect 6" {
         effect_type: 16
         category: 262144
         code: 1002
         on_resolve {
-            reveal self
+            equip self to (1, monster, you controls)
         }
     }
 

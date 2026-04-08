@@ -9,7 +9,6 @@ card "Ursarctic Quint Charge" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -19,7 +18,7 @@ card "Ursarctic Quint Charge" {
         code: 1140
         range: 8
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, monster, you controls) to deck shuffle
         }
     }
 
@@ -30,10 +29,10 @@ card "Ursarctic Quint Charge" {
         range: 8
         count_limit: (1, 0)
         cost {
-            pay_lp 1000
+            pay_lp 700
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, you controls) to hand
         }
     }
 
@@ -44,7 +43,7 @@ card "Ursarctic Quint Charge" {
         range: 8
         count_limit: (1, 0)
         cost {
-            pay_lp 1000
+            pay_lp 700
         }
         on_resolve {
             tribute (1, monster, you controls)

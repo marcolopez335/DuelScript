@@ -10,6 +10,10 @@ card "World Legacy Guardragon Mardark" {
     atk: 2600
     def: 3000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 512
@@ -28,7 +32,6 @@ card "World Legacy Guardragon Mardark" {
         code: 100
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -37,7 +40,6 @@ card "World Legacy Guardragon Mardark" {
         code: 104
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -48,7 +50,7 @@ card "World Legacy Guardragon Mardark" {
         property: 81920
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from gy
         }
     }
 

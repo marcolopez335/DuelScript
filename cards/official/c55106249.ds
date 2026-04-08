@@ -3,7 +3,7 @@
 
 card "Deskbot 006" {
     password: 55106249
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: EARTH
     race: Machine
     level: 6
@@ -11,13 +11,16 @@ card "Deskbot 006" {
     atk: 500
     def: 500
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 22
         property: 3584
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -47,7 +50,6 @@ card "Deskbot 006" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -58,7 +60,7 @@ card "Deskbot 006" {
         property: 81936
         count_limit: (1, 55106249)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

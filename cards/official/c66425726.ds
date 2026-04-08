@@ -3,7 +3,7 @@
 
 card "Odd-Eyes Pendulumgraph Dragon" {
     password: 66425726
-    type: Ritual Monster
+    type: Ritual Monster | Pendulum Monster
     attribute: LIGHT
     race: Dragon
     level: 7
@@ -11,12 +11,20 @@ card "Odd-Eyes Pendulumgraph Dragon" {
     atk: 2700
     def: 2500
 
+    summon_condition {
+        tributes_required: 2
+    }
+
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 31
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -25,7 +33,6 @@ card "Odd-Eyes Pendulumgraph Dragon" {
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -36,8 +43,8 @@ card "Odd-Eyes Pendulumgraph Dragon" {
         range: 512
         count_limit: (1, 66425726)
         on_resolve {
-            add_to_hand (1, card) from gy
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 
@@ -57,7 +64,7 @@ card "Odd-Eyes Pendulumgraph Dragon" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
             special_summon (1, monster) from gy
             special_summon (1, monster) from gy
         }

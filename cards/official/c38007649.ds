@@ -11,7 +11,7 @@ card "DoomZ Change" {
         code: 1002
         count_limit: (1, 38007649)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, hand)
         }
     }
 
@@ -22,8 +22,8 @@ card "DoomZ Change" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            add_to_hand (1+, card, you controls) from hand
+            shuffle_hand
             special_summon (1, monster) from gy
         }
     }

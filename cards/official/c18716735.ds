@@ -3,7 +3,7 @@
 
 card "Raremetalfoes Bismugear" {
     password: 18716735
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: FIRE
     race: Psychic
     level: 1
@@ -18,7 +18,7 @@ card "Raremetalfoes Bismugear" {
         range: 512
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls, deck)
             set (1, card)
         }
     }
@@ -30,7 +30,10 @@ card "Raremetalfoes Bismugear" {
         property: 65536
         count_limit: (1, 18716735)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

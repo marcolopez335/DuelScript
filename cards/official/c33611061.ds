@@ -11,8 +11,9 @@ card "Bujinunity" {
         code: 1002
         count_limit: (1, 33611061)
         on_resolve {
-            return (1, card) to deck shuffle
-            send (1, card) to gy
+            return (1+, card, you controls) to deck shuffle
+            send (1+, card, you controls, gy) to gy
+            add_to_hand (1+, card, you controls) from gy
         }
     }
 

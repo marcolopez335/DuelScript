@@ -10,6 +10,10 @@ card "Blaster, Dragon Ruler of Infernos" {
     atk: 2800
     def: 1800
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 512
@@ -30,7 +34,7 @@ card "Blaster, Dragon Ruler of Infernos" {
         range: 4
         count_limit: (1, 53804307)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from gy
         }
     }
 
@@ -41,7 +45,7 @@ card "Blaster, Dragon Ruler of Infernos" {
         range: 2
         count_limit: (1, 53804307)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls, gy)
         }
     }
 
@@ -52,7 +56,7 @@ card "Blaster, Dragon Ruler of Infernos" {
         property: 65536
         count_limit: (1, 53804307)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from gy
         }
     }
 

@@ -7,10 +7,16 @@ card "Galatea, the Orcust Automaton" {
     attribute: DARK
     race: Machine
     link: 2
+    link_arrows: [top_right, bottom_left]
     atk: 1800
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,6 @@ card "Galatea, the Orcust Automaton" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,8 +35,8 @@ card "Galatea, the Orcust Automaton" {
         range: 4
         count_limit: (1, 30741503)
         on_resolve {
-            return (1, card) to deck shuffle
-            shuffle deck
+            return (1+, spell, you controls) to deck shuffle
+            shuffle_deck
             set (1, card)
         }
     }
@@ -44,8 +49,8 @@ card "Galatea, the Orcust Automaton" {
         range: 4
         count_limit: (1, 30741503)
         on_resolve {
-            return (1, card) to deck shuffle
-            shuffle deck
+            return (1+, spell, you controls) to deck shuffle
+            shuffle_deck
             set (1, card)
         }
     }

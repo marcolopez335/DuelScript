@@ -14,6 +14,12 @@ card "Silent Psychic Magician" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 134218240
@@ -22,6 +28,10 @@ card "Silent Psychic Magician" {
         count_limit: (1, 16246535)
         on_resolve {
             special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -31,7 +41,6 @@ card "Silent Psychic Magician" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

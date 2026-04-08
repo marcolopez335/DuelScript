@@ -11,8 +11,12 @@ card "Extinguishing the Ashened" {
         code: 1002
         count_limit: (1, 98828338)
         on_resolve {
-            send (1, card) to gy
-            add_to_hand (1, card) from gy
+            send (1+, card, you controls, deck) to gy
+            add_to_hand (1+, card, you controls) from deck
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -25,7 +29,6 @@ card "Extinguishing the Ashened" {
             banish self
         }
         on_resolve {
-            reveal self
         }
     }
 

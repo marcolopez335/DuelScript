@@ -10,12 +10,15 @@ card "Ultimate Bright Knight Ursatron Alpha" {
     atk: 2000
     def: 700
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +29,7 @@ card "Ultimate Bright Knight Ursatron Alpha" {
         count_limit: (1, 14959144)
         on_resolve {
             special_summon (1, monster) from gy
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 

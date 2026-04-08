@@ -14,13 +14,17 @@ card "End of the World Ruler" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 114
         property: 131072
         range: 6
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,10 +34,9 @@ card "End of the World Ruler" {
         range: 2
         count_limit: (1, 3739500)
         cost {
-            reveal self
+            pay_lp 2000
         }
         on_resolve {
-            reveal self
         }
     }
 
@@ -43,7 +46,7 @@ card "End of the World Ruler" {
         range: 4
         count_limit: (1, 0)
         cost {
-            pay_lp 1000
+            pay_lp 2000
         }
         on_resolve {
             destroy (1+, card, either_player controls)

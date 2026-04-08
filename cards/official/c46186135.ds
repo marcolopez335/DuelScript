@@ -14,6 +14,11 @@ card "Enlightenment Dragon" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         category: 4
@@ -21,10 +26,10 @@ card "Enlightenment Dragon" {
         range: 4
         count_limit: (1, 0)
         cost {
-            pay_lp 1000
+            pay_lp 2000
         }
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, you controls, gy)
         }
     }
 
@@ -35,7 +40,6 @@ card "Enlightenment Dragon" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 
@@ -45,7 +49,7 @@ card "Enlightenment Dragon" {
         code: 1029
         property: 65536
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from gy
             special_summon (1, monster) from gy
         }
     }

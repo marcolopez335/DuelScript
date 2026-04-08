@@ -9,7 +9,6 @@ card "All-Out Attacks" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -20,6 +19,8 @@ card "All-Out Attacks" {
         range: 8
         on_resolve {
             change_battle_position (1, monster)
+            set_flag "tracked" on self
+            send (1+, card, either_player controls) to gy
         }
     }
 

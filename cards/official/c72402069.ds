@@ -3,7 +3,7 @@
 
 card "D/D/D Super Doom King Bright Armageddon" {
     password: 72402069
-    type: Synchro Monster
+    type: Synchro Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
     level: 10
@@ -15,6 +15,12 @@ card "D/D/D Super Doom King Bright Armageddon" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 130
         category: 524289
@@ -23,7 +29,7 @@ card "D/D/D Super Doom King Bright Armageddon" {
         range: 512
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, opponent controls)
             deal_damage to opponent: 1000
         }
     }
@@ -34,7 +40,6 @@ card "D/D/D Super Doom King Bright Armageddon" {
         property: 128
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -44,7 +49,6 @@ card "D/D/D Super Doom King Bright Armageddon" {
         code: 1100
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -54,7 +58,6 @@ card "D/D/D Super Doom King Bright Armageddon" {
         code: 1102
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

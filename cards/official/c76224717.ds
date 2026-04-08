@@ -9,7 +9,6 @@ card "Advance Zone" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -20,7 +19,9 @@ card "Advance Zone" {
         range: 8
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, opponent controls)
+            draw 1
+            return (1+, monster, opponent controls) to hand
         }
     }
 
@@ -28,7 +29,6 @@ card "Advance Zone" {
         effect_type: 2050
         code: 1100
         on_resolve {
-            reveal self
         }
     }
 
@@ -36,7 +36,6 @@ card "Advance Zone" {
         effect_type: 2050
         code: 1106
         on_resolve {
-            reveal self
         }
     }
 

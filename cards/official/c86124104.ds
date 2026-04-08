@@ -14,13 +14,17 @@ card "Demise, Agent of Armageddon" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 114
         property: 131072
         range: 6
         on_resolve {
-            reveal self
         }
     }
 
@@ -31,7 +35,7 @@ card "Demise, Agent of Armageddon" {
         property: 81920
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, either_player controls)
         }
     }
 
@@ -40,7 +44,10 @@ card "Demise, Agent of Armageddon" {
         code: 1014
         property: 81936
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

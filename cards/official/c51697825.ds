@@ -11,9 +11,13 @@ card "Jack-In-The-Hand" {
         code: 1002
         count_limit: (1, 51697825)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
-            send (1, card) to gy
+            add_to_hand (1+, monster, you controls) from deck
+            shuffle_hand
+            send (1+, monster, you controls, deck) to gy
+            add_to_hand (1+, monster, you controls) from deck
+            shuffle_hand
+            send (1+, monster, you controls, deck) to gy
+            shuffle_deck
         }
     }
 

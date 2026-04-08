@@ -10,12 +10,15 @@ card "Laval Lancelord" {
     atk: 2100
     def: 200
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 32
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -25,7 +28,7 @@ card "Laval Lancelord" {
         code: 1014
         property: 16400
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

@@ -10,6 +10,10 @@ card "U.A. Dreadnought Dunker" {
     atk: 2500
     def: 1800
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
@@ -17,7 +21,7 @@ card "U.A. Dreadnought Dunker" {
         range: 2
         count_limit: (1, 71279983)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, you controls) to hand
         }
     }
 
@@ -25,7 +29,6 @@ card "U.A. Dreadnought Dunker" {
         effect_type: 1
         code: 203
         on_resolve {
-            reveal self
         }
     }
 
@@ -35,7 +38,7 @@ card "U.A. Dreadnought Dunker" {
         code: 1143
         property: 16
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls)
         }
     }
 

@@ -10,23 +10,23 @@ card "Great Shogun Shien" {
     atk: 2500
     def: 2400
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
         property: 262144
         range: 2
         on_resolve {
-            reveal self
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: 2049
-        code: 50
-        property: 131072
-        range: 4
-        on_resolve {
-            destroy (1+, card, either_player controls)
+    replacement_effect "Effect 2" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 
@@ -35,7 +35,6 @@ card "Great Shogun Shien" {
         code: 1027
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -44,7 +43,6 @@ card "Great Shogun Shien" {
         code: 1024
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -54,7 +52,6 @@ card "Great Shogun Shien" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

@@ -10,14 +10,26 @@ card "Abyss Shark" {
     atk: 1200
     def: 700
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 131592
         range: 2
         count_limit: (1, 61496006)
         on_resolve {
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
             special_summon (1, monster) from gy
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -27,7 +39,6 @@ card "Abyss Shark" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

@@ -14,13 +14,18 @@ card "Gigantic Spright" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 242
         property: 1152
         range: 64
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +35,6 @@ card "Gigantic Spright" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -41,6 +45,10 @@ card "Gigantic Spright" {
         count_limit: (1, 54498517)
         on_resolve {
             special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

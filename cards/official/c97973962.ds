@@ -7,10 +7,16 @@ card "Aleister the Invoker of Madness" {
     attribute: DARK
     race: Spellcaster
     link: 2
+    link_arrows: [bottom_left, bottom_right]
     atk: 1800
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,6 @@ card "Aleister the Invoker of Madness" {
         property: 131072
         range: 20
         on_resolve {
-            reveal self
         }
     }
 
@@ -31,7 +36,7 @@ card "Aleister the Invoker of Madness" {
         range: 4
         on_resolve {
             discard (1, card)
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from hand
         }
     }
 
@@ -41,7 +46,7 @@ card "Aleister the Invoker of Madness" {
         code: 1015
         property: 81920
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from hand
         }
     }
 

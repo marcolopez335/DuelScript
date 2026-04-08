@@ -10,9 +10,13 @@ card "Primite Roar" {
         category: 512
         code: 1002
         cost {
-            pay_lp 1000
+            pay_lp 2000
         }
         on_resolve {
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
             special_summon (1, monster) from gy
         }
     }
@@ -27,7 +31,7 @@ card "Primite Roar" {
             banish self
         }
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, you controls, deck)
         }
     }
 

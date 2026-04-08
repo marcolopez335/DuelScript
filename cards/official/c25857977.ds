@@ -3,13 +3,17 @@
 
 card "D/D/D Vice King Requiem" {
     password: 25857977
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
     level: 8
     scale: 4
     atk: 2800
     def: 2000
+
+    summon_condition {
+        tributes_required: 2
+    }
 
     raw_effect "Effect 1" {
         effect_type: 64
@@ -18,7 +22,7 @@ card "D/D/D Vice King Requiem" {
         range: 512
         count_limit: (1, 25857977)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls)
             special_summon (1, monster) from gy
         }
     }
@@ -29,7 +33,6 @@ card "D/D/D Vice King Requiem" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -39,7 +42,6 @@ card "D/D/D Vice King Requiem" {
         property: 8388608
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 

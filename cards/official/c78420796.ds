@@ -6,6 +6,19 @@ card "Dinomorphia Frenzy" {
     type: Normal Trap
 
     raw_effect "Effect 1" {
+        effect_type: 16
+        category: 1073742336
+        code: 1002
+        count_limit: (1, 78420796)
+        cost {
+            pay_lp your_lp / 2
+        }
+        on_resolve {
+            fusion_summon (1, fusion monster) using (1+, monster, you controls)
+        }
+    }
+
+    raw_effect "Effect 2" {
         effect_type: 256
         code: 1027
         range: 16
@@ -13,7 +26,14 @@ card "Dinomorphia Frenzy" {
             banish self
         }
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

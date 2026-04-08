@@ -3,7 +3,7 @@
 
 card "D/D Savant Galilei" {
     password: 74605254
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
     level: 10
@@ -11,13 +11,16 @@ card "D/D Savant Galilei" {
     atk: 0
     def: 0
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 22
         property: 3584
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -28,7 +31,7 @@ card "D/D Savant Galilei" {
         range: 512
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls)
         }
     }
 
@@ -40,10 +43,10 @@ card "D/D Savant Galilei" {
         range: 2
         count_limit: (1, 74605254)
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, you controls) to hand
         }
     }
 

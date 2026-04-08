@@ -10,13 +10,16 @@ card "Hapi, Guidance of Horus" {
     atk: 2400
     def: 1600
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
         range: 16
         count_limit: (1, 47330808)
         on_resolve {
-            reveal self
         }
     }
 
@@ -28,8 +31,8 @@ card "Hapi, Guidance of Horus" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
-            return (1, card) to deck shuffle
+            add_to_hand (1+, card, either_player controls) from gy
+            return (1+, card, either_player controls) to deck shuffle
         }
     }
 

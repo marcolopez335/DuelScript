@@ -10,6 +10,10 @@ card "Vampire Grace" {
     atk: 2000
     def: 1200
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 130
         category: 512
@@ -17,7 +21,7 @@ card "Vampire Grace" {
         range: 16
         count_limit: (1, 40607210)
         cost {
-            pay_lp 1000
+            pay_lp 2000
         }
         on_resolve {
             special_summon (1, monster) from gy
@@ -30,7 +34,7 @@ card "Vampire Grace" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, opponent controls, deck) to gy
         }
     }
 

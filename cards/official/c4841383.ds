@@ -9,7 +9,6 @@ card "Ragnaraika Bloom" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -18,7 +17,6 @@ card "Ragnaraika Bloom" {
         code: 100
         range: 8
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,7 +25,6 @@ card "Ragnaraika Bloom" {
         code: 104
         range: 8
         on_resolve {
-            reveal self
         }
     }
 
@@ -36,9 +33,10 @@ card "Ragnaraika Bloom" {
         range: 8
         count_limit: (1, 4841383)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            add_to_hand (1+, monster, you controls) from deck
+            shuffle_hand
             discard (1, card)
+            special_summon (1, monster) from gy
         }
     }
 

@@ -10,14 +10,18 @@ card "Danger! Ogopogo!" {
     atk: 1200
     def: 3000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 66176
         code: 1002
         range: 2
         on_resolve {
-            shuffle deck
-            send (1, card) to gy
+            shuffle_hand
+            send (1+, card, you controls, deck) to gy
             special_summon (1, monster) from gy
             draw 1
         }
@@ -30,7 +34,7 @@ card "Danger! Ogopogo!" {
         property: 65536
         count_limit: (1, 83518674)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, deck) to gy
         }
     }
 
@@ -41,7 +45,7 @@ card "Danger! Ogopogo!" {
         property: 65536
         count_limit: (1, 83518674)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, deck) to gy
         }
     }
 

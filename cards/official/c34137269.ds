@@ -10,13 +10,16 @@ card "Hailon, the Timelord" {
     atk: 0
     def: 0
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 394240
         range: 1
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +29,6 @@ card "Hailon, the Timelord" {
         property: 263168
         range: 2
         on_resolve {
-            reveal self
         }
     }
 
@@ -36,7 +38,6 @@ card "Hailon, the Timelord" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -46,7 +47,6 @@ card "Hailon, the Timelord" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -56,7 +56,6 @@ card "Hailon, the Timelord" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -80,7 +79,7 @@ card "Hailon, the Timelord" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to deck shuffle
         }
     }
 

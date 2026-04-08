@@ -9,7 +9,6 @@ card "Revolving Switchyard" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -21,7 +20,11 @@ card "Revolving Switchyard" {
         range: 256
         count_limit: (1, 76136345)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            special_summon (1, monster) from gy
         }
     }
 
@@ -33,7 +36,11 @@ card "Revolving Switchyard" {
         range: 256
         count_limit: (1, 76136345)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            special_summon (1, monster) from gy
         }
     }
 
@@ -43,7 +50,7 @@ card "Revolving Switchyard" {
         range: 256
         count_limit: (1, 76136345)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 

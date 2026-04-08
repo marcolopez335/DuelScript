@@ -11,7 +11,8 @@ card "Echelon of the Fire Kings" {
         code: 1002
         count_limit: (1, 38798785)
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
+            destroy (1+, card, you controls, gy)
         }
     }
 
@@ -24,7 +25,19 @@ card "Echelon of the Fire Kings" {
             banish self
         }
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

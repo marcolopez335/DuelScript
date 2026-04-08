@@ -15,7 +15,7 @@ card "Crystal Beast Cobalt Eagle" {
         code: 313
         property: 262144
         on_resolve {
-            reveal self
+            emit_event "custom"
         }
     }
 
@@ -26,7 +26,7 @@ card "Crystal Beast Cobalt Eagle" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to deck shuffle
         }
     }
 

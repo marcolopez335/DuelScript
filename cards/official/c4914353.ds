@@ -7,10 +7,16 @@ card "Space Insulator" {
     attribute: DARK
     race: Cyberse
     link: 2
+    link_arrows: [top, bottom]
     atk: 1200
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -18,7 +24,7 @@ card "Space Insulator" {
         code: 100
         range: 4
         on_resolve {
-            reveal self
+            modifier: atk - 800
         }
     }
 
@@ -27,7 +33,7 @@ card "Space Insulator" {
         code: 104
         range: 4
         on_resolve {
-            reveal self
+            modifier: def - 800
         }
     }
 
@@ -37,7 +43,7 @@ card "Space Insulator" {
         code: 1102
         range: 16
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
         }
     }
 

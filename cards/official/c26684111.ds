@@ -11,17 +11,15 @@ card "The Sacred Waters in the Sky" {
         code: 1002
         count_limit: (1, 26684111)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
+            gain_lp: 1000
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 50
-        range: 16
-        count_limit: (1, 0)
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 2" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

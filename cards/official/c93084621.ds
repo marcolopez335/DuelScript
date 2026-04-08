@@ -7,10 +7,16 @@ card "Unchained Soul of Anguish" {
     attribute: DARK
     race: Fiend
     link: 3
+    link_arrows: [top, bottom_left, bottom_right]
     atk: 2400
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -20,7 +26,6 @@ card "Unchained Soul of Anguish" {
         range: 4
         count_limit: (1, 93084621)
         on_resolve {
-            reveal self
         }
     }
 
@@ -31,7 +36,7 @@ card "Unchained Soul of Anguish" {
         property: 81936
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

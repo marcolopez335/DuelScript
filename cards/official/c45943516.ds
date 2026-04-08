@@ -11,7 +11,7 @@ card "War Rock Mountain" {
         code: 1002
         count_limit: (1, 45943516)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 
@@ -26,12 +26,10 @@ card "War Rock Mountain" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 50
-        range: 256
-        on_resolve {
-            send (1, card) to gy
+    replacement_effect "Effect 3" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

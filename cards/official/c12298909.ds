@@ -10,6 +10,10 @@ card "Prime Material Dragon" {
     atk: 2400
     def: 2000
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         category: 268435457
@@ -18,7 +22,7 @@ card "Prime Material Dragon" {
         range: 4
         on_resolve {
             negate activation
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls, hand)
         }
     }
 
@@ -28,7 +32,6 @@ card "Prime Material Dragon" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

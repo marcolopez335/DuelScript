@@ -10,6 +10,10 @@ card "Mist Valley Apex Avian" {
     atk: 2700
     def: 2000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         category: 268435465
@@ -18,7 +22,7 @@ card "Mist Valley Apex Avian" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
             negate activation
             destroy (1+, card, either_player controls)
         }

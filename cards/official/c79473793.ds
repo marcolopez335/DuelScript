@@ -10,6 +10,10 @@ card "White Night Dragon" {
     atk: 3000
     def: 2500
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1024
         category: 268435457
@@ -18,7 +22,7 @@ card "White Night Dragon" {
         range: 4
         on_resolve {
             negate activation
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, you controls)
         }
     }
 
@@ -30,7 +34,6 @@ card "White Night Dragon" {
             send self to gy
         }
         on_resolve {
-            reveal self
         }
     }
 

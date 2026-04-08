@@ -10,13 +10,16 @@ card "Superheavy Samurai Thief" {
     atk: 1000
     def: 1000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
         property: 262144
         range: 2
         on_resolve {
-            reveal self
         }
     }
 
@@ -25,7 +28,10 @@ card "Superheavy Samurai Thief" {
         code: 1102
         property: 262144
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -36,8 +42,10 @@ card "Superheavy Samurai Thief" {
             tribute self
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, opponent controls)
             set (1, card)
+            destroy (1+, spell, opponent controls)
+            special_summon (1, monster) from gy
         }
     }
 

@@ -9,7 +9,6 @@ card "Monarchic Perfection" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -23,7 +22,12 @@ card "Monarchic Perfection" {
             banish self
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, either_player controls)
+            destroy (1+, spell, either_player controls)
+            send (1+, spell, either_player controls) to gy
+            destroy (1+, spell, either_player controls)
+            return (1+, spell, either_player controls) to deck shuffle
+            banish (1+, spell, either_player controls)
         }
     }
 

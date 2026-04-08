@@ -14,12 +14,16 @@ card "Tearlaments Rulkallos" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 42
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -32,8 +36,8 @@ card "Tearlaments Rulkallos" {
         count_limit: (1, 84330567)
         on_resolve {
             negate activation
-            destroy (1+, card, either_player controls)
-            send (1, card) to gy
+            destroy (1+, card, you controls, hand)
+            send (1+, card, you controls, hand) to gy
         }
     }
 

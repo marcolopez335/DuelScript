@@ -3,7 +3,7 @@
 
 card "D/D Cerberus" {
     password: 39153655
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
     level: 4
@@ -17,7 +17,6 @@ card "D/D Cerberus" {
         range: 512
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,7 +26,7 @@ card "D/D Cerberus" {
         code: 1102
         property: 16
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, you controls) to hand
         }
     }
 

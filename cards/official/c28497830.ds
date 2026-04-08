@@ -14,6 +14,11 @@ card "Gold Pride - Pin Baller" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 262144
@@ -32,7 +37,7 @@ card "Gold Pride - Pin Baller" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, monster, opponent controls) to deck shuffle
             special_summon (1, monster) from gy
         }
     }
@@ -41,7 +46,6 @@ card "Gold Pride - Pin Baller" {
         effect_type: 2
         code: 12
         on_resolve {
-            reveal self
         }
     }
 
@@ -49,7 +53,6 @@ card "Gold Pride - Pin Baller" {
         effect_type: 2
         code: 13
         on_resolve {
-            reveal self
         }
     }
 

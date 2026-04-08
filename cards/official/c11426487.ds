@@ -10,6 +10,10 @@ card "White Steed of the Floral Knights" {
     atk: 2400
     def: 1800
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
@@ -17,7 +21,6 @@ card "White Steed of the Floral Knights" {
         range: 2
         count_limit: (1, 11426487)
         on_resolve {
-            reveal self
         }
     }
 
@@ -33,7 +36,7 @@ card "White Steed of the Floral Knights" {
         }
         on_resolve {
             negate attack
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls)
         }
     }
 

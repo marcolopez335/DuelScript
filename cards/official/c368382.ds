@@ -3,13 +3,17 @@
 
 card "Dinomist Brachion" {
     password: 368382
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: WATER
     race: Machine
     level: 5
     scale: 6
     atk: 2000
     def: 800
+
+    summon_condition {
+        tributes_required: 1
+    }
 
     raw_effect "Effect 1" {
         effect_type: 2050
@@ -18,7 +22,7 @@ card "Dinomist Brachion" {
         range: 512
         on_resolve {
             negate effect
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, either_player controls)
         }
     }
 
@@ -28,7 +32,6 @@ card "Dinomist Brachion" {
         property: 262144
         range: 2
         on_resolve {
-            reveal self
         }
     }
 

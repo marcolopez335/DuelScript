@@ -6,6 +6,16 @@ card "Artmage Masterwork -Succession-" {
     type: Quick-Play Spell
 
     raw_effect "Effect 1" {
+        effect_type: 16
+        category: 1073742336
+        code: 1002
+        count_limit: (1, 37517035)
+        on_resolve {
+            fusion_summon (1, fusion monster) using (1+, monster, you controls)
+        }
+    }
+
+    raw_effect "Effect 2" {
         effect_type: 64
         category: 16
         property: 16
@@ -15,7 +25,7 @@ card "Artmage Masterwork -Succession-" {
             banish self
         }
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, you controls) to deck shuffle
         }
     }
 

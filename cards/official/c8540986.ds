@@ -14,13 +14,17 @@ card "Veidos the Dragon of Endless Darkness" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 41
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +34,6 @@ card "Veidos the Dragon of Endless Darkness" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -40,7 +43,7 @@ card "Veidos the Dragon of Endless Darkness" {
         code: 1102
         property: 65536
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, opponent controls)
         }
     }
 
@@ -54,7 +57,7 @@ card "Veidos the Dragon of Endless Darkness" {
             send self to gy
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, opponent controls)
         }
     }
 

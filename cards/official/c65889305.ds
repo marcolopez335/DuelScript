@@ -9,7 +9,6 @@ card "Argostars - Lightning Tydeu" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -18,7 +17,7 @@ card "Argostars - Lightning Tydeu" {
         code: 100
         range: 8
         on_resolve {
-            reveal self
+            modifier: atk + 500
         }
     }
 
@@ -27,7 +26,7 @@ card "Argostars - Lightning Tydeu" {
         code: 104
         range: 8
         on_resolve {
-            reveal self
+            modifier: def + 500
         }
     }
 
@@ -38,7 +37,8 @@ card "Argostars - Lightning Tydeu" {
         range: 8
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            special_summon (1, monster) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 

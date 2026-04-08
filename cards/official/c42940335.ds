@@ -14,6 +14,12 @@ card "Mimighoul Throne" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 512
@@ -35,9 +41,9 @@ card "Mimighoul Throne" {
         range: 4
         count_limit: (1, 42940335)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
             equip (1, card) to (1, monster)
-            add_to_hand (1, card) from gy
+            return (1+, card, either_player controls) to hand
         }
     }
 

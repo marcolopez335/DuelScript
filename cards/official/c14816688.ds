@@ -11,7 +11,8 @@ card "Shuffle Reborn" {
         code: 1002
         property: 16
         on_resolve {
-            banish (1+, card)
+            special_summon (1, monster) from gy
+            banish (1+, card, opponent controls, hand)
         }
     }
 
@@ -25,9 +26,13 @@ card "Shuffle Reborn" {
             banish self
         }
         on_resolve {
-            return (1, card) to deck shuffle
-            shuffle deck
+            return (1+, card, opponent controls) to deck shuffle
+            shuffle_deck
             draw 1
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

@@ -14,6 +14,12 @@ card "Number 99: Utopia Dragonar" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         category: 512
@@ -35,7 +41,6 @@ card "Number 99: Utopia Dragonar" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 
@@ -43,7 +48,7 @@ card "Number 99: Utopia Dragonar" {
         effect_type: 2050
         code: 1130
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
         }
     }
 

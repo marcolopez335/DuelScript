@@ -15,7 +15,6 @@ card "Cardcar D" {
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -24,7 +23,6 @@ card "Cardcar D" {
         code: 1100
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 
@@ -37,6 +35,10 @@ card "Cardcar D" {
         }
         on_resolve {
             draw 2
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

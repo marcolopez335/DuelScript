@@ -14,13 +14,18 @@ card "Number 68: Sanaphond the Sky Prison" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 100
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +35,6 @@ card "Number 68: Sanaphond the Sky Prison" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -42,7 +46,10 @@ card "Number 68: Sanaphond the Sky Prison" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

@@ -10,13 +10,17 @@ card "Subterror Behemoth Phospheroglacier" {
     atk: 2600
     def: 2500
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 161
         category: 32
         property: 65536
         count_limit: (1, 1151281)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, deck) to gy
         }
     }
 

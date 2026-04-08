@@ -10,16 +10,20 @@ card "Thunder Dragonroar" {
     atk: 2400
     def: 0
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 8
         range: 2
         count_limit: (1, 29596581)
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from gy
         }
     }
 
@@ -30,7 +34,8 @@ card "Thunder Dragonroar" {
         property: 65536
         count_limit: (1, 29596581)
         on_resolve {
-            add_to_hand (1, card) from gy
+            special_summon (1, monster) from gy
+            add_to_hand (1+, card, you controls) from gy
         }
     }
 
@@ -41,7 +46,8 @@ card "Thunder Dragonroar" {
         property: 65536
         count_limit: (1, 29596581)
         on_resolve {
-            add_to_hand (1, card) from gy
+            special_summon (1, monster) from gy
+            add_to_hand (1+, card, you controls) from gy
         }
     }
 

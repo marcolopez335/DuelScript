@@ -14,6 +14,12 @@ card "Plunder Patrollship Moerk" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 131084
@@ -21,9 +27,9 @@ card "Plunder Patrollship Moerk" {
         range: 4
         count_limit: (1, 20248754)
         on_resolve {
-            banish (1+, card)
-            add_to_hand (1, card) from gy
-            shuffle deck
+            banish (1+, spell, you controls, deck)
+            add_to_hand (1+, spell, you controls) from deck
+            shuffle_deck
         }
     }
 
@@ -35,18 +41,16 @@ card "Plunder Patrollship Moerk" {
         range: 4
         count_limit: (1, 20248754)
         on_resolve {
-            banish (1+, card)
-            add_to_hand (1, card) from gy
-            shuffle deck
+            banish (1+, spell, you controls, deck)
+            add_to_hand (1+, spell, you controls) from deck
+            shuffle_deck
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 50
-        range: 4
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 3" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

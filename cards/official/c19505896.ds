@@ -10,13 +10,10 @@ card "Nettles" {
     atk: 1200
     def: 400
 
-    raw_effect "Effect 1" {
-        effect_type: 2049
-        code: 50
-        property: 131072
-        range: 4
-        on_resolve {
-            destroy (1+, card, either_player controls)
+    replacement_effect "Effect 1" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

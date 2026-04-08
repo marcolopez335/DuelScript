@@ -12,6 +12,7 @@ card "Living Fossil" {
         property: 16
         count_limit: (1, 34959756)
         on_resolve {
+            special_summon (1, monster) from gy
             equip (1, card) to (1, monster)
         }
     }
@@ -20,7 +21,7 @@ card "Living Fossil" {
         effect_type: 4
         code: 100
         on_resolve {
-            reveal self
+            modifier: atk - 1000
         }
     }
 
@@ -28,7 +29,7 @@ card "Living Fossil" {
         effect_type: 4
         code: 104
         on_resolve {
-            reveal self
+            modifier: def - 1000
         }
     }
 
@@ -36,7 +37,6 @@ card "Living Fossil" {
         effect_type: 4
         code: 2
         on_resolve {
-            reveal self
         }
     }
 
@@ -44,7 +44,7 @@ card "Living Fossil" {
         effect_type: 2049
         code: 1015
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, either_player controls)
         }
     }
 

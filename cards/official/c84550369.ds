@@ -11,8 +11,12 @@ card "Mikanko Shinbu - Noble Twins" {
         code: 1002
         count_limit: (1, 84550369)
         on_resolve {
-            send (1, card) to gy
+            send (1+, spell, you controls, deck) to gy
             set (1, card)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

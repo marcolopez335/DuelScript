@@ -10,13 +10,16 @@ card "Queen of the Blazing Domain" {
     atk: 3000
     def: 2500
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 41
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,8 +30,9 @@ card "Queen of the Blazing Domain" {
         range: 2
         count_limit: (1, 72162751)
         on_resolve {
-            destroy (1+, card, either_player controls)
-            add_to_hand (1, card) from gy
+            destroy (1+, spell, you controls)
+            special_summon (1, monster) from gy
+            return (1+, spell, you controls) to hand
         }
     }
 

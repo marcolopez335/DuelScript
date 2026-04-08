@@ -10,14 +10,18 @@ card "True King Lithosagym, the Disaster" {
     atk: 2500
     def: 2300
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 513
         range: 2
         count_limit: (1, 30539496)
         on_resolve {
-            destroy (1+, card, either_player controls)
-            banish (1+, card)
+            destroy (1+, monster, you controls, hand)
+            banish (1+, monster, you controls, hand)
         }
     }
 

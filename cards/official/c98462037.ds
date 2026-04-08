@@ -7,10 +7,16 @@ card "Sky Striker Ace - Azalea" {
     attribute: DARK
     race: Machine
     link: 2
+    link_arrows: [top_left, bottom_right]
     atk: 1500
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -18,7 +24,6 @@ card "Sky Striker Ace - Azalea" {
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -28,8 +33,8 @@ card "Sky Striker Ace - Azalea" {
         code: 1102
         property: 65552
         on_resolve {
-            destroy (1+, card, either_player controls)
-            send (1, card) to gy
+            destroy (1+, spell, you controls, gy)
+            send (1+, spell, you controls, gy) to gy
         }
     }
 
@@ -43,7 +48,7 @@ card "Sky Striker Ace - Azalea" {
             banish self
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, you controls, gy)
         }
     }
 

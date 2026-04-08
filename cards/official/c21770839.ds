@@ -3,7 +3,7 @@
 
 card "Odd-Eyes Phantasma Dragon" {
     password: 21770839
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Dragon
     level: 8
@@ -11,13 +11,17 @@ card "Odd-Eyes Phantasma Dragon" {
     atk: 3000
     def: 2500
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 8
         range: 512
         count_limit: (1, 21770839)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from hand
         }
     }
 
@@ -38,7 +42,6 @@ card "Odd-Eyes Phantasma Dragon" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 

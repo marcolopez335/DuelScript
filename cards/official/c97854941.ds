@@ -10,6 +10,10 @@ card "Valkyrie Sigrun" {
     atk: 2200
     def: 2400
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 544
@@ -17,7 +21,7 @@ card "Valkyrie Sigrun" {
         range: 2
         count_limit: (1, 97854941)
         on_resolve {
-            send (1, card) to gy
+            send (1+, spell, you controls, gy) to gy
             special_summon (1, monster) from gy
         }
     }

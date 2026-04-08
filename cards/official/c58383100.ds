@@ -17,10 +17,11 @@ card "Cipher Mirror Knight" {
         property: 16384
         range: 2
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
-            reveal self
+            send (1+, card, you controls, hand) to gy
+            special_summon (1, monster) from gy
         }
     }
 
@@ -29,7 +30,6 @@ card "Cipher Mirror Knight" {
         code: 1014
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 
@@ -40,7 +40,7 @@ card "Cipher Mirror Knight" {
         range: 16
         count_limit: (1, 58383100)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from hand
         }
     }
 

@@ -26,17 +26,15 @@ card "Shiranui Sunsaga" {
         code: 1102
         property: 65536
         on_resolve {
-            return (1, card) to deck shuffle
-            destroy (1+, card, either_player controls)
+            return (1+, monster, you controls) to deck shuffle
+            destroy (1+, monster, you controls, gy)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 50
-        range: 4
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 2" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

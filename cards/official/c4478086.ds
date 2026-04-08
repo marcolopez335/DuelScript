@@ -7,6 +7,7 @@ card "Clock Spartoi" {
     attribute: DARK
     race: Cyberse
     link: 2
+    link_arrows: [bottom, bottom_right]
     atk: 800
 
     materials {
@@ -25,7 +26,7 @@ card "Clock Spartoi" {
         property: 65536
         count_limit: (1, 4478086)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -37,7 +38,11 @@ card "Clock Spartoi" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

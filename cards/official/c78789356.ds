@@ -12,6 +12,7 @@ card "Ogdoadic Daybreak" {
         count_limit: (1, 78789356)
         on_resolve {
             create_token { atk: 0 def: 0 }
+            special_summon (1, monster) from gy
         }
     }
 
@@ -25,9 +26,9 @@ card "Ogdoadic Daybreak" {
             banish self
         }
         on_resolve {
-            return (1, card) to deck shuffle
-            shuffle deck
-            send (1, card) to gy
+            return (1+, card, you controls) to deck shuffle
+            shuffle_deck
+            send (1+, card, you controls, deck) to gy
         }
     }
 

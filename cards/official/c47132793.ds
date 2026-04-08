@@ -14,6 +14,12 @@ card "Blaze, Supreme Ruler of all Dragons" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 1
@@ -23,7 +29,7 @@ card "Blaze, Supreme Ruler of all Dragons" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, either_player controls, hand)
         }
     }
 

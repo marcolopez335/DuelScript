@@ -7,10 +7,16 @@ card "Tri-Brigade Arms Mouser" {
     attribute: EARTH
     race: Beast
     link: 2
+    link_arrows: [bottom_left, bottom_right]
     atk: 1800
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -20,7 +26,11 @@ card "Tri-Brigade Arms Mouser" {
         property: 65536
         count_limit: (1, 33781156)
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, you controls, deck) to gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

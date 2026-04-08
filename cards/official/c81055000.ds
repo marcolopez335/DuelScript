@@ -3,7 +3,7 @@
 
 card "Performapal Handstandaccoon" {
     password: 81055000
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: EARTH
     race: Beast
     level: 2
@@ -18,7 +18,11 @@ card "Performapal Handstandaccoon" {
         range: 512
         count_limit: (1, 81055000)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -28,7 +32,7 @@ card "Performapal Handstandaccoon" {
         code: 1140
         property: 16
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

@@ -10,6 +10,10 @@ card "Cataclysmic Cryonic Coldo" {
     atk: 2600
     def: 200
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 130
         category: 528
@@ -19,7 +23,7 @@ card "Cataclysmic Cryonic Coldo" {
         count_limit: (1, 19420830)
         on_resolve {
             special_summon (1, monster) from gy
-            return (1, card) to deck shuffle
+            return (1+, spell, either_player controls) to deck shuffle
         }
     }
 

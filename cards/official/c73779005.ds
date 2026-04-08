@@ -3,13 +3,14 @@
 
 card "Dragoons of Draconia" {
     password: 73779005
-    type: Pendulum Monster
+    type: Normal Monster | Pendulum Monster
     attribute: FIRE
     race: Beast-Warrior
     level: 4
     scale: 2
     atk: 1800
     def: 200
+    flavor: "[ Pendulum Effect ] Once per turn, if a Normal Monster you control destroys an opponent's monster by battle, after damage calculation: You can add 1 Level 4 or higher Normal Monster from your Deck to your hand. ---------------------------------------- [ Flavor Text ] Armed with muskets and iron spears, these mounted land troops of the Draconia Empire are feared by the Reptier Kingdom and other bordering nations."
 
     raw_effect "Effect 1" {
         effect_type: 130
@@ -18,7 +19,7 @@ card "Dragoons of Draconia" {
         range: 512
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 

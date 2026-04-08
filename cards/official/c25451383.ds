@@ -10,13 +10,16 @@ card "Albion the Shrouded Dragon" {
     atk: 2500
     def: 2000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 114
         property: 131072
         range: 20
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +32,7 @@ card "Albion the Shrouded Dragon" {
         }
         on_resolve {
             special_summon (1, monster) from gy
-            return (1, card) to deck shuffle
+            return (1+, spell, you controls) to deck shuffle
             draw 1
         }
     }

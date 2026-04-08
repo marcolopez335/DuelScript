@@ -3,7 +3,7 @@
 
 card "Mythical Beast Bashilisk" {
     password: 80959027
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: LIGHT
     race: Spellcaster
     level: 4
@@ -18,8 +18,8 @@ card "Mythical Beast Bashilisk" {
         count_limit: (1, 80959027)
         on_resolve {
             destroy (1+, card, either_player controls)
-            return (1, card) to deck shuffle
-            shuffle deck
+            return (1+, card, either_player controls) to deck shuffle
+            shuffle_deck
             draw 1
         }
     }
@@ -30,7 +30,6 @@ card "Mythical Beast Bashilisk" {
         property: 1024
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -40,7 +39,6 @@ card "Mythical Beast Bashilisk" {
         property: 65536
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -50,7 +48,7 @@ card "Mythical Beast Bashilisk" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

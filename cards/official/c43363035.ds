@@ -10,14 +10,19 @@ card "Wandering Titan of Tartarus" {
     atk: 2600
     def: 0
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 513
         category: 544
         code: 1014
         count_limit: (1, 43363035)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls) to gy
             special_summon (1, monster) from gy
+            send (1+, card, you controls) to gy
         }
     }
 
@@ -31,7 +36,7 @@ card "Wandering Titan of Tartarus" {
             send self to gy
         }
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls) to gy
         }
     }
 

@@ -9,7 +9,6 @@ card "Tearlaments Perlegia" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -18,7 +17,7 @@ card "Tearlaments Perlegia" {
         code: 100
         range: 256
         on_resolve {
-            reveal self
+            modifier: atk + 500
         }
     }
 
@@ -30,7 +29,11 @@ card "Tearlaments Perlegia" {
         range: 256
         count_limit: (1, 34225426)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, deck) to gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

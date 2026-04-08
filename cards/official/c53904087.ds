@@ -3,6 +3,13 @@
 
 card "Lahamu the Messenger of Sacred Scripture" {
     password: 53904087
+    // FIXME: card not found in CDB — type/stats are placeholders
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 0
+    def: 0
 
     summon_condition {
         cannot_normal_summon: true
@@ -15,7 +22,6 @@ card "Lahamu the Messenger of Sacred Scripture" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +32,6 @@ card "Lahamu the Messenger of Sacred Scripture" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 
@@ -38,7 +43,7 @@ card "Lahamu the Messenger of Sacred Scripture" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, monster, you controls) to deck shuffle
             draw 1
         }
     }

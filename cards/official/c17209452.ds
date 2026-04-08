@@ -3,6 +3,13 @@
 
 card "Kewl Tune Rotary" {
     password: 17209452
+    // FIXME: card not found in CDB — type/stats are placeholders
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 0
+    def: 0
 
     raw_effect "Effect 1" {
         effect_type: 64
@@ -10,7 +17,6 @@ card "Kewl Tune Rotary" {
         range: 2
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 
@@ -20,7 +26,9 @@ card "Kewl Tune Rotary" {
         property: 65552
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, spell, you controls) to deck shuffle
+            shuffle_hand
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 

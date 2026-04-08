@@ -16,7 +16,10 @@ card "Wandering King Wildwind" {
         property: 262144
         range: 2
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -28,7 +31,7 @@ card "Wandering King Wildwind" {
             banish self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, you controls) to hand
         }
     }
 

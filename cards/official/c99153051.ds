@@ -17,7 +17,7 @@ card "Ragnaraika the Evil Seed" {
         range: 2
         count_limit: (1, 99153051)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, hand) to gy
         }
     }
 
@@ -28,9 +28,13 @@ card "Ragnaraika the Evil Seed" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
-            banish (1+, card)
+            add_to_hand (1+, card, you controls) from hand
+            shuffle_hand
+            banish (1+, card, you controls, hand)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -41,9 +45,13 @@ card "Ragnaraika the Evil Seed" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
-            banish (1+, card)
+            add_to_hand (1+, card, you controls) from hand
+            shuffle_hand
+            banish (1+, card, you controls, hand)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

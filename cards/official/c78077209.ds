@@ -10,6 +10,10 @@ card "Diabolica the Draconique General" {
     atk: 2300
     def: 0
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 130
         category: 512
@@ -29,7 +33,7 @@ card "Diabolica the Draconique General" {
         property: 65552
         count_limit: (1, 78077209)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

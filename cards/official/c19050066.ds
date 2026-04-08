@@ -3,13 +3,17 @@
 
 card "Performapal Barokuriboh" {
     password: 19050066
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
     level: 8
     scale: 1
     atk: 300
     def: 3000
+
+    summon_condition {
+        tributes_required: 2
+    }
 
     raw_effect "Effect 1" {
         effect_type: 130
@@ -18,8 +22,8 @@ card "Performapal Barokuriboh" {
         range: 512
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
-            destroy (1+, card, either_player controls)
+            add_to_hand (1+, monster, you controls) from deck
+            destroy (1+, monster, you controls, deck)
         }
     }
 
@@ -38,7 +42,6 @@ card "Performapal Barokuriboh" {
         code: 332
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

@@ -14,11 +14,16 @@ card "Lyrilusc - Promenade Thrush" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 100
         on_resolve {
-            reveal self
         }
     }
 
@@ -32,7 +37,7 @@ card "Lyrilusc - Promenade Thrush" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, spell, either_player controls) to deck shuffle
         }
     }
 
@@ -45,7 +50,6 @@ card "Lyrilusc - Promenade Thrush" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            reveal self
         }
     }
 

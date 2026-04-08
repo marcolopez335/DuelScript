@@ -14,13 +14,17 @@ card "El Shaddoll Shekhinaga" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 394240
         range: 64
         on_resolve {
-            reveal self
         }
     }
 
@@ -33,7 +37,7 @@ card "El Shaddoll Shekhinaga" {
         count_limit: (1, 74822425)
         on_resolve {
             negate activation
-            send (1, card) to gy
+            send (1+, spell, you controls, hand) to gy
         }
     }
 
@@ -43,7 +47,7 @@ card "El Shaddoll Shekhinaga" {
         code: 1014
         property: 65552
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from hand
         }
     }
 

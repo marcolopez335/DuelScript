@@ -3,7 +3,7 @@
 
 card "Odd-Eyes Revolution Dragon" {
     password: 16306932
-    type: Pendulum Monster | Spirit
+    type: Effect Monster | Pendulum Monster | Spirit
     attribute: LIGHT
     race: Dragon
     level: 12
@@ -11,12 +11,15 @@ card "Odd-Eyes Revolution Dragon" {
     atk: ?
     def: ?
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 31
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +29,6 @@ card "Odd-Eyes Revolution Dragon" {
         property: 3584
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -36,7 +38,7 @@ card "Odd-Eyes Revolution Dragon" {
         property: 16
         range: 512
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, either_player controls, gy)
             special_summon (1, monster) from gy
         }
     }
@@ -46,7 +48,6 @@ card "Odd-Eyes Revolution Dragon" {
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -69,7 +70,7 @@ card "Odd-Eyes Revolution Dragon" {
             pay_lp your_lp / 2
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 
@@ -79,7 +80,6 @@ card "Odd-Eyes Revolution Dragon" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -89,7 +89,6 @@ card "Odd-Eyes Revolution Dragon" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -102,7 +101,7 @@ card "Odd-Eyes Revolution Dragon" {
             pay_lp your_lp / 2
         }
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to deck shuffle
         }
     }
 

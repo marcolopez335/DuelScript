@@ -6,22 +6,14 @@ card "Axe of Despair" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: 4
+        code: 100
         on_resolve {
-            reveal self
+            modifier: atk + 1000
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 4
-        code: 100
-        on_resolve {
-            reveal self
-        }
-    }
-
-    raw_effect "Effect 3" {
         effect_type: 129
         category: 16
         code: 1014
@@ -30,16 +22,16 @@ card "Axe of Despair" {
             tribute self
         }
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to deck shuffle
         }
     }
 
-    raw_effect "Effect 4" {
+    raw_effect "Effect 3" {
         effect_type: 16
         category: 262144
         code: 1002
         on_resolve {
-            reveal self
+            equip self to (1, monster, you controls)
         }
     }
 

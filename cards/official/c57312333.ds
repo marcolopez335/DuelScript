@@ -11,7 +11,6 @@ card "Amazoness Call" {
         code: 1002
         count_limit: (1, 57312333)
         on_resolve {
-            reveal self
         }
     }
 
@@ -23,7 +22,10 @@ card "Amazoness Call" {
             banish self
         }
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

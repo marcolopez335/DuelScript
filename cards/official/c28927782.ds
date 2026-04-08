@@ -10,7 +10,6 @@ card "Dragunity Legion" {
         category: 512
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -22,6 +21,11 @@ card "Dragunity Legion" {
         count_limit: (1, 28927782)
         on_resolve {
             special_summon (1, monster) from gy
+            equip (1, card) to (1, monster)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

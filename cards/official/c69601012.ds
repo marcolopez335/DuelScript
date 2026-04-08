@@ -14,13 +14,17 @@ card "Berfomet the Mythical King of Phantom Beasts" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 114
         property: 131072
         range: 20
         on_resolve {
-            reveal self
         }
     }
 
@@ -31,7 +35,7 @@ card "Berfomet the Mythical King of Phantom Beasts" {
         property: 65536
         count_limit: (1, 69601012)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, deck) to gy
         }
     }
 

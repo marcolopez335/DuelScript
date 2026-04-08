@@ -7,10 +7,16 @@ card "Marincess Blue Slug" {
     attribute: WATER
     race: Cyberse
     link: 1
+    link_arrows: [bottom]
     atk: 1500
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -18,7 +24,10 @@ card "Marincess Blue Slug" {
         code: 1102
         property: 1024
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -28,7 +37,11 @@ card "Marincess Blue Slug" {
         code: 1102
         property: 65552
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, either_player controls) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

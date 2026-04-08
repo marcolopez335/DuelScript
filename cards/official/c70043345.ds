@@ -10,7 +10,6 @@ card "U.A. Penalty Box" {
         code: 1002
         property: 16384
         on_resolve {
-            reveal self
         }
     }
 
@@ -21,7 +20,11 @@ card "U.A. Penalty Box" {
         range: 8
         count_limit: (1, 70043345)
         on_resolve {
-            banish (1+, card)
+            banish (1+, spell, you controls, deck)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -34,7 +37,7 @@ card "U.A. Penalty Box" {
             banish self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 

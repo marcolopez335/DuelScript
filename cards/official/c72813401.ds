@@ -7,6 +7,7 @@ card "Hi-Speedroid Rubber Band Shooter" {
     attribute: WIND
     race: Machine
     link: 2
+    link_arrows: [bottom_left, bottom_right]
     atk: 1000
 
     materials {
@@ -24,7 +25,10 @@ card "Hi-Speedroid Rubber Band Shooter" {
         range: 4
         count_limit: (1, 72813401)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -37,9 +41,9 @@ card "Hi-Speedroid Rubber Band Shooter" {
             banish self
         }
         on_resolve {
-            shuffle deck
-            add_to_hand (1, card) from gy
-            send (1, card) to gy
+            shuffle_deck
+            add_to_hand (1+, monster, you controls) from deck
+            send (1+, monster, you controls, deck) to gy
         }
     }
 

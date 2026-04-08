@@ -3,7 +3,7 @@
 
 card "Symphonic Warrior Miccs" {
     password: 5399521
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: WIND
     race: Machine
     level: 5
@@ -11,13 +11,16 @@ card "Symphonic Warrior Miccs" {
     atk: 2300
     def: 1100
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 135
         property: 131072
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,7 +30,6 @@ card "Symphonic Warrior Miccs" {
         property: 131072
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -39,7 +41,7 @@ card "Symphonic Warrior Miccs" {
         range: 512
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, either_player controls) from gy
         }
     }
 
@@ -49,7 +51,6 @@ card "Symphonic Warrior Miccs" {
         property: 262144
         range: 2
         on_resolve {
-            reveal self
         }
     }
 
@@ -57,7 +58,11 @@ card "Symphonic Warrior Miccs" {
         effect_type: 2049
         code: 1100
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            set_flag "tracked" on self
         }
     }
 
@@ -65,7 +70,11 @@ card "Symphonic Warrior Miccs" {
         effect_type: 2049
         code: 1102
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            set_flag "tracked" on self
         }
     }
 

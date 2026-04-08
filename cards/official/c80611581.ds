@@ -10,14 +10,18 @@ card "Floowandereeze & Empen" {
     atk: 2700
     def: 1000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 131336
         code: 1100
         property: 65536
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            add_to_hand (1+, spell, you controls) from hand
+            shuffle_hand
         }
     }
 
@@ -27,7 +31,6 @@ card "Floowandereeze & Empen" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -40,7 +43,6 @@ card "Floowandereeze & Empen" {
             banish self
         }
         on_resolve {
-            reveal self
         }
     }
 

@@ -17,7 +17,11 @@ card "Ext Ryzeal" {
         range: 2
         count_limit: (1, 34022970)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -28,7 +32,7 @@ card "Ext Ryzeal" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 
@@ -39,7 +43,7 @@ card "Ext Ryzeal" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

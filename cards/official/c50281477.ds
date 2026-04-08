@@ -10,6 +10,10 @@ card "Tainted of the Tistina" {
     atk: 2000
     def: 0
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 32
@@ -25,7 +29,6 @@ card "Tainted of the Tistina" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -34,7 +37,14 @@ card "Tainted of the Tistina" {
         code: 1014
         property: 65552
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

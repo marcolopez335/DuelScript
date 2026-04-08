@@ -10,6 +10,10 @@ card "Tindangle Dholes" {
     atk: 1000
     def: 1000
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 512
@@ -27,7 +31,7 @@ card "Tindangle Dholes" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            send (1, card) to gy
+            send (1+, spell, you controls, deck) to gy
         }
     }
 
@@ -35,7 +39,6 @@ card "Tindangle Dholes" {
         effect_type: 2049
         code: 1108
         on_resolve {
-            reveal self
         }
     }
 

@@ -9,7 +9,6 @@ card "Advanced Dark" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -18,7 +17,6 @@ card "Advanced Dark" {
         code: 127
         range: 256
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,7 +25,6 @@ card "Advanced Dark" {
         code: 1130
         range: 256
         on_resolve {
-            reveal self
         }
     }
 
@@ -39,7 +36,10 @@ card "Advanced Dark" {
             send self to gy
         }
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -49,7 +49,6 @@ card "Advanced Dark" {
         property: 2048
         range: 256
         on_resolve {
-            reveal self
         }
     }
 

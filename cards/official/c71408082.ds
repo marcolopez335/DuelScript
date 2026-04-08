@@ -14,12 +14,17 @@ card "Paladin of Dark Dragon" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 513
         category: 1
         code: 1132
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, hand)
         }
     }
 

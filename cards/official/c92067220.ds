@@ -11,10 +11,14 @@ card "Joker's Straight" {
         code: 1002
         count_limit: (1, 92067220)
         on_resolve {
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
             discard (1, card)
             special_summon (1, monster) from gy
-            add_to_hand (1, card) from gy
-            shuffle deck
+            add_to_hand (1+, card, you controls) from hand
+            shuffle_hand
         }
     }
 
@@ -26,8 +30,8 @@ card "Joker's Straight" {
         range: 16
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
-            add_to_hand (1, card) from gy
+            return (1+, card, you controls) to deck shuffle
+            add_to_hand (1+, card, you controls) from hand
         }
     }
 

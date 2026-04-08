@@ -3,7 +3,7 @@
 
 card "Mamonaka the Vaylantz United" {
     password: 40680521
-    type: Fusion Monster
+    type: Fusion Monster | Pendulum Monster
     attribute: WATER
     race: Spellcaster
     level: 10
@@ -13,6 +13,11 @@ card "Mamonaka the Vaylantz United" {
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ monster
+        method: fusion
     }
 
     raw_effect "Effect 1" {
@@ -33,6 +38,7 @@ card "Mamonaka the Vaylantz United" {
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
+            special_summon (1, monster) from gy
         }
     }
 

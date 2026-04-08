@@ -10,6 +10,10 @@ card "DoomZ XII Zero - Drastea" {
     atk: 2400
     def: 1500
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 262657
@@ -17,7 +21,7 @@ card "DoomZ XII Zero - Drastea" {
         range: 2
         count_limit: (1, 92472273)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, deck)
             special_summon (1, monster) from gy
             equip (1, card) to (1, monster)
         }

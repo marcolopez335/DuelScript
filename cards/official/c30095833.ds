@@ -3,7 +3,7 @@
 
 card "Odd-Eyes Rebellion Xyz Dragon" {
     password: 30095833
-    type: Xyz Monster
+    type: Xyz Monster | Pendulum Monster
     attribute: DARK
     race: Dragon
     rank: 7
@@ -13,6 +13,12 @@ card "Odd-Eyes Rebellion Xyz Dragon" {
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
     }
 
     raw_effect "Effect 1" {
@@ -31,7 +37,6 @@ card "Odd-Eyes Rebellion Xyz Dragon" {
         code: 238
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -45,7 +50,7 @@ card "Odd-Eyes Rebellion Xyz Dragon" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, gy)
         }
     }
 

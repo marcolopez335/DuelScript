@@ -7,6 +7,7 @@ card "Dinowrestler Terra Parkourio" {
     attribute: EARTH
     race: Dinosaur
     link: 2
+    link_arrows: [top, left]
     atk: 1000
 
     materials {
@@ -25,7 +26,7 @@ card "Dinowrestler Terra Parkourio" {
         range: 4
         count_limit: (1, 69121954)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, either_player controls) from gy
         }
     }
 
@@ -36,7 +37,11 @@ card "Dinowrestler Terra Parkourio" {
         property: 65552
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

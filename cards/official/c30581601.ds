@@ -7,10 +7,16 @@ card "Yummy★Snatchy" {
     attribute: LIGHT
     race: Beast
     link: 1
+    link_arrows: [bottom]
     atk: 600
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,12 @@ card "Yummy★Snatchy" {
         property: 65536
         count_limit: (1, 30581601)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
+            special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -30,10 +41,9 @@ card "Yummy★Snatchy" {
         range: 4
         count_limit: (1, 0)
         cost {
-            pay_lp 1000
+            pay_lp 100
         }
         on_resolve {
-            reveal self
         }
     }
 

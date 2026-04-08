@@ -3,13 +3,17 @@
 
 card "Astrograph Sorcerer, the Star Magician" {
     password: 48171151
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Spellcaster
     level: 7
     scale: 1
     atk: 2500
     def: 2000
+
+    summon_condition {
+        tributes_required: 2
+    }
 
     raw_effect "Effect 1" {
         effect_type: 64
@@ -39,7 +43,8 @@ card "Astrograph Sorcerer, the Star Magician" {
         effect_type: 2050
         code: 1029
         on_resolve {
-            reveal self
+            emit_event "custom"
+            emit_event "custom"
         }
     }
 

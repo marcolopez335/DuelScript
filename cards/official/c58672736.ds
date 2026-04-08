@@ -26,7 +26,6 @@ card "Dinowrestler Giga Spinosavate" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -35,7 +34,6 @@ card "Dinowrestler Giga Spinosavate" {
         code: 332
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -46,15 +44,14 @@ card "Dinowrestler Giga Spinosavate" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls)
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: 2049
-        code: 50
-        on_resolve {
-            destroy (1+, card, either_player controls)
+    replacement_effect "Effect 4" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

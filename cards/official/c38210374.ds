@@ -16,7 +16,8 @@ card "Explossum" {
         property: 16
         range: 6
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
+            equip (1, card) to (1, monster)
         }
     }
 
@@ -26,7 +27,6 @@ card "Explossum" {
         range: 8
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 

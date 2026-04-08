@@ -10,13 +10,17 @@ card "Ryu Okami" {
     atk: 2900
     def: 1200
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 514
         category: 32
         code: 1102
         range: 4
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
         }
     }
 

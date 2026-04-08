@@ -14,12 +14,18 @@ card "White Aura Whale" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 1
         code: 1102
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, opponent controls)
         }
     }
 
@@ -29,7 +35,6 @@ card "White Aura Whale" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -37,7 +42,6 @@ card "White Aura Whale" {
         effect_type: 1
         code: 203
         on_resolve {
-            reveal self
         }
     }
 
@@ -50,7 +54,7 @@ card "White Aura Whale" {
             banish self
         }
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
         }
     }
 

@@ -7,17 +7,22 @@ card "Taotie Dragon" {
     attribute: DARK
     race: Wyrm
     link: 3
+    link_arrows: [bottom_left, bottom, bottom_right]
     atk: 2500
 
     summon_condition {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ effect monster
+        method: link
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 251
         on_resolve {
-            reveal self
         }
     }
 
@@ -25,7 +30,6 @@ card "Taotie Dragon" {
         effect_type: 2049
         code: 1102
         on_resolve {
-            reveal self
         }
     }
 

@@ -12,6 +12,10 @@ card "Sekka's Light" {
         count_limit: (1, 24940422)
         on_resolve {
             draw 1
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -25,8 +29,8 @@ card "Sekka's Light" {
             banish self
         }
         on_resolve {
-            return (1, card) to deck shuffle
-            shuffle deck
+            return (1+, monster, you controls) to deck shuffle
+            shuffle_deck
             draw 1
         }
     }

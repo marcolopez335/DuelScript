@@ -10,6 +10,10 @@ card "Illegal Knight" {
     atk: 2000
     def: 2000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         category: 512
@@ -30,7 +34,7 @@ card "Illegal Knight" {
         count_limit: (1, 0)
         on_resolve {
             take_control of (1, monster, opponent controls)
-            add_to_hand (1, card) from gy
+            return (1+, card, you controls) to hand
         }
     }
 

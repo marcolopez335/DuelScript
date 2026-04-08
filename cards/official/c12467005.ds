@@ -16,7 +16,11 @@ card "Tackle Crusader" {
         property: 81936
         on_resolve {
             change_battle_position (1, monster)
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, either_player controls) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

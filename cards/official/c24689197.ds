@@ -18,7 +18,7 @@ card "Aromalilith Rosalina" {
         range: 2
         count_limit: (1, 24689197)
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
             gain_lp: 1000
@@ -32,6 +32,10 @@ card "Aromalilith Rosalina" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
             special_summon (1, monster) from gy
         }
     }
@@ -43,6 +47,10 @@ card "Aromalilith Rosalina" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
             special_summon (1, monster) from gy
         }
     }

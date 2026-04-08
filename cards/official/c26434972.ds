@@ -9,7 +9,15 @@ card "Fiendsmith Kyrie" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -23,7 +31,6 @@ card "Fiendsmith Kyrie" {
             banish self
         }
         on_resolve {
-            reveal self
         }
     }
 

@@ -18,7 +18,12 @@ card "Miscellaneousaurus" {
             send self to gy
         }
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
+            set_flag "tracked" on self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -29,6 +34,10 @@ card "Miscellaneousaurus" {
         count_limit: (1, 38572779)
         on_resolve {
             special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

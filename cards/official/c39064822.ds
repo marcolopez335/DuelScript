@@ -7,6 +7,7 @@ card "Knightmare Goblin" {
     attribute: WIND
     race: Fiend
     link: 2
+    link_arrows: [left, right]
     atk: 1300
 
     materials {
@@ -24,6 +25,11 @@ card "Knightmare Goblin" {
         property: 65536
         on_resolve {
             draw 1
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            set_flag "tracked" on self
         }
     }
 
@@ -33,7 +39,6 @@ card "Knightmare Goblin" {
         property: 128
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

@@ -15,10 +15,13 @@ card "Cartorhyn the Hidden Gem of the Seafront" {
         range: 2
         count_limit: (1, 94076521)
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

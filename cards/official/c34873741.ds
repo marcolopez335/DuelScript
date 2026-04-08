@@ -16,17 +16,14 @@ card "Kuribon the Fairy Spirit" {
         range: 2
         count_limit: (1, 34873741)
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 50
-        range: 4
-        count_limit: (1, 0)
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 2" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

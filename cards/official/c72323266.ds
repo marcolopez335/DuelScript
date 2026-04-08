@@ -10,6 +10,10 @@ card "Earthbound Prisoner Stone Sweeper" {
     atk: 1600
     def: 1600
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
@@ -17,7 +21,6 @@ card "Earthbound Prisoner Stone Sweeper" {
         range: 2
         count_limit: (1, 72323266)
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,10 +30,14 @@ card "Earthbound Prisoner Stone Sweeper" {
         range: 2
         count_limit: (1, 0)
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

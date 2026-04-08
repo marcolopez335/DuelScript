@@ -14,6 +14,12 @@ card "Argostars - Adventurous Arion" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 131080
@@ -21,7 +27,7 @@ card "Argostars - Adventurous Arion" {
         property: 65536
         count_limit: (1, 40706444)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 
@@ -32,7 +38,7 @@ card "Argostars - Adventurous Arion" {
         range: 4
         count_limit: (1, 0)
         cost {
-            detach 1 overlay_unit from self
+            detach 2 overlay_unit from self
         }
         on_resolve {
             special_summon (1, monster) from gy

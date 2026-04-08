@@ -7,10 +7,16 @@ card "Combination Maneuver - Engage Zero" {
     attribute: LIGHT
     race: Machine
     link: 2
+    link_arrows: [left, right]
     atk: 1500
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -18,7 +24,6 @@ card "Combination Maneuver - Engage Zero" {
         code: 239
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -28,7 +33,6 @@ card "Combination Maneuver - Engage Zero" {
         code: 1102
         property: 65552
         on_resolve {
-            reveal self
         }
     }
 
@@ -37,7 +41,7 @@ card "Combination Maneuver - Engage Zero" {
         category: 1
         code: 1132
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, opponent controls)
         }
     }
 

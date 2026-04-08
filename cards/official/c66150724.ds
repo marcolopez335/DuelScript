@@ -3,7 +3,7 @@
 
 card "PenduLuMoon" {
     password: 66150724
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: LIGHT
     race: Spellcaster
     level: 1
@@ -17,7 +17,7 @@ card "PenduLuMoon" {
         range: 512
         count_limit: (1, 66150724)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
             destroy (1+, card, either_player controls)
         }
     }
@@ -28,7 +28,19 @@ card "PenduLuMoon" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

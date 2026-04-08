@@ -3,7 +3,7 @@
 
 card "D/D/D/D Super-Dimensional Sovereign Emperor Zero Paradox" {
     password: 97417863
-    type: Pendulum Monster | Spirit
+    type: Effect Monster | Pendulum Monster | Spirit
     attribute: DARK
     race: Fiend
     level: 12
@@ -20,7 +20,6 @@ card "D/D/D/D Super-Dimensional Sovereign Emperor Zero Paradox" {
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -34,6 +33,10 @@ card "D/D/D/D Super-Dimensional Sovereign Emperor Zero Paradox" {
             special_summon (1, monster) from gy
             special_summon (1, monster) from gy
             destroy (1+, card, either_player controls)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -56,7 +59,6 @@ card "D/D/D/D Super-Dimensional Sovereign Emperor Zero Paradox" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 

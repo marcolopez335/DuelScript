@@ -1,0 +1,47 @@
+// Regenesis Overlord
+// Transpiled from c47082621.lua
+
+card "Regenesis Overlord" {
+    password: 47082621
+    type: Effect Monster | Spirit
+    attribute: DARK
+    race: Unknown
+    level: 10
+    atk: 2500
+    def: 2500
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    raw_effect "Effect 1" {
+        effect_type: 2
+        code: 34
+        property: 263168
+        range: 16
+        count_limit: (1, 47082621)
+        on_resolve {
+            banish (1+, monster, you controls, gy)
+        }
+    }
+
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 8
+        code: 1102
+        property: 65552
+        on_resolve {
+            add_to_hand (1+, monster, you controls) from gy
+        }
+    }
+
+    raw_effect "Effect 3" {
+        effect_type: 2
+        code: 100
+        range: 4
+        on_resolve {
+            modifier: atk - 2500
+        }
+    }
+
+}

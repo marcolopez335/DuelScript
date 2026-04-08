@@ -24,6 +24,8 @@ card "Flower Cardian Cherry Blossom with Curtain" {
         on_resolve {
             draw 1
             special_summon (1, monster) from gy
+            send (1+, monster, either_player controls) to gy
+            shuffle_hand
         }
     }
 
@@ -34,10 +36,9 @@ card "Flower Cardian Cherry Blossom with Curtain" {
         property: 16384
         range: 2
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
-            reveal self
         }
     }
 

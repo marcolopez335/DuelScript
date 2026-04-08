@@ -14,13 +14,18 @@ card "Traptrix Pinguicula" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 1
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -33,7 +38,7 @@ card "Traptrix Pinguicula" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 

@@ -10,7 +10,10 @@ card "Cosmic Flare" {
         code: 1002
         property: 16
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -20,7 +23,7 @@ card "Cosmic Flare" {
         property: 2048
         range: 16
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, either_player controls)
         }
     }
 

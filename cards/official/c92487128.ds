@@ -3,7 +3,7 @@
 
 card "Sosei Ryu-Ge Mistva" {
     password: 92487128
-    type: Ritual Monster
+    type: Ritual Monster | Pendulum Monster
     attribute: LIGHT
     race: Dragon
     level: 10
@@ -15,14 +15,19 @@ card "Sosei Ryu-Ge Mistva" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 131081
         range: 512
         count_limit: (1, 92487128)
         on_resolve {
-            add_to_hand (1, card) from gy
-            destroy (1+, card, either_player controls)
+            add_to_hand (1+, card, you controls) from deck
+            destroy (1+, card, you controls, deck)
         }
     }
 
@@ -35,7 +40,7 @@ card "Sosei Ryu-Ge Mistva" {
         on_resolve {
             tribute (1, monster, you controls)
             special_summon (1, monster) from gy
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, deck)
             special_summon (1, monster) from gy
         }
     }

@@ -7,10 +7,16 @@ card "Battle Shogun of the Six Samurai" {
     attribute: EARTH
     race: Warrior
     link: 2
+    link_arrows: [bottom_left, bottom_right]
     atk: 1000
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -20,7 +26,7 @@ card "Battle Shogun of the Six Samurai" {
         property: 65536
         count_limit: (1, 74752631)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from hand
         }
     }
 
@@ -29,7 +35,6 @@ card "Battle Shogun of the Six Samurai" {
         code: 1100
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -38,7 +43,6 @@ card "Battle Shogun of the Six Samurai" {
         code: 1102
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -48,7 +52,6 @@ card "Battle Shogun of the Six Samurai" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

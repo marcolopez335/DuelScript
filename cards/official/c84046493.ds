@@ -3,13 +3,18 @@
 
 card "Ghost Beef" {
     password: 84046493
-    type: Pendulum Monster
+    type: Normal Monster | Pendulum Monster
     attribute: DARK
     race: Beast
     level: 7
     scale: 4
     atk: 2000
     def: 1000
+    flavor: "[ Pendulum Effect ] Once per turn: You can roll a six-sided die. Until the end of this turn, increase this card's Pendulum Scale by that number (max. 10). ---------------------------------------- [ Flavor Text ] The Ghost of Christmas Dinner."
+
+    summon_condition {
+        tributes_required: 2
+    }
 
     raw_effect "Effect 1" {
         effect_type: 64
@@ -17,7 +22,6 @@ card "Ghost Beef" {
         range: 512
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 

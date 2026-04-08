@@ -14,12 +14,21 @@ card "Cyberse Clock Dragon" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 2097248
         code: 1102
         on_resolve {
             mill 1
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -29,7 +38,6 @@ card "Cyberse Clock Dragon" {
         property: 128
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -38,7 +46,6 @@ card "Cyberse Clock Dragon" {
         code: 332
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -48,7 +55,7 @@ card "Cyberse Clock Dragon" {
         code: 1014
         property: 81920
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, spell, you controls) to hand
         }
     }
 

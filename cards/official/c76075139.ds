@@ -3,7 +3,7 @@
 
 card "Vaylantz Genesis Grand Duke" {
     password: 76075139
-    type: Fusion Monster
+    type: Fusion Monster | Pendulum Monster
     attribute: FIRE
     race: Machine
     level: 10
@@ -15,12 +15,16 @@ card "Vaylantz Genesis Grand Duke" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -39,7 +43,6 @@ card "Vaylantz Genesis Grand Duke" {
         range: 512
         count_limit: (1, 76075139)
         on_resolve {
-            reveal self
         }
     }
 
@@ -49,7 +52,7 @@ card "Vaylantz Genesis Grand Duke" {
         code: 1102
         property: 65552
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, opponent controls) to hand
             deal_damage to opponent: 1000
         }
     }

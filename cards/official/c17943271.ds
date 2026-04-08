@@ -16,10 +16,13 @@ card "Mementotlan Goblin" {
         range: 2
         count_limit: (1, 17943271)
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -29,8 +32,8 @@ card "Mementotlan Goblin" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
-            send (1, card) to gy
+            destroy (1+, monster, you controls)
+            send (1+, monster, you controls) to gy
         }
     }
 

@@ -16,7 +16,7 @@ card "Vampire Sorcerer" {
         code: 1014
         property: 81920
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 
@@ -27,7 +27,11 @@ card "Vampire Sorcerer" {
             banish self
         }
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            set_flag "tracked" on self
         }
     }
 

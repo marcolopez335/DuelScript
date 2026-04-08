@@ -14,6 +14,12 @@ card "Disaster, Dragon Ruler of All Apocalypses" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 4
@@ -22,7 +28,7 @@ card "Disaster, Dragon Ruler of All Apocalypses" {
         count_limit: (1, 67359907)
         on_resolve {
             attach (1, card) to self as_material
-            banish (1+, card)
+            banish (1+, monster, opponent controls, gy)
         }
     }
 
@@ -32,7 +38,7 @@ card "Disaster, Dragon Ruler of All Apocalypses" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
+            modifier: atk + 4600
         }
     }
 
@@ -42,7 +48,7 @@ card "Disaster, Dragon Ruler of All Apocalypses" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
+            modifier: def + 4600
         }
     }
 
@@ -52,7 +58,6 @@ card "Disaster, Dragon Ruler of All Apocalypses" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

@@ -10,6 +10,10 @@ card "Bystial Magnamhut" {
     atk: 2500
     def: 2000
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 516
@@ -17,7 +21,7 @@ card "Bystial Magnamhut" {
         range: 2
         count_limit: (1, 33854624)
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, you controls, gy)
             special_summon (1, monster) from gy
         }
     }
@@ -30,7 +34,7 @@ card "Bystial Magnamhut" {
         range: 2
         count_limit: (1, 33854624)
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, you controls, gy)
             special_summon (1, monster) from gy
         }
     }
@@ -42,7 +46,10 @@ card "Bystial Magnamhut" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

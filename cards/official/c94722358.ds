@@ -14,9 +14,9 @@ card "Maliss <C> MTP-07" {
             banish self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
-            banish (1+, card)
+            return (1+, monster, either_player controls) to hand
+            shuffle_hand
+            banish (1+, monster, either_player controls)
         }
     }
 
@@ -25,7 +25,6 @@ card "Maliss <C> MTP-07" {
         code: 16
         property: 256
         on_resolve {
-            reveal self
         }
     }
 

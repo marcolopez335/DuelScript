@@ -14,11 +14,15 @@ card "Arahime the Manifested Mikanko" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 42
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +30,6 @@ card "Arahime the Manifested Mikanko" {
         effect_type: 1
         code: 202
         on_resolve {
-            reveal self
         }
     }
 
@@ -37,7 +40,7 @@ card "Arahime the Manifested Mikanko" {
         range: 18
         count_limit: (1, 75771170)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, gy) to gy
         }
     }
 
@@ -48,7 +51,7 @@ card "Arahime the Manifested Mikanko" {
         range: 8
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from gy
         }
     }
 

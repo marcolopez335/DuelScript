@@ -14,16 +14,20 @@ card "Megalith Bethor" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 514
         range: 2
         count_limit: (1, 99628747)
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
-            reveal self
         }
     }
 
@@ -34,7 +38,7 @@ card "Megalith Bethor" {
         property: 65552
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, gy)
         }
     }
 

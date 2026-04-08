@@ -14,12 +14,17 @@ card "Ursarctic Grand Chariot" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +34,7 @@ card "Ursarctic Grand Chariot" {
         property: 263168
         range: 64
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, you controls) to gy
         }
     }
 
@@ -39,7 +44,7 @@ card "Ursarctic Grand Chariot" {
         code: 1102
         property: 81936
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls)
         }
     }
 

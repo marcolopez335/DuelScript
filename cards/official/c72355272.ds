@@ -10,13 +10,17 @@ card "Metaphys Nephthys" {
     atk: 2400
     def: 1600
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 4
         code: 1102
         property: 65536
         on_resolve {
-            banish (1+, card)
+            banish (1+, spell, either_player controls)
         }
     }
 
@@ -30,7 +34,7 @@ card "Metaphys Nephthys" {
             send self to deck
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, spell, either_player controls) to hand
         }
     }
 

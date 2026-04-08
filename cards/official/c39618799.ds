@@ -14,13 +14,18 @@ card "Cyber Angel Dakini" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 32
         code: 1102
         property: 65536
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, you controls) to gy
         }
     }
 
@@ -29,7 +34,6 @@ card "Cyber Angel Dakini" {
         code: 203
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -41,7 +45,7 @@ card "Cyber Angel Dakini" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, you controls) to hand
         }
     }
 

@@ -9,7 +9,6 @@ card "Ogdoadic Hollow" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -25,6 +24,10 @@ card "Ogdoadic Hollow" {
         }
         on_resolve {
             special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -33,7 +36,7 @@ card "Ogdoadic Hollow" {
         category: 32
         code: 1014
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, you controls) to gy
         }
     }
 

@@ -3,7 +3,7 @@
 
 card "D/D/D Destiny King Zero Laplace" {
     password: 21686473
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
     level: 10
@@ -11,13 +11,17 @@ card "D/D/D Destiny King Zero Laplace" {
     atk: ?
     def: 0
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 8
         range: 512
         count_limit: (1, 21686473)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 
@@ -36,7 +40,6 @@ card "D/D/D Destiny King Zero Laplace" {
         category: 2097152
         code: 1133
         on_resolve {
-            reveal self
         }
     }
 
@@ -44,7 +47,6 @@ card "D/D/D Destiny King Zero Laplace" {
         effect_type: 1
         code: 203
         on_resolve {
-            reveal self
         }
     }
 
@@ -55,7 +57,6 @@ card "D/D/D Destiny King Zero Laplace" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 
@@ -63,7 +64,6 @@ card "D/D/D Destiny King Zero Laplace" {
         effect_type: 1
         code: 201
         on_resolve {
-            reveal self
         }
     }
 

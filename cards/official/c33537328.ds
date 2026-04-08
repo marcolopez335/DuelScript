@@ -10,13 +10,16 @@ card "Earthbound Immortal Cusillu" {
     atk: 2800
     def: 2400
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 141
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +29,6 @@ card "Earthbound Immortal Cusillu" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -34,17 +36,13 @@ card "Earthbound Immortal Cusillu" {
         effect_type: 1
         code: 74
         on_resolve {
-            reveal self
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: 2049
-        code: 50
-        property: 131072
-        range: 4
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 4" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

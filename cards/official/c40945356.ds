@@ -10,6 +10,10 @@ card "Twilight Ninja Nichirin, the Chunin" {
     atk: 2300
     def: 1000
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         code: 1002
@@ -17,7 +21,15 @@ card "Twilight Ninja Nichirin, the Chunin" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

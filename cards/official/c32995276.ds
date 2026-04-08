@@ -7,10 +7,16 @@ card "Link Disciple" {
     attribute: LIGHT
     race: Cyberse
     link: 1
+    link_arrows: [bottom]
     atk: 500
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -24,8 +30,8 @@ card "Link Disciple" {
         }
         on_resolve {
             draw 1
-            shuffle deck
-            return (1, card) to deck shuffle
+            shuffle_hand
+            return (1+, card, opponent controls) to deck shuffle
         }
     }
 

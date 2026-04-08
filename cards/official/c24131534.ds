@@ -3,13 +3,14 @@
 
 card "Igknight Squire" {
     password: 24131534
-    type: Pendulum Monster
+    type: Normal Monster | Pendulum Monster
     attribute: FIRE
     race: Warrior
     level: 3
     scale: 7
     atk: 0
     def: 2000
+    flavor: "[ Pendulum Effect ] If you have an 'Igknight' card in your other Pendulum Zone: You can destroy both cards in your Pendulum Zones, and if you do, add 1 FIRE Warrior-Type monster from your Deck or Graveyard to your hand. ---------------------------------------- [ Flavor Text ] The cold steel armor of this young squire cannot hide the keen, burning mind contained within."
 
     raw_effect "Effect 1" {
         effect_type: 64
@@ -17,7 +18,7 @@ card "Igknight Squire" {
         range: 512
         on_resolve {
             destroy (1+, card, either_player controls)
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

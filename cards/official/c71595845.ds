@@ -11,7 +11,7 @@ card "Doll Happiness" {
         code: 1002
         count_limit: (1, 71595845)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, card, you controls) to hand
         }
     }
 
@@ -20,7 +20,6 @@ card "Doll Happiness" {
         code: 332
         range: 8
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,8 +29,12 @@ card "Doll Happiness" {
         range: 8
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
-            send (1, card) to gy
+            destroy (1+, card, you controls)
+            send (1+, card, you controls) to gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

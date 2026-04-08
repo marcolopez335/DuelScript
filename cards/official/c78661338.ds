@@ -10,6 +10,10 @@ card "Fantastical Dragon Phantazmay" {
     atk: 2400
     def: 1800
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 130
         category: 66064
@@ -20,7 +24,7 @@ card "Fantastical Dragon Phantazmay" {
         on_resolve {
             special_summon (1, monster) from gy
             draw 1
-            return (1, card) to deck shuffle
+            return (1+, card, you controls) to deck shuffle
         }
     }
 
@@ -33,7 +37,7 @@ card "Fantastical Dragon Phantazmay" {
         count_limit: (1, 0)
         on_resolve {
             negate activation
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, hand)
         }
     }
 

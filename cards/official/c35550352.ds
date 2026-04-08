@@ -9,7 +9,6 @@ card "Vanquish Soul, Start!" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -20,17 +19,14 @@ card "Vanquish Soul, Start!" {
         range: 256
         count_limit: (1, 35550352)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 50
-        range: 256
-        count_limit: (1, 0)
-        on_resolve {
-            shuffle deck
+    replacement_effect "Effect 3" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

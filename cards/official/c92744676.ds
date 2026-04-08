@@ -14,6 +14,12 @@ card "Zapper Shrimp" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 1
@@ -24,7 +30,7 @@ card "Zapper Shrimp" {
             send self to gy
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, you controls, hand)
         }
     }
 
@@ -35,7 +41,6 @@ card "Zapper Shrimp" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 

@@ -10,6 +10,10 @@ card "Aron, the Ogdoadic King" {
     atk: 2500
     def: 2800
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 512
@@ -31,7 +35,7 @@ card "Aron, the Ogdoadic King" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, opponent controls, hand) to gy
         }
     }
 
@@ -43,7 +47,7 @@ card "Aron, the Ogdoadic King" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, opponent controls) from hand
         }
     }
 

@@ -14,14 +14,19 @@ card "Gishki Psychelone" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 16
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
-            shuffle deck
+            return (1+, card, either_player controls) to deck shuffle
+            shuffle_hand
         }
     }
 

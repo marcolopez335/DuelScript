@@ -3,7 +3,7 @@
 
 card "Proto Enneacraft - 'orgIA'" {
     password: 56187077
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: EARTH
     race: Machine
     level: 1
@@ -16,7 +16,6 @@ card "Proto Enneacraft - 'orgIA'" {
         code: 1001
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,11 +25,11 @@ card "Proto Enneacraft - 'orgIA'" {
         range: 512
         count_limit: (1, 56187077)
         cost {
-            pay_lp 1000
+            pay_lp 900
         }
         on_resolve {
-            shuffle deck
-            add_to_hand (1, card) from gy
+            shuffle_deck
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -53,7 +52,7 @@ card "Proto Enneacraft - 'orgIA'" {
         property: 256
         range: 4
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -62,7 +61,7 @@ card "Proto Enneacraft - 'orgIA'" {
         category: 1
         code: 1001
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, deck)
         }
     }
 

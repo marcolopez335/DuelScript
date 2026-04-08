@@ -7,10 +7,16 @@ card "Maliss <Q> Hearts Crypter" {
     attribute: DARK
     race: Cyberse
     link: 3
+    link_arrows: [top, bottom_left, bottom_right]
     atk: 2500
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -21,8 +27,8 @@ card "Maliss <Q> Hearts Crypter" {
         range: 4
         count_limit: (1, 21848500)
         on_resolve {
-            return (1, card) to deck shuffle
-            banish (1+, card)
+            return (1+, card, either_player controls) to deck shuffle
+            banish (1+, card, either_player controls)
         }
     }
 
@@ -30,7 +36,6 @@ card "Maliss <Q> Hearts Crypter" {
         effect_type: 2
         code: 12
         on_resolve {
-            reveal self
         }
     }
 
@@ -38,7 +43,6 @@ card "Maliss <Q> Hearts Crypter" {
         effect_type: 2
         code: 13
         on_resolve {
-            reveal self
         }
     }
 

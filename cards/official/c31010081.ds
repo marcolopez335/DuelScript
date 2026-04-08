@@ -14,6 +14,12 @@ card "DoomZ Break - Diactorus" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 1
@@ -21,8 +27,8 @@ card "DoomZ Break - Diactorus" {
         property: 65536
         count_limit: (1, 31010081)
         on_resolve {
-            destroy (1+, card, either_player controls)
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls, hand)
+            destroy (1+, monster, you controls, hand)
         }
     }
 
@@ -33,7 +39,6 @@ card "DoomZ Break - Diactorus" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 

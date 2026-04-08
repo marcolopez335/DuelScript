@@ -17,8 +17,12 @@ card "Electrode Beast Cation" {
         property: 65536
         count_limit: (1, 21291696)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            add_to_hand (1+, card, you controls) from gy
+            shuffle_hand
         }
     }
 
@@ -29,7 +33,6 @@ card "Electrode Beast Cation" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 

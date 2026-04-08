@@ -10,12 +10,16 @@ card "Mystical Knight of Jackal" {
     atk: 2700
     def: 1200
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 16
         code: 1139
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, monster, either_player controls) to deck shuffle
         }
     }
 

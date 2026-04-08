@@ -10,13 +10,17 @@ card "Sylvan Guardioak" {
     atk: 2400
     def: 1500
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 64
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
         }
     }
 
@@ -26,7 +30,7 @@ card "Sylvan Guardioak" {
         code: 1014
         property: 65552
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to deck shuffle
         }
     }
 

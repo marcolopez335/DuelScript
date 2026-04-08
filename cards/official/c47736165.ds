@@ -14,12 +14,18 @@ card "Crystron Eleskeletus" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 100
         range: 4
         on_resolve {
-            reveal self
+            modifier: atk - 500
         }
     }
 
@@ -28,7 +34,7 @@ card "Crystron Eleskeletus" {
         code: 104
         range: 4
         on_resolve {
-            reveal self
+            modifier: def - 500
         }
     }
 
@@ -39,7 +45,7 @@ card "Crystron Eleskeletus" {
         property: 65536
         count_limit: (1, 47736165)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from gy
         }
     }
 

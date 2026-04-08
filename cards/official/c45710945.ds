@@ -10,6 +10,10 @@ card "Galaxy-Eyes Tachyon Primal" {
     atk: 3000
     def: 2500
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 514
         code: 1130
@@ -36,7 +40,7 @@ card "Galaxy-Eyes Tachyon Primal" {
         code: 1100
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, spell, either_player controls) to hand
         }
     }
 
@@ -46,7 +50,7 @@ card "Galaxy-Eyes Tachyon Primal" {
         code: 1102
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, spell, either_player controls) to hand
         }
     }
 

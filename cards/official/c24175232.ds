@@ -14,14 +14,19 @@ card "Cerulean Sacred Phoenix of Nephthys" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 1
         range: 4
         count_limit: (1, 24175232)
         on_resolve {
-            destroy (1+, card, either_player controls)
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, hand)
+            destroy (1+, card, you controls, hand)
         }
     }
 
@@ -30,7 +35,6 @@ card "Cerulean Sacred Phoenix of Nephthys" {
         code: 1014
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 

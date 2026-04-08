@@ -7,6 +7,7 @@ card "Wee Witch's Apprentice" {
     attribute: DARK
     race: Spellcaster
     link: 2
+    link_arrows: [bottom_left, bottom_right]
     atk: 1400
 
     materials {
@@ -23,7 +24,7 @@ card "Wee Witch's Apprentice" {
         code: 100
         range: 4
         on_resolve {
-            reveal self
+            modifier: atk + 500
         }
     }
 
@@ -32,7 +33,7 @@ card "Wee Witch's Apprentice" {
         code: 104
         range: 4
         on_resolve {
-            reveal self
+            modifier: def + 500
         }
     }
 
@@ -41,7 +42,7 @@ card "Wee Witch's Apprentice" {
         code: 100
         range: 4
         on_resolve {
-            reveal self
+            modifier: atk - 400
         }
     }
 
@@ -50,7 +51,7 @@ card "Wee Witch's Apprentice" {
         code: 104
         range: 4
         on_resolve {
-            reveal self
+            modifier: def - 400
         }
     }
 
@@ -61,7 +62,7 @@ card "Wee Witch's Apprentice" {
         property: 65552
         count_limit: (1, 71384012)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, either_player controls) from gy
         }
     }
 

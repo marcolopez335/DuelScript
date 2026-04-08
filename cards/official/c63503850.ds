@@ -7,10 +7,16 @@ card "Brute Enforcer" {
     attribute: DARK
     race: Cyberse
     link: 2
+    link_arrows: [bottom_left, bottom_right]
     atk: 1600
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -20,7 +26,8 @@ card "Brute Enforcer" {
         range: 4
         count_limit: (1, 63503850)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, opponent controls, hand) to gy
+            destroy (1+, card, opponent controls, hand)
         }
     }
 

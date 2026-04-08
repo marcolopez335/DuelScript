@@ -10,11 +10,14 @@ card "Artifact Lancea" {
     atk: 1700
     def: 2300
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 18
         on_resolve {
-            reveal self
         }
     }
 
@@ -35,7 +38,15 @@ card "Artifact Lancea" {
             tribute self
         }
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            set_flag "tracked" on self
         }
     }
 

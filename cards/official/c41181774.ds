@@ -10,13 +10,16 @@ card "Earthbound Immortal Wiraqocha Rasca" {
     atk: 100
     def: 100
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 141
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +29,6 @@ card "Earthbound Immortal Wiraqocha Rasca" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -34,7 +36,6 @@ card "Earthbound Immortal Wiraqocha Rasca" {
         effect_type: 1
         code: 74
         on_resolve {
-            reveal self
         }
     }
 
@@ -44,8 +45,8 @@ card "Earthbound Immortal Wiraqocha Rasca" {
         code: 1100
         property: 16
         on_resolve {
-            return (1, card) to deck shuffle
-            send (1, card) to gy
+            return (1+, card, either_player controls) to deck shuffle
+            send (1+, card, either_player controls) to gy
         }
     }
 

@@ -10,9 +10,10 @@ card "Rainbow Bridge of Salvation" {
         category: 65552
         code: 1002
         on_resolve {
-            return (1, card) to deck shuffle
-            shuffle deck
-            shuffle deck
+            set_flag "tracked" on self
+            return (1+, monster, either_player controls) to deck shuffle
+            shuffle_deck
+            shuffle_deck
             draw 5
             draw 5
         }
@@ -27,7 +28,8 @@ card "Rainbow Bridge of Salvation" {
             banish self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            set_flag "tracked" on self
+            return (1+, monster, either_player controls) to hand
         }
     }
 

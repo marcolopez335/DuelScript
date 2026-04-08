@@ -3,7 +3,7 @@
 
 card "Kuro-Obi Karate Spirit" {
     password: 77511331
-    type: Pendulum Monster | Flip
+    type: Effect Monster | Pendulum Monster | Flip
     attribute: WIND
     race: Warrior
     level: 5
@@ -11,13 +11,17 @@ card "Kuro-Obi Karate Spirit" {
     atk: 2400
     def: 1000
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 514
         category: 8
         code: 1102
         range: 512
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, spell, opponent controls) to hand
         }
     }
 
@@ -26,7 +30,7 @@ card "Kuro-Obi Karate Spirit" {
         category: 32
         code: 1100
         on_resolve {
-            send (1, card) to gy
+            send (1+, spell, opponent controls) to gy
         }
     }
 

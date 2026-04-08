@@ -14,13 +14,18 @@ card "Expurrely Noir" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 1
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,10 +35,10 @@ card "Expurrely Noir" {
         property: 16
         range: 4
         cost {
-            detach 1 overlay_unit from self
+            detach 2 overlay_unit from self
         }
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to deck shuffle
         }
     }
 
@@ -44,10 +49,10 @@ card "Expurrely Noir" {
         property: 16
         range: 4
         cost {
-            detach 1 overlay_unit from self
+            detach 2 overlay_unit from self
         }
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to deck shuffle
         }
     }
 

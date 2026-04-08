@@ -10,6 +10,10 @@ card "Mekk-Knight Green Horizon" {
     atk: 2100
     def: 1600
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
@@ -17,7 +21,6 @@ card "Mekk-Knight Green Horizon" {
         range: 2
         count_limit: (1, 66022706)
         on_resolve {
-            reveal self
         }
     }
 
@@ -28,7 +31,7 @@ card "Mekk-Knight Green Horizon" {
         property: 16
         range: 4
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, either_player controls) to hand
         }
     }
 

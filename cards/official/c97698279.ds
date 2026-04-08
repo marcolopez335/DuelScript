@@ -10,6 +10,10 @@ card "Centur-Ion Gargoyle II" {
     atk: 2000
     def: 3000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 512
@@ -20,6 +24,10 @@ card "Centur-Ion Gargoyle II" {
         }
         on_resolve {
             special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -30,7 +38,7 @@ card "Centur-Ion Gargoyle II" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, card, you controls) to hand
         }
     }
 

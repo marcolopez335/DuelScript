@@ -3,7 +3,7 @@
 
 card "Solfachord Solfegia" {
     password: 84693918
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: LIGHT
     race: Fairy
     level: 2
@@ -16,8 +16,9 @@ card "Solfachord Solfegia" {
         code: 1020
         range: 512
         on_resolve {
+            set_flag "tracked" on self
             negate effect
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls)
         }
     }
 

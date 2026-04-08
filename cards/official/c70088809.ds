@@ -3,6 +3,13 @@
 
 card "Fidraulis Harmonia" {
     password: 70088809
+    // FIXME: card not found in CDB — type/stats are placeholders
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 0
+    def: 0
 
     raw_effect "Effect 1" {
         effect_type: 256
@@ -12,6 +19,8 @@ card "Fidraulis Harmonia" {
         count_limit: (1, 70088809)
         on_resolve {
             special_summon (1, monster) from gy
+            send (1+, card, either_player controls) to gy
+            destroy (1+, card, either_player controls)
         }
     }
 

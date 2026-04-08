@@ -10,6 +10,10 @@ card "Tidal, Dragon Ruler of Waterfalls" {
     atk: 2600
     def: 2000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 512
@@ -30,7 +34,7 @@ card "Tidal, Dragon Ruler of Waterfalls" {
         range: 4
         count_limit: (1, 26400609)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from gy
         }
     }
 
@@ -40,7 +44,7 @@ card "Tidal, Dragon Ruler of Waterfalls" {
         range: 2
         count_limit: (1, 26400609)
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, you controls, gy) to gy
         }
     }
 
@@ -51,7 +55,7 @@ card "Tidal, Dragon Ruler of Waterfalls" {
         property: 65536
         count_limit: (1, 26400609)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from gy
         }
     }
 

@@ -10,7 +10,6 @@ card "D.D. Post" {
         code: 1002
         property: 16384
         on_resolve {
-            reveal self
         }
     }
 
@@ -19,7 +18,6 @@ card "D.D. Post" {
         code: 100
         range: 8
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,8 +28,8 @@ card "D.D. Post" {
         range: 8
         count_limit: (1, 0)
         on_resolve {
-            banish (1+, card)
-            return (1, card) to deck shuffle
+            banish (1+, card, either_player controls)
+            return (1+, card, either_player controls) to deck shuffle
         }
     }
 

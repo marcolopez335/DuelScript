@@ -16,7 +16,6 @@ card "Rogue of Endymion" {
         code: 1100
         count_limit: (1, 44640691)
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +25,6 @@ card "Rogue of Endymion" {
         code: 1102
         count_limit: (1, 44640691)
         on_resolve {
-            reveal self
         }
     }
 
@@ -36,6 +34,10 @@ card "Rogue of Endymion" {
         count_limit: (1, 0)
         on_resolve {
             set (1, card)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

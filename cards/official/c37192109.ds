@@ -28,7 +28,11 @@ card "PSY-Framelord Zeta" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, either_player controls)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -38,8 +42,8 @@ card "PSY-Framelord Zeta" {
         property: 16
         range: 16
         on_resolve {
-            return (1, card) to deck shuffle
-            add_to_hand (1, card) from gy
+            return (1+, card, either_player controls) to deck shuffle
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

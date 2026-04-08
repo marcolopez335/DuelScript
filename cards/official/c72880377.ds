@@ -10,13 +10,16 @@ card "Dark Hole Dragon" {
     atk: 3000
     def: 2000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 41
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -38,7 +41,10 @@ card "Dark Hole Dragon" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

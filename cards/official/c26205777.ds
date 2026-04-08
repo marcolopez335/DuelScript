@@ -10,12 +10,16 @@ card "Thestalos the Firestorm Monarch" {
     atk: 2400
     def: 1000
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 513
         category: 524416
         code: 1100
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, either_player controls) to gy
             deal_damage to opponent: 1000
         }
     }

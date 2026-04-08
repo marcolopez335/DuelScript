@@ -38,17 +38,13 @@ card "Number 49: Fortune Tune" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: 2049
-        code: 50
-        property: 131072
-        range: 4
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 3" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 
@@ -59,8 +55,8 @@ card "Number 49: Fortune Tune" {
         property: 16
         count_limit: (1, 16259549)
         on_resolve {
-            return (1, card) to deck shuffle
-            return (1, card) to deck shuffle
+            return (1+, card, you controls) to deck shuffle
+            return (1+, card, you controls) to deck shuffle
         }
     }
 

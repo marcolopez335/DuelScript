@@ -6,11 +6,27 @@ card "Machine Angel Ritual" {
     type: Ritual Spell
 
     raw_effect "Effect 1" {
-        effect_type: 2050
-        code: 50
-        range: 16
+        effect_type: 16
+        category: 512
+        code: 1002
         on_resolve {
-            banish (1+, card)
+            ritual_summon (1, ritual monster) using (1+, monster, you controls)
+        }
+    }
+
+    replacement_effect "Effect 2" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
+        }
+    }
+
+    raw_effect "Effect 3" {
+        effect_type: 16
+        category: 512
+        code: 1002
+        on_resolve {
+            ritual_summon (1, ritual monster) using (1+, monster, you controls)
         }
     }
 

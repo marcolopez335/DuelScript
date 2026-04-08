@@ -14,13 +14,18 @@ card "Cyber Angel Vrash" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 524289
         code: 1102
         property: 65536
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, opponent controls)
             deal_damage to opponent: 1000
         }
     }
@@ -34,7 +39,7 @@ card "Cyber Angel Vrash" {
         count_limit: (1, 0)
         on_resolve {
             negate activation
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, opponent controls)
         }
     }
 

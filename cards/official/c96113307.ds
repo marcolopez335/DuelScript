@@ -7,10 +7,16 @@ card "Ritual Beast Ulti-Reirautari" {
     attribute: WIND
     race: Psychic
     link: 4
+    link_arrows: [top, bottom_left, bottom, bottom_right]
     atk: 2600
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,6 @@ card "Ritual Beast Ulti-Reirautari" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,8 +35,8 @@ card "Ritual Beast Ulti-Reirautari" {
         range: 4
         count_limit: (1, 96113307)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            return (1+, card, either_player controls) to hand
+            shuffle_hand
         }
     }
 
@@ -43,7 +48,7 @@ card "Ritual Beast Ulti-Reirautari" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, either_player controls)
         }
     }
 

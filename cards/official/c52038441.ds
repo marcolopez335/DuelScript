@@ -18,10 +18,13 @@ card "Ghost Mourner & Moonlit Chill" {
         range: 2
         count_limit: (1, 52038441)
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -31,7 +34,8 @@ card "Ghost Mourner & Moonlit Chill" {
         property: 1024
         range: 1023
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
+            emit_event "custom"
         }
     }
 

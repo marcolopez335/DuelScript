@@ -25,7 +25,6 @@ card "Drill Warrior" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 
@@ -35,8 +34,8 @@ card "Drill Warrior" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            send (1, card) to gy
-            banish (1+, card)
+            send (1+, monster, opponent controls, hand) to gy
+            banish (1+, monster, opponent controls, hand)
         }
     }
 
@@ -47,7 +46,7 @@ card "Drill Warrior" {
         range: 32
         on_resolve {
             special_summon (1, monster) from gy
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, opponent controls) from hand
         }
     }
 

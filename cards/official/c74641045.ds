@@ -10,12 +10,16 @@ card "Madolche Puddingcess" {
     atk: 1000
     def: 1000
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 513
         category: 16
         code: 1014
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, you controls) to deck shuffle
         }
     }
 
@@ -25,7 +29,7 @@ card "Madolche Puddingcess" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
+            modifier: atk + 800
         }
     }
 
@@ -35,7 +39,7 @@ card "Madolche Puddingcess" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
+            modifier: def + 800
         }
     }
 
@@ -45,7 +49,7 @@ card "Madolche Puddingcess" {
         code: 1138
         property: 16
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, gy)
         }
     }
 

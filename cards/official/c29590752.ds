@@ -10,6 +10,10 @@ card "Gladiator Beast Octavius" {
     atk: 2500
     def: 1200
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 513
         category: 1
@@ -27,7 +31,7 @@ card "Gladiator Beast Octavius" {
         range: 4
         on_resolve {
             discard (1, card)
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to deck shuffle
         }
     }
 

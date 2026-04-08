@@ -14,13 +14,17 @@ card "El Shaddoll Apkallone" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 394240
         range: 64
         on_resolve {
-            reveal self
         }
     }
 
@@ -31,7 +35,6 @@ card "El Shaddoll Apkallone" {
         property: 65552
         count_limit: (1, 50907446)
         on_resolve {
-            reveal self
         }
     }
 
@@ -41,7 +44,6 @@ card "El Shaddoll Apkallone" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -52,8 +54,8 @@ card "El Shaddoll Apkallone" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            add_to_hand (1+, trap, you controls) from gy
+            shuffle_hand
             discard (1, card)
         }
     }

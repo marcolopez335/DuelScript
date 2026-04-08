@@ -10,6 +10,10 @@ card "Divine Dragon Aquabizarre" {
     atk: 2100
     def: 1500
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 16
@@ -20,7 +24,7 @@ card "Divine Dragon Aquabizarre" {
             tribute self
         }
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to deck shuffle
         }
     }
 

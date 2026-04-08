@@ -3,6 +3,13 @@
 
 card "Superdreadnought Rail Cannon Flying Launcher" {
     password: 38354018
+    // FIXME: card not found in CDB — type/stats are placeholders
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 0
+    def: 0
 
     summon_condition {
         cannot_normal_summon: true
@@ -13,7 +20,6 @@ card "Superdreadnought Rail Cannon Flying Launcher" {
         code: 29
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -24,7 +30,7 @@ card "Superdreadnought Rail Cannon Flying Launcher" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 
@@ -38,7 +44,7 @@ card "Superdreadnought Rail Cannon Flying Launcher" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, you controls, deck)
         }
     }
 

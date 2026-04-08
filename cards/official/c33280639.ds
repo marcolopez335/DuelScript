@@ -14,7 +14,8 @@ card "Prologue of the Destruction Swordsman" {
             send self to gy
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            special_summon (1, monster) from gy
+            destroy (1+, monster, you controls, deck)
         }
     }
 
@@ -26,7 +27,15 @@ card "Prologue of the Destruction Swordsman" {
             banish self
         }
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

@@ -9,7 +9,6 @@ card "Sacred Scrolls of the Gizmek Legend" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -19,9 +18,10 @@ card "Sacred Scrolls of the Gizmek Legend" {
         range: 256
         count_limit: (1, 24793135)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
-            send (1, card) to gy
+            add_to_hand (1+, card, either_player controls) from gy
+            shuffle_hand
+            send (1+, card, either_player controls) to gy
+            banish (1+, card, either_player controls)
         }
     }
 
@@ -30,7 +30,6 @@ card "Sacred Scrolls of the Gizmek Legend" {
         code: 1100
         range: 256
         on_resolve {
-            reveal self
         }
     }
 
@@ -39,7 +38,6 @@ card "Sacred Scrolls of the Gizmek Legend" {
         code: 1102
         range: 256
         on_resolve {
-            reveal self
         }
     }
 
@@ -49,7 +47,6 @@ card "Sacred Scrolls of the Gizmek Legend" {
         property: 2048
         range: 256
         on_resolve {
-            reveal self
         }
     }
 

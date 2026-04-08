@@ -27,7 +27,7 @@ card "Springans Merrymaker" {
         property: 81920
         count_limit: (1, 48285768)
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, you controls, deck) to gy
         }
     }
 
@@ -38,8 +38,12 @@ card "Springans Merrymaker" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            banish (1+, card)
-            send (1, card) to gy
+            banish (1+, monster, you controls, deck)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            send (1+, monster, you controls, deck) to gy
         }
     }
 

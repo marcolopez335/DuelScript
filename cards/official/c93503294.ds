@@ -7,10 +7,16 @@ card "Altergeist Primebanshee" {
     attribute: DARK
     race: Spellcaster
     link: 3
+    link_arrows: [right, bottom, bottom_right]
     atk: 2100
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -34,7 +40,7 @@ card "Altergeist Primebanshee" {
         property: 65552
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 

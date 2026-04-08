@@ -14,6 +14,11 @@ card "Magikey Mechmusket - Batosbuster" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 131080
@@ -21,7 +26,7 @@ card "Magikey Mechmusket - Batosbuster" {
         property: 81920
         count_limit: (1, 19489718)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from gy
         }
     }
 
@@ -32,7 +37,7 @@ card "Magikey Mechmusket - Batosbuster" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, monster, you controls) to deck shuffle
             draw 1
         }
     }

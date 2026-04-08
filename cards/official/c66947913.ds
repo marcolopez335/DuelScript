@@ -12,6 +12,7 @@ card "Rising Fire" {
         property: 16
         count_limit: (1, 66947913)
         on_resolve {
+            special_summon (1, monster) from gy
             equip (1, card) to (1, monster)
         }
     }
@@ -21,7 +22,6 @@ card "Rising Fire" {
         code: 1019
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +29,7 @@ card "Rising Fire" {
         effect_type: 2049
         code: 1015
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, either_player controls)
         }
     }
 
@@ -37,7 +37,7 @@ card "Rising Fire" {
         effect_type: 4
         code: 100
         on_resolve {
-            reveal self
+            modifier: atk + 500
         }
     }
 
@@ -48,7 +48,7 @@ card "Rising Fire" {
         property: 81920
         count_limit: (1, 0)
         on_resolve {
-            banish (1+, card)
+            banish (1+, monster, either_player controls)
         }
     }
 

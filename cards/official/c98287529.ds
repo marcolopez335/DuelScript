@@ -14,11 +14,19 @@ card "Amorphactor Pain, the Imagination Dracoverlord" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2049
         code: 1102
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -27,7 +35,6 @@ card "Amorphactor Pain, the Imagination Dracoverlord" {
         code: 2
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -37,7 +44,7 @@ card "Amorphactor Pain, the Imagination Dracoverlord" {
         code: 1014
         property: 65536
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 

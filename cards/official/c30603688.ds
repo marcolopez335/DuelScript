@@ -10,13 +10,17 @@ card "Apprentice Illusion Magician" {
     atk: 2000
     def: 1700
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
         property: 262144
         range: 2
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, hand) to gy
         }
     }
 
@@ -26,7 +30,7 @@ card "Apprentice Illusion Magician" {
         code: 1100
         property: 65536
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from hand
         }
     }
 
@@ -36,7 +40,7 @@ card "Apprentice Illusion Magician" {
         code: 1102
         property: 65536
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from hand
         }
     }
 
@@ -49,7 +53,6 @@ card "Apprentice Illusion Magician" {
             send self to gy
         }
         on_resolve {
-            reveal self
         }
     }
 

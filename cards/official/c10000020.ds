@@ -10,12 +10,15 @@ card "Slifer the Sky Dragon" {
     atk: ?
     def: ?
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 26
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -23,7 +26,6 @@ card "Slifer the Sky Dragon" {
         effect_type: 2049
         code: 1100
         on_resolve {
-            reveal self
         }
     }
 
@@ -34,7 +36,7 @@ card "Slifer the Sky Dragon" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
         }
     }
 
@@ -44,7 +46,6 @@ card "Slifer the Sky Dragon" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -54,7 +55,6 @@ card "Slifer the Sky Dragon" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -64,7 +64,7 @@ card "Slifer the Sky Dragon" {
         code: 1100
         range: 4
         on_resolve {
-            reveal self
+            destroy (1+, card, either_player controls)
         }
     }
 
@@ -74,7 +74,7 @@ card "Slifer the Sky Dragon" {
         code: 1102
         range: 4
         on_resolve {
-            reveal self
+            destroy (1+, card, either_player controls)
         }
     }
 

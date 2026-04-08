@@ -6,14 +6,6 @@ card "Spirit Burner" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
-        on_resolve {
-            reveal self
-        }
-    }
-
-    raw_effect "Effect 2" {
         effect_type: 64
         category: 4096
         range: 8
@@ -23,7 +15,7 @@ card "Spirit Burner" {
         }
     }
 
-    raw_effect "Effect 3" {
+    raw_effect "Effect 2" {
         effect_type: 513
         category: 524288
         code: 1014
@@ -33,22 +25,22 @@ card "Spirit Burner" {
         }
     }
 
-    raw_effect "Effect 4" {
+    raw_effect "Effect 3" {
         effect_type: 130
         category: 8
         code: 1113
         range: 16
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 
-    raw_effect "Effect 5" {
+    raw_effect "Effect 4" {
         effect_type: 16
         category: 262144
         code: 1002
         on_resolve {
-            reveal self
+            equip self to (1, monster, you controls)
         }
     }
 

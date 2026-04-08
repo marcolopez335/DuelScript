@@ -14,6 +14,11 @@ card "Vendread Chimera" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         category: 268435457
@@ -26,7 +31,7 @@ card "Vendread Chimera" {
         }
         on_resolve {
             negate activation
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, opponent controls)
         }
     }
 
@@ -36,7 +41,6 @@ card "Vendread Chimera" {
         code: 1017
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 
@@ -46,7 +50,6 @@ card "Vendread Chimera" {
         code: 1011
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 

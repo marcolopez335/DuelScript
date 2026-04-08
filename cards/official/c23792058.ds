@@ -3,7 +3,7 @@
 
 card "Speedroid Hexasaucer" {
     password: 23792058
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: WIND
     race: Machine
     level: 4
@@ -18,7 +18,7 @@ card "Speedroid Hexasaucer" {
         range: 512
         count_limit: (1, 23792058)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to deck shuffle
         }
     }
 
@@ -26,7 +26,6 @@ card "Speedroid Hexasaucer" {
         effect_type: 1
         code: 206
         on_resolve {
-            reveal self
         }
     }
 
@@ -34,7 +33,6 @@ card "Speedroid Hexasaucer" {
         effect_type: 1
         code: 208
         on_resolve {
-            reveal self
         }
     }
 

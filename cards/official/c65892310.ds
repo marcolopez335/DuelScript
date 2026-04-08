@@ -14,6 +14,12 @@ card "Brionac, the Magical Ice Dragon" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 8
@@ -21,7 +27,7 @@ card "Brionac, the Magical Ice Dragon" {
         property: 65552
         count_limit: (1, 65892310)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from hand
         }
     }
 
@@ -32,7 +38,7 @@ card "Brionac, the Magical Ice Dragon" {
         property: 65552
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from hand
         }
     }
 

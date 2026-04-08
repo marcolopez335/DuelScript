@@ -14,6 +14,12 @@ card "Materiactor Exagard" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 131592
@@ -24,7 +30,7 @@ card "Materiactor Exagard" {
         }
         on_resolve {
             special_summon (1, monster) from gy
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 
@@ -36,8 +42,8 @@ card "Materiactor Exagard" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 
@@ -49,8 +55,8 @@ card "Materiactor Exagard" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 

@@ -3,13 +3,17 @@
 
 card "Hojo the Vaylantz Warrior" {
     password: 88919365
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: WATER
     race: Spellcaster
     level: 8
     scale: 1
     atk: 1900
     def: 1900
+
+    summon_condition {
+        tributes_required: 2
+    }
 
     raw_effect "Effect 1" {
         effect_type: 64
@@ -28,7 +32,7 @@ card "Hojo the Vaylantz Warrior" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 
@@ -39,7 +43,6 @@ card "Hojo the Vaylantz Warrior" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 

@@ -10,13 +10,17 @@ card "Arkbrave Dragon" {
     atk: 2400
     def: 2000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 4
         code: 1102
         property: 81920
         on_resolve {
-            banish (1+, card)
+            banish (1+, spell, opponent controls)
         }
     }
 
@@ -25,7 +29,6 @@ card "Arkbrave Dragon" {
         code: 1014
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 

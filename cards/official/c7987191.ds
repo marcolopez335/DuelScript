@@ -14,6 +14,11 @@ card "Borreload Riot Dragon" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         category: 32769
@@ -22,8 +27,8 @@ card "Borreload Riot Dragon" {
         count_limit: (1, 7987191)
         on_resolve {
             negate summon
-            destroy (1+, card, either_player controls)
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls)
+            destroy (1+, monster, you controls)
         }
     }
 
@@ -34,8 +39,8 @@ card "Borreload Riot Dragon" {
         range: 16
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
-            add_to_hand (1, card) from gy
+            destroy (1+, monster, you controls)
+            return (1+, monster, you controls) to hand
         }
     }
 

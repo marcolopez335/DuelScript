@@ -26,7 +26,6 @@ card "Morphtronic Earfon" {
         property: 65552
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 
@@ -37,7 +36,8 @@ card "Morphtronic Earfon" {
         range: 20
         count_limit: (1, 0)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
+            equip (1, card) to (1, monster)
         }
     }
 
@@ -45,7 +45,6 @@ card "Morphtronic Earfon" {
         effect_type: 4
         code: 346
         on_resolve {
-            reveal self
         }
     }
 

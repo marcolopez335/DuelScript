@@ -10,6 +10,10 @@ card "Genesis Dragon" {
     atk: 2200
     def: 1800
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 8
@@ -17,7 +21,7 @@ card "Genesis Dragon" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from gy
         }
     }
 
@@ -27,7 +31,7 @@ card "Genesis Dragon" {
         code: 1014
         property: 16384
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, you controls) to deck shuffle
         }
     }
 

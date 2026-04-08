@@ -3,7 +3,7 @@
 
 card "Harvest Angel of Doom" {
     password: 31987203
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fairy
     level: 4
@@ -17,8 +17,8 @@ card "Harvest Angel of Doom" {
         range: 512
         count_limit: (1, 31987203)
         on_resolve {
-            destroy (1+, card, either_player controls)
-            add_to_hand (1, card) from gy
+            destroy (1+, card, you controls, deck)
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -29,7 +29,7 @@ card "Harvest Angel of Doom" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -40,7 +40,7 @@ card "Harvest Angel of Doom" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 

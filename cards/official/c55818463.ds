@@ -10,11 +10,14 @@ card "Lich Lord, King of the Underworld" {
     atk: 2400
     def: 1200
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 154
         on_resolve {
-            reveal self
         }
     }
 
@@ -22,7 +25,7 @@ card "Lich Lord, King of the Underworld" {
         effect_type: 513
         code: 1017
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

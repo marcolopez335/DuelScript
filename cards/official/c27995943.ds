@@ -17,11 +17,15 @@ card "Dr. Frankenderp" {
         property: 81920
         count_limit: (1, 27995943)
         cost {
-            pay_lp 1000
+            pay_lp 500
         }
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            add_to_hand (1+, card, either_player controls) from gy
+            shuffle_hand
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -32,11 +36,15 @@ card "Dr. Frankenderp" {
         property: 81920
         count_limit: (1, 27995943)
         cost {
-            pay_lp 1000
+            pay_lp 500
         }
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            add_to_hand (1+, card, either_player controls) from gy
+            shuffle_hand
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

@@ -14,6 +14,11 @@ card "Zoroa, the Magistus Verethragna" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 262144
@@ -21,7 +26,7 @@ card "Zoroa, the Magistus Verethragna" {
         range: 4
         count_limit: (1, 37260677)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls) to gy
         }
     }
 
@@ -36,7 +41,7 @@ card "Zoroa, the Magistus Verethragna" {
         }
         on_resolve {
             negate effect
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls)
         }
     }
 
@@ -44,7 +49,6 @@ card "Zoroa, the Magistus Verethragna" {
         effect_type: 1
         code: 76
         on_resolve {
-            reveal self
         }
     }
 
@@ -52,7 +56,6 @@ card "Zoroa, the Magistus Verethragna" {
         effect_type: 1
         code: 71
         on_resolve {
-            reveal self
         }
     }
 
@@ -60,7 +63,6 @@ card "Zoroa, the Magistus Verethragna" {
         effect_type: 1
         code: 41
         on_resolve {
-            reveal self
         }
     }
 
@@ -68,7 +70,6 @@ card "Zoroa, the Magistus Verethragna" {
         effect_type: 1
         code: 42
         on_resolve {
-            reveal self
         }
     }
 

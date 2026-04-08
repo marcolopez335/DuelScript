@@ -16,7 +16,7 @@ card "Naturia Marron" {
         code: 1100
         property: 16384
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, you controls, deck) to gy
         }
     }
 
@@ -27,8 +27,8 @@ card "Naturia Marron" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
-            shuffle deck
+            return (1+, monster, you controls) to deck shuffle
+            shuffle_deck
             draw 1
         }
     }

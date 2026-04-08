@@ -7,10 +7,16 @@ card "Appliancer Vacculephant" {
     attribute: DARK
     race: Machine
     link: 1
+    link_arrows: [top_right]
     atk: 1000
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -18,7 +24,6 @@ card "Appliancer Vacculephant" {
         code: 239
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,7 +31,6 @@ card "Appliancer Vacculephant" {
         effect_type: 1
         code: 74
         on_resolve {
-            reveal self
         }
     }
 
@@ -37,7 +41,7 @@ card "Appliancer Vacculephant" {
         range: 4
         count_limit: (1, 30118200)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, hand)
         }
     }
 
@@ -51,7 +55,7 @@ card "Appliancer Vacculephant" {
             send self to gy
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, hand)
         }
     }
 

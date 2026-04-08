@@ -10,6 +10,10 @@ card "Psychic Megacyber" {
     atk: 2200
     def: 1200
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
@@ -17,7 +21,6 @@ card "Psychic Megacyber" {
         range: 2
         count_limit: (1, 91870448)
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +32,7 @@ card "Psychic Megacyber" {
             tribute self
         }
         on_resolve {
-            send (1, card) to gy
+            send (1+, spell, you controls) to gy
             special_summon (1, monster) from gy
         }
     }

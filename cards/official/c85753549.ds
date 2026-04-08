@@ -10,6 +10,10 @@ card "Mikazukinoyaiba, the Moon Fang Dragon" {
     atk: 2200
     def: 2350
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 130
         category: 512
@@ -17,7 +21,7 @@ card "Mikazukinoyaiba, the Moon Fang Dragon" {
         range: 18
         count_limit: (1, 85753549)
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
         }
     }
 
@@ -27,7 +31,7 @@ card "Mikazukinoyaiba, the Moon Fang Dragon" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from hand
         }
     }
 

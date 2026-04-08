@@ -15,7 +15,6 @@ card "Dragunity Remus" {
         code: 236
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -25,10 +24,10 @@ card "Dragunity Remus" {
         range: 2
         count_limit: (1, 26577155)
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -38,6 +37,10 @@ card "Dragunity Remus" {
         range: 16
         count_limit: (1, 0)
         on_resolve {
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
             special_summon (1, monster) from gy
         }
     }

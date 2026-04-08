@@ -14,13 +14,18 @@ card "Dual Avatar Fists - Armored Ah-Gyo" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         code: 1102
         property: 65552
         count_limit: (1, 60237530)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls)
         }
     }
 
@@ -29,7 +34,7 @@ card "Dual Avatar Fists - Armored Ah-Gyo" {
         code: 100
         range: 4
         on_resolve {
-            reveal self
+            modifier: atk + 300
         }
     }
 
@@ -38,7 +43,7 @@ card "Dual Avatar Fists - Armored Ah-Gyo" {
         code: 104
         range: 4
         on_resolve {
-            reveal self
+            modifier: def + 300
         }
     }
 

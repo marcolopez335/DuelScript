@@ -10,16 +10,14 @@ card "Phantom Knights' Sword" {
         code: 100
         range: 8
         on_resolve {
-            reveal self
+            modifier: atk + 800
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 50
-        range: 8
-        on_resolve {
-            destroy (1+, card, either_player controls)
+    replacement_effect "Effect 2" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 
@@ -52,7 +50,6 @@ card "Phantom Knights' Sword" {
         code: 1015
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

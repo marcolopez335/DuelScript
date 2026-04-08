@@ -16,7 +16,13 @@ card "Mithra the Thunder Vassal" {
         range: 2
         count_limit: (1, 22404675)
         on_resolve {
+            special_summon (1, monster) from gy
             create_token { atk: 0 def: 0 }
+            special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -26,7 +32,14 @@ card "Mithra the Thunder Vassal" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

@@ -7,10 +7,16 @@ card "Marincess Sea Angel" {
     attribute: WATER
     race: Cyberse
     link: 1
+    link_arrows: [left]
     atk: 1000
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -18,7 +24,10 @@ card "Marincess Sea Angel" {
         code: 1102
         property: 1024
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -29,7 +38,7 @@ card "Marincess Sea Angel" {
         property: 81920
         count_limit: (1, 30691817)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 

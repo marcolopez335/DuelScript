@@ -16,7 +16,7 @@ card "Swap Frog" {
         property: 262144
         range: 2
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, you controls, hand) to gy
         }
     }
 
@@ -26,7 +26,7 @@ card "Swap Frog" {
         code: 1100
         property: 16384
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, you controls, hand) to gy
         }
     }
 
@@ -36,7 +36,7 @@ card "Swap Frog" {
         code: 1101
         property: 16384
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, you controls, hand) to gy
         }
     }
 
@@ -46,7 +46,7 @@ card "Swap Frog" {
         code: 1102
         property: 16384
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, you controls, hand) to gy
         }
     }
 
@@ -55,7 +55,11 @@ card "Swap Frog" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            set_flag "tracked" on self
         }
     }
 

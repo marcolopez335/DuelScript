@@ -14,13 +14,19 @@ card "Red Nova Dragon - Burning Soul" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
         property: 263168
         range: 64
         on_resolve {
-            banish (1+, card)
+            banish (1+, monster, you controls, gy)
         }
     }
 
@@ -31,7 +37,7 @@ card "Red Nova Dragon - Burning Soul" {
         property: 65536
         count_limit: (1, 65541655)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from gy
         }
     }
 
@@ -39,7 +45,7 @@ card "Red Nova Dragon - Burning Soul" {
         effect_type: 2050
         code: 1102
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
         }
     }
 

@@ -14,6 +14,11 @@ card "Magistus Chorozo" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 130
         category: 2097160
@@ -23,7 +28,7 @@ card "Magistus Chorozo" {
         count_limit: (1, 0)
         on_resolve {
             negate attack
-            add_to_hand (1, card) from gy
+            return (1+, card, you controls) to hand
         }
     }
 

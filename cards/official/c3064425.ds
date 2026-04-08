@@ -16,7 +16,8 @@ card "Superheavy Samurai Soulbang Cannon" {
         property: 16
         range: 6
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, either_player controls) to gy
+            equip (1, card) to (1, monster)
         }
     }
 
@@ -31,7 +32,7 @@ card "Superheavy Samurai Soulbang Cannon" {
         }
         on_resolve {
             negate activation
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, either_player controls)
             deal_damage to opponent: 1000
             deal_damage to opponent: 1000
         }

@@ -1,0 +1,45 @@
+// Azamina Sol Erysichthon
+// Transpiled from c9785661.lua
+
+card "Azamina Sol Erysichthon" {
+    password: 9785661
+    type: Fusion Monster
+    attribute: DARK
+    race: Unknown
+    level: 6
+    atk: 2700
+    def: 0
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
+    raw_effect "Effect 1" {
+        effect_type: 129
+        category: 32
+        code: 1102
+        property: 65552
+        count_limit: (1, 9785661)
+        on_resolve {
+            send (1+, card, either_player controls) to gy
+        }
+    }
+
+    raw_effect "Effect 2" {
+        effect_type: 130
+        category: 8
+        code: 4098
+        property: 16
+        range: 4
+        count_limit: (1, 0)
+        on_resolve {
+            add_to_hand (1+, card, either_player controls) from gy
+        }
+    }
+
+}

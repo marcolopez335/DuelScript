@@ -10,12 +10,16 @@ card "Crystal Beast Rainbow Dragon" {
     atk: 3000
     def: 0
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 313
         property: 262144
         on_resolve {
-            reveal self
+            emit_event "custom"
         }
     }
 
@@ -39,7 +43,8 @@ card "Crystal Beast Rainbow Dragon" {
             banish self
         }
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 

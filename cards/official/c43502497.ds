@@ -3,7 +3,7 @@
 
 card "Pendulum Witch" {
     password: 43502497
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: EARTH
     race: Spellcaster
     level: 3
@@ -19,7 +19,6 @@ card "Pendulum Witch" {
         range: 512
         count_limit: (1, 43502497)
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,8 +29,8 @@ card "Pendulum Witch" {
         property: 65552
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
-            add_to_hand (1, card) from gy
+            destroy (1+, card, you controls, deck)
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -42,8 +41,8 @@ card "Pendulum Witch" {
         property: 65552
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
-            add_to_hand (1, card) from gy
+            destroy (1+, card, you controls, deck)
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 

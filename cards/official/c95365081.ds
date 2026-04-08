@@ -1,0 +1,50 @@
+// Hecahands Ibtel
+// Transpiled from c95365081.lua
+
+card "Hecahands Ibtel" {
+    password: 95365081
+    type: Effect Monster
+    attribute: LIGHT
+    race: Unknown
+    level: 6
+    atk: 1600
+    def: 2100
+
+    summon_condition {
+        tributes_required: 1
+    }
+
+    raw_effect "Effect 1" {
+        effect_type: 2
+        code: 42
+        range: 4
+        on_resolve {
+        }
+    }
+
+    raw_effect "Effect 2" {
+        effect_type: 64
+        category: 528
+        range: 2
+        count_limit: (1, 95365081)
+        cost {
+            reveal self
+        }
+        on_resolve {
+            return (1+, card, you controls) to deck shuffle
+            special_summon (1, monster) from gy
+        }
+    }
+
+    raw_effect "Effect 3" {
+        effect_type: 129
+        category: 512
+        code: 1014
+        property: 65552
+        count_limit: (1, 0)
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

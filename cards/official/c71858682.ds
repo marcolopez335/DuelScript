@@ -14,12 +14,17 @@ card "Centur-Ion Auxila" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 41
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +35,7 @@ card "Centur-Ion Auxila" {
         property: 65536
         count_limit: (1, 71858682)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 

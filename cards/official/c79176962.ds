@@ -10,11 +10,14 @@ card "Fantastic Striborg" {
     atk: 2200
     def: 2200
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 251
         on_resolve {
-            reveal self
         }
     }
 
@@ -22,7 +25,6 @@ card "Fantastic Striborg" {
         effect_type: 1
         code: 91
         on_resolve {
-            reveal self
         }
     }
 
@@ -32,10 +34,10 @@ card "Fantastic Striborg" {
         range: 4
         count_limit: (1, 0)
         cost {
-            discard (1, card)
+            discard (1, card, you controls)
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

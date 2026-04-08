@@ -10,6 +10,10 @@ card "Horus the Black Flame Deity" {
     atk: 3000
     def: 1800
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 32
@@ -19,7 +23,7 @@ card "Horus the Black Flame Deity" {
             send self to gy
         }
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
         }
     }
 
@@ -32,7 +36,7 @@ card "Horus the Black Flame Deity" {
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
         }
     }
 

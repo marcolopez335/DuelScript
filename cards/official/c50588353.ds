@@ -7,10 +7,16 @@ card "Crystron Halqifibrax" {
     attribute: WATER
     race: Machine
     link: 2
+    link_arrows: [bottom_left, bottom_right]
     atk: 1500
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -20,7 +26,7 @@ card "Crystron Halqifibrax" {
         property: 65536
         count_limit: (1, 50588353)
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
         }
     }
 

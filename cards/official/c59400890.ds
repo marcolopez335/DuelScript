@@ -14,12 +14,20 @@ card "Dark Magician of Destruction" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2049
         code: 1102
         property: 1024
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -29,7 +37,7 @@ card "Dark Magician of Destruction" {
         property: 263168
         range: 64
         on_resolve {
-            banish (1+, card)
+            banish (1+, monster, you controls)
         }
     }
 
@@ -39,7 +47,7 @@ card "Dark Magician of Destruction" {
         code: 1102
         property: 65536
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, you controls) to hand
         }
     }
 
@@ -49,7 +57,6 @@ card "Dark Magician of Destruction" {
         property: 131072
         range: 20
         on_resolve {
-            reveal self
         }
     }
 

@@ -10,12 +10,10 @@ card "Dragunity Javelin" {
     atk: 1200
     def: 800
 
-    raw_effect "Effect 1" {
-        effect_type: 2049
-        code: 50
-        property: 262144
-        on_resolve {
-            equip (1, card) to (1, monster)
+    replacement_effect "Effect 1" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

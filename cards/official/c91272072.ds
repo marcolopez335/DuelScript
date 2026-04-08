@@ -14,13 +14,17 @@ card "Trickstar Band Sweet Guitar" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 82
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +33,6 @@ card "Trickstar Band Sweet Guitar" {
         code: 1111
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -40,7 +43,7 @@ card "Trickstar Band Sweet Guitar" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            add_to_hand (1+, monster, you controls) from gy
         }
     }
 

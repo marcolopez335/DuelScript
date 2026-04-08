@@ -10,8 +10,11 @@ card "Berserker Soul" {
         category: 64
         code: 1143
         count_limit: (1, 15381252)
+        cost {
+            send self to gy
+        }
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, either_player controls) to gy
             deal_damage to opponent: 500
         }
     }

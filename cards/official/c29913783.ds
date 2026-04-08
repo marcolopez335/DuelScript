@@ -10,16 +10,20 @@ card "Super Anti-Kaiju War Machine Mecha-Thunder-King" {
     atk: 2200
     def: 2100
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         category: 516
         code: 1002
         range: 2
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
-            banish (1+, card)
+            banish (1+, monster, you controls)
             special_summon (1, monster) from gy
         }
     }
@@ -28,7 +32,6 @@ card "Super Anti-Kaiju War Machine Mecha-Thunder-King" {
         effect_type: 1
         code: 42
         on_resolve {
-            reveal self
         }
     }
 
@@ -38,7 +41,6 @@ card "Super Anti-Kaiju War Machine Mecha-Thunder-King" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

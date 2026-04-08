@@ -14,13 +14,18 @@ card "Drytron Mu Beta Fafnir" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 243
         property: 32
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -31,7 +36,7 @@ card "Drytron Mu Beta Fafnir" {
         property: 81920
         count_limit: (1, 1174075)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, deck) to gy
         }
     }
 
@@ -47,7 +52,7 @@ card "Drytron Mu Beta Fafnir" {
         }
         on_resolve {
             negate activation
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, deck)
         }
     }
 

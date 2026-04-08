@@ -9,7 +9,6 @@ card "Yang Zing Prana" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -18,17 +17,14 @@ card "Yang Zing Prana" {
         code: 100
         range: 8
         on_resolve {
-            reveal self
+            modifier: atk + 500
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 50
-        range: 8
-        count_limit: (1, 0)
-        on_resolve {
-            send (1, card) to gy
+    replacement_effect "Effect 3" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 
@@ -38,7 +34,6 @@ card "Yang Zing Prana" {
         property: 2048
         range: 8
         on_resolve {
-            reveal self
         }
     }
 
@@ -47,7 +42,6 @@ card "Yang Zing Prana" {
         code: 140
         range: 8
         on_resolve {
-            reveal self
         }
     }
 
@@ -59,7 +53,7 @@ card "Yang Zing Prana" {
             send self to gy
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls, gy)
         }
     }
 

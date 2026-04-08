@@ -10,6 +10,10 @@ card "Performapal Sky Magician Girl" {
     atk: 2000
     def: 1500
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 512
@@ -27,7 +31,7 @@ card "Performapal Sky Magician Girl" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            send (1, card) to gy
+            send (1+, spell, you controls) to gy
         }
     }
 
@@ -38,7 +42,7 @@ card "Performapal Sky Magician Girl" {
         property: 65552
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, you controls)
         }
     }
 

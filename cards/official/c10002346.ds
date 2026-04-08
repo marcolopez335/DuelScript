@@ -14,13 +14,16 @@ card "Gachi Gachi Gantetsu" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: 2049
-        code: 50
-        property: 131072
-        range: 4
-        on_resolve {
-            reveal self
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    replacement_effect "Effect 1" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 
@@ -29,7 +32,6 @@ card "Gachi Gachi Gantetsu" {
         code: 100
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -38,7 +40,6 @@ card "Gachi Gachi Gantetsu" {
         code: 104
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

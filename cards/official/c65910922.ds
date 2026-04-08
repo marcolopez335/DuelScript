@@ -14,6 +14,12 @@ card "Arionpos, Serpent of the Ghoti" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 4
@@ -21,7 +27,7 @@ card "Arionpos, Serpent of the Ghoti" {
         property: 65536
         count_limit: (1, 65910922)
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, you controls, deck)
         }
     }
 
@@ -32,8 +38,8 @@ card "Arionpos, Serpent of the Ghoti" {
         property: 65552
         count_limit: (1, 0)
         on_resolve {
-            banish (1+, card)
-            add_to_hand (1, card) from gy
+            banish (1+, card, you controls, deck)
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 

@@ -7,10 +7,16 @@ card "Zebufera, Vaalmonican Hallow Heathen" {
     attribute: LIGHT
     race: Fiend
     link: 1
+    link_arrows: [bottom_right]
     atk: 2500
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -18,16 +24,13 @@ card "Zebufera, Vaalmonican Hallow Heathen" {
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 50
-        range: 4
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 2" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 
@@ -38,7 +41,6 @@ card "Zebufera, Vaalmonican Hallow Heathen" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 

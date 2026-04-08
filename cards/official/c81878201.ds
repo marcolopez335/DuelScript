@@ -15,12 +15,10 @@ card "Abyss-sting Triaina" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: 2052
-        code: 50
-        property: 128
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 2" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 
@@ -34,7 +32,7 @@ card "Abyss-sting Triaina" {
             banish self
         }
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, you controls) to deck shuffle
         }
     }
 

@@ -7,10 +7,16 @@ card "Clockwork Knight" {
     attribute: EARTH
     race: Machine
     link: 1
+    link_arrows: [left]
     atk: 500
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -23,7 +29,7 @@ card "Clockwork Knight" {
             send self to gy
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, card, you controls) to hand
         }
     }
 

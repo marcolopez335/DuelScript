@@ -9,7 +9,6 @@ card "Xyz Territory" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -18,7 +17,6 @@ card "Xyz Territory" {
         code: 100
         range: 256
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,17 +25,13 @@ card "Xyz Territory" {
         code: 104
         range: 256
         on_resolve {
-            reveal self
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: 2049
-        code: 50
-        property: 131072
-        range: 256
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 4" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

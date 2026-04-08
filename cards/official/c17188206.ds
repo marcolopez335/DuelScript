@@ -10,6 +10,10 @@ card "R.B. Lambda Blade" {
     atk: 1400
     def: 1400
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 32
@@ -17,7 +21,7 @@ card "R.B. Lambda Blade" {
         property: 65536
         count_limit: (1, 17188206)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, deck) to gy
         }
     }
 
@@ -28,7 +32,7 @@ card "R.B. Lambda Blade" {
         property: 65536
         count_limit: (1, 17188206)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, deck) to gy
         }
     }
 
@@ -40,12 +44,12 @@ card "R.B. Lambda Blade" {
         range: 4
         count_limit: (1, 0)
         cost {
-            pay_lp 1000
+            pay_lp 1400
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, deck)
             take_control of (1, monster, opponent controls)
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, deck)
         }
     }
 

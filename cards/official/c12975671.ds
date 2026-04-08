@@ -16,7 +16,6 @@ card "First Penguin" {
         property: 262144
         range: 2
         on_resolve {
-            reveal self
         }
     }
 
@@ -26,12 +25,16 @@ card "First Penguin" {
         range: 4
         count_limit: (1, 12975671)
         cost {
-            discard (1, card)
+            discard (1, card, you controls)
         }
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            return (1+, monster, you controls) to hand
+            shuffle_hand
             change_battle_position (1, monster)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

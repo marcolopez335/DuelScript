@@ -3,7 +3,7 @@
 
 card "Mythical Beast Master Cerberus" {
     password: 53842431
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: LIGHT
     race: Spellcaster
     level: 8
@@ -11,14 +11,18 @@ card "Mythical Beast Master Cerberus" {
     atk: 2800
     def: 2800
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 131081
         range: 512
         count_limit: (1, 53842431)
         on_resolve {
-            destroy (1+, card, either_player controls)
-            add_to_hand (1, card) from gy
+            destroy (1+, card, you controls, deck)
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -28,7 +32,6 @@ card "Mythical Beast Master Cerberus" {
         property: 1024
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -38,7 +41,6 @@ card "Mythical Beast Master Cerberus" {
         property: 65536
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -48,7 +50,6 @@ card "Mythical Beast Master Cerberus" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -59,7 +60,7 @@ card "Mythical Beast Master Cerberus" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, you controls, deck)
         }
     }
 

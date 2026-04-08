@@ -14,6 +14,12 @@ card "Jupiter the Power Patron of Destruction" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 262144
@@ -30,7 +36,7 @@ card "Jupiter the Power Patron of Destruction" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
+            modifier: atk + 3000
         }
     }
 
@@ -44,7 +50,7 @@ card "Jupiter the Power Patron of Destruction" {
         }
         on_resolve {
             special_summon (1, monster) from gy
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, gy)
         }
     }
 

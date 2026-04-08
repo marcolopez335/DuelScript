@@ -7,6 +7,7 @@ card "Mermail Abyssalacia" {
     attribute: WATER
     race: Sea Serpent
     link: 2
+    link_arrows: [bottom_left, bottom_right]
     atk: 1600
 
     materials {
@@ -23,7 +24,7 @@ card "Mermail Abyssalacia" {
         code: 100
         range: 4
         on_resolve {
-            reveal self
+            modifier: atk + 500
         }
     }
 
@@ -32,7 +33,7 @@ card "Mermail Abyssalacia" {
         code: 104
         range: 4
         on_resolve {
-            reveal self
+            modifier: def + 500
         }
     }
 
@@ -46,7 +47,7 @@ card "Mermail Abyssalacia" {
             send self to gy
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from hand
         }
     }
 

@@ -7,10 +7,16 @@ card "Sunavalon Dryatrentiay" {
     attribute: EARTH
     race: Plant
     link: 4
+    link_arrows: [top, bottom_left, bottom, bottom_right]
     atk: 0
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,7 @@ card "Sunavalon Dryatrentiay" {
         code: 1102
         property: 65536
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, spell, opponent controls) to hand
         }
     }
 
@@ -29,7 +35,6 @@ card "Sunavalon Dryatrentiay" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -39,7 +44,6 @@ card "Sunavalon Dryatrentiay" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -49,7 +53,7 @@ card "Sunavalon Dryatrentiay" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, opponent controls)
         }
     }
 

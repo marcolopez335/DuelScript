@@ -10,6 +10,10 @@ card "Primite Imperial Dragon" {
     atk: 2600
     def: 0
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 33
@@ -29,7 +33,6 @@ card "Primite Imperial Dragon" {
             reveal self
         }
         on_resolve {
-            reveal self
         }
     }
 
@@ -39,7 +42,7 @@ card "Primite Imperial Dragon" {
         code: 1100
         property: 65536
         on_resolve {
-            reveal self
+            banish (1+, monster, you controls, hand)
         }
     }
 

@@ -9,7 +9,6 @@ card "Gagaku-P.U.N.K. Crash Beat" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -21,7 +20,7 @@ card "Gagaku-P.U.N.K. Crash Beat" {
         range: 8
         count_limit: (1, 17691568)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, either_player controls)
         }
     }
 
@@ -30,7 +29,14 @@ card "Gagaku-P.U.N.K. Crash Beat" {
         code: 1029
         property: 81920
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

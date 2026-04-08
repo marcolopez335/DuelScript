@@ -14,13 +14,18 @@ card "Jormungandr, Generaider Boss of Eternity" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 103
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +35,6 @@ card "Jormungandr, Generaider Boss of Eternity" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -45,6 +49,8 @@ card "Jormungandr, Generaider Boss of Eternity" {
         }
         on_resolve {
             draw 1
+            draw 1
+            attach (1, card) to self as_material
         }
     }
 

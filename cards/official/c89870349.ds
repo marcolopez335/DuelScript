@@ -14,12 +14,16 @@ card "Masked HERO Blast" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +33,6 @@ card "Masked HERO Blast" {
         code: 1102
         property: 81936
         on_resolve {
-            reveal self
         }
     }
 
@@ -41,10 +44,10 @@ card "Masked HERO Blast" {
         range: 4
         count_limit: (1, 0)
         cost {
-            pay_lp 1000
+            pay_lp 500
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, either_player controls) from gy
         }
     }
 

@@ -10,6 +10,11 @@ card "Archfiend Black Skull Dragon" {
     atk: 3200
     def: 2500
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     summon_condition {
         cannot_normal_summon: true
     }
@@ -20,7 +25,6 @@ card "Archfiend Black Skull Dragon" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -33,7 +37,7 @@ card "Archfiend Black Skull Dragon" {
         count_limit: (1, 0)
         on_resolve {
             deal_damage to opponent: 1000
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to deck shuffle
         }
     }
 

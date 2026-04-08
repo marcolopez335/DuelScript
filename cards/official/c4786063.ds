@@ -17,7 +17,7 @@ card "Superheavy Samurai Soulfire Suit" {
         range: 6
         on_resolve {
             equip (1, card) to (1, monster)
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
         }
     }
 
@@ -28,10 +28,9 @@ card "Superheavy Samurai Soulfire Suit" {
         property: 16400
         range: 2
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
-            reveal self
         }
     }
 

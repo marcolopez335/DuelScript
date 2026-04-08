@@ -14,6 +14,12 @@ card "Time Thief Redoer" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 130
         code: 4098
@@ -31,7 +37,14 @@ card "Time Thief Redoer" {
         range: 4
         count_limit: (1, 55285840)
         on_resolve {
-            reveal self
+            send (1+, card, opponent controls) to gy
+            banish (1+, card, opponent controls)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            draw 1
+            return (1+, card, opponent controls) to deck shuffle
         }
     }
 

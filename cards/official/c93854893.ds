@@ -14,12 +14,16 @@ card "Dingirsu, the Orcust of the Evening Star" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: 2050
-        code: 50
-        range: 4
-        on_resolve {
-            reveal self
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
+    replacement_effect "Effect 1" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 
@@ -28,7 +32,8 @@ card "Dingirsu, the Orcust of the Evening Star" {
         code: 1102
         property: 65536
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, opponent controls) to gy
+            attach (1, card) to self as_material
         }
     }
 

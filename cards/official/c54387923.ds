@@ -3,7 +3,7 @@
 
 card "TiSolfachord Beautia" {
     password: 54387923
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: EARTH
     race: Fairy
     level: 7
@@ -11,12 +11,15 @@ card "TiSolfachord Beautia" {
     atk: 2500
     def: 2400
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2050
         code: 1102
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,7 +30,6 @@ card "TiSolfachord Beautia" {
         range: 4
         count_limit: (1, 54387923)
         on_resolve {
-            reveal self
         }
     }
 
@@ -37,7 +39,7 @@ card "TiSolfachord Beautia" {
         code: 1132
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, either_player controls)
         }
     }
 

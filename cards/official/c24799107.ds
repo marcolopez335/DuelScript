@@ -14,6 +14,11 @@ card "Dragonmaid Sheou" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 130
         category: 512
@@ -34,7 +39,9 @@ card "Dragonmaid Sheou" {
         count_limit: (1, 0)
         on_resolve {
             negate activation
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, gy)
+            return (1+, card, you controls) to deck shuffle
+            special_summon (1, monster) from gy
         }
     }
 

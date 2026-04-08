@@ -10,6 +10,10 @@ card "Guardian Slime" {
     atk: 0
     def: 0
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 130
         category: 512
@@ -28,7 +32,6 @@ card "Guardian Slime" {
         code: 1134
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 
@@ -39,7 +42,7 @@ card "Guardian Slime" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 

@@ -10,6 +10,10 @@ card "Cipher Biplane" {
     atk: 1000
     def: 2000
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 130
         category: 512
@@ -40,7 +44,6 @@ card "Cipher Biplane" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 
@@ -54,7 +57,7 @@ card "Cipher Biplane" {
             banish self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 

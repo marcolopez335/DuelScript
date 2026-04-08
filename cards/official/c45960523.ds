@@ -10,13 +10,17 @@ card "Metaphys Daedalus" {
     atk: 2600
     def: 1500
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 4
         code: 1102
         property: 65536
         on_resolve {
-            banish (1+, card)
+            banish (1+, monster, either_player controls)
         }
     }
 
@@ -30,7 +34,7 @@ card "Metaphys Daedalus" {
             send self to deck
         }
         on_resolve {
-            banish (1+, card)
+            banish (1+, monster, either_player controls)
         }
     }
 

@@ -10,6 +10,10 @@ card "Dark Magician of Chaos" {
     atk: 2800
     def: 2600
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 130
         category: 8
@@ -18,7 +22,7 @@ card "Dark Magician of Chaos" {
         range: 4
         count_limit: (1, 40737112)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, either_player controls) from gy
         }
     }
 
@@ -27,7 +31,7 @@ card "Dark Magician of Chaos" {
         category: 4
         code: 1138
         on_resolve {
-            banish (1+, card)
+            banish (1+, spell, either_player controls)
         }
     }
 
@@ -36,7 +40,6 @@ card "Dark Magician of Chaos" {
         code: 60
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 
@@ -45,7 +48,6 @@ card "Dark Magician of Chaos" {
         code: 1100
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 
@@ -54,7 +56,6 @@ card "Dark Magician of Chaos" {
         code: 1102
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 

@@ -25,7 +25,10 @@ card "Stellarknight Triverr" {
         code: 1102
         property: 1024
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -34,7 +37,6 @@ card "Stellarknight Triverr" {
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -43,7 +45,7 @@ card "Stellarknight Triverr" {
         category: 8
         code: 1102
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, card, either_player controls) to hand
         }
     }
 
@@ -57,7 +59,7 @@ card "Stellarknight Triverr" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
         }
     }
 
@@ -75,7 +77,8 @@ card "Stellarknight Triverr" {
         effect_type: 2050
         code: 1102
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
+            set_flag "tracked" on self
         }
     }
 

@@ -12,17 +12,13 @@ card "Infinite Machine" {
             send self to gy
         }
         on_resolve {
-            reveal self
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: 2049
-        code: 50
-        property: 131072
-        range: 8
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 2" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 
@@ -43,7 +39,7 @@ card "Infinite Machine" {
         property: 16
         range: 8
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, monster, you controls) to deck shuffle
             set (1, card)
         }
     }

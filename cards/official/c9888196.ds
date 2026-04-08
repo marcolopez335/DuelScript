@@ -27,7 +27,7 @@ card "Ally of Justice Decisive Armor" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, opponent controls)
         }
     }
 
@@ -40,7 +40,7 @@ card "Ally of Justice Decisive Armor" {
             send self to gy
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, opponent controls)
         }
     }
 
@@ -53,7 +53,9 @@ card "Ally of Justice Decisive Armor" {
             send self to gy
         }
         on_resolve {
-            send (1, card) to gy
+            send (1+, spell, opponent controls) to gy
+            deal_damage to opponent: 1000
+            shuffle_hand
         }
     }
 

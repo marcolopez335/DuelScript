@@ -10,12 +10,15 @@ card "Blackwing - Abrolhos the Megaquake" {
     atk: 2600
     def: 1800
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -25,7 +28,7 @@ card "Blackwing - Abrolhos the Megaquake" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, spell, opponent controls) to hand
         }
     }
 
@@ -34,7 +37,6 @@ card "Blackwing - Abrolhos the Megaquake" {
         code: 42
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -43,7 +45,7 @@ card "Blackwing - Abrolhos the Megaquake" {
         category: 8
         code: 1138
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, spell, opponent controls) to hand
         }
     }
 

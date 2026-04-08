@@ -3,7 +3,7 @@
 
 card "Majespecter Cat - Nekomata" {
     password: 5506791
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: WIND
     race: Spellcaster
     level: 3
@@ -17,7 +17,10 @@ card "Majespecter Cat - Nekomata" {
         code: 1100
         count_limit: (1, 5506791)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -27,7 +30,10 @@ card "Majespecter Cat - Nekomata" {
         code: 1102
         count_limit: (1, 5506791)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -37,7 +43,6 @@ card "Majespecter Cat - Nekomata" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -47,7 +52,6 @@ card "Majespecter Cat - Nekomata" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

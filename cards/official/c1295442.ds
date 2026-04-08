@@ -10,11 +10,14 @@ card "Icejade Creation Aegirocassis" {
     atk: 2000
     def: 2000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 4
         code: 100
         on_resolve {
-            reveal self
         }
     }
 
@@ -22,7 +25,6 @@ card "Icejade Creation Aegirocassis" {
         effect_type: 4
         code: 104
         on_resolve {
-            reveal self
         }
     }
 
@@ -35,7 +37,7 @@ card "Icejade Creation Aegirocassis" {
         count_limit: (1, 1295442)
         on_resolve {
             equip (1, card) to (1, monster)
-            send (1, card) to gy
+            send (1+, card, either_player controls) to gy
         }
     }
 

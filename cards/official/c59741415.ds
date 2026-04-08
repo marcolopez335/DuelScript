@@ -13,7 +13,7 @@ card "Machina Overdrive" {
         count_limit: (1, 59741415)
         on_resolve {
             special_summon (1, monster) from gy
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls, hand)
         }
     }
 
@@ -28,8 +28,8 @@ card "Machina Overdrive" {
             banish self
         }
         on_resolve {
-            return (1, card) to deck shuffle
-            shuffle deck
+            return (1+, monster, you controls) to deck shuffle
+            shuffle_deck
             draw 1
         }
     }

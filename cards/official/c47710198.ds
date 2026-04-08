@@ -14,6 +14,12 @@ card "Swordsoul Sinister Sovereign - Qixing Longyuan" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 130
         category: 65536
@@ -34,7 +40,7 @@ card "Swordsoul Sinister Sovereign - Qixing Longyuan" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, either_player controls)
             deal_damage to opponent: 1200
         }
     }
@@ -45,7 +51,6 @@ card "Swordsoul Sinister Sovereign - Qixing Longyuan" {
         property: 1024
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -56,7 +61,7 @@ card "Swordsoul Sinister Sovereign - Qixing Longyuan" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            banish (1+, card)
+            banish (1+, card, either_player controls)
             deal_damage to opponent: 1200
         }
     }

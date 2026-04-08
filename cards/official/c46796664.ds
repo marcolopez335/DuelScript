@@ -3,7 +3,7 @@
 
 card "D/D Savant Copernicus" {
     password: 46796664
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
     level: 4
@@ -17,7 +17,6 @@ card "D/D Savant Copernicus" {
         property: 3584
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,7 +26,7 @@ card "D/D Savant Copernicus" {
         range: 512
         on_resolve {
             negate effect
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, deck)
         }
     }
 
@@ -38,7 +37,7 @@ card "D/D Savant Copernicus" {
         property: 65536
         count_limit: (1, 46796664)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, deck) to gy
         }
     }
 
@@ -49,7 +48,7 @@ card "D/D Savant Copernicus" {
         property: 65536
         count_limit: (1, 46796664)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, deck) to gy
         }
     }
 

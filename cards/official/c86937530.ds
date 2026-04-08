@@ -15,7 +15,7 @@ card "Fairy Tail - Luna" {
         category: 131080
         code: 1100
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, opponent controls) from deck
         }
     }
 
@@ -27,8 +27,9 @@ card "Fairy Tail - Luna" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, opponent controls, deck) to gy
             negate effect
+            add_to_hand (1+, card, opponent controls) from deck
         }
     }
 

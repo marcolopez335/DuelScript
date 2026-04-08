@@ -7,6 +7,7 @@ card "Knightmare Unicorn" {
     attribute: DARK
     race: Fiend
     link: 3
+    link_arrows: [left, right, bottom]
     atk: 2200
 
     materials {
@@ -24,8 +25,9 @@ card "Knightmare Unicorn" {
         property: 65552
         count_limit: (1, 38342335)
         on_resolve {
-            return (1, card) to deck shuffle
-            shuffle deck
+            return (1+, monster, either_player controls) to deck shuffle
+            shuffle_deck
+            draw 1
         }
     }
 
@@ -35,7 +37,6 @@ card "Knightmare Unicorn" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

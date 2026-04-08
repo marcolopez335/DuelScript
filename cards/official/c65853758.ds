@@ -10,7 +10,6 @@ card "Yummy★Redemption" {
         code: 1002
         property: 16384
         on_resolve {
-            reveal self
         }
     }
 
@@ -19,7 +18,6 @@ card "Yummy★Redemption" {
         code: 100
         range: 8
         on_resolve {
-            reveal self
         }
     }
 
@@ -32,8 +30,8 @@ card "Yummy★Redemption" {
         count_limit: (1, 0)
         on_resolve {
             draw 1
-            shuffle deck
-            return (1, card) to deck shuffle
+            shuffle_hand
+            return (1+, monster, you controls) to deck shuffle
         }
     }
 
@@ -48,7 +46,6 @@ card "Yummy★Redemption" {
             banish self
         }
         on_resolve {
-            reveal self
         }
     }
 

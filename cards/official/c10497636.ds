@@ -10,13 +10,16 @@ card "War Rock Meteoragon" {
     atk: 2600
     def: 2600
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 41
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -25,7 +28,14 @@ card "War Rock Meteoragon" {
         code: 1130
         range: 4
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -37,7 +47,6 @@ card "War Rock Meteoragon" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 
@@ -45,7 +54,8 @@ card "War Rock Meteoragon" {
         effect_type: 2050
         code: 1138
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
+            set_flag "tracked" on self
         }
     }
 

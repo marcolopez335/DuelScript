@@ -9,7 +9,6 @@ card "Legacy of the Duelist" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -20,7 +19,7 @@ card "Legacy of the Duelist" {
         range: 8
         on_resolve {
             negate attack
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls, gy)
         }
     }
 
@@ -30,7 +29,6 @@ card "Legacy of the Duelist" {
         property: 526336
         range: 8
         on_resolve {
-            reveal self
         }
     }
 
@@ -40,7 +38,6 @@ card "Legacy of the Duelist" {
         property: 526336
         range: 8
         on_resolve {
-            reveal self
         }
     }
 
@@ -49,7 +46,6 @@ card "Legacy of the Duelist" {
         code: 85
         range: 8
         on_resolve {
-            reveal self
         }
     }
 
@@ -59,7 +55,11 @@ card "Legacy of the Duelist" {
         code: 1113
         range: 8
         on_resolve {
-            add_to_hand (1, card) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            add_to_hand (1+, monster, you controls) from gy
         }
     }
 
@@ -67,7 +67,7 @@ card "Legacy of the Duelist" {
         effect_type: 2050
         code: 1107
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
         }
     }
 

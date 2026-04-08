@@ -11,7 +11,7 @@ card "Nightmare Throne" {
         code: 1002
         count_limit: (1, 93729896)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, deck)
         }
     }
 
@@ -21,7 +21,8 @@ card "Nightmare Throne" {
         property: 1024
         range: 256
         on_resolve {
-            reveal self
+            emit_event "custom"
+            emit_event "custom"
         }
     }
 
@@ -33,7 +34,7 @@ card "Nightmare Throne" {
         range: 256
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
             special_summon (1, monster) from gy
         }
     }

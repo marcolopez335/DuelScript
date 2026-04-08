@@ -25,7 +25,6 @@ card "Number 27: Dreadnought Dreadnoid" {
         code: 1139
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 
@@ -41,13 +40,10 @@ card "Number 27: Dreadnought Dreadnoid" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: 2049
-        code: 50
-        property: 131072
-        range: 4
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 3" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

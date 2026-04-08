@@ -10,6 +10,10 @@ card "Asset Mountis" {
     atk: 2300
     def: 2000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 512
@@ -27,6 +31,10 @@ card "Asset Mountis" {
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -37,7 +45,7 @@ card "Asset Mountis" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, either_player controls) to hand
         }
     }
 

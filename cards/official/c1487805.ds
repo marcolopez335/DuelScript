@@ -7,10 +7,16 @@ card "Cosmic Slicer Zer'oll" {
     attribute: LIGHT
     race: Reptile
     link: 3
+    link_arrows: [top, bottom_left, bottom_right]
     atk: 2600
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -20,7 +26,7 @@ card "Cosmic Slicer Zer'oll" {
         property: 65536
         count_limit: (1, 1487805)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -30,7 +36,6 @@ card "Cosmic Slicer Zer'oll" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 
@@ -39,7 +44,6 @@ card "Cosmic Slicer Zer'oll" {
         code: 140
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -48,7 +52,6 @@ card "Cosmic Slicer Zer'oll" {
         code: 7
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

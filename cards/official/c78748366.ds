@@ -9,7 +9,6 @@ card "Void Vanishment" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -19,7 +18,15 @@ card "Void Vanishment" {
         range: 8
         count_limit: (1, 78748366)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from hand
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -32,7 +39,7 @@ card "Void Vanishment" {
             send self to gy
         }
         on_resolve {
-            banish (1+, card)
+            banish (1+, spell, you controls, hand)
         }
     }
 

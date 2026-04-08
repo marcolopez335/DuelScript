@@ -9,7 +9,6 @@ card "Materiactor Meltdown" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -19,8 +18,10 @@ card "Materiactor Meltdown" {
         range: 8
         count_limit: (1, 38669664)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            return (1+, monster, you controls) to hand
+            shuffle_hand
+            return (1+, monster, you controls) to hand
+            shuffle_hand
         }
     }
 

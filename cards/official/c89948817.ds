@@ -9,7 +9,6 @@ card "Jurrac Volcano" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -19,7 +18,7 @@ card "Jurrac Volcano" {
         range: 256
         count_limit: (1, 89948817)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls)
             special_summon (1, monster) from gy
         }
     }
@@ -36,13 +35,10 @@ card "Jurrac Volcano" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 50
-        range: 256
-        count_limit: (1, 0)
-        on_resolve {
-            banish (1+, card)
+    replacement_effect "Effect 4" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 
@@ -50,7 +46,7 @@ card "Jurrac Volcano" {
         effect_type: 2050
         code: 1022
         on_resolve {
-            reveal self
+            set_flag "tracked" on self
         }
     }
 

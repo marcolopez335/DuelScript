@@ -3,13 +3,17 @@
 
 card "Performage Cup Tricker" {
     password: 6812770
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: LIGHT
     race: Spellcaster
     level: 5
     scale: 1
     atk: 1200
     def: 1400
+
+    summon_condition {
+        tributes_required: 1
+    }
 
     raw_effect "Effect 1" {
         effect_type: 64
@@ -29,7 +33,7 @@ card "Performage Cup Tricker" {
         range: 512
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, you controls) to hand
         }
     }
 

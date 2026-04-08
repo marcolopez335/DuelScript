@@ -7,10 +7,16 @@ card "PSY-Framelord Lambda" {
     attribute: LIGHT
     race: Psychic
     link: 2
+    link_arrows: [bottom_left, bottom_right]
     atk: 1700
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -18,7 +24,6 @@ card "PSY-Framelord Lambda" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +35,10 @@ card "PSY-Framelord Lambda" {
         range: 4
         count_limit: (1, 8802510)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

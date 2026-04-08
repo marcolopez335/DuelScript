@@ -14,13 +14,18 @@ card "Odd-Eyes Gravity Dragon" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 8
         code: 1102
         count_limit: (1, 23851033)
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, spell, opponent controls) to hand
         }
     }
 
@@ -30,7 +35,6 @@ card "Odd-Eyes Gravity Dragon" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -40,7 +44,6 @@ card "Odd-Eyes Gravity Dragon" {
         property: 2048
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

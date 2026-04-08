@@ -19,7 +19,6 @@ card "Pyrorex the Elemental Lord" {
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +28,6 @@ card "Pyrorex the Elemental Lord" {
         property: 262144
         range: 2
         on_resolve {
-            reveal self
         }
     }
 
@@ -40,7 +38,7 @@ card "Pyrorex the Elemental Lord" {
         property: 16
         count_limit: (1, 35842855)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, you controls, gy)
             deal_damage to opponent: 1000
             deal_damage to opponent: 1000
         }
@@ -51,7 +49,10 @@ card "Pyrorex the Elemental Lord" {
         code: 1019
         property: 1536
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

@@ -7,6 +7,7 @@ card "Test Panther" {
     attribute: EARTH
     race: Beast
     link: 2
+    link_arrows: [bottom_left, bottom]
     atk: 800
 
     materials {
@@ -25,7 +26,7 @@ card "Test Panther" {
         property: 81920
         count_limit: (1, 66863374)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -36,7 +37,7 @@ card "Test Panther" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, you controls) to deck shuffle
             special_summon (1, monster) from gy
         }
     }

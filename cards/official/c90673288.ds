@@ -7,10 +7,16 @@ card "Sky Striker Ace - Shizuku" {
     attribute: WATER
     race: Machine
     link: 1
+    link_arrows: [top_right]
     atk: 1500
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -18,7 +24,6 @@ card "Sky Striker Ace - Shizuku" {
         code: 100
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,7 +32,6 @@ card "Sky Striker Ace - Shizuku" {
         code: 104
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -36,7 +40,6 @@ card "Sky Striker Ace - Shizuku" {
         code: 1102
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 
@@ -47,7 +50,7 @@ card "Sky Striker Ace - Shizuku" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from gy
         }
     }
 

@@ -17,8 +17,12 @@ card "Deep Sea Sentry" {
         property: 65536
         count_limit: (1, 45483489)
         on_resolve {
-            banish (1+, card)
-            shuffle deck
+            banish (1+, card, opponent controls, hand)
+            shuffle_hand
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -29,7 +33,7 @@ card "Deep Sea Sentry" {
         property: 65552
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, opponent controls) from hand
         }
     }
 

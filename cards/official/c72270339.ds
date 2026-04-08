@@ -10,6 +10,10 @@ card "Diabellstar the Black Witch" {
     atk: 2500
     def: 2000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
@@ -17,7 +21,7 @@ card "Diabellstar the Black Witch" {
         range: 2
         count_limit: (1, 72270339)
         on_resolve {
-            send (1, card) to gy
+            send (1+, spell, you controls, hand) to gy
         }
     }
 
@@ -48,7 +52,7 @@ card "Diabellstar the Black Witch" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            send (1, card) to gy
+            send (1+, spell, you controls, hand) to gy
             special_summon (1, monster) from gy
         }
     }

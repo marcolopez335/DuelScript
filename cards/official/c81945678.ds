@@ -13,7 +13,6 @@ card "Joker's Wild" {
             send self to gy
         }
         on_resolve {
-            reveal self
         }
     }
 
@@ -25,8 +24,8 @@ card "Joker's Wild" {
         range: 16
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
-            add_to_hand (1, card) from gy
+            return (1+, spell, you controls) to deck shuffle
+            add_to_hand (1+, spell, you controls) from deck
         }
     }
 

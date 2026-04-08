@@ -3,7 +3,7 @@
 
 card "Enneacraft - Asta.PIXEA" {
     password: 28454232
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: LIGHT
     race: Machine
     level: 9
@@ -11,12 +11,15 @@ card "Enneacraft - Asta.PIXEA" {
     atk: 3000
     def: 2500
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2050
         code: 1001
         range: 512
         on_resolve {
-            reveal self
         }
     }
 
@@ -28,7 +31,7 @@ card "Enneacraft - Asta.PIXEA" {
         range: 512
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, opponent controls, hand)
         }
     }
 
@@ -52,7 +55,7 @@ card "Enneacraft - Asta.PIXEA" {
         range: 4
         on_resolve {
             negate effect
-            banish (1+, card)
+            banish (1+, card, opponent controls, hand)
         }
     }
 
@@ -61,7 +64,6 @@ card "Enneacraft - Asta.PIXEA" {
         code: 1001
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 
@@ -71,7 +73,6 @@ card "Enneacraft - Asta.PIXEA" {
         property: 384
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

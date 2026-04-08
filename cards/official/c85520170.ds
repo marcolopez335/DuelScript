@@ -13,7 +13,9 @@ card "Scrap-Iron Sacred Statue" {
         count_limit: (1, 85520170)
         on_resolve {
             special_summon (1, monster) from gy
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to deck shuffle
+            change_battle_position (1, monster)
+            emit_event "custom"
         }
     }
 

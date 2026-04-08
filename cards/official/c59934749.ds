@@ -7,6 +7,7 @@ card "Isolde, Two Tales of the Noble Knights" {
     attribute: LIGHT
     race: Warrior
     link: 2
+    link_arrows: [bottom_left, bottom_right]
     atk: 1600
 
     materials {
@@ -25,7 +26,23 @@ card "Isolde, Two Tales of the Noble Knights" {
         property: 65536
         count_limit: (1, 59934749)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from deck
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

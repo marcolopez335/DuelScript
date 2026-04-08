@@ -7,10 +7,16 @@ card "Protector Whelp of the Destruction Swordsman" {
     attribute: LIGHT
     race: Dragon
     link: 2
+    link_arrows: [bottom_left, bottom_right]
     atk: 400
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -20,7 +26,7 @@ card "Protector Whelp of the Destruction Swordsman" {
         property: 65536
         count_limit: (1, 47158777)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, hand) to gy
             special_summon (1, monster) from gy
         }
     }

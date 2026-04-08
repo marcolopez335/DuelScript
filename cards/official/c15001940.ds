@@ -14,12 +14,16 @@ card "Foie Glasya de Nouvelles" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1+ monster
+        method: ritual
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2049
         code: 1102
         property: 1024
         on_resolve {
-            reveal self
         }
     }
 
@@ -30,7 +34,7 @@ card "Foie Glasya de Nouvelles" {
         property: 65552
         count_limit: (1, 15001940)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, monster, either_player controls) to deck shuffle
         }
     }
 

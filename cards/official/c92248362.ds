@@ -10,12 +10,15 @@ card "K9-17 Izuna" {
     atk: 2100
     def: 1600
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 32
         property: 262144
         on_resolve {
-            reveal self
         }
     }
 
@@ -37,7 +40,7 @@ card "K9-17 Izuna" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, deck) to gy
         }
     }
 
@@ -48,7 +51,7 @@ card "K9-17 Izuna" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, deck) to gy
         }
     }
 

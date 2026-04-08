@@ -7,10 +7,16 @@ card "Ib the World Chalice Priestess" {
     attribute: WATER
     race: Spellcaster
     link: 2
+    link_arrows: [left, right]
     atk: 1800
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,7 +25,6 @@ card "Ib the World Chalice Priestess" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +34,6 @@ card "Ib the World Chalice Priestess" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -39,16 +43,13 @@ card "Ib the World Chalice Priestess" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 50
-        range: 4
-        on_resolve {
-            send (1, card) to gy
+    replacement_effect "Effect 4" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

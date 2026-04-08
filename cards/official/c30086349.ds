@@ -10,6 +10,11 @@ card "Meteor Black Comet Dragon" {
     atk: 3500
     def: 2000
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     summon_condition {
         cannot_normal_summon: true
     }
@@ -20,7 +25,7 @@ card "Meteor Black Comet Dragon" {
         code: 1102
         property: 65536
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, hand) to gy
             deal_damage to opponent: 1000
         }
     }

@@ -14,6 +14,12 @@ card "Psychic Omnibuster" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 130
         category: 4
@@ -21,10 +27,11 @@ card "Psychic Omnibuster" {
         property: 65536
         range: 4
         cost {
-            pay_lp 1000
+            pay_lp 2000
         }
         on_resolve {
-            shuffle deck
+            shuffle_hand
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

@@ -10,7 +10,7 @@ card "Gunkan Suship Daily Special" {
         category: 131080
         code: 1002
         on_resolve {
-            reveal self
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 
@@ -24,8 +24,9 @@ card "Gunkan Suship Daily Special" {
             banish self
         }
         on_resolve {
-            return (1, card) to deck shuffle
-            shuffle deck
+            return (1+, monster, you controls) to deck shuffle
+            shuffle_deck
+            draw 1
         }
     }
 

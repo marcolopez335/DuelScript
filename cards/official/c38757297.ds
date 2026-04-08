@@ -10,13 +10,17 @@ card "Photon Leo" {
     atk: 2100
     def: 1100
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 65552
         code: 1100
         on_resolve {
-            return (1, card) to deck shuffle
-            shuffle deck
+            return (1+, card, opponent controls) to deck shuffle
+            shuffle_deck
             draw 1
         }
     }

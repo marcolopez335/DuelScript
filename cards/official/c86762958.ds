@@ -9,7 +9,6 @@ card "Assist★Yummy!" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -34,7 +33,7 @@ card "Assist★Yummy!" {
             send self to gy
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 
@@ -48,7 +47,7 @@ card "Assist★Yummy!" {
             banish self
         }
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, either_player controls, gy) to gy
         }
     }
 

@@ -7,10 +7,16 @@ card "Flametongue the Blazing Magical Blade" {
     attribute: FIRE
     race: Warrior
     link: 2
+    link_arrows: [bottom_left, bottom_right]
     atk: 1400
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -18,7 +24,6 @@ card "Flametongue the Blazing Magical Blade" {
         code: 41
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +34,11 @@ card "Flametongue the Blazing Magical Blade" {
         range: 4
         count_limit: (1, 25577965)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, either_player controls) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

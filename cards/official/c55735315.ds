@@ -10,12 +10,15 @@ card "Soul Drain Dragon" {
     atk: 4000
     def: 0
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -23,7 +26,14 @@ card "Soul Drain Dragon" {
         effect_type: 513
         code: 1102
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -31,7 +41,6 @@ card "Soul Drain Dragon" {
         effect_type: 1
         code: 73
         on_resolve {
-            reveal self
         }
     }
 

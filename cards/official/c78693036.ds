@@ -14,13 +14,18 @@ card "Juraishin, the Cursed Thunder God" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2050
         code: 1027
         property: 1024
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -41,10 +46,12 @@ card "Juraishin, the Cursed Thunder God" {
         range: 4
         count_limit: (1, 78693036)
         cost {
-            pay_lp 1000
+            pay_lp 1500
+            tribute self
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, opponent controls)
+            destroy (1+, spell, opponent controls)
         }
     }
 

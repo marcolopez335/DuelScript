@@ -14,12 +14,16 @@ card "Lunalight Panther Dancer" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +33,6 @@ card "Lunalight Panther Dancer" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -38,7 +41,10 @@ card "Lunalight Panther Dancer" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -47,7 +53,6 @@ card "Lunalight Panther Dancer" {
         category: 2097152
         code: 1139
         on_resolve {
-            reveal self
         }
     }
 

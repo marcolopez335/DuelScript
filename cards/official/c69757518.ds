@@ -14,13 +14,18 @@ card "Number C5: Chaos Chimera Dragon" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 100
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -31,7 +36,6 @@ card "Number C5: Chaos Chimera Dragon" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            reveal self
         }
     }
 
@@ -46,7 +50,7 @@ card "Number C5: Chaos Chimera Dragon" {
             pay_lp your_lp / 2
         }
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, card, either_player controls) to deck shuffle
             attach (1, card) to self as_material
         }
     }

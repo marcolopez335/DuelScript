@@ -10,12 +10,16 @@ card "Armoroid" {
     atk: 2700
     def: 2000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 513
         category: 4
         code: 1100
         on_resolve {
-            banish (1+, card)
+            banish (1+, spell, either_player controls)
         }
     }
 
@@ -23,7 +27,6 @@ card "Armoroid" {
         effect_type: 1
         code: 251
         on_resolve {
-            reveal self
         }
     }
 

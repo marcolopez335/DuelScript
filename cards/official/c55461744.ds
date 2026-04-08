@@ -10,6 +10,10 @@ card "Big-Winged Berfomet" {
     atk: 1400
     def: 1800
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 131080
@@ -17,7 +21,11 @@ card "Big-Winged Berfomet" {
         property: 65536
         count_limit: (1, 55461744)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -28,7 +36,11 @@ card "Big-Winged Berfomet" {
         property: 65536
         count_limit: (1, 55461744)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

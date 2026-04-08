@@ -14,12 +14,18 @@ card "Majestic Red Dragon" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
     raw_effect "Effect 1" {
         effect_type: 513
         category: 1
         code: 1138
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, either_player controls)
         }
     }
 
@@ -30,7 +36,6 @@ card "Majestic Red Dragon" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 
@@ -42,7 +47,7 @@ card "Majestic Red Dragon" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, monster, either_player controls) to deck shuffle
             special_summon (1, monster) from gy
         }
     }
@@ -53,7 +58,6 @@ card "Majestic Red Dragon" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -61,7 +65,6 @@ card "Majestic Red Dragon" {
         effect_type: 1
         code: 251
         on_resolve {
-            reveal self
         }
     }
 

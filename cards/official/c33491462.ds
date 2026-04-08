@@ -10,6 +10,10 @@ card "Snowdrop the Rikka Fairy" {
     atk: 1200
     def: 2600
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 512
@@ -20,6 +24,10 @@ card "Snowdrop the Rikka Fairy" {
         }
         on_resolve {
             special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -29,7 +37,6 @@ card "Snowdrop the Rikka Fairy" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 

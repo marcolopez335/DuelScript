@@ -10,6 +10,10 @@ card "Snopios, Shade of the Ghoti" {
     atk: 2100
     def: 0
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         category: 512
@@ -30,7 +34,6 @@ card "Snopios, Shade of the Ghoti" {
         property: 65552
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 
@@ -44,7 +47,7 @@ card "Snopios, Shade of the Ghoti" {
             banish self
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from gy
         }
     }
 

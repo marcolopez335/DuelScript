@@ -7,10 +7,16 @@ card "Evil★Twin's Trouble Sunny" {
     attribute: LIGHT
     race: Fiend
     link: 4
+    link_arrows: [top, left, right, bottom]
     atk: 3300
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -32,8 +38,11 @@ card "Evil★Twin's Trouble Sunny" {
         category: 32
         range: 16
         count_limit: (1, 0)
+        cost {
+            send self to gy
+        }
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, you controls, gy) to gy
         }
     }
 

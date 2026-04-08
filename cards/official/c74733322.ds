@@ -9,7 +9,6 @@ card "Artmage Academic Arcane Arts Acropolis" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -18,7 +17,6 @@ card "Artmage Academic Arcane Arts Acropolis" {
         code: 29
         range: 256
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,10 +25,15 @@ card "Artmage Academic Arcane Arts Acropolis" {
         category: 131080
         range: 256
         cost {
-            discard (1, card)
+            discard (1, card, you controls)
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            return (1+, monster, you controls) to hand
+            set_flag "tracked" on self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

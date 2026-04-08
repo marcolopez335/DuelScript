@@ -17,7 +17,15 @@ card "Chaos Core" {
         range: 4
         count_limit: (1, 54040484)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, hand) to gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -28,17 +36,22 @@ card "Chaos Core" {
         range: 4
         count_limit: (1, 54040484)
         on_resolve {
-            send (1, card) to gy
+            send (1+, card, you controls, hand) to gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: 2049
-        code: 50
-        property: 131072
-        range: 4
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 3" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 

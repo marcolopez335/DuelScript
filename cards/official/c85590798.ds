@@ -9,7 +9,6 @@ card "Starry Knight Ceremony" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -19,9 +18,9 @@ card "Starry Knight Ceremony" {
         range: 8
         count_limit: (1, 85590798)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
-            return (1, card) to deck shuffle
+            add_to_hand (1+, card, you controls) from hand
+            shuffle_deck
+            return (1+, card, you controls) to deck shuffle
         }
     }
 

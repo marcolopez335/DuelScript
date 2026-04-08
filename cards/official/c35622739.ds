@@ -15,10 +15,14 @@ card "Gem-Knight Quartz" {
         range: 2
         count_limit: (1, 35622739)
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
             set (1, card)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -29,7 +33,7 @@ card "Gem-Knight Quartz" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 

@@ -9,7 +9,6 @@ card "Raidraptor - Roost" {
         effect_type: 16
         code: 1002
         on_resolve {
-            reveal self
         }
     }
 
@@ -21,7 +20,7 @@ card "Raidraptor - Roost" {
         range: 8
         count_limit: (1, 64049553)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from deck
         }
     }
 
@@ -32,7 +31,8 @@ card "Raidraptor - Roost" {
         range: 8
         count_limit: (1, 0)
         on_resolve {
-            return (1, card) to deck shuffle
+            return (1+, monster, you controls) to deck shuffle
+            draw 1
         }
     }
 

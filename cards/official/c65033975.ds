@@ -1,26 +1,50 @@
 // Queen Azamina
-// Migrated from c65033975.lua
+// Transpiled from c65033975.lua
 
 card "Queen Azamina" {
     password: 65033975
-    // TODO: type, attribute, race, level, atk, def from CDB
+    type: Effect Monster
+    attribute: DARK
+    race: Unknown
+    level: 8
+    atk: 2500
+    def: 2000
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
+    summon_condition {
+        tributes_required: 2
+    }
+
+    raw_effect "Effect 1" {
+        effect_type: 130
+        category: 8
+        code: 1139
+        property: 16
+        range: 4
+        count_limit: (1, 65033975)
         on_resolve {
-            add_to_hand (1, card) from gy // TODO: verify
+            add_to_hand (1+, spell, either_player controls) from gy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        trigger: when_sent_to gy
+    raw_effect "Effect 2" {
+        effect_type: 129
+        category: 512
+        code: 1014
+        property: 65536
+        count_limit: (1, 0)
         on_resolve {
-            special_summon (1, monster) from gy // TODO: verify
+            special_summon (1, monster) from gy
+        }
+    }
+
+    raw_effect "Effect 3" {
+        effect_type: 129
+        category: 512
+        code: 1011
+        property: 65536
+        count_limit: (1, 0)
+        on_resolve {
+            special_summon (1, monster) from gy
         }
     }
 

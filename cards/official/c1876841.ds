@@ -20,7 +20,7 @@ card "Morphtronic Scannen" {
         property: 262144
         range: 2
         on_resolve {
-            banish (1+, card)
+            banish (1+, monster, you controls, hand)
         }
     }
 
@@ -30,10 +30,10 @@ card "Morphtronic Scannen" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
-            shuffle deck
-            return (1, card) to deck shuffle
+            add_to_hand (1+, monster, you controls) from hand
+            shuffle_hand
+            shuffle_deck
+            return (1+, monster, you controls) to deck shuffle
         }
     }
 
@@ -43,9 +43,9 @@ card "Morphtronic Scannen" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
-            return (1, card) to deck shuffle
+            add_to_hand (1+, monster, you controls) from hand
+            shuffle_hand
+            return (1+, monster, you controls) to deck shuffle
         }
     }
 

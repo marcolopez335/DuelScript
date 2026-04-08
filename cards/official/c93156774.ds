@@ -10,6 +10,10 @@ card "Vanquish Soul Hollie Sue" {
     atk: 500
     def: 2200
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 256
         category: 512
@@ -27,7 +31,8 @@ card "Vanquish Soul Hollie Sue" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            take_control of (1, monster, opponent controls)
+            special_summon (1, monster) from gy
         }
     }
 

@@ -10,13 +10,16 @@ card "Endymion, the Master Magician" {
     atk: 2700
     def: 1700
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 2
         code: 34
         property: 262144
         range: 18
         on_resolve {
-            reveal self
         }
     }
 
@@ -27,8 +30,8 @@ card "Endymion, the Master Magician" {
         property: 16
         range: 4
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            return (1+, spell, you controls) to hand
+            shuffle_hand
         }
     }
 
@@ -39,7 +42,7 @@ card "Endymion, the Master Magician" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, you controls)
         }
     }
 

@@ -14,6 +14,12 @@ card "Mereologic Aggregator" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 32
@@ -21,7 +27,7 @@ card "Mereologic Aggregator" {
         property: 65536
         count_limit: (1, 9940036)
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, either_player controls) to gy
         }
     }
 
@@ -42,7 +48,6 @@ card "Mereologic Aggregator" {
         property: 65552
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 

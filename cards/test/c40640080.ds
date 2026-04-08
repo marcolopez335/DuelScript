@@ -1,0 +1,57 @@
+// Global counter state reference: global_state type: counter.
+//
+// "Each time you Special Summon a monster this turn, this card's
+//  shared 'summon_tally' counter goes up by 1. If the counter is
+//  3 or more during your End Phase, you can Special Summon this
+//  card from your hand and the counter resets."
+//
+// Demonstrates the *counter* variant of global_state (vs the
+// card_group variant in Maiden of Blue Tears) — a class-level
+// integer that any instance of the card can read. Combined with a
+// global_handler that emits a custom event whenever the tally moves,
+// effects can react without each instance maintaining its own state.
+
+card "Tally Beast" {
+    type: Effect Monster
+    password: 40640080
+    attribute: WIND
+    race: Beast
+    level: 5
+    atk: 2000
+    def: 1500
+
+    summon_condition {
+        tributes_required: 1
+    }
+
+    // Class-level integer counter, reset every turn.
+    global_state "summon_tally" {
+        type: counter
+        resets_on: turn_end
+    }
+
+    // Class-level handler: bumps the counter and notifies listeners
+    // every time *anyone* Special Summons a monster.
+    global_handler "tally summons" {
+        trigger: when_summoned by_special_summon
+        on_event {
+            emit_event "tally_incremented"
+        }
+    }
+
+    // Instance effect: during the End Phase, if the tally has hit 3,
+    // Special Summon this card from hand. (The engine clears the
+    // counter automatically at turn_end per resets_on.)
+    effect "Tally Manifest" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: during_end_phase
+        activate_from: [hand]
+
+        on_resolve {
+            special_summon self from hand
+        }
+    }
+}

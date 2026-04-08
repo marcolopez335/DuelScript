@@ -10,6 +10,10 @@ card "Super Quantum White Layer" {
     atk: 2400
     def: 2400
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 512
@@ -29,7 +33,7 @@ card "Super Quantum White Layer" {
         code: 1100
         count_limit: (1, 0)
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, you controls, hand) to gy
         }
     }
 
@@ -39,7 +43,7 @@ card "Super Quantum White Layer" {
         code: 1102
         count_limit: (1, 0)
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, you controls, hand) to gy
         }
     }
 
@@ -50,7 +54,7 @@ card "Super Quantum White Layer" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, monster, you controls) from hand
         }
     }
 

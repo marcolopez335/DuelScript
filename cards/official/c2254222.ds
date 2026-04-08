@@ -3,7 +3,7 @@
 
 card "Speedroid Wing Synchron" {
     password: 2254222
-    type: Pendulum Monster | Tuner
+    type: Effect Monster | Pendulum Monster | Tuner
     attribute: WIND
     race: Machine
     level: 5
@@ -11,14 +11,26 @@ card "Speedroid Wing Synchron" {
     atk: 1500
     def: 1000
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 513
         range: 512
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, either_player controls)
             special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -29,7 +41,7 @@ card "Speedroid Wing Synchron" {
         property: 65536
         count_limit: (1, 2254222)
         on_resolve {
-            send (1, card) to gy
+            send (1+, spell, either_player controls) to gy
         }
     }
 

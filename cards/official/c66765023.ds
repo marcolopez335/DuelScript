@@ -10,13 +10,10 @@ card "Flying Elephant" {
     atk: 1850
     def: 1300
 
-    raw_effect "Effect 1" {
-        effect_type: 2049
-        code: 50
-        property: 131072
-        range: 4
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 1" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 
@@ -26,7 +23,6 @@ card "Flying Elephant" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 

@@ -14,6 +14,12 @@ card "CXyz Gimmick Puppet Fanatix Machinix" {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ monster
+        same_level: true
+        method: xyz
+    }
+
     raw_effect "Effect 1" {
         effect_type: 129
         category: 131080
@@ -21,7 +27,7 @@ card "CXyz Gimmick Puppet Fanatix Machinix" {
         property: 65536
         count_limit: (1, 3685372)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, trap, you controls) from deck
         }
     }
 
@@ -46,7 +52,7 @@ card "CXyz Gimmick Puppet Fanatix Machinix" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, trap, you controls, deck)
             deal_damage to opponent: 1000
         }
     }
@@ -57,7 +63,6 @@ card "CXyz Gimmick Puppet Fanatix Machinix" {
         property: 1024
         range: 4
         on_resolve {
-            reveal self
         }
     }
 

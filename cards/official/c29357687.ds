@@ -7,17 +7,22 @@ card "Gorgon, Empress of the Evil Eyed" {
     attribute: DARK
     race: Fiend
     link: 2
+    link_arrows: [top, bottom]
     atk: 1900
 
     summon_condition {
         cannot_normal_summon: true
     }
 
+    materials {
+        require: 2+ effect monster
+        method: link
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 100
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +34,6 @@ card "Gorgon, Empress of the Evil Eyed" {
         range: 4
         count_limit: (1, 29357687)
         on_resolve {
-            reveal self
         }
     }
 
@@ -40,7 +44,7 @@ card "Gorgon, Empress of the Evil Eyed" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
+            destroy (1+, trap, you controls, gy)
         }
     }
 

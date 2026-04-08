@@ -15,10 +15,10 @@ card "Ahrima, the Wicked Warden" {
         category: 131080
         range: 2
         cost {
-            discard self
+            discard (1, card, you controls)
         }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
         }
     }
 
@@ -27,8 +27,12 @@ card "Ahrima, the Wicked Warden" {
         category: 65536
         range: 4
         count_limit: (1, 86377375)
+        cost {
+            tribute self
+        }
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, you controls) from deck
+            draw 1
         }
     }
 

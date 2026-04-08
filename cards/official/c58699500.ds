@@ -7,10 +7,16 @@ card "Cherubini, Ebon Angel of the Burning Abyss" {
     attribute: DARK
     race: Fairy
     link: 2
+    link_arrows: [bottom_left, bottom_right]
     atk: 500
 
     summon_condition {
         cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ effect monster
+        method: link
     }
 
     raw_effect "Effect 1" {
@@ -19,17 +25,13 @@ card "Cherubini, Ebon Angel of the Burning Abyss" {
         property: 256
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: 2049
-        code: 50
-        property: 131072
-        range: 4
-        on_resolve {
-            reveal self
+    replacement_effect "Effect 2" {
+        instead_of: destroyed_by_any
+        do: {
+            banish self
         }
     }
 
@@ -40,7 +42,6 @@ card "Cherubini, Ebon Angel of the Burning Abyss" {
         range: 4
         count_limit: (1, 58699500)
         on_resolve {
-            reveal self
         }
     }
 

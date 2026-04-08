@@ -3,7 +3,7 @@
 
 card "Saion the Vaylantz Archer" {
     password: 15130912
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: WATER
     race: Spellcaster
     level: 4
@@ -18,6 +18,10 @@ card "Saion the Vaylantz Archer" {
         count_limit: (1, 15130912)
         on_resolve {
             special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -28,7 +32,6 @@ card "Saion the Vaylantz Archer" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
-            reveal self
         }
     }
 
@@ -40,7 +43,7 @@ card "Saion the Vaylantz Archer" {
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, card, either_player controls) from gy
         }
     }
 

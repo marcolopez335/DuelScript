@@ -3,7 +3,7 @@
 
 card "Odd-Eyes Pendulum Dragon of the Four Heavenly Dragons" {
     password: 75787708
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Dragon
     level: 7
@@ -11,14 +11,26 @@ card "Odd-Eyes Pendulum Dragon of the Four Heavenly Dragons" {
     atk: 2500
     def: 2000
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 131081
         range: 512
         count_limit: (1, 0)
         on_resolve {
-            destroy (1+, card, either_player controls)
-            add_to_hand (1, card) from gy
+            destroy (1+, card, you controls, deck)
+            add_to_hand (1+, card, you controls) from deck
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 
@@ -28,7 +40,6 @@ card "Odd-Eyes Pendulum Dragon of the Four Heavenly Dragons" {
         property: 131072
         range: 4
         on_resolve {
-            reveal self
         }
     }
 
@@ -36,7 +47,6 @@ card "Odd-Eyes Pendulum Dragon of the Four Heavenly Dragons" {
         effect_type: 1
         code: 208
         on_resolve {
-            reveal self
         }
     }
 
@@ -47,8 +57,8 @@ card "Odd-Eyes Pendulum Dragon of the Four Heavenly Dragons" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
-            shuffle deck
+            add_to_hand (1+, card, you controls) from deck
+            shuffle_hand
             special_summon (1, monster) from gy
         }
     }

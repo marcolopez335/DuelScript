@@ -10,13 +10,17 @@ card "Snake-Eyes Flamberge Dragon" {
     atk: 3000
     def: 2500
 
+    summon_condition {
+        tributes_required: 2
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         property: 16
         range: 4
         count_limit: (1, 48452496)
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, you controls, gy) to gy
             special_summon (1, monster) from gy
         }
     }

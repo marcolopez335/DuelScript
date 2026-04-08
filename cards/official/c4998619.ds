@@ -19,7 +19,6 @@ card "Buster Gundil the Cubic Behemoth" {
         code: 30
         property: 263168
         on_resolve {
-            reveal self
         }
     }
 
@@ -29,7 +28,7 @@ card "Buster Gundil the Cubic Behemoth" {
         property: 263168
         range: 2
         on_resolve {
-            send (1, card) to gy
+            send (1+, monster, you controls) to gy
         }
     }
 
@@ -37,7 +36,6 @@ card "Buster Gundil the Cubic Behemoth" {
         effect_type: 1
         code: 194
         on_resolve {
-            reveal self
         }
     }
 
@@ -47,7 +45,9 @@ card "Buster Gundil the Cubic Behemoth" {
         code: 1014
         property: 65552
         on_resolve {
-            reveal self
+            special_summon (1, monster) from gy
+            return (1+, monster, you controls) to hand
+            shuffle_deck
         }
     }
 

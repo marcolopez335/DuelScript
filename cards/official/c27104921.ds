@@ -10,7 +10,6 @@ card "Forge a New Future" {
         code: 1002
         count_limit: (1, 27104921)
         on_resolve {
-            reveal self
         }
     }
 
@@ -21,8 +20,20 @@ card "Forge a New Future" {
         property: 65536
         range: 8
         on_resolve {
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
             special_summon (1, monster) from gy
-            send (1, card) to gy
+            send (1+, card, you controls, gy) to gy
             special_summon (1, monster) from gy
         }
     }

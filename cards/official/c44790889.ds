@@ -10,12 +10,15 @@ card "Hammer Bounzer" {
     atk: 2300
     def: 2000
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 1
         code: 32
         property: 262144
         on_resolve {
-            reveal self
         }
     }
 
@@ -23,7 +26,10 @@ card "Hammer Bounzer" {
         effect_type: 2049
         code: 1130
         on_resolve {
-            reveal self
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
         }
     }
 

@@ -3,7 +3,7 @@
 
 card "D/D Gryphon" {
     password: 28406301
-    type: Pendulum Monster
+    type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
     level: 4
@@ -18,7 +18,7 @@ card "D/D Gryphon" {
         range: 512
         count_limit: (1, 28406301)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, spell, you controls, gy)
         }
     }
 
@@ -39,7 +39,7 @@ card "D/D Gryphon" {
         property: 65536
         count_limit: (1, 0)
         cost {
-            discard (1, card)
+            discard (1, card, you controls)
         }
         on_resolve {
             draw 1
@@ -53,7 +53,7 @@ card "D/D Gryphon" {
         property: 65536
         count_limit: (1, 0)
         on_resolve {
-            add_to_hand (1, card) from gy
+            add_to_hand (1+, spell, you controls) from gy
         }
     }
 

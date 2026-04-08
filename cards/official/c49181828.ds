@@ -10,6 +10,10 @@ card "Fist Armed Dragon" {
     atk: 2400
     def: 1700
 
+    summon_condition {
+        tributes_required: 1
+    }
+
     raw_effect "Effect 1" {
         effect_type: 64
         category: 513
@@ -17,7 +21,7 @@ card "Fist Armed Dragon" {
         range: 16
         count_limit: (1, 49181828)
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls, hand)
             special_summon (1, monster) from gy
         }
     }
@@ -29,10 +33,10 @@ card "Fist Armed Dragon" {
         range: 4
         count_limit: (1, 0)
         cost {
-            discard (1, card)
+            discard (1, card, you controls)
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, monster, you controls, hand)
             special_summon (1, monster) from gy
         }
     }
