@@ -26,6 +26,9 @@ For engine integration, see `ENGINE_INTEGRATION.md`.
 | 11 | Multi-effect monster | Two effects on one card |
 | 12 | Galaxy Mirror Sage | Flip effect + persistent flag |
 | 13 | Ash Blossom-style hand trap | Chain category check |
+| 14 | Beastworld Aegis | Continuous trap with stacked grants |
+| 15 | Aegis of the Selected | register_effect on a selected target |
+| 16 | Pendulum Recovery | send X to extra_deck |
 
 ---
 
@@ -478,6 +481,81 @@ card "Ash Blossom & Joyous Spring" {
   has one of the listed effect categories.
 - `and_if_you_do { ... }` — sequential resolution; only runs if the
   preceding action succeeded.
+
+---
+
+## 14. Beastworld Aegis — multi-grant continuous trap
+
+```
+card "Beastworld Aegis" {
+    type: Continuous Trap
+    password: 40640083
+
+    continuous_effect "Empower the Pack" {
+        scope: field
+        apply_to: (1+, monster, you controls)
+        grant: piercing
+        grant: double_attack
+        grant: cannot_be_destroyed_by_battle
+    }
+}
+```
+
+`continuous_effect` blocks can stack any number of `grant:` clauses
+on the same `apply_to` selector. Use `scope: field` for effects that
+affect *other* monsters (vs `scope: self` for the host card alone).
+
+---
+
+## 15. Aegis of the Selected — register_effect on a target
+
+```
+card "Aegis of the Selected" {
+    type: Equip Spell
+    password: 40640084
+
+    effect "Untouchable Aegis" {
+        speed: spell_speed_1
+        on_resolve {
+            select (1, monster, you controls) as protected
+            register_effect on (1, monster, you controls) {
+                grant: cannot_be_targeted_by_card_effects
+                grant: unaffected_by_spell_effects
+                duration: until_end_of_turn
+            }
+        }
+    }
+}
+```
+
+`register_effect on <target>` attaches a sub-effect to a card you've
+already selected. It accepts multiple `grant:` clauses plus an
+optional `duration:` (`until_end_of_turn`, `until_end_phase`,
+`permanently`, etc.).
+
+---
+
+## 16. Pendulum Recovery — send to extra deck
+
+```
+card "Pendulum Recovery" {
+    type: Normal Spell
+    password: 40640085
+
+    effect "Reclaim Pendulum" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            send (1, "Pendulum" monster, you controls, gy) to extra_deck
+        }
+    }
+}
+```
+
+The `send X to <zone>` action handles every cross-zone movement
+that isn't a draw / banish / destroy. The DSL recognizes `gy`,
+`hand`, `deck`, `extra_deck`, `extra_deck_face_up`, `banished`,
+`monster_zone`, `spell_trap_zone`, `pendulum_zone`, `field_zone`.
 
 ---
 
