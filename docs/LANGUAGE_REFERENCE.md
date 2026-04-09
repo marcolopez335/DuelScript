@@ -1,5 +1,5 @@
 # DuelScript Language Reference
-## Version 0.7 — Canonical Specification
+## Version 0.8 — Canonical Specification
 
 ---
 

@@ -485,19 +485,22 @@ Against the full ProjectIgnis CardScripts/official directory
 
 | Tier            | Cards   | %      |
 |-----------------|---------|--------|
-| Full            | 10,597  | 79.7%  |
-| High            |    962  |  7.2%  |
-| Partial         |  1,027  |  7.7%  |
-| StructureOnly   |    700  |  5.3%  |
+| Full            | 12,695  | 95.6%  |
+| High            |     40  |  0.3%  |
+| Partial         |      4  |  0.0%  |
+| StructureOnly   |    547  |  4.1%  |
 | Failed          |      0  |  0.0%  |
 
 All 13,298 cards parse cleanly through the validator with **0
 errors and 0 warnings**. A 2,000-card stride-sampled compile sweep
 achieves a 100% success rate with an average of 2.6 effects per
-card. The remaining StructureOnly cards are Effect-less vanilla
-monsters and a long tail of cards using EDOPro effect codes (chain
-manipulation, LP cost change, GY redirect) whose semantics don't
-map to any single DSL action.
+card. A 10-card differential test suite verifies exact game-state
+changes for canonical cards (Pot of Greed, Raigeki, Dark Hole,
+etc.).
+
+The remaining StructureOnly cards use EDOPro effect codes (chain
+manipulation, LP cost change, GY redirect, dynamic SetValue
+functions) whose semantics don't map to any single DSL action.
 
 ---
 

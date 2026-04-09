@@ -1,8 +1,19 @@
 # DuelScript Expressiveness Gap Report
 
-After auditing 4 complex Lua cards (Galaxy Mirror Sage, Elemental HERO Prisma, Mind Crush, Maiden of Blue Tears) against the current DuelScript grammar, I've identified **23 distinct gaps** in language expressiveness. The first 4 audits cover enough ground to design the full feature list — the remaining 16 cards would likely surface additional edge cases but not new categories.
+> **Status (v0.8):** 20 of the original 23 gaps have been resolved.
+> The grammar, AST, parser, and compiler now cover flip effects,
+> scope:self/field, activate_from, damage_step, flag effects,
+> custom events, global state, named bindings, change_code/name,
+> history queries, confirm/announce, choose actions, delayed effects,
+> register_effect, and 15+ grant-style continuous codes.
+>
+> The 3 remaining gaps (A5 hint_timing, A7 simultaneous triggers,
+> and H3 redirect effects like EFFECT_TO_GRAVE_REDIRECT) are tracked
+> below.
 
-This document is the roadmap to **full Lua parity**.
+After auditing 4 complex Lua cards (Galaxy Mirror Sage, Elemental HERO Prisma, Mind Crush, Maiden of Blue Tears) against the current DuelScript grammar, 23 gaps were identified. Most have been resolved — see status markers below.
+
+This document tracks the **remaining path to full Lua parity**.
 
 ---
 
