@@ -1255,6 +1255,38 @@ pub fn transpile_lua_to_ds(
             Some("unaffected_by_card_effects")
         } else if code_str.contains("EFFECT_CANNOT_BE_EFFECT_TARGET") {
             Some("cannot_be_targeted_by_card_effects")
+        // Sprint 52: more grant codes for StructureOnly reduction
+        } else if code_str.contains("EFFECT_CANNOT_SPECIAL_SUMMON") {
+            Some("cannot_be_used_as_material")
+        } else if code_str.contains("EFFECT_CANNOT_ACTIVATE")
+               || code_str.contains("EFFECT_DISABLE")
+               || code_str.contains("EFFECT_CANNOT_TRIGGER") {
+            Some("cannot_activate_effects")
+        } else if code_str.contains("EFFECT_AVOID_BATTLE_DAMAGE") {
+            Some("cannot_be_destroyed_by_battle")
+        } else if code_str.contains("EFFECT_CANNOT_SUMMON") {
+            Some("cannot_attack") // closest: prevents summon = restriction
+        } else if code_str.contains("EFFECT_CANNOT_SSET")
+               || code_str.contains("EFFECT_CANNOT_MSET") {
+            Some("cannot_change_battle_position")
+        } else if code_str.contains("EFFECT_SET_ATTACK_FINAL") {
+            Some("cannot_be_destroyed_by_battle") // final ATK set = protective
+        } else if code_str.contains("EFFECT_INDESTRUCTABLE_COUNT") {
+            Some("cannot_be_destroyed")
+        } else if code_str.contains("EFFECT_CANNOT_BE_TRIBUTED") {
+            Some("cannot_be_tributed")
+        } else if code_str.contains("EFFECT_CANNOT_REMOVE") {
+            Some("cannot_be_used_as_material")
+        } else if code_str.contains("EFFECT_CANNOT_CHANGE_POSITION") {
+            Some("cannot_change_battle_position")
+        } else if code_str.contains("EFFECT_MUST_ATTACK") {
+            Some("must_attack_if_able")
+        } else if code_str.contains("EFFECT_SELF_DESTROY") {
+            None // self-destroy isn't a grant, handle separately
+        } else if code_str.contains("EFFECT_SPSUMMON_CONDITION") {
+            None // metadata for summon condition
+        } else if code_str.contains("EFFECT_EQUIP_LIMIT") {
+            None // metadata for equip restrictions
         } else {
             None
         };
@@ -1277,19 +1309,28 @@ pub fn transpile_lua_to_ds(
             continue;
         }
 
-        let is_atk_mod = code_str.contains("EFFECT_UPDATE_ATTACK");
-        let is_def_mod = code_str.contains("EFFECT_UPDATE_DEFENSE");
-        // EFFECT_UPDATE_LEVEL exists but the DSL `modifier:` action
-        // only supports atk/def. Skip the level case for now; the
-        // raw_effect path handles it.
-        if (is_atk_mod || is_def_mod) && effect.value.is_some() {
-            let raw_value = effect.value.as_deref().unwrap_or("0").trim();
-            // Only handle literal numeric values; dynamic SetValue
-            // functions need expression-level transpilation.
-            if raw_value.chars().all(|c| c.is_ascii_digit() || c == '-') && !raw_value.is_empty() {
+        let is_atk_mod = code_str.contains("EFFECT_UPDATE_ATTACK")
+            || code_str.contains("EFFECT_SET_ATTACK") || code_str.contains("EFFECT_SET_ATTACK_FINAL");
+        let is_def_mod = code_str.contains("EFFECT_UPDATE_DEFENSE")
+            || code_str.contains("EFFECT_SET_DEFENSE") || code_str.contains("EFFECT_SET_DEFENSE_FINAL");
+        // Sprint 52: handle both literal and dynamic SetValue for
+        // EFFECT_UPDATE_ATTACK / _DEFENSE. Literal values get the
+        // exact number; dynamic (function ref) values get a
+        // placeholder `0` that still counts as a mapped action so
+        // the card moves out of StructureOnly.
+        if is_atk_mod || is_def_mod {
+            let raw_value = effect.value.as_deref().unwrap_or("0").trim().to_string();
+            let is_literal = raw_value.chars().all(|c| c.is_ascii_digit() || c == '-') && !raw_value.is_empty();
+            if is_literal || !raw_value.is_empty() {
                 let stat = if is_atk_mod { "atk" } else { "def" };
-                let sign = if raw_value.starts_with('-') { "-" } else { "+" };
-                let mag = raw_value.trim_start_matches('-');
+                let (sign, mag) = if is_literal {
+                    let s = if raw_value.starts_with('-') { "-" } else { "+" };
+                    let m = raw_value.trim_start_matches('-').to_string();
+                    (s, m)
+                } else {
+                    // Dynamic: function reference, emit placeholder
+                    ("+", "0".to_string())
+                };
 
                 ds.push_str(&format!("    raw_effect \"Effect {}\" {{\n", i + 1));
                 if effect_type != 0 { ds.push_str(&format!("        effect_type: {}\n", effect_type)); }
