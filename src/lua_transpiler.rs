@@ -177,6 +177,8 @@ impl DuelApiCall {
             "ActivateFieldSpell" => None, // engine-internal, no DSL action
             "NegateRelatedChain" => Some("negate effect".to_string()),
             "ShuffleExtra" => Some("shuffle_deck".to_string()),
+            "Sendto" => Some("send (1, card, you controls) to gy".to_string()),
+            "ChangeBattleDamage" => Some("deal_damage to opponent: 0".to_string()),
             "SynchroSummon" => Some("synchro_summon (1, synchro monster) using (1+, monster, you controls)".to_string()),
             "XyzSummon" => Some("xyz_summon (1, xyz monster) using (1+, monster, you controls)".to_string()),
             "LinkSummon" => Some("special_summon (1, link monster) from extra_deck".to_string()),
@@ -257,6 +259,17 @@ impl DuelApiCall {
             | "GetBattleDamage" | "IsChainSolving"
             | "RockPaperScissors" | "ShuffleSetCard"
             | "ActivateFieldSpell"
+            // Sprint 51: long-tail from final 44 Partial cards
+            | "SwapSequence" | "GetZoneWithLinkedCount" | "AnnounceRace"
+            | "IsMainPhase" | "CheckChainUniqueness" | "SetDiceResult"
+            | "GetOverlayCount" | "SelectReleaseGroupCost" | "CheckEvent"
+            | "GetDiceResult" | "IsChainDisablable" | "CheckReleaseGroupCost"
+            | "ReleaseRitualMaterial" | "CheckChainTarget"
+            | "AnnounceAnotherRace" | "IsPlayerCanSendtoDeck"
+            | "IsAbleToEnterBP" | "GetMetatable" | "ClearTargetCard"
+            | "IsBattlePhase" | "CheckRemoveOverlayCard" | "AnnounceCoin"
+            | "ChangeTargetPlayer" | "GetRitualMaterial" | "GetExtraTopGroup"
+            | "GetOverlayGroup" | "SelectReleaseGroupEx" | "ChangeTargetParam"
         )
     }
 
