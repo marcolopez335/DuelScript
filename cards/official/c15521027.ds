@@ -30,6 +30,7 @@ card "Morphtronic Smartfon" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
+            flip_coin { heads { draw 1 } tails { draw 1 } }
             reveal (1, card, opponent controls, deck)
             add_to_hand (1+, monster, you controls) from gy
             reveal (1+, card, opponent controls)
@@ -42,7 +43,10 @@ card "Morphtronic Smartfon" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
+            flip_coin { heads { draw 1 } tails { draw 1 } }
             reveal (1+, card, opponent controls)
+            send_to_deck (1+, card, you controls)
+            send_to_deck (1+, card, you controls) bottom
         }
     }
 

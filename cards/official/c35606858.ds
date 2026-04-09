@@ -50,6 +50,7 @@ card "Masterking Archfiend" {
         range: 4
         count_limit: (1, 0)
         on_resolve {
+            flip_coin { heads { draw 1 } tails { draw 1 } }
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)
             special_summon (1, monster) from gy
@@ -63,6 +64,7 @@ card "Masterking Archfiend" {
         property: 1024
         range: 4
         on_resolve {
+            emit_event "custom"
         }
     }
 

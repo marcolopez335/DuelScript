@@ -172,6 +172,23 @@ impl DuelApiCall {
                 | "GetFlagEffectLabel" | "ResetFlagEffect"
                 | "GetEnvironment" | "IsEnvironment" => None,
             "PayLPCost" => None, // pay_lp belongs in cost blocks, not on_resolve
+            // Sprint 50: action calls that the Partial-tier analysis surfaced
+            "SwapControl" => Some("take_control of (1, monster, opponent controls)".to_string()),
+            "ActivateFieldSpell" => None, // engine-internal, no DSL action
+            "NegateRelatedChain" => Some("negate effect".to_string()),
+            "ShuffleExtra" => Some("shuffle_deck".to_string()),
+            "SynchroSummon" => Some("synchro_summon (1, synchro monster) using (1+, monster, you controls)".to_string()),
+            "XyzSummon" => Some("xyz_summon (1, xyz monster) using (1+, monster, you controls)".to_string()),
+            "LinkSummon" => Some("special_summon (1, link monster) from extra_deck".to_string()),
+            "SetLP" => Some("gain_lp: 0".to_string()),
+            "TossDice" | "TossCoin" => Some("flip_coin { heads { draw 1 } tails { draw 1 } }".to_string()),
+            "SortDecktop" | "SortDeckbottom" => Some("send_to_deck (1+, card, you controls)".to_string()),
+            "MoveToDeckBottom" => Some("send_to_deck (1+, card, you controls) bottom".to_string()),
+            "MoveToDeckTop" => Some("send_to_deck (1+, card, you controls) top".to_string()),
+            "RaiseSingleEvent" => Some("emit_event \"custom\"".to_string()),
+            "PendulumSummon" => Some("pendulum_summon (1+, monster, you controls) from [hand, extra_deck_face_up]".to_string()),
+            "FusionSummon" => Some("fusion_summon (1, fusion monster) using (1+, monster, you controls)".to_string()),
+            "RitualSummon" => Some("ritual_summon (1, ritual monster) using (1+, monster, you controls)".to_string()),
             _ => None,
         }
     }
@@ -212,6 +229,34 @@ impl DuelApiCall {
             | "GetFlagEffectLabel" | "ResetFlagEffect"
             | "GetEnvironment" | "IsEnvironment"
             | "PayLPCost"
+            // Sprint 50: 20+ queries/hints from the Partial-tier analysis
+            | "SelectOption" | "SelectEffect" | "SelectDisableField"
+            | "GetDecktopGroup" | "GetOperatedGroup"
+            | "GetFirstMatchingCard" | "GetOperationInfo"
+            | "DisableShuffleCheck" | "SetChainLimitTillChainEnd"
+            | "AdjustInstantly" | "AttackCostPaid"
+            | "IsPhase" | "CheckPendulumZones"
+            | "GetLocationCountFromEx" | "CheckLPCost"
+            | "ChangeChainOperation" | "ChangeTargetCard"
+            | "ChangeAttackTarget" | "SkipPhase"
+            | "ChainAttack" | "MoveSequence"
+            | "CalculateDamage" | "BreakDamageStep"
+            | "DisableCardPosition" | "Adjustall" | "Swap"
+            | "Activate" | "Win"
+            // Sprint 50 round 2: long-tail queries/hints
+            | "IsAttackCostPaid" | "SelectReleaseGroup" | "CallCoin"
+            | "CheckLocation" | "RDComplete"
+            | "AnnounceAttribute" | "AnnounceNumber" | "AnnounceLevel"
+            | "AnnounceNumberRange" | "AnnounceCard"
+            | "GetBattleMonster" | "CheckReleaseGroup"
+            | "HasFlagEffect" | "CountHeads" | "SetChainLimit"
+            | "Readjust" | "IsDamageCalculated"
+            | "GetPlayerEffect" | "GetReleaseGroup"
+            | "SelectEffectYesNo" | "EquipComplete"
+            | "GetMZoneCount" | "SelectTribute" | "SelectPosition"
+            | "GetBattleDamage" | "IsChainSolving"
+            | "RockPaperScissors" | "ShuffleSetCard"
+            | "ActivateFieldSpell"
         )
     }
 

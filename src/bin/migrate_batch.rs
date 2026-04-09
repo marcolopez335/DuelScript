@@ -87,6 +87,11 @@ fn main() {
     #[cfg(feature = "lua_transpiler")]
     let mut by_accuracy = [0u32; 5]; // Full, High, Partial, StructureOnly, Failed
 
+    // Sprint 50: collect unmapped calls across Partial-tier cards
+    // so we know which Duel.X methods to prioritize.
+    #[cfg(feature = "lua_transpiler")]
+    let mut unmapped_freq: std::collections::HashMap<String, u32> = std::collections::HashMap::new();
+
     for entry in &lua_files {
         let name = entry.file_name().to_string_lossy().to_string();
         let id_str = name.trim_start_matches('c').trim_end_matches(".lua");
@@ -124,7 +129,12 @@ fn main() {
             match result.accuracy {
                 duelscript::lua_transpiler::TranspileAccuracy::Full          => by_accuracy[0] += 1,
                 duelscript::lua_transpiler::TranspileAccuracy::High          => by_accuracy[1] += 1,
-                duelscript::lua_transpiler::TranspileAccuracy::Partial       => by_accuracy[2] += 1,
+                duelscript::lua_transpiler::TranspileAccuracy::Partial       => {
+                    by_accuracy[2] += 1;
+                    for call in &result.unmapped_calls {
+                        *unmapped_freq.entry(call.clone()).or_insert(0) += 1;
+                    }
+                }
                 duelscript::lua_transpiler::TranspileAccuracy::StructureOnly => by_accuracy[3] += 1,
                 duelscript::lua_transpiler::TranspileAccuracy::Failed        => by_accuracy[4] += 1,
             };
@@ -185,6 +195,16 @@ fn main() {
         println!("  Partial:       {}", by_accuracy[2]);
         println!("  StructureOnly: {}", by_accuracy[3]);
         println!("  Failed:        {}", by_accuracy[4]);
+
+        // Sprint 50: top unmapped calls in Partial-tier cards
+        if !unmapped_freq.is_empty() {
+            let mut sorted: Vec<_> = unmapped_freq.into_iter().collect();
+            sorted.sort_by(|a, b| b.1.cmp(&a.1));
+            println!("\nTop unmapped calls (Partial tier):");
+            for (call, count) in sorted.iter().take(30) {
+                println!("  {:6}  {}", count, call);
+            }
+        }
     }
 
     println!("\nOutput: {}", output_dir.display());

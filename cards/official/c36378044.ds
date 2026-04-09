@@ -19,6 +19,7 @@ card "Lucky Punch" {
         range: 8
         count_limit: (1, 0)
         on_resolve {
+            flip_coin { heads { draw 1 } tails { draw 1 } }
             draw 3
             destroy (1+, card, either_player controls)
         }
@@ -28,6 +29,7 @@ card "Lucky Punch" {
         effect_type: 513
         code: 1029
         on_resolve {
+            gain_lp: 0
         }
     }
 

@@ -11,8 +11,10 @@ card "Diced Dice" {
         code: 1002
         count_limit: (1, 93078761)
         on_resolve {
+            flip_coin { heads { draw 1 } tails { draw 1 } }
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)
+            flip_coin { heads { draw 1 } tails { draw 1 } }
             add_to_hand (1+, card, you controls) from deck
             return (1+, card, you controls) to deck shuffle
         }
