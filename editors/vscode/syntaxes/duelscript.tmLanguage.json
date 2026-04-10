@@ -58,18 +58,29 @@
       ]
     },
     "card-definition": {
-      "patterns": [
-        {
-          "name": "keyword.control.card.duelscript",
-          "match": "\\b(card)\\b"
-        }
-      ]
+      "patterns": []
     },
     "block-keywords": {
       "patterns": [
         {
+          "comment": "Named block: effect \"Name\" { ... } — the name gets entity.name.section so it stands out as a definition title in most themes.",
+          "match": "\\b(effect|continuous_effect|replacement_effect|equip_effect|pendulum_effect|flip_effect|raw_effect|global_state|global_handler|option)\\b\\s*(\"[^\"]*\")?",
+          "captures": {
+            "1": { "name": "keyword.control.block.duelscript" },
+            "2": { "name": "entity.name.section.duelscript" }
+          }
+        },
+        {
+          "comment": "Card definition: card \"Name\" { ... }",
+          "match": "\\b(card)\\b\\s*(\"[^\"]*\")?",
+          "captures": {
+            "1": { "name": "keyword.control.card.duelscript" },
+            "2": { "name": "entity.name.type.duelscript" }
+          }
+        },
+        {
           "name": "keyword.control.block.duelscript",
-          "match": "\\b(effect|continuous_effect|replacement_effect|equip_effect|pendulum_effect|flip_effect|raw_effect|global_state|global_handler|materials|summon_condition|counter_system|win_condition|restriction|on_activate|on_resolve|on_event|on_equipped_destroyed|on_unequipped|while_equipped|cost|alternative|choose|option|delayed|register_effect|and_if_you_do|then|also|for_each|apply|if_player_chooses|store|recall)\\b"
+          "match": "\\b(materials|summon_condition|counter_system|win_condition|restriction|on_activate|on_resolve|on_event|on_equipped_destroyed|on_unequipped|while_equipped|cost|alternative|choose|delayed|register_effect|and_if_you_do|then|also|for_each|apply|if_player_chooses|store|recall)\\b"
         }
       ]
     },
