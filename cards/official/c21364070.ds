@@ -1,3 +1,4 @@
+// 魔妖仙獣 独眼群主
 // Mayosenju Hitot
 // Transpiled from c21364070.lua
 
@@ -16,9 +17,9 @@ card "Mayosenju Hitot" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
+        effect_type: Ignition
         property: 16
-        range: 512
+        range: PendulumZone
         count_limit: (1, 21364070)
         on_resolve {
             register_effect on self {
@@ -37,10 +38,10 @@ card "Mayosenju Hitot" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 8
+        effect_type: Field + MandatoryTrigger
+        category: ToHand
         code: 4608
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to hand
@@ -48,7 +49,7 @@ card "Mayosenju Hitot" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -56,9 +57,9 @@ card "Mayosenju Hitot" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 8
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand
+        code: SummonSuccess
         property: 81936
         on_resolve {
             return (1+, monster, you controls) to hand
@@ -66,9 +67,9 @@ card "Mayosenju Hitot" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 129
-        category: 8
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand
+        code: SpecialSummonSuccess
         property: 81936
         on_resolve {
             return (1+, monster, you controls) to hand
@@ -76,10 +77,10 @@ card "Mayosenju Hitot" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 514
-        category: 2097152
-        code: 1012
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        category: SynchroSummon
+        code: ChainSolving
+        range: MonsterZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -89,10 +90,10 @@ card "Mayosenju Hitot" {
     }
 
     raw_effect "Effect 7" {
-        effect_type: 514
-        category: 2097152
-        code: 1013
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        category: SynchroSummon
+        code: ChainSolved
+        range: MonsterZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -102,10 +103,10 @@ card "Mayosenju Hitot" {
     }
 
     raw_effect "Effect 8" {
-        effect_type: 514
-        category: 8
+        effect_type: Field + MandatoryTrigger
+        category: ToHand
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to hand
@@ -113,15 +114,15 @@ card "Mayosenju Hitot" {
     }
 
     raw_effect "Effect 9" {
-        effect_type: 2050
-        code: 1102
+        effect_type: Field + Continuous
+        code: SpecialSummonSuccess
         property: 1024
         on_resolve {
         }
     }
 
     raw_effect "Effect 10" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 67110912
         on_resolve {
@@ -130,21 +131,21 @@ card "Mayosenju Hitot" {
     }
 
     raw_effect "Effect 11" {
-        effect_type: 1
+        effect_type: Single
         code: 135
         on_resolve {
         }
     }
 
     raw_effect "Effect 12" {
-        effect_type: 1
+        effect_type: Single
         code: 137
         on_resolve {
         }
     }
 
     raw_effect "Effect 13" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 1024
         on_resolve {

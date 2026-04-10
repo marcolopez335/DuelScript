@@ -1,3 +1,4 @@
+// 閃刀姫 ジーク
 // Sky Striker Ace - Zeke
 // Transpiled from c75147529.lua
 
@@ -20,7 +21,7 @@ card "Sky Striker Ace - Zeke" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -28,9 +29,9 @@ card "Sky Striker Ace - Zeke" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 4
-        code: 1102
+        effect_type: Single + Trigger
+        category: Banish
+        code: SpecialSummonSuccess
         property: 65552
         on_resolve {
             banish (1+, card, either_player controls)
@@ -42,10 +43,10 @@ card "Sky Striker Ace - Zeke" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 2097184
+        effect_type: Ignition
+        category: ToGrave + SynchroSummon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, either_player controls) to gy
@@ -53,7 +54,7 @@ card "Sky Striker Ace - Zeke" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 4608
         count_limit: (1, 0)
         on_resolve {

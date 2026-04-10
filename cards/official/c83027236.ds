@@ -1,3 +1,4 @@
+// ライト・オブ・デストラクション
 // Light of Destruction
 // Transpiled from c83027236.lua
 
@@ -6,17 +7,17 @@ card "Light of Destruction" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 64
-        code: 1014
-        range: 8
+        effect_type: Field + MandatoryTrigger
+        category: AtkChange
+        code: ChainEnd
+        range: SpellTrapZone
         on_resolve {
             mill 3
         }

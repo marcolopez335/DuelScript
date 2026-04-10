@@ -1,3 +1,4 @@
+// ボーン・デーモン
 // Bone Archfiend
 // Transpiled from c25784595.lua
 
@@ -11,9 +12,9 @@ card "Bone Archfiend" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 18
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand + Graveyard
         count_limit: (1, 25784595)
         cost {
             send self to gy
@@ -28,10 +29,10 @@ card "Bone Archfiend" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 134217760
+        effect_type: Ignition
+        category: ToGrave + LevelChange
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, you controls, hand) to gy

@@ -1,3 +1,4 @@
+// 御巫の火叢舞
 // Mikanko Fire Dance
 // Transpiled from c80044027.lua
 
@@ -6,9 +7,9 @@ card "Mikanko Fire Dance" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 262656
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon + EquipAction
+        code: FreeChain
         count_limit: (1, 80044027)
         on_resolve {
             special_summon (1, monster) from gy
@@ -25,7 +26,7 @@ card "Mikanko Fire Dance" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 4
+        effect_type: Equip
         code: 41
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

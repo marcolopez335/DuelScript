@@ -1,3 +1,4 @@
+// 超重輝将ヒス－E
 // Superheavy Samurai General Jade
 // Transpiled from c42880485.lua
 
@@ -16,19 +17,19 @@ card "Superheavy Samurai General Jade" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 3072
-        range: 512
+        range: PendulumZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
+        effect_type: Ignition
         property: 16
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -39,9 +40,9 @@ card "Superheavy Samurai General Jade" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 4096
-        code: 1100
+        effect_type: Single + Trigger
+        category: DiceRoll
+        code: SummonSuccess
         property: 16384
         on_resolve {
             change_battle_position (1, monster)
@@ -49,9 +50,9 @@ card "Superheavy Samurai General Jade" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 4096
-        code: 1102
+        effect_type: Single + Trigger
+        category: DiceRoll
+        code: SpecialSummonSuccess
         property: 16384
         on_resolve {
             change_battle_position (1, monster)
@@ -59,14 +60,14 @@ card "Superheavy Samurai General Jade" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 190
         on_resolve {
         }
     }
 
     raw_effect "Effect 6" {
-        effect_type: 1
+        effect_type: Single
         code: 20
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -74,7 +75,7 @@ card "Superheavy Samurai General Jade" {
     }
 
     raw_effect "Effect 7" {
-        effect_type: 1
+        effect_type: Single
         code: 23
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }

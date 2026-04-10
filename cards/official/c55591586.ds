@@ -1,3 +1,4 @@
+// 雷劫龍－サンダー・ドラゴン
 // Thunder Dragonduo
 // Transpiled from c55591586.lua
 
@@ -15,28 +16,28 @@ card "Thunder Dragonduo" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         on_resolve {
             banish (1+, monster, you controls, gy)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 2097152
-        code: 1027
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        category: SynchroSummon
+        code: Chaining
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
+        effect_type: Single + Trigger
+        category: ToHand + Search
         code: 1139
         cost {
             banish self
@@ -48,11 +49,11 @@ card "Thunder Dragonduo" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 16
+        effect_type: Field + Trigger
+        category: ToDeck
         code: 4608
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to deck shuffle

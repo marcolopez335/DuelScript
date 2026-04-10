@@ -1,3 +1,4 @@
+// ブルーアイズ・ソリッド・ドラゴン
 // Blue-Eyes Solid Dragon
 // Transpiled from c57043986.lua
 
@@ -15,9 +16,9 @@ card "Blue-Eyes Solid Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 16384
-        code: 1100
+        effect_type: Single + Trigger
+        category: Disable
+        code: SummonSuccess
         property: 65552
         count_limit: (1, 57043986)
         on_resolve {
@@ -33,9 +34,9 @@ card "Blue-Eyes Solid Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 16384
-        code: 1102
+        effect_type: Single + Trigger
+        category: Disable
+        code: SpecialSummonSuccess
         property: 65552
         count_limit: (1, 57043986)
         on_resolve {
@@ -51,10 +52,10 @@ card "Blue-Eyes Solid Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 528
-        code: 1027
-        range: 4
+        effect_type: QuickEffect
+        category: ToDeck + SpecialSummon
+        code: Chaining
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, card, you controls) to deck shuffle

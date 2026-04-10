@@ -1,3 +1,4 @@
+// ゼアル・フィールド
 // Zexal Field
 // Transpiled from c95856586.lua
 
@@ -6,25 +7,25 @@ card "Zexal Field" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 1027
-        range: 256
+        effect_type: Field + Continuous
+        code: Chaining
+        range: FieldZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
+        effect_type: Single + Trigger
         code: 364292042
         property: 65552
-        range: 256
+        range: FieldZone
         count_limit: (1, 95856586)
         on_resolve {
             attach (1, card) to self as_material
@@ -32,19 +33,19 @@ card "Zexal Field" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 1102
+        effect_type: Field + Continuous
+        code: SpecialSummonSuccess
         property: 1024
-        range: 256
+        range: FieldZone
         on_resolve {
             emit_event "custom"
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 130
+        effect_type: Field + Trigger
         code: 1113
-        range: 256
+        range: FieldZone
         on_resolve {
             shuffle_deck
             reveal (1, card, opponent controls, deck)

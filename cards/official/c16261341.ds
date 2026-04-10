@@ -1,3 +1,4 @@
+// 天空聖騎士アークパーシアス
 // Sacred Arch-Airknight Parshath
 // Transpiled from c16261341.lua
 
@@ -15,11 +16,11 @@ card "Sacred Arch-Airknight Parshath" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
-        code: 1027
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: Chaining
         property: 65536
-        range: 18
+        range: Hand + Graveyard
         cost {
             banish self
         }
@@ -29,11 +30,11 @@ card "Sacred Arch-Airknight Parshath" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 1024
         property: 65536
-        range: 18
+        range: Hand + Graveyard
         cost {
             banish self
         }
@@ -43,7 +44,7 @@ card "Sacred Arch-Airknight Parshath" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 203
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
@@ -51,8 +52,8 @@ card "Sacred Arch-Airknight Parshath" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 131080
+        effect_type: Single + Trigger
+        category: ToHand + Search
         code: 1143
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy

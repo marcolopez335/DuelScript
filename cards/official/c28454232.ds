@@ -1,3 +1,4 @@
+// 糾罪巧－Ａｓｔａγ.ＰＩＸＩＥＡ
 // Enneacraft - Asta.PIXEA
 // Transpiled from c28454232.lua
 
@@ -16,19 +17,19 @@ card "Enneacraft - Asta.PIXEA" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1001
-        range: 512
+        range: PendulumZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 1
+        effect_type: Field + Trigger
+        category: Destroy
         code: 4224
         property: 16
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, opponent controls, hand)
@@ -36,9 +37,9 @@ card "Enneacraft - Asta.PIXEA" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         cost {
             reveal self
         }
@@ -48,11 +49,11 @@ card "Enneacraft - Asta.PIXEA" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        category: 16388
-        code: 1027
+        effect_type: QuickEffect
+        category: Banish + Disable
+        code: Chaining
         property: 256
-        range: 4
+        range: MonsterZone
         on_resolve {
             negate effect
             banish (1+, card, opponent controls, hand)
@@ -60,7 +61,7 @@ card "Enneacraft - Asta.PIXEA" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1001
         property: 1024
         on_resolve {
@@ -68,32 +69,32 @@ card "Enneacraft - Asta.PIXEA" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 2
+        effect_type: Field
         code: 71
         property: 384
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 7" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1022
-        range: 512
+        range: PendulumZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 8" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1022
         on_resolve {
         }
     }
 
     raw_effect "Effect 9" {
-        effect_type: 2
+        effect_type: Field
         code: 427
         property: 67635200
         on_resolve {

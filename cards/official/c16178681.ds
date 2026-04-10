@@ -1,3 +1,4 @@
+// オッドアイズ・ペンデュラム・ドラゴン
 // Odd-Eyes Pendulum Dragon
 // Transpiled from c16178681.lua
 
@@ -16,9 +17,9 @@ card "Odd-Eyes Pendulum Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1136
-        range: 512
+        range: PendulumZone
         on_resolve {
             deal_damage to opponent: 0
             set_flag "tracked" on self
@@ -26,10 +27,10 @@ card "Odd-Eyes Pendulum Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 131081
+        effect_type: Field + Trigger
+        category: Destroy + ToHand + Search
         code: 4608
-        range: 512
+        range: PendulumZone
         count_limit: (1, 16178681)
         on_resolve {
             destroy (1+, card, you controls, deck)
@@ -39,7 +40,7 @@ card "Odd-Eyes Pendulum Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 208
         on_resolve {
         }

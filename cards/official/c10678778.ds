@@ -1,3 +1,4 @@
+// 魔海城アイガイオン
 // Aegaion the Sea Castrum
 // Transpiled from c10678778.lua
 
@@ -21,10 +22,10 @@ card "Aegaion the Sea Castrum" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 4
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: Banish
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 10678778)
         on_resolve {
             banish (1+, card, either_player controls)
@@ -32,11 +33,11 @@ card "Aegaion the Sea Castrum" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 17
-        code: 1002
+        effect_type: QuickEffect
+        category: Destroy + ToDeck
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self

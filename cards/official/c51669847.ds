@@ -1,3 +1,4 @@
+// 絶無なる獄神界－ヴィードリア
 // Null Power Patron Realm - Vidria
 // Transpiled from c51669847.lua
 
@@ -12,16 +13,16 @@ card "Null Power Patron Realm - Vidria" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 131596
-        range: 256
+        effect_type: Ignition
+        category: Banish + ToHand + SpecialSummon + Search
+        range: FieldZone
         count_limit: (1, 51669847)
         on_resolve {
             banish (1+, monster, you controls)
@@ -31,19 +32,19 @@ card "Null Power Patron Realm - Vidria" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 256
+        range: FieldZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 6
         property: 2048
-        range: 256
+        range: FieldZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }

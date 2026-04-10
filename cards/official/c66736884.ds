@@ -1,3 +1,4 @@
+// 空牙団の船匠 キール
 // Keel, Shipwright Fur Hire
 // Transpiled from c66736884.lua
 
@@ -20,8 +21,8 @@ card "Keel, Shipwright Fur Hire" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        code: 1102
+        effect_type: Single + Trigger
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 66736884)
         on_resolve {
@@ -34,10 +35,10 @@ card "Keel, Shipwright Fur Hire" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 516
-        code: 1002
-        range: 16
+        effect_type: QuickEffect
+        category: Banish + SpecialSummon
+        code: FreeChain
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             banish (1+, spell, either_player controls)
@@ -47,7 +48,7 @@ card "Keel, Shipwright Fur Hire" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 67110912
         on_resolve {

@@ -1,3 +1,4 @@
+// アクア・ジェット・サーフェス
 // Aqua Jet Surface
 // Transpiled from c32278723.lua
 
@@ -6,9 +7,9 @@ card "Aqua Jet Surface" {
     type: Normal Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         count_limit: (1, 32278723)
         on_resolve {
             special_summon (1, monster) from gy
@@ -20,10 +21,10 @@ card "Aqua Jet Surface" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 2097152
+        effect_type: Ignition
+        category: SynchroSummon
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self
@@ -37,17 +38,17 @@ card "Aqua Jet Surface" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 67110912
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         on_resolve {
             modifier: atk + 1000

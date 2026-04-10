@@ -1,3 +1,4 @@
+// 覇王白竜オッドアイズ・ウィング・ドラゴン
 // Odd-Eyes Wing Dragon
 // Transpiled from c58074177.lua
 
@@ -22,10 +23,10 @@ card "Odd-Eyes Wing Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 2097152
+        effect_type: Field + Trigger
+        category: SynchroSummon
         code: 1133
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -36,10 +37,10 @@ card "Odd-Eyes Wing Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 16384
+        effect_type: Ignition
+        category: Disable
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 58074177)
         on_resolve {
             negate effect
@@ -59,10 +60,10 @@ card "Odd-Eyes Wing Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 1
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: Destroy
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 58074177)
         on_resolve {
             destroy (1+, trap, opponent controls)
@@ -70,8 +71,8 @@ card "Odd-Eyes Wing Dragon" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        code: 1029
+        effect_type: Single + Trigger
+        code: Destroyed
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy

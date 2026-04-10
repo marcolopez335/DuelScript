@@ -1,3 +1,4 @@
+// 魔溶生物ゾル
 // Magicolloidal Sol
 // Transpiled from c67694706.lua
 
@@ -11,11 +12,11 @@ card "Magicolloidal Sol" {
     def: 300
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
-        code: 1102
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
-        range: 18
+        range: Hand + Graveyard
         count_limit: (1, 67694706)
         on_resolve {
             special_summon (1, monster) from gy
@@ -23,10 +24,10 @@ card "Magicolloidal Sol" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             synchro_summon (1, synchro monster) using (1+, monster, you controls)
@@ -35,7 +36,7 @@ card "Magicolloidal Sol" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 60
         property: 67109888
         on_resolve {

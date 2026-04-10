@@ -1,3 +1,4 @@
+// トリックスター・ライブステージ
 // Trickstar Live Stage
 // Transpiled from c51208046.lua
 
@@ -6,9 +7,9 @@ card "Trickstar Live Stage" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 8
-        code: 1002
+        effect_type: Activate
+        category: ToHand
+        code: FreeChain
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
             reveal (1+, card, opponent controls)
@@ -16,9 +17,9 @@ card "Trickstar Live Stage" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 1536
-        range: 256
+        effect_type: Ignition
+        category: SpecialSummon + Token
+        range: FieldZone
         count_limit: (1, 51208046)
         on_resolve {
             create_token { atk: 0 def: 0 }
@@ -27,9 +28,9 @@ card "Trickstar Live Stage" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 1536
-        range: 256
+        effect_type: Ignition
+        category: SpecialSummon + Token
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             create_token { atk: 0 def: 0 }

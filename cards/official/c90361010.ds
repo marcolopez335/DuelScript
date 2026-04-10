@@ -1,3 +1,4 @@
+// 超重武者装留イワトオシ
 // Superheavy Samurai Soulpiercer
 // Transpiled from c90361010.lua
 
@@ -11,10 +12,10 @@ card "Superheavy Samurai Soulpiercer" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 262144
+        effect_type: Ignition
+        category: EquipAction
         property: 16
-        range: 6
+        range: Hand + MonsterZone
         on_resolve {
             send (1+, monster, you controls, deck) to gy
             equip (1, card) to (1, monster)
@@ -22,9 +23,9 @@ card "Superheavy Samurai Soulpiercer" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: ChainEnd
         property: 81920
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -33,7 +34,7 @@ card "Superheavy Samurai Soulpiercer" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         property: 1024
         on_resolve {
@@ -41,7 +42,7 @@ card "Superheavy Samurai Soulpiercer" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 4
+        effect_type: Equip
         code: 203
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }

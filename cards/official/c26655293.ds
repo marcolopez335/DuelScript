@@ -1,3 +1,4 @@
+// マグナヴァレット・ドラゴン
 // Magnarokket Dragon
 // Transpiled from c26655293.lua
 
@@ -11,10 +12,10 @@ card "Magnarokket Dragon" {
     def: 1200
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 33
-        code: 1027
-        range: 4
+        effect_type: QuickEffect
+        category: Destroy + ToGrave
+        code: Chaining
+        range: MonsterZone
         count_limit: (1, 26655293)
         on_resolve {
             destroy (1+, monster, either_player controls)
@@ -23,8 +24,8 @@ card "Magnarokket Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
-        code: 1014
+        effect_type: Single + Continuous
+        code: ChainEnd
         property: 1024
         on_resolve {
         }

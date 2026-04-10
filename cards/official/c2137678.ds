@@ -1,3 +1,4 @@
+// 機皇兵グランエル・アイン
 // Meklord Army of Granel
 // Transpiled from c2137678.lua
 
@@ -11,19 +12,19 @@ card "Meklord Army of Granel" {
     def: 1200
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 2097152
-        code: 1100
+        effect_type: Single + Trigger
+        category: SynchroSummon
+        code: SummonSuccess
         property: 16
         on_resolve {
             register_effect on self {
@@ -34,7 +35,7 @@ card "Meklord Army of Granel" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 102
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

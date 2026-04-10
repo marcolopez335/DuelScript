@@ -1,3 +1,4 @@
+// ラプテノスの超魔剣
 // Supermagic Sword of Raptinus
 // Transpiled from c53363708.lua
 
@@ -6,7 +7,7 @@ card "Supermagic Sword of Raptinus" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 71
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -14,7 +15,7 @@ card "Supermagic Sword of Raptinus" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 4
+        effect_type: Equip
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -22,10 +23,10 @@ card "Supermagic Sword of Raptinus" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 4352
+        effect_type: Field + Trigger
+        category: Counter + DiceRoll
         code: 4104
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 53363708)
         on_resolve {
             change_battle_position (1, monster)
@@ -34,9 +35,9 @@ card "Supermagic Sword of Raptinus" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

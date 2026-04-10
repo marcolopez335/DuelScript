@@ -1,3 +1,4 @@
+// リバース・バスター
 // Reverse Buster
 // Transpiled from c90640901.lua
 
@@ -11,7 +12,7 @@ card "Reverse Buster" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 332
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -19,7 +20,7 @@ card "Reverse Buster" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 73
         on_resolve {
             register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
@@ -27,19 +28,19 @@ card "Reverse Buster" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 6
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 513
-        category: 1
-        code: 1132
+        effect_type: Single + MandatoryTrigger
+        category: Destroy
+        code: DamageCalculation
         on_resolve {
             destroy (1+, card, either_player controls)
         }

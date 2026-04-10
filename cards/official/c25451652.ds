@@ -1,3 +1,4 @@
+// 堕天使ルシフェル
 // Darklord Morningstar
 // Transpiled from c25451652.lua
 
@@ -15,7 +16,7 @@ card "Darklord Morningstar" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -23,9 +24,9 @@ card "Darklord Morningstar" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
-        code: 1100
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SummonSuccess
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy
@@ -33,19 +34,19 @@ card "Darklord Morningstar" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 71
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 1048640
-        range: 4
+        effect_type: Ignition
+        category: AtkChange + Recover
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             mill 1

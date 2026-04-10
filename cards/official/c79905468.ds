@@ -1,3 +1,4 @@
+// 守護竜プロミネシス
 // Guardragon Promineses
 // Transpiled from c79905468.lua
 
@@ -11,10 +12,10 @@ card "Guardragon Promineses" {
     def: 200
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 6291456
+        effect_type: Ignition
+        category: SynchroSummon + XyzSummon
         property: 16
-        range: 6
+        range: Hand + MonsterZone
         cost {
             send self to gy
         }
@@ -31,10 +32,10 @@ card "Guardragon Promineses" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1014
-        range: 16
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: ChainEnd
+        range: Graveyard
         count_limit: (1, 79905468)
         on_resolve {
             special_summon (1, monster) from gy

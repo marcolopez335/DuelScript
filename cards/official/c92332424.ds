@@ -1,3 +1,4 @@
+// 竜剣士マジェスティＰ
 // Majesty Pegasus, the Dracoslayer
 // Transpiled from c92332424.lua
 
@@ -12,9 +13,9 @@ card "Majesty Pegasus, the Dracoslayer" {
     def: 1500
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 131081
-        range: 512
+        effect_type: Ignition
+        category: Destroy + ToHand + Search
+        range: PendulumZone
         count_limit: (1, 92332424)
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck
@@ -24,9 +25,9 @@ card "Majesty Pegasus, the Dracoslayer" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        code: 1002
-        range: 2
+        effect_type: QuickEffect
+        code: FreeChain
+        range: Hand
         cost {
             discard (1, card, you controls)
         }
@@ -44,9 +45,9 @@ card "Majesty Pegasus, the Dracoslayer" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131208
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + DefChange + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {

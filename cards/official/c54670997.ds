@@ -1,3 +1,4 @@
+// ＧＰ－ベター・ラック
 // Gold Pride - Better Luck Next Time!
 // Transpiled from c54670997.lua
 
@@ -6,9 +7,9 @@ card "Gold Pride - Better Luck Next Time!" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 131080
-        code: 1002
+        effect_type: Activate
+        category: ToHand + Search
+        code: FreeChain
         count_limit: (1, 54670997)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -18,11 +19,11 @@ card "Gold Pride - Better Luck Next Time!" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 65536
-        code: 1013
+        effect_type: Field + Trigger
+        category: Draw
+        code: ChainSolved
         property: 67584
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             draw 1

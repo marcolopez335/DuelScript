@@ -1,3 +1,4 @@
+// コンベックス・ナイト
 // Convex Knight
 // Transpiled from c43471513.lua
 
@@ -12,9 +13,9 @@ card "Convex Knight" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 134218240
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon + LevelChange
+        range: Hand
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -22,9 +23,9 @@ card "Convex Knight" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 2097184
-        range: 4
+        effect_type: Ignition
+        category: ToGrave + SynchroSummon
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, monster, either_player controls) to gy
@@ -32,7 +33,7 @@ card "Convex Knight" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 131
         on_resolve {
         }

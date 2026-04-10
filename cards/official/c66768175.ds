@@ -1,3 +1,4 @@
+// EMバラード
 // Performapal Ballad
 // Transpiled from c66768175.lua
 
@@ -12,10 +13,10 @@ card "Performapal Ballad" {
     def: 1100
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 2097152
-        code: 1132
-        range: 512
+        effect_type: Field + Trigger
+        category: SynchroSummon
+        code: DamageCalculation
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -26,11 +27,11 @@ card "Performapal Ballad" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 2097152
+        effect_type: Field + Trigger
+        category: SynchroSummon
         code: 1138
         property: 16
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

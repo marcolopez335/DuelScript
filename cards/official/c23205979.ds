@@ -1,3 +1,4 @@
+// 魂を削る死霊
 // Spirit Reaper
 // Transpiled from c23205979.lua
 
@@ -11,7 +12,7 @@ card "Spirit Reaper" {
     def: 200
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -19,8 +20,8 @@ card "Spirit Reaper" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 128
+        effect_type: Single + MandatoryTrigger
+        category: DefChange
         code: 1143
         on_resolve {
             send (1+, card, either_player controls) to gy
@@ -28,37 +29,37 @@ card "Spirit Reaper" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 141
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1022
-        range: 4
+        range: MonsterZone
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1138
-        range: 4
+        range: MonsterZone
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
     raw_effect "Effect 6" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1028
         property: 1024
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }

@@ -1,3 +1,4 @@
+// レプティア・エッグ
 // Reptia Egg
 // Transpiled from c81782101.lua
 
@@ -11,7 +12,7 @@ card "Reptia Egg" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -19,18 +20,18 @@ card "Reptia Egg" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
-        code: 1100
+        effect_type: Single + Continuous
+        code: SummonSuccess
         property: 1024
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 4098
-        range: 4
+        range: MonsterZone
         cost {
             tribute self
         }

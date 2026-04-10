@@ -1,3 +1,4 @@
+// ミミグル・デーモン
 // Mimighoul Archfiend
 // Transpiled from c50415441.lua
 
@@ -11,8 +12,8 @@ card "Mimighoul Archfiend" {
     def: 1900
 
     raw_effect "Effect 1" {
-        effect_type: 545
-        category: 73760
+        effect_type: Single + Flip + MandatoryTrigger
+        category: ToGrave + Summon + Draw
         count_limit: (1, 50415441)
         on_resolve {
             draw 1
@@ -22,9 +23,9 @@ card "Mimighoul Archfiend" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -33,9 +34,9 @@ card "Mimighoul Archfiend" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 4096
-        code: 1100
+        effect_type: Single + Trigger
+        category: DiceRoll
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -44,9 +45,9 @@ card "Mimighoul Archfiend" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 4096
-        code: 1102
+        effect_type: Single + Trigger
+        category: DiceRoll
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {

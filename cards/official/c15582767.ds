@@ -1,3 +1,4 @@
+// 連成する振動
 // Echo Oscillation
 // Transpiled from c15582767.lua
 
@@ -6,18 +7,18 @@ card "Echo Oscillation" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 65537
-        code: 1002
+        effect_type: QuickEffect
+        category: Destroy + Draw
+        code: FreeChain
         property: 16
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 15582767)
         on_resolve {
             destroy (1+, card, either_player controls)

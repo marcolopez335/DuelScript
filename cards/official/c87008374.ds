@@ -1,3 +1,4 @@
+// ZW－不死鳥弩弓
 // ZW - Phoenix Bow
 // Transpiled from c87008374.lua
 
@@ -11,26 +12,26 @@ card "ZW - Phoenix Bow" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 262144
+        effect_type: Ignition
+        category: EquipAction
         property: 16
-        range: 2
+        range: Hand
         on_resolve {
             send (1+, card, either_player controls) to gy
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
+        effect_type: Field + MandatoryTrigger
         code: 1139
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             deal_damage to opponent: 1000
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 1100
@@ -38,14 +39,14 @@ card "ZW - Phoenix Bow" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         on_resolve {
             modifier: atk + 0
@@ -53,14 +54,14 @@ card "ZW - Phoenix Bow" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 1
+        effect_type: Single
         code: 115
         on_resolve {
         }
     }
 
     raw_effect "Effect 7" {
-        effect_type: 1
+        effect_type: Single
         code: 71
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -68,7 +69,7 @@ card "ZW - Phoenix Bow" {
     }
 
     raw_effect "Effect 8" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -76,7 +77,7 @@ card "ZW - Phoenix Bow" {
     }
 
     raw_effect "Effect 9" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

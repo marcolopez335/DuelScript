@@ -1,3 +1,4 @@
+// 春化精の女神 ヴェーラ
 // Vera the Vernusylph Goddess
 // Transpiled from c55125728.lua
 
@@ -15,9 +16,9 @@ card "Vera the Vernusylph Goddess" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1020
-        range: 4
+        range: MonsterZone
         on_resolve {
             set_flag "tracked" on self
             negate effect
@@ -26,10 +27,10 @@ card "Vera the Vernusylph Goddess" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 8192
+        effect_type: Ignition
+        category: Summon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 55125728)
         on_resolve {
             take_control of (1, monster, opponent controls)
@@ -41,11 +42,11 @@ card "Vera the Vernusylph Goddess" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 512
-        code: 1002
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -53,7 +54,7 @@ card "Vera the Vernusylph Goddess" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 127
         property: 1024
         on_resolve {

@@ -1,3 +1,4 @@
+// 創星神 sophia
 // Sophia, Goddess of Rebirth
 // Transpiled from c4335427.lua
 
@@ -15,17 +16,17 @@ card "Sophia, Goddess of Rebirth" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         on_resolve {
             banish (1+, monster, either_player controls)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 27
         property: 263168
         on_resolve {
@@ -33,7 +34,7 @@ card "Sophia, Goddess of Rebirth" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -41,9 +42,9 @@ card "Sophia, Goddess of Rebirth" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 513
-        category: 4
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: Banish
+        code: SpecialSummonSuccess
         on_resolve {
             banish (1+, monster, either_player controls)
         }

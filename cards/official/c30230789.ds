@@ -1,3 +1,4 @@
+// カラクリ商人 壱七七
 // Karakuri Merchant mdl 177 'Inashichi'
 // Transpiled from c30230789.lua
 
@@ -11,7 +12,7 @@ card "Karakuri Merchant mdl 177 'Inashichi'" {
     def: 1500
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 191
         on_resolve {
             register_effect on self { grant: must_attack_if_able duration: until_end_of_turn }
@@ -19,18 +20,18 @@ card "Karakuri Merchant mdl 177 'Inashichi'" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 4096
-        code: 1131
+        effect_type: Single + MandatoryTrigger
+        category: DiceRoll
+        code: BattleTarget
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 131080
-        code: 1100
+        effect_type: Single + MandatoryTrigger
+        category: ToHand + Search
+        code: SummonSuccess
         on_resolve {
             add_to_hand (1+, card, opponent controls) from deck
             reveal (1+, card, opponent controls)

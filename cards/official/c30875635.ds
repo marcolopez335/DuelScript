@@ -1,3 +1,4 @@
+// ミラクル・エクスクルーダー
 // Miracle Ejector
 // Transpiled from c30875635.lua
 
@@ -11,9 +12,9 @@ card "Miracle Ejector" {
     def: 400
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 0)
         cost {
             send self to gy
@@ -24,9 +25,9 @@ card "Miracle Ejector" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -36,9 +37,9 @@ card "Miracle Ejector" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -48,9 +49,9 @@ card "Miracle Ejector" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 4
-        code: 1014
+        effect_type: Single + Trigger
+        category: Banish
+        code: ChainEnd
         property: 65552
         count_limit: (1, 0)
         on_resolve {

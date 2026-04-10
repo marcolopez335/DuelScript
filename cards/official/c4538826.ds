@@ -1,3 +1,4 @@
+// 終焉龍 カオス・エンペラー
 // Chaos Emperor, the Dragon of Armageddon
 // Transpiled from c4538826.lua
 
@@ -16,10 +17,10 @@ card "Chaos Emperor, the Dragon of Armageddon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 9
+        effect_type: Ignition
+        category: Destroy + ToHand
         property: 16
-        range: 512
+        range: PendulumZone
         count_limit: (1, 4538826)
         cost {
             pay_lp 1000
@@ -31,7 +32,7 @@ card "Chaos Emperor, the Dragon of Armageddon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -39,10 +40,10 @@ card "Chaos Emperor, the Dragon of Armageddon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 263168
-        range: 66
+        range: Hand + Deck
         count_limit: (1, 0)
         on_resolve {
             banish (1+, monster, you controls, gy)
@@ -50,9 +51,9 @@ card "Chaos Emperor, the Dragon of Armageddon" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 524320
-        range: 4
+        effect_type: Ignition
+        category: ToGrave + Damage
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             pay_lp your_lp / 2
@@ -65,7 +66,7 @@ card "Chaos Emperor, the Dragon of Armageddon" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 60
         property: 1024
         on_resolve {
@@ -73,8 +74,8 @@ card "Chaos Emperor, the Dragon of Armageddon" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 2049
-        code: 1102
+        effect_type: Single + Continuous
+        code: SpecialSummonSuccess
         property: 1024
         on_resolve {
         }

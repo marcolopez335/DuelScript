@@ -1,3 +1,4 @@
+// ユニオン格納庫
 // Union Hangar
 // Transpiled from c66399653.lua
 
@@ -6,9 +7,9 @@ card "Union Hangar" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 131080
-        code: 1002
+        effect_type: Activate
+        category: ToHand + Search
+        code: FreeChain
         count_limit: (1, 66399653)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -17,10 +18,10 @@ card "Union Hangar" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
+        effect_type: Single + Trigger
         code: 334835109
         property: 65552
-        range: 256
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             equip (1, card) to (1, monster)
@@ -32,10 +33,10 @@ card "Union Hangar" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 1100
+        effect_type: Field + Continuous
+        code: SummonSuccess
         property: 1024
-        range: 256
+        range: FieldZone
         on_resolve {
             set_flag "tracked" on self
             emit_event "custom"
@@ -43,10 +44,10 @@ card "Union Hangar" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 1102
+        effect_type: Field + Continuous
+        code: SpecialSummonSuccess
         property: 1024
-        range: 256
+        range: FieldZone
         on_resolve {
             set_flag "tracked" on self
             emit_event "custom"

@@ -1,3 +1,4 @@
+// レグレクス・パラディオン
 // Crusadia Regulex
 // Transpiled from c9617996.lua
 
@@ -20,30 +21,30 @@ card "Crusadia Regulex" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 85
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 131080
-        code: 1102
+        effect_type: Field + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 9617996)
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck

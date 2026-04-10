@@ -1,3 +1,4 @@
+// 穿孔重機ドリルジャンボ
 // Jumbo Drill
 // Transpiled from c42851643.lua
 
@@ -11,8 +12,8 @@ card "Jumbo Drill" {
     def: 100
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        code: 1100
+        effect_type: Single + Trigger
+        code: SummonSuccess
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -22,7 +23,7 @@ card "Jumbo Drill" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1141
         on_resolve {
             change_battle_position (1, monster)
@@ -30,7 +31,7 @@ card "Jumbo Drill" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 203
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }

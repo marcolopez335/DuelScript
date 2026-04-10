@@ -1,3 +1,4 @@
+// 星杯戦士ニンギルス
 // Ningirsu the World Chalice Warrior
 // Transpiled from c30194529.lua
 
@@ -20,9 +21,9 @@ card "Ningirsu the World Chalice Warrior" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 65536
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: Draw
+        code: SpecialSummonSuccess
         property: 2048
         count_limit: (1, 30194529)
         on_resolve {
@@ -31,9 +32,9 @@ card "Ningirsu the World Chalice Warrior" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 32
-        range: 4
+        effect_type: Ignition
+        category: ToGrave
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, you controls, hand) to gy
@@ -41,9 +42,9 @@ card "Ningirsu the World Chalice Warrior" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1014
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy

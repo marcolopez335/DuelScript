@@ -1,3 +1,4 @@
+// ライトレイ ソーサラー
 // Lightray Sorcerer
 // Transpiled from c91349449.lua
 
@@ -15,7 +16,7 @@ card "Lightray Sorcerer" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -23,19 +24,19 @@ card "Lightray Sorcerer" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 20
+        effect_type: Ignition
+        category: Banish + ToDeck
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle

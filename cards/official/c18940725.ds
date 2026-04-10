@@ -1,3 +1,4 @@
+// ふわんだりぃず×ろびーな
 // Floowandereeze & Robina
 // Transpiled from c18940725.lua
 
@@ -11,9 +12,9 @@ card "Floowandereeze & Robina" {
     def: 1200
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131336
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Counter + Search
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 18940725)
         on_resolve {
@@ -25,7 +26,7 @@ card "Floowandereeze & Robina" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 60
         property: 1024
         on_resolve {
@@ -33,11 +34,11 @@ card "Floowandereeze & Robina" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 8
-        code: 1100
+        effect_type: Field + Trigger
+        category: ToHand
+        code: SummonSuccess
         property: 65536
-        range: 32
+        range: Banished
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand
@@ -45,7 +46,7 @@ card "Floowandereeze & Robina" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 526336
         on_resolve {

@@ -1,3 +1,4 @@
+// エレクトロ・ガンナー
 // Electro Blaster
 // Transpiled from c9107531.lua
 
@@ -11,11 +12,11 @@ card "Electro Blaster" {
     def: 1400
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 544
-        code: 1100
+        effect_type: Field + Trigger
+        category: ToGrave + SpecialSummon
+        code: SummonSuccess
         property: 65536
-        range: 2
+        range: Hand
         count_limit: (1, 9107531)
         on_resolve {
             special_summon (1, monster) from gy
@@ -24,11 +25,11 @@ card "Electro Blaster" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 544
-        code: 1102
+        effect_type: Field + Trigger
+        category: ToGrave + SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
-        range: 2
+        range: Hand
         count_limit: (1, 9107531)
         on_resolve {
             special_summon (1, monster) from gy
@@ -37,11 +38,11 @@ card "Electro Blaster" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 2097152
-        code: 1027
+        effect_type: Field + Trigger
+        category: SynchroSummon
+        code: Chaining
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -52,7 +53,7 @@ card "Electro Blaster" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 1024
         on_resolve {

@@ -1,3 +1,4 @@
+// 風雲カラクリ城
 // Karakuri Showdown Castle
 // Transpiled from c22751868.lua
 
@@ -6,27 +7,27 @@ card "Karakuri Showdown Castle" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 4096
-        code: 1131
+        effect_type: Field + Trigger
+        category: DiceRoll
+        code: BattleTarget
         property: 16
-        range: 256
+        range: FieldZone
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1014
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 16
         on_resolve {
             special_summon (1, monster) from gy

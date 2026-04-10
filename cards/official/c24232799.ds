@@ -1,3 +1,4 @@
+// 脚納母艦ブラキオーバー
 // Storagepod
 // Transpiled from c24232799.lua
 
@@ -20,7 +21,7 @@ card "Storagepod" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -28,11 +29,11 @@ card "Storagepod" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 1
-        code: 1102
+        effect_type: Field + Trigger
+        category: Destroy
+        code: SpecialSummonSuccess
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 24232799)
         on_resolve {
             destroy (1+, card, either_player controls)

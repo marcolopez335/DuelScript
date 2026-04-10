@@ -1,3 +1,4 @@
+// 見えざる手イブエル
 // Hecahands Ibtel
 // Transpiled from c95365081.lua
 
@@ -15,18 +16,18 @@ card "Hecahands Ibtel" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 42
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 528
-        range: 2
+        effect_type: Ignition
+        category: ToDeck + SpecialSummon
+        range: Hand
         count_limit: (1, 95365081)
         cost {
             reveal self
@@ -38,9 +39,9 @@ card "Hecahands Ibtel" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1014
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 65552
         count_limit: (1, 0)
         on_resolve {

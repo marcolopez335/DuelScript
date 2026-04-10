@@ -1,3 +1,4 @@
+// モンスターBOX
 // Fairy Box
 // Transpiled from c21598948.lua
 
@@ -6,17 +7,17 @@ card "Fairy Box" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 18874368
-        code: 1130
-        range: 8
+        effect_type: Field + MandatoryTrigger
+        category: SynchroSummon + RitualSummon
+        code: AttackAnnounce
+        range: SpellTrapZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -26,10 +27,10 @@ card "Fairy Box" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 4098
         property: 263168
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -37,7 +38,7 @@ card "Fairy Box" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 102
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

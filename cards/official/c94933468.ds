@@ -1,3 +1,4 @@
+// Vain－裏切りの嘲笑
 // Vain Betrayer
 // Transpiled from c94933468.lua
 
@@ -6,55 +7,55 @@ card "Vain Betrayer" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 16384
-        code: 1130
+        effect_type: Activate
+        category: Disable
+        code: AttackAnnounce
         property: 16
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1022
         property: 1024
-        range: 8
+        range: SpellTrapZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 2
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 85
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1015
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
     raw_effect "Effect 6" {
-        effect_type: 514
-        category: 64
+        effect_type: Field + MandatoryTrigger
+        category: AtkChange
         code: 4608
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             mill 3

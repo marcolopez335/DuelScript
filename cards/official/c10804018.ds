@@ -1,3 +1,4 @@
+// 粛声なる竜神サフィラ
 // Saffira, Divine Dragon of the Voiceless Voice
 // Transpiled from c10804018.lua
 
@@ -20,9 +21,9 @@ card "Saffira, Divine Dragon of the Voiceless Voice" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 65664
-        code: 1102
+        effect_type: Single + Trigger
+        category: DefChange + Draw
+        code: SpecialSummonSuccess
         property: 67584
         count_limit: (1, 10804018)
         on_resolve {
@@ -33,10 +34,10 @@ card "Saffira, Divine Dragon of the Voiceless Voice" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 128
-        code: 1130
-        range: 4
+        effect_type: Field + Trigger
+        category: DefChange
+        code: AttackAnnounce
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, you controls, gy) to gy
@@ -44,10 +45,10 @@ card "Saffira, Divine Dragon of the Voiceless Voice" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 8
+        effect_type: Field + Trigger
+        category: ToHand
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from gy

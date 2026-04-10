@@ -1,3 +1,4 @@
+// 魔導騎士ギルティア－ソウル・スピア
 // Giltia the D. Knight - Soul Spear
 // Transpiled from c77406972.lua
 
@@ -15,7 +16,7 @@ card "Giltia the D. Knight - Soul Spear" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 32
         property: 262144
         on_resolve {
@@ -23,18 +24,18 @@ card "Giltia the D. Knight - Soul Spear" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 4
-        code: 1100
+        effect_type: Single + Trigger
+        category: Banish
+        code: SummonSuccess
         on_resolve {
             banish (1+, monster, opponent controls)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 131080
-        range: 4
+        effect_type: Ignition
+        category: ToHand + Search
+        range: MonsterZone
         count_limit: (1, 77406972)
         on_resolve {
             return (1+, monster, opponent controls) to hand

@@ -1,3 +1,4 @@
+// トイ・タンク
 // Toy Tank
 // Transpiled from c69925461.lua
 
@@ -11,16 +12,16 @@ card "Toy Tank" {
     def: 2100
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 18
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
-        code: 1014
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 65536
         count_limit: (1, 69925461)
         on_resolve {
@@ -29,9 +30,9 @@ card "Toy Tank" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 512
-        range: 4
+        effect_type: Ignition
+        category: SpecialSummon
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             tribute self

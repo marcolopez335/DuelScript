@@ -1,3 +1,4 @@
+// 冥府の使者ゴーズ
 // Gorz the Emissary of Darkness
 // Transpiled from c44330098.lua
 
@@ -15,20 +16,20 @@ card "Gorz the Emissary of Darkness" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 1111
         property: 16384
-        range: 2
+        range: Hand
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 1536
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: SpecialSummon + Token
+        code: SpecialSummonSuccess
         on_resolve {
             create_token { atk: 0 def: 0 }
             register_effect on self {
@@ -44,9 +45,9 @@ card "Gorz the Emissary of Darkness" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 524288
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: Damage
+        code: SpecialSummonSuccess
         property: 2048
         on_resolve {
             deal_damage to opponent: 1000

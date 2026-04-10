@@ -1,3 +1,4 @@
+// 星霜の魔術師－アストログラフ・マジシャン
 // Astrograph Sorcerer, the Star Magician
 // Transpiled from c48171151.lua
 
@@ -16,9 +17,9 @@ card "Astrograph Sorcerer, the Star Magician" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 1
-        range: 512
+        effect_type: Ignition
+        category: Destroy
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -31,11 +32,11 @@ card "Astrograph Sorcerer, the Star Magician" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 316606607
         property: 81920
-        range: 2
+        range: Hand
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -44,8 +45,8 @@ card "Astrograph Sorcerer, the Star Magician" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 1029
+        effect_type: Field + Continuous
+        code: Destroyed
         on_resolve {
             emit_event "custom"
             emit_event "custom"
@@ -53,10 +54,10 @@ card "Astrograph Sorcerer, the Star Magician" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        category: 1073742354
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: Release + ToDeck + SpecialSummon
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             tribute (1, monster, you controls)
@@ -64,7 +65,7 @@ card "Astrograph Sorcerer, the Star Magician" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 7
         property: 67108864
         on_resolve {

@@ -1,3 +1,4 @@
+// ミラクル・フリッパー
 // Miracle Flipper
 // Transpiled from c131182.lua
 
@@ -11,7 +12,7 @@ card "Miracle Flipper" {
     def: 500
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 20
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -19,14 +20,14 @@ card "Miracle Flipper" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 21
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -34,26 +35,26 @@ card "Miracle Flipper" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 332
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2049
-        code: 1140
+        effect_type: Single + Continuous
+        code: BattleDamage
         on_resolve {
         }
     }
 
     raw_effect "Effect 6" {
-        effect_type: 514
-        category: 512
+        effect_type: Field + MandatoryTrigger
+        category: SpecialSummon
         code: 4224
-        range: 255
+        range: Hand + MonsterZone + SpellTrapZone + Graveyard + Banished + Deck
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -61,9 +62,9 @@ card "Miracle Flipper" {
     }
 
     raw_effect "Effect 7" {
-        effect_type: 513
-        category: 1
-        code: 1029
+        effect_type: Single + MandatoryTrigger
+        category: Destroy
+        code: Destroyed
         property: 16
         on_resolve {
             destroy (1+, card, you controls)

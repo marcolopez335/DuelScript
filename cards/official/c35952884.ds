@@ -1,3 +1,4 @@
+// シューティング・クェーサー・ドラゴン
 // Shooting Quasar Dragon
 // Transpiled from c35952884.lua
 
@@ -21,7 +22,7 @@ card "Shooting Quasar Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -29,25 +30,25 @@ card "Shooting Quasar Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
-        code: 1102
+        effect_type: Single + Continuous
+        code: SpecialSummonSuccess
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 251
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        category: 268435457
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             negate activation
@@ -56,8 +57,8 @@ card "Shooting Quasar Dragon" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 129
-        category: 512
+        effect_type: Single + Trigger
+        category: SpecialSummon
         code: 1015
         property: 16384
         on_resolve {

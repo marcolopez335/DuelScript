@@ -1,3 +1,4 @@
+// デスピアの導化アルベル
 // Aluber the Jester of Despia
 // Transpiled from c62962630.lua
 
@@ -11,9 +12,9 @@ card "Aluber the Jester of Despia" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         property: 81920
         count_limit: (1, 62962630)
         on_resolve {
@@ -23,9 +24,9 @@ card "Aluber the Jester of Despia" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 81920
         count_limit: (1, 62962630)
         on_resolve {
@@ -35,11 +36,11 @@ card "Aluber the Jester of Despia" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 16896
+        effect_type: Field + Trigger
+        category: SpecialSummon + Disable
         code: 1015
         property: 81936
-        range: 16
+        range: Graveyard
         count_limit: (1, 62962630)
         on_resolve {
             special_summon (1, monster) from gy

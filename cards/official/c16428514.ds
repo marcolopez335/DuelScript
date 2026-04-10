@@ -1,3 +1,4 @@
+// サブテラーの導師
 // Subterror Guru
 // Transpiled from c16428514.lua
 
@@ -11,8 +12,8 @@ card "Subterror Guru" {
     def: 1800
 
     raw_effect "Effect 1" {
-        effect_type: 161
-        category: 131080
+        effect_type: Single + Flip + Trigger
+        category: ToHand + Search
         property: 65536
         count_limit: (1, 16428514)
         on_resolve {
@@ -22,10 +23,10 @@ card "Subterror Guru" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 4096
+        effect_type: Ignition
+        category: DiceRoll
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)
@@ -33,11 +34,11 @@ card "Subterror Guru" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 4096
-        code: 1002
+        effect_type: QuickEffect
+        category: DiceRoll
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)

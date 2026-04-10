@@ -1,3 +1,4 @@
+// 禁呪アラティア
 // Curse of Aramatir
 // Transpiled from c34690953.lua
 
@@ -6,16 +7,16 @@ card "Curse of Aramatir" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 1568
-        range: 8
+        effect_type: Ignition
+        category: ToGrave + SpecialSummon + Token
+        range: SpellTrapZone
         count_limit: (1, 34690953)
         on_resolve {
             create_token { atk: 0 def: 0 }
@@ -25,11 +26,11 @@ card "Curse of Aramatir" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 1536
-        code: 1029
+        effect_type: Field + Trigger
+        category: SpecialSummon + Token
+        code: Destroyed
         property: 81920
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             create_token { atk: 0 def: 0 }

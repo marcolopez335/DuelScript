@@ -1,3 +1,4 @@
+// 転生炎獣 Ｊジャガー
 // Salamangreat Jack Jaguar
 // Transpiled from c56003780.lua
 
@@ -11,7 +12,7 @@ card "Salamangreat Jack Jaguar" {
     def: 1200
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 203
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
@@ -19,10 +20,10 @@ card "Salamangreat Jack Jaguar" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 528
+        effect_type: Ignition
+        category: ToDeck + SpecialSummon
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 56003780)
         on_resolve {
             return (1+, monster, you controls) to deck shuffle

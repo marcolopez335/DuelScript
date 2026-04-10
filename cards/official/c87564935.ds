@@ -1,3 +1,4 @@
+// メタル化寄生生物－ソルタイト
 // Metallizing Parasite - Soltite
 // Transpiled from c87564935.lua
 
@@ -15,7 +16,7 @@ card "Metallizing Parasite - Soltite" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 71
         property: 128
         on_resolve {
@@ -24,7 +25,7 @@ card "Metallizing Parasite - Soltite" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 4
+        effect_type: Equip
         code: 41
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -32,31 +33,31 @@ card "Metallizing Parasite - Soltite" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        range: 4
+        effect_type: Ignition
+        range: MonsterZone
         on_resolve {
             equip self to (1, monster, you controls)
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        range: 8
+        effect_type: Ignition
+        range: SpellTrapZone
         on_resolve {
             special_summon self from spell_trap_zone
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         on_resolve {
         }
     }
 
     raw_effect "Effect 6" {
-        effect_type: 2049
-        code: 1029
+        effect_type: Single + Continuous
+        code: Destroyed
         on_resolve {
         }
     }

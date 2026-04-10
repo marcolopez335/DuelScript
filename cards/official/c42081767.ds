@@ -1,3 +1,4 @@
+// きのみ隠しのうっかりす
 // Sloppy Stasher Squirrel
 // Transpiled from c42081767.lua
 
@@ -11,11 +12,11 @@ card "Sloppy Stasher Squirrel" {
     def: 100
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 20
-        code: 1002
+        effect_type: QuickEffect
+        category: Banish + ToDeck
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 42081767)
         on_resolve {
             banish (1+, spell, either_player controls)
@@ -24,10 +25,10 @@ card "Sloppy Stasher Squirrel" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
+        effect_type: Field + Trigger
         code: 4098
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             set (1, card)

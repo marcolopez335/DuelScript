@@ -1,3 +1,4 @@
+// 戦華の詭－賈文
 // Ancient Warriors - Deceptive Jia Wen
 // Transpiled from c6438003.lua
 
@@ -11,10 +12,10 @@ card "Ancient Warriors - Deceptive Jia Wen" {
     def: 1800
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 2097184
+        effect_type: Ignition
+        category: ToGrave + SynchroSummon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 6438003)
         on_resolve {
             send (1+, spell, either_player controls) to gy
@@ -26,11 +27,11 @@ card "Ancient Warriors - Deceptive Jia Wen" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 8
-        code: 1029
+        effect_type: Field + Trigger
+        category: ToHand
+        code: Destroyed
         property: 81936
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, spell, either_player controls) to hand

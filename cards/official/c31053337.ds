@@ -1,3 +1,4 @@
+// BF－激震のアブロオロス
 // Blackwing - Abrolhos the Megaquake
 // Transpiled from c31053337.lua
 
@@ -15,7 +16,7 @@ card "Blackwing - Abrolhos the Megaquake" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -23,9 +24,9 @@ card "Blackwing - Abrolhos the Megaquake" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 8
-        range: 4
+        effect_type: Ignition
+        category: ToHand
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, spell, opponent controls) to hand
@@ -33,17 +34,17 @@ card "Blackwing - Abrolhos the Megaquake" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 42
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 513
-        category: 8
+        effect_type: Single + MandatoryTrigger
+        category: ToHand
         code: 1138
         on_resolve {
             return (1+, spell, opponent controls) to hand

@@ -1,3 +1,4 @@
+// 水晶ドクロ
 // Crystal Skull
 // Transpiled from c7903368.lua
 
@@ -11,9 +12,9 @@ card "Crystal Skull" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 528384
-        code: 1100
+        effect_type: Single + MandatoryTrigger
+        category: DiceRoll + Damage
+        code: SummonSuccess
         on_resolve {
             deal_damage to opponent: 1000
             change_battle_position (1, monster)
@@ -21,9 +22,9 @@ card "Crystal Skull" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 528384
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: DiceRoll + Damage
+        code: SpecialSummonSuccess
         on_resolve {
             deal_damage to opponent: 1000
             change_battle_position (1, monster)
@@ -31,9 +32,9 @@ card "Crystal Skull" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 528384
-        code: 1101
+        effect_type: Single + MandatoryTrigger
+        category: DiceRoll + Damage
+        code: FlipSummonSuccess
         on_resolve {
             deal_damage to opponent: 1000
             change_battle_position (1, monster)
@@ -41,10 +42,10 @@ card "Crystal Skull" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 131592
+        effect_type: Field + Trigger
+        category: ToHand + SpecialSummon + Search
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 7903368)
         on_resolve {
             add_to_hand (1, card, you controls) from gy
@@ -53,7 +54,7 @@ card "Crystal Skull" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1111
         on_resolve {
             set_flag "tracked" on self

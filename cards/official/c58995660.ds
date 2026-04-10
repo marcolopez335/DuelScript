@@ -1,3 +1,4 @@
+// 先手必掌
 // Early Palm Gets the Win
 // Transpiled from c58995660.lua
 
@@ -6,17 +7,17 @@ card "Early Palm Gets the Win" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 35651584
-        code: 1130
-        range: 8
+        effect_type: Field + Trigger
+        category: SynchroSummon + FusionSummon
+        code: AttackAnnounce
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
@@ -36,7 +37,7 @@ card "Early Palm Gets the Win" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 47
         property: 67109888
         on_resolve {
@@ -45,7 +46,7 @@ card "Early Palm Gets the Win" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 1
         property: 67109888
         on_resolve {
@@ -54,7 +55,7 @@ card "Early Palm Gets the Win" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 346
         property: 67109888
         on_resolve {

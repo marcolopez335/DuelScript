@@ -1,3 +1,4 @@
+// 機皇統制
 // Meklord Assembly
 // Transpiled from c39109382.lua
 
@@ -6,9 +7,9 @@ card "Meklord Assembly" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 131080
-        code: 1002
+        effect_type: Activate
+        category: ToHand + Search
+        code: FreeChain
         count_limit: (1, 39109382)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -17,10 +18,10 @@ card "Meklord Assembly" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 1
+        effect_type: Ignition
+        category: Destroy
         property: 16
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, you controls, deck)
@@ -28,11 +29,11 @@ card "Meklord Assembly" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 1
-        code: 1029
+        effect_type: Field + Trigger
+        category: Destroy
+        code: Destroyed
         property: 81936
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, you controls, deck)

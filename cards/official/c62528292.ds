@@ -1,3 +1,4 @@
+// 戦華史略-東南之風
 // Ancient Warriors Saga - East-by-South Winds
 // Transpiled from c62528292.lua
 
@@ -6,16 +7,16 @@ card "Ancient Warriors Saga - East-by-South Winds" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 16777248
-        range: 8
+        effect_type: Ignition
+        category: ToGrave + RitualSummon
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
@@ -24,8 +25,8 @@ card "Ancient Warriors Saga - East-by-South Winds" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        code: 1014
+        effect_type: Single + Trigger
+        code: ChainEnd
         property: 114688
         on_resolve {
             register_effect on self {

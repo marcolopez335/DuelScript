@@ -1,3 +1,4 @@
+// チェックサム・ドラゴン
 // Checksum Dragon
 // Transpiled from c94136469.lua
 
@@ -15,10 +16,10 @@ card "Checksum Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 1049088
-        code: 1130
-        range: 2
+        effect_type: Field + Trigger
+        category: SpecialSummon + Recover
+        code: AttackAnnounce
+        range: Hand
         on_resolve {
             special_summon (1, monster) from gy
             gain_lp: 1000
@@ -26,10 +27,10 @@ card "Checksum Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

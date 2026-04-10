@@ -1,3 +1,4 @@
+// オオヒメの御巫
 // Ohime the Manifested Mikanko
 // Transpiled from c81260679.lua
 
@@ -20,7 +21,7 @@ card "Ohime the Manifested Mikanko" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -28,16 +29,16 @@ card "Ohime the Manifested Mikanko" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 202
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 131208
-        range: 2
+        effect_type: Ignition
+        category: ToHand + DefChange + Search
+        range: Hand
         count_limit: (1, 81260679)
         cost {
             reveal self
@@ -51,11 +52,11 @@ card "Ohime the Manifested Mikanko" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        category: 262144
-        code: 1002
+        effect_type: QuickEffect
+        category: EquipAction
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             equip (1, card) to (1, monster)

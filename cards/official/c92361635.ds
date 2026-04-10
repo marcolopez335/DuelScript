@@ -1,3 +1,4 @@
+// アトミック・スクラップ・ドラゴン
 // Atomic Scrap Dragon
 // Transpiled from c92361635.lua
 
@@ -21,10 +22,10 @@ card "Atomic Scrap Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 17
+        effect_type: Ignition
+        category: Destroy + ToDeck
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -33,9 +34,9 @@ card "Atomic Scrap Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 512
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 16
         on_resolve {
             special_summon (1, monster) from gy

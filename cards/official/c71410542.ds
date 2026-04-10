@@ -1,3 +1,4 @@
+// ＷＡＫＥ ＣＵＰ！ マキ
 // WAKE CUP! Macchia
 // Transpiled from c71410542.lua
 
@@ -11,11 +12,11 @@ card "WAKE CUP! Macchia" {
     def: 100
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 32
+        effect_type: Field + Trigger
+        category: ToGrave
         code: 4608
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, you controls, hand) to gy
@@ -23,9 +24,9 @@ card "WAKE CUP! Macchia" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 71410542)
         on_resolve {
             special_summon (1, monster) from gy
@@ -34,8 +35,8 @@ card "WAKE CUP! Macchia" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 4096
+        effect_type: Single + MandatoryTrigger
+        category: DiceRoll
         code: 1001
         property: 16
         count_limit: (1, 0)

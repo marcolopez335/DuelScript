@@ -1,3 +1,4 @@
+// クラリアの蟲惑魔
 // Traptrix Cularia
 // Transpiled from c952523.lua
 
@@ -20,19 +21,19 @@ card "Traptrix Cularia" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 1
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1022
-        range: 4
+        range: MonsterZone
         on_resolve {
             set_flag "tracked" on self
             change_battle_position (1, monster)
@@ -40,11 +41,11 @@ card "Traptrix Cularia" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 4608
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 952523)
         on_resolve {
             special_summon (1, monster) from gy

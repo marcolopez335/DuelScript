@@ -1,3 +1,4 @@
+// サクリファイス・ロータス
 // Samsara Lotus
 // Transpiled from c5592689.lua
 
@@ -11,10 +12,10 @@ card "Samsara Lotus" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 4608
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -22,11 +23,11 @@ card "Samsara Lotus" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 524288
+        effect_type: Field + MandatoryTrigger
+        category: Damage
         code: 4098
         property: 2048
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             deal_damage to opponent: 1000

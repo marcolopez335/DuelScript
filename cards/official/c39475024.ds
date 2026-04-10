@@ -1,3 +1,4 @@
+// 骸の魔妖-餓者髑髏
 // Gashadokuro, the Skeletal Mayakashi
 // Transpiled from c39475024.lua
 
@@ -21,8 +22,8 @@ card "Gashadokuro, the Skeletal Mayakashi" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        code: 1102
+        effect_type: Single + Trigger
+        code: SpecialSummonSuccess
         property: 81920
         count_limit: (1, 39475024)
         on_resolve {
@@ -30,11 +31,11 @@ card "Gashadokuro, the Skeletal Mayakashi" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 516
-        code: 1029
+        effect_type: Field + Trigger
+        category: Banish + SpecialSummon
+        code: Destroyed
         property: 81920
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             banish (1+, card, you controls, gy)

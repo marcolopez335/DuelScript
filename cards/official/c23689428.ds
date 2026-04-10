@@ -1,3 +1,4 @@
+// 無限起動 ゴライアス
 // Infinitrack Goliath
 // Transpiled from c23689428.lua
 
@@ -20,8 +21,8 @@ card "Infinitrack Goliath" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        code: 1014
+        effect_type: Single + Trigger
+        code: ChainEnd
         property: 65552
         count_limit: (1, 23689428)
         on_resolve {
@@ -33,7 +34,7 @@ card "Infinitrack Goliath" {
         effect_type: 4096
         code: 41
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }

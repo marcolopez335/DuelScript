@@ -1,3 +1,4 @@
+// パワー・ツール・ブレイバー・ドラゴン
 // Power Tool Braver Dragon
 // Transpiled from c63265554.lua
 
@@ -21,9 +22,9 @@ card "Power Tool Braver Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 262144
-        code: 1102
+        effect_type: Single + Trigger
+        category: EquipAction
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 63265554)
         on_resolve {
@@ -32,11 +33,11 @@ card "Power Tool Braver Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 20480
-        code: 1002
+        effect_type: QuickEffect
+        category: DiceRoll + Disable
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             send self to gy
@@ -56,7 +57,7 @@ card "Power Tool Braver Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 2
         property: 1024
         on_resolve {
@@ -65,7 +66,7 @@ card "Power Tool Braver Dragon" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 8
         property: 1024
         on_resolve {

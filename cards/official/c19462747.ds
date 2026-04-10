@@ -1,3 +1,4 @@
+// BF－弔風のデス
 // Blackwing - Decay the Ill Wind
 // Transpiled from c19462747.lua
 
@@ -11,8 +12,8 @@ card "Blackwing - Decay the Ill Wind" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        code: 1100
+        effect_type: Single + Trigger
+        code: SummonSuccess
         property: 16
         count_limit: (1, 19462747)
         on_resolve {
@@ -24,8 +25,8 @@ card "Blackwing - Decay the Ill Wind" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        code: 1102
+        effect_type: Single + Trigger
+        code: SpecialSummonSuccess
         property: 16
         count_limit: (1, 19462747)
         on_resolve {
@@ -37,18 +38,18 @@ card "Blackwing - Decay the Ill Wind" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
-        code: 1014
+        effect_type: Single + Continuous
+        code: ChainEnd
         property: 1024
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 514
-        category: 524288
+        effect_type: Field + MandatoryTrigger
+        category: Damage
         code: 4608
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             deal_damage to opponent: 1000

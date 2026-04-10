@@ -1,3 +1,4 @@
+// スカル・コンダクター
 // Skull Conductor
 // Transpiled from c62782218.lua
 
@@ -11,10 +12,10 @@ card "Skull Conductor" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 514
-        category: 1
+        effect_type: Field + MandatoryTrigger
+        category: Destroy
         code: 4224
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, you controls, hand)
@@ -22,9 +23,9 @@ card "Skull Conductor" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         cost {
             send self to gy
         }

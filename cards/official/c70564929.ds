@@ -1,3 +1,4 @@
+// 魔界台本「魔界の宴咜女」
 // Abyss Script - Abysstainment
 // Transpiled from c70564929.lua
 
@@ -6,16 +7,16 @@ card "Abyss Script - Abysstainment" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
+        effect_type: Ignition
         property: 16
-        range: 8
+        range: SpellTrapZone
         count_limit: (2, 70564929)
         cost {
             tribute self
@@ -26,9 +27,9 @@ card "Abyss Script - Abysstainment" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy

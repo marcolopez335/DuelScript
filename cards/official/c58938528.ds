@@ -1,3 +1,4 @@
+// ＥＭレディアンジュ
 // Performapal Ladyange
 // Transpiled from c58938528.lua
 
@@ -12,10 +13,10 @@ card "Performapal Ladyange" {
     def: 1500
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 2097152
-        code: 1130
-        range: 512
+        effect_type: Field + Trigger
+        category: SynchroSummon
+        code: AttackAnnounce
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -26,10 +27,10 @@ card "Performapal Ladyange" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 65536
+        effect_type: Ignition
+        category: Draw
         property: 2048
-        range: 2
+        range: Hand
         count_limit: (1, 58938528)
         cost {
             send self to gy
@@ -40,8 +41,8 @@ card "Performapal Ladyange" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        range: 16
+        effect_type: Ignition
+        range: Graveyard
         count_limit: (1, 58938528)
         on_resolve {
             special_summon (1, monster) from gy

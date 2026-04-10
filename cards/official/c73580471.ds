@@ -1,3 +1,4 @@
+// ブラック・ローズ・ドラゴン
 // Black Rose Dragon
 // Transpiled from c73580471.lua
 
@@ -21,19 +22,19 @@ card "Black Rose Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 1
-        code: 1102
+        effect_type: Single + Trigger
+        category: Destroy
+        code: SpecialSummonSuccess
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 2101248
+        effect_type: Ignition
+        category: DiceRoll + SynchroSummon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             banish self

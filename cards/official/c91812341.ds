@@ -1,3 +1,4 @@
+// トリオンの蟲惑魔
 // Traptrix Myrmeleo
 // Transpiled from c91812341.lua
 
@@ -11,19 +12,19 @@ card "Traptrix Myrmeleo" {
     def: 1200
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 1
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck
             reveal (1+, card, opponent controls)
@@ -31,9 +32,9 @@ card "Traptrix Myrmeleo" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 1
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: Destroy
+        code: SpecialSummonSuccess
         property: 16
         on_resolve {
             destroy (1+, spell, you controls, deck)

@@ -1,3 +1,4 @@
+// ＮＴ８０００－ＳＩＲＩＵＳ
 // NT8000 - SIRIUS
 // Transpiled from c45488703.lua
 
@@ -15,21 +16,21 @@ card "NT8000 - SIRIUS" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 1
-        code: 1002
+        effect_type: QuickEffect
+        category: Destroy
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 45488703)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -37,9 +38,9 @@ card "NT8000 - SIRIUS" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1014
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -48,7 +49,7 @@ card "NT8000 - SIRIUS" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 60
         property: 67109888
         on_resolve {

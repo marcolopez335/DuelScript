@@ -1,3 +1,4 @@
+// ブレイン・ジャッカー
 // Brain Jacker
 // Transpiled from c40267580.lua
 
@@ -11,8 +12,8 @@ card "Brain Jacker" {
     def: 900
 
     raw_effect "Effect 1" {
-        effect_type: 33
-        category: 262144
+        effect_type: Single + Flip
+        category: EquipAction
         property: 16
         on_resolve {
             equip (1, card) to (1, monster)
@@ -20,9 +21,9 @@ card "Brain Jacker" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
+        effect_type: Field + MandatoryTrigger
         code: 4098
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             gain_lp: 1000

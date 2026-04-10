@@ -1,3 +1,4 @@
+// 月読命
 // Tsukuyomi
 // Transpiled from c34853266.lua
 
@@ -11,7 +12,7 @@ card "Tsukuyomi" {
     def: 1400
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -19,9 +20,9 @@ card "Tsukuyomi" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 4096
-        code: 1100
+        effect_type: Single + MandatoryTrigger
+        category: DiceRoll
+        code: SummonSuccess
         property: 16
         on_resolve {
             change_battle_position (1, monster)
@@ -29,8 +30,8 @@ card "Tsukuyomi" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 4096
+        effect_type: Single + MandatoryTrigger
+        category: DiceRoll
         code: 1001
         property: 16
         on_resolve {

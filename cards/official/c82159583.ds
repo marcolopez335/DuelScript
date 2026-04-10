@@ -1,3 +1,4 @@
+// 道化の一座 ホワイトフェイス
 // Clown Crew Biancaviso
 // Transpiled from c82159583.lua
 
@@ -12,8 +13,8 @@ card "Clown Crew Biancaviso" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        code: 1100
+        effect_type: Single + Trigger
+        code: SummonSuccess
         property: 65536
         on_resolve {
             draw 1
@@ -21,10 +22,10 @@ card "Clown Crew Biancaviso" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 256
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: Counter
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             normal_summon (1, monster, you controls)
@@ -32,7 +33,7 @@ card "Clown Crew Biancaviso" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 20
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }

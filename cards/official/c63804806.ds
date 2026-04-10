@@ -1,3 +1,4 @@
+// スピード・キング☆スカル・フレイム
 // Supersonic Skull Flame
 // Transpiled from c63804806.lua
 
@@ -15,20 +16,20 @@ card "Supersonic Skull Flame" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         on_resolve {
             banish (1+, monster, you controls, gy)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 524288
+        effect_type: Ignition
+        category: Damage
         property: 2048
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             deal_damage to opponent: 1000
@@ -36,9 +37,9 @@ card "Supersonic Skull Flame" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1014
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 16400
         on_resolve {
             special_summon (1, monster) from gy

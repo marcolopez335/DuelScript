@@ -1,3 +1,4 @@
+// チューン・ナイト
 // Squeaknight
 // Transpiled from c38783169.lua
 
@@ -11,8 +12,8 @@ card "Squeaknight" {
     def: 500
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        code: 1102
+        effect_type: Single + Trigger
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             register_effect on self {
@@ -31,31 +32,31 @@ card "Squeaknight" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        range: 4
+        effect_type: Ignition
+        range: MonsterZone
         on_resolve {
             equip self to (1, monster, you controls)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        range: 8
+        effect_type: Ignition
+        range: SpellTrapZone
         on_resolve {
             special_summon self from spell_trap_zone
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2049
-        code: 1029
+        effect_type: Single + Continuous
+        code: Destroyed
         on_resolve {
         }
     }

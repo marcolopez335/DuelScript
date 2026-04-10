@@ -1,3 +1,4 @@
+// 海皇の竜騎隊
 // Atlantean Dragoons
 // Transpiled from c74311226.lua
 
@@ -11,18 +12,18 @@ card "Atlantean Dragoons" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 74
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: direct_attack duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 131080
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: ToHand + Search
+        code: ChainEnd
         on_resolve {
             add_to_hand (1+, card, opponent controls) from deck
             reveal (1+, card, opponent controls)

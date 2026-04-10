@@ -1,3 +1,4 @@
+// 仇すれば通図
 // Way Where There's a Will
 // Transpiled from c91880660.lua
 
@@ -6,17 +7,17 @@ card "Way Where There's a Will" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 131096
+        effect_type: Ignition
+        category: ToHand + ToDeck + Search
         property: 4096
-        range: 256
+        range: FieldZone
         count_limit: (1, 91880660)
         on_resolve {
             reveal (1, card, opponent controls, deck)
@@ -31,11 +32,11 @@ card "Way Where There's a Will" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 16
+        effect_type: Field + Trigger
+        category: ToDeck
         code: 4608
         property: 4096
-        range: 256
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, card, opponent controls) to deck shuffle

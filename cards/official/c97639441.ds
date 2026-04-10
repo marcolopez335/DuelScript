@@ -1,3 +1,4 @@
+// フォトン・ジャンパー
 // Photon Jumper
 // Transpiled from c97639441.lua
 
@@ -11,10 +12,10 @@ card "Photon Jumper" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
-        code: 1130
-        range: 2
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: AttackAnnounce
+        range: Hand
         count_limit: (1, 97639441)
         on_resolve {
             register_effect on self {
@@ -25,9 +26,9 @@ card "Photon Jumper" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: ChainEnd
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -37,7 +38,7 @@ card "Photon Jumper" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 183
         property: 2048
         on_resolve {

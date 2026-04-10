@@ -1,3 +1,4 @@
+// ティンダングル・トリニティ
 // Tindangle Trinity
 // Transpiled from c11375683.lua
 
@@ -11,8 +12,8 @@ card "Tindangle Trinity" {
     def: 1500
 
     raw_effect "Effect 1" {
-        effect_type: 161
-        category: 512
+        effect_type: Single + Flip + Trigger
+        category: SpecialSummon
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy
@@ -20,7 +21,7 @@ card "Tindangle Trinity" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1001
         property: 1024
         on_resolve {
@@ -28,17 +29,17 @@ card "Tindangle Trinity" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 42
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 131112
+        effect_type: Single + Trigger
+        category: ToHand + ToGrave + Search
         code: 1108
         property: 65536
         count_limit: (1, 11375683)

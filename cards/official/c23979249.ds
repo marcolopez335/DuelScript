@@ -1,3 +1,4 @@
+// 武神－アラスダ
 // Bujin Arasuda
 // Transpiled from c23979249.lua
 
@@ -11,30 +12,30 @@ card "Bujin Arasuda" {
     def: 1900
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
-        code: 1011
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: TurnEnd
         property: 65536
-        range: 2
+        range: Hand
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 1012
+        effect_type: Field + Continuous
+        code: ChainSolving
         property: 1024
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 65664
+        effect_type: Field + Trigger
+        category: DefChange + Draw
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             draw 1

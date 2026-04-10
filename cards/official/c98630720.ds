@@ -1,3 +1,4 @@
+// ヴァレルエンド・ドラゴン
 // Borrelend Dragon
 // Transpiled from c98630720.lua
 
@@ -20,37 +21,37 @@ card "Borrelend Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 71
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 193
         on_resolve {
             register_effect on self { grant: attack_all_opponent_monsters duration: until_end_of_turn }
@@ -58,11 +59,11 @@ card "Borrelend Dragon" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 256
-        category: 16896
-        code: 1002
+        effect_type: QuickEffect
+        category: SpecialSummon + Disable
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 98630720)
         on_resolve {
             special_summon (1, monster) from gy

@@ -1,3 +1,4 @@
+// 撃鉄竜リンドブルム
 // Rindbrumm the Striking Dragon
 // Transpiled from c51409648.lua
 
@@ -20,10 +21,10 @@ card "Rindbrumm the Striking Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 16392
-        code: 1027
-        range: 4
+        effect_type: QuickEffect
+        category: ToHand + Disable
+        code: Chaining
+        range: MonsterZone
         count_limit: (1, 51409648)
         on_resolve {
             negate effect
@@ -32,11 +33,11 @@ card "Rindbrumm the Striking Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 516
-        code: 1002
+        effect_type: QuickEffect
+        category: Banish + SpecialSummon
+        code: FreeChain
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

@@ -1,3 +1,4 @@
+// ゼータ・レティキュラント
 // Zeta Reticulant
 // Transpiled from c64382839.lua
 
@@ -15,10 +16,10 @@ card "Zeta Reticulant" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 514
-        category: 1536
-        code: 1011
-        range: 16
+        effect_type: Field + MandatoryTrigger
+        category: SpecialSummon + Token
+        code: TurnEnd
+        range: Graveyard
         on_resolve {
             create_token { atk: 0 def: 0 }
             special_summon (1, monster) from gy
@@ -26,10 +27,10 @@ card "Zeta Reticulant" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         on_resolve {
             tribute (1, monster, you controls)
         }

@@ -1,3 +1,4 @@
+// 天雷ノ双風神 シーナ
 // Shiina, Twin Tempests of Celestial Thunder
 // Transpiled from c12197223.lua
 
@@ -15,10 +16,10 @@ card "Shiina, Twin Tempests of Celestial Thunder" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 520
-        code: 1027
-        range: 2
+        effect_type: QuickEffect
+        category: ToHand + SpecialSummon
+        code: Chaining
+        range: Hand
         count_limit: (1, 12197223)
         on_resolve {
             special_summon (1, monster) from gy
@@ -27,10 +28,10 @@ card "Shiina, Twin Tempests of Celestial Thunder" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 47
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
         }

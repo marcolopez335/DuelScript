@@ -1,3 +1,4 @@
+// Ｕ．Ａ．プレイングマネージャー
 // U.A. Player Manager
 // Transpiled from c47021196.lua
 
@@ -15,11 +16,11 @@ card "U.A. Player Manager" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
-        code: 1100
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SummonSuccess
         property: 65536
-        range: 2
+        range: Hand
         count_limit: (1, 47021196)
         on_resolve {
             special_summon (1, monster) from gy
@@ -27,11 +28,11 @@ card "U.A. Player Manager" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1102
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
-        range: 2
+        range: Hand
         count_limit: (1, 47021196)
         on_resolve {
             special_summon (1, monster) from gy
@@ -39,9 +40,9 @@ card "U.A. Player Manager" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 1
-        code: 1102
+        effect_type: Single + Trigger
+        category: Destroy
+        code: SpecialSummonSuccess
         property: 81936
         count_limit: (1, 0)
         on_resolve {
@@ -50,9 +51,9 @@ card "U.A. Player Manager" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 16384
-        code: 1102
+        effect_type: Single + Trigger
+        category: Disable
+        code: SpecialSummonSuccess
         property: 81920
         count_limit: (1, 0)
         on_resolve {

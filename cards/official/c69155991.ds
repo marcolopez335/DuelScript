@@ -1,3 +1,4 @@
+// スクラップ・シャーク
 // Scrap Shark
 // Transpiled from c69155991.lua
 
@@ -11,36 +12,36 @@ card "Scrap Shark" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 2050
-        code: 1027
+        effect_type: Field + Continuous
+        code: Chaining
         property: 1024
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1022
-        range: 4
+        range: MonsterZone
         on_resolve {
             destroy (1+, monster, you controls, deck)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1138
-        range: 4
+        range: MonsterZone
         on_resolve {
             destroy (1+, monster, you controls, deck)
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 32
-        code: 1029
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: Destroyed
         property: 81920
         on_resolve {
             send (1+, monster, you controls, deck) to gy

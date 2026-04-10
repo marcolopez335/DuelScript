@@ -1,3 +1,4 @@
+// 精気を吸う骨の塔
 // Soul-Absorbing Bone Tower
 // Transpiled from c63012333.lua
 
@@ -11,20 +12,20 @@ card "Soul-Absorbing Bone Tower" {
     def: 1500
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 70
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 64
-        code: 1102
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        category: AtkChange
+        code: SpecialSummonSuccess
+        range: MonsterZone
         on_resolve {
             mill 2
         }

@@ -1,3 +1,4 @@
+// 鬼動武者
 // Samurai Destroyer
 // Transpiled from c40509732.lua
 
@@ -21,19 +22,19 @@ card "Samurai Destroyer" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 6
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
-        code: 1130
-        range: 4
+        effect_type: Single + Continuous
+        code: AttackAnnounce
+        range: MonsterZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -47,9 +48,9 @@ card "Samurai Destroyer" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1134
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -63,17 +64,17 @@ card "Samurai Destroyer" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 2
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 129
-        category: 512
+        effect_type: Single + Trigger
+        category: SpecialSummon
         code: 1015
         property: 81936
         on_resolve {

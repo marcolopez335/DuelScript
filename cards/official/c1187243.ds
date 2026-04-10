@@ -1,3 +1,4 @@
+// ガスタへの追風
 // Tailwind of Gusto
 // Transpiled from c1187243.lua
 
@@ -6,7 +7,7 @@ card "Tailwind of Gusto" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 41
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -14,9 +15,9 @@ card "Tailwind of Gusto" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 131080
-        range: 16
+        effect_type: Ignition
+        category: ToHand + Search
+        range: Graveyard
         count_limit: (1, 1187243)
         cost {
             banish self
@@ -28,9 +29,9 @@ card "Tailwind of Gusto" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 512
-        range: 8
+        effect_type: Ignition
+        category: SpecialSummon
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -38,9 +39,9 @@ card "Tailwind of Gusto" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

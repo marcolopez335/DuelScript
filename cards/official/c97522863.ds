@@ -1,3 +1,4 @@
+// 刻印を持つ者
 // The Man with the Mark
 // Transpiled from c97522863.lua
 
@@ -11,9 +12,9 @@ card "The Man with the Mark" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131112
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + ToGrave + Search
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 97522863)
         on_resolve {
@@ -22,9 +23,9 @@ card "The Man with the Mark" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131112
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + ToGrave + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 97522863)
         on_resolve {
@@ -33,18 +34,18 @@ card "The Man with the Mark" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 42
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 41
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }

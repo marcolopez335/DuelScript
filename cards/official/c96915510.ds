@@ -1,3 +1,4 @@
+// 魔神儀の創造主－クリオルター
 // Crealtar, the Impcantation Originator
 // Transpiled from c96915510.lua
 
@@ -20,10 +21,10 @@ card "Crealtar, the Impcantation Originator" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 640
-        code: 1002
-        range: 2
+        effect_type: QuickEffect
+        category: DefChange + SpecialSummon
+        code: FreeChain
+        range: Hand
         count_limit: (1, 96915510)
         on_resolve {
             discard (1, card)
@@ -36,18 +37,18 @@ card "Crealtar, the Impcantation Originator" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 2
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 2000
         }

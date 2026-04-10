@@ -1,3 +1,4 @@
+// 王神鳥シムルグ
 // Simorgh, Bird of Sovereignty
 // Transpiled from c72330894.lua
 
@@ -20,7 +21,7 @@ card "Simorgh, Bird of Sovereignty" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 239
         property: 263168
         on_resolve {
@@ -28,9 +29,9 @@ card "Simorgh, Bird of Sovereignty" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 71
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
@@ -44,10 +45,10 @@ card "Simorgh, Bird of Sovereignty" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 72330894)
         on_resolve {
             special_summon (1, monster) from gy

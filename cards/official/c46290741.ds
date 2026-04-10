@@ -1,3 +1,4 @@
+// 城塞クジラ
 // Citadel Whale
 // Transpiled from c46290741.lua
 
@@ -15,9 +16,9 @@ card "Citadel Whale" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 18
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand + Graveyard
         count_limit: (1, 46290741)
         cost {
             tribute self
@@ -28,8 +29,8 @@ card "Citadel Whale" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        code: 1102
+        effect_type: Single + Trigger
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             set (1, card)
@@ -37,11 +38,11 @@ card "Citadel Whale" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 268435457
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             negate activation

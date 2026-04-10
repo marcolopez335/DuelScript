@@ -1,3 +1,4 @@
+// サラマングレイト・オブ・ファイア
 // Salamangreat of Fire
 // Transpiled from c11962031.lua
 
@@ -11,9 +12,9 @@ card "Salamangreat of Fire" {
     def: 800
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 11962031)
         on_resolve {
@@ -27,9 +28,9 @@ card "Salamangreat of Fire" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 11962031)
         on_resolve {
@@ -43,10 +44,10 @@ card "Salamangreat of Fire" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 1
-        code: 1132
-        range: 16
+        effect_type: Field + Trigger
+        category: Destroy
+        code: DamageCalculation
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self

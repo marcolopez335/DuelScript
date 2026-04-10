@@ -1,3 +1,4 @@
+// アマゾネスの斥候
 // Amazoness Spy
 // Transpiled from c31102447.lua
 
@@ -11,9 +12,9 @@ card "Amazoness Spy" {
     def: 1200
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 31102447)
         on_resolve {
             special_summon (1, monster) from gy
@@ -21,9 +22,9 @@ card "Amazoness Spy" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 24
-        code: 1140
+        effect_type: Single + Trigger
+        category: ToHand + ToDeck
+        code: BattleDamage
         property: 16
         on_resolve {
             add_to_hand (1, card, you controls) from gy

@@ -1,3 +1,4 @@
+// 未み界かい域いきのジャッカロープ
 // Danger!? Jackalope?
 // Transpiled from c43694650.lua
 
@@ -11,10 +12,10 @@ card "Danger!? Jackalope?" {
     def: 2000
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 66176
-        code: 1002
-        range: 2
+        effect_type: Ignition
+        category: DefChange + SpecialSummon + Draw
+        code: FreeChain
+        range: Hand
         on_resolve {
             shuffle_hand
             send (1+, card, you controls, deck) to gy
@@ -24,9 +25,9 @@ card "Danger!? Jackalope?" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
-        code: 1014
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 65536
         count_limit: (1, 43694650)
         on_resolve {
@@ -35,9 +36,9 @@ card "Danger!? Jackalope?" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1011
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: TurnEnd
         property: 65536
         count_limit: (1, 43694650)
         on_resolve {

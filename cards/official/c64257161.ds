@@ -1,3 +1,4 @@
+// 百鬼羅刹 冷血ミアンダ
 // Goblin Biker Mean Merciless
 // Transpiled from c64257161.lua
 
@@ -11,11 +12,11 @@ card "Goblin Biker Mean Merciless" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 512
-        code: 1100
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SummonSuccess
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 64257161)
         on_resolve {
             special_summon (1, monster) from gy
@@ -23,11 +24,11 @@ card "Goblin Biker Mean Merciless" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
-        code: 1102
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 64257161)
         on_resolve {
             special_summon (1, monster) from gy
@@ -35,9 +36,9 @@ card "Goblin Biker Mean Merciless" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 512
-        range: 16
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             detach 1 overlay_unit from self

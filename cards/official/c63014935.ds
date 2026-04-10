@@ -1,3 +1,4 @@
+// ヴォルカニック・クイーン
 // Volcanic Queen
 // Transpiled from c63014935.lua
 
@@ -15,10 +16,10 @@ card "Volcanic Queen" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 524288
+        effect_type: Ignition
+        category: Damage
         property: 2048
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             send self to gy
@@ -29,10 +30,10 @@ card "Volcanic Queen" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 524290
+        effect_type: Field + MandatoryTrigger
+        category: Release + Damage
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             tribute (1, monster, you controls)
@@ -41,7 +42,7 @@ card "Volcanic Queen" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 92
         property: 1024
         on_resolve {
@@ -57,9 +58,9 @@ card "Volcanic Queen" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         on_resolve {
             special_summon self from hand
         }

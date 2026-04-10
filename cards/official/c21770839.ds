@@ -1,3 +1,4 @@
+// オッドアイズ・ファンタズマ・ドラゴン
 // Odd-Eyes Phantasma Dragon
 // Transpiled from c21770839.lua
 
@@ -16,9 +17,9 @@ card "Odd-Eyes Phantasma Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 8
-        range: 512
+        effect_type: Ignition
+        category: ToHand
+        range: PendulumZone
         count_limit: (1, 21770839)
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
@@ -27,9 +28,9 @@ card "Odd-Eyes Phantasma Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -37,10 +38,10 @@ card "Odd-Eyes Phantasma Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 2097152
+        effect_type: Single + Trigger
+        category: SynchroSummon
         code: 1134
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {

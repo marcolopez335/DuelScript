@@ -1,3 +1,4 @@
+// ＳＰＹＲＡＬ ＭＩＳＳＩＯＮ－救出
 // SPYRAL MISSION - Rescue
 // Transpiled from c9212051.lua
 
@@ -6,16 +7,16 @@ card "SPYRAL MISSION - Rescue" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 16
-        category: 8
-        code: 1002
+        effect_type: Activate
+        category: ToHand
+        code: FreeChain
         property: 16
         count_limit: (1, 0)
         on_resolve {
@@ -24,11 +25,11 @@ card "SPYRAL MISSION - Rescue" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 8
-        code: 1002
+        effect_type: QuickEffect
+        category: ToHand
+        code: FreeChain
         property: 16
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
@@ -36,11 +37,11 @@ card "SPYRAL MISSION - Rescue" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        category: 512
-        code: 1002
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
         property: 16
-        range: 16
+        range: Graveyard
         cost {
             banish self
         }

@@ -1,3 +1,4 @@
+// 飢鰐竜アーケティス
 // Ravenous Crocodragon Archethys
 // Transpiled from c87188910.lua
 
@@ -21,9 +22,9 @@ card "Ravenous Crocodragon Archethys" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 65536
-        code: 1102
+        effect_type: Single + Trigger
+        category: Draw
+        code: SpecialSummonSuccess
         property: 67584
         count_limit: (1, 87188910)
         on_resolve {
@@ -32,31 +33,31 @@ card "Ravenous Crocodragon Archethys" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 104
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: def + 0
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        category: 1
-        code: 1002
+        effect_type: QuickEffect
+        category: Destroy
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, you controls, hand)

@@ -1,3 +1,4 @@
+// 青氷の白夜龍
 // White Night Dragon
 // Transpiled from c79473793.lua
 
@@ -15,11 +16,11 @@ card "White Night Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1024
-        category: 268435457
-        code: 1027
+        effect_type: MandatoryQuick
+        category: Destroy + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         on_resolve {
             negate activation
             destroy (1+, spell, you controls)
@@ -27,9 +28,9 @@ card "White Night Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        code: 1131
-        range: 4
+        effect_type: Field + Trigger
+        code: BattleTarget
+        range: MonsterZone
         cost {
             send self to gy
         }

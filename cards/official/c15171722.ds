@@ -1,3 +1,4 @@
+// エヴォルダー・リオス
 // Evolsaur Lios
 // Transpiled from c15171722.lua
 
@@ -11,8 +12,8 @@ card "Evolsaur Lios" {
     def: 400
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        code: 1100
+        effect_type: Single + Trigger
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 15171722)
         on_resolve {
@@ -21,8 +22,8 @@ card "Evolsaur Lios" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        code: 1102
+        effect_type: Single + Trigger
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 15171722)
         on_resolve {
@@ -31,9 +32,9 @@ card "Evolsaur Lios" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 134217760
-        range: 4
+        effect_type: Ignition
+        category: ToGrave + LevelChange
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, monster, either_player controls) to gy
@@ -49,8 +50,8 @@ card "Evolsaur Lios" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2049
-        code: 1102
+        effect_type: Single + Continuous
+        code: SpecialSummonSuccess
         property: 1024
         on_resolve {
         }

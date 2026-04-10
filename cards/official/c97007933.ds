@@ -1,3 +1,4 @@
+// HSR魔剣ダーマ
 // Hi-Speedroid Kendama
 // Transpiled from c97007933.lua
 
@@ -21,7 +22,7 @@ card "Hi-Speedroid Kendama" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 203
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
@@ -29,10 +30,10 @@ card "Hi-Speedroid Kendama" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 524288
+        effect_type: Ignition
+        category: Damage
         property: 2048
-        range: 4
+        range: MonsterZone
         count_limit: (1, 97007933)
         cost {
             banish self
@@ -43,9 +44,9 @@ card "Hi-Speedroid Kendama" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 512
-        range: 16
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

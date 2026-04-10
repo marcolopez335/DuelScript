@@ -1,3 +1,4 @@
+// ペンギン忍者
 // Penguin Ninja
 // Transpiled from c41255165.lua
 
@@ -11,8 +12,8 @@ card "Penguin Ninja" {
     def: 700
 
     raw_effect "Effect 1" {
-        effect_type: 161
-        category: 8
+        effect_type: Single + Flip + Trigger
+        category: ToHand
         property: 65552
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
@@ -20,10 +21,10 @@ card "Penguin Ninja" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 4096
+        effect_type: Ignition
+        category: DiceRoll
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 41255165)
         on_resolve {
             change_battle_position (1, monster)

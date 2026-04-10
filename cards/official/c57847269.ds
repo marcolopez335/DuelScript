@@ -1,3 +1,4 @@
+// 道化の一座『開演』
 // Clown Crew 'Matinee'
 // Transpiled from c57847269.lua
 
@@ -12,16 +13,16 @@ card "Clown Crew 'Matinee'" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 8
+        effect_type: Ignition
+        category: SpecialSummon
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -29,11 +30,11 @@ card "Clown Crew 'Matinee'" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 65536
+        effect_type: Field + Trigger
+        category: Draw
         code: 4608
         property: 2048
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             draw 1
@@ -43,8 +44,8 @@ card "Clown Crew 'Matinee'" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 1017
+        effect_type: Field + Continuous
+        code: Release
         on_resolve {
             set_flag "tracked" on self
         }

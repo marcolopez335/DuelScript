@@ -1,3 +1,4 @@
+// ＣＮｏ．７９ ＢＫ 将星のカエサル
 // Number C79: Battlin' Boxer General Kaiser
 // Transpiled from c10300821.lua
 
@@ -21,20 +22,20 @@ card "Number C79: Battlin' Boxer General Kaiser" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 32769
+        effect_type: QuickEffect
+        category: Destroy
         code: 1105
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             negate summon
@@ -43,10 +44,10 @@ card "Number C79: Battlin' Boxer General Kaiser" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 32
-        code: 1130
-        range: 4
+        effect_type: Field + Trigger
+        category: ToGrave
+        code: AttackAnnounce
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, monster, you controls, hand) to gy

@@ -1,3 +1,4 @@
+// バク団
 // Explossum
 // Transpiled from c38210374.lua
 
@@ -11,10 +12,10 @@ card "Explossum" {
     def: 100
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 262144
+        effect_type: Ignition
+        category: EquipAction
         property: 16
-        range: 6
+        range: Hand + MonsterZone
         on_resolve {
             send (1+, card, either_player controls) to gy
             equip (1, card) to (1, monster)
@@ -22,9 +23,9 @@ card "Explossum" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
+        effect_type: Field + MandatoryTrigger
         code: 4098
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
         }

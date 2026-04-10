@@ -1,3 +1,4 @@
+// 破壊輪廻
 // Loop of Destruction
 // Transpiled from c7852509.lua
 
@@ -6,27 +7,27 @@ card "Loop of Destruction" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 114
         property: 131072
-        range: 8
+        range: SpellTrapZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 524289
-        code: 1029
+        effect_type: Field + Trigger
+        category: Destroy + Damage
+        code: Destroyed
         property: 65552
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)

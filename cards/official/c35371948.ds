@@ -1,3 +1,4 @@
+// トリックスター・ライトステージ
 // Trickstar Light Stage
 // Transpiled from c35371948.lua
 
@@ -6,9 +7,9 @@ card "Trickstar Light Stage" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 131080
-        code: 1002
+        effect_type: Activate
+        category: ToHand + Search
+        code: FreeChain
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)
@@ -16,9 +17,9 @@ card "Trickstar Light Stage" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
+        effect_type: Ignition
         property: 16
-        range: 256
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -41,10 +42,10 @@ card "Trickstar Light Stage" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        category: 524288
+        effect_type: Field + Continuous
+        category: Damage
         code: 1111
-        range: 256
+        range: FieldZone
         on_resolve {
             deal_damage to opponent: 200
         }

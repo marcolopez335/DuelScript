@@ -1,3 +1,4 @@
+// D・リペアユニット
 // Morphtronic Repair Unit
 // Transpiled from c90239723.lua
 
@@ -6,9 +7,9 @@ card "Morphtronic Repair Unit" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         property: 16
         cost {
             send self to gy
@@ -20,7 +21,7 @@ card "Morphtronic Repair Unit" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1015
         on_resolve {
             destroy (1+, monster, you controls, hand)
@@ -28,7 +29,7 @@ card "Morphtronic Repair Unit" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 4
+        effect_type: Equip
         code: 14
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }

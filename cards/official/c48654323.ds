@@ -1,3 +1,4 @@
+// 凶導の白聖骸
 // White Relic of Dogmatika
 // Transpiled from c48654323.lua
 
@@ -20,9 +21,9 @@ card "White Relic of Dogmatika" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 2097152
-        code: 1102
+        effect_type: Single + Trigger
+        category: SynchroSummon
+        code: SpecialSummonSuccess
         property: 81936
         on_resolve {
             register_effect on self {
@@ -33,20 +34,20 @@ card "White Relic of Dogmatika" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 42
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 32
-        code: 1102
+        effect_type: Field + Trigger
+        category: ToGrave
+        code: SpecialSummonSuccess
         property: 81920
-        range: 4
+        range: MonsterZone
         count_limit: (1, 48654323)
         on_resolve {
             reveal (1+, card, opponent controls)
@@ -56,7 +57,7 @@ card "White Relic of Dogmatika" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 1024
         on_resolve {

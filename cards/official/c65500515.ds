@@ -1,3 +1,4 @@
+// 隅烏賊
 // Squirt Squid
 // Transpiled from c65500515.lua
 
@@ -11,9 +12,9 @@ card "Squirt Squid" {
     def: 1800
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 1536
-        code: 1131
+        effect_type: Single + Trigger
+        category: SpecialSummon + Token
+        code: BattleTarget
         count_limit: (1, 0)
         on_resolve {
             create_token { atk: 0 def: 0 }
@@ -26,10 +27,10 @@ card "Squirt Squid" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 70
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }

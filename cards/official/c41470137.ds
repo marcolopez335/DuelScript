@@ -1,3 +1,4 @@
+// 剣闘獣ベストロウリィ
 // Gladiator Beast Bestiari
 // Transpiled from c41470137.lua
 
@@ -11,9 +12,9 @@ card "Gladiator Beast Bestiari" {
     def: 800
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 1
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: Destroy
+        code: SpecialSummonSuccess
         property: 16
         on_resolve {
             destroy (1+, spell, you controls, deck)
@@ -21,10 +22,10 @@ card "Gladiator Beast Bestiari" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 4224
-        range: 4
+        range: MonsterZone
         cost {
             send self to deck
         }

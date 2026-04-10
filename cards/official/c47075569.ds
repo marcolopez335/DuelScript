@@ -1,3 +1,4 @@
+// EMペンデュラム・マジシャン
 // Performapal Pendulum Sorcerer
 // Transpiled from c47075569.lua
 
@@ -12,9 +13,9 @@ card "Performapal Pendulum Sorcerer" {
     def: 800
 
     raw_effect "Effect 1" {
-        effect_type: 514
-        code: 1102
-        range: 512
+        effect_type: Field + MandatoryTrigger
+        code: SpecialSummonSuccess
+        range: PendulumZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -24,9 +25,9 @@ card "Performapal Pendulum Sorcerer" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131081
-        code: 1102
+        effect_type: Single + Trigger
+        category: Destroy + ToHand + Search
+        code: SpecialSummonSuccess
         property: 81936
         count_limit: (1, 47075569)
         on_resolve {

@@ -1,3 +1,4 @@
+// DDD超死偉王パープリッシュ・ヘル・アーマゲドン
 // D/D/D Super Doom King Purple Armageddon
 // Transpiled from c84569886.lua
 
@@ -21,10 +22,10 @@ card "D/D/D Super Doom King Purple Armageddon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 2097152
+        effect_type: Field + Trigger
+        category: SynchroSummon
         code: 1133
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -35,10 +36,10 @@ card "D/D/D Super Doom King Purple Armageddon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 524289
+        effect_type: Ignition
+        category: Destroy + Damage
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 84569886)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -47,10 +48,10 @@ card "D/D/D Super Doom King Purple Armageddon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 2097152
+        effect_type: Field + Trigger
+        category: SynchroSummon
         code: 1133
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -60,8 +61,8 @@ card "D/D/D Super Doom King Purple Armageddon" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        code: 1029
+        effect_type: Single + Trigger
+        code: Destroyed
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy

@@ -1,3 +1,4 @@
+// 宵星の騎士ギルス
 // Girsu, the Orcust Mekk-Knight
 // Transpiled from c69811710.lua
 
@@ -11,9 +12,9 @@ card "Girsu, the Orcust Mekk-Knight" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 32
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 69811710)
         on_resolve {
@@ -22,9 +23,9 @@ card "Girsu, the Orcust Mekk-Knight" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 32
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 69811710)
         on_resolve {
@@ -33,9 +34,9 @@ card "Girsu, the Orcust Mekk-Knight" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 1536
-        range: 4
+        effect_type: Ignition
+        category: SpecialSummon + Token
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             create_token { atk: 0 def: 0 }
@@ -46,7 +47,7 @@ card "Girsu, the Orcust Mekk-Knight" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 115
         property: 1024
         on_resolve {

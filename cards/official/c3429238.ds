@@ -1,3 +1,4 @@
+// ドリル・ウォリアー
 // Drill Warrior
 // Transpiled from c3429238.lua
 
@@ -21,17 +22,17 @@ card "Drill Warrior" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        range: 4
+        effect_type: Ignition
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 4
-        range: 4
+        effect_type: Ignition
+        category: Banish
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, monster, opponent controls, hand) to gy
@@ -40,10 +41,10 @@ card "Drill Warrior" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 512
+        effect_type: Field + MandatoryTrigger
+        category: SpecialSummon
         code: 4098
-        range: 32
+        range: Banished
         on_resolve {
             special_summon (1, monster) from gy
             add_to_hand (1+, monster, opponent controls) from hand

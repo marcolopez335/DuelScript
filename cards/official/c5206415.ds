@@ -1,3 +1,4 @@
+// 天雷震龍－サンダー・ドラゴン
 // Thunder Dragonlord
 // Transpiled from c5206415.lua
 
@@ -15,20 +16,20 @@ card "Thunder Dragonlord" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         on_resolve {
             banish (1+, card, you controls, gy)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        code: 1002
+        effect_type: QuickEffect
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             banish self
@@ -42,9 +43,9 @@ card "Thunder Dragonlord" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
+        effect_type: Field + Trigger
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, you controls, gy) to gy

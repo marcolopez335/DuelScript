@@ -1,3 +1,4 @@
+// 宝玉の祝福
 // Crystal Boon
 // Transpiled from c85766789.lua
 
@@ -6,9 +7,9 @@ card "Crystal Boon" {
     type: Normal Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 1049088
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon + Recover
+        code: FreeChain
         on_resolve {
             special_summon (1, monster) from gy
             gain_lp: 1000
@@ -16,11 +17,11 @@ card "Crystal Boon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 131656
-        code: 1030
+        effect_type: Field + Trigger
+        category: ToHand + AtkChange + SpecialSummon + Search
+        code: LeaveField
         property: 81920
-        range: 16
+        range: Graveyard
         count_limit: (1, 85766789)
         cost {
             banish self

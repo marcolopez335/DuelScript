@@ -1,3 +1,4 @@
+// 星遺物－『星杖』
 // World Legacy - 'World Wand'
 // Transpiled from c93920420.lua
 
@@ -15,7 +16,7 @@ card "World Legacy - 'World Wand'" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -23,9 +24,9 @@ card "World Legacy - 'World Wand'" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
-        code: 1014
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 114688
         count_limit: (1, 93920420)
         on_resolve {
@@ -34,10 +35,10 @@ card "World Legacy - 'World Wand'" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 512
+        effect_type: Ignition
+        category: SpecialSummon
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self

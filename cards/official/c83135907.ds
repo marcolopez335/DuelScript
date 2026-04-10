@@ -1,3 +1,4 @@
+// スクラップ・ゴブリン
 // Scrap Goblin
 // Transpiled from c83135907.lua
 
@@ -11,7 +12,7 @@ card "Scrap Goblin" {
     def: 500
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -19,10 +20,10 @@ card "Scrap Goblin" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 1
+        effect_type: Field + MandatoryTrigger
+        category: Destroy
         code: 4224
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, either_player controls)
@@ -30,17 +31,17 @@ card "Scrap Goblin" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
-        code: 1131
+        effect_type: Single + Continuous
+        code: BattleTarget
         property: 1024
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 8
-        code: 1029
+        effect_type: Single + Trigger
+        category: ToHand
+        code: Destroyed
         property: 65552
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy

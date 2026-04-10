@@ -1,3 +1,4 @@
+// ナチュル・マロン
 // Naturia Marron
 // Transpiled from c24694698.lua
 
@@ -11,9 +12,9 @@ card "Naturia Marron" {
     def: 700
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 32
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: SummonSuccess
         property: 16384
         on_resolve {
             send (1+, monster, you controls, deck) to gy
@@ -21,10 +22,10 @@ card "Naturia Marron" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 65536
+        effect_type: Ignition
+        category: Draw
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to deck shuffle

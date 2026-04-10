@@ -1,3 +1,4 @@
+// カラクリ将軍 無零
 // Karakuri Shogun mdl 00 'Burei'
 // Transpiled from c23874409.lua
 
@@ -21,19 +22,19 @@ card "Karakuri Shogun mdl 00 'Burei'" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 512
-        code: 1102
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 4096
+        effect_type: Ignition
+        category: DiceRoll
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)

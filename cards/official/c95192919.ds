@@ -1,3 +1,4 @@
+// 烈風の覇者シムルグ
 // Simorgh, Lord of the Storm
 // Transpiled from c95192919.lua
 
@@ -15,21 +16,21 @@ card "Simorgh, Lord of the Storm" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 71
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 16
-        code: 1027
+        effect_type: QuickEffect
+        category: ToDeck
+        code: Chaining
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 95192919)
         cost {
             tribute self
@@ -40,10 +41,10 @@ card "Simorgh, Lord of the Storm" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 8
-        code: 1140
-        range: 16
+        effect_type: Field + Trigger
+        category: ToHand
+        code: BattleDamage
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy

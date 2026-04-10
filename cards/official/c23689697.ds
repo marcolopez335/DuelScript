@@ -1,3 +1,4 @@
+// 凍氷帝メビウス
 // Mobius the Mega Monarch
 // Transpiled from c23689697.lua
 
@@ -15,9 +16,9 @@ card "Mobius the Mega Monarch" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 1
-        code: 1100
+        effect_type: Single + Trigger
+        category: Destroy
+        code: SummonSuccess
         property: 16
         on_resolve {
             destroy (1+, spell, either_player controls)
@@ -25,14 +26,14 @@ card "Mobius the Mega Monarch" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 251
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 20
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -40,7 +41,7 @@ card "Mobius the Mega Monarch" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 23
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }

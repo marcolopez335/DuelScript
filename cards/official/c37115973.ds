@@ -1,3 +1,4 @@
+// ナンバーズハンター
 // Numeral Hunter
 // Transpiled from c37115973.lua
 
@@ -11,44 +12,44 @@ card "Numeral Hunter" {
     def: 1400
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 16
-        code: 1100
+        effect_type: Single + MandatoryTrigger
+        category: ToDeck
+        code: SummonSuccess
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 16
-        code: 1101
+        effect_type: Single + MandatoryTrigger
+        category: ToDeck
+        code: FlipSummonSuccess
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 16
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: ToDeck
+        code: SpecialSummonSuccess
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -56,10 +57,10 @@ card "Numeral Hunter" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 1
+        effect_type: Single
         code: 1
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
         }

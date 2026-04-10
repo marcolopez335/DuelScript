@@ -1,3 +1,4 @@
+// 炎傑の梁山閣
 // Fire Fortress atop Liang Peak
 // Transpiled from c66750703.lua
 
@@ -6,31 +7,31 @@ card "Fire Fortress atop Liang Peak" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 1100
-        range: 256
+        effect_type: Field + Continuous
+        code: SummonSuccess
+        range: FieldZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 1102
-        range: 256
+        effect_type: Field + Continuous
+        code: SpecialSummonSuccess
+        range: FieldZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        range: 256
+        effect_type: Ignition
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -41,9 +42,9 @@ card "Fire Fortress atop Liang Peak" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 64
-        category: 131080
-        range: 256
+        effect_type: Ignition
+        category: ToHand + Search
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -52,9 +53,9 @@ card "Fire Fortress atop Liang Peak" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 64
-        category: 512
-        range: 256
+        effect_type: Ignition
+        category: SpecialSummon
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

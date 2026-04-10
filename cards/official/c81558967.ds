@@ -1,3 +1,4 @@
+// ワルキューレ・フィアット
 // Valkyrie Vierte
 // Transpiled from c81558967.lua
 
@@ -11,9 +12,9 @@ card "Valkyrie Vierte" {
     def: 1400
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 131144
-        range: 4
+        effect_type: Ignition
+        category: ToHand + AtkChange + Search
+        range: MonsterZone
         count_limit: (1, 81558967)
         on_resolve {
             reveal (1, card, opponent controls, deck)
@@ -27,9 +28,9 @@ card "Valkyrie Vierte" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
-        code: 1140
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: BattleDamage
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

@@ -1,3 +1,4 @@
+// 魔法妖精 バーガンディ
 // Burgundy the Magic Elf
 // Transpiled from c89974735.lua
 
@@ -11,10 +12,10 @@ card "Burgundy the Magic Elf" {
     def: 1400
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 524288
+        effect_type: Field + Trigger
+        category: Damage
         code: 1018
-        range: 4
+        range: MonsterZone
         count_limit: (1, 89974735)
         on_resolve {
             deal_damage to opponent: 1000
@@ -22,9 +23,9 @@ card "Burgundy the Magic Elf" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 128
-        code: 1140
+        effect_type: Single + Trigger
+        category: DefChange
+        code: BattleDamage
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, either_player controls) to gy

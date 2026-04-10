@@ -1,3 +1,4 @@
+// アーマード・シャーク
 // Armored Shark
 // Transpiled from c27480536.lua
 
@@ -11,10 +12,10 @@ card "Armored Shark" {
     def: 2000
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
+        effect_type: Ignition
+        category: SpecialSummon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 27480536)
         cost {
             send self to gy
@@ -25,11 +26,11 @@ card "Armored Shark" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 262144
-        code: 1002
+        effect_type: QuickEffect
+        category: EquipAction
+        code: FreeChain
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             equip (1, card) to (1, monster)
@@ -37,7 +38,7 @@ card "Armored Shark" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         property: 1024
         on_resolve {
@@ -45,7 +46,7 @@ card "Armored Shark" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 500

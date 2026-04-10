@@ -1,3 +1,4 @@
+// シンクロ・ワンウェイ
 // One-Way Synchro
 // Transpiled from c89932017.lua
 
@@ -6,9 +7,9 @@ card "One-Way Synchro" {
     type: Normal Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 131592
-        code: 1002
+        effect_type: Activate
+        category: ToHand + SpecialSummon + Search
+        code: FreeChain
         count_limit: (1, 89932017)
         on_resolve {
             add_to_hand (1, card, you controls) from gy
@@ -17,10 +18,10 @@ card "One-Way Synchro" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
+        effect_type: QuickEffect
         category: 67108864
-        code: 1002
-        range: 16
+        code: FreeChain
+        range: Graveyard
         count_limit: (1, 89932017)
         on_resolve {
             set (1, card)

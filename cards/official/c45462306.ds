@@ -1,3 +1,4 @@
+// Ｘ－セイバー ブルノ
 // X-Saber Bruno
 // Transpiled from c45462306.lua
 
@@ -11,10 +12,10 @@ card "X-Saber Bruno" {
     def: 1100
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             synchro_summon (1, synchro monster) using (1+, monster, you controls)
@@ -22,9 +23,9 @@ card "X-Saber Bruno" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 45462306)
         cost {
             banish self
@@ -35,9 +36,9 @@ card "X-Saber Bruno" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -47,9 +48,9 @@ card "X-Saber Bruno" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {

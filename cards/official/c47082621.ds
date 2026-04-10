@@ -1,3 +1,4 @@
+// 葬世の神 デーヴァリーム
 // Regenesis Overlord
 // Transpiled from c47082621.lua
 
@@ -15,10 +16,10 @@ card "Regenesis Overlord" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 263168
-        range: 16
+        range: Graveyard
         count_limit: (1, 47082621)
         on_resolve {
             banish (1+, monster, you controls, gy)
@@ -26,9 +27,9 @@ card "Regenesis Overlord" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 8
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand
+        code: SpecialSummonSuccess
         property: 65552
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
@@ -36,9 +37,9 @@ card "Regenesis Overlord" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk - 2500
         }

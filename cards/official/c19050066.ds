@@ -1,3 +1,4 @@
+// ＥＭバロックリボー
 // Performapal Barokuriboh
 // Transpiled from c19050066.lua
 
@@ -16,10 +17,10 @@ card "Performapal Barokuriboh" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 131081
+        effect_type: Field + Trigger
+        category: Destroy + ToHand + Search
         code: 4104
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -29,26 +30,26 @@ card "Performapal Barokuriboh" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1140
-        range: 2
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: BattleDamage
+        range: Hand
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 332
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1141
         on_resolve {
             change_battle_position (1, monster)

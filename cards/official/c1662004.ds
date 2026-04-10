@@ -1,3 +1,4 @@
+// 炎星師－チョウテン
 // Brotherhood of the Fire Fist - Spirit
 // Transpiled from c1662004.lua
 
@@ -11,7 +12,7 @@ card "Brotherhood of the Fire Fist - Spirit" {
     def: 200
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 236
         property: 263168
         on_resolve {
@@ -19,9 +20,9 @@ card "Brotherhood of the Fire Fist - Spirit" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
-        code: 1100
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SummonSuccess
         property: 16
         count_limit: (1, 1662004)
         on_resolve {
@@ -34,7 +35,7 @@ card "Brotherhood of the Fire Fist - Spirit" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 85
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }

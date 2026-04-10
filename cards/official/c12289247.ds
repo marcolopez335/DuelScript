@@ -1,3 +1,4 @@
+// クロノグラフ・マジシャン
 // Chronograph Sorcerer
 // Transpiled from c12289247.lua
 
@@ -16,9 +17,9 @@ card "Chronograph Sorcerer" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 513
-        range: 512
+        effect_type: Ignition
+        category: Destroy + SpecialSummon
+        range: PendulumZone
         count_limit: (1, 12289247)
         on_resolve {
             destroy (1+, monster, you controls, hand)
@@ -28,11 +29,11 @@ card "Chronograph Sorcerer" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1029
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 81920
-        range: 2
+        range: Hand
         on_resolve {
             special_summon (1, monster) from gy
             special_summon (1, monster) from gy
@@ -40,9 +41,9 @@ card "Chronograph Sorcerer" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 1073742336
-        range: 4
+        effect_type: Ignition
+        category: SpecialSummon
+        range: MonsterZone
         cost {
             banish self
         }

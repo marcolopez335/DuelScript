@@ -1,3 +1,4 @@
+// 武神－ミカヅチ
 // Bujin Mikazuchi
 // Transpiled from c53678698.lua
 
@@ -11,21 +12,21 @@ card "Bujin Mikazuchi" {
     def: 1500
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
-        code: 1014
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 16384
-        range: 2
+        range: Hand
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 131080
+        effect_type: Field + Trigger
+        category: ToHand + Search
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -34,10 +35,10 @@ card "Bujin Mikazuchi" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 1014
+        effect_type: Field + Continuous
+        code: ChainEnd
         property: 1024
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }

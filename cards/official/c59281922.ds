@@ -1,3 +1,4 @@
+// サイバー・ドラゴン・ドライ
 // Cyber Dragon Drei
 // Transpiled from c59281922.lua
 
@@ -11,8 +12,8 @@ card "Cyber Dragon Drei" {
     def: 800
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        code: 1100
+        effect_type: Single + Trigger
+        code: SummonSuccess
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -22,8 +23,8 @@ card "Cyber Dragon Drei" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        code: 1011
+        effect_type: Single + Trigger
+        code: TurnEnd
         property: 81936
         on_resolve {
             register_effect on self {
@@ -38,10 +39,10 @@ card "Cyber Dragon Drei" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 114
         property: 131072
-        range: 20
+        range: MonsterZone + Graveyard
         on_resolve {
         }
     }

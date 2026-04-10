@@ -1,3 +1,4 @@
+// 海晶乙女アクア・アルゴノート
 // Marincess Aqua Argonaut
 // Transpiled from c20934852.lua
 
@@ -20,7 +21,7 @@ card "Marincess Aqua Argonaut" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 332
         range: 4096
         on_resolve {
@@ -29,10 +30,10 @@ card "Marincess Aqua Argonaut" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 8
+        effect_type: Ignition
+        category: ToHand
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 20934852)
         on_resolve {
             return (1+, monster, either_player controls) to hand
@@ -40,10 +41,10 @@ card "Marincess Aqua Argonaut" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 16896
-        code: 1027
-        range: 4
+        effect_type: QuickEffect
+        category: SpecialSummon + Disable
+        code: Chaining
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

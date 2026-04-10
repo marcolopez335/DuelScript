@@ -1,3 +1,4 @@
+// アームズ・エイド
 // Armory Arm
 // Transpiled from c29071332.lua
 
@@ -21,10 +22,10 @@ card "Armory Arm" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 262144
+        effect_type: Ignition
+        category: EquipAction
         property: 16
-        range: 4
+        range: MonsterZone
         on_resolve {
             send (1+, monster, either_player controls) to gy
             equip (1, card) to (1, monster)
@@ -32,16 +33,16 @@ card "Armory Arm" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 8
+        effect_type: Ignition
+        category: SpecialSummon
+        range: SpellTrapZone
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 1000
@@ -49,18 +50,18 @@ card "Armory Arm" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 514
-        category: 524288
-        code: 1140
+        effect_type: Field + MandatoryTrigger
+        category: Damage
+        code: BattleDamage
         property: 2048
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             deal_damage to opponent: 1000
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         property: 1024
         on_resolve {

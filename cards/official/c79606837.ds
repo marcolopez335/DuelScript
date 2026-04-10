@@ -1,3 +1,4 @@
+// 虹光の宣告者
 // Herald of the Arc Light
 // Transpiled from c79606837.lua
 
@@ -21,20 +22,20 @@ card "Herald of the Arc Light" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 63
         property: 256
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 268435457
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         cost {
             tribute self
         }
@@ -45,9 +46,9 @@ card "Herald of the Arc Light" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: ChainEnd
         property: 81920
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck

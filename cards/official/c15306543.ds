@@ -1,3 +1,4 @@
+// 星逢の神籬
 // Stars Align Above the Shrine
 // Transpiled from c15306543.lua
 
@@ -6,17 +7,17 @@ card "Stars Align Above the Shrine" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        code: 1002
-        range: 256
+        effect_type: Ignition
+        category: SpecialSummon
+        code: FreeChain
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             ritual_summon (1, ritual monster) using (1+, monster, you controls)
@@ -24,10 +25,10 @@ card "Stars Align Above the Shrine" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        code: 1012
+        effect_type: Field + Trigger
+        code: ChainSolving
         property: 65536
-        range: 256
+        range: FieldZone
         count_limit: (2, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from gy
@@ -37,9 +38,9 @@ card "Stars Align Above the Shrine" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         on_resolve {
             ritual_summon (1, ritual monster) using (1+, monster, you controls)
         }

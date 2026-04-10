@@ -1,3 +1,4 @@
+// 月光舞香姫
 // Lunalight Perfume Dancer
 // Transpiled from c81196066.lua
 
@@ -20,9 +21,9 @@ card "Lunalight Perfume Dancer" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 81196066)
         on_resolve {
@@ -32,10 +33,10 @@ card "Lunalight Perfume Dancer" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 520
+        effect_type: Ignition
+        category: ToHand + SpecialSummon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -45,9 +46,9 @@ card "Lunalight Perfume Dancer" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 2097152
-        range: 16
+        effect_type: Ignition
+        category: SynchroSummon
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self
@@ -61,7 +62,7 @@ card "Lunalight Perfume Dancer" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 100
         on_resolve {
             modifier: atk + 0

@@ -1,3 +1,4 @@
+// 聖なる降誕
 // Starry Knight Ceremony
 // Transpiled from c85590798.lua
 
@@ -6,16 +7,16 @@ card "Starry Knight Ceremony" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 131096
-        range: 8
+        effect_type: Ignition
+        category: ToHand + ToDeck + Search
+        range: SpellTrapZone
         count_limit: (1, 85590798)
         on_resolve {
             reveal (1+, card, opponent controls)
@@ -27,11 +28,11 @@ card "Starry Knight Ceremony" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 512
-        code: 1027
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: Chaining
         property: 65536
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 85590798)
         on_resolve {
             special_summon (1, monster) from gy

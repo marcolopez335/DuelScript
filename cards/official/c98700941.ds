@@ -1,3 +1,4 @@
+// トリックスター・リリーベル
 // Trickstar Lilybell
 // Transpiled from c98700941.lua
 
@@ -11,9 +12,9 @@ card "Trickstar Lilybell" {
     def: 2000
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 512
-        code: 1012
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: ChainSolving
         property: 65536
         count_limit: (1, 98700941)
         on_resolve {
@@ -22,7 +23,7 @@ card "Trickstar Lilybell" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 74
         on_resolve {
             register_effect on self { grant: direct_attack duration: until_end_of_turn }
@@ -30,8 +31,8 @@ card "Trickstar Lilybell" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 8
+        effect_type: Single + Trigger
+        category: ToHand
         code: 1143
         property: 16
         on_resolve {

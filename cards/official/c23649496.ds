@@ -1,3 +1,4 @@
+// No.18 紋章祖プレイン・コート
 // Number 18: Heraldry Patriarch
 // Transpiled from c23649496.lua
 
@@ -21,10 +22,10 @@ card "Number 18: Heraldry Patriarch" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 1
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: Destroy
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self
@@ -35,9 +36,9 @@ card "Number 18: Heraldry Patriarch" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 32
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: ChainEnd
         property: 81920
         on_resolve {
             send (1+, monster, either_player controls) to gy

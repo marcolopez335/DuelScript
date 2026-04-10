@@ -1,3 +1,4 @@
+// おジャマッチング
 // Ojamatch
 // Transpiled from c38395123.lua
 
@@ -6,9 +7,9 @@ card "Ojamatch" {
     type: Quick-Play Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 131336
-        code: 1002
+        effect_type: Activate
+        category: ToHand + Counter + Search
+        code: FreeChain
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
             reveal (1+, card, opponent controls)
@@ -17,10 +18,10 @@ card "Ojamatch" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 65552
+        effect_type: Ignition
+        category: ToDeck + Draw
         property: 16
-        range: 16
+        range: Graveyard
         cost {
             banish self
         }

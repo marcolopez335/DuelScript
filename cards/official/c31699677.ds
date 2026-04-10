@@ -1,3 +1,4 @@
+// マジクリボー
 // Magikuriboh
 // Transpiled from c31699677.lua
 
@@ -11,10 +12,10 @@ card "Magikuriboh" {
     def: 200
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 2
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: Hand
         count_limit: (1, 31699677)
         cost {
             send self to gy
@@ -25,11 +26,11 @@ card "Magikuriboh" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 8
-        code: 1029
+        effect_type: Field + Trigger
+        category: ToHand
+        code: Destroyed
         property: 81920
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from gy
@@ -37,7 +38,7 @@ card "Magikuriboh" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1111
         on_resolve {
             set_flag "tracked" on self

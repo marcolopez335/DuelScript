@@ -1,3 +1,4 @@
+// 銃の忍者－火光
 // Kagero the Cannon Ninja
 // Transpiled from c20065259.lua
 
@@ -11,9 +12,9 @@ card "Kagero the Cannon Ninja" {
     def: 2000
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 512
-        code: 1100
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 20065259)
         on_resolve {
@@ -23,9 +24,9 @@ card "Kagero the Cannon Ninja" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
-        code: 1102
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 20065259)
         on_resolve {
@@ -35,8 +36,8 @@ card "Kagero the Cannon Ninja" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
+        effect_type: Single + Trigger
+        category: SpecialSummon
         code: 1001
         property: 65536
         count_limit: (1, 20065259)
@@ -47,10 +48,10 @@ card "Kagero the Cannon Ninja" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        category: 520
-        code: 1027
-        range: 16
+        effect_type: QuickEffect
+        category: ToHand + SpecialSummon
+        code: Chaining
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

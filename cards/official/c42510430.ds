@@ -1,3 +1,4 @@
+// サンセット・ビート
 // Sunset Beat
 // Transpiled from c42510430.lua
 
@@ -6,18 +7,18 @@ card "Sunset Beat" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 1
+        effect_type: Field + Trigger
+        category: Destroy
         code: 1016
         property: 65552
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 42510430)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -25,11 +26,11 @@ card "Sunset Beat" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 524288
+        effect_type: Field + Trigger
+        category: Damage
         code: 1001
         property: 114704
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             deal_damage to opponent: 1000

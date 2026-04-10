@@ -1,3 +1,4 @@
+// 獄神影精－ジュノルド
 // Power Patron Shadow Spirit Junordo
 // Transpiled from c10266279.lua
 
@@ -12,10 +13,10 @@ card "Power Patron Shadow Spirit Junordo" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 65665
-        code: 1102
-        range: 512
+        effect_type: Field + Trigger
+        category: Destroy + DefChange + Draw
+        code: SpecialSummonSuccess
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -25,9 +26,9 @@ card "Power Patron Shadow Spirit Junordo" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 513
-        range: 4
+        effect_type: Ignition
+        category: Destroy + SpecialSummon
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             banish self
@@ -39,9 +40,9 @@ card "Power Patron Shadow Spirit Junordo" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 8
-        code: 1013
+        effect_type: Single + Trigger
+        category: ToHand
+        code: ChainSolved
         property: 65536
         count_limit: (1, 0)
         on_resolve {

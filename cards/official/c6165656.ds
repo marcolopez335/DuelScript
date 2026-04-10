@@ -1,3 +1,4 @@
+// CNo.88 ギミック・パペット－ディザスター・レオ
 // Number C88: Gimmick Puppet Disaster Leo
 // Transpiled from c6165656.lua
 
@@ -20,7 +21,7 @@ card "Number C88: Gimmick Puppet Disaster Leo" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -28,20 +29,20 @@ card "Number C88: Gimmick Puppet Disaster Leo" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 71
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 524288
+        effect_type: Ignition
+        category: Damage
         property: 2048
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self
@@ -52,10 +53,10 @@ card "Number C88: Gimmick Puppet Disaster Leo" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 4608
         property: 263168
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
         }

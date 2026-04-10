@@ -1,3 +1,4 @@
+// 天翔の竜騎士ガイア
 // Sky Galloping Gaia the Dragon Champion
 // Transpiled from c2519690.lua
 
@@ -20,18 +21,18 @@ card "Sky Galloping Gaia the Dragon Champion" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 114
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             add_to_hand (1+, card, you controls) from gy
@@ -40,9 +41,9 @@ card "Sky Galloping Gaia the Dragon Champion" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 4096
-        code: 1130
+        effect_type: Single + Trigger
+        category: DiceRoll
+        code: AttackAnnounce
         on_resolve {
             change_battle_position (1, monster)
         }

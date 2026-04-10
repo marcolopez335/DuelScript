@@ -1,3 +1,4 @@
+// 魔サイの戦士
 // Fiendish Rhino Warrior
 // Transpiled from c81035362.lua
 
@@ -11,27 +12,27 @@ card "Fiendish Rhino Warrior" {
     def: 900
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 42
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 41
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 32
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: ChainEnd
         property: 65536
         count_limit: (1, 81035362)
         on_resolve {

@@ -1,3 +1,4 @@
+// 炎獣の影霊衣－セフィラエグザ
 // Zefraxa, Flame Beast of the Nekroz
 // Transpiled from c20773176.lua
 
@@ -16,21 +17,21 @@ card "Zefraxa, Flame Beast of the Nekroz" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 3584
-        range: 512
+        range: PendulumZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1029
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 81920
-        range: 18
+        range: Hand + Graveyard
         count_limit: (1, 20773176)
         on_resolve {
             special_summon (1, monster) from gy

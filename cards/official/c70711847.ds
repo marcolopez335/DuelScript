@@ -1,3 +1,4 @@
+// 未み界かい域いきのネッシー
 // Danger! Nessie!
 // Transpiled from c70711847.lua
 
@@ -15,10 +16,10 @@ card "Danger! Nessie!" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 66176
-        code: 1002
-        range: 2
+        effect_type: Ignition
+        category: DefChange + SpecialSummon + Draw
+        code: FreeChain
+        range: Hand
         on_resolve {
             shuffle_hand
             send (1+, card, you controls, deck) to gy
@@ -28,9 +29,9 @@ card "Danger! Nessie!" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: ChainEnd
         property: 65536
         count_limit: (1, 70711847)
         on_resolve {
@@ -40,9 +41,9 @@ card "Danger! Nessie!" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
-        code: 1011
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: TurnEnd
         property: 65536
         count_limit: (1, 70711847)
         on_resolve {

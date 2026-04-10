@@ -1,3 +1,4 @@
+// 夢魔鏡の天魔－ネイロス
 // Oneiros, the Dream Mirror Erlking
 // Transpiled from c35187185.lua
 
@@ -20,20 +21,20 @@ card "Oneiros, the Dream Mirror Erlking" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 125
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 1
-        code: 1017
+        effect_type: Field + Trigger
+        category: Destroy
+        code: Release
         property: 65552
-        range: 4
+        range: MonsterZone
         count_limit: (1, 35187185)
         on_resolve {
             destroy (1+, card, you controls, gy)
@@ -41,9 +42,9 @@ card "Oneiros, the Dream Mirror Erlking" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 65536
         count_limit: (1, 0)
         on_resolve {

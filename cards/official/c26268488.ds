@@ -1,3 +1,4 @@
+// 聖珖神竜 スターダスト・シフル
 // Stardust Sifr Divine Dragon
 // Transpiled from c26268488.lua
 
@@ -21,7 +22,7 @@ card "Stardust Sifr Divine Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -29,20 +30,20 @@ card "Stardust Sifr Divine Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 47
         property: 256
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 16385
-        code: 1027
-        range: 4
+        effect_type: QuickEffect
+        category: Destroy + Disable
+        code: Chaining
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             negate effect
@@ -51,10 +52,10 @@ card "Stardust Sifr Divine Dragon" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 512
+        effect_type: Ignition
+        category: SpecialSummon
         property: 16
-        range: 16
+        range: Graveyard
         cost {
             banish self
         }

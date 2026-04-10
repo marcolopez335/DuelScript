@@ -1,3 +1,4 @@
+// 魔界劇団－リバティ・ドラマチスト
 // Abyss Actor - Liberty Dramatist
 // Transpiled from c65477143.lua
 
@@ -12,10 +13,10 @@ card "Abyss Actor - Liberty Dramatist" {
     def: 1500
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
-        code: 1130
-        range: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: AttackAnnounce
+        range: PendulumZone
         count_limit: (1, 65477143)
         on_resolve {
             special_summon (1, monster) from gy
@@ -23,8 +24,8 @@ card "Abyss Actor - Liberty Dramatist" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        code: SpecialSummonSuccess
         count_limit: (1, 0)
         on_resolve {
             reveal (1+, card, opponent controls)
@@ -36,9 +37,9 @@ card "Abyss Actor - Liberty Dramatist" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 16
-        code: 1029
+        effect_type: Single + Trigger
+        category: ToDeck
+        code: Destroyed
         property: 65536
         count_limit: (1, 0)
         on_resolve {

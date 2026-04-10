@@ -1,3 +1,4 @@
+// アロマリリス－マグノリア
 // Aromalilith Magnolia
 // Transpiled from c73167098.lua
 
@@ -20,18 +21,18 @@ card "Aromalilith Magnolia" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 41
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 4
-        range: 4
+        effect_type: Ignition
+        category: Banish
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             pay_lp 2000
@@ -42,11 +43,11 @@ card "Aromalilith Magnolia" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 2097152
+        effect_type: Field + Trigger
+        category: SynchroSummon
         code: 1112
         property: 81920
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -57,7 +58,7 @@ card "Aromalilith Magnolia" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 1024
         on_resolve {

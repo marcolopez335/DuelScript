@@ -1,3 +1,4 @@
+// 法眼の魔術師
 // Dharma-Eye Magician
 // Transpiled from c88757791.lua
 
@@ -16,9 +17,9 @@ card "Dharma-Eye Magician" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
+        effect_type: Ignition
         property: 16
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -33,17 +34,17 @@ card "Dharma-Eye Magician" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
-        code: 1102
+        effect_type: Single + Continuous
+        code: SpecialSummonSuccess
         property: 1024
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 41
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }

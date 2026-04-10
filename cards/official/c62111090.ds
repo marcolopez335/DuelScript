@@ -1,3 +1,4 @@
+// アースゴーレム＠イグニスター
 // Earth Golem @Ignister
 // Transpiled from c62111090.lua
 
@@ -20,8 +21,8 @@ card "Earth Golem @Ignister" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2049
-        code: 1102
+        effect_type: Single + Continuous
+        code: SpecialSummonSuccess
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -39,19 +40,19 @@ card "Earth Golem @Ignister" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1140
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: BattleDamage
         property: 16
         count_limit: (1, 62111090)
         on_resolve {

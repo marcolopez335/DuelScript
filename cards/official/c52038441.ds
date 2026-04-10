@@ -1,3 +1,4 @@
+// 朔夜しぐれ
 // Ghost Mourner & Moonlit Chill
 // Transpiled from c52038441.lua
 
@@ -11,11 +12,11 @@ card "Ghost Mourner & Moonlit Chill" {
     def: 1800
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 16384
+        effect_type: Field + Trigger
+        category: Disable
         code: 320473897
         property: 65552
-        range: 2
+        range: Hand
         count_limit: (1, 52038441)
         cost {
             discard (1, card, you controls)
@@ -29,10 +30,10 @@ card "Ghost Mourner & Moonlit Chill" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 1102
+        effect_type: Field + Continuous
+        code: SpecialSummonSuccess
         property: 1024
-        range: 1023
+        range: Hand + MonsterZone + SpellTrapZone + Graveyard + Banished + Deck + FieldZone + PendulumZone
         on_resolve {
             set_flag "tracked" on self
             emit_event "custom"

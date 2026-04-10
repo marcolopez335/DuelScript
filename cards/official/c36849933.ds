@@ -1,3 +1,4 @@
+// メガリス・オク
 // Megalith Och
 // Transpiled from c36849933.lua
 
@@ -20,9 +21,9 @@ card "Megalith Och" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 65664
-        code: 1102
+        effect_type: Single + Trigger
+        category: DefChange + Draw
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             draw 1
@@ -32,19 +33,19 @@ card "Megalith Och" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 514
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: Release + SpecialSummon
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 36849933)
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         on_resolve {
             ritual_summon (1, ritual monster) using (1+, monster, you controls)
         }

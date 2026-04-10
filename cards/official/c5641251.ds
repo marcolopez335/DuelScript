@@ -1,3 +1,4 @@
+// F.A.デッド・ヒート
 // F.A. Dead Heat
 // Transpiled from c5641251.lua
 
@@ -6,17 +7,17 @@ card "F.A. Dead Heat" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1130
-        range: 8
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: AttackAnnounce
+        range: SpellTrapZone
         count_limit: (1, 5641251)
         on_resolve {
             special_summon (1, monster) from gy
@@ -24,10 +25,10 @@ card "F.A. Dead Heat" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 134217729
+        effect_type: Field + Trigger
+        category: Destroy + LevelChange
         code: 1133
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
             register_effect on self {

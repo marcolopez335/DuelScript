@@ -1,3 +1,4 @@
+// 恐巄竜華-㟴巴
 // Kyoro Ryu-Ge Kaiva
 // Transpiled from c93509766.lua
 
@@ -15,9 +16,9 @@ card "Kyoro Ryu-Ge Kaiva" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 131080
-        range: 2
+        effect_type: Ignition
+        category: ToHand + Search
+        range: Hand
         count_limit: (1, 93509766)
         cost {
             send self to deck
@@ -29,10 +30,10 @@ card "Kyoro Ryu-Ge Kaiva" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 2
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: Hand
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -40,18 +41,18 @@ card "Kyoro Ryu-Ge Kaiva" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 1029
+        effect_type: Field + Continuous
+        code: Destroyed
         on_resolve {
             set_flag "tracked" on self
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 1
+        effect_type: Ignition
+        category: Destroy
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, either_player controls)

@@ -1,3 +1,4 @@
+// マジシャンズ・コンビネーション
 // Magicians' Combination
 // Transpiled from c86509711.lua
 
@@ -6,17 +7,17 @@ card "Magicians' Combination" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 16896
-        code: 1027
-        range: 8
+        effect_type: QuickEffect
+        category: SpecialSummon + Disable
+        code: Chaining
+        range: SpellTrapZone
         count_limit: (1, 0)
         cost {
             tribute self
@@ -28,9 +29,9 @@ card "Magicians' Combination" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 1
-        code: 1014
+        effect_type: Single + Trigger
+        category: Destroy
+        code: ChainEnd
         property: 65536
         on_resolve {
             destroy (1+, card, you controls, gy)

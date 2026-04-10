@@ -1,3 +1,4 @@
+// 光の護封剣
 // Swords of Revealing Light
 // Transpiled from c72302403.lua
 
@@ -6,25 +7,25 @@ card "Swords of Revealing Light" {
     type: Normal Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 4096
-        code: 1002
+        effect_type: Activate
+        category: DiceRoll
+        code: FreeChain
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 86
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 17
         on_resolve {
         }

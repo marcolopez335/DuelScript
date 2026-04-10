@@ -1,3 +1,4 @@
+// ベアルクティ－ポラリィ
 // Ursarctic Polari
 // Transpiled from c27693363.lua
 
@@ -21,18 +22,18 @@ card "Ursarctic Polari" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 263168
-        range: 64
+        range: Deck
         on_resolve {
             send (1+, monster, you controls) to gy
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        code: 1102
+        effect_type: Single + Trigger
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 27693363)
         on_resolve {
@@ -40,9 +41,9 @@ card "Ursarctic Polari" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 520
-        range: 4
+        effect_type: Ignition
+        category: ToHand + SpecialSummon
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1, card, you controls) from gy

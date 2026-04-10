@@ -1,3 +1,4 @@
+// ワンダー・ワンド
 // Wonder Wand
 // Transpiled from c67775894.lua
 
@@ -6,7 +7,7 @@ card "Wonder Wand" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 500
@@ -14,10 +15,10 @@ card "Wonder Wand" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 65536
+        effect_type: Ignition
+        category: Draw
         property: 2048
-        range: 8
+        range: SpellTrapZone
         cost {
             send self to gy
         }
@@ -27,9 +28,9 @@ card "Wonder Wand" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

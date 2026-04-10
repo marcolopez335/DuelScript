@@ -1,3 +1,4 @@
+// 天雷星センコウ
 // Senko the Skybolt Star
 // Transpiled from c62503746.lua
 
@@ -15,11 +16,11 @@ card "Senko the Skybolt Star" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
-        code: 1100
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SummonSuccess
         property: 65536
-        range: 2
+        range: Hand
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -27,11 +28,11 @@ card "Senko the Skybolt Star" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1102
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
-        range: 2
+        range: Hand
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -39,10 +40,10 @@ card "Senko the Skybolt Star" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 2097153
+        effect_type: Ignition
+        category: Destroy + SynchroSummon
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self

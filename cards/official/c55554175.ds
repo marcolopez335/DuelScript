@@ -1,3 +1,4 @@
+// ＥＭクラシックリボー
 // Performapal Classikuriboh
 // Transpiled from c55554175.lua
 
@@ -12,25 +13,25 @@ card "Performapal Classikuriboh" {
     def: 200
 
     raw_effect "Effect 1" {
-        effect_type: 2050
-        code: 1130
-        range: 512
+        effect_type: Field + Continuous
+        code: AttackAnnounce
+        range: PendulumZone
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        code: 1029
+        effect_type: Single + MandatoryTrigger
+        code: Destroyed
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
+        effect_type: Ignition
         property: 16
-        range: 2
+        range: Hand
         count_limit: (1, 0)
         cost {
             discard (1, card, you controls)
@@ -48,9 +49,9 @@ card "Performapal Classikuriboh" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
+        effect_type: Field + Trigger
         code: 1143
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

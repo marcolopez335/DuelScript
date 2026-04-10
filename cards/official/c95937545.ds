@@ -1,3 +1,4 @@
+// 金色の魅惑の女王
 // Golden Allure Queen
 // Transpiled from c95937545.lua
 
@@ -20,9 +21,9 @@ card "Golden Allure Queen" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 2097664
-        code: 1102
+        effect_type: Single + Trigger
+        category: SpecialSummon + SynchroSummon
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy
@@ -30,19 +31,19 @@ card "Golden Allure Queen" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 95937545
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 1
-        code: 1027
-        range: 4
+        effect_type: QuickEffect
+        category: Destroy
+        code: Chaining
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -54,7 +55,7 @@ card "Golden Allure Queen" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         on_resolve {
             modifier: atk + 1500
@@ -62,7 +63,7 @@ card "Golden Allure Queen" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2
+        effect_type: Field
         code: 41
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

@@ -1,3 +1,4 @@
+// ジュラック・メガロ
 // Jurrac Megalo
 // Transpiled from c93170499.lua
 
@@ -11,9 +12,9 @@ card "Jurrac Megalo" {
     def: 1300
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 93170499)
         on_resolve {
             special_summon (1, monster) from gy
@@ -21,9 +22,9 @@ card "Jurrac Megalo" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 65664
-        range: 4
+        effect_type: Ignition
+        category: DefChange + Draw
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, monster, you controls, hand) to gy
@@ -32,9 +33,9 @@ card "Jurrac Megalo" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 32
-        code: 1029
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: Destroyed
         property: 65536
         count_limit: (1, 0)
         on_resolve {

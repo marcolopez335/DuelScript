@@ -1,3 +1,4 @@
+// E－HERO ワイルド・サイクロン
 // Evil HERO Wild Cyclone
 // Transpiled from c13293158.lua
 
@@ -20,14 +21,14 @@ card "Evil HERO Wild Cyclone" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         property: 263168
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -35,18 +36,18 @@ card "Evil HERO Wild Cyclone" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 6
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 513
-        category: 1
+        effect_type: Single + MandatoryTrigger
+        category: Destroy
         code: 1143
         on_resolve {
             destroy (1+, spell, opponent controls)

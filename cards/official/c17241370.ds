@@ -1,3 +1,4 @@
+// リチュア・ナタリア
 // Gishki Natalia
 // Transpiled from c17241370.lua
 
@@ -11,7 +12,7 @@ card "Gishki Natalia" {
     def: 900
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -19,9 +20,9 @@ card "Gishki Natalia" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 16
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToDeck
+        code: SummonSuccess
         property: 16
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
@@ -29,8 +30,8 @@ card "Gishki Natalia" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 16
+        effect_type: Single + Trigger
+        category: ToDeck
         code: 1001
         property: 16
         on_resolve {

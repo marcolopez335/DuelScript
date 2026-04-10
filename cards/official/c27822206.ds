@@ -1,3 +1,4 @@
+// 幾星霜
 // Ages of Stars and Frost
 // Transpiled from c27822206.lua
 
@@ -6,8 +7,8 @@ card "Ages of Stars and Frost" {
     type: Quick-Play Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
             set_flag "tracked" on self
             register_effect on self {
@@ -18,10 +19,10 @@ card "Ages of Stars and Frost" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 8
-        code: 1013
-        range: 16
+        effect_type: Field + Trigger
+        category: ToHand
+        code: ChainSolved
+        range: Graveyard
         count_limit: (1, 27822206)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
@@ -29,15 +30,15 @@ card "Ages of Stars and Frost" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 1014
+        effect_type: Field + Continuous
+        code: ChainEnd
         on_resolve {
             set_flag "tracked" on self
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 296
         property: 67110912
         on_resolve {

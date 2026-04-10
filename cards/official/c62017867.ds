@@ -1,3 +1,4 @@
+// 超重武者グロウ－V
 // Superheavy Samurai Gigagloves
 // Transpiled from c62017867.lua
 
@@ -11,8 +12,8 @@ card "Superheavy Samurai Gigagloves" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        code: 1014
+        effect_type: Single + Trigger
+        code: ChainEnd
         property: 81920
         on_resolve {
             send_to_deck (1+, card, you controls)
@@ -20,10 +21,10 @@ card "Superheavy Samurai Gigagloves" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 131144
-        code: 1130
-        range: 16
+        effect_type: Field + Trigger
+        category: ToHand + AtkChange + Search
+        code: AttackAnnounce
+        range: Graveyard
         cost {
             banish self
         }

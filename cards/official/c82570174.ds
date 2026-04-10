@@ -1,3 +1,4 @@
+// 燦幻昇龍バイデント・ドラギオン
 // Sangenpai Bident Dragion
 // Transpiled from c82570174.lua
 
@@ -21,9 +22,9 @@ card "Sangenpai Bident Dragion" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 512
-        code: 1102
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65552
         count_limit: (1, 82570174)
         on_resolve {
@@ -36,10 +37,10 @@ card "Sangenpai Bident Dragion" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 513
-        code: 1002
-        range: 16
+        effect_type: QuickEffect
+        category: Destroy + SpecialSummon
+        code: FreeChain
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -48,15 +49,15 @@ card "Sangenpai Bident Dragion" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 1130
+        effect_type: Field + Continuous
+        code: AttackAnnounce
         on_resolve {
             set_flag "tracked" on self
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 67110912
         on_resolve {

@@ -1,3 +1,4 @@
+// シャドウナイトデーモン
 // Shadowknight Archfiend
 // Transpiled from c9603356.lua
 
@@ -11,10 +12,10 @@ card "Shadowknight Archfiend" {
     def: 1600
 
     raw_effect "Effect 1" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 4098
         property: 263168
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -22,9 +23,9 @@ card "Shadowknight Archfiend" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1020
-        range: 4
+        range: MonsterZone
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
             negate effect
@@ -33,7 +34,7 @@ card "Shadowknight Archfiend" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 208
         on_resolve {
         }

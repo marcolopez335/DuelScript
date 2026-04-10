@@ -1,3 +1,4 @@
+// コアキメイル・ガーディアン
 // Koa'ki Meiru Guardian
 // Transpiled from c45041488.lua
 
@@ -11,10 +12,10 @@ card "Koa'ki Meiru Guardian" {
     def: 1200
 
     raw_effect "Effect 1" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 4608
         property: 263168
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, monster, you controls, hand) to gy
@@ -25,11 +26,11 @@ card "Koa'ki Meiru Guardian" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 268435457
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         cost {
             tribute self
         }

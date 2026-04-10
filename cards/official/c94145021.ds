@@ -1,3 +1,4 @@
+// ドロール＆ロックバード
 // Droll & Lock Bird
 // Transpiled from c94145021.lua
 
@@ -11,11 +12,11 @@ card "Droll & Lock Bird" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 16384
+        effect_type: QuickEffect
+        category: Disable
         code: 362580477
         property: 65536
-        range: 2
+        range: Hand
         cost {
             send self to gy
         }
@@ -36,8 +37,8 @@ card "Droll & Lock Bird" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 1012
+        effect_type: Field + Continuous
+        code: ChainSolving
         on_resolve {
             emit_event "custom"
         }

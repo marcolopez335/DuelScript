@@ -1,3 +1,4 @@
+// 精霊の世界
 // World of Spirits
 // Transpiled from c5414777.lua
 
@@ -6,9 +7,9 @@ card "World of Spirits" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 131080
-        code: 1002
+        effect_type: Activate
+        category: ToHand + Search
+        code: FreeChain
         count_limit: (1, 5414777)
         on_resolve {
             return (1+, monster, you controls) to hand
@@ -17,20 +18,20 @@ card "World of Spirits" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 4096
-        code: 1102
-        range: 256
+        effect_type: Field + MandatoryTrigger
+        category: DiceRoll
+        code: SpecialSummonSuccess
+        range: FieldZone
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 1
+        effect_type: Field + MandatoryTrigger
+        category: Destroy
         code: 4608
-        range: 256
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, you controls)

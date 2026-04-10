@@ -1,3 +1,4 @@
+// 剣闘獣サジタリィ
 // Gladiator Beast Sagittarii
 // Transpiled from c16003979.lua
 
@@ -11,9 +12,9 @@ card "Gladiator Beast Sagittarii" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 65536
-        code: 1102
+        effect_type: Single + Trigger
+        category: Draw
+        code: SpecialSummonSuccess
         property: 67584
         on_resolve {
             draw 1
@@ -21,10 +22,10 @@ card "Gladiator Beast Sagittarii" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 4224
-        range: 4
+        range: MonsterZone
         cost {
             send self to deck
         }

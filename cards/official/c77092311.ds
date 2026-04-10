@@ -1,3 +1,4 @@
+// 毒の魔妖-土蜘蛛
 // Tsuchigumo, the Poisonous Mayakashi
 // Transpiled from c77092311.lua
 
@@ -21,9 +22,9 @@ card "Tsuchigumo, the Poisonous Mayakashi" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 64
-        code: 1102
+        effect_type: Single + Trigger
+        category: AtkChange
+        code: SpecialSummonSuccess
         property: 81920
         count_limit: (1, 77092311)
         on_resolve {
@@ -33,11 +34,11 @@ card "Tsuchigumo, the Poisonous Mayakashi" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 516
-        code: 1029
+        effect_type: Field + Trigger
+        category: Banish + SpecialSummon
+        code: Destroyed
         property: 81920
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             banish (1+, card, you controls, gy)

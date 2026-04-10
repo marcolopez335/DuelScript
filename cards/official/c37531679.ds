@@ -1,3 +1,4 @@
+// 飛龍炎サラマンドラ
 // Salamandra, the Flying Flame Dragon
 // Transpiled from c37531679.lua
 
@@ -11,7 +12,7 @@ card "Salamandra, the Flying Flame Dragon" {
     def: 1600
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 700
@@ -19,10 +20,10 @@ card "Salamandra, the Flying Flame Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 262144
+        effect_type: Ignition
+        category: EquipAction
         property: 16
-        range: 18
+        range: Hand + Graveyard
         count_limit: (1, 37531679)
         on_resolve {
             send (1+, spell, you controls, deck) to gy
@@ -31,9 +32,9 @@ card "Salamandra, the Flying Flame Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: ChainEnd
         property: 65536
         count_limit: (1, 0)
         on_resolve {

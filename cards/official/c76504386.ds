@@ -1,3 +1,4 @@
+// Ｎｏ．３９ 光の使者 希望皇ホープ
 // Number 39: Utopia the Envoy of Light
 // Transpiled from c76504386.lua
 
@@ -21,7 +22,7 @@ card "Number 39: Utopia the Envoy of Light" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -29,10 +30,10 @@ card "Number 39: Utopia the Envoy of Light" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        code: 1002
+        effect_type: QuickEffect
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         cost {
             detach 1 overlay_unit from self
         }
@@ -45,24 +46,24 @@ card "Number 39: Utopia the Envoy of Light" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 2097152
-        code: 1130
-        range: 4
+        effect_type: Field + Trigger
+        category: SynchroSummon
+        code: AttackAnnounce
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 1130
+        effect_type: Field + Continuous
+        code: AttackAnnounce
         on_resolve {
             set_flag "tracked" on self
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 47
         property: 67109120
         on_resolve {
@@ -71,8 +72,8 @@ card "Number 39: Utopia the Envoy of Light" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 129
-        category: 512
+        effect_type: Single + Trigger
+        category: SpecialSummon
         code: 1139
         on_resolve {
             special_summon (1, monster) from gy

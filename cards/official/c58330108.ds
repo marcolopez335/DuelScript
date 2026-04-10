@@ -1,3 +1,4 @@
+// 破壊竜ガンドラ－ギガ・レイズ
 // Gigarays Gandora the Dragon of Destruction
 // Transpiled from c58330108.lua
 
@@ -15,29 +16,29 @@ card "Gigarays Gandora the Dragon of Destruction" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 263168
-        range: 2
+        range: Hand
         on_resolve {
             send (1+, monster, you controls, hand) to gy
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 5
-        range: 4
+        effect_type: Ignition
+        category: Destroy + Banish
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             pay_lp your_lp / 2

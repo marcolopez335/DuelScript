@@ -1,3 +1,4 @@
+// 巌征竜－レドックス
 // Redox, Dragon Ruler of Boulders
 // Transpiled from c90411554.lua
 
@@ -15,9 +16,9 @@ card "Redox, Dragon Ruler of Boulders" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 18
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand + Graveyard
         count_limit: (1, 90411554)
         cost {
             banish self
@@ -28,10 +29,10 @@ card "Redox, Dragon Ruler of Boulders" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 8
+        effect_type: Field + MandatoryTrigger
+        category: ToHand
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 90411554)
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
@@ -39,10 +40,10 @@ card "Redox, Dragon Ruler of Boulders" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 512
+        effect_type: Ignition
+        category: SpecialSummon
         property: 16
-        range: 2
+        range: Hand
         count_limit: (1, 90411554)
         on_resolve {
             special_summon (1, monster) from gy
@@ -50,9 +51,9 @@ card "Redox, Dragon Ruler of Boulders" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 131080
-        code: 1011
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: TurnEnd
         property: 65536
         count_limit: (1, 90411554)
         on_resolve {

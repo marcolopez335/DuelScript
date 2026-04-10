@@ -1,3 +1,4 @@
+// レプティレス・ナージャ
 // Reptilianne Naga
 // Transpiled from c79491903.lua
 
@@ -11,7 +12,7 @@ card "Reptilianne Naga" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -19,10 +20,10 @@ card "Reptilianne Naga" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 2097152
+        effect_type: Field + MandatoryTrigger
+        category: SynchroSummon
         code: 4224
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -33,10 +34,10 @@ card "Reptilianne Naga" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 4096
+        effect_type: Field + MandatoryTrigger
+        category: DiceRoll
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)

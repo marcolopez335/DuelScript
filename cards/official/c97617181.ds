@@ -1,3 +1,4 @@
+// 銀河零式
 // Galaxy Zero
 // Transpiled from c97617181.lua
 
@@ -6,9 +7,9 @@ card "Galaxy Zero" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         property: 16
         count_limit: (1, 97617181)
         on_resolve {
@@ -18,7 +19,7 @@ card "Galaxy Zero" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 4
+        effect_type: Equip
         code: 85
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -26,7 +27,7 @@ card "Galaxy Zero" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 4
+        effect_type: Equip
         code: 7
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -41,7 +42,7 @@ card "Galaxy Zero" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 513
+        effect_type: Single + MandatoryTrigger
         code: 1015
         on_resolve {
             register_effect on self {

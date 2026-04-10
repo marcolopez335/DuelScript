@@ -1,3 +1,4 @@
+// 拷問車輪
 // Nightmare Wheel
 // Transpiled from c54704216.lua
 
@@ -6,29 +7,29 @@ card "Nightmare Wheel" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 85
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 14
         property: 256
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 524288
+        effect_type: Field + MandatoryTrigger
+        category: Damage
         code: 4098
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             deal_damage to opponent: 1000
@@ -36,18 +37,18 @@ card "Nightmare Wheel" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1015
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 514
+        effect_type: Field + MandatoryTrigger
         code: 1015
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }

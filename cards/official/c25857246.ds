@@ -1,3 +1,4 @@
+// ヴァルキュルスの影霊衣
 // Nekroz of Valkyrus
 // Transpiled from c25857246.lua
 
@@ -20,7 +21,7 @@ card "Nekroz of Valkyrus" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -28,9 +29,9 @@ card "Nekroz of Valkyrus" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        code: 1130
-        range: 2
+        effect_type: Field + Trigger
+        code: AttackAnnounce
+        range: Hand
         count_limit: (1, 25857246)
         cost {
             banish self
@@ -42,9 +43,9 @@ card "Nekroz of Valkyrus" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 65536
-        range: 4
+        effect_type: Ignition
+        category: Draw
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             tribute (1, monster, you controls)

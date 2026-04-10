@@ -1,3 +1,4 @@
+// スピードローダー・ドラゴン
 // Speedburst Dragon
 // Transpiled from c12950294.lua
 
@@ -15,10 +16,10 @@ card "Speedburst Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 1573376
+        effect_type: Field + Trigger
+        category: SpecialSummon + Damage + Recover
         code: 1111
-        range: 2
+        range: Hand
         count_limit: (1, 12950294)
         on_resolve {
             special_summon (1, monster) from gy
@@ -28,9 +29,9 @@ card "Speedburst Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck

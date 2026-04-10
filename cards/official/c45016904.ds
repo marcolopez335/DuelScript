@@ -1,3 +1,4 @@
+// 陰陽師 タオタオ
 // Tao Tao the Chanter
 // Transpiled from c45016904.lua
 
@@ -11,20 +12,20 @@ card "Tao Tao the Chanter" {
     def: 600
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 42
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 1111
         property: 114688
-        range: 4
+        range: MonsterZone
         count_limit: (1, 45016904)
         on_resolve {
             special_summon (1, monster) from gy

@@ -1,3 +1,4 @@
+// 極星天グルヴェイグ
 // Gullveig of the Nordic Ascendant
 // Transpiled from c90207654.lua
 
@@ -20,9 +21,9 @@ card "Gullveig of the Nordic Ascendant" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 516
-        code: 1102
+        effect_type: Single + Trigger
+        category: Banish + SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 90207654)
         on_resolve {
@@ -48,20 +49,20 @@ card "Gullveig of the Nordic Ascendant" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 71
         property: 128
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 70
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }

@@ -1,3 +1,4 @@
+// 溟界妃－アミュネシア
 // Amunessia, the Ogdoadic Queen
 // Transpiled from c61160289.lua
 
@@ -15,9 +16,9 @@ card "Amunessia, the Ogdoadic Queen" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 16
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Graveyard
         count_limit: (1, 61160289)
         cost {
             tribute self
@@ -28,11 +29,11 @@ card "Amunessia, the Ogdoadic Queen" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 32
-        code: 1102
+        effect_type: Field + Trigger
+        category: ToGrave
+        code: SpecialSummonSuccess
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, monster, opponent controls) to gy
@@ -40,11 +41,11 @@ card "Amunessia, the Ogdoadic Queen" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 512
-        code: 1014
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

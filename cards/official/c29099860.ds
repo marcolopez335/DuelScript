@@ -1,3 +1,4 @@
+// 剛鬼マシン・スープレックス
 // Gouki Machine Suprex
 // Transpiled from c29099860.lua
 
@@ -11,9 +12,9 @@ card "Gouki Machine Suprex" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 29099860)
         on_resolve {
             special_summon (1, monster) from gy
@@ -25,9 +26,9 @@ card "Gouki Machine Suprex" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: ChainEnd
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -37,10 +38,10 @@ card "Gouki Machine Suprex" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 265216
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

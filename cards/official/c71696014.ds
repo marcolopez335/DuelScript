@@ -1,3 +1,4 @@
+// マジシャンズ・ローブ
 // Magician's Robe
 // Transpiled from c71696014.lua
 
@@ -11,10 +12,10 @@ card "Magician's Robe" {
     def: 2000
 
     raw_effect "Effect 1" {
-        effect_type: 258
-        category: 512
-        code: 1002
-        range: 4
+        effect_type: Field + QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 71696014)
         on_resolve {
             special_summon (1, monster) from gy
@@ -22,11 +23,11 @@ card "Magician's Robe" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1027
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: Chaining
         property: 65536
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

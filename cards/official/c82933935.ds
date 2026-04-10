@@ -1,3 +1,4 @@
+// ミミグル・フラワー
 // Mimighoul Flower
 // Transpiled from c82933935.lua
 
@@ -12,8 +13,8 @@ card "Mimighoul Flower" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 545
-        category: 139272
+        effect_type: Single + Flip + MandatoryTrigger
+        category: ToHand + Summon + Search
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -24,9 +25,9 @@ card "Mimighoul Flower" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

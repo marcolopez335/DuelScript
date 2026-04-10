@@ -1,3 +1,4 @@
+// 黄昏の忍者－カゲン
 // Twilight Ninja Kagen
 // Transpiled from c6830480.lua
 
@@ -12,20 +13,20 @@ card "Twilight Ninja Kagen" {
     def: 2000
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 3584
-        range: 512
+        range: PendulumZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 2097152
-        code: 1130
-        range: 512
+        effect_type: Field + Trigger
+        category: SynchroSummon
+        code: AttackAnnounce
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -36,10 +37,10 @@ card "Twilight Ninja Kagen" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 2097152
+        effect_type: Ignition
+        category: SynchroSummon
         property: 16
-        range: 4
+        range: MonsterZone
         cost {
             tribute self
         }

@@ -1,3 +1,4 @@
+// メタファイズ・ダイダロス
 // Metaphys Daedalus
 // Transpiled from c45960523.lua
 
@@ -15,9 +16,9 @@ card "Metaphys Daedalus" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 4
-        code: 1102
+        effect_type: Single + Trigger
+        category: Banish
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             banish (1+, monster, either_player controls)
@@ -25,10 +26,10 @@ card "Metaphys Daedalus" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 4
+        effect_type: Field + Trigger
+        category: Banish
         code: 4098
-        range: 32
+        range: Banished
         count_limit: (1, 0)
         cost {
             send self to deck

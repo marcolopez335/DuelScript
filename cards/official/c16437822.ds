@@ -1,3 +1,4 @@
+// フリント・アタック
 // Flint Missile
 // Transpiled from c16437822.lua
 
@@ -6,9 +7,9 @@ card "Flint Missile" {
     type: Quick-Play Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 1
-        code: 1002
+        effect_type: Activate
+        category: Destroy
+        code: FreeChain
         property: 16
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -16,7 +17,7 @@ card "Flint Missile" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1019
         property: 1024
         on_resolve {
@@ -24,9 +25,9 @@ card "Flint Missile" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 16
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToDeck
+        code: ChainEnd
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
         }

@@ -1,3 +1,4 @@
+// No.89 電脳獣ディアブロシス
 // Number 89: Diablosis the Mind Hacker
 // Transpiled from c95474755.lua
 
@@ -21,9 +22,9 @@ card "Number 89: Diablosis the Mind Hacker" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 4
-        range: 4
+        effect_type: Ignition
+        category: Banish
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self
@@ -36,11 +37,11 @@ card "Number 89: Diablosis the Mind Hacker" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 4
+        effect_type: Field + Trigger
+        category: Banish
         code: 4224
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, card, either_player controls)
@@ -48,7 +49,7 @@ card "Number 89: Diablosis the Mind Hacker" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1139
         property: 1024
         on_resolve {
@@ -56,11 +57,11 @@ card "Number 89: Diablosis the Mind Hacker" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 4
-        code: 1011
+        effect_type: Field + Trigger
+        category: Banish
+        code: TurnEnd
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 95474755)
         on_resolve {
             banish (1+, card, either_player controls)

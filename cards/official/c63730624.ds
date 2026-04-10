@@ -1,3 +1,4 @@
+// ダブルツールD&C
 // Double Tool C&D
 // Transpiled from c63730624.lua
 
@@ -6,7 +7,7 @@ card "Double Tool C&D" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 1000
@@ -14,9 +15,9 @@ card "Double Tool C&D" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 1131
-        range: 8
+        effect_type: Field + Continuous
+        code: BattleTarget
+        range: SpellTrapZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -30,28 +31,28 @@ card "Double Tool C&D" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 332
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 514
-        category: 1
+        effect_type: Field + MandatoryTrigger
+        category: Destroy
         code: 1141
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

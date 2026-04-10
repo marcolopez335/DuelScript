@@ -1,3 +1,4 @@
+// 粛声の祈り手ロー
 // Lo, the Prayers of the Voiceless Voice
 // Transpiled from c25801745.lua
 
@@ -11,8 +12,8 @@ card "Lo, the Prayers of the Voiceless Voice" {
     def: 2050
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        code: 1100
+        effect_type: Single + Trigger
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 25801745)
         on_resolve {
@@ -21,8 +22,8 @@ card "Lo, the Prayers of the Voiceless Voice" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        code: 1102
+        effect_type: Single + Trigger
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 25801745)
         on_resolve {
@@ -31,10 +32,10 @@ card "Lo, the Prayers of the Voiceless Voice" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 512
-        code: 1102
-        range: 16
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -42,9 +43,9 @@ card "Lo, the Prayers of the Voiceless Voice" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         on_resolve {
             ritual_summon (1, ritual monster) using (1+, monster, you controls)
         }

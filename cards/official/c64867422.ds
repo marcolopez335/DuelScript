@@ -1,3 +1,4 @@
+// 焔聖剣－オートクレール
 // 'Infernoble Arms - Hauteclere'
 // Transpiled from c64867422.lua
 
@@ -6,10 +7,10 @@ card "'Infernoble Arms - Hauteclere'" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 1
+        effect_type: Ignition
+        category: Destroy
         property: 16
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 64867422)
         on_resolve {
             register_effect on self {
@@ -25,9 +26,9 @@ card "'Infernoble Arms - Hauteclere'" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 1
-        code: 1014
+        effect_type: Single + Trigger
+        category: Destroy
+        code: ChainEnd
         property: 81936
         count_limit: (1, 64867422)
         on_resolve {
@@ -36,9 +37,9 @@ card "'Infernoble Arms - Hauteclere'" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

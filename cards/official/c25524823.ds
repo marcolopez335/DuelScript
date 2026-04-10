@@ -1,3 +1,4 @@
+// 墓守の審神者
 // Gravekeeper's Oracle
 // Transpiled from c25524823.lua
 
@@ -15,7 +16,7 @@ card "Gravekeeper's Oracle" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 32
         property: 263168
         on_resolve {
@@ -24,8 +25,8 @@ card "Gravekeeper's Oracle" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        code: 1100
+        effect_type: Single + Trigger
+        code: SummonSuccess
         on_resolve {
             destroy (1+, monster, either_player controls)
             register_effect on self {
@@ -40,14 +41,14 @@ card "Gravekeeper's Oracle" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 251
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 20
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }

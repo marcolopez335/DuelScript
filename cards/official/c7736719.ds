@@ -1,3 +1,4 @@
+// エア・サーキュレーター
 // Vortex Trooper
 // Transpiled from c7736719.lua
 
@@ -11,9 +12,9 @@ card "Vortex Trooper" {
     def: 600
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 65552
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToDeck + Draw
+        code: SummonSuccess
         on_resolve {
             return (1+, card, you controls) to deck shuffle
             shuffle_deck
@@ -22,9 +23,9 @@ card "Vortex Trooper" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 65536
-        code: 1029
+        effect_type: Single + MandatoryTrigger
+        category: Draw
+        code: Destroyed
         property: 2048
         on_resolve {
             draw 1

@@ -1,3 +1,4 @@
+// Ｎｏ．９０ 銀河眼の光子卿
 // Number 90: Galaxy-Eyes Photon Lord
 // Transpiled from c8165596.lua
 
@@ -21,20 +22,20 @@ card "Number 90: Galaxy-Eyes Photon Lord" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 16385
-        code: 1027
-        range: 4
+        effect_type: QuickEffect
+        category: Destroy + Disable
+        code: Chaining
+        range: MonsterZone
         count_limit: (1, 8165596)
         cost {
             detach 1 overlay_unit from self
@@ -46,10 +47,10 @@ card "Number 90: Galaxy-Eyes Photon Lord" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 131080
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: ToHand + Search
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1, card, you controls) from gy

@@ -1,3 +1,4 @@
+// ＥＭオッドアイズ・バトラー
 // Performapal Odd-Eyes Butler
 // Transpiled from c56677752.lua
 
@@ -16,10 +17,10 @@ card "Performapal Odd-Eyes Butler" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 2148532224
-        code: 1130
-        range: 512
+        effect_type: Field + Trigger
+        category: Recover
+        code: AttackAnnounce
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, you controls) to extra_deck
@@ -28,10 +29,10 @@ card "Performapal Odd-Eyes Butler" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 513
+        effect_type: Ignition
+        category: Destroy + SpecialSummon
         property: 16
-        range: 18
+        range: Hand + Graveyard
         count_limit: (1, 56677752)
         on_resolve {
             special_summon (1, monster) from gy
@@ -40,8 +41,8 @@ card "Performapal Odd-Eyes Butler" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        code: 1029
+        effect_type: Single + Trigger
+        code: Destroyed
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy

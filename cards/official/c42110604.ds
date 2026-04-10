@@ -1,3 +1,4 @@
+// HSRチャンバライダー
 // Hi-Speedroid Chanbara
 // Transpiled from c42110604.lua
 
@@ -21,24 +22,24 @@ card "Hi-Speedroid Chanbara" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 194
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 2097152
-        code: 1132
+        effect_type: Single + MandatoryTrigger
+        category: SynchroSummon
+        code: DamageCalculation
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 8
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand
+        code: ChainEnd
         property: 65552
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy

@@ -1,3 +1,4 @@
+// 戦華の徳－劉玄
 // Ancient Warriors - Virtuous Liu Xuan
 // Transpiled from c40428851.lua
 
@@ -11,19 +12,19 @@ card "Ancient Warriors - Virtuous Liu Xuan" {
     def: 1200
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 70
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 4
+        effect_type: Ignition
+        category: SpecialSummon
+        range: MonsterZone
         count_limit: (1, 40428851)
         cost {
             send self to gy
@@ -34,10 +35,10 @@ card "Ancient Warriors - Virtuous Liu Xuan" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 65536
-        code: 1130
-        range: 4
+        effect_type: Field + Trigger
+        category: Draw
+        code: AttackAnnounce
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             draw 1

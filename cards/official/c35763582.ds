@@ -1,3 +1,4 @@
+// 月光銀狗
 // Lunalight Silver Hound
 // Transpiled from c35763582.lua
 
@@ -11,9 +12,9 @@ card "Lunalight Silver Hound" {
     def: 400
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 512
-        code: 1014
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 65536
         count_limit: (1, 35763582)
         on_resolve {
@@ -26,11 +27,11 @@ card "Lunalight Silver Hound" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 268435456
-        code: 1027
+        effect_type: QuickEffect
+        category: Negate
+        code: Chaining
         property: 16384
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self
@@ -41,10 +42,10 @@ card "Lunalight Silver Hound" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 3072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

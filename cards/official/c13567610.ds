@@ -1,3 +1,4 @@
+// 無窮機竜カルノール
 // Carnot the Eternal Machine
 // Transpiled from c13567610.lua
 
@@ -15,36 +16,36 @@ card "Carnot the Eternal Machine" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 263168
-        range: 18
+        range: Hand + Graveyard
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 2097152
-        code: 1027
+        effect_type: Field + Trigger
+        category: SynchroSummon
+        code: Chaining
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 16
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: ToDeck
+        code: ChainEnd
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1022
         on_resolve {
             set_flag "tracked" on self
@@ -52,7 +53,7 @@ card "Carnot the Eternal Machine" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         on_resolve {
             modifier: atk + 1000

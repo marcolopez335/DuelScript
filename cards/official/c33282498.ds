@@ -1,3 +1,4 @@
+// アークブレイブドラゴン
 // Arkbrave Dragon
 // Transpiled from c33282498.lua
 
@@ -15,9 +16,9 @@ card "Arkbrave Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 4
-        code: 1102
+        effect_type: Single + Trigger
+        category: Banish
+        code: SpecialSummonSuccess
         property: 81920
         on_resolve {
             banish (1+, spell, opponent controls)
@@ -25,19 +26,19 @@ card "Arkbrave Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
-        code: 1014
+        effect_type: Single + Continuous
+        code: ChainEnd
         property: 1024
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 4098
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

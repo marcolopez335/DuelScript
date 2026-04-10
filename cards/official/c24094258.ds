@@ -1,3 +1,4 @@
+// ヘビーメタルフォーゼ・エレクトラム
 // Heavymetalfoes Electrumite
 // Transpiled from c24094258.lua
 
@@ -20,8 +21,8 @@ card "Heavymetalfoes Electrumite" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        code: 1102
+        effect_type: Single + Trigger
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             send (1+, card, you controls) to extra_deck
@@ -29,10 +30,10 @@ card "Heavymetalfoes Electrumite" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 9
+        effect_type: Ignition
+        category: Destroy + ToHand
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, you controls, deck)
@@ -42,11 +43,11 @@ card "Heavymetalfoes Electrumite" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 65536
+        effect_type: Field + MandatoryTrigger
+        category: Draw
         code: 1015
         property: 2048
-        range: 4
+        range: MonsterZone
         count_limit: (1, 24094258)
         on_resolve {
             draw 1

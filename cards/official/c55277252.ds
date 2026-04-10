@@ -1,3 +1,4 @@
+// 魔轟神獣ノズチ
 // The Fabled Nozoochee
 // Transpiled from c55277252.lua
 
@@ -11,9 +12,9 @@ card "The Fabled Nozoochee" {
     def: 800
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         on_resolve {
             send (1+, monster, you controls, hand) to gy
             send (1+, monster, you controls, hand) to gy
@@ -22,9 +23,9 @@ card "The Fabled Nozoochee" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
-        code: 1102
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         on_resolve {
             special_summon (1, monster) from gy
         }

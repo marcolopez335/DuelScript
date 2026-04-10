@@ -1,3 +1,4 @@
+// 召喚神エクゾディア
 // The Legendary Exodia Incarnate
 // Transpiled from c58604027.lua
 
@@ -15,7 +16,7 @@ card "The Legendary Exodia Incarnate" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -23,40 +24,40 @@ card "The Legendary Exodia Incarnate" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         on_resolve {
             tribute (1, monster, you controls)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 1
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 514
-        category: 8
+        effect_type: Field + MandatoryTrigger
+        category: ToHand
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand
@@ -65,9 +66,9 @@ card "The Legendary Exodia Incarnate" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 129
-        category: 65536
-        code: 1140
+        effect_type: Single + Trigger
+        category: Draw
+        code: BattleDamage
         on_resolve {
             reveal (1+, card, opponent controls)
             shuffle_hand

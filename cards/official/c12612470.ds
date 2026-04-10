@@ -1,3 +1,4 @@
+// 童妖 茶壺
 // Procession of the Tea Jar
 // Transpiled from c12612470.lua
 
@@ -11,37 +12,37 @@ card "Procession of the Tea Jar" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 14
         property: 256
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 6
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        range: 4
+        effect_type: Ignition
+        range: MonsterZone
         count_limit: (1, 12612470)
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 513
-        category: 4096
-        code: 1030
+        effect_type: Single + MandatoryTrigger
+        category: DiceRoll
+        code: LeaveField
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)

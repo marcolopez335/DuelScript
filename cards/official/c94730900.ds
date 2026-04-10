@@ -1,3 +1,4 @@
+// 焔聖騎士-モージ
 // Infernoble Knight Maugis
 // Transpiled from c94730900.lua
 
@@ -11,9 +12,9 @@ card "Infernoble Knight Maugis" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 65536
-        code: 1014
+        effect_type: Single + Trigger
+        category: Draw
+        code: ChainEnd
         property: 81920
         count_limit: (1, 94730900)
         on_resolve {
@@ -22,10 +23,10 @@ card "Infernoble Knight Maugis" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 262144
+        effect_type: Ignition
+        category: EquipAction
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             equip (1, card) to (1, monster)
@@ -33,7 +34,7 @@ card "Infernoble Knight Maugis" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 4
+        effect_type: Equip
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

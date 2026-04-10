@@ -1,3 +1,4 @@
+// 閃刀機構－ハーキュリーベース
 // Sky Striker Mecharmory - Hercules Base
 // Transpiled from c97616504.lua
 
@@ -6,7 +7,7 @@ card "Sky Striker Mecharmory - Hercules Base" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 73
         on_resolve {
             register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
@@ -14,27 +15,27 @@ card "Sky Striker Mecharmory - Hercules Base" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 4
+        effect_type: Equip
         code: 346
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 65536
+        effect_type: Field + MandatoryTrigger
+        category: Draw
         code: 1139
         property: 2048
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             draw 1
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 16
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToDeck
+        code: ChainEnd
         property: 65552
         on_resolve {
             return (1+, monster, you controls) to deck shuffle
@@ -42,9 +43,9 @@ card "Sky Striker Mecharmory - Hercules Base" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

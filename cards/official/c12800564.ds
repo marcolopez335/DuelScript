@@ -1,3 +1,4 @@
+// 真竜魔王マスターＰ
 // Master Peace, the True Dracoverlord
 // Transpiled from c12800564.lua
 
@@ -15,7 +16,7 @@ card "Master Peace, the True Dracoverlord" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 157
         property: 263168
         on_resolve {
@@ -23,11 +24,11 @@ card "Master Peace, the True Dracoverlord" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 268435457
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         count_limit: (1, 12800564)
         on_resolve {
             negate activation
@@ -36,8 +37,8 @@ card "Master Peace, the True Dracoverlord" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        code: 1029
+        effect_type: Single + Trigger
+        code: Destroyed
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -57,7 +58,7 @@ card "Master Peace, the True Dracoverlord" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 20
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -65,7 +66,7 @@ card "Master Peace, the True Dracoverlord" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 23
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }

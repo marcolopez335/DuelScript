@@ -1,3 +1,4 @@
+// 森羅の蜜柑子 シトラ
 // Sylvan Mikorange
 // Transpiled from c47077318.lua
 
@@ -11,9 +12,9 @@ card "Sylvan Mikorange" {
     def: 1100
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 64
-        code: 1014
+        effect_type: Single + Trigger
+        category: AtkChange
+        code: ChainEnd
         property: 16384
         on_resolve {
             reveal (1, card, opponent controls, deck)
@@ -22,9 +23,9 @@ card "Sylvan Mikorange" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 6291456
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: SynchroSummon + XyzSummon
+        code: ChainEnd
         property: 65536
         on_resolve {
             register_effect on self {

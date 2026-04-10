@@ -1,3 +1,4 @@
+// 海晶乙女 ワンダーハート
 // Marincess Wonder Heart
 // Transpiled from c94207108.lua
 
@@ -20,10 +21,10 @@ card "Marincess Wonder Heart" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 512
+        effect_type: QuickEffect
+        category: SpecialSummon
         code: 1134
-        range: 4
+        range: MonsterZone
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {
@@ -38,9 +39,9 @@ card "Marincess Wonder Heart" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 81920
         on_resolve {
             special_summon (1, monster) from gy
@@ -48,14 +49,14 @@ card "Marincess Wonder Heart" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 71
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -63,7 +64,7 @@ card "Marincess Wonder Heart" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -71,7 +72,7 @@ card "Marincess Wonder Heart" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

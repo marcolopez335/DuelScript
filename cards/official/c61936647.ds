@@ -1,3 +1,4 @@
+// 幻影剣
 // Phantom Knights' Sword
 // Transpiled from c61936647.lua
 
@@ -6,9 +7,9 @@ card "Phantom Knights' Sword" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             modifier: atk + 800
         }
@@ -22,20 +23,20 @@ card "Phantom Knights' Sword" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1015
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        category: 512
-        code: 1002
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 61936647)
         cost {
             banish self
@@ -50,9 +51,9 @@ card "Phantom Knights' Sword" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 514
+        effect_type: Field + MandatoryTrigger
         code: 1015
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }

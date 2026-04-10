@@ -1,3 +1,4 @@
+// レッド・ロイド・コール
 // Emergeroid Call
 // Transpiled from c70628672.lua
 
@@ -6,9 +7,9 @@ card "Emergeroid Call" {
     type: Normal Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 268435488
-        code: 1027
+        effect_type: Activate
+        category: ToGrave + Negate
+        code: Chaining
         on_resolve {
             negate activation
             send (1+, monster, you controls, deck) to gy
@@ -17,11 +18,11 @@ card "Emergeroid Call" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 8
-        code: 1002
+        effect_type: QuickEffect
+        category: ToHand
+        code: FreeChain
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 70628672)
         cost {
             banish self

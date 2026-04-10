@@ -1,3 +1,4 @@
+// ウィッチクラフトゴーレム・アルル
 // Witchcrafter Golem Aruru
 // Transpiled from c71074418.lua
 
@@ -15,11 +16,11 @@ card "Witchcrafter Golem Aruru" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 520
-        code: 1131
+        effect_type: QuickEffect
+        category: ToHand + SpecialSummon
+        code: BattleTarget
         property: 16
-        range: 2
+        range: Hand
         count_limit: (1, 71074418)
         on_resolve {
             special_summon (1, monster) from gy
@@ -28,11 +29,11 @@ card "Witchcrafter Golem Aruru" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 520
+        effect_type: QuickEffect
+        category: ToHand + SpecialSummon
         code: 1028
         property: 16
-        range: 2
+        range: Hand
         count_limit: (1, 71074418)
         on_resolve {
             special_summon (1, monster) from gy
@@ -41,10 +42,10 @@ card "Witchcrafter Golem Aruru" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 8
+        effect_type: Field + MandatoryTrigger
+        category: ToHand
         code: 4098
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, spell, either_player controls) from gy

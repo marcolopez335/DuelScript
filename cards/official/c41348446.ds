@@ -1,3 +1,4 @@
+// デトネーション・コード
 // Detonation Code
 // Transpiled from c41348446.lua
 
@@ -6,18 +7,18 @@ card "Detonation Code" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 512
-        code: 1002
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
         property: 16
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 41348446)
         on_resolve {
             special_summon (1, monster) from gy
@@ -25,17 +26,17 @@ card "Detonation Code" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
-        code: 1011
+        effect_type: Single + Continuous
+        code: TurnEnd
         property: 1024
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
+        effect_type: Field + Trigger
         code: 4098
-        range: 32
+        range: Banished
         count_limit: (1, 0)
         on_resolve {
             set (1, card)

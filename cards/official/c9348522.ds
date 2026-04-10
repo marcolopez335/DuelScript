@@ -1,3 +1,4 @@
+// 浮鵺城
 // Cloudcastle
 // Transpiled from c9348522.lua
 
@@ -21,9 +22,9 @@ card "Cloudcastle" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 512
-        code: 1102
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 16
         on_resolve {
             special_summon (1, monster) from gy
@@ -31,24 +32,24 @@ card "Cloudcastle" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 85
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 1100
+        effect_type: Field + Continuous
+        code: SummonSuccess
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 1102
+        effect_type: Field + Continuous
+        code: SpecialSummonSuccess
         on_resolve {
         }
     }

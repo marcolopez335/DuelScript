@@ -1,3 +1,4 @@
+// 剣闘獣クラウディウス
 // Gladiator Beast Claudius
 // Transpiled from c48958757.lua
 
@@ -20,8 +21,8 @@ card "Gladiator Beast Claudius" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        code: 1102
+        effect_type: Single + Trigger
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             register_effect on self {
@@ -32,11 +33,11 @@ card "Gladiator Beast Claudius" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1027
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: Chaining
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -44,7 +45,7 @@ card "Gladiator Beast Claudius" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 296
         property: 67110912
         on_resolve {

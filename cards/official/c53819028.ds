@@ -1,3 +1,4 @@
+// 捕食植物セラセニアント
 // Predaplant Sarraceniant
 // Transpiled from c53819028.lua
 
@@ -11,18 +12,18 @@ card "Predaplant Sarraceniant" {
     def: 600
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
-        code: 1130
-        range: 2
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: AttackAnnounce
+        range: Hand
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 1
+        effect_type: Single + Trigger
+        category: Destroy
         code: 1138
         on_resolve {
             destroy (1+, card, you controls, deck)
@@ -30,9 +31,9 @@ card "Predaplant Sarraceniant" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
-        code: 1140
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: BattleDamage
         property: 65536
         count_limit: (1, 53819028)
         on_resolve {
@@ -42,9 +43,9 @@ card "Predaplant Sarraceniant" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 131080
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: ChainEnd
         property: 65536
         count_limit: (1, 53819028)
         on_resolve {

@@ -1,3 +1,4 @@
+// シャイニート・マジシャン
 // Slacker Magician
 // Transpiled from c58058134.lua
 
@@ -21,21 +22,21 @@ card "Slacker Magician" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 47
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 268435457
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         cost {
             detach 1 overlay_unit from self
         }

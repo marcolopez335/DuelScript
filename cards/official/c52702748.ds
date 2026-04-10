@@ -1,3 +1,4 @@
+// 異次元への案内人
 // D.D. Guide
 // Transpiled from c52702748.lua
 
@@ -11,20 +12,20 @@ card "D.D. Guide" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 8192
-        code: 1100
+        effect_type: Single + MandatoryTrigger
+        category: Summon
+        code: SummonSuccess
         on_resolve {
             take_control of (1, monster, opponent controls)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 4
+        effect_type: Field + MandatoryTrigger
+        category: Banish
         code: 4608
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, card, either_player controls)

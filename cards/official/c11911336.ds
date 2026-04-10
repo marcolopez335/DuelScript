@@ -1,3 +1,4 @@
+// 大輪の魔導書
 // Spellbook of the Grand Circle
 // Transpiled from c11911336.lua
 
@@ -6,9 +7,9 @@ card "Spellbook of the Grand Circle" {
     type: Normal Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 131096
-        code: 1002
+        effect_type: Activate
+        category: ToHand + ToDeck + Search
+        code: FreeChain
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
@@ -19,9 +20,9 @@ card "Spellbook of the Grand Circle" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 1073742336
-        range: 16
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self
@@ -31,7 +32,7 @@ card "Spellbook of the Grand Circle" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1026
         on_resolve {
         }

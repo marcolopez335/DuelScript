@@ -1,3 +1,4 @@
+// 闇薔薇の妖精
 // Dark Rose Fairy
 // Transpiled from c90724272.lua
 
@@ -11,11 +12,11 @@ card "Dark Rose Fairy" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
-        code: 1102
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
-        range: 2
+        range: Hand
         count_limit: (1, 90724272)
         on_resolve {
             special_summon (1, monster) from gy
@@ -23,9 +24,9 @@ card "Dark Rose Fairy" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 16
-        range: 16
+        effect_type: Ignition
+        category: ToDeck
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             send self to gy

@@ -1,3 +1,4 @@
+// ジェムナイト・アクアマリナ
 // Gem-Knight Aquamarine
 // Transpiled from c13108445.lua
 
@@ -20,7 +21,7 @@ card "Gem-Knight Aquamarine" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -28,9 +29,9 @@ card "Gem-Knight Aquamarine" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 8
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: ToHand
+        code: ChainEnd
         property: 16
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
@@ -38,9 +39,9 @@ card "Gem-Knight Aquamarine" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 4224
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)

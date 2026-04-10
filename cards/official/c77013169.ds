@@ -1,3 +1,4 @@
+// 超重武者ソード－999
 // Superheavy Samurai Swordsman
 // Transpiled from c77013169.lua
 
@@ -11,9 +12,9 @@ card "Superheavy Samurai Swordsman" {
     def: 1800
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 4096
-        code: 1100
+        effect_type: Single + Trigger
+        category: DiceRoll
+        code: SummonSuccess
         property: 16384
         on_resolve {
             change_battle_position (1, monster)
@@ -21,9 +22,9 @@ card "Superheavy Samurai Swordsman" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 4096
-        code: 1102
+        effect_type: Single + Trigger
+        category: DiceRoll
+        code: SpecialSummonSuccess
         property: 16384
         on_resolve {
             change_battle_position (1, monster)
@@ -31,9 +32,9 @@ card "Superheavy Samurai Swordsman" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
+        effect_type: Field + MandatoryTrigger
         code: 1138
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

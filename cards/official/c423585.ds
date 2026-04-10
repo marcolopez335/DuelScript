@@ -1,3 +1,4 @@
+// 召喚僧サモンプリースト
 // Summoner Monk
 // Transpiled from c423585.lua
 
@@ -11,27 +12,27 @@ card "Summoner Monk" {
     def: 1600
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 4096
-        code: 1100
+        effect_type: Single + MandatoryTrigger
+        category: DiceRoll
+        code: SummonSuccess
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 4096
-        code: 1101
+        effect_type: Single + MandatoryTrigger
+        category: DiceRoll
+        code: FlipSummonSuccess
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 512
-        range: 4
+        effect_type: Ignition
+        category: SpecialSummon
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -43,19 +44,19 @@ card "Summoner Monk" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 43
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 44
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }

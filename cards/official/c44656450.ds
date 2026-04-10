@@ -1,3 +1,4 @@
+// 失楽の魔女
 // Condemned Witch
 // Transpiled from c44656450.lua
 
@@ -11,9 +12,9 @@ card "Condemned Witch" {
     def: 2000
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         count_limit: (1, 44656450)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -22,10 +23,10 @@ card "Condemned Witch" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             tribute self

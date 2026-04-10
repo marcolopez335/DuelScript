@@ -1,3 +1,4 @@
+// 破壊剣士の守護絆竜
 // Protector Whelp of the Destruction Swordsman
 // Transpiled from c47158777.lua
 
@@ -20,9 +21,9 @@ card "Protector Whelp of the Destruction Swordsman" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 544
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToGrave + SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 47158777)
         on_resolve {
@@ -32,11 +33,11 @@ card "Protector Whelp of the Destruction Swordsman" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 524288
+        effect_type: Field + Trigger
+        category: Damage
         code: 4224
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             deal_damage to opponent: 1000

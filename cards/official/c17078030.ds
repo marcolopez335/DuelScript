@@ -1,3 +1,4 @@
+// 光の護封壁
 // Wall of Revealing Light
 // Transpiled from c17078030.lua
 
@@ -6,8 +7,8 @@ card "Wall of Revealing Light" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         cost {
             pay_lp your_lp / 2
         }
@@ -16,9 +17,9 @@ card "Wall of Revealing Light" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 85
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }

@@ -1,3 +1,4 @@
+// 新生代化石竜 スカルガ
 // Fossil Dragon Skullgar
 // Transpiled from c12015000.lua
 
@@ -20,16 +21,16 @@ card "Fossil Dragon Skullgar" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 394240
-        range: 64
+        range: Deck
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 203
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
@@ -37,9 +38,9 @@ card "Fossil Dragon Skullgar" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 131080
-        range: 16
+        effect_type: Ignition
+        category: ToHand + Search
+        range: Graveyard
         count_limit: (1, 12015000)
         cost {
             banish self

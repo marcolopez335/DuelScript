@@ -1,3 +1,4 @@
+// ダイノルフィア・ステルスベギア
 // Dinomorphia Stealthbergia
 // Transpiled from c74936480.lua
 
@@ -20,19 +21,19 @@ card "Dinomorphia Stealthbergia" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 170
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 524288
-        code: 1027
-        range: 4
+        effect_type: QuickEffect
+        category: Damage
+        code: Chaining
+        range: MonsterZone
         count_limit: (1, 74936480)
         on_resolve {
             deal_damage to opponent: 1000
@@ -40,9 +41,9 @@ card "Dinomorphia Stealthbergia" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 65536
         count_limit: (1, 0)
         on_resolve {

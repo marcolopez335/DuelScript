@@ -1,3 +1,4 @@
+// EMモモンカーペット
 // Performapal Momoncarpet
 // Transpiled from c20281581.lua
 
@@ -12,26 +13,26 @@ card "Performapal Momoncarpet" {
     def: 100
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 141
         property: 131072
-        range: 512
+        range: PendulumZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 208
         property: 2048
-        range: 512
+        range: PendulumZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 161
-        category: 1
+        effect_type: Single + Flip + Trigger
+        category: Destroy
         property: 65552
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -39,9 +40,9 @@ card "Performapal Momoncarpet" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 4096
-        code: 1102
+        effect_type: Single + Trigger
+        category: DiceRoll
+        code: SpecialSummonSuccess
         property: 81920
         on_resolve {
             change_battle_position (1, monster)

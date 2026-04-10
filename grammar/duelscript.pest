@@ -318,13 +318,20 @@ raw_effect_body  = {
   ~ on_resolve_clause?
 }
 raw_field = {
-    "effect_type" ~ ":" ~ unsigned
-  | "category"    ~ ":" ~ unsigned
-  | "code"        ~ ":" ~ unsigned
-  | "property"    ~ ":" ~ unsigned
-  | "range"       ~ ":" ~ unsigned
-  | "count_limit" ~ ":" ~ "(" ~ unsigned ~ "," ~ unsigned ~ ")"
+    "effect_type" ~ ":" ~ raw_value_expr
+  | "category"    ~ ":" ~ raw_value_expr
+  | "code"        ~ ":" ~ raw_value_expr
+  | "property"    ~ ":" ~ raw_value_expr
+  | "range"       ~ ":" ~ raw_value_expr
+  | "count_limit" ~ ":" ~ "(" ~ raw_value_expr ~ "," ~ raw_value_expr ~ ")"
 }
+// Sprint 56: raw_value_expr accepts either a plain number OR a
+// PascalCase named constant (Ignition, Destroy, Draw, …), with
+// "+" for combining flags. The parser resolves names via a
+// friendly-constant lookup table.
+raw_value_expr = { raw_value_atom ~ ("+" ~ raw_value_atom)* }
+raw_value_atom = { named_constant | unsigned }
+named_constant = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* }
 
 // ── Trigger Effect Block ──────────────────────────────────────
 effect_block = { "effect" ~ string? ~ "{" ~ effect_body ~ "}" }

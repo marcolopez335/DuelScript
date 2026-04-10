@@ -1,3 +1,4 @@
+// JP name
 // Lycoris Lilyreaper
 // Transpiled from c81916745.lua
 
@@ -21,11 +22,11 @@ card "Lycoris Lilyreaper" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 1048576
+        effect_type: Single + Trigger
+        category: Recover
         code: 350352201
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 81916745)
         on_resolve {
             gain_lp: 1000
@@ -33,10 +34,10 @@ card "Lycoris Lilyreaper" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 1014
+        effect_type: Field + Continuous
+        code: ChainEnd
         property: 1024
-        range: 4
+        range: MonsterZone
         on_resolve {
             set_flag "tracked" on self
             emit_event "custom"
@@ -44,11 +45,11 @@ card "Lycoris Lilyreaper" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 32
+        effect_type: Field + Trigger
+        category: ToGrave
         code: 1111
         property: 65536
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self

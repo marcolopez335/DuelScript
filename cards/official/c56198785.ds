@@ -1,3 +1,4 @@
+// 背護衛
 // Guard Ghost
 // Transpiled from c56198785.lua
 
@@ -11,8 +12,8 @@ card "Guard Ghost" {
     def: 100
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        code: 1102
+        effect_type: Single + Trigger
+        code: SpecialSummonSuccess
         property: 65552
         count_limit: (1, 56198785)
         on_resolve {
@@ -28,10 +29,10 @@ card "Guard Ghost" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 8
+        effect_type: Field + Trigger
+        category: ToHand
         code: 4608
-        range: 32
+        range: Banished
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
@@ -39,7 +40,7 @@ card "Guard Ghost" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         property: 67108864
         on_resolve {
@@ -48,7 +49,7 @@ card "Guard Ghost" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         property: 67108864
         on_resolve {

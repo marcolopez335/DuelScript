@@ -1,3 +1,4 @@
+// 完全態・グレート・インセクト
 // Ultimate Great Insect
 // Transpiled from c87804747.lua
 
@@ -20,7 +21,7 @@ card "Ultimate Great Insect" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -28,30 +29,30 @@ card "Ultimate Great Insect" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 263168
-        range: 64
+        range: Deck
         on_resolve {
             tribute (1, monster, you controls)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        category: 1
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: Destroy
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)

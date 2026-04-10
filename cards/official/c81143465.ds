@@ -1,3 +1,4 @@
+// あないみじや玉の緒ふたつ
 // Tragic Twin Twined Jewels
 // Transpiled from c81143465.lua
 
@@ -6,11 +7,11 @@ card "Tragic Twin Twined Jewels" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 524289
-        code: 1102
+        effect_type: Field + Trigger
+        category: Destroy + Damage
+        code: SpecialSummonSuccess
         property: 65552
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -20,9 +21,9 @@ card "Tragic Twin Twined Jewels" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

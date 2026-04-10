@@ -1,3 +1,4 @@
+// マドルチェ・マジョレーヌ
 // Madolche Magileine
 // Transpiled from c11868731.lua
 
@@ -11,18 +12,18 @@ card "Madolche Magileine" {
     def: 1200
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 16
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: ToDeck
+        code: ChainEnd
         on_resolve {
             return (1+, monster, you controls) to deck shuffle
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)
@@ -30,9 +31,9 @@ card "Madolche Magileine" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
-        code: 1101
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: FlipSummonSuccess
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)

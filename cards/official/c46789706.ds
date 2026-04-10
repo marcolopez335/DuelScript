@@ -1,3 +1,4 @@
+// 機雷化するクリボー
 // Detonating Kuriboh
 // Transpiled from c46789706.lua
 
@@ -11,9 +12,9 @@ card "Detonating Kuriboh" {
     def: 200
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 46789706)
         on_resolve {
             special_summon (1, monster) from gy
@@ -21,10 +22,10 @@ card "Detonating Kuriboh" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 278528
-        code: 1027
-        range: 4
+        effect_type: QuickEffect
+        category: Disable + EquipAction
+        code: Chaining
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, either_player controls) to gy

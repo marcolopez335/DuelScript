@@ -1,3 +1,4 @@
+// 粛声の竜賢姫サフィラ
 // Saffira, Dragon Queen of the Voiceless Voice
 // Transpiled from c51296484.lua
 
@@ -15,9 +16,9 @@ card "Saffira, Dragon Queen of the Voiceless Voice" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 131112
-        range: 2
+        effect_type: Ignition
+        category: ToHand + ToGrave + Search
+        range: Hand
         count_limit: (1, 51296484)
         cost {
             discard (1, card, you controls)
@@ -30,10 +31,10 @@ card "Saffira, Dragon Queen of the Voiceless Voice" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        code: 1002
-        range: 16
+        effect_type: Ignition
+        category: SpecialSummon
+        code: FreeChain
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self
@@ -44,9 +45,9 @@ card "Saffira, Dragon Queen of the Voiceless Voice" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         on_resolve {
             ritual_summon (1, ritual monster) using (1+, monster, you controls)
         }

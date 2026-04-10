@@ -1,3 +1,4 @@
+// LL－リサイト・スターリング
 // Lyrilusc - Recital Starling
 // Transpiled from c8491961.lua
 
@@ -21,9 +22,9 @@ card "Lyrilusc - Recital Starling" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 6291456
-        code: 1102
+        effect_type: Single + Trigger
+        category: SynchroSummon + XyzSummon
+        code: SpecialSummonSuccess
         property: 65552
         on_resolve {
             register_effect on self {
@@ -38,16 +39,16 @@ card "Lyrilusc - Recital Starling" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 207
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 131080
-        range: 4
+        effect_type: Ignition
+        category: ToHand + Search
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self

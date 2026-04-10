@@ -1,3 +1,4 @@
+// 宣告者の預言
 // Dawn of the Herald
 // Transpiled from c27383110.lua
 
@@ -6,11 +7,11 @@ card "Dawn of the Herald" {
     type: Ritual Spell
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 8
+        effect_type: Field + Trigger
+        category: ToHand
         code: 295818566
         property: 16
-        range: 16
+        range: Graveyard
         cost {
             banish self
         }
@@ -21,18 +22,18 @@ card "Dawn of the Herald" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1026
-        range: 16
+        range: Graveyard
         on_resolve {
             emit_event "custom"
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         on_resolve {
             ritual_summon (1, ritual monster) using (1+, monster, you controls)
         }

@@ -1,3 +1,4 @@
+// クリアクリボー
 // Clear Kuriboh
 // Transpiled from c46613515.lua
 
@@ -11,11 +12,11 @@ card "Clear Kuriboh" {
     def: 200
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 268435456
-        code: 1027
+        effect_type: QuickEffect
+        category: Negate
+        code: Chaining
         property: 49152
-        range: 2
+        range: Hand
         cost {
             discard (1, card, you controls)
         }
@@ -25,10 +26,10 @@ card "Clear Kuriboh" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 66048
-        code: 1130
-        range: 16
+        effect_type: Field + Trigger
+        category: SpecialSummon + Draw
+        code: AttackAnnounce
+        range: Graveyard
         count_limit: (1, 46613515)
         cost {
             banish self

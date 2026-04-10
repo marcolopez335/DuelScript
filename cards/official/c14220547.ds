@@ -1,3 +1,4 @@
+// 烙印の命数
 // Branded in Central Dogmatika
 // Transpiled from c14220547.lua
 
@@ -6,18 +7,18 @@ card "Branded in Central Dogmatika" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 32
-        code: 1102
+        effect_type: Field + Trigger
+        category: ToGrave
+        code: SpecialSummonSuccess
         property: 65536
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             reveal (1+, card, opponent controls)
@@ -27,11 +28,11 @@ card "Branded in Central Dogmatika" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 2097152
-        code: 1102
+        effect_type: Field + Trigger
+        category: SynchroSummon
+        code: SpecialSummonSuccess
         property: 65552
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {

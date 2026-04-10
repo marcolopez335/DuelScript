@@ -1,3 +1,4 @@
+// 地縛戒隷 ジオグラシャ＝ラボラス
 // Earthbound Servant Geo Grasha
 // Transpiled from c71101678.lua
 
@@ -20,7 +21,7 @@ card "Earthbound Servant Geo Grasha" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -28,9 +29,9 @@ card "Earthbound Servant Geo Grasha" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 6291456
-        code: 1132
+        effect_type: Single + MandatoryTrigger
+        category: SynchroSummon + XyzSummon
+        code: DamageCalculation
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -44,11 +45,11 @@ card "Earthbound Servant Geo Grasha" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 1
-        code: 1029
+        effect_type: Field + Trigger
+        category: Destroy
+        code: Destroyed
         property: 81920
-        range: 4
+        range: MonsterZone
         count_limit: (1, 71101678)
         on_resolve {
             destroy (1+, monster, you controls, deck)
@@ -56,8 +57,8 @@ card "Earthbound Servant Geo Grasha" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 512
+        effect_type: Single + Trigger
+        category: SpecialSummon
         code: 1015
         property: 65536
         on_resolve {

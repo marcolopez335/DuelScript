@@ -1,3 +1,4 @@
+// 弾帯城壁龍
 // Linkbelt Wall Dragon
 // Transpiled from c63092423.lua
 
@@ -15,7 +16,7 @@ card "Linkbelt Wall Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -23,47 +24,47 @@ card "Linkbelt Wall Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 8389120
-        code: 1102
-        range: 2
+        effect_type: Field + Trigger
+        category: SpecialSummon + LinkSummon
+        code: SpecialSummonSuccess
+        range: Hand
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 85
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 514
-        code: 1102
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        code: SpecialSummonSuccess
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 6" {
-        effect_type: 514
-        category: 8388608
+        effect_type: Field + MandatoryTrigger
+        category: LinkSummon
         code: 4098
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
         }

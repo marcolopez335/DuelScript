@@ -1,3 +1,4 @@
+// 絶望神アンチホープ
 // Dystopia the Despondent
 // Transpiled from c52085072.lua
 
@@ -15,7 +16,7 @@ card "Dystopia the Despondent" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -23,28 +24,28 @@ card "Dystopia the Despondent" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 263168
-        range: 18
+        range: Hand + Graveyard
         on_resolve {
             send (1+, monster, you controls) to gy
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 85
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        code: FreeChain
+        range: MonsterZone
         cost {
             banish self
         }

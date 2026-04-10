@@ -1,3 +1,4 @@
+// ジュラック・スティゴ
 // Jurrac Stego
 // Transpiled from c20568404.lua
 
@@ -11,9 +12,9 @@ card "Jurrac Stego" {
     def: 900
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 545
-        range: 4
+        effect_type: Ignition
+        category: Destroy + ToGrave + SpecialSummon
+        range: MonsterZone
         count_limit: (1, 20568404)
         on_resolve {
             register_effect on self {
@@ -27,9 +28,9 @@ card "Jurrac Stego" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 8
-        code: 1140
+        effect_type: Single + Trigger
+        category: ToHand
+        code: BattleDamage
         on_resolve {
             return (1+, card, you controls) to hand
         }

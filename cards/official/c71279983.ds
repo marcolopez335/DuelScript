@@ -1,3 +1,4 @@
+// U.A.ドレッドノートダンカー
 // U.A. Dreadnought Dunker
 // Transpiled from c71279983.lua
 
@@ -15,10 +16,10 @@ card "U.A. Dreadnought Dunker" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         count_limit: (1, 71279983)
         on_resolve {
             return (1+, monster, you controls) to hand
@@ -26,7 +27,7 @@ card "U.A. Dreadnought Dunker" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 203
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
@@ -34,8 +35,8 @@ card "U.A. Dreadnought Dunker" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 1
+        effect_type: Single + Trigger
+        category: Destroy
         code: 1143
         property: 16
         on_resolve {

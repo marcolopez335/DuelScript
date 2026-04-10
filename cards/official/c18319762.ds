@@ -1,3 +1,4 @@
+// 氷結界の照魔師
 // Revealer of the Ice Barrier
 // Transpiled from c18319762.lua
 
@@ -11,29 +12,29 @@ card "Revealer of the Ice Barrier" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 20
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 23
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 512
-        range: 4
+        effect_type: Ignition
+        category: SpecialSummon
+        range: MonsterZone
         count_limit: (1, 18319762)
         on_resolve {
             special_summon (1, monster) from gy
@@ -45,10 +46,10 @@ card "Revealer of the Ice Barrier" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 18319762
         property: 131072
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
         }

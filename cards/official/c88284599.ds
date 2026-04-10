@@ -1,3 +1,4 @@
+// 粛声の竜賢聖サウラヴィス
 // Sauravis, Dragon Sage of the Voiceless Voice
 // Transpiled from c88284599.lua
 
@@ -15,10 +16,10 @@ card "Sauravis, Dragon Sage of the Voiceless Voice" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         count_limit: (1, 88284599)
         on_resolve {
             return (1+, spell, you controls) to deck shuffle
@@ -26,10 +27,10 @@ card "Sauravis, Dragon Sage of the Voiceless Voice" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 528
-        code: 1027
-        range: 4
+        effect_type: QuickEffect
+        category: ToDeck + SpecialSummon
+        code: Chaining
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

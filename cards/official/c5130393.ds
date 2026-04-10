@@ -1,3 +1,4 @@
+// 千年の血族
 // Millennium Seeker
 // Transpiled from c5130393.lua
 
@@ -11,11 +12,11 @@ card "Millennium Seeker" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 1111
         property: 16384
-        range: 2
+        range: Hand
         count_limit: (1, 5130393)
         on_resolve {
             special_summon (1, monster) from gy
@@ -23,10 +24,10 @@ card "Millennium Seeker" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 131592
+        effect_type: Ignition
+        category: ToHand + SpecialSummon + Search
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             reveal (1+, card, opponent controls)

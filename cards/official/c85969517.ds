@@ -1,3 +1,4 @@
+// 海造賊－荘重のヨルズ号
 // Plunder Patrollship Jord
 // Transpiled from c85969517.lua
 
@@ -22,9 +23,9 @@ card "Plunder Patrollship Jord" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 1552
-        range: 512
+        effect_type: Ignition
+        category: ToDeck + SpecialSummon + Token
+        range: PendulumZone
         count_limit: (1, 85969517)
         on_resolve {
             return (1+, card, you controls) to deck shuffle
@@ -34,11 +35,11 @@ card "Plunder Patrollship Jord" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 131592
-        code: 1102
+        effect_type: Field + Trigger
+        category: ToHand + SpecialSummon + Search
+        code: SpecialSummonSuccess
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -48,10 +49,10 @@ card "Plunder Patrollship Jord" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 8
+        effect_type: Ignition
+        category: ToHand
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck

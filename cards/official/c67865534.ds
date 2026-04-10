@@ -1,3 +1,4 @@
+// 希望の魔術師
 // Magician of Hope
 // Transpiled from c67865534.lua
 
@@ -22,10 +23,10 @@ card "Magician of Hope" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 1
-        code: 1130
-        range: 512
+        effect_type: Field + Trigger
+        category: Destroy
+        code: AttackAnnounce
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             negate attack
@@ -34,9 +35,9 @@ card "Magician of Hope" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 4
+        effect_type: Ignition
+        category: SpecialSummon
+        range: MonsterZone
         count_limit: (1, 67865534)
         cost {
             detach 1 overlay_unit from self
@@ -56,8 +57,8 @@ card "Magician of Hope" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        code: 1102
+        effect_type: Single + Trigger
+        code: SpecialSummonSuccess
         property: 65552
         on_resolve {
             attach (1, card) to self as_material
@@ -65,7 +66,7 @@ card "Magician of Hope" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 2
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -73,7 +74,7 @@ card "Magician of Hope" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 8
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }

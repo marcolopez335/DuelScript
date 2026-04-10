@@ -1,3 +1,4 @@
+// マドルチェ・マーマメイド
 // Madolche Marmalmaide
 // Transpiled from c26016357.lua
 
@@ -11,17 +12,17 @@ card "Madolche Marmalmaide" {
     def: 2000
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 16
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: ToDeck
+        code: ChainEnd
         on_resolve {
             return (1+, spell, either_player controls) to deck shuffle
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 8
+        effect_type: Single + Trigger
+        category: ToHand
         code: 1001
         property: 16400
         on_resolve {

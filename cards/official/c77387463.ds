@@ -1,3 +1,4 @@
+// 方界帝ヴァルカン・ドラグニー
 // Vulcan Dragni the Cubic King
 // Transpiled from c77387463.lua
 
@@ -15,10 +16,10 @@ card "Vulcan Dragni the Cubic King" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 263168
-        range: 2
+        range: Hand
         on_resolve {
             send (1+, monster, you controls) to gy
             register_effect on self {
@@ -29,9 +30,9 @@ card "Vulcan Dragni the Cubic King" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 524288
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: Damage
+        code: SpecialSummonSuccess
         property: 2048
         on_resolve {
             deal_damage to opponent: 1000
@@ -39,8 +40,8 @@ card "Vulcan Dragni the Cubic King" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131592
+        effect_type: Single + Trigger
+        category: ToHand + SpecialSummon + Search
         code: 1141
         property: 16
         on_resolve {

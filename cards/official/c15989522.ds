@@ -1,3 +1,4 @@
+// 竜魔道騎士ガイア
 // Gaia the Magical Knight of Dragons
 // Transpiled from c15989522.lua
 
@@ -20,20 +21,20 @@ card "Gaia the Magical Knight of Dragons" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 114
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 2097153
-        code: 1002
+        effect_type: QuickEffect
+        category: Destroy + SynchroSummon
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 15989522)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -41,8 +42,8 @@ card "Gaia the Magical Knight of Dragons" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 2097152
+        effect_type: Single + Trigger
+        category: SynchroSummon
         code: 1139
         count_limit: (1, 0)
         on_resolve {

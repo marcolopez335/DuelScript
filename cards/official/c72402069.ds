@@ -1,3 +1,4 @@
+// ＤＤＤ超死偉王ホワイテスト・ヘル・アーマゲドン
 // D/D/D Super Doom King Bright Armageddon
 // Transpiled from c72402069.lua
 
@@ -22,11 +23,11 @@ card "D/D/D Super Doom King Bright Armageddon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 524289
-        code: 1130
+        effect_type: Field + Trigger
+        category: Destroy + Damage
+        code: AttackAnnounce
         property: 16
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, opponent controls)
@@ -35,36 +36,36 @@ card "D/D/D Super Doom King Bright Armageddon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 71
         property: 128
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 16384
-        code: 1100
-        range: 4
+        effect_type: Field + Trigger
+        category: Disable
+        code: SummonSuccess
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 16384
-        code: 1102
-        range: 4
+        effect_type: Field + Trigger
+        category: Disable
+        code: SpecialSummonSuccess
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 129
-        code: 1029
+        effect_type: Single + Trigger
+        code: Destroyed
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy

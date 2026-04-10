@@ -1,3 +1,4 @@
+// 騎甲虫スケイル・ボム
 // Beetrooper Scale Bomber
 // Transpiled from c39041550.lua
 
@@ -11,11 +12,11 @@ card "Beetrooper Scale Bomber" {
     def: 2000
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
-        code: 1100
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SummonSuccess
         property: 65536
-        range: 2
+        range: Hand
         count_limit: (1, 39041550)
         on_resolve {
             special_summon (1, monster) from gy
@@ -23,11 +24,11 @@ card "Beetrooper Scale Bomber" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1102
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
-        range: 2
+        range: Hand
         count_limit: (1, 39041550)
         on_resolve {
             special_summon (1, monster) from gy
@@ -35,10 +36,10 @@ card "Beetrooper Scale Bomber" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 1
-        code: 1027
-        range: 4
+        effect_type: QuickEffect
+        category: Destroy
+        code: Chaining
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             tribute self

@@ -1,3 +1,4 @@
+// インフェルノイド・フラッド
 // Infernoid Flood
 // Transpiled from c34446231.lua
 
@@ -20,10 +21,10 @@ card "Infernoid Flood" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 32772
+        effect_type: QuickEffect
+        category: Banish
         code: 1105
-        range: 4
+        range: MonsterZone
         count_limit: (1, 34446231)
         cost {
             tribute self
@@ -35,11 +36,11 @@ card "Infernoid Flood" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 4
-        code: 1011
+        effect_type: Field + Trigger
+        category: Banish
+        code: TurnEnd
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, monster, either_player controls)
@@ -47,9 +48,9 @@ card "Infernoid Flood" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 65536
         count_limit: (1, 0)
         on_resolve {

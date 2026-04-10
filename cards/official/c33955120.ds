@@ -1,3 +1,4 @@
+// 黒薔薇と荊棘の魔女
 // Rage Rose Witch
 // Transpiled from c33955120.lua
 
@@ -21,18 +22,18 @@ card "Rage Rose Witch" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 41
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 32
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 33955120)
         on_resolve {
@@ -45,10 +46,10 @@ card "Rage Rose Witch" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 512
-        code: 1029
-        range: 16
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: Destroyed
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -56,7 +57,7 @@ card "Rage Rose Witch" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 67110912
         on_resolve {

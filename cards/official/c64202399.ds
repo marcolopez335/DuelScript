@@ -1,3 +1,4 @@
+// 深淵の青眼龍
 // Blue-Eyes Abyss Dragon
 // Transpiled from c64202399.lua
 
@@ -15,9 +16,9 @@ card "Blue-Eyes Abyss Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 64202399)
         on_resolve {
@@ -27,10 +28,10 @@ card "Blue-Eyes Abyss Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 131080
+        effect_type: Field + Trigger
+        category: ToHand + Search
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to hand
@@ -39,9 +40,9 @@ card "Blue-Eyes Abyss Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 2097152
-        range: 16
+        effect_type: Ignition
+        category: SynchroSummon
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self

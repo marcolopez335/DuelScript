@@ -1,3 +1,4 @@
+// 創世の竜騎士
 // Dragon Knight of Creation
 // Transpiled from c87835759.lua
 
@@ -11,17 +12,17 @@ card "Dragon Knight of Creation" {
     def: 600
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 130
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 32
+        effect_type: Single + Trigger
+        category: ToGrave
         code: 1139
         on_resolve {
             send (1+, card, you controls, deck) to gy
@@ -29,10 +30,10 @@ card "Dragon Knight of Creation" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 544
+        effect_type: Ignition
+        category: ToGrave + SpecialSummon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 87835759)
         on_resolve {
             send (1+, card, you controls, deck) to gy

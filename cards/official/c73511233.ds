@@ -1,3 +1,4 @@
+// EMユーゴーレム
 // Performapal U Go Golem
 // Transpiled from c73511233.lua
 
@@ -12,11 +13,11 @@ card "Performapal U Go Golem" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 8
-        code: 1102
+        effect_type: Field + Trigger
+        category: ToHand
+        code: SpecialSummonSuccess
         property: 65536
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from gy
@@ -25,17 +26,17 @@ card "Performapal U Go Golem" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
-        code: 1102
+        effect_type: Single + Continuous
+        code: SpecialSummonSuccess
         property: 1024
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 1073742336
-        range: 4
+        effect_type: Ignition
+        category: SpecialSummon
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
         }

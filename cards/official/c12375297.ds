@@ -1,3 +1,4 @@
+// 燿ける聖詩の獄神精
 // Elfnote Power Patron
 // Transpiled from c12375297.lua
 
@@ -11,21 +12,21 @@ card "Elfnote Power Patron" {
     def: 200
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 134218240
-        code: 1002
+        effect_type: QuickEffect
+        category: SpecialSummon + LevelChange
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 12375297)
         on_resolve {
             register_effect on self {
@@ -37,8 +38,8 @@ card "Elfnote Power Patron" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
+        effect_type: Single + Trigger
+        category: ToHand + Search
         code: 1108
         property: 65536
         count_limit: (1, 0)
@@ -49,7 +50,7 @@ card "Elfnote Power Patron" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 130
         property: 1024
         on_resolve {

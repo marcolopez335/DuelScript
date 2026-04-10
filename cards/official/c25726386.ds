@@ -1,3 +1,4 @@
+// メガリス・アラトロン
 // Megalith Aratron
 // Transpiled from c25726386.lua
 
@@ -20,10 +21,10 @@ card "Megalith Aratron" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 514
-        code: 1002
-        range: 2
+        effect_type: QuickEffect
+        category: Release + SpecialSummon
+        code: FreeChain
+        range: Hand
         count_limit: (1, 25726386)
         cost {
             discard (1, card, you controls)
@@ -33,11 +34,11 @@ card "Megalith Aratron" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 268435473
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy + ToDeck + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, card, you controls) to deck shuffle

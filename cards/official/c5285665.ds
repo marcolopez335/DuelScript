@@ -1,3 +1,4 @@
+// E・HERO バブルマン・ネオ
 // Elemental HERO Neo Bubbleman
 // Transpiled from c5285665.lua
 
@@ -15,7 +16,7 @@ card "Elemental HERO Neo Bubbleman" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -23,27 +24,27 @@ card "Elemental HERO Neo Bubbleman" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         on_resolve {
             send (1+, monster, you controls) to gy
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 114
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 513
-        category: 1
+        effect_type: Single + MandatoryTrigger
+        category: Destroy
         code: 1141
         on_resolve {
             destroy (1+, monster, you controls)

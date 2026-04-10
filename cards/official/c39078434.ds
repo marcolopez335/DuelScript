@@ -1,3 +1,4 @@
+// ジャイアント・メサイア
 // Infinite Antlion
 // Transpiled from c39078434.lua
 
@@ -11,11 +12,11 @@ card "Infinite Antlion" {
     def: 1500
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 1
-        code: 1132
+        effect_type: Field + Trigger
+        category: Destroy
+        code: DamageCalculation
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -23,10 +24,10 @@ card "Infinite Antlion" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1130
-        range: 2
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: AttackAnnounce
+        range: Hand
         count_limit: (1, 39078434)
         on_resolve {
             special_summon (1, monster) from gy
@@ -34,9 +35,9 @@ card "Infinite Antlion" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 262144
-        code: 1100
+        effect_type: Single + Trigger
+        category: EquipAction
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -44,9 +45,9 @@ card "Infinite Antlion" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 262144
-        code: 1102
+        effect_type: Single + Trigger
+        category: EquipAction
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -54,7 +55,7 @@ card "Infinite Antlion" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 500
@@ -62,7 +63,7 @@ card "Infinite Antlion" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 4
+        effect_type: Equip
         code: 104
         on_resolve {
             modifier: def + 500
@@ -70,7 +71,7 @@ card "Infinite Antlion" {
     }
 
     raw_effect "Effect 7" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         property: 1024
         on_resolve {

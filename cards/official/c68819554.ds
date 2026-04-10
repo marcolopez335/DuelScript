@@ -1,3 +1,4 @@
+// Emダメージ・ジャグラー
 // Performage Damage Juggler
 // Transpiled from c68819554.lua
 
@@ -11,11 +12,11 @@ card "Performage Damage Juggler" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 268435457
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy + Negate
+        code: Chaining
         property: 49152
-        range: 2
+        range: Hand
         cost {
             send self to gy
         }
@@ -26,9 +27,9 @@ card "Performage Damage Juggler" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        code: 1002
-        range: 2
+        effect_type: QuickEffect
+        code: FreeChain
+        range: Hand
         cost {
             send self to gy
         }
@@ -41,9 +42,9 @@ card "Performage Damage Juggler" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 131080
-        range: 16
+        effect_type: Ignition
+        category: ToHand + Search
+        range: Graveyard
         count_limit: (1, 68819554)
         cost {
             banish self

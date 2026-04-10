@@ -291,6 +291,104 @@ impl DuelApiCall {
 /// function body to a single DSL action string. Most aux helpers are
 /// pure boolean / filter / hint utilities and stay None — only the
 /// ones that wrap an actual game-state mutation produce an action.
+/// Sprint 56: Convert a numeric effect_type to a friendly PascalCase name.
+fn friendly_effect_type(val: u32) -> String {
+    // Decompose into known flags, fall back to numeric
+    let mut parts = Vec::new();
+    if val & 0x0001 != 0 { parts.push("Single"); }
+    if val & 0x0002 != 0 { parts.push("Field"); }
+    if val & 0x0004 != 0 { parts.push("Equip"); }
+    if val & 0x0010 != 0 { parts.push("Activate"); }
+    if val & 0x0020 != 0 { parts.push("Flip"); }
+    if val & 0x0040 != 0 { parts.push("Ignition"); }
+    if val & 0x0080 != 0 { parts.push("Trigger"); }
+    if val & 0x0100 != 0 { parts.push("QuickEffect"); }
+    if val & 0x0200 != 0 { parts.push("MandatoryTrigger"); }
+    if val & 0x0400 != 0 { parts.push("MandatoryQuick"); }
+    if val & 0x0800 != 0 { parts.push("Continuous"); }
+    if val & 0x2000 != 0 { parts.push("Grant"); }
+    if parts.is_empty() { return val.to_string(); }
+    parts.join(" + ")
+}
+
+/// Sprint 56: Convert a numeric category to friendly names.
+fn friendly_category(val: u32) -> String {
+    if val == 0 { return "0".to_string(); }
+    let mut parts = Vec::new();
+    if val & 0x0000_0001 != 0 { parts.push("Destroy"); }
+    if val & 0x0000_0002 != 0 { parts.push("Release"); }
+    if val & 0x0000_0004 != 0 { parts.push("Banish"); }
+    if val & 0x0000_0008 != 0 { parts.push("ToHand"); }
+    if val & 0x0000_0010 != 0 { parts.push("ToDeck"); }
+    if val & 0x0000_0020 != 0 { parts.push("ToGrave"); }
+    if val & 0x0000_0040 != 0 { parts.push("AtkChange"); }
+    if val & 0x0000_0080 != 0 { parts.push("DefChange"); }
+    if val & 0x0000_0100 != 0 { parts.push("Counter"); }
+    if val & 0x0000_0200 != 0 { parts.push("SpecialSummon"); }
+    if val & 0x0000_0400 != 0 { parts.push("Token"); }
+    if val & 0x0000_0800 != 0 { parts.push("PositionChange"); }
+    if val & 0x0000_1000 != 0 { parts.push("DiceRoll"); }
+    if val & 0x0000_2000 != 0 { parts.push("Summon"); }
+    if val & 0x0000_4000 != 0 { parts.push("Disable"); }
+    if val & 0x0001_0000 != 0 { parts.push("Draw"); }
+    if val & 0x0002_0000 != 0 { parts.push("Search"); }
+    if val & 0x0004_0000 != 0 { parts.push("EquipAction"); }
+    if val & 0x0008_0000 != 0 { parts.push("Damage"); }
+    if val & 0x0010_0000 != 0 { parts.push("Recover"); }
+    if val & 0x0020_0000 != 0 { parts.push("SynchroSummon"); }
+    if val & 0x0040_0000 != 0 { parts.push("XyzSummon"); }
+    if val & 0x0080_0000 != 0 { parts.push("LinkSummon"); }
+    if val & 0x0100_0000 != 0 { parts.push("RitualSummon"); }
+    if val & 0x0200_0000 != 0 { parts.push("FusionSummon"); }
+    if val & 0x0800_0000 != 0 { parts.push("LevelChange"); }
+    if val & 0x1000_0000 != 0 { parts.push("Negate"); }
+    if parts.is_empty() { return val.to_string(); }
+    parts.join(" + ")
+}
+
+/// Sprint 56: Convert a numeric event code to a friendly name.
+fn friendly_code(val: u32) -> String {
+    match val {
+        1002 => "FreeChain".to_string(),
+        1006 => "PhaseStart".to_string(),
+        1007 => "PhaseEnd".to_string(),
+        1011 => "TurnEnd".to_string(),
+        1012 => "ChainSolving".to_string(),
+        1013 => "ChainSolved".to_string(),
+        1014 => "ChainEnd".to_string(),
+        1017 => "Release".to_string(),
+        1027 => "Chaining".to_string(),
+        1029 => "Destroyed".to_string(),
+        1030 => "LeaveField".to_string(),
+        1100 => "SummonSuccess".to_string(),
+        1101 => "FlipSummonSuccess".to_string(),
+        1102 => "SpecialSummonSuccess".to_string(),
+        1109 => "FlipResult".to_string(),
+        1130 => "AttackAnnounce".to_string(),
+        1131 => "BattleTarget".to_string(),
+        1132 => "DamageCalculation".to_string(),
+        1140 => "BattleDamage".to_string(),
+        _ => val.to_string(),
+    }
+}
+
+/// Sprint 56: Convert a numeric range to friendly location names.
+fn friendly_range(val: u32) -> String {
+    if val == 0 { return "0".to_string(); }
+    let mut parts = Vec::new();
+    if val & 0x02  != 0 { parts.push("Hand"); }
+    if val & 0x04  != 0 { parts.push("MonsterZone"); }
+    if val & 0x08  != 0 { parts.push("SpellTrapZone"); }
+    if val & 0x10  != 0 { parts.push("Graveyard"); }
+    if val & 0x20  != 0 { parts.push("Banished"); }
+    if val & 0x40  != 0 { parts.push("Deck"); }
+    if val & 0x100 != 0 { parts.push("FieldZone"); }
+    if val & 0x200 != 0 { parts.push("PendulumZone"); }
+    if val & 0x400 != 0 { parts.push("ExtraDeck"); }
+    if parts.is_empty() { return val.to_string(); }
+    parts.join(" + ")
+}
+
 fn aux_call_to_action(name: &str) -> Option<String> {
     match name {
         // ToHandOrElse: try to add to hand; otherwise send to GY.
@@ -1031,8 +1129,17 @@ pub fn transpile_lua_to_ds(
     let mut total_actions = 0usize;
     let mut mapped_actions = 0usize;
 
-    // Header — escape quotes in card name
+    // Header — extract Japanese name from Lua comments (first `--` line)
+    // and include it alongside the English name, mirroring Lua's format.
     let safe_name = card_name.replace('"', "'");
+    let jp_name: Option<String> = lua_source.lines()
+        .find(|l| l.starts_with("--") && !l.starts_with("---"))
+        .and_then(|l| l.strip_prefix("--"))
+        .map(|s| s.trim().to_string())
+        .filter(|s| *s != safe_name); // skip if JP == EN (no point repeating)
+    if let Some(ref jp) = jp_name {
+        ds.push_str(&format!("// {}\n", jp));
+    }
     ds.push_str(&format!("// {}\n", safe_name));
     ds.push_str(&format!("// Transpiled from c{}.lua\n\n", passcode));
     ds.push_str(&format!("card \"{}\" {{\n", safe_name));
@@ -1193,6 +1300,12 @@ pub fn transpile_lua_to_ds(
         let property    = resolve_lua_constant_expr_with_id(effect.property.as_deref().unwrap_or("0"), id_val);
         let range       = resolve_lua_constant_expr_with_id(effect.range.as_deref().unwrap_or("0"), id_val);
 
+        // Sprint 56: convert to friendly names where a clean mapping exists
+        let et_str = friendly_effect_type(effect_type);
+        let cat_str = friendly_category(category);
+        let code_str_friendly = friendly_code(code);
+        let range_str = friendly_range(range);
+
         // Sprint 29: replacement effects get a dedicated block.
         // The raw_effect form would still parse but loses the
         // "instead_of: X do { ... }" semantic structure that
@@ -1292,11 +1405,11 @@ pub fn transpile_lua_to_ds(
         };
         if let Some(g) = grant {
             ds.push_str(&format!("    raw_effect \"Effect {}\" {{\n", i + 1));
-            if effect_type != 0 { ds.push_str(&format!("        effect_type: {}\n", effect_type)); }
-            if category != 0    { ds.push_str(&format!("        category: {}\n", category)); }
-            if code != 0        { ds.push_str(&format!("        code: {}\n", code)); }
+            if effect_type != 0 { ds.push_str(&format!("        effect_type: {}\n", et_str)); }
+            if category != 0    { ds.push_str(&format!("        category: {}\n", cat_str)); }
+            if code != 0        { ds.push_str(&format!("        code: {}\n", code_str_friendly)); }
             if property != 0    { ds.push_str(&format!("        property: {}\n", property)); }
-            if range != 0       { ds.push_str(&format!("        range: {}\n", range)); }
+            if range != 0       { ds.push_str(&format!("        range: {}\n", range_str)); }
             ds.push_str("        on_resolve {\n");
             ds.push_str(&format!(
                 "            register_effect on self {{ grant: {} duration: until_end_of_turn }}\n",
@@ -1333,11 +1446,11 @@ pub fn transpile_lua_to_ds(
                 };
 
                 ds.push_str(&format!("    raw_effect \"Effect {}\" {{\n", i + 1));
-                if effect_type != 0 { ds.push_str(&format!("        effect_type: {}\n", effect_type)); }
-                if category != 0    { ds.push_str(&format!("        category: {}\n", category)); }
-                if code != 0        { ds.push_str(&format!("        code: {}\n", code)); }
+                if effect_type != 0 { ds.push_str(&format!("        effect_type: {}\n", et_str)); }
+                if category != 0    { ds.push_str(&format!("        category: {}\n", cat_str)); }
+                if code != 0        { ds.push_str(&format!("        code: {}\n", code_str_friendly)); }
                 if property != 0    { ds.push_str(&format!("        property: {}\n", property)); }
-                if range != 0       { ds.push_str(&format!("        range: {}\n", range)); }
+                if range != 0       { ds.push_str(&format!("        range: {}\n", range_str)); }
                 ds.push_str("        on_resolve {\n");
                 ds.push_str(&format!("            modifier: {} {} {}\n", stat, sign, mag));
                 ds.push_str("        }\n");
@@ -1349,11 +1462,11 @@ pub fn transpile_lua_to_ds(
         }
 
         ds.push_str(&format!("    raw_effect \"Effect {}\" {{\n", i + 1));
-        if effect_type != 0 { ds.push_str(&format!("        effect_type: {}\n", effect_type)); }
-        if category != 0    { ds.push_str(&format!("        category: {}\n", category)); }
-        if code != 0        { ds.push_str(&format!("        code: {}\n", code)); }
+        if effect_type != 0 { ds.push_str(&format!("        effect_type: {}\n", et_str)); }
+        if category != 0    { ds.push_str(&format!("        category: {}\n", cat_str)); }
+        if code != 0        { ds.push_str(&format!("        code: {}\n", code_str_friendly)); }
         if property != 0    { ds.push_str(&format!("        property: {}\n", property)); }
-        if range != 0       { ds.push_str(&format!("        range: {}\n", range)); }
+        if range != 0       { ds.push_str(&format!("        range: {}\n", range_str)); }
 
         if let Some(ref cl) = effect.count_limit {
             // Parse "(1,id)" or "(1, id)" or "(1)" etc.

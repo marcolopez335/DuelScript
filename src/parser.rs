@@ -507,18 +507,21 @@ fn parse_raw_effect_block(pair: Pair<Rule>) -> Result<RawEffect, ParseError> {
                     match inner.as_rule() {
                         Rule::raw_field => {
                             let text = inner.as_str();
-                            let nums: Vec<u32> = inner.into_inner()
-                                .filter(|p| p.as_rule() == Rule::unsigned)
-                                .map(|p| p.as_str().parse().unwrap_or(0))
+                            // Sprint 56: resolve raw_value_expr (may
+                            // contain named constants like Ignition,
+                            // Destroy+Draw, etc.)
+                            let vals: Vec<u32> = inner.into_inner()
+                                .filter(|p| p.as_rule() == Rule::raw_value_expr)
+                                .map(|p| resolve_raw_value_expr(p))
                                 .collect();
 
-                            if text.starts_with("effect_type") { raw.effect_type = nums[0]; }
-                            else if text.starts_with("category") { raw.category = nums[0]; }
-                            else if text.starts_with("code") { raw.code = nums[0]; }
-                            else if text.starts_with("property") { raw.property = nums[0]; }
-                            else if text.starts_with("range") { raw.range = nums[0]; }
-                            else if text.starts_with("count_limit") && nums.len() >= 2 {
-                                raw.count_limit = Some((nums[0], nums[1]));
+                            if text.starts_with("effect_type") && !vals.is_empty() { raw.effect_type = vals[0]; }
+                            else if text.starts_with("category") && !vals.is_empty() { raw.category = vals[0]; }
+                            else if text.starts_with("code") && !vals.is_empty() { raw.code = vals[0]; }
+                            else if text.starts_with("property") && !vals.is_empty() { raw.property = vals[0]; }
+                            else if text.starts_with("range") && !vals.is_empty() { raw.range = vals[0]; }
+                            else if text.starts_with("count_limit") && vals.len() >= 2 {
+                                raw.count_limit = Some((vals[0], vals[1]));
                             }
                         }
                         Rule::cost_clause => {
@@ -551,6 +554,130 @@ fn parse_raw_effect_block(pair: Pair<Rule>) -> Result<RawEffect, ParseError> {
     }
 
     Ok(raw)
+}
+
+/// Sprint 56: resolve a `raw_value_expr` pair (e.g., `Ignition`,
+/// `Destroy + Draw`, or `64`) to a u32. Named constants are ORed
+/// together when joined with `+`.
+fn resolve_raw_value_expr(pair: Pair<Rule>) -> u32 {
+    let mut result = 0u32;
+    for atom in pair.into_inner() {
+        match atom.as_rule() {
+            Rule::unsigned => {
+                result |= atom.as_str().trim().parse::<u32>().unwrap_or(0);
+            }
+            Rule::named_constant => {
+                let name = atom.as_str().trim();
+                result |= resolve_friendly_constant(name);
+            }
+            Rule::raw_value_atom => {
+                // Unwrap the atom — it contains either unsigned or named_constant
+                for inner in atom.into_inner() {
+                    match inner.as_rule() {
+                        Rule::unsigned => {
+                            result |= inner.as_str().trim().parse::<u32>().unwrap_or(0);
+                        }
+                        Rule::named_constant => {
+                            result |= resolve_friendly_constant(inner.as_str().trim());
+                        }
+                        _ => {}
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+    result
+}
+
+/// Map user-friendly PascalCase names to EDOPro numeric values.
+fn resolve_friendly_constant(name: &str) -> u32 {
+    match name {
+        // ── Effect Types ────────────────────────────────────
+        "Single"           => 0x0001,
+        "Field"            => 0x0002,
+        "Equip"            => 0x0004,
+        "Activate"         => 0x0010,
+        "Flip"             => 0x0020,
+        "Ignition"         => 0x0040,
+        "Trigger"          => 0x0080,  // optional trigger
+        "OptionalTrigger"  => 0x0080,
+        "QuickEffect"      => 0x0100,
+        "MandatoryTrigger" => 0x0200,
+        "MandatoryQuick"   => 0x0400,
+        "Continuous"       => 0x0800,
+        "Grant"            => 0x2000,
+
+        // ── Categories ──────────────────────────────────────
+        "Destroy"          => 0x0000_0001,
+        "Release"          => 0x0000_0002,
+        "Banish"           => 0x0000_0004,
+        "ToHand"           => 0x0000_0008,
+        "ToDeck"           => 0x0000_0010,
+        "ToGrave"          => 0x0000_0020,
+        "AtkChange"        => 0x0000_0040,
+        "DefChange"        => 0x0000_0080,
+        "Counter"          => 0x0000_0100,
+        "CoinToss"         => 0x0000_0200,
+        "SpecialSummon"    => 0x0000_0200, // same bit as Coin in EDOPro (context-dependent)
+        "Token"            => 0x0000_0400,
+        "PositionChange"   => 0x0000_0800,
+        "LevelChange"      => 0x0800_0000,
+        "FusionSummon"     => 0x0200_0000,
+        "SynchroSummon"    => 0x0020_0000,
+        "XyzSummon"        => 0x0040_0000,
+        "LinkSummon"       => 0x0080_0000,
+        "RitualSummon"     => 0x0100_0000,
+        "Negate"           => 0x1000_0000,
+        "Disable"          => 0x0000_4000,
+        "Draw"             => 0x0001_0000,
+        "Search"           => 0x0002_0000,
+        "EquipAction"      => 0x0004_0000,
+        "Damage"           => 0x0008_0000,
+        "Recover"          => 0x0010_0000,
+        "DiceRoll"         => 0x0000_1000,
+        "Summon"           => 0x0000_2000,
+
+        // ── Event Codes ─────────────────────────────────────
+        "FreeChain"            => 1002,
+        "Chaining"             => 1027,
+        "Destroyed"            => 1029,
+        "SummonSuccess"        => 1100,
+        "FlipSummonSuccess"    => 1101,
+        "SpecialSummonSuccess" => 1102,
+        "AttackAnnounce"       => 1130,
+        "BattleTarget"         => 1131,
+        "DamageCalculation"    => 1132,
+        "BattleDamage"         => 1140,
+        "PhaseStandby"         => 0x0202,
+        "PhaseMain1"           => 0x0204,
+        "PhaseBattle"          => 0x0208,
+        "PhaseMain2"           => 0x0210,
+        "PhaseEnd"             => 0x0220,
+
+        // ── Properties ──────────────────────────────────────
+        "CardTarget"       => 0x0010,
+        "Delay"            => 0x0001_0000,
+        "CannotDisable"    => 0x0002_0000,
+        "Uncopyable"       => 0x0004_0000,
+        "PlayerTarget"     => 0x0010_0000,
+        "ClientHint"       => 0x0020_0000,
+        "SingleRange"      => 0x0002_0000,
+
+        // ── Range / Locations ───────────────────────────────
+        "Hand"          => 0x02,
+        "MonsterZone"   => 0x04,
+        "SpellTrapZone" => 0x08,
+        "Graveyard"     => 0x10,
+        "Banished_"     => 0x20, // trailing _ to avoid clash
+        "Deck"          => 0x40,
+        "ExtraDeck"     => 0x400,
+        "FieldZone"     => 0x100,
+        "PendulumZone"  => 0x200,
+
+        // Fallback: try parsing as a plain number
+        _ => name.parse::<u32>().unwrap_or(0),
+    }
 }
 
 fn parse_effect_block(pair: Pair<Rule>) -> Result<Effect, ParseError> {

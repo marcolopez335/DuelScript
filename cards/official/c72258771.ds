@@ -1,3 +1,4 @@
+// コアキメイル・ヴァラファール
 // Koa'ki Meiru Valafar
 // Transpiled from c72258771.lua
 
@@ -15,10 +16,10 @@ card "Koa'ki Meiru Valafar" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 4608
         property: 263168
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, you controls, hand) to gy
@@ -27,7 +28,7 @@ card "Koa'ki Meiru Valafar" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 203
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
@@ -35,17 +36,17 @@ card "Koa'ki Meiru Valafar" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 20
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }

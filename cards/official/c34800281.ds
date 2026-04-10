@@ -1,3 +1,4 @@
+// メルフィー・ラッシィ
 // Melffy Pinny
 // Transpiled from c34800281.lua
 
@@ -11,10 +12,10 @@ card "Melffy Pinny" {
     def: 100
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 2
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: Hand
         count_limit: (1, 34800281)
         on_resolve {
             special_summon (1, monster) from gy
@@ -23,10 +24,10 @@ card "Melffy Pinny" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
+        effect_type: Field + Trigger
         code: 4608
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             attach (1, card) to self as_material
@@ -34,8 +35,8 @@ card "Melffy Pinny" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 1012
+        effect_type: Field + Continuous
+        code: ChainSolving
         on_resolve {
             set_flag "tracked" on self
         }

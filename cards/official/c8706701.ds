@@ -1,3 +1,4 @@
+// レッド・ミラー
 // Red Mirror
 // Transpiled from c8706701.lua
 
@@ -11,11 +12,11 @@ card "Red Mirror" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 8
-        code: 1130
+        effect_type: QuickEffect
+        category: ToHand
+        code: AttackAnnounce
         property: 16
-        range: 2
+        range: Hand
         count_limit: (1, 8706701)
         cost {
             send self to gy
@@ -26,11 +27,11 @@ card "Red Mirror" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 8
-        code: 1102
+        effect_type: Field + Trigger
+        category: ToHand
+        code: SpecialSummonSuccess
         property: 65536
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy

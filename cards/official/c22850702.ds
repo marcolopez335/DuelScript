@@ -1,3 +1,4 @@
+// カオス・アンヘル－混沌の双翼
 // Chaos Angel
 // Transpiled from c22850702.lua
 
@@ -21,9 +22,9 @@ card "Chaos Angel" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 4
-        code: 1102
+        effect_type: Single + Trigger
+        category: Banish
+        code: SpecialSummonSuccess
         property: 65552
         on_resolve {
             banish (1+, card, either_player controls)
@@ -31,25 +32,25 @@ card "Chaos Angel" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 1
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 42
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 251
         on_resolve {
         }

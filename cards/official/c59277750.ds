@@ -1,3 +1,4 @@
+// 敵襲警報－イエローアラート－
 // Intruder Alarm - Yellow Alert
 // Transpiled from c59277750.lua
 
@@ -6,9 +7,9 @@ card "Intruder Alarm - Yellow Alert" {
     type: Normal Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 520
-        code: 1130
+        effect_type: Activate
+        category: ToHand + SpecialSummon
+        code: AttackAnnounce
         count_limit: (1, 59277750)
         on_resolve {
             special_summon (1, monster) from gy
@@ -22,10 +23,10 @@ card "Intruder Alarm - Yellow Alert" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 332
         property: 1152
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }

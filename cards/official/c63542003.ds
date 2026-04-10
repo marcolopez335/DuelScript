@@ -1,3 +1,4 @@
+// 宿神像ケルドウ
 // Keldo the Sacred Protector
 // Transpiled from c63542003.lua
 
@@ -11,9 +12,9 @@ card "Keldo the Sacred Protector" {
     def: 1600
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 131592
-        range: 2
+        effect_type: Ignition
+        category: ToHand + SpecialSummon + Search
+        range: Hand
         count_limit: (1, 63542003)
         on_resolve {
             special_summon (1, monster) from gy
@@ -23,11 +24,11 @@ card "Keldo the Sacred Protector" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 16
-        code: 1002
+        effect_type: QuickEffect
+        category: ToDeck
+        code: FreeChain
         property: 16
-        range: 20
+        range: MonsterZone + Graveyard
         count_limit: (1, 0)
         cost {
             banish self

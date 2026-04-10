@@ -1,3 +1,4 @@
+// 氷結界の依巫
 // Speaker for the Ice Barriers
 // Transpiled from c44308317.lua
 
@@ -11,19 +12,19 @@ card "Speaker for the Ice Barriers" {
     def: 1800
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 14
         property: 256
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 44308317)
         on_resolve {
             special_summon (1, monster) from gy
@@ -31,9 +32,9 @@ card "Speaker for the Ice Barriers" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 1536
-        range: 16
+        effect_type: Ignition
+        category: SpecialSummon + Token
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self

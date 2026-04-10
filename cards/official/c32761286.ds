@@ -1,3 +1,4 @@
+// スクラップ・ワーム
 // Scrap Worm
 // Transpiled from c32761286.lua
 
@@ -11,18 +12,18 @@ card "Scrap Worm" {
     def: 100
 
     raw_effect "Effect 1" {
-        effect_type: 2049
-        code: 1130
+        effect_type: Single + Continuous
+        code: AttackAnnounce
         property: 1024
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 1
+        effect_type: Field + MandatoryTrigger
+        category: Destroy
         code: 4224
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, either_player controls)
@@ -30,9 +31,9 @@ card "Scrap Worm" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 8
-        code: 1029
+        effect_type: Single + Trigger
+        category: ToHand
+        code: Destroyed
         property: 65552
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
@@ -41,7 +42,7 @@ card "Scrap Worm" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 74
         on_resolve {
             register_effect on self { grant: direct_attack duration: until_end_of_turn }

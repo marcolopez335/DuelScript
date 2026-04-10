@@ -1,3 +1,4 @@
+// グランドレミコード・ミューゼシア
 // GranSolfachord Musecia
 // Transpiled from c37972500.lua
 
@@ -20,9 +21,9 @@ card "GranSolfachord Musecia" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 8
-        range: 4
+        effect_type: Ignition
+        category: ToHand
+        range: MonsterZone
         count_limit: (1, 37972500)
         on_resolve {
             send (1+, card, you controls) to extra_deck
@@ -32,11 +33,11 @@ card "GranSolfachord Musecia" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 131080
-        code: 1102
+        effect_type: Field + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy

@@ -1,3 +1,4 @@
+// 原質の炉心貫通
 // Materiactor Meltthrough
 // Transpiled from c66059345.lua
 
@@ -6,8 +7,8 @@ card "Materiactor Meltthrough" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
             reveal (1, card, opponent controls, deck)
             send_to_deck (1+, card, you controls)
@@ -15,9 +16,9 @@ card "Materiactor Meltthrough" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 256
+        effect_type: Ignition
+        category: SpecialSummon
+        range: FieldZone
         count_limit: (1, 0)
         cost {
             pay_lp 1500
@@ -33,10 +34,10 @@ card "Materiactor Meltthrough" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        code: 1102
+        effect_type: Field + Trigger
+        code: SpecialSummonSuccess
         property: 65536
-        range: 256
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             attach (1, card) to self as_material
@@ -44,7 +45,7 @@ card "Materiactor Meltthrough" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 67110912
         on_resolve {

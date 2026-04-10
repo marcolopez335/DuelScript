@@ -1,3 +1,4 @@
+// ＥＭオッドアイズ・バレット
 // Performapal Odd-Eyes Valet
 // Transpiled from c82661461.lua
 
@@ -12,10 +13,10 @@ card "Performapal Odd-Eyes Valet" {
     def: 200
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 2097152
-        code: 1130
-        range: 512
+        effect_type: Field + Trigger
+        category: SynchroSummon
+        code: AttackAnnounce
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -26,9 +27,9 @@ card "Performapal Odd-Eyes Valet" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 134217760
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToGrave + LevelChange
+        code: SummonSuccess
         property: 81920
         count_limit: (1, 82661461)
         on_resolve {
@@ -37,9 +38,9 @@ card "Performapal Odd-Eyes Valet" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 134217760
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToGrave + LevelChange
+        code: SpecialSummonSuccess
         property: 81920
         count_limit: (1, 82661461)
         on_resolve {
@@ -48,8 +49,8 @@ card "Performapal Odd-Eyes Valet" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        code: 1029
+        effect_type: Single + Trigger
+        code: Destroyed
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy
@@ -57,7 +58,7 @@ card "Performapal Odd-Eyes Valet" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         on_resolve {
             modifier: atk + 0
@@ -65,7 +66,7 @@ card "Performapal Odd-Eyes Valet" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 1
+        effect_type: Single
         code: 131
         on_resolve {
         }

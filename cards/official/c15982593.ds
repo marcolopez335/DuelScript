@@ -1,3 +1,4 @@
+// 騎士皇レガーティア
 // Centur-Ion Legatia
 // Transpiled from c15982593.lua
 
@@ -21,18 +22,18 @@ card "Centur-Ion Legatia" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 42
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 65537
-        code: 1102
+        effect_type: Single + Trigger
+        category: Destroy + Draw
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 15982593)
         on_resolve {
@@ -43,10 +44,10 @@ card "Centur-Ion Legatia" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
+        effect_type: Field + Trigger
         category: 67108864
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

@@ -1,3 +1,4 @@
+// 執念の剣
 // Sword of Deep-Seated
 // Transpiled from c98495314.lua
 
@@ -6,7 +7,7 @@ card "Sword of Deep-Seated" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 500
@@ -14,7 +15,7 @@ card "Sword of Deep-Seated" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 4
+        effect_type: Equip
         code: 104
         on_resolve {
             modifier: def + 500
@@ -22,18 +23,18 @@ card "Sword of Deep-Seated" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 16
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: ToDeck
+        code: ChainEnd
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

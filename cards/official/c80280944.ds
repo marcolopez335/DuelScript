@@ -1,3 +1,4 @@
+// ジャイアント・レックス
 // Giant Rex
 // Transpiled from c80280944.lua
 
@@ -11,7 +12,7 @@ card "Giant Rex" {
     def: 1200
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 73
         on_resolve {
             register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
@@ -19,9 +20,9 @@ card "Giant Rex" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
-        code: 1011
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: TurnEnd
         property: 81920
         count_limit: (1, 80280944)
         on_resolve {

@@ -1,3 +1,4 @@
+// ウィッチクラフト・スクロール
 // Witchcrafter Scroll
 // Transpiled from c19673561.lua
 
@@ -6,18 +7,18 @@ card "Witchcrafter Scroll" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 65536
+        effect_type: Field + Trigger
+        category: Draw
         code: 1139
         property: 2048
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             draw 1
@@ -25,11 +26,11 @@ card "Witchcrafter Scroll" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 65536
+        effect_type: Field + Trigger
+        category: Draw
         code: 1139
         property: 2048
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             draw 1
@@ -37,9 +38,9 @@ card "Witchcrafter Scroll" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
+        effect_type: Field + Trigger
         code: 4608
-        range: 16
+        range: Graveyard
         count_limit: (1, 19673561)
         on_resolve {
             special_summon (1, monster) from gy

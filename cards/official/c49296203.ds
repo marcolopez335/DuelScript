@@ -1,3 +1,4 @@
+// カラクリ法師 九七六参
 // Karakuri Bonze mdl 9763 'Kunamzan'
 // Transpiled from c49296203.lua
 
@@ -15,7 +16,7 @@ card "Karakuri Bonze mdl 9763 'Kunamzan'" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 191
         on_resolve {
             register_effect on self { grant: must_attack_if_able duration: until_end_of_turn }
@@ -23,19 +24,19 @@ card "Karakuri Bonze mdl 9763 'Kunamzan'" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 4096
-        code: 1131
+        effect_type: Single + MandatoryTrigger
+        category: DiceRoll
+        code: BattleTarget
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 4608
+        effect_type: Ignition
+        category: SpecialSummon + DiceRoll
         property: 16
-        range: 2
+        range: Hand
         count_limit: (1, 49296203)
         on_resolve {
             change_battle_position (1, monster)

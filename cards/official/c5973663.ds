@@ -1,3 +1,4 @@
+// 世界樹
 // The World Tree
 // Transpiled from c5973663.lua
 
@@ -6,25 +7,25 @@ card "The World Tree" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 1029
-        range: 8
+        effect_type: Field + Continuous
+        code: Destroyed
+        range: SpellTrapZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 2097152
+        effect_type: Ignition
+        category: SynchroSummon
         property: 16
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -38,20 +39,20 @@ card "The World Tree" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 1
+        effect_type: Ignition
+        category: Destroy
         property: 16
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 64
-        category: 512
+        effect_type: Ignition
+        category: SpecialSummon
         property: 16
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             special_summon (1, monster) from gy
         }

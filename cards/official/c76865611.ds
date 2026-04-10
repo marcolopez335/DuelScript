@@ -1,3 +1,4 @@
+// D・ライトン
 // Morphtronic Lantron
 // Transpiled from c76865611.lua
 
@@ -11,16 +12,16 @@ card "Morphtronic Lantron" {
     def: 200
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 83
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1019
         property: 1024
         on_resolve {
@@ -28,8 +29,8 @@ card "Morphtronic Lantron" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        code: 1140
+        effect_type: Single + MandatoryTrigger
+        code: BattleDamage
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

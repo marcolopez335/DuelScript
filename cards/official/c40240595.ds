@@ -1,3 +1,4 @@
+// 進化の繭
 // Cocoon of Evolution
 // Transpiled from c40240595.lua
 
@@ -11,10 +12,10 @@ card "Cocoon of Evolution" {
     def: 2000
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 262144
+        effect_type: Ignition
+        category: EquipAction
         property: 16
-        range: 2
+        range: Hand
         on_resolve {
             send (1+, card, either_player controls) to gy
             equip (1, card) to (1, monster)
@@ -22,20 +23,20 @@ card "Cocoon of Evolution" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 4608
         property: 1024
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1040
         property: 1024
-        range: 8
+        range: SpellTrapZone
         on_resolve {
         }
     }

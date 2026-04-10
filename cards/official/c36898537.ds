@@ -1,3 +1,4 @@
+// メタファイズ・ホルス・ドラゴン
 // Metaphys Horus
 // Transpiled from c36898537.lua
 
@@ -21,24 +22,24 @@ card "Metaphys Horus" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 251
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        code: 1102
+        effect_type: Single + Trigger
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 16384
-        code: 1102
+        effect_type: Single + Trigger
+        category: Disable
+        code: SpecialSummonSuccess
         property: 65552
         on_resolve {
             register_effect on self {
@@ -53,9 +54,9 @@ card "Metaphys Horus" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 8192
-        code: 1102
+        effect_type: Single + Trigger
+        category: Summon
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             take_control of (1, monster, opponent controls)

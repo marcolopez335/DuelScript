@@ -1,3 +1,4 @@
+// スターダスト・チャージ・ウォリアー
 // Stardust Charge Warrior
 // Transpiled from c64880894.lua
 
@@ -21,9 +22,9 @@ card "Stardust Charge Warrior" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 65536
-        code: 1102
+        effect_type: Single + Trigger
+        category: Draw
+        code: SpecialSummonSuccess
         property: 2048
         count_limit: (1, 64880894)
         on_resolve {
@@ -32,7 +33,7 @@ card "Stardust Charge Warrior" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 193
         on_resolve {
             register_effect on self { grant: attack_all_opponent_monsters duration: until_end_of_turn }

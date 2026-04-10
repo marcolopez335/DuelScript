@@ -1,3 +1,4 @@
+// 毒蛇王ヴェノミノン
 // Vennominon the King of Poisonous Snakes
 // Transpiled from c72677437.lua
 
@@ -15,7 +16,7 @@ card "Vennominon the King of Poisonous Snakes" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -23,19 +24,19 @@ card "Vennominon the King of Poisonous Snakes" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1140
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: BattleDamage
         cost {
             banish self
         }
@@ -45,10 +46,10 @@ card "Vennominon the King of Poisonous Snakes" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 1
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
         }

@@ -1,3 +1,4 @@
+// 憶念の相剣
 // Swordsoul Strife
 // Transpiled from c99137266.lua
 
@@ -6,18 +7,18 @@ card "Swordsoul Strife" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 4
-        code: 1011
+        effect_type: Field + Trigger
+        category: Banish
+        code: TurnEnd
         property: 65536
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 99137266)
         on_resolve {
             banish (1+, card, opponent controls)
@@ -25,9 +26,9 @@ card "Swordsoul Strife" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 1536
-        code: 1011
+        effect_type: Single + Trigger
+        category: SpecialSummon + Token
+        code: TurnEnd
         property: 65536
         count_limit: (1, 0)
         on_resolve {

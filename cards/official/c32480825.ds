@@ -1,3 +1,4 @@
+// ＴＧ マイティ・ストライカー
 // T.G. Mighty Striker
 // Transpiled from c32480825.lua
 
@@ -21,10 +22,10 @@ card "T.G. Mighty Striker" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             synchro_summon (1, synchro monster) using (1+, monster, you controls)
@@ -32,9 +33,9 @@ card "T.G. Mighty Striker" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 32480825)
         on_resolve {
@@ -44,9 +45,9 @@ card "T.G. Mighty Striker" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 32
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: ChainEnd
         property: 65536
         count_limit: (1, 0)
         on_resolve {

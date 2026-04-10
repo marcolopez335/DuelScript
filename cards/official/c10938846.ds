@@ -1,3 +1,4 @@
+// 心の架け橋
 // Rainbow Bridge of the Heart
 // Transpiled from c10938846.lua
 
@@ -6,25 +7,25 @@ card "Rainbow Bridge of the Heart" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 29
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 10938846)
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 131081
-        range: 8
+        effect_type: Ignition
+        category: Destroy + ToHand + Search
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, spell, you controls, hand)
@@ -34,11 +35,11 @@ card "Rainbow Bridge of the Heart" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 8
-        code: 1030
+        effect_type: Field + Trigger
+        category: ToHand
+        code: LeaveField
         property: 81936
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, spell, you controls) from hand

@@ -1,3 +1,4 @@
+// 絢嵐たるスエン
 // Radiant Typhoon Krosea
 // Transpiled from c16922142.lua
 
@@ -15,31 +16,31 @@ card "Radiant Typhoon Krosea" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 512
-        code: 1027
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: Chaining
         property: 65536
-        range: 2
+        range: Hand
         count_limit: (1, 16922142)
         on_resolve {
             special_summon (1, monster) from gy
@@ -47,9 +48,9 @@ card "Radiant Typhoon Krosea" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -63,9 +64,9 @@ card "Radiant Typhoon Krosea" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -79,7 +80,7 @@ card "Radiant Typhoon Krosea" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 67110912
         on_resolve {

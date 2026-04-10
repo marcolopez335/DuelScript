@@ -1,3 +1,4 @@
+// ＳＲマジックハウンド
 // Speedroid Ultra Hound
 // Transpiled from c86976918.lua
 
@@ -11,19 +12,19 @@ card "Speedroid Ultra Hound" {
     def: 800
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 32
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: SummonSuccess
         on_resolve {
             send (1+, card, you controls, deck) to gy
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 528
+        effect_type: Ignition
+        category: ToDeck + SpecialSummon
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 86976918)
         cost {
             banish self

@@ -1,3 +1,4 @@
+// コード・ハック
 // Code Hack
 // Transpiled from c33750856.lua
 
@@ -6,26 +7,26 @@ card "Code Hack" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 41
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 2097152
-        code: 1002
-        range: 8
+        effect_type: QuickEffect
+        category: SynchroSummon
+        code: FreeChain
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -44,11 +45,11 @@ card "Code Hack" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        category: 270532608
-        code: 1027
+        effect_type: QuickEffect
+        category: SynchroSummon + Negate
+        code: Chaining
         property: 49152
-        range: 16
+        range: Graveyard
         cost {
             banish self
         }
@@ -62,7 +63,7 @@ card "Code Hack" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 102
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -70,7 +71,7 @@ card "Code Hack" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -78,7 +79,7 @@ card "Code Hack" {
     }
 
     raw_effect "Effect 7" {
-        effect_type: 2
+        effect_type: Field
         code: 201
         property: 2048
         on_resolve {
@@ -87,7 +88,7 @@ card "Code Hack" {
     }
 
     raw_effect "Effect 8" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         on_resolve {
             modifier: atk + 700

@@ -1,3 +1,4 @@
+// 不屈の獣僕
 // Undaunted Bumpkin Beast
 // Transpiled from c8700633.lua
 
@@ -11,10 +12,10 @@ card "Undaunted Bumpkin Beast" {
     def: 2000
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 18
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: Hand + Graveyard
         count_limit: (1, 8700633)
         on_resolve {
             special_summon (1, monster) from gy
@@ -22,15 +23,15 @@ card "Undaunted Bumpkin Beast" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 1102
+        effect_type: Field + Continuous
+        code: SpecialSummonSuccess
         on_resolve {
             set_flag "tracked" on self
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

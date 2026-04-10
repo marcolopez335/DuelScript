@@ -1,3 +1,4 @@
+// 札再生
 // Recardination
 // Transpiled from c73271204.lua
 
@@ -6,9 +7,9 @@ card "Recardination" {
     type: Normal Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 520
-        code: 1002
+        effect_type: Activate
+        category: ToHand + SpecialSummon
+        code: FreeChain
         property: 16
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand
@@ -17,9 +18,9 @@ card "Recardination" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: ChainEnd
         property: 65536
         on_resolve {
             reveal (1, card, opponent controls, deck)

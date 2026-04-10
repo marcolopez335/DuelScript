@@ -1,3 +1,4 @@
+// 白き森のルシア
 // Rucia of the White Forest
 // Transpiled from c24779554.lua
 
@@ -11,9 +12,9 @@ card "Rucia of the White Forest" {
     def: 1500
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 24779554)
         on_resolve {
             special_summon (1, monster) from gy
@@ -21,10 +22,10 @@ card "Rucia of the White Forest" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 65536
+        effect_type: Ignition
+        category: Draw
         property: 2048
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             send self to gy
@@ -35,11 +36,11 @@ card "Rucia of the White Forest" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 2147484160
-        code: 1002
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             return (1+, spell, you controls) to deck shuffle

@@ -1,3 +1,4 @@
+// 電脳堺狐－仙々
 // Virtual World Kyubi - Shenshen
 // Transpiled from c92519087.lua
 
@@ -21,19 +22,19 @@ card "Virtual World Kyubi - Shenshen" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 63
         property: 256
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 32
-        code: 1130
-        range: 4
+        effect_type: Field + Trigger
+        category: ToGrave
+        code: AttackAnnounce
+        range: MonsterZone
         count_limit: (1, 92519087)
         on_resolve {
             send (1+, monster, you controls, gy) to gy
@@ -41,9 +42,9 @@ card "Virtual World Kyubi - Shenshen" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 512
-        range: 16
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self

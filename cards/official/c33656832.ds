@@ -1,3 +1,4 @@
+// 曲芸の魔術師
 // Acrobatic Magician
 // Transpiled from c33656832.lua
 
@@ -16,10 +17,10 @@ card "Acrobatic Magician" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
-        code: 1029
-        range: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: Destroyed
+        range: PendulumZone
         count_limit: (1, 33656832)
         on_resolve {
             special_summon (1, monster) from gy
@@ -27,19 +28,19 @@ card "Acrobatic Magician" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 1024
         property: 65536
-        range: 2
+        range: Hand
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        code: 1140
+        effect_type: Single + Trigger
+        code: BattleDamage
         on_resolve {
             special_summon (1, monster) from gy
         }

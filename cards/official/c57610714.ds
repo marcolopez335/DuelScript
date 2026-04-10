@@ -1,3 +1,4 @@
+// 雲魔物－アイ・オブ・ザ・タイフーン
 // Cloudian - Eye of the Typhoon
 // Transpiled from c57610714.lua
 
@@ -15,7 +16,7 @@ card "Cloudian - Eye of the Typhoon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -23,18 +24,18 @@ card "Cloudian - Eye of the Typhoon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 141
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 4096
-        code: 1130
+        effect_type: Single + MandatoryTrigger
+        category: DiceRoll
+        code: AttackAnnounce
         on_resolve {
             change_battle_position (1, monster)
         }

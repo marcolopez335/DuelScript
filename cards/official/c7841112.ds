@@ -1,3 +1,4 @@
+// セイヴァー・スター・ドラゴン
 // Majestic Star Dragon
 // Transpiled from c7841112.lua
 
@@ -21,11 +22,11 @@ card "Majestic Star Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 268435457
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         cost {
             tribute self
         }
@@ -37,10 +38,10 @@ card "Majestic Star Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 16384
+        effect_type: Ignition
+        category: Disable
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -55,9 +56,9 @@ card "Majestic Star Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 1027
-        range: 4
+        effect_type: Field + Continuous
+        code: Chaining
+        range: MonsterZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -67,11 +68,11 @@ card "Majestic Star Dragon" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 514
-        category: 528
+        effect_type: Field + MandatoryTrigger
+        category: ToDeck + SpecialSummon
         code: 4608
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, card, opponent controls) to deck shuffle
@@ -80,7 +81,7 @@ card "Majestic Star Dragon" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 251
         on_resolve {
         }

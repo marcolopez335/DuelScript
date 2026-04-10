@@ -1,3 +1,4 @@
+// DDD制覇王カイゼル
 // D/D/D Supreme King Kaiser
 // Transpiled from c44186624.lua
 
@@ -15,9 +16,9 @@ card "D/D/D Supreme King Kaiser" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 16384
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: Disable
+        code: SpecialSummonSuccess
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -31,18 +32,18 @@ card "D/D/D Supreme King Kaiser" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
-        code: 1102
+        effect_type: Single + Continuous
+        code: SpecialSummonSuccess
         property: 1024
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 1
+        effect_type: Ignition
+        category: Destroy
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, opponent controls)

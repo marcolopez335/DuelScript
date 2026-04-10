@@ -1,3 +1,4 @@
+// 七精の解門
 // Opening of the Spirit Gates
 // Transpiled from c80312545.lua
 
@@ -6,9 +7,9 @@ card "Opening of the Spirit Gates" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 131080
-        code: 1002
+        effect_type: Activate
+        category: ToHand + Search
+        code: FreeChain
         count_limit: (1, 80312545)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -17,9 +18,9 @@ card "Opening of the Spirit Gates" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 8
+        effect_type: Ignition
+        category: SpecialSummon
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -27,9 +28,9 @@ card "Opening of the Spirit Gates" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 8
-        range: 8
+        effect_type: Ignition
+        category: ToHand
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck

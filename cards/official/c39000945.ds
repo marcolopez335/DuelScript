@@ -1,3 +1,4 @@
+// エンプレス・オブ・エンディミオン
 // Reflection of Endymion
 // Transpiled from c39000945.lua
 
@@ -16,35 +17,35 @@ card "Reflection of Endymion" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 512
+        effect_type: Ignition
+        category: SpecialSummon
+        range: PendulumZone
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 1027
+        effect_type: Field + Continuous
+        code: Chaining
         property: 1024
-        range: 512
+        range: PendulumZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1022
-        range: 512
+        range: PendulumZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 8
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand
+        code: SpecialSummonSuccess
         property: 65552
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
@@ -52,7 +53,7 @@ card "Reflection of Endymion" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1019
         property: 1024
         on_resolve {
@@ -60,9 +61,9 @@ card "Reflection of Endymion" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 129
-        category: 131080
-        code: 1140
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: BattleDamage
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
             reveal (1+, card, opponent controls)

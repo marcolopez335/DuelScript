@@ -1,3 +1,4 @@
+// 覇王眷竜オッドアイズ
 // Supreme King Dragon Odd-Eyes
 // Transpiled from c96733134.lua
 
@@ -16,9 +17,9 @@ card "Supreme King Dragon Odd-Eyes" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 131081
-        range: 512
+        effect_type: Ignition
+        category: Destroy + ToHand + Search
+        range: PendulumZone
         on_resolve {
             destroy (1+, card, you controls, deck)
             add_to_hand (1+, card, you controls) from deck
@@ -27,28 +28,28 @@ card "Supreme King Dragon Odd-Eyes" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 208
         property: 128
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: MonsterZone
         cost {
             tribute self
         }

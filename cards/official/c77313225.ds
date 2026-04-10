@@ -1,3 +1,4 @@
+// 白き森の魔性ルシエラ
 // Rciela, Sinister Soul of the White Forest
 // Transpiled from c77313225.lua
 
@@ -21,9 +22,9 @@ card "Rciela, Sinister Soul of the White Forest" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 77313225)
         cost {
@@ -36,18 +37,18 @@ card "Rciela, Sinister Soul of the White Forest" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 500
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 41
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }

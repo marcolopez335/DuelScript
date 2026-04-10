@@ -1,3 +1,4 @@
+// ヘルホーンドザウルス
 // Horned Saurus
 // Transpiled from c86239173.lua
 
@@ -20,9 +21,9 @@ card "Horned Saurus" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
+        effect_type: Single + Trigger
         category: 67108864
-        code: 1102
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 86239173)
         on_resolve {
@@ -32,7 +33,7 @@ card "Horned Saurus" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 74
         on_resolve {
             register_effect on self { grant: direct_attack duration: until_end_of_turn }
@@ -40,9 +41,9 @@ card "Horned Saurus" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 256
-        range: 4
+        effect_type: Ignition
+        category: Counter
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             normal_summon (1, monster, you controls)

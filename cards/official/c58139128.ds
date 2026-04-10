@@ -1,3 +1,4 @@
+// 墓守の祈祷師
 // Gravekeeper's Shaman
 // Transpiled from c58139128.lua
 
@@ -15,39 +16,39 @@ card "Gravekeeper's Shaman" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 104
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: def + 0
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1021
-        range: 4
+        range: MonsterZone
         on_resolve {
             negate effect
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 6
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 41
         property: 288
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }

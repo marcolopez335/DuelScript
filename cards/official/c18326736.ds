@@ -1,3 +1,4 @@
+// 星守の騎士 プトレマイオス
 // Tellarknight Ptolemaeus
 // Transpiled from c18326736.lua
 
@@ -21,10 +22,10 @@ card "Tellarknight Ptolemaeus" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self
@@ -36,8 +37,8 @@ card "Tellarknight Ptolemaeus" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        range: 4
+        effect_type: Ignition
+        range: MonsterZone
         cost {
             detach 1 overlay_unit from self
         }
@@ -50,9 +51,9 @@ card "Tellarknight Ptolemaeus" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
+        effect_type: Field + Trigger
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             attach (1, card) to self as_material
@@ -60,7 +61,7 @@ card "Tellarknight Ptolemaeus" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 188
         property: 67110912
         on_resolve {

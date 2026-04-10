@@ -1,3 +1,4 @@
+// Ｍ∀ＬＩＣＥ ＩＮ ＵＮＤＥＲＧＲＯＵＮＤ
 // Maliss in Underground
 // Transpiled from c68337209.lua
 
@@ -6,9 +7,9 @@ card "Maliss in Underground" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 4
-        code: 1002
+        effect_type: Activate
+        category: Banish
+        code: FreeChain
         count_limit: (1, 68337209)
         on_resolve {
             banish (1+, trap, you controls, gy)
@@ -16,18 +17,18 @@ card "Maliss in Underground" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 256
+        range: FieldZone
         on_resolve {
             modifier: atk + 3000
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 332
-        range: 256
+        range: FieldZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }

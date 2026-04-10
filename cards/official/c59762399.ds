@@ -1,3 +1,4 @@
+// EMオッドアイズ・ライトフェニックス
 // Performapal Odd-Eyes Light Phoenix
 // Transpiled from c59762399.lua
 
@@ -16,10 +17,10 @@ card "Performapal Odd-Eyes Light Phoenix" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 513
-        code: 1130
-        range: 512
+        effect_type: Field + Trigger
+        category: Destroy + SpecialSummon
+        code: AttackAnnounce
+        range: PendulumZone
         on_resolve {
             destroy (1+, card, either_player controls)
             special_summon (1, monster) from gy
@@ -27,11 +28,11 @@ card "Performapal Odd-Eyes Light Phoenix" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 2097152
-        code: 1002
+        effect_type: QuickEffect
+        category: SynchroSummon
+        code: FreeChain
         property: 16400
-        range: 4
+        range: MonsterZone
         cost {
             tribute self
         }

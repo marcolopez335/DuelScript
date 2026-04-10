@@ -1,3 +1,4 @@
+// 無限起動ロードローラー
 // Infinitrack Road Roller
 // Transpiled from c5205146.lua
 
@@ -15,10 +16,10 @@ card "Infinitrack Road Roller" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
-        code: 1017
-        range: 18
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: Release
+        range: Hand + Graveyard
         count_limit: (1, 5205146)
         on_resolve {
             special_summon (1, monster) from gy
@@ -26,10 +27,10 @@ card "Infinitrack Road Roller" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1011
-        range: 18
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: TurnEnd
+        range: Hand + Graveyard
         count_limit: (1, 5205146)
         on_resolve {
             special_summon (1, monster) from gy
@@ -37,26 +38,26 @@ card "Infinitrack Road Roller" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 4098
+        effect_type: Field
         code: 140
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 4098
+        effect_type: Field
         code: 104
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: def - 1000
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 60
         property: 67109888
         on_resolve {

@@ -1,3 +1,4 @@
+// ダイナミスト・チャージ
 // Dinomist Charge
 // Transpiled from c77116346.lua
 
@@ -6,9 +7,9 @@ card "Dinomist Charge" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 131080
-        code: 1002
+        effect_type: Activate
+        category: ToHand + Search
+        code: FreeChain
         count_limit: (1, 77116346)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -17,9 +18,9 @@ card "Dinomist Charge" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        code: 1013
-        range: 8
+        effect_type: Field + MandatoryTrigger
+        code: ChainSolved
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck

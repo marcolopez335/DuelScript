@@ -1,3 +1,4 @@
+// デストーイ・ハーケン・クラーケン
 // Frightfur Kraken
 // Transpiled from c40636712.lua
 
@@ -20,10 +21,10 @@ card "Frightfur Kraken" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 32
+        effect_type: Ignition
+        category: ToGrave
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, either_player controls) to gy
@@ -31,17 +32,17 @@ card "Frightfur Kraken" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 194
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 4096
+        effect_type: Field + Trigger
+        category: DiceRoll
         code: 4224
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)

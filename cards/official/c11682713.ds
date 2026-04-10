@@ -1,3 +1,4 @@
+// 森羅の葉心棒 ブレイド
 // Sylvan Bladefender
 // Transpiled from c11682713.lua
 
@@ -11,8 +12,8 @@ card "Sylvan Bladefender" {
     def: 700
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 64
+        effect_type: Single + Trigger
+        category: AtkChange
         code: 1139
         on_resolve {
             reveal (1, card, opponent controls, deck)
@@ -21,8 +22,8 @@ card "Sylvan Bladefender" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        code: 1014
+        effect_type: Single + Trigger
+        code: ChainEnd
         property: 65536
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy

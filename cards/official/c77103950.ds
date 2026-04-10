@@ -1,3 +1,4 @@
+// 壱世壊＝ペルレイノ
 // Primeval Planet Perlereino
 // Transpiled from c77103950.lua
 
@@ -6,9 +7,9 @@ card "Primeval Planet Perlereino" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 131080
-        code: 1002
+        effect_type: Activate
+        category: ToHand + Search
+        code: FreeChain
         count_limit: (1, 77103950)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -17,20 +18,20 @@ card "Primeval Planet Perlereino" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 256
+        range: FieldZone
         on_resolve {
             modifier: atk + 500
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 1
-        code: 1013
+        effect_type: Field + Trigger
+        category: Destroy
+        code: ChainSolved
         property: 65552
-        range: 256
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, you controls, deck)

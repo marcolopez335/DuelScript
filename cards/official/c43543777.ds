@@ -1,3 +1,4 @@
+// 伊弉波
 // Izanami
 // Transpiled from c43543777.lua
 
@@ -11,7 +12,7 @@ card "Izanami" {
     def: 1800
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -19,9 +20,9 @@ card "Izanami" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 8
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand
+        code: SummonSuccess
         property: 16
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
@@ -30,8 +31,8 @@ card "Izanami" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 8
+        effect_type: Single + Trigger
+        category: ToHand
         code: 1001
         property: 16
         on_resolve {

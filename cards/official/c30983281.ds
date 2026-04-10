@@ -1,3 +1,4 @@
+// アクセルシンクロ・スターダスト・ドラゴン
 // Accel Synchro Stardust Dragon
 // Transpiled from c30983281.lua
 
@@ -21,9 +22,9 @@ card "Accel Synchro Stardust Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 512
-        code: 1102
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -32,10 +33,10 @@ card "Accel Synchro Stardust Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             tribute self
@@ -51,7 +52,7 @@ card "Accel Synchro Stardust Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 1
         property: 67108992
         on_resolve {

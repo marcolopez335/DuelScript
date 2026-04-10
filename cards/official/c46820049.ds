@@ -1,3 +1,4 @@
+// 地獄将軍・メフィスト
 // Mefist the Infernal General
 // Transpiled from c46820049.lua
 
@@ -15,8 +16,8 @@ card "Mefist the Infernal General" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 128
+        effect_type: Single + MandatoryTrigger
+        category: DefChange
         code: 1143
         on_resolve {
             send (1+, card, either_player controls) to gy
@@ -24,7 +25,7 @@ card "Mefist the Infernal General" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 203
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }

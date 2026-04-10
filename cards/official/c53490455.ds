@@ -1,3 +1,4 @@
+// 転生炎獣ラクーン
 // Salamangreat Raccoon
 // Transpiled from c53490455.lua
 
@@ -11,10 +12,10 @@ card "Salamangreat Raccoon" {
     def: 800
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        code: 1131
+        effect_type: Field + Trigger
+        code: BattleTarget
         property: 16
-        range: 2
+        range: Hand
         cost {
             send self to gy
         }
@@ -28,10 +29,10 @@ card "Salamangreat Raccoon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 8
-        code: 1140
-        range: 16
+        effect_type: Field + Trigger
+        category: ToHand
+        code: BattleDamage
+        range: Graveyard
         count_limit: (1, 53490455)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy

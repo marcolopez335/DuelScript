@@ -1,3 +1,4 @@
+// コアキメイル・パワーハンド
 // Koa'ki Meiru Powerhand
 // Transpiled from c19642889.lua
 
@@ -11,10 +12,10 @@ card "Koa'ki Meiru Powerhand" {
     def: 1600
 
     raw_effect "Effect 1" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 4608
         property: 263168
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, you controls, hand) to gy
@@ -25,8 +26,8 @@ card "Koa'ki Meiru Powerhand" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
-        code: 1130
+        effect_type: Single + Continuous
+        code: AttackAnnounce
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -40,7 +41,7 @@ card "Koa'ki Meiru Powerhand" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1134
         on_resolve {
             register_effect on self {

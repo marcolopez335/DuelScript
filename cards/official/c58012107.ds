@@ -1,3 +1,4 @@
+// エーリアン・サイコ
 // Alien Psychic
 // Transpiled from c58012107.lua
 
@@ -11,27 +12,27 @@ card "Alien Psychic" {
     def: 100
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 4096
-        code: 1100
+        effect_type: Single + MandatoryTrigger
+        category: DiceRoll
+        code: SummonSuccess
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 4096
-        code: 1101
+        effect_type: Single + MandatoryTrigger
+        category: DiceRoll
+        code: FlipSummonSuccess
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 86
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }

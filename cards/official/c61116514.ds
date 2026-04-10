@@ -1,3 +1,4 @@
+// パルマ・ライゼオル
 // Palm Ryzeal
 // Transpiled from c61116514.lua
 
@@ -15,10 +16,10 @@ card "Palm Ryzeal" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 263168
-        range: 2
+        range: Hand
         on_resolve {
             reveal (1+, card, opponent controls)
             return (1+, monster, you controls) to deck shuffle
@@ -26,20 +27,20 @@ card "Palm Ryzeal" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 2097184
+        effect_type: QuickEffect
+        category: ToGrave + SynchroSummon
         code: 1134
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, monster, you controls, gy) to gy
@@ -47,7 +48,7 @@ card "Palm Ryzeal" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         on_resolve {
             modifier: atk + 0

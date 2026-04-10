@@ -1,3 +1,4 @@
+// マドルチェ・ホーットケーキ
 // Madolche Hootcake
 // Transpiled from c91350799.lua
 
@@ -11,19 +12,19 @@ card "Madolche Hootcake" {
     def: 1100
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 16
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: ToDeck
+        code: ChainEnd
         on_resolve {
             return (1+, monster, you controls) to deck shuffle
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
+        effect_type: Ignition
+        category: SpecialSummon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 91350799)
         on_resolve {
             banish (1+, monster, you controls, deck)

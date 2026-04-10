@@ -1,3 +1,4 @@
+// トリックスター・ライトアリーナ
 // Trickstar Light Arena
 // Transpiled from c63492244.lua
 
@@ -6,17 +7,17 @@ card "Trickstar Light Arena" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1102
-        range: 256
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
+        range: FieldZone
         count_limit: (1, 63492244)
         on_resolve {
             special_summon (1, monster) from gy
@@ -32,9 +33,9 @@ card "Trickstar Light Arena" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
+        effect_type: Ignition
         property: 16
-        range: 256
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {

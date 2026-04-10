@@ -1,3 +1,4 @@
+// スカル・クラーケン
 // Skull Kraken
 // Transpiled from c98649372.lua
 
@@ -11,9 +12,9 @@ card "Skull Kraken" {
     def: 1600
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 1
-        code: 1100
+        effect_type: Single + Trigger
+        category: Destroy
+        code: SummonSuccess
         property: 16
         on_resolve {
             destroy (1+, spell, either_player controls)
@@ -21,9 +22,9 @@ card "Skull Kraken" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 4096
-        range: 4
+        effect_type: Ignition
+        category: DiceRoll
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)

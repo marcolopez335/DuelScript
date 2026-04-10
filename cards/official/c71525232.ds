@@ -1,3 +1,4 @@
+// 破滅竜ガンドラＸ
 // Gandora-X the Dragon of Demolition
 // Transpiled from c71525232.lua
 
@@ -15,9 +16,9 @@ card "Gandora-X the Dragon of Demolition" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 2621441
-        code: 1100
+        effect_type: Single + Trigger
+        category: Destroy + Damage + SynchroSummon
+        code: SummonSuccess
         on_resolve {
             destroy (1+, monster, either_player controls)
             deal_damage to opponent: 1000
@@ -25,9 +26,9 @@ card "Gandora-X the Dragon of Demolition" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 2621441
-        code: 1102
+        effect_type: Single + Trigger
+        category: Destroy + Damage + SynchroSummon
+        code: SpecialSummonSuccess
         on_resolve {
             destroy (1+, monster, either_player controls)
             deal_damage to opponent: 1000
@@ -35,16 +36,16 @@ card "Gandora-X the Dragon of Demolition" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
+        effect_type: Field + MandatoryTrigger
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 102
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

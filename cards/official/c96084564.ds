@@ -1,3 +1,4 @@
+// エルロン
 // Aileron
 // Transpiled from c96084564.lua
 
@@ -11,7 +12,7 @@ card "Aileron" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 400
@@ -19,11 +20,11 @@ card "Aileron" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 262144
-        code: 1002
+        effect_type: QuickEffect
+        category: EquipAction
+        code: FreeChain
         property: 16
-        range: 6
+        range: Hand + MonsterZone
         count_limit: (1, 96084564)
         on_resolve {
             equip (1, card) to (1, monster)
@@ -32,9 +33,9 @@ card "Aileron" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 32
-        code: 1029
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: Destroyed
         property: 65536
         count_limit: (1, 96084564)
         on_resolve {
@@ -43,7 +44,7 @@ card "Aileron" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         on_resolve {
         }

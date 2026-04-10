@@ -1,3 +1,4 @@
+// 原始生命態ティア
 // Theia, the Primal Being
 // Transpiled from c85687952.lua
 
@@ -15,10 +16,10 @@ card "Theia, the Primal Being" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 513
-        code: 1002
-        range: 2
+        effect_type: QuickEffect
+        category: Destroy + SpecialSummon
+        code: FreeChain
+        range: Hand
         count_limit: (1, 85687952)
         cost {
             tribute self
@@ -30,48 +31,48 @@ card "Theia, the Primal Being" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 20
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 1100
+        effect_type: Field + Continuous
+        code: SummonSuccess
         property: 65536
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2050
-        code: 1102
+        effect_type: Field + Continuous
+        code: SpecialSummonSuccess
         property: 65536
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 6" {
-        effect_type: 2
+        effect_type: Field
         code: 331
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }

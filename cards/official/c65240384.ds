@@ -1,3 +1,4 @@
+// ビッグ・シールド・ガードナー
 // Big Shield Gardna
 // Transpiled from c65240384.lua
 
@@ -11,11 +12,11 @@ card "Big Shield Gardna" {
     def: 2600
 
     raw_effect "Effect 1" {
-        effect_type: 1024
-        category: 268439552
-        code: 1027
+        effect_type: MandatoryQuick
+        category: DiceRoll + Negate
+        code: Chaining
         property: 49408
-        range: 4
+        range: MonsterZone
         on_resolve {
             change_battle_position (1, monster)
             negate activation
@@ -23,7 +24,7 @@ card "Big Shield Gardna" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1141
         on_resolve {
             change_battle_position (1, monster)

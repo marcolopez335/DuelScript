@@ -1,3 +1,4 @@
+// 古代の機械要塞
 // Ancient Gear Fortress
 // Transpiled from c70147689.lua
 
@@ -6,43 +7,43 @@ card "Ancient Gear Fortress" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 41
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 71
         property: 128
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 1027
-        range: 8
+        effect_type: Field + Continuous
+        code: Chaining
+        range: SpellTrapZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy
@@ -54,7 +55,7 @@ card "Ancient Gear Fortress" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 67110912
         on_resolve {

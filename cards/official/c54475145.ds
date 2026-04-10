@@ -1,3 +1,4 @@
+// 心宿りし青眼竜
 // Heart of the Blue-Eyes
 // Transpiled from c54475145.lua
 
@@ -15,9 +16,9 @@ card "Heart of the Blue-Eyes" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 131080
-        range: 2
+        effect_type: Ignition
+        category: ToHand + Search
+        range: Hand
         count_limit: (1, 0)
         cost {
             discard (1, card, you controls)
@@ -29,19 +30,19 @@ card "Heart of the Blue-Eyes" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 5
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 544
-        code: 1100
-        range: 16
+        effect_type: Field + Trigger
+        category: ToGrave + SpecialSummon
+        code: SummonSuccess
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, you controls, deck) to gy
@@ -50,10 +51,10 @@ card "Heart of the Blue-Eyes" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 544
-        code: 1102
-        range: 16
+        effect_type: Field + Trigger
+        category: ToGrave + SpecialSummon
+        code: SpecialSummonSuccess
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, you controls, deck) to gy
@@ -62,7 +63,7 @@ card "Heart of the Blue-Eyes" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1022
         on_resolve {
             set_flag "tracked" on self

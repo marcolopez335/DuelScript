@@ -1,3 +1,4 @@
+// 縄張恐竜
 // Beatraptor
 // Transpiled from c46924949.lua
 
@@ -11,18 +12,18 @@ card "Beatraptor" {
     def: 2000
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 2
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
-        code: 1140
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: BattleDamage
         count_limit: (1, 46924949)
         on_resolve {
             special_summon (1, monster) from gy

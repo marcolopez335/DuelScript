@@ -1,3 +1,4 @@
+// スターダスト・ウォリアー
 // Stardust Warrior
 // Transpiled from c74892653.lua
 
@@ -21,10 +22,10 @@ card "Stardust Warrior" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 32769
+        effect_type: QuickEffect
+        category: Destroy
         code: 1105
-        range: 4
+        range: MonsterZone
         on_resolve {
             negate summon
             destroy (1+, card, either_player controls)
@@ -32,10 +33,10 @@ card "Stardust Warrior" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 4608
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -43,8 +44,8 @@ card "Stardust Warrior" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
+        effect_type: Single + Trigger
+        category: SpecialSummon
         code: 1015
         property: 81920
         on_resolve {

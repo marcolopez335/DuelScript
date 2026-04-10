@@ -1,3 +1,4 @@
+// RUM－アージェント・カオス・フォース
 // Rank-Up-Magic Argent Chaos Force
 // Transpiled from c94220427.lua
 
@@ -6,9 +7,9 @@ card "Rank-Up-Magic Argent Chaos Force" {
     type: Normal Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         property: 16
         on_resolve {
             attach (1, card) to self as_material
@@ -17,10 +18,10 @@ card "Rank-Up-Magic Argent Chaos Force" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 8
-        code: 1102
-        range: 16
+        effect_type: Field + Trigger
+        category: ToHand
+        code: SpecialSummonSuccess
+        range: Graveyard
         count_limit: (1, 94220427)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy

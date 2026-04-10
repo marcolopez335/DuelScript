@@ -1,3 +1,4 @@
+// 終刻撃針
 // DoomZ Raiders
 // Transpiled from c32442017.lua
 
@@ -6,16 +7,16 @@ card "DoomZ Raiders" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 131593
-        range: 8
+        effect_type: Ignition
+        category: Destroy + ToHand + SpecialSummon + Search
+        range: SpellTrapZone
         count_limit: (1, 32442017)
         on_resolve {
             destroy (1+, monster, you controls, deck)
@@ -29,9 +30,9 @@ card "DoomZ Raiders" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 1
-        code: 1029
+        effect_type: Single + Trigger
+        category: Destroy
+        code: Destroyed
         property: 65552
         count_limit: (1, 32442017)
         on_resolve {
@@ -40,7 +41,7 @@ card "DoomZ Raiders" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 67110912
         on_resolve {

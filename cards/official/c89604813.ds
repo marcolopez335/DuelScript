@@ -1,3 +1,4 @@
+// 青眼の究極霊竜
 // Blue-Eyes Ultimate Spirit Dragon
 // Transpiled from c89604813.lua
 
@@ -21,21 +22,21 @@ card "Blue-Eyes Ultimate Spirit Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 67
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 270532608
-        code: 1027
+        effect_type: QuickEffect
+        category: SynchroSummon + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         count_limit: (1, 89604813)
         on_resolve {
             negate activation
@@ -43,9 +44,9 @@ card "Blue-Eyes Ultimate Spirit Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -54,7 +55,7 @@ card "Blue-Eyes Ultimate Spirit Dragon" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 21142671
         property: 263168
         on_resolve {
@@ -62,7 +63,7 @@ card "Blue-Eyes Ultimate Spirit Dragon" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         on_resolve {
             modifier: atk + 1000

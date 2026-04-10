@@ -1,3 +1,4 @@
+// Ｃｏｕｐｌｅ ｏｆ Ａｃｅｓ
 // Couple of Aces
 // Transpiled from c26259179.lua
 
@@ -11,9 +12,9 @@ card "Couple of Aces" {
     def: 100
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 16777728
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon + RitualSummon
+        range: Hand
         count_limit: (1, 26259179)
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
@@ -23,9 +24,9 @@ card "Couple of Aces" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 65536
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: Draw
+        code: SpecialSummonSuccess
         on_resolve {
             draw 1
         }

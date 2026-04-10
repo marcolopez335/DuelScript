@@ -1,3 +1,4 @@
+// サルガッソの灯台
 // Sargasso Lighthouse
 // Transpiled from c37511832.lua
 
@@ -6,8 +7,8 @@ card "Sargasso Lighthouse" {
     type: Quick-Play Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1027
+        effect_type: Activate
+        code: Chaining
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -17,18 +18,18 @@ card "Sargasso Lighthouse" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 37511832
         property: 2048
-        range: 16
+        range: Graveyard
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: ChainEnd
         property: 16384
         on_resolve {
             add_to_hand (1+, card, you controls) from deck

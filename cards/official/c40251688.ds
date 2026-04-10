@@ -1,3 +1,4 @@
+// 焔聖騎士導-ローラン
 // Infernoble Knight Captain Roland
 // Transpiled from c40251688.lua
 
@@ -21,9 +22,9 @@ card "Infernoble Knight Captain Roland" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131112
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + ToGrave + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 40251688)
         on_resolve {
@@ -35,11 +36,11 @@ card "Infernoble Knight Captain Roland" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 262144
-        code: 1002
+        effect_type: QuickEffect
+        category: EquipAction
+        code: FreeChain
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             equip (1, card) to (1, monster)
@@ -47,7 +48,7 @@ card "Infernoble Knight Captain Roland" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 4608
         count_limit: (1, 0)
         on_resolve {
@@ -58,14 +59,14 @@ card "Infernoble Knight Captain Roland" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 500

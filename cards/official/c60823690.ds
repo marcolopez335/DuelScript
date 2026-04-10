@@ -1,3 +1,4 @@
+// 霊魂鳥影－彦孔雀
 // Shinobaron Shade Peacock
 // Transpiled from c60823690.lua
 
@@ -20,18 +21,18 @@ card "Shinobaron Shade Peacock" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 114
         property: 131072
-        range: 6
+        range: Hand + MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 131080
-        range: 4
+        effect_type: Ignition
+        category: ToHand + Search
+        range: MonsterZone
         count_limit: (1, 60823690)
         cost {
             tribute self
@@ -43,10 +44,10 @@ card "Shinobaron Shade Peacock" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 512
+        effect_type: Field + MandatoryTrigger
+        category: SpecialSummon
         code: 4098
-        range: 32
+        range: Banished
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

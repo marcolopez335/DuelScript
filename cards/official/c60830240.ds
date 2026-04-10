@@ -1,3 +1,4 @@
+// 熾動する煉獄
 // Void Reignition
 // Transpiled from c60830240.lua
 
@@ -6,9 +7,9 @@ card "Void Reignition" {
     type: Normal Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 65664
-        code: 1002
+        effect_type: Activate
+        category: DefChange + Draw
+        code: FreeChain
         on_resolve {
             send (1+, monster, either_player controls) to gy
             draw 1
@@ -16,10 +17,10 @@ card "Void Reignition" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 32
+        effect_type: Ignition
+        category: ToGrave
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 60830240)
         cost {
             banish self

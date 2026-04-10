@@ -1,3 +1,4 @@
+// 黒牙の魔術師
 // Black Fang Magician
 // Transpiled from c75672051.lua
 
@@ -12,10 +13,10 @@ card "Black Fang Magician" {
     def: 800
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 2097153
+        effect_type: Ignition
+        category: Destroy + SynchroSummon
         property: 16
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -27,9 +28,9 @@ card "Black Fang Magician" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 65552
         on_resolve {
             special_summon (1, monster) from gy

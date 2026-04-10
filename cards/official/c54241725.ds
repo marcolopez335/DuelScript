@@ -1,3 +1,4 @@
+// 真源の帝王
 // The Prime Monarch
 // Transpiled from c54241725.lua
 
@@ -6,18 +7,18 @@ card "The Prime Monarch" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 65552
-        code: 1002
+        effect_type: QuickEffect
+        category: ToDeck + Draw
+        code: FreeChain
         property: 16
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             return (1+, spell, you controls) to deck shuffle
             shuffle_deck
@@ -26,10 +27,10 @@ card "The Prime Monarch" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 16
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: Graveyard
         count_limit: (1, 54241725)
         cost {
             banish self

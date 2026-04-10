@@ -1,3 +1,4 @@
+// 幻獣機ウォーブラン
 // Mecha Phantom Beast Warbluran
 // Transpiled from c31480215.lua
 
@@ -11,8 +12,8 @@ card "Mecha Phantom Beast Warbluran" {
     def: 300
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 1536
+        effect_type: Single + MandatoryTrigger
+        category: SpecialSummon + Token
         code: 1108
         count_limit: (1, 31480215)
         on_resolve {
@@ -26,28 +27,28 @@ card "Mecha Phantom Beast Warbluran" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        range: 4
+        effect_type: Ignition
+        range: MonsterZone
         count_limit: (1, 31480215)
         cost {
             tribute self

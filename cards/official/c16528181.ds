@@ -1,3 +1,4 @@
+// 王の棺
 // King's Sarcophagus
 // Transpiled from c16528181.lua
 
@@ -6,25 +7,25 @@ card "King's Sarcophagus" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 41
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 32
-        range: 8
+        effect_type: Ignition
+        category: ToGrave
+        range: SpellTrapZone
         count_limit: (4, 16528181)
         on_resolve {
             send (1+, monster, you controls, hand) to gy
@@ -32,10 +33,10 @@ card "King's Sarcophagus" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 32
-        code: 1132
-        range: 8
+        effect_type: Field + Trigger
+        category: ToGrave
+        code: DamageCalculation
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, monster, you controls, hand) to gy

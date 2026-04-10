@@ -1,3 +1,4 @@
+// ビビット騎士
 // Vivid Knight
 // Transpiled from c52575195.lua
 
@@ -11,10 +12,10 @@ card "Vivid Knight" {
     def: 800
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 516
-        code: 1027
-        range: 2
+        effect_type: QuickEffect
+        category: Banish + SpecialSummon
+        code: Chaining
+        range: Hand
         on_resolve {
             banish (1+, card, either_player controls)
             register_effect on self {
@@ -26,10 +27,10 @@ card "Vivid Knight" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 516
-        code: 1130
-        range: 2
+        effect_type: QuickEffect
+        category: Banish + SpecialSummon
+        code: AttackAnnounce
+        range: Hand
         on_resolve {
             banish (1+, card, either_player controls)
             register_effect on self {

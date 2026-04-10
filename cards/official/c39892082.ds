@@ -1,3 +1,4 @@
+// バルーン・リザード
 // Balloon Lizard
 // Transpiled from c39892082.lua
 
@@ -11,17 +12,17 @@ card "Balloon Lizard" {
     def: 1900
 
     raw_effect "Effect 1" {
-        effect_type: 514
-        category: 8388608
+        effect_type: Field + MandatoryTrigger
+        category: LinkSummon
         code: 4098
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1019
         property: 1024
         on_resolve {
@@ -29,9 +30,9 @@ card "Balloon Lizard" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 524288
-        code: 1029
+        effect_type: Single + MandatoryTrigger
+        category: Damage
+        code: Destroyed
         property: 2048
         on_resolve {
             deal_damage to opponent: 1000

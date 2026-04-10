@@ -1,3 +1,4 @@
+// 流星竜メテオ・ブラック・ドラゴン
 // Meteor Black Comet Dragon
 // Transpiled from c30086349.lua
 
@@ -20,9 +21,9 @@ card "Meteor Black Comet Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 524352
-        code: 1102
+        effect_type: Single + Trigger
+        category: AtkChange + Damage
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             send (1+, card, you controls, hand) to gy
@@ -31,9 +32,9 @@ card "Meteor Black Comet Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
-        code: 1014
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 65552
         on_resolve {
             special_summon (1, monster) from gy

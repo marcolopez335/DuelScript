@@ -1,3 +1,4 @@
+// バタフライ・フィッシュ
 // Butterfly Fish
 // Transpiled from c58288565.lua
 
@@ -11,9 +12,9 @@ card "Butterfly Fish" {
     def: 400
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 8
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand
+        code: ChainEnd
         property: 65536
         count_limit: (1, 58288565)
         on_resolve {
@@ -22,10 +23,10 @@ card "Butterfly Fish" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1014
-        range: 16
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: ChainEnd
+        range: Graveyard
         count_limit: (1, 58288565)
         on_resolve {
             special_summon (1, monster) from gy
@@ -33,7 +34,7 @@ card "Butterfly Fish" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 67635200
         on_resolve {

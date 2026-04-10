@@ -1,3 +1,4 @@
+// 海造賊－豪速のブレンネ号
 // Plunder Patrollship Brann
 // Transpiled from c94253655.lua
 
@@ -21,19 +22,19 @@ card "Plunder Patrollship Brann" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 500
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 131084
+        effect_type: Ignition
+        category: Banish + ToHand + Search
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 94253655)
         on_resolve {
             banish (1+, monster, you controls, deck)
@@ -43,11 +44,11 @@ card "Plunder Patrollship Brann" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 131084
-        code: 1002
+        effect_type: QuickEffect
+        category: Banish + ToHand + Search
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 94253655)
         on_resolve {
             banish (1+, monster, you controls, deck)

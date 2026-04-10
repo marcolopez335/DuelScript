@@ -1,3 +1,4 @@
+// 水陸両用バグロス Ｍｋ－１１
 // Amphibious Bugroth MK-11
 // Transpiled from c4754691.lua
 
@@ -15,30 +16,30 @@ card "Amphibious Bugroth MK-11" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 73
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 700
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 1
+        effect_type: Ignition
+        category: Destroy
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 4754691)
         on_resolve {
             destroy (1+, card, either_player controls)

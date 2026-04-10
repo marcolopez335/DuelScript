@@ -1,3 +1,4 @@
+// アームド・ドラゴン・サンダー ＬＶ１０
 // Armed Dragon Thunder LV10
 // Transpiled from c58153103.lua
 
@@ -15,47 +16,47 @@ card "Armed Dragon Thunder LV10" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2049
-        code: 1102
+        effect_type: Single + Continuous
+        code: SpecialSummonSuccess
         property: 1024
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 114
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 5
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 256
-        category: 2097153
-        code: 1002
+        effect_type: QuickEffect
+        category: Destroy + SynchroSummon
+        code: FreeChain
         property: 16400
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -63,9 +64,9 @@ card "Armed Dragon Thunder LV10" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 64
-        category: 1
-        range: 4
+        effect_type: Ignition
+        category: Destroy
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)

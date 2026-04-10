@@ -1,3 +1,4 @@
+// 剣闘獣エクイテ
 // Gladiator Beast Equeste
 // Transpiled from c57731460.lua
 
@@ -11,9 +12,9 @@ card "Gladiator Beast Equeste" {
     def: 1200
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 8
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: ToHand
+        code: SpecialSummonSuccess
         property: 16
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -21,10 +22,10 @@ card "Gladiator Beast Equeste" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 4224
-        range: 4
+        range: MonsterZone
         cost {
             send self to deck
         }

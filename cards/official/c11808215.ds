@@ -1,3 +1,4 @@
+// ダイス・ダンジョン
 // Dice Dungeon
 // Transpiled from c11808215.lua
 
@@ -6,9 +7,9 @@ card "Dice Dungeon" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 131080
-        code: 1002
+        effect_type: Activate
+        category: ToHand + Search
+        code: FreeChain
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)
@@ -16,10 +17,10 @@ card "Dice Dungeon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 35651584
+        effect_type: Field + Trigger
+        category: SynchroSummon + FusionSummon
         code: 4104
-        range: 256
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }

@@ -1,3 +1,4 @@
+// ドレミコード・ソルフェージア
 // Solfachord Solfegia
 // Transpiled from c84693918.lua
 
@@ -12,9 +13,9 @@ card "Solfachord Solfegia" {
     def: 400
 
     raw_effect "Effect 1" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1020
-        range: 512
+        range: PendulumZone
         on_resolve {
             set_flag "tracked" on self
             negate effect
@@ -23,9 +24,9 @@ card "Solfachord Solfegia" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 84693918)
         on_resolve {
             special_summon (1, monster) from gy
@@ -33,9 +34,9 @@ card "Solfachord Solfegia" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 512
-        range: 4
+        effect_type: Ignition
+        category: SpecialSummon
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

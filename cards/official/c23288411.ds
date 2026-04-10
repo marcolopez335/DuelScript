@@ -1,3 +1,4 @@
+// 冥骸合竜－メメントラル・テクトリカ
 // Mementoal Tecuhtlica - Combined Creation
 // Transpiled from c23288411.lua
 
@@ -15,7 +16,7 @@ card "Mementoal Tecuhtlica - Combined Creation" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -23,17 +24,17 @@ card "Mementoal Tecuhtlica - Combined Creation" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 263168
-        range: 18
+        range: Hand + Graveyard
         on_resolve {
             return (1+, monster, you controls) to deck shuffle
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 193
         on_resolve {
             register_effect on self { grant: attack_all_opponent_monsters duration: until_end_of_turn }
@@ -41,11 +42,11 @@ card "Mementoal Tecuhtlica - Combined Creation" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 512
-        code: 1027
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: Chaining
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

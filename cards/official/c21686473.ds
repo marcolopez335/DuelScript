@@ -1,3 +1,4 @@
+// DDD運命王ゼロ・ラプラス
 // D/D/D Destiny King Zero Laplace
 // Transpiled from c21686473.lua
 
@@ -16,9 +17,9 @@ card "D/D/D Destiny King Zero Laplace" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 8
-        range: 512
+        effect_type: Ignition
+        category: ToHand
+        range: PendulumZone
         count_limit: (1, 21686473)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
@@ -27,25 +28,25 @@ card "D/D/D Destiny King Zero Laplace" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         on_resolve {
             tribute (1, monster, you controls)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 2097152
+        effect_type: Single + Trigger
+        category: SynchroSummon
         code: 1133
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 203
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
@@ -53,17 +54,17 @@ card "D/D/D Destiny King Zero Laplace" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 47
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 6" {
-        effect_type: 1
+        effect_type: Single
         code: 201
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

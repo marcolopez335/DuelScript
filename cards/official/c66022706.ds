@@ -1,3 +1,4 @@
+// 翠嵐の機界騎士
 // Mekk-Knight Green Horizon
 // Transpiled from c66022706.lua
 
@@ -15,21 +16,21 @@ card "Mekk-Knight Green Horizon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         count_limit: (1, 66022706)
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 8
-        code: 1130
+        effect_type: Field + Trigger
+        category: ToHand
+        code: AttackAnnounce
         property: 16
-        range: 4
+        range: MonsterZone
         on_resolve {
             return (1+, monster, either_player controls) to hand
         }

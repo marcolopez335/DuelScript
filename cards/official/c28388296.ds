@@ -1,3 +1,4 @@
+// スクラップ・ファクトリー
 // Scrap Factory
 // Transpiled from c28388296.lua
 
@@ -6,35 +7,35 @@ card "Scrap Factory" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 256
+        range: FieldZone
         on_resolve {
             modifier: atk + 200
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 104
-        range: 256
+        range: FieldZone
         on_resolve {
             modifier: def + 200
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 512
-        code: 1014
-        range: 256
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: ChainEnd
+        range: FieldZone
         count_limit: (1, 28388296)
         on_resolve {
             special_summon (1, monster) from gy

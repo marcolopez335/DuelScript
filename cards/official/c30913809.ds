@@ -1,3 +1,4 @@
+// 光の波動
 // Light Force
 // Transpiled from c30913809.lua
 
@@ -6,17 +7,17 @@ card "Light Force" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 16777216
+        effect_type: Field + MandatoryTrigger
+        category: RitualSummon
         code: 4098
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
@@ -24,27 +25,27 @@ card "Light Force" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             modifier: atk + 300
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 104
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             modifier: def + 300
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 64
-        category: 131080
-        range: 8
+        effect_type: Ignition
+        category: ToHand + Search
+        range: SpellTrapZone
         count_limit: (1, 30913809)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -57,7 +58,7 @@ card "Light Force" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 67110912
         on_resolve {

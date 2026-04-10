@@ -1,3 +1,4 @@
+// プリマ・マテリアクトル
 // Prima Materiactor
 // Transpiled from c57448410.lua
 
@@ -13,19 +14,19 @@ card "Prima Materiactor" {
     flavor: "[ Pendulum Effect ]  Xyz Monsters you control gain 100 ATK for each Xyz Material on the field. You can target 1 'Materiactor' Xyz Monster you control; attach this card to it as material, then draw 1 card. You can only use this effect of 'Prima Materiactor' once per turn.  ----------------------------------------  [ Monster Effect ]  An alien life form that suddenly flew in from the heavens far away. Many researchers have tried to determine its true identity, but its luminosity and the miasma emitted have long shrouded its existence in mystery, making it extremely difficult to see the full extent of its existence. Recently, however, a number of new species have been discovered by up-and-coming researchers, and it appears that the full extent of the species' existence is finally being revealed."
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 512
+        range: PendulumZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 65536
+        effect_type: Ignition
+        category: Draw
         property: 16
-        range: 512
+        range: PendulumZone
         count_limit: (1, 57448410)
         on_resolve {
             attach (1, card) to self as_material

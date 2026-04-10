@@ -1,3 +1,4 @@
+// カラクリ参謀 弐四八
 // Karakuri Strategist mdl 248 'Nishipachi'
 // Transpiled from c66625883.lua
 
@@ -11,7 +12,7 @@ card "Karakuri Strategist mdl 248 'Nishipachi'" {
     def: 1600
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 191
         on_resolve {
             register_effect on self { grant: must_attack_if_able duration: until_end_of_turn }
@@ -19,18 +20,18 @@ card "Karakuri Strategist mdl 248 'Nishipachi'" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 4096
-        code: 1131
+        effect_type: Single + MandatoryTrigger
+        category: DiceRoll
+        code: BattleTarget
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 4096
-        code: 1100
+        effect_type: Single + MandatoryTrigger
+        category: DiceRoll
+        code: SummonSuccess
         property: 16
         on_resolve {
             change_battle_position (1, monster)
@@ -38,9 +39,9 @@ card "Karakuri Strategist mdl 248 'Nishipachi'" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 513
-        category: 4096
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: DiceRoll
+        code: SpecialSummonSuccess
         property: 16
         on_resolve {
             change_battle_position (1, monster)

@@ -1,3 +1,4 @@
+// U.A.コリバルリバウンダー
 // U.A. Rival Rebounder
 // Transpiled from c17264592.lua
 
@@ -15,10 +16,10 @@ card "U.A. Rival Rebounder" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         count_limit: (1, 17264592)
         on_resolve {
             return (1+, monster, you controls) to hand
@@ -26,9 +27,9 @@ card "U.A. Rival Rebounder" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
-        code: 1100
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SummonSuccess
         property: 81920
         count_limit: (1, 0)
         on_resolve {
@@ -37,9 +38,9 @@ card "U.A. Rival Rebounder" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1102
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 81920
         count_limit: (1, 0)
         on_resolve {

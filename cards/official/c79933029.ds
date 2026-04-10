@@ -1,3 +1,4 @@
+// ピュアリィ・リリィ
 // Purrelyly
 // Transpiled from c79933029.lua
 
@@ -11,9 +12,9 @@ card "Purrelyly" {
     def: 100
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 79933029)
         on_resolve {
@@ -23,9 +24,9 @@ card "Purrelyly" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 79933029)
         on_resolve {
@@ -35,10 +36,10 @@ card "Purrelyly" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 67109376
+        effect_type: Ignition
+        category: SpecialSummon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             attach (1, card) to self as_material

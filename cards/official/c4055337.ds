@@ -1,3 +1,4 @@
+// オルフェゴール・トロイメア
 // Orcust Knightmare
 // Transpiled from c4055337.lua
 
@@ -15,7 +16,7 @@ card "Orcust Knightmare" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -23,10 +24,10 @@ card "Orcust Knightmare" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 2097184
+        effect_type: Ignition
+        category: ToGrave + SynchroSummon
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 4055337)
         cost {
             banish self
@@ -45,11 +46,11 @@ card "Orcust Knightmare" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 2097184
-        code: 1002
+        effect_type: QuickEffect
+        category: ToGrave + SynchroSummon
+        code: FreeChain
         property: 16400
-        range: 16
+        range: Graveyard
         count_limit: (1, 4055337)
         cost {
             banish self

@@ -1,3 +1,4 @@
+// レッドアイズ・トゥーン・ドラゴン
 // Red-Eyes Toon Dragon
 // Transpiled from c31733941.lua
 
@@ -15,8 +16,8 @@ card "Red-Eyes Toon Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2049
-        code: 1100
+        effect_type: Single + Continuous
+        code: SummonSuccess
         property: 1024
         on_resolve {
             register_effect on self {
@@ -27,8 +28,8 @@ card "Red-Eyes Toon Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
-        code: 1101
+        effect_type: Single + Continuous
+        code: FlipSummonSuccess
         property: 1024
         on_resolve {
             register_effect on self {
@@ -39,8 +40,8 @@ card "Red-Eyes Toon Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
-        code: 1102
+        effect_type: Single + Continuous
+        code: SpecialSummonSuccess
         property: 1024
         on_resolve {
             register_effect on self {
@@ -51,7 +52,7 @@ card "Red-Eyes Toon Dragon" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 74
         on_resolve {
             register_effect on self { grant: direct_attack duration: until_end_of_turn }
@@ -59,9 +60,9 @@ card "Red-Eyes Toon Dragon" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 64
-        category: 512
-        range: 4
+        effect_type: Ignition
+        category: SpecialSummon
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

@@ -1,3 +1,4 @@
+// 横取りボーン
 // Monster Rebone
 // Transpiled from c60621361.lua
 
@@ -6,9 +7,9 @@ card "Monster Rebone" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         property: 16
         on_resolve {
             special_summon (1, monster) from gy
@@ -16,7 +17,7 @@ card "Monster Rebone" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1019
         property: 1024
         on_resolve {
@@ -24,7 +25,7 @@ card "Monster Rebone" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1015
         on_resolve {
             banish (1+, card, either_player controls)
@@ -32,17 +33,17 @@ card "Monster Rebone" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1015
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2050
-        code: 1102
+        effect_type: Field + Continuous
+        code: SpecialSummonSuccess
         on_resolve {
             set_flag "tracked" on self
             set_flag "tracked" on self

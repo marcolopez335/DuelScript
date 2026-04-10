@@ -1,3 +1,4 @@
+// ワーム・ヤガン
 // Worm Yagan
 // Transpiled from c47111934.lua
 
@@ -11,9 +12,9 @@ card "Worm Yagan" {
     def: 1800
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 16
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Graveyard
         on_resolve {
             special_summon (1, monster) from gy
             reveal (1+, card, opponent controls)
@@ -21,8 +22,8 @@ card "Worm Yagan" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 8
+        effect_type: Single + MandatoryTrigger
+        category: ToHand
         code: 1001
         property: 16
         on_resolve {

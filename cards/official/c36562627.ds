@@ -1,3 +1,4 @@
+// セカンド・チャンス
 // Second Coin Toss
 // Transpiled from c36562627.lua
 
@@ -6,16 +7,16 @@ card "Second Coin Toss" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1152
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             set_flag "tracked" on self
             flip_coin { heads { draw 1 } tails { draw 1 } }

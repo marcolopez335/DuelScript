@@ -1,3 +1,4 @@
+// ネオフレムベル・ヘッジホッグ
 // Neo Flamvell Hedgehog
 // Transpiled from c2377034.lua
 
@@ -11,9 +12,9 @@ card "Neo Flamvell Hedgehog" {
     def: 200
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 4
-        code: 1140
+        effect_type: Single + MandatoryTrigger
+        category: Banish
+        code: BattleDamage
         property: 16
         on_resolve {
             banish (1+, card, either_player controls)
@@ -21,9 +22,9 @@ card "Neo Flamvell Hedgehog" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 8
-        code: 1029
+        effect_type: Single + MandatoryTrigger
+        category: ToHand
+        code: Destroyed
         property: 16
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy

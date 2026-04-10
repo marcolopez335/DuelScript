@@ -1,3 +1,4 @@
+// 究極宝玉獣 レインボー・ドラゴン
 // Crystal Beast Rainbow Dragon
 // Transpiled from c36795102.lua
 
@@ -15,7 +16,7 @@ card "Crystal Beast Rainbow Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 313
         property: 262144
         on_resolve {
@@ -24,10 +25,10 @@ card "Crystal Beast Rainbow Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1130
-        range: 2
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: AttackAnnounce
+        range: Hand
         count_limit: (1, 36795102)
         on_resolve {
             special_summon (1, monster) from gy
@@ -35,9 +36,9 @@ card "Crystal Beast Rainbow Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 131592
-        range: 8
+        effect_type: Ignition
+        category: ToHand + SpecialSummon + Search
+        range: SpellTrapZone
         count_limit: (1, 0)
         cost {
             banish self
@@ -50,7 +51,7 @@ card "Crystal Beast Rainbow Dragon" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 117
         property: 1024
         on_resolve {

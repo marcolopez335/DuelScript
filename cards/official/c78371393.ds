@@ -1,3 +1,4 @@
+// ユベル
 // Yubel
 // Transpiled from c78371393.lua
 
@@ -15,7 +16,7 @@ card "Yubel" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -23,7 +24,7 @@ card "Yubel" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 201
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -31,15 +32,15 @@ card "Yubel" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
-        code: 1131
+        effect_type: Single + Continuous
+        code: BattleTarget
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 513
-        category: 524288
+        effect_type: Single + MandatoryTrigger
+        category: Damage
         code: 1133
         property: 2048
         on_resolve {
@@ -48,10 +49,10 @@ card "Yubel" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 514
-        category: 3
+        effect_type: Field + MandatoryTrigger
+        category: Destroy + Release
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             tribute (1, monster, you controls)
@@ -60,9 +61,9 @@ card "Yubel" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         on_resolve {
             special_summon (1, monster) from gy
         }

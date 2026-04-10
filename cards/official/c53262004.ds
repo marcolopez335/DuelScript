@@ -1,3 +1,4 @@
+// オッドアイズ・ボルテックス・ドラゴン
 // Odd-Eyes Vortex Dragon
 // Transpiled from c53262004.lua
 
@@ -20,9 +21,9 @@ card "Odd-Eyes Vortex Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 8
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand
+        code: SpecialSummonSuccess
         property: 16
         count_limit: (1, 53262004)
         on_resolve {
@@ -31,11 +32,11 @@ card "Odd-Eyes Vortex Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 268435457
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle

@@ -1,3 +1,4 @@
+// 導きの聖女クエム
 // Guiding Quem, the Virtuous
 // Transpiled from c45883110.lua
 
@@ -11,9 +12,9 @@ card "Guiding Quem, the Virtuous" {
     def: 1500
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 32
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 45883110)
         on_resolve {
@@ -22,9 +23,9 @@ card "Guiding Quem, the Virtuous" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 32
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 45883110)
         on_resolve {
@@ -33,11 +34,11 @@ card "Guiding Quem, the Virtuous" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 512
-        code: 1030
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: LeaveField
         property: 65552
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

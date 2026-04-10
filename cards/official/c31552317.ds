@@ -1,3 +1,4 @@
+// クリストロン・インクルージョン
 // Crystron Inclusion
 // Transpiled from c31552317.lua
 
@@ -6,9 +7,9 @@ card "Crystron Inclusion" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 131080
-        code: 1002
+        effect_type: Activate
+        category: ToHand + Search
+        code: FreeChain
         count_limit: (1, 31552317)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -17,19 +18,19 @@ card "Crystron Inclusion" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 47
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 512
+        effect_type: Ignition
+        category: SpecialSummon
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self

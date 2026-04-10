@@ -1,3 +1,4 @@
+// ナイトウィング・プリースト
 // Nightwinged Cleric
 // Transpiled from c79519259.lua
 
@@ -21,8 +22,8 @@ card "Nightwinged Cleric" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        code: 1102
+        effect_type: Single + Trigger
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 79519259)
         on_resolve {
@@ -35,9 +36,9 @@ card "Nightwinged Cleric" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 131592
-        range: 4
+        effect_type: Ignition
+        category: ToHand + SpecialSummon + Search
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             discard (1, card, you controls)

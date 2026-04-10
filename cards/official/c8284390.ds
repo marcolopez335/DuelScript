@@ -1,3 +1,4 @@
+// SR56プレーン
 // Speedroid Rubberband Plane
 // Transpiled from c8284390.lua
 
@@ -15,11 +16,11 @@ card "Speedroid Rubberband Plane" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
-        code: 1102
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
-        range: 2
+        range: Hand
         count_limit: (1, 8284390)
         on_resolve {
             special_summon (1, monster) from gy
@@ -31,9 +32,9 @@ card "Speedroid Rubberband Plane" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 2097152
-        code: 1100
+        effect_type: Single + Trigger
+        category: SynchroSummon
+        code: SummonSuccess
         property: 65552
         on_resolve {
             register_effect on self {
@@ -44,9 +45,9 @@ card "Speedroid Rubberband Plane" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 2097152
-        code: 1102
+        effect_type: Single + Trigger
+        category: SynchroSummon
+        code: SpecialSummonSuccess
         property: 65552
         on_resolve {
             register_effect on self {

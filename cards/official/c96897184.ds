@@ -1,3 +1,4 @@
+// 古生代化石騎士 スカルキング
 // Fossil Warrior Skull King
 // Transpiled from c96897184.lua
 
@@ -20,23 +21,23 @@ card "Fossil Warrior Skull King" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 394240
-        range: 64
+        range: Deck
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 194
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 203
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
@@ -44,11 +45,11 @@ card "Fossil Warrior Skull King" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        category: 640
-        code: 1002
+        effect_type: QuickEffect
+        category: DefChange + SpecialSummon
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 96897184)
         on_resolve {
             discard (1, card)

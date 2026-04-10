@@ -1,3 +1,4 @@
+// ブラックフェザー・アサルト・ドラゴン
 // Black-Winged Assault Dragon
 // Transpiled from c73218989.lua
 
@@ -21,7 +22,7 @@ card "Black-Winged Assault Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -29,38 +30,38 @@ card "Black-Winged Assault Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 263168
-        range: 64
+        range: Deck
         on_resolve {
             banish (1+, monster, you controls, gy)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 1027
+        effect_type: Field + Continuous
+        code: Chaining
         property: 1024
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1022
-        range: 4
+        range: MonsterZone
         on_resolve {
             deal_damage to opponent: 700
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 256
-        category: 1
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: Destroy
+        code: FreeChain
+        range: MonsterZone
         cost {
             tribute self
         }

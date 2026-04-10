@@ -1,3 +1,4 @@
+// 聖アザミナ
 // Saint Azamina
 // Transpiled from c85065943.lua
 
@@ -20,29 +21,29 @@ card "Saint Azamina" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 71
         property: 384
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 202
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 85065943)
         on_resolve {
             special_summon (1, monster) from gy
@@ -50,8 +51,8 @@ card "Saint Azamina" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2049
-        code: 1102
+        effect_type: Single + Continuous
+        code: SpecialSummonSuccess
         property: 1024
         on_resolve {
         }

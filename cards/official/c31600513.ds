@@ -1,3 +1,4 @@
+// プレイング・マンティス
 // Praying Mantis
 // Transpiled from c31600513.lua
 
@@ -11,10 +12,10 @@ card "Praying Mantis" {
     def: 1200
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 8
-        code: 1130
-        range: 4
+        effect_type: Field + Trigger
+        category: ToHand
+        code: AttackAnnounce
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             send self to gy
@@ -25,10 +26,10 @@ card "Praying Mantis" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 1536
+        effect_type: Field + Trigger
+        category: SpecialSummon + Token
         code: 4098
-        range: 4
+        range: MonsterZone
         count_limit: (1, 31600513)
         on_resolve {
             create_token { atk: 0 def: 0 }
@@ -37,9 +38,9 @@ card "Praying Mantis" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 1536
-        range: 16
+        effect_type: Ignition
+        category: SpecialSummon + Token
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self

@@ -1,3 +1,4 @@
+// 愚鈍の斧
 // Axe of Fools
 // Transpiled from c19578592.lua
 
@@ -6,7 +7,7 @@ card "Axe of Fools" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 1000
@@ -14,7 +15,7 @@ card "Axe of Fools" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 4
+        effect_type: Equip
         code: 2
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -22,10 +23,10 @@ card "Axe of Fools" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 524288
+        effect_type: Field + MandatoryTrigger
+        category: Damage
         code: 4098
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             deal_damage to opponent: 1000
@@ -33,9 +34,9 @@ card "Axe of Fools" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

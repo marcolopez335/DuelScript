@@ -1,3 +1,4 @@
+// Kozmo－エメラルドポリス
 // Kozmotown
 // Transpiled from c67237709.lua
 
@@ -6,17 +7,17 @@ card "Kozmotown" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 8
+        effect_type: Ignition
+        category: ToHand
         property: 16
-        range: 256
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand
@@ -26,10 +27,10 @@ card "Kozmotown" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 65552
+        effect_type: Ignition
+        category: ToDeck + Draw
         property: 2048
-        range: 256
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             reveal (1+, card, opponent controls)
@@ -40,9 +41,9 @@ card "Kozmotown" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 131080
-        code: 1029
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: Destroyed
         property: 81920
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand

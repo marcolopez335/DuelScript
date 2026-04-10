@@ -1,3 +1,4 @@
+// 青き眼の護人
 // Protector with Eyes of Blue
 // Transpiled from c72855441.lua
 
@@ -11,19 +12,19 @@ card "Protector with Eyes of Blue" {
     def: 1300
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 512
-        code: 1100
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SummonSuccess
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 544
+        effect_type: Ignition
+        category: ToGrave + SpecialSummon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 72855441)
         on_resolve {
             send (1+, card, you controls, hand) to gy

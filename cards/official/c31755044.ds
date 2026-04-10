@@ -1,3 +1,4 @@
+// 十二獣ヴァイパー
 // Zoodiac Whiptail
 // Transpiled from c31755044.lua
 
@@ -11,18 +12,18 @@ card "Zoodiac Whiptail" {
     def: 400
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        code: 1002
+        effect_type: QuickEffect
+        code: FreeChain
         property: 16
-        range: 6
+        range: Hand + MonsterZone
         on_resolve {
             attach (1, card) to self as_material
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 4608
-        category: 4
+        effect_type: MandatoryTrigger
+        category: Banish
         code: 1138
         on_resolve {
             banish (1+, card, either_player controls)

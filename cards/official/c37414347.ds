@@ -1,3 +1,4 @@
+// F.A.シャイニングスターGT
 // F.A. Shining Star GT
 // Transpiled from c37414347.lua
 
@@ -20,24 +21,24 @@ card "F.A. Shining Star GT" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 200
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 201
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -45,21 +46,21 @@ card "F.A. Shining Star GT" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 514
-        category: 8388608
-        code: 1027
+        effect_type: Field + MandatoryTrigger
+        category: LinkSummon
+        code: Chaining
         property: 114688
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 256
-        category: 268435457
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         count_limit: (1, 37414347)
         on_resolve {
             negate activation

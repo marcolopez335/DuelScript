@@ -1,3 +1,4 @@
+// 鉄壁の布陣
 // Impenetrable Formation
 // Transpiled from c96631852.lua
 
@@ -6,8 +7,8 @@ card "Impenetrable Formation" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         property: 16
         on_resolve {
             register_effect on self {
@@ -18,9 +19,9 @@ card "Impenetrable Formation" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1015
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             destroy (1+, monster, you controls)
         }

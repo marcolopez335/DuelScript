@@ -1,3 +1,4 @@
+// カラクリ蝦蟇 四六弐四
 // Karakuri Gama mdl 4624 'Shirokunishi'
 // Transpiled from c75690317.lua
 
@@ -11,7 +12,7 @@ card "Karakuri Gama mdl 4624 'Shirokunishi'" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 191
         on_resolve {
             register_effect on self { grant: must_attack_if_able duration: until_end_of_turn }
@@ -19,20 +20,20 @@ card "Karakuri Gama mdl 4624 'Shirokunishi'" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 4096
-        code: 1131
+        effect_type: Single + MandatoryTrigger
+        category: DiceRoll
+        code: BattleTarget
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 4096
-        code: 1002
+        effect_type: QuickEffect
+        category: DiceRoll
+        code: FreeChain
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 75690317)
         cost {
             banish self

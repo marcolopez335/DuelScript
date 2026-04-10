@@ -1,3 +1,4 @@
+// 機皇兵廠オブリガード
 // Meklord Army Deployer Obbligato
 // Transpiled from c3715284.lua
 
@@ -11,9 +12,9 @@ card "Meklord Army Deployer Obbligato" {
     def: 1800
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 513
-        range: 4
+        effect_type: Ignition
+        category: Destroy + SpecialSummon
+        range: MonsterZone
         count_limit: (1, 3715284)
         on_resolve {
             destroy (1+, card, you controls, deck)
@@ -26,9 +27,9 @@ card "Meklord Army Deployer Obbligato" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 524288
-        code: 1014
+        effect_type: Single + Trigger
+        category: Damage
+        code: ChainEnd
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -40,7 +41,7 @@ card "Meklord Army Deployer Obbligato" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 67110912
         on_resolve {
@@ -49,7 +50,7 @@ card "Meklord Army Deployer Obbligato" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 4608
         count_limit: (1, 0)
         on_resolve {

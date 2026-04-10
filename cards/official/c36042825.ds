@@ -1,3 +1,4 @@
+// ワンショット・ワンド
 // One-Shot Wand
 // Transpiled from c36042825.lua
 
@@ -6,7 +7,7 @@ card "One-Shot Wand" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 800
@@ -14,10 +15,10 @@ card "One-Shot Wand" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 65537
+        effect_type: Field + Trigger
+        category: Destroy + Draw
         code: 1138
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             destroy (1+, card, either_player controls)
             draw 1
@@ -25,9 +26,9 @@ card "One-Shot Wand" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

@@ -1,3 +1,4 @@
+// デフコンバード
 // Defcon Bird
 // Transpiled from c76353872.lua
 
@@ -11,9 +12,9 @@ card "Defcon Bird" {
     def: 1700
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 76353872)
         on_resolve {
             special_summon (1, monster) from gy
@@ -21,10 +22,10 @@ card "Defcon Bird" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 6295552
-        code: 1131
-        range: 4
+        effect_type: Field + Trigger
+        category: DiceRoll + SynchroSummon + XyzSummon
+        code: BattleTarget
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {

@@ -1,3 +1,4 @@
+// 炎魔の触媒
 // Zalamander Catalyzer
 // Transpiled from c40460013.lua
 
@@ -11,9 +12,9 @@ card "Zalamander Catalyzer" {
     def: 200
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 640
-        range: 2
+        effect_type: Ignition
+        category: DefChange + SpecialSummon
+        range: Hand
         count_limit: (1, 40460013)
         on_resolve {
             special_summon (1, monster) from gy
@@ -22,10 +23,10 @@ card "Zalamander Catalyzer" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 8
-        code: 1140
-        range: 16
+        effect_type: Field + Trigger
+        category: ToHand
+        code: BattleDamage
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from hand

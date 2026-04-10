@@ -1,3 +1,4 @@
+// メタトロンの影霊依
 // Nekroz of Metaltron
 // Transpiled from c13408726.lua
 
@@ -21,11 +22,11 @@ card "Nekroz of Metaltron" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 4
-        code: 1011
+        effect_type: Field + Trigger
+        category: Banish
+        code: TurnEnd
         property: 65552
-        range: 512
+        range: PendulumZone
         count_limit: (1, 13408726)
         on_resolve {
             banish (1+, spell, either_player controls)
@@ -33,11 +34,11 @@ card "Nekroz of Metaltron" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 4
-        code: 1002
+        effect_type: QuickEffect
+        category: Banish
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, monster, opponent controls)
@@ -46,10 +47,10 @@ card "Nekroz of Metaltron" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 204
         property: 128
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }

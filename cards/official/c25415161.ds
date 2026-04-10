@@ -1,3 +1,4 @@
+// スプリガンズ・インタールーダー
 // Springans Interluder
 // Transpiled from c25415161.lua
 
@@ -6,17 +7,17 @@ card "Springans Interluder" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 2147500544
-        code: 1027
-        range: 8
+        effect_type: QuickEffect
+        category: SpecialSummon + Disable
+        code: Chaining
+        range: SpellTrapZone
         count_limit: (1, 25415161)
         on_resolve {
             return (1+, monster, opponent controls) to deck shuffle
@@ -26,11 +27,11 @@ card "Springans Interluder" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 2097152
+        effect_type: Field + Trigger
+        category: SynchroSummon
         code: 1015
         property: 65536
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -41,7 +42,7 @@ card "Springans Interluder" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         on_resolve {
             modifier: atk - 1000

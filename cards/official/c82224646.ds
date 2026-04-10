@@ -1,3 +1,4 @@
+// EMオッドアイズ・シンクロン
 // Performapal Odd-Eyes Synchron
 // Transpiled from c82224646.lua
 
@@ -12,9 +13,9 @@ card "Performapal Odd-Eyes Synchron" {
     def: 600
 
     raw_effect "Effect 1" {
-        effect_type: 64
+        effect_type: Ignition
         property: 16
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -29,7 +30,7 @@ card "Performapal Odd-Eyes Synchron" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 60
         property: 263168
         on_resolve {
@@ -37,9 +38,9 @@ card "Performapal Odd-Eyes Synchron" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1100
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SummonSuccess
         property: 16
         on_resolve {
             special_summon (1, monster) from gy
@@ -55,10 +56,10 @@ card "Performapal Odd-Eyes Synchron" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 512
+        effect_type: Ignition
+        category: SpecialSummon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

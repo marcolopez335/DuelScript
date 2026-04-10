@@ -1,3 +1,4 @@
+// 魔導書院ラメイソン
 // The Grand Spellbook Tower
 // Transpiled from c33981008.lua
 
@@ -6,17 +7,17 @@ card "The Grand Spellbook Tower" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 65552
+        effect_type: Field + Trigger
+        category: ToDeck + Draw
         code: 4098
-        range: 256
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, spell, you controls) to deck shuffle
@@ -25,9 +26,9 @@ card "The Grand Spellbook Tower" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1014
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: ChainEnd
         on_resolve {
             special_summon (1, monster) from gy
         }

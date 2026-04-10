@@ -1,3 +1,4 @@
+// 音響戦士ロックス
 // Symphonic Warrior Rockks
 // Transpiled from c24070330.lua
 
@@ -22,10 +23,10 @@ card "Symphonic Warrior Rockks" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 8
+        effect_type: Field + Trigger
+        category: ToHand
         code: 4098
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
@@ -34,18 +35,18 @@ card "Symphonic Warrior Rockks" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 1
-        code: 1130
-        range: 512
+        effect_type: Field + Trigger
+        category: Destroy
+        code: AttackAnnounce
+        range: PendulumZone
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        code: 1029
+        effect_type: Single + Trigger
+        code: Destroyed
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy
@@ -53,9 +54,9 @@ card "Symphonic Warrior Rockks" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 8
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -65,9 +66,9 @@ card "Symphonic Warrior Rockks" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 64
-        category: 1
-        range: 4
+        effect_type: Ignition
+        category: Destroy
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)

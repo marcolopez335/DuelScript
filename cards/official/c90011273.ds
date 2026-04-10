@@ -1,3 +1,4 @@
+// ブリーチヴァレル・ドラゴン
 // Breechborrel Dragon
 // Transpiled from c90011273.lua
 
@@ -16,9 +17,9 @@ card "Breechborrel Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -28,11 +29,11 @@ card "Breechborrel Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 2097664
-        code: 1002
+        effect_type: QuickEffect
+        category: SpecialSummon + SynchroSummon
+        code: FreeChain
         property: 16400
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -44,7 +45,7 @@ card "Breechborrel Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 1024
         on_resolve {

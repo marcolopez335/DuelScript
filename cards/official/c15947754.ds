@@ -1,3 +1,4 @@
+// 沈黙狼－カルーポ
 // Silent Wolf Calupo
 // Transpiled from c15947754.lua
 
@@ -11,9 +12,9 @@ card "Silent Wolf Calupo" {
     def: 1400
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 262144
-        code: 1100
+        effect_type: Single + MandatoryTrigger
+        category: EquipAction
+        code: SummonSuccess
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -27,9 +28,9 @@ card "Silent Wolf Calupo" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 262144
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: EquipAction
+        code: SpecialSummonSuccess
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -43,10 +44,10 @@ card "Silent Wolf Calupo" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 168
+        effect_type: Field + MandatoryTrigger
+        category: ToHand + ToGrave + DefChange
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 15947754)
         on_resolve {
             reveal (1+, card, opponent controls)
@@ -57,7 +58,7 @@ card "Silent Wolf Calupo" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         property: 256
         on_resolve {
@@ -66,7 +67,7 @@ card "Silent Wolf Calupo" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         property: 1024
         on_resolve {

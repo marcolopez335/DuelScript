@@ -1,3 +1,4 @@
+// 星読みの魔術師－ホロスコープ・マジシャン
 // Horoscope Sorcerer, the Stargazer Magician
 // Transpiled from c1186447.lua
 
@@ -16,9 +17,9 @@ card "Horoscope Sorcerer, the Stargazer Magician" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1020
-        range: 512
+        range: PendulumZone
         on_resolve {
             set_flag "tracked" on self
             negate effect
@@ -27,9 +28,9 @@ card "Horoscope Sorcerer, the Stargazer Magician" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 0)
         cost {
             discard (1, card, you controls)
@@ -40,9 +41,9 @@ card "Horoscope Sorcerer, the Stargazer Magician" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -52,10 +53,10 @@ card "Horoscope Sorcerer, the Stargazer Magician" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 9
+        effect_type: Ignition
+        category: Destroy + ToHand
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, you controls)

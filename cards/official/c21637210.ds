@@ -1,3 +1,4 @@
+// ファイアウォール・ドラゴン・シンギュラリティ
 // Firewall Dragon Singularity
 // Transpiled from c21637210.lua
 
@@ -20,11 +21,11 @@ card "Firewall Dragon Singularity" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 2097160
-        code: 1002
+        effect_type: QuickEffect
+        category: ToHand + SynchroSummon
+        code: FreeChain
         property: 16400
-        range: 4
+        range: MonsterZone
         count_limit: (1, 21637210)
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
@@ -32,31 +33,31 @@ card "Firewall Dragon Singularity" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 1140
+        effect_type: Field + Continuous
+        code: BattleDamage
         property: 1024
-        range: 4
+        range: MonsterZone
         on_resolve {
             emit_event "custom"
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 1014
+        effect_type: Field + Continuous
+        code: ChainEnd
         property: 1024
-        range: 4
+        range: MonsterZone
         on_resolve {
             emit_event "custom"
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 512
+        effect_type: Single + Trigger
+        category: SpecialSummon
         code: 290072666
         property: 196624
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

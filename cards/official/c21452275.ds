@@ -1,3 +1,4 @@
+// アロマポット
 // Aroma Jar
 // Transpiled from c21452275.lua
 
@@ -11,7 +12,7 @@ card "Aroma Jar" {
     def: 400
 
     raw_effect "Effect 1" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1001
         property: 1024
         on_resolve {
@@ -19,7 +20,7 @@ card "Aroma Jar" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -27,11 +28,11 @@ card "Aroma Jar" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 1048576
+        effect_type: Field + MandatoryTrigger
+        category: Recover
         code: 4608
         property: 2048
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             gain_lp: 1000

@@ -1,3 +1,4 @@
+// デストーイ・マッド・キマイラ
 // Frightfur Chimera
 // Transpiled from c83866861.lua
 
@@ -20,7 +21,7 @@ card "Frightfur Chimera" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -28,18 +29,18 @@ card "Frightfur Chimera" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 6
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
+        effect_type: Single + Trigger
+        category: SpecialSummon
         code: 1139
         count_limit: (1, 83866861)
         on_resolve {
@@ -52,10 +53,10 @@ card "Frightfur Chimera" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }

@@ -1,3 +1,4 @@
+// スリーバーストショット・ドラゴン
 // Triple Burst Dragon
 // Transpiled from c49725936.lua
 
@@ -20,11 +21,11 @@ card "Triple Burst Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 268435456
-        code: 1027
+        effect_type: QuickEffect
+        category: Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             negate activation
@@ -33,7 +34,7 @@ card "Triple Burst Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 203
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
@@ -41,10 +42,10 @@ card "Triple Burst Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 512
+        effect_type: Ignition
+        category: SpecialSummon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 49725936)
         cost {
             tribute self

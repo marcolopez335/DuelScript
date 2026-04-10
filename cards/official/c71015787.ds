@@ -1,3 +1,4 @@
+// サイレント・ウォビー
 // Silent Wobby
 // Transpiled from c71015787.lua
 
@@ -11,18 +12,18 @@ card "Silent Wobby" {
     def: 2000
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 1114112
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: Draw + Recover
+        code: SpecialSummonSuccess
         count_limit: (1, 71015787)
         on_resolve {
             draw 1
@@ -31,10 +32,10 @@ card "Silent Wobby" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 270
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }

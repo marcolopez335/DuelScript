@@ -1,3 +1,4 @@
+// 魔を刻むデモンスミス
 // Fiendsmith Engraver
 // Transpiled from c60764609.lua
 
@@ -15,9 +16,9 @@ card "Fiendsmith Engraver" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 131080
-        range: 2
+        effect_type: Ignition
+        category: ToHand + Search
+        range: Hand
         count_limit: (1, 60764609)
         cost {
             discard (1, card, you controls)
@@ -29,10 +30,10 @@ card "Fiendsmith Engraver" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 32
+        effect_type: Ignition
+        category: ToGrave
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, monster, either_player controls) to gy
@@ -40,9 +41,9 @@ card "Fiendsmith Engraver" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 512
-        range: 16
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

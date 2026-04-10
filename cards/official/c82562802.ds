@@ -1,3 +1,4 @@
+// サイバー・ダーク・クロー
 // Cyberdark Claw
 // Transpiled from c82562802.lua
 
@@ -11,9 +12,9 @@ card "Cyberdark Claw" {
     def: 800
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 8
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand
+        code: ChainEnd
         property: 65552
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -22,9 +23,9 @@ card "Cyberdark Claw" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 131080
-        range: 2
+        effect_type: Ignition
+        category: ToHand + Search
+        range: Hand
         count_limit: (1, 82562802)
         cost {
             discard (1, card, you controls)
@@ -36,10 +37,10 @@ card "Cyberdark Claw" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 32
+        effect_type: Field + Trigger
+        category: ToGrave
         code: 1134
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, monster, you controls, deck) to gy

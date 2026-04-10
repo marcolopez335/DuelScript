@@ -1,3 +1,4 @@
+// 魔轟神マルコシア
 // Fabled Marcosia
 // Transpiled from c57630503.lua
 
@@ -11,9 +12,9 @@ card "Fabled Marcosia" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 640
-        range: 2
+        effect_type: Ignition
+        category: DefChange + SpecialSummon
+        range: Hand
         count_limit: (1, 57630503)
         on_resolve {
             send (1+, monster, you controls, hand) to gy
@@ -21,9 +22,9 @@ card "Fabled Marcosia" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 131080
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: ToHand + Search
+        code: ChainEnd
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand

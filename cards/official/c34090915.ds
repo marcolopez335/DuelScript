@@ -1,3 +1,4 @@
+// 復烙印
 // Branded Regained
 // Transpiled from c34090915.lua
 
@@ -6,18 +7,18 @@ card "Branded Regained" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 65552
+        effect_type: Single + Trigger
+        category: ToDeck + Draw
         code: 302526371
         property: 65552
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 34090915)
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
@@ -26,10 +27,10 @@ card "Branded Regained" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 1011
+        effect_type: Field + Continuous
+        code: TurnEnd
         property: 1024
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             set_flag "tracked" on self
             emit_event "custom"
@@ -37,11 +38,11 @@ card "Branded Regained" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 512
-        code: 1100
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SummonSuccess
         property: 65552
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -49,11 +50,11 @@ card "Branded Regained" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 130
-        category: 512
-        code: 1102
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65552
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

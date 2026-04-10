@@ -1,3 +1,4 @@
+// メガロイド都市
 // Megaroid City
 // Transpiled from c44139064.lua
 
@@ -6,17 +7,17 @@ card "Megaroid City" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 131081
+        effect_type: Ignition
+        category: Destroy + ToHand + Search
         property: 16
-        range: 256
+        range: FieldZone
         count_limit: (1, 44139064)
         on_resolve {
             destroy (1+, monster, you controls, deck)
@@ -26,10 +27,10 @@ card "Megaroid City" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 6291456
+        effect_type: Field + Trigger
+        category: SynchroSummon + XyzSummon
         code: 1134
-        range: 256
+        range: FieldZone
         count_limit: (1, 0)
         cost {
             send self to gy

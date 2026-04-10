@@ -1,3 +1,4 @@
+// 閉ザサレシ世界ノ冥神
 // Underworld Goddess of the Closed World
 // Transpiled from c98127546.lua
 
@@ -20,39 +21,39 @@ card "Underworld Goddess of the Closed World" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 358
         property: 3328
-        range: 64
+        range: Deck
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 16384
-        code: 1102
+        effect_type: Single + Trigger
+        category: Disable
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 1
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        category: 268435456
-        code: 1027
+        effect_type: QuickEffect
+        category: Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             negate activation

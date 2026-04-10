@@ -1,3 +1,4 @@
+// ヤミーズメント★アクロッキー
 // Yummyusment★Acroquey
 // Transpiled from c93360904.lua
 
@@ -6,18 +7,18 @@ card "Yummyusment★Acroquey" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 1
-        code: 1102
+        effect_type: Field + Trigger
+        category: Destroy
+        code: SpecialSummonSuccess
         property: 65552
-        range: 256
+        range: FieldZone
         count_limit: (1, 93360904)
         on_resolve {
             destroy (1+, monster, you controls, deck)
@@ -25,11 +26,11 @@ card "Yummyusment★Acroquey" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 1015
         property: 65536
-        range: 256
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -37,10 +38,10 @@ card "Yummyusment★Acroquey" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 16
+        effect_type: Ignition
+        category: ToDeck
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to deck shuffle

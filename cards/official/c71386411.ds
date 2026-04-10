@@ -1,3 +1,4 @@
+// 超重武者コブ－C
 // Superheavy Samurai Fist
 // Transpiled from c71386411.lua
 
@@ -11,10 +12,10 @@ card "Superheavy Samurai Fist" {
     def: 900
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 71386411)
         on_resolve {
             synchro_summon (1, synchro monster) using (1+, monster, you controls)
@@ -22,10 +23,10 @@ card "Superheavy Samurai Fist" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
+        effect_type: Ignition
+        category: SpecialSummon
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -41,7 +42,7 @@ card "Superheavy Samurai Fist" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1139
         on_resolve {
         }

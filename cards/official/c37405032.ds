@@ -1,3 +1,4 @@
+// トリックスター・アクアエンジェル
 // Trickstar Aqua Angel
 // Transpiled from c37405032.lua
 
@@ -11,18 +12,18 @@ card "Trickstar Aqua Angel" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 42
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 18
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand + Graveyard
         count_limit: (1, 37405032)
         on_resolve {
             special_summon (1, monster) from gy
@@ -30,7 +31,7 @@ card "Trickstar Aqua Angel" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
+        effect_type: Single + Trigger
         code: 1108
         property: 65536
         count_limit: (1, 0)

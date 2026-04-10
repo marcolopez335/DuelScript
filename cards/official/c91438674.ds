@@ -1,3 +1,4 @@
+// ＡＲＧ☆Ｓ－栄冠のアドラ
 // Argostars - Glorious Adra
 // Transpiled from c91438674.lua
 
@@ -11,11 +12,11 @@ card "Argostars - Glorious Adra" {
     def: 1800
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 2097152
-        code: 1002
+        effect_type: QuickEffect
+        category: SynchroSummon
+        code: FreeChain
         property: 16384
-        range: 2
+        range: Hand
         cost {
             banish self
         }
@@ -28,8 +29,8 @@ card "Argostars - Glorious Adra" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        code: 1100
+        effect_type: Single + MandatoryTrigger
+        code: SummonSuccess
         on_resolve {
             set_flag "tracked" on self
             register_effect on self {
@@ -40,8 +41,8 @@ card "Argostars - Glorious Adra" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        range: 4
+        effect_type: Ignition
+        range: MonsterZone
         count_limit: (1, 91438674)
         cost {
             banish self

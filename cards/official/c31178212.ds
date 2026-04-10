@@ -1,3 +1,4 @@
+// マジェスペクター・ユニコーン
 // Majespecter Unicorn - Kirin
 // Transpiled from c31178212.lua
 
@@ -16,11 +17,11 @@ card "Majespecter Unicorn - Kirin" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 8
-        code: 1002
+        effect_type: QuickEffect
+        category: ToHand
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 31178212)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
@@ -28,20 +29,20 @@ card "Majespecter Unicorn - Kirin" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 71
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }

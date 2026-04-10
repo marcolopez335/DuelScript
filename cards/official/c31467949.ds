@@ -1,3 +1,4 @@
+// 空牙団の飛哨 リコン
 // Recon, Scout Fur Hire
 // Transpiled from c31467949.lua
 
@@ -11,9 +12,9 @@ card "Recon, Scout Fur Hire" {
     def: 500
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 4
+        effect_type: Ignition
+        category: SpecialSummon
+        range: MonsterZone
         count_limit: (1, 31467949)
         on_resolve {
             special_summon (1, monster) from gy
@@ -21,11 +22,11 @@ card "Recon, Scout Fur Hire" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 1
-        code: 1102
+        effect_type: Field + Trigger
+        category: Destroy
+        code: SpecialSummonSuccess
         property: 65552
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, you controls, hand)

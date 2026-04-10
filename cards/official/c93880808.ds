@@ -1,3 +1,4 @@
+// アルカナ トライアンフジョーカー
 // Arcana Triumph Joker
 // Transpiled from c93880808.lua
 
@@ -15,9 +16,9 @@ card "Arcana Triumph Joker" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 18
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand + Graveyard
         cost {
             send self to gy
         }
@@ -27,19 +28,19 @@ card "Arcana Triumph Joker" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 1
-        range: 4
+        effect_type: Ignition
+        category: Destroy
+        range: MonsterZone
         on_resolve {
             destroy (1+, monster, you controls, hand)
         }

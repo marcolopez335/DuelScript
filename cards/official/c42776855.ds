@@ -1,3 +1,4 @@
+// 追走の翼
 // Follow Wing
 // Transpiled from c42776855.lua
 
@@ -6,28 +7,28 @@ card "Follow Wing" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 42
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 41
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 1
-        code: 1132
-        range: 8
+        effect_type: Field + Trigger
+        category: Destroy
+        code: DamageCalculation
+        range: SpellTrapZone
         on_resolve {
             destroy (1+, monster, either_player controls)
             register_effect on self {
@@ -38,19 +39,19 @@ card "Follow Wing" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1015
         property: 65536
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             destroy (1+, monster, either_player controls)
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 514
+        effect_type: Field + MandatoryTrigger
         code: 1015
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }

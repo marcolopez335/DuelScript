@@ -1,3 +1,4 @@
+// ｓｏｐｈｉａの影霊衣
 // Nekroz of Sophia
 // Transpiled from c21105106.lua
 
@@ -20,7 +21,7 @@ card "Nekroz of Sophia" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -28,9 +29,9 @@ card "Nekroz of Sophia" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        code: 1002
-        range: 2
+        effect_type: QuickEffect
+        code: FreeChain
+        range: Hand
         cost {
             send self to gy
         }
@@ -43,9 +44,9 @@ card "Nekroz of Sophia" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 4
-        code: 1102
+        effect_type: Single + Trigger
+        category: Banish
+        code: SpecialSummonSuccess
         on_resolve {
             banish (1+, spell, either_player controls, gy)
         }

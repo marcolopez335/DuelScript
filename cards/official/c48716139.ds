@@ -1,3 +1,4 @@
+// 草薙剣
 // Sword of Kusanagi
 // Transpiled from c48716139.lua
 
@@ -6,7 +7,7 @@ card "Sword of Kusanagi" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 203
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
@@ -14,9 +15,9 @@ card "Sword of Kusanagi" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 8
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: ToHand
+        code: ChainEnd
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
             reveal (1+, card, opponent controls)
@@ -24,9 +25,9 @@ card "Sword of Kusanagi" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

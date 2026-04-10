@@ -1,3 +1,4 @@
+// 炎の剣舞
 // Flame Swordsdance
 // Transpiled from c8080257.lua
 
@@ -6,9 +7,9 @@ card "Flame Swordsdance" {
     type: Normal Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 4608
-        code: 1102
+        effect_type: Activate
+        category: SpecialSummon + DiceRoll
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy
@@ -17,10 +18,10 @@ card "Flame Swordsdance" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 16
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: Graveyard
         count_limit: (1, 8080257)
         cost {
             banish self

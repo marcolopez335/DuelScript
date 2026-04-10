@@ -1,3 +1,4 @@
+// Ｎｏｕｖｅｌｌｅｚ Ａｕｂｅｒｇｅ 『À Ｔａｂｌｅ』
 // Nouvelles Restaurant 'At Table'
 // Transpiled from c15388353.lua
 
@@ -6,9 +7,9 @@ card "Nouvelles Restaurant 'At Table'" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 131080
-        code: 1002
+        effect_type: Activate
+        category: ToHand + Search
+        code: FreeChain
         count_limit: (1, 15388353)
         on_resolve {
             add_to_hand (1+, card, you controls) from gy
@@ -17,9 +18,9 @@ card "Nouvelles Restaurant 'At Table'" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 65536
-        range: 256
+        effect_type: Ignition
+        category: Draw
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             draw 1
@@ -27,11 +28,11 @@ card "Nouvelles Restaurant 'At Table'" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 65552
+        effect_type: Field + Trigger
+        category: ToDeck + Draw
         code: 4608
         property: 16
-        range: 256
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, card, you controls) to deck shuffle

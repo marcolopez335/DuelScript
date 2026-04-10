@@ -1,3 +1,4 @@
+// 滅亡龍 ヴェイドス
 // Veidos the Eruption Dragon of Extinction
 // Transpiled from c78783557.lua
 
@@ -15,11 +16,11 @@ card "Veidos the Eruption Dragon of Extinction" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 131593
-        code: 1002
+        effect_type: QuickEffect
+        category: Destroy + ToHand + SpecialSummon + Search
+        code: FreeChain
         property: 16
-        range: 2
+        range: Hand
         count_limit: (1, 78783557)
         on_resolve {
             special_summon (1, monster) from gy
@@ -30,9 +31,9 @@ card "Veidos the Eruption Dragon of Extinction" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 1
-        code: 1014
+        effect_type: Single + Trigger
+        category: Destroy
+        code: ChainEnd
         property: 65536
         count_limit: (1, 0)
         on_resolve {

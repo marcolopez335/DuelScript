@@ -1,3 +1,4 @@
+// トリシューラの影霊衣
 // Nekroz of Trishula
 // Transpiled from c52068432.lua
 
@@ -20,7 +21,7 @@ card "Nekroz of Trishula" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -28,11 +29,11 @@ card "Nekroz of Trishula" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 268435456
-        code: 1027
+        effect_type: QuickEffect
+        category: Negate
+        code: Chaining
         property: 49152
-        range: 2
+        range: Hand
         count_limit: (1, 52068432)
         cost {
             discard (1, card, you controls)
@@ -44,9 +45,9 @@ card "Nekroz of Trishula" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 4
-        code: 1102
+        effect_type: Single + Trigger
+        category: Banish
+        code: SpecialSummonSuccess
         count_limit: (1, 0)
         on_resolve {
             banish (1+, card, opponent controls, hand)

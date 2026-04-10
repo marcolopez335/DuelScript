@@ -1,3 +1,4 @@
+// 四天の龍 クリアウィング・シンクロ・ドラゴン
 // Clear Wing Synchro Dragon of the Four Heavenly Dragons
 // Transpiled from c54603525.lua
 
@@ -21,9 +22,9 @@ card "Clear Wing Synchro Dragon of the Four Heavenly Dragons" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 2097153
-        code: 1102
+        effect_type: Single + Trigger
+        category: Destroy + SynchroSummon
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -32,10 +33,10 @@ card "Clear Wing Synchro Dragon of the Four Heavenly Dragons" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 16896
-        code: 1027
-        range: 4
+        effect_type: QuickEffect
+        category: SpecialSummon + Disable
+        code: Chaining
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

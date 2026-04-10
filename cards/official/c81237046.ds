@@ -1,3 +1,4 @@
+// 糾罪巧－Ａｒｃｈａη.ＴＡＩＬ
 // Enneacraft - Archa.TAIL
 // Transpiled from c81237046.lua
 
@@ -16,19 +17,19 @@ card "Enneacraft - Archa.TAIL" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1001
-        range: 512
+        range: PendulumZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 1
+        effect_type: Field + Trigger
+        category: Destroy
         code: 4224
         property: 16
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, you controls, hand)
@@ -36,9 +37,9 @@ card "Enneacraft - Archa.TAIL" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         cost {
             reveal self
         }
@@ -48,10 +49,10 @@ card "Enneacraft - Archa.TAIL" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        code: 1027
+        effect_type: QuickEffect
+        code: Chaining
         property: 256
-        range: 4
+        range: MonsterZone
         on_resolve {
             set_flag "tracked" on self
             register_effect on self {
@@ -62,7 +63,7 @@ card "Enneacraft - Archa.TAIL" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1001
         property: 1024
         on_resolve {
@@ -70,31 +71,31 @@ card "Enneacraft - Archa.TAIL" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 2050
-        code: 1014
-        range: 4
+        effect_type: Field + Continuous
+        code: ChainEnd
+        range: MonsterZone
         on_resolve {
             deal_damage to opponent: 900
         }
     }
 
     raw_effect "Effect 7" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1022
-        range: 512
+        range: PendulumZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 8" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1022
         on_resolve {
         }
     }
 
     raw_effect "Effect 9" {
-        effect_type: 2
+        effect_type: Field
         code: 427
         property: 67635200
         on_resolve {
@@ -102,7 +103,7 @@ card "Enneacraft - Archa.TAIL" {
     }
 
     raw_effect "Effect 10" {
-        effect_type: 2
+        effect_type: Field
         code: 41
         property: 256
         on_resolve {

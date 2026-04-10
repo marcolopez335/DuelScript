@@ -1,3 +1,4 @@
+// 天極輝艦－熊斗竜巧
 // Ultimate Flagship Ursatron
 // Transpiled from c33250142.lua
 
@@ -20,7 +21,7 @@ card "Ultimate Flagship Ursatron" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -28,11 +29,11 @@ card "Ultimate Flagship Ursatron" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 131080
-        code: 1102
+        effect_type: Field + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -41,10 +42,10 @@ card "Ultimate Flagship Ursatron" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 8
+        effect_type: Ignition
+        category: ToHand
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck

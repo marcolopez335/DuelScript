@@ -1,3 +1,4 @@
+// 白棘鱏
 // White Stingray
 // Transpiled from c49930315.lua
 
@@ -11,10 +12,10 @@ card "White Stingray" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         count_limit: (1, 49930315)
         on_resolve {
             send (1+, card, you controls, hand) to gy
@@ -22,8 +23,8 @@ card "White Stingray" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        code: 1102
+        effect_type: Single + Trigger
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -31,7 +32,7 @@ card "White Stingray" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 115
         property: 1024
         on_resolve {

@@ -1,3 +1,4 @@
+// RR－トリビュート・レイニアス
 // Raidraptor - Tribute Lanius
 // Transpiled from c83236601.lua
 
@@ -11,9 +12,9 @@ card "Raidraptor - Tribute Lanius" {
     def: 400
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 32
-        range: 4
+        effect_type: Ignition
+        category: ToGrave
+        range: MonsterZone
         count_limit: (1, 83236601)
         on_resolve {
             send (1+, card, you controls, deck) to gy
@@ -21,7 +22,7 @@ card "Raidraptor - Tribute Lanius" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1139
         property: 1024
         on_resolve {
@@ -29,9 +30,9 @@ card "Raidraptor - Tribute Lanius" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 131072
-        range: 4
+        effect_type: Ignition
+        category: Search
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -44,16 +45,16 @@ card "Raidraptor - Tribute Lanius" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 1100
+        effect_type: Field + Continuous
+        code: SummonSuccess
         property: 1024
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2050
-        code: 1102
+        effect_type: Field + Continuous
+        code: SpecialSummonSuccess
         property: 1024
         on_resolve {
         }

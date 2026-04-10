@@ -1,3 +1,4 @@
+// 星界樹イルミスティル
 // Cosmic Tree Irmistil
 // Transpiled from c74139959.lua
 
@@ -20,9 +21,9 @@ card "Cosmic Tree Irmistil" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2050
-        code: 1102
-        range: 4
+        effect_type: Field + Continuous
+        code: SpecialSummonSuccess
+        range: MonsterZone
         on_resolve {
             gain_lp: 1000
             register_effect on self {
@@ -33,11 +34,11 @@ card "Cosmic Tree Irmistil" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 2097152
-        code: 1002
+        effect_type: QuickEffect
+        category: SynchroSummon
+        code: FreeChain
         property: 16384
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             pay_lp your_lp / 2
@@ -47,23 +48,23 @@ card "Cosmic Tree Irmistil" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1022
-        range: 4
+        range: MonsterZone
         on_resolve {
             gain_lp: 1000
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1022
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         on_resolve {
             modifier: atk + 0

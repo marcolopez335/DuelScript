@@ -1,3 +1,4 @@
+// 呪眼の眷属 バジリコック
 // Basiltrice, Familiar of the Evil Eye
 // Transpiled from c65351555.lua
 
@@ -11,10 +12,10 @@ card "Basiltrice, Familiar of the Evil Eye" {
     def: 2000
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 18
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: Hand + Graveyard
         count_limit: (1, 65351555)
         on_resolve {
             special_summon (1, monster) from gy
@@ -22,10 +23,10 @@ card "Basiltrice, Familiar of the Evil Eye" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, link monster) from extra_deck
@@ -37,7 +38,7 @@ card "Basiltrice, Familiar of the Evil Eye" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 60
         property: 67109888
         on_resolve {
@@ -45,7 +46,7 @@ card "Basiltrice, Familiar of the Evil Eye" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1105
         property: 1024
         on_resolve {
@@ -53,7 +54,7 @@ card "Basiltrice, Familiar of the Evil Eye" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2
+        effect_type: Field
         code: 358
         property: 2304
         on_resolve {
@@ -61,7 +62,7 @@ card "Basiltrice, Familiar of the Evil Eye" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 2
+        effect_type: Field
         code: 115
         on_resolve {
         }

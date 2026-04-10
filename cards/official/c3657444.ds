@@ -1,3 +1,4 @@
+// サイバー・ヴァリー
 // Cyber Valley
 // Transpiled from c3657444.lua
 
@@ -11,9 +12,9 @@ card "Cyber Valley" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 65536
-        code: 1131
+        effect_type: Single + Trigger
+        category: Draw
+        code: BattleTarget
         cost {
             banish self
         }
@@ -23,10 +24,10 @@ card "Cyber Valley" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 65540
+        effect_type: Ignition
+        category: Banish + Draw
         property: 16
-        range: 4
+        range: MonsterZone
         on_resolve {
             banish (1+, card, you controls, hand)
             draw 2
@@ -34,10 +35,10 @@ card "Cyber Valley" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 20
+        effect_type: Ignition
+        category: Banish + ToDeck
         property: 16
-        range: 4
+        range: MonsterZone
         on_resolve {
             banish (1+, card, you controls, hand)
             return (1+, card, you controls) to deck shuffle

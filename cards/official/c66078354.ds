@@ -1,3 +1,4 @@
+// 遺跡の魔鉱戦士
 // Magicore Warrior of the Relics
 // Transpiled from c66078354.lua
 
@@ -11,7 +12,7 @@ card "Magicore Warrior of the Relics" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 85
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -19,9 +20,9 @@ card "Magicore Warrior of the Relics" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 66078354)
         on_resolve {
             special_summon (1, monster) from gy
@@ -29,9 +30,9 @@ card "Magicore Warrior of the Relics" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
+        effect_type: Field + Trigger
         code: 4224
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             set (1, card)
@@ -39,7 +40,7 @@ card "Magicore Warrior of the Relics" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1138
         on_resolve {
             set_flag "tracked" on self

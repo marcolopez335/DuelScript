@@ -1,3 +1,4 @@
+// オレイカルコスの結界
 // The Seal of Orichalcos
 // Transpiled from c48179391.lua
 
@@ -6,9 +7,9 @@ card "The Seal of Orichalcos" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 1
-        code: 1002
+        effect_type: Activate
+        category: Destroy
+        code: FreeChain
         count_limit: (1, 48179391)
         on_resolve {
             destroy (1+, monster, you controls)
@@ -16,38 +17,38 @@ card "The Seal of Orichalcos" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 2048
-        range: 256
+        range: FieldZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 256
+        range: FieldZone
         on_resolve {
             modifier: atk + 500
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 47
         property: 131072
-        range: 256
+        range: FieldZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2
+        effect_type: Field
         code: 332
-        range: 256
+        range: FieldZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }

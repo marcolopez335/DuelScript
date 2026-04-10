@@ -1,3 +1,4 @@
+// カオス・ネフティス
 // Chaos Nephthys
 // Transpiled from c24226942.lua
 
@@ -15,7 +16,7 @@ card "Chaos Nephthys" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -23,11 +24,11 @@ card "Chaos Nephthys" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1029
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 65536
-        range: 18
+        range: Hand + Graveyard
         count_limit: (1, 24226942)
         cost {
             banish self
@@ -38,9 +39,9 @@ card "Chaos Nephthys" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 4
-        code: 1102
+        effect_type: Single + Trigger
+        category: Banish
+        code: SpecialSummonSuccess
         property: 65552
         on_resolve {
             banish (1+, monster, you controls, gy)

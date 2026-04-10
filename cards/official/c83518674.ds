@@ -1,3 +1,4 @@
+// 未み界かい域いきのオゴポゴ
 // Danger! Ogopogo!
 // Transpiled from c83518674.lua
 
@@ -15,10 +16,10 @@ card "Danger! Ogopogo!" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 66176
-        code: 1002
-        range: 2
+        effect_type: Ignition
+        category: DefChange + SpecialSummon + Draw
+        code: FreeChain
+        range: Hand
         on_resolve {
             shuffle_hand
             send (1+, card, you controls, deck) to gy
@@ -28,9 +29,9 @@ card "Danger! Ogopogo!" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 32
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: ChainEnd
         property: 65536
         count_limit: (1, 83518674)
         on_resolve {
@@ -39,9 +40,9 @@ card "Danger! Ogopogo!" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 32
-        code: 1011
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: TurnEnd
         property: 65536
         count_limit: (1, 83518674)
         on_resolve {

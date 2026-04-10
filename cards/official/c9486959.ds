@@ -1,3 +1,4 @@
+// 神隠し鬼火丸
 // Onibimaru Soul Sweeper
 // Transpiled from c9486959.lua
 
@@ -21,10 +22,10 @@ card "Onibimaru Soul Sweeper" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 4
+        effect_type: Ignition
+        category: Banish
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self
@@ -39,9 +40,9 @@ card "Onibimaru Soul Sweeper" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 16
-        code: 1029
+        effect_type: Single + Trigger
+        category: ToDeck
+        code: Destroyed
         property: 81936
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
@@ -49,7 +50,7 @@ card "Onibimaru Soul Sweeper" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1019
         property: 1024
         on_resolve {

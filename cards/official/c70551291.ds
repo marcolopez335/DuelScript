@@ -1,3 +1,4 @@
+// 伝説の剣闘士 カオス・ソルジャー
 // Black Luster Soldier - Legendary Swordsman
 // Transpiled from c70551291.lua
 
@@ -20,7 +21,7 @@ card "Black Luster Soldier - Legendary Swordsman" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -28,10 +29,10 @@ card "Black Luster Soldier - Legendary Swordsman" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 131080
+        effect_type: Field + Trigger
+        category: ToHand + Search
         code: 1113
-        range: 2
+        range: Hand
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -43,25 +44,25 @@ card "Black Luster Soldier - Legendary Swordsman" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 6
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 251
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 129
-        category: 16
+        effect_type: Single + Trigger
+        category: ToDeck
         code: 1139
         on_resolve {
             return (1+, card, opponent controls) to deck shuffle
@@ -69,7 +70,7 @@ card "Black Luster Soldier - Legendary Swordsman" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 2
+        effect_type: Field
         code: 271
         property: 2048
         on_resolve {

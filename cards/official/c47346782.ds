@@ -1,3 +1,4 @@
+// 寝ガエル
 // Centerfrog
 // Transpiled from c47346782.lua
 
@@ -11,7 +12,7 @@ card "Centerfrog" {
     def: 2000
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 248
         property: 263168
         on_resolve {
@@ -19,28 +20,28 @@ card "Centerfrog" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 4096
-        code: 1100
+        effect_type: Single + MandatoryTrigger
+        category: DiceRoll
+        code: SummonSuccess
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 4096
-        code: 1101
+        effect_type: Single + MandatoryTrigger
+        category: DiceRoll
+        code: FlipSummonSuccess
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 8192
+        effect_type: Ignition
+        category: Summon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             take_control of (1, monster, opponent controls)

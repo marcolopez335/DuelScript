@@ -1,3 +1,4 @@
+// 巨神竜の遺跡
 // Ruins of the Divine Dragon Lords
 // Transpiled from c69868555.lua
 
@@ -6,17 +7,17 @@ card "Ruins of the Divine Dragon Lords" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 16384
-        code: 1102
-        range: 8
+        effect_type: Field + MandatoryTrigger
+        category: Disable
+        code: SpecialSummonSuccess
+        range: SpellTrapZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -34,9 +35,9 @@ card "Ruins of the Divine Dragon Lords" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 1536
-        range: 8
+        effect_type: Ignition
+        category: SpecialSummon + Token
+        range: SpellTrapZone
         count_limit: (1, 0)
         cost {
             send self to gy
@@ -48,9 +49,9 @@ card "Ruins of the Divine Dragon Lords" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 8
-        range: 16
+        effect_type: Ignition
+        category: ToHand
+        range: Graveyard
         cost {
             send self to gy
         }

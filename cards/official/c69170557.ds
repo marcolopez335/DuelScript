@@ -1,3 +1,4 @@
+// CNo.40 ギミック・パペット－デビルズ・ストリングス
 // Number C40: Gimmick Puppet of Dark Strings
 // Transpiled from c69170557.lua
 
@@ -21,9 +22,9 @@ card "Number C40: Gimmick Puppet of Dark Strings" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 589825
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: Destroy + Draw + Damage
+        code: SpecialSummonSuccess
         on_resolve {
             destroy (1+, monster, either_player controls)
             draw 1
@@ -32,9 +33,9 @@ card "Number C40: Gimmick Puppet of Dark Strings" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 8388608
-        range: 4
+        effect_type: Ignition
+        category: LinkSummon
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self

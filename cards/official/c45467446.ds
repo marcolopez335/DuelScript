@@ -1,3 +1,4 @@
+// 白き霊龍
 // Dragon Spirit of White
 // Transpiled from c45467446.lua
 
@@ -15,27 +16,27 @@ card "Dragon Spirit of White" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 115
         property: 131072
-        range: 18
+        range: Hand + Graveyard
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 116
         property: 131072
-        range: 18
+        range: Hand + Graveyard
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 4
-        code: 1100
+        effect_type: Single + Trigger
+        category: Banish
+        code: SummonSuccess
         property: 16
         on_resolve {
             banish (1+, spell, you controls, hand)
@@ -43,9 +44,9 @@ card "Dragon Spirit of White" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 4
-        code: 1102
+        effect_type: Single + Trigger
+        category: Banish
+        code: SpecialSummonSuccess
         property: 16
         on_resolve {
             banish (1+, spell, you controls, hand)
@@ -53,10 +54,10 @@ card "Dragon Spirit of White" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: MonsterZone
         cost {
             tribute self
         }

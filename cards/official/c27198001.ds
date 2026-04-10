@@ -1,3 +1,4 @@
+// 九尾の狐
 // Nine-Tailed Fox
 // Transpiled from c27198001.lua
 
@@ -15,9 +16,9 @@ card "Nine-Tailed Fox" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 18
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand + Graveyard
         count_limit: (1, 27198001)
         cost {
             tribute self
@@ -28,7 +29,7 @@ card "Nine-Tailed Fox" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 203
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
@@ -36,9 +37,9 @@ card "Nine-Tailed Fox" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 1536
-        code: 1014
+        effect_type: Single + Trigger
+        category: SpecialSummon + Token
+        code: ChainEnd
         property: 81920
         on_resolve {
             create_token { atk: 0 def: 0 }

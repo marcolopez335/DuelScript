@@ -1,3 +1,4 @@
+// 海晶乙女 マーブルド・ロック
 // Marincess Marbled Rock
 // Transpiled from c5524387.lua
 
@@ -20,10 +21,10 @@ card "Marincess Marbled Rock" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 8
+        effect_type: Ignition
+        category: ToHand
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 5524387)
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand
@@ -31,9 +32,9 @@ card "Marincess Marbled Rock" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        code: 1130
-        range: 4
+        effect_type: Field + Trigger
+        code: AttackAnnounce
+        range: MonsterZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

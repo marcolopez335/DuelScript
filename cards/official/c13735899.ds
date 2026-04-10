@@ -1,3 +1,4 @@
+// ミュステリオンの竜冠
 // Mysterion the Dragon Crown
 // Transpiled from c13735899.lua
 
@@ -20,7 +21,7 @@ card "Mysterion the Dragon Crown" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 235
         property: 263168
         on_resolve {
@@ -28,20 +29,20 @@ card "Mysterion the Dragon Crown" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
+        effect_type: Single + Trigger
         code: 282171355
         property: 65552
-        range: 4
+        range: MonsterZone
         count_limit: (1, 13735899)
         on_resolve {
             banish (1+, monster, either_player controls)
@@ -49,10 +50,10 @@ card "Mysterion the Dragon Crown" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 1102
+        effect_type: Field + Continuous
+        code: SpecialSummonSuccess
         property: 1024
-        range: 4
+        range: MonsterZone
         on_resolve {
             emit_event "custom"
         }

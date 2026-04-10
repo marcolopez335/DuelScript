@@ -1,3 +1,4 @@
+// 一点着地
 // Pinpoint Landing
 // Transpiled from c17322533.lua
 
@@ -6,18 +7,18 @@ card "Pinpoint Landing" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 65536
-        code: 1102
+        effect_type: Field + Trigger
+        category: Draw
+        code: SpecialSummonSuccess
         property: 67584
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 17322533)
         on_resolve {
             draw 1
@@ -25,9 +26,9 @@ card "Pinpoint Landing" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 4608
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, either_player controls) to gy

@@ -1,3 +1,4 @@
+// 虚竜魔王アモルファクターＰ
 // Amorphactor Pain, the Imagination Dracoverlord
 // Transpiled from c98287529.lua
 
@@ -20,8 +21,8 @@ card "Amorphactor Pain, the Imagination Dracoverlord" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2049
-        code: 1102
+        effect_type: Single + Continuous
+        code: SpecialSummonSuccess
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -31,18 +32,18 @@ card "Amorphactor Pain, the Imagination Dracoverlord" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 2
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: ChainEnd
         property: 65536
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck

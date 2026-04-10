@@ -1,3 +1,4 @@
+// クリアウィング・ファスト・ドラゴン
 // Clear Wing Fast Dragon
 // Transpiled from c90036274.lua
 
@@ -22,9 +23,9 @@ card "Clear Wing Fast Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 512
+        effect_type: Ignition
+        category: SpecialSummon
+        range: PendulumZone
         count_limit: (1, 90036274)
         cost {
             send self to gy
@@ -35,11 +36,11 @@ card "Clear Wing Fast Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 2113536
-        code: 1002
+        effect_type: QuickEffect
+        category: Disable + SynchroSummon
+        code: FreeChain
         property: 16400
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -59,8 +60,8 @@ card "Clear Wing Fast Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        code: 1029
+        effect_type: Single + Trigger
+        code: Destroyed
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy

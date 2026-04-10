@@ -1,3 +1,4 @@
+// 紅恋の麗傑－ブラダマンテ
 // Courageous Crimson Chevalier Bradamante
 // Transpiled from c91479482.lua
 
@@ -11,10 +12,10 @@ card "Courageous Crimson Chevalier Bradamante" {
     def: 200
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 262144
+        effect_type: Ignition
+        category: EquipAction
         property: 16
-        range: 2
+        range: Hand
         count_limit: (1, 0)
         cost {
             discard (1, card, you controls)
@@ -25,9 +26,9 @@ card "Courageous Crimson Chevalier Bradamante" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 262656
-        code: 1140
+        effect_type: Single + Trigger
+        category: SpecialSummon + EquipAction
+        code: BattleDamage
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -40,7 +41,7 @@ card "Courageous Crimson Chevalier Bradamante" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1019
         property: 1024
         on_resolve {

@@ -1,3 +1,4 @@
+// ワイトプリンセス
 // Wightprincess
 // Transpiled from c90243945.lua
 
@@ -11,18 +12,18 @@ card "Wightprincess" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 114
         property: 131072
-        range: 16
+        range: Graveyard
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 32
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: SummonSuccess
         property: 65536
         on_resolve {
             send (1+, monster, either_player controls) to gy
@@ -30,9 +31,9 @@ card "Wightprincess" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 32
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             send (1+, monster, either_player controls) to gy
@@ -40,11 +41,11 @@ card "Wightprincess" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        category: 6291456
-        code: 1002
+        effect_type: QuickEffect
+        category: SynchroSummon + XyzSummon
+        code: FreeChain
         property: 16384
-        range: 6
+        range: Hand + MonsterZone
         cost {
             send self to gy
         }

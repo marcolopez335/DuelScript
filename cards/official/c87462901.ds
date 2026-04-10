@@ -1,3 +1,4 @@
+// 幻蝋館の使者
 // Emissary from the House of Wax
 // Transpiled from c87462901.lua
 
@@ -11,10 +12,10 @@ card "Emissary from the House of Wax" {
     def: 1800
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
-        code: 1130
-        range: 2
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: AttackAnnounce
+        range: Hand
         count_limit: (1, 87462901)
         on_resolve {
             special_summon (1, monster) from gy
@@ -22,19 +23,19 @@ card "Emissary from the House of Wax" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 42
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 16384
+        effect_type: Field + Trigger
+        category: Disable
         code: 4224
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -62,7 +63,7 @@ card "Emissary from the House of Wax" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 14
         property: 1024
         on_resolve {
@@ -71,7 +72,7 @@ card "Emissary from the House of Wax" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 248
         property: 1024
         on_resolve {
@@ -79,7 +80,7 @@ card "Emissary from the House of Wax" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 1
+        effect_type: Single
         code: 2
         property: 1024
         on_resolve {
@@ -88,7 +89,7 @@ card "Emissary from the House of Wax" {
     }
 
     raw_effect "Effect 7" {
-        effect_type: 1
+        effect_type: Single
         code: 8
         property: 1024
         on_resolve {
@@ -97,7 +98,7 @@ card "Emissary from the House of Wax" {
     }
 
     raw_effect "Effect 8" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 4104
         count_limit: (1, 0)
         on_resolve {

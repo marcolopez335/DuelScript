@@ -1,3 +1,4 @@
+// 機関連結
 // Train Connection
 // Transpiled from c60879050.lua
 
@@ -6,7 +7,7 @@ card "Train Connection" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 101
         on_resolve {
             modifier: atk + 0
@@ -14,7 +15,7 @@ card "Train Connection" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 4
+        effect_type: Equip
         code: 203
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
@@ -22,18 +23,18 @@ card "Train Connection" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 85
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

@@ -1,3 +1,4 @@
+// アルティメットサイキッカー
 // Ultimate Axon Kicker
 // Transpiled from c40101111.lua
 
@@ -20,7 +21,7 @@ card "Ultimate Axon Kicker" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 203
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
@@ -28,18 +29,18 @@ card "Ultimate Axon Kicker" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 1048576
+        effect_type: Single + MandatoryTrigger
+        category: Recover
         code: 1139
         on_resolve {
             gain_lp: 1000
@@ -47,7 +48,7 @@ card "Ultimate Axon Kicker" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {

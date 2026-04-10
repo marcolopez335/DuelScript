@@ -1,3 +1,4 @@
+// グローウィング・ボウガン
 // Glowing Crossbow
 // Transpiled from c53860621.lua
 
@@ -6,9 +7,9 @@ card "Glowing Crossbow" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         property: 16
         on_resolve {
             equip (1, card) to (1, monster)
@@ -16,7 +17,7 @@ card "Glowing Crossbow" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         property: 1024
         on_resolve {
@@ -24,7 +25,7 @@ card "Glowing Crossbow" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 500
@@ -32,7 +33,7 @@ card "Glowing Crossbow" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 4
+        effect_type: Equip
         code: 104
         on_resolve {
             modifier: def + 500
@@ -40,10 +41,10 @@ card "Glowing Crossbow" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 130
-        category: 128
+        effect_type: Field + Trigger
+        category: DefChange
         code: 1139
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 53860621)
         on_resolve {
             send (1+, card, you controls, hand) to gy
@@ -51,9 +52,9 @@ card "Glowing Crossbow" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 129
-        category: 8
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand
+        code: ChainEnd
         property: 65536
         count_limit: (1, 0)
         on_resolve {

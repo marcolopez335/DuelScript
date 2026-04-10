@@ -1,3 +1,4 @@
+// 幻銃士
 // Phantom Skyblaster
 // Transpiled from c12958919.lua
 
@@ -11,9 +12,9 @@ card "Phantom Skyblaster" {
     def: 800
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 1536
-        code: 1100
+        effect_type: Single + Trigger
+        category: SpecialSummon + Token
+        code: SummonSuccess
         on_resolve {
             create_token { atk: 0 def: 0 }
             special_summon (1, monster) from gy
@@ -21,9 +22,9 @@ card "Phantom Skyblaster" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 1536
-        code: 1101
+        effect_type: Single + Trigger
+        category: SpecialSummon + Token
+        code: FlipSummonSuccess
         on_resolve {
             create_token { atk: 0 def: 0 }
             special_summon (1, monster) from gy
@@ -31,11 +32,11 @@ card "Phantom Skyblaster" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 524288
+        effect_type: Field + Trigger
+        category: Damage
         code: 4098
         property: 2048
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             deal_damage to opponent: 1000
@@ -43,8 +44,8 @@ card "Phantom Skyblaster" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 1130
+        effect_type: Field + Continuous
+        code: AttackAnnounce
         on_resolve {
             set_flag "tracked" on self
         }

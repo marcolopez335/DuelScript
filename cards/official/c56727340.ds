@@ -1,3 +1,4 @@
+// 超重武者装留ガイア・ブースター
 // Superheavy Samurai Soulgaia Booster
 // Transpiled from c56727340.lua
 
@@ -11,10 +12,10 @@ card "Superheavy Samurai Soulgaia Booster" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 262144
+        effect_type: Ignition
+        category: EquipAction
         property: 16
-        range: 6
+        range: Hand + MonsterZone
         on_resolve {
             equip (1, card) to (1, monster)
             send (1+, spell, you controls, gy) to gy
@@ -22,9 +23,9 @@ card "Superheavy Samurai Soulgaia Booster" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 8
+        effect_type: Ignition
+        category: SpecialSummon
+        range: SpellTrapZone
         count_limit: (1, 56727340)
         on_resolve {
             special_summon (1, monster) from gy
@@ -32,7 +33,7 @@ card "Superheavy Samurai Soulgaia Booster" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         property: 1024
         on_resolve {
@@ -40,7 +41,7 @@ card "Superheavy Samurai Soulgaia Booster" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 4
+        effect_type: Equip
         code: 115
         on_resolve {
         }

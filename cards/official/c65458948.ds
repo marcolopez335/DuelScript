@@ -1,3 +1,4 @@
+// トゥーン・マーメイド
 // Toon Mermaid
 // Transpiled from c65458948.lua
 
@@ -15,25 +16,25 @@ card "Toon Mermaid" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1015
-        range: 4
+        range: MonsterZone
         on_resolve {
             destroy (1+, card, you controls)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 74
         on_resolve {
             register_effect on self { grant: direct_attack duration: until_end_of_turn }
@@ -41,7 +42,7 @@ card "Toon Mermaid" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 332
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -49,7 +50,7 @@ card "Toon Mermaid" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 73
         on_resolve {
             register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
@@ -57,8 +58,8 @@ card "Toon Mermaid" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 2049
-        code: 1102
+        effect_type: Single + Continuous
+        code: SpecialSummonSuccess
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -68,7 +69,7 @@ card "Toon Mermaid" {
     }
 
     raw_effect "Effect 7" {
-        effect_type: 1
+        effect_type: Single
         code: 96
         on_resolve {
         }

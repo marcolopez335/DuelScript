@@ -1,3 +1,4 @@
+// ＤＤＤＤ偉次元王アーク・クライシス
 // D/D/D/D Dimensional King Arc Crisis
 // Transpiled from c71398055.lua
 
@@ -21,8 +22,8 @@ card "D/D/D/D Dimensional King Arc Crisis" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2049
-        code: 1102
+        effect_type: Single + Continuous
+        code: SpecialSummonSuccess
         property: 1024
         on_resolve {
             register_effect on self {
@@ -33,10 +34,10 @@ card "D/D/D/D Dimensional King Arc Crisis" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 513
+        effect_type: Ignition
+        category: Destroy + SpecialSummon
         property: 16
-        range: 512
+        range: PendulumZone
         count_limit: (1, 71398055)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -47,9 +48,9 @@ card "D/D/D/D Dimensional King Arc Crisis" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 16384
-        code: 1102
+        effect_type: Single + Trigger
+        category: Disable
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -57,7 +58,7 @@ card "D/D/D/D Dimensional King Arc Crisis" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 193
         on_resolve {
             register_effect on self { grant: attack_all_opponent_monsters duration: until_end_of_turn }
@@ -65,8 +66,8 @@ card "D/D/D/D Dimensional King Arc Crisis" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 129
-        code: 1029
+        effect_type: Single + Trigger
+        code: Destroyed
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -75,7 +76,7 @@ card "D/D/D/D Dimensional King Arc Crisis" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 2048
         on_resolve {

@@ -1,3 +1,4 @@
+// ヴァンパイア・グレイス
 // Vampire Grace
 // Transpiled from c40607210.lua
 
@@ -15,10 +16,10 @@ card "Vampire Grace" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
-        code: 1102
-        range: 16
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
+        range: Graveyard
         count_limit: (1, 40607210)
         cost {
             pay_lp 2000
@@ -29,9 +30,9 @@ card "Vampire Grace" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 32
-        range: 4
+        effect_type: Ignition
+        category: ToGrave
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, opponent controls, deck) to gy

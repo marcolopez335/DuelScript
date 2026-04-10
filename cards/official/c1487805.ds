@@ -1,3 +1,4 @@
+// 宇宙鋏ゼロオル
 // Cosmic Slicer Zer'oll
 // Transpiled from c1487805.lua
 
@@ -20,9 +21,9 @@ card "Cosmic Slicer Zer'oll" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 1487805)
         on_resolve {
@@ -32,9 +33,9 @@ card "Cosmic Slicer Zer'oll" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 256
-        range: 4
+        effect_type: Ignition
+        category: Counter
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             normal_summon (1, monster, you controls)
@@ -42,17 +43,17 @@ card "Cosmic Slicer Zer'oll" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 140
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 7
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }

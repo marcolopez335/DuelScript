@@ -1,3 +1,4 @@
+// DDD死謳王バイス・レイクエム
 // D/D/D Vice King Requiem
 // Transpiled from c25857977.lua
 
@@ -16,10 +17,10 @@ card "D/D/D Vice King Requiem" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 513
+        effect_type: Ignition
+        category: Destroy + SpecialSummon
         property: 16
-        range: 512
+        range: PendulumZone
         count_limit: (1, 25857977)
         on_resolve {
             destroy (1+, card, you controls)
@@ -28,17 +29,17 @@ card "D/D/D Vice King Requiem" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1108
         property: 8388608
         count_limit: (1, 0)

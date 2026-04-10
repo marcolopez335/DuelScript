@@ -1,3 +1,4 @@
+// 不知火流 伝承の陣
 // Shiranui Style Solemnity
 // Transpiled from c40364916.lua
 
@@ -6,24 +7,24 @@ card "Shiranui Style Solemnity" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 114
         property: 131072
-        range: 8
+        range: SpellTrapZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        range: 8
+        effect_type: Ignition
+        range: SpellTrapZone
         count_limit: (1, 0)
         cost {
             banish self
@@ -41,10 +42,10 @@ card "Shiranui Style Solemnity" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 36
+        effect_type: Ignition
+        category: Banish + ToGrave
         property: 16
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, card, you controls, gy)

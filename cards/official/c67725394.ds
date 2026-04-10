@@ -1,3 +1,4 @@
+// らくがきじゅう－てらの
 // Doodle Beast - Tyranno
 // Transpiled from c67725394.lua
 
@@ -15,10 +16,10 @@ card "Doodle Beast - Tyranno" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 256
-        code: 1002
-        range: 2
+        effect_type: QuickEffect
+        category: Counter
+        code: FreeChain
+        range: Hand
         count_limit: (1, 67725394)
         on_resolve {
             normal_summon (1, monster, you controls)
@@ -26,9 +27,9 @@ card "Doodle Beast - Tyranno" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 2097153
-        code: 1100
+        effect_type: Single + Trigger
+        category: Destroy + SynchroSummon
+        code: SummonSuccess
         property: 65536
         on_resolve {
             destroy (1+, monster, either_player controls)
@@ -36,14 +37,14 @@ card "Doodle Beast - Tyranno" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 251
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 20
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -51,7 +52,7 @@ card "Doodle Beast - Tyranno" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 23
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }

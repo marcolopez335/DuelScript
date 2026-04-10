@@ -1,3 +1,4 @@
+// ラーの翼神竜－不死鳥
 // The Winged Dragon of Ra - Immortal Phoenix
 // Transpiled from c10000090.lua
 
@@ -15,7 +16,7 @@ card "The Winged Dragon of Ra - Immortal Phoenix" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -23,29 +24,29 @@ card "The Winged Dragon of Ra - Immortal Phoenix" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 512
-        code: 1014
-        range: 16
+        effect_type: Field + MandatoryTrigger
+        category: SpecialSummon
+        code: ChainEnd
+        range: Graveyard
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 1
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 32
-        range: 4
+        effect_type: Ignition
+        category: ToGrave
+        range: MonsterZone
         cost {
             pay_lp 1000
         }
@@ -55,10 +56,10 @@ card "The Winged Dragon of Ra - Immortal Phoenix" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 514
-        category: 544
+        effect_type: Field + MandatoryTrigger
+        category: ToGrave + SpecialSummon
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, monster, either_player controls) to gy

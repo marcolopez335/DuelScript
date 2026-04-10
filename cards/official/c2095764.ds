@@ -1,3 +1,4 @@
+// 水竜星－ビシキ
 // Bixi, Water of the Yang Zing
 // Transpiled from c2095764.lua
 
@@ -11,9 +12,9 @@ card "Bixi, Water of the Yang Zing" {
     def: 2000
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 512
-        code: 1014
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 16384
         count_limit: (1, 2095764)
         on_resolve {
@@ -22,10 +23,10 @@ card "Bixi, Water of the Yang Zing" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             synchro_summon (1, synchro monster) using (1+, monster, you controls)
@@ -33,7 +34,7 @@ card "Bixi, Water of the Yang Zing" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1108
         property: 128
         on_resolve {

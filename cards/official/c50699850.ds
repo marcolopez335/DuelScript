@@ -1,3 +1,4 @@
+// 悪魔嬢ロリス
 // Loris, Lady of Lament
 // Transpiled from c50699850.lua
 
@@ -11,10 +12,10 @@ card "Loris, Lady of Lament" {
     def: 500
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 65552
+        effect_type: Ignition
+        category: ToDeck + Draw
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 50699850)
         on_resolve {
             return (1+, monster, you controls) to deck shuffle
@@ -24,11 +25,11 @@ card "Loris, Lady of Lament" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
+        effect_type: Field + Trigger
         category: 67108864
-        code: 1017
+        code: Release
         property: 65552
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             set (1, card)
@@ -36,11 +37,11 @@ card "Loris, Lady of Lament" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
+        effect_type: Field + Trigger
         category: 67108864
-        code: 1014
+        code: ChainEnd
         property: 65552
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             set (1, card)

@@ -1,3 +1,4 @@
+// 珠の御巫 フゥリ
 // Hu-Li the Jewel Mikanko
 // Transpiled from c6327734.lua
 
@@ -11,7 +12,7 @@ card "Hu-Li the Jewel Mikanko" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 201
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -19,7 +20,7 @@ card "Hu-Li the Jewel Mikanko" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -27,25 +28,25 @@ card "Hu-Li the Jewel Mikanko" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 202
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 71
         property: 128
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 129
-        category: 131080
+        effect_type: Single + Trigger
+        category: ToHand + Search
         code: 1121
         property: 65536
         count_limit: (1, 6327734)

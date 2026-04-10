@@ -1,3 +1,4 @@
+// セフィラの聖選士
 // Chosen of Zefra
 // Transpiled from c98076754.lua
 
@@ -6,47 +7,47 @@ card "Chosen of Zefra" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         property: 16384
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 41
         property: 256
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 71
         property: 384
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 256
-        category: 16
-        code: 1002
-        range: 8
+        effect_type: QuickEffect
+        category: ToDeck
+        code: FreeChain
+        range: SpellTrapZone
         cost {
             send self to gy
         }

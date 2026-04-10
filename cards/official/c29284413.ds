@@ -1,3 +1,4 @@
+// ジョーカーズ・ナイト
 // Joker's Knight
 // Transpiled from c29284413.lua
 
@@ -15,9 +16,9 @@ card "Joker's Knight" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 29284413)
         cost {
             send self to gy
@@ -28,11 +29,11 @@ card "Joker's Knight" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 24
+        effect_type: Field + Trigger
+        category: ToHand + ToDeck
         code: 4608
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to deck shuffle

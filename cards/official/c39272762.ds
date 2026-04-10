@@ -1,3 +1,4 @@
+// 超銀河眼の光子龍
 // Neo Galaxy-Eyes Photon Dragon
 // Transpiled from c39272762.lua
 
@@ -21,8 +22,8 @@ card "Neo Galaxy-Eyes Photon Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        code: SpecialSummonSuccess
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -40,16 +41,16 @@ card "Neo Galaxy-Eyes Photon Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 251
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 2097152
-        range: 4
+        effect_type: Ignition
+        category: SynchroSummon
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self

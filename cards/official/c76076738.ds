@@ -1,3 +1,4 @@
+// 闇竜族の爪
 // Dragon Nails
 // Transpiled from c76076738.lua
 
@@ -6,7 +7,7 @@ card "Dragon Nails" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 600
@@ -14,7 +15,7 @@ card "Dragon Nails" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 4
+        effect_type: Equip
         code: 41
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -22,9 +23,9 @@ card "Dragon Nails" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 262656
-        code: 1014
+        effect_type: Single + Trigger
+        category: SpecialSummon + EquipAction
+        code: ChainEnd
         property: 65536
         count_limit: (1, 76076738)
         on_resolve {
@@ -33,9 +34,9 @@ card "Dragon Nails" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

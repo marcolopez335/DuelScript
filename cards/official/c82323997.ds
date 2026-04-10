@@ -1,3 +1,4 @@
+// スカーレッド・ノヴァ・ドラゴン／バスター
 // Red Nova Dragon/Assault Mode
 // Transpiled from c82323997.lua
 
@@ -16,28 +17,28 @@ card "Red Nova Dragon/Assault Mode" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 4
-        code: 1027
-        range: 4
+        effect_type: QuickEffect
+        category: Banish
+        code: Chaining
+        range: MonsterZone
         on_resolve {
             banish (1+, card, you controls, gy)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        code: 1130
-        range: 4
+        effect_type: QuickEffect
+        code: AttackAnnounce
+        range: MonsterZone
         on_resolve {
             negate attack
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy

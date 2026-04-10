@@ -1,3 +1,4 @@
+// ナチュル・ビーンズ
 // Naturia Beans
 // Transpiled from c44789585.lua
 
@@ -11,19 +12,19 @@ card "Naturia Beans" {
     def: 1200
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 47
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 524288
-        code: 1131
+        effect_type: Single + MandatoryTrigger
+        category: Damage
+        code: BattleTarget
         property: 2048
         on_resolve {
             deal_damage to opponent: 1000

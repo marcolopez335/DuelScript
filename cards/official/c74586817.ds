@@ -1,3 +1,4 @@
+// ＰＳＹフレームロード・Ω
 // PSY-Framelord Omega
 // Transpiled from c74586817.lua
 
@@ -21,10 +22,10 @@ card "PSY-Framelord Omega" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 4
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: Banish
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, card, opponent controls, hand)
@@ -33,11 +34,11 @@ card "PSY-Framelord Omega" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 32
+        effect_type: Field + Trigger
+        category: ToGrave
         code: 4098
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, opponent controls, hand) to gy
@@ -45,10 +46,10 @@ card "PSY-Framelord Omega" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 16
+        effect_type: Ignition
+        category: ToDeck
         property: 16
-        range: 16
+        range: Graveyard
         on_resolve {
             return (1+, card, opponent controls) to deck shuffle
         }

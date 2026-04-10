@@ -1,3 +1,4 @@
+// 幻煌龍の螺旋波
 // Phantasm Spiral Wave
 // Transpiled from c1197847.lua
 
@@ -6,7 +7,7 @@ card "Phantasm Spiral Wave" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 47
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
@@ -14,10 +15,10 @@ card "Phantasm Spiral Wave" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 640
+        effect_type: Field + Trigger
+        category: DefChange + SpecialSummon
         code: 4224
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 1197847)
         on_resolve {
             special_summon (1, monster) from gy
@@ -27,9 +28,9 @@ card "Phantasm Spiral Wave" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

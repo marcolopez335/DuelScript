@@ -1,3 +1,4 @@
+// ゴブリン降下部隊
 // Goblin Freefall Squad
 // Transpiled from c85123771.lua
 
@@ -11,9 +12,9 @@ card "Goblin Freefall Squad" {
     def: 2000
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 20480
-        code: 1102
+        effect_type: Single + Trigger
+        category: DiceRoll + Disable
+        code: SpecialSummonSuccess
         property: 65552
         count_limit: (1, 85123771)
         on_resolve {
@@ -30,10 +31,10 @@ card "Goblin Freefall Squad" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 8
-        code: 1102
-        range: 16
+        effect_type: Field + Trigger
+        category: ToHand
+        code: SpecialSummonSuccess
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
@@ -42,7 +43,7 @@ card "Goblin Freefall Squad" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 2
         property: 1024
         on_resolve {
@@ -51,7 +52,7 @@ card "Goblin Freefall Squad" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 8
         property: 1024
         on_resolve {

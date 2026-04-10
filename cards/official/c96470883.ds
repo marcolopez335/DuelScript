@@ -1,3 +1,4 @@
+// 凛天使クイーン・オブ・ローズ
 // Queen Angel of Roses
 // Transpiled from c96470883.lua
 
@@ -15,10 +16,10 @@ card "Queen Angel of Roses" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 514
-        category: 1
+        effect_type: Field + MandatoryTrigger
+        category: Destroy
         code: 4098
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, either_player controls)
@@ -27,7 +28,7 @@ card "Queen Angel of Roses" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 20
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }

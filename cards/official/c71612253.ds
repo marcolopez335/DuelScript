@@ -1,3 +1,4 @@
+// DDD狙撃王テル
 // D/D/D Marksman King Tell
 // Transpiled from c71612253.lua
 
@@ -21,11 +22,11 @@ card "D/D/D Marksman King Tell" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 6815744
-        code: 1002
+        effect_type: QuickEffect
+        category: Damage + SynchroSummon + XyzSummon
+        code: FreeChain
         property: 16400
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self
@@ -44,9 +45,9 @@ card "D/D/D Marksman King Tell" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 32
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: ChainEnd
         property: 81920
         on_resolve {
             send (1+, monster, you controls, deck) to gy
@@ -54,7 +55,7 @@ card "D/D/D Marksman King Tell" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1111
         on_resolve {
             set_flag "tracked" on self

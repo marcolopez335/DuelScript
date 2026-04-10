@@ -1,3 +1,4 @@
+// メテオ・プロミネンス
 // Meteor Flare
 // Transpiled from c56856951.lua
 
@@ -6,9 +7,9 @@ card "Meteor Flare" {
     type: Normal Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 524288
-        code: 1002
+        effect_type: Activate
+        category: Damage
+        code: FreeChain
         property: 2048
         on_resolve {
             deal_damage to opponent: 1000
@@ -16,10 +17,10 @@ card "Meteor Flare" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 8
+        effect_type: Field + Trigger
+        category: ToHand
         code: 1113
-        range: 16
+        range: Graveyard
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
             reveal (1+, card, opponent controls)

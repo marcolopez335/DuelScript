@@ -1,3 +1,4 @@
+// シューティング・スター・ドラゴン
 // Shooting Star Dragon
 // Transpiled from c24696097.lua
 
@@ -21,8 +22,8 @@ card "Shooting Star Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        range: 4
+        effect_type: Ignition
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             reveal (1, card, opponent controls, deck)
@@ -31,10 +32,10 @@ card "Shooting Star Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 16385
-        code: 1027
-        range: 4
+        effect_type: QuickEffect
+        category: Destroy + Disable
+        code: Chaining
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             negate effect
@@ -43,11 +44,11 @@ card "Shooting Star Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 4
-        code: 1130
+        effect_type: Field + Trigger
+        category: Banish
+        code: AttackAnnounce
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, card, either_player controls)
@@ -56,10 +57,10 @@ card "Shooting Star Dragon" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 514
-        category: 512
+        effect_type: Field + MandatoryTrigger
+        category: SpecialSummon
         code: 4608
-        range: 32
+        range: Banished
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -67,7 +68,7 @@ card "Shooting Star Dragon" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 251
         on_resolve {
         }

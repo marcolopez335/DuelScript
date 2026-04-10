@@ -1,3 +1,4 @@
+// 藍眼の銀龍
 // Indigo-Eyes Silver Dragon
 // Transpiled from c16699558.lua
 
@@ -21,7 +22,7 @@ card "Indigo-Eyes Silver Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 73
         on_resolve {
             register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
@@ -29,9 +30,9 @@ card "Indigo-Eyes Silver Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 16384
-        code: 1102
+        effect_type: Single + Trigger
+        category: Disable
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -39,10 +40,10 @@ card "Indigo-Eyes Silver Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 2097664
+        effect_type: Ignition
+        category: SpecialSummon + SynchroSummon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self

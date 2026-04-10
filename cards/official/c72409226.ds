@@ -1,3 +1,4 @@
+// マテリアクトル・エクサガルド
 // Materiactor Exagard
 // Transpiled from c72409226.lua
 
@@ -21,9 +22,9 @@ card "Materiactor Exagard" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 131592
-        range: 4
+        effect_type: Ignition
+        category: ToHand + SpecialSummon + Search
+        range: MonsterZone
         count_limit: (1, 72409226)
         cost {
             detach 1 overlay_unit from self
@@ -36,11 +37,11 @@ card "Materiactor Exagard" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 8
-        code: 1100
+        effect_type: Field + Trigger
+        category: ToHand
+        code: SummonSuccess
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -50,11 +51,11 @@ card "Materiactor Exagard" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 8
-        code: 1102
+        effect_type: Field + Trigger
+        category: ToHand
+        code: SpecialSummonSuccess
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck

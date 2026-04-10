@@ -1,3 +1,4 @@
+// 憑依覚醒－大稲荷火
 // Awakening of the Possessed - Greater Inari Fire
 // Transpiled from c92652813.lua
 
@@ -15,10 +16,10 @@ card "Awakening of the Possessed - Greater Inari Fire" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 3
+        range: Hand
         on_resolve {
             send (1+, spell, you controls) to gy
             shuffle_deck
@@ -26,9 +27,9 @@ card "Awakening of the Possessed - Greater Inari Fire" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 524288
-        code: 1102
+        effect_type: Single + Trigger
+        category: Damage
+        code: SpecialSummonSuccess
         count_limit: (1, 92652813)
         on_resolve {
             deal_damage to opponent: 1000
@@ -36,9 +37,9 @@ card "Awakening of the Possessed - Greater Inari Fire" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: ChainEnd
         property: 65536
         count_limit: (1, 0)
         on_resolve {

@@ -1,3 +1,4 @@
+// スピリット・バーナー
 // Spirit Burner
 // Transpiled from c50418970.lua
 
@@ -6,9 +7,9 @@ card "Spirit Burner" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 4096
-        range: 8
+        effect_type: Ignition
+        category: DiceRoll
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)
@@ -16,9 +17,9 @@ card "Spirit Burner" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 524288
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: Damage
+        code: ChainEnd
         property: 2048
         on_resolve {
             deal_damage to opponent: 1000
@@ -26,10 +27,10 @@ card "Spirit Burner" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 8
+        effect_type: Field + Trigger
+        category: ToHand
         code: 1113
-        range: 16
+        range: Graveyard
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
             reveal (1+, card, opponent controls)
@@ -37,9 +38,9 @@ card "Spirit Burner" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

@@ -1,3 +1,4 @@
+// 『焔聖剣-デュランダル』
 // 'Infernoble Arms - Durendal'
 // Transpiled from c37478723.lua
 
@@ -6,9 +7,9 @@ card "'Infernoble Arms - Durendal'" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 131081
-        range: 8
+        effect_type: Ignition
+        category: Destroy + ToHand + Search
+        range: SpellTrapZone
         count_limit: (1, 37478723)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -18,9 +19,9 @@ card "'Infernoble Arms - Durendal'" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
-        code: 1014
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 65552
         count_limit: (1, 37478723)
         on_resolve {
@@ -33,9 +34,9 @@ card "'Infernoble Arms - Durendal'" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

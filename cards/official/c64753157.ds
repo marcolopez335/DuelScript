@@ -1,3 +1,4 @@
+// ＲＥＳＯＲＴ」 ＳＴＡＦＦ－チャーミング
 // Charming Resort Staff
 // Transpiled from c64753157.lua
 
@@ -11,10 +12,10 @@ card "Charming Resort Staff" {
     def: 200
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 2097152
-        code: 1130
-        range: 4
+        effect_type: Field + Trigger
+        category: SynchroSummon
+        code: AttackAnnounce
+        range: MonsterZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -24,9 +25,9 @@ card "Charming Resort Staff" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy
@@ -34,11 +35,11 @@ card "Charming Resort Staff" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 8
-        code: 1140
+        effect_type: Field + Trigger
+        category: ToHand
+        code: BattleDamage
         property: 65536
-        range: 16
+        range: Graveyard
         cost {
             banish self
         }
@@ -49,11 +50,11 @@ card "Charming Resort Staff" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 8
-        code: 1014
+        effect_type: Field + Trigger
+        category: ToHand
+        code: ChainEnd
         property: 65536
-        range: 16
+        range: Graveyard
         cost {
             banish self
         }

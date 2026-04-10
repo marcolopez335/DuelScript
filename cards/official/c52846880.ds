@@ -1,3 +1,4 @@
+// カタストルの影霊衣
 // Nekroz of Catastor
 // Transpiled from c52846880.lua
 
@@ -20,7 +21,7 @@ card "Nekroz of Catastor" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -28,10 +29,10 @@ card "Nekroz of Catastor" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
+        effect_type: Ignition
+        category: SpecialSummon
         property: 16
-        range: 2
+        range: Hand
         count_limit: (1, 52846880)
         cost {
             discard (1, card, you controls)
@@ -42,10 +43,10 @@ card "Nekroz of Catastor" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 1
-        code: 1132
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        category: Destroy
+        code: DamageCalculation
+        range: MonsterZone
         on_resolve {
             destroy (1+, card, either_player controls)
         }

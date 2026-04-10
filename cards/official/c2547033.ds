@@ -1,3 +1,4 @@
+// オルターガイスト・ホーンデッドロック
 // Altergeist Haunted Rock
 // Transpiled from c2547033.lua
 
@@ -6,9 +7,9 @@ card "Altergeist Haunted Rock" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 32
-        code: 1002
+        effect_type: Activate
+        category: ToGrave
+        code: FreeChain
         count_limit: (1, 2547033)
         on_resolve {
             send (1+, monster, you controls, hand) to gy
@@ -16,10 +17,10 @@ card "Altergeist Haunted Rock" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 16385
-        code: 1027
-        range: 8
+        effect_type: QuickEffect
+        category: Destroy + Disable
+        code: Chaining
+        range: SpellTrapZone
         count_limit: (1, 0)
         cost {
             send self to gy
@@ -31,7 +32,7 @@ card "Altergeist Haunted Rock" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 16
         property: 256
         on_resolve {
@@ -39,7 +40,7 @@ card "Altergeist Haunted Rock" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1107
         on_resolve {
         }

@@ -1,3 +1,4 @@
+// 終戒超獸－ヴァルドラス
 // Varudras, the Final Bringer of the End Times
 // Transpiled from c70636044.lua
 
@@ -21,11 +22,11 @@ card "Varudras, the Final Bringer of the End Times" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 268435457
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         count_limit: (1, 70636044)
         cost {
             detach 1 overlay_unit from self
@@ -37,9 +38,9 @@ card "Varudras, the Final Bringer of the End Times" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 1
-        code: 1132
+        effect_type: Single + Trigger
+        category: Destroy
+        code: DamageCalculation
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -47,9 +48,9 @@ card "Varudras, the Final Bringer of the End Times" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 1
-        code: 1029
+        effect_type: Single + Trigger
+        category: Destroy
+        code: Destroyed
         property: 65536
         count_limit: (1, 0)
         on_resolve {

@@ -1,3 +1,4 @@
+// Ａ・Ｏ・Ｊ サウザンド・アームズ
 // Ally of Justice Thousand Arms
 // Transpiled from c85876417.lua
 
@@ -11,7 +12,7 @@ card "Ally of Justice Thousand Arms" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 193
         on_resolve {
             register_effect on self { grant: attack_all_opponent_monsters duration: until_end_of_turn }
@@ -19,8 +20,8 @@ card "Ally of Justice Thousand Arms" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 1
+        effect_type: Single + MandatoryTrigger
+        category: Destroy
         code: 1133
         on_resolve {
             destroy (1+, card, either_player controls)

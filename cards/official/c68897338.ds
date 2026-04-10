@@ -1,3 +1,4 @@
+// 魔轟神獣ベヒルモス
 // The Fabled Behilmoth
 // Transpiled from c68897338.lua
 
@@ -11,9 +12,9 @@ card "The Fabled Behilmoth" {
     def: 600
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 640
-        range: 2
+        effect_type: Ignition
+        category: DefChange + SpecialSummon
+        range: Hand
         count_limit: (1, 68897338)
         on_resolve {
             send (1+, monster, you controls, hand) to gy
@@ -22,10 +23,10 @@ card "The Fabled Behilmoth" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1014
-        range: 16
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: ChainEnd
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self

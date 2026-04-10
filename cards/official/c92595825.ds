@@ -1,3 +1,4 @@
+// 夜薔薇の黒騎士
 // Twilight Rose Black Knight
 // Transpiled from c92595825.lua
 
@@ -11,18 +12,18 @@ card "Twilight Rose Black Knight" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 1000
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
-        code: 1100
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 92595825)
         on_resolve {
@@ -31,9 +32,9 @@ card "Twilight Rose Black Knight" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1102
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 92595825)
         on_resolve {
@@ -42,10 +43,10 @@ card "Twilight Rose Black Knight" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 134217728
+        effect_type: Ignition
+        category: LevelChange
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -56,7 +57,7 @@ card "Twilight Rose Black Knight" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 130
         property: 1024
         on_resolve {

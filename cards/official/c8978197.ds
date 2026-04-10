@@ -1,3 +1,4 @@
+// ロード・オブ・ドラゴン－ドラゴンの統制者－
 // The King of D.
 // Transpiled from c8978197.lua
 
@@ -11,18 +12,18 @@ card "The King of D." {
     def: 1100
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 114
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         on_resolve {
             add_to_hand (1+, spell, you controls) from hand
             reveal (1+, card, opponent controls)

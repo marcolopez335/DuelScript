@@ -1,3 +1,4 @@
+// JP Name
 // R.B. The Brute Blues
 // Transpiled from c32216688.lua
 
@@ -20,46 +21,46 @@ card "R.B. The Brute Blues" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 194
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 64
-        category: 131080
-        range: 4
+        effect_type: Ignition
+        category: ToHand + Search
+        range: MonsterZone
         count_limit: (1, 32216688)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck

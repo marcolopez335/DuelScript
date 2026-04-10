@@ -1,3 +1,4 @@
+// 騎甲虫ライト・フラッパー
 // Beetrooper Light Flapper
 // Transpiled from c88962829.lua
 
@@ -15,9 +16,9 @@ card "Beetrooper Light Flapper" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 8
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand
+        code: SummonSuccess
         property: 81936
         count_limit: (1, 88962829)
         on_resolve {
@@ -35,9 +36,9 @@ card "Beetrooper Light Flapper" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 8
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand
+        code: SpecialSummonSuccess
         property: 81936
         count_limit: (1, 88962829)
         on_resolve {
@@ -55,10 +56,10 @@ card "Beetrooper Light Flapper" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 8
-        code: 1130
-        range: 4
+        effect_type: Field + Trigger
+        category: ToHand
+        code: AttackAnnounce
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
@@ -67,7 +68,7 @@ card "Beetrooper Light Flapper" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 7
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -75,7 +76,7 @@ card "Beetrooper Light Flapper" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2
+        effect_type: Field
         code: 6
         property: 2048
         on_resolve {

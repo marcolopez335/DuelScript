@@ -1,3 +1,4 @@
+// 幻奏の華楽聖ブルーム・ハーモニスト
 // Bloom Harmonist the Melodious Composer
 // Transpiled from c34974462.lua
 
@@ -20,9 +21,9 @@ card "Bloom Harmonist the Melodious Composer" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 512
-        code: 1102
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 34974462)
         on_resolve {
@@ -31,17 +32,17 @@ card "Bloom Harmonist the Melodious Composer" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 6
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 67635200
         on_resolve {

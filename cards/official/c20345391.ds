@@ -1,3 +1,4 @@
+// 空牙団の参謀 シール
 // Seal, Strategist Fur Hire
 // Transpiled from c20345391.lua
 
@@ -11,9 +12,9 @@ card "Seal, Strategist Fur Hire" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 4
+        effect_type: Ignition
+        category: SpecialSummon
+        range: MonsterZone
         count_limit: (1, 20345391)
         on_resolve {
             special_summon (1, monster) from gy
@@ -21,11 +22,11 @@ card "Seal, Strategist Fur Hire" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 8
-        code: 1102
+        effect_type: Field + Trigger
+        category: ToHand
+        code: SpecialSummonSuccess
         property: 65552
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand

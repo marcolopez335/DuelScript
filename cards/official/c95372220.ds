@@ -1,3 +1,4 @@
+// マズルフラッシュ・ドラゴン
 // Flash Charge Dragon
 // Transpiled from c95372220.lua
 
@@ -20,20 +21,20 @@ card "Flash Charge Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 265
         property: 3072
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 524292
-        code: 1100
+        effect_type: Field + Trigger
+        category: Banish + Damage
+        code: SummonSuccess
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -42,11 +43,11 @@ card "Flash Charge Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 524292
-        code: 1102
+        effect_type: Field + Trigger
+        category: Banish + Damage
+        code: SpecialSummonSuccess
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -55,11 +56,11 @@ card "Flash Charge Dragon" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        category: 268435456
-        code: 1027
+        effect_type: QuickEffect
+        category: Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         cost {
             tribute self
         }

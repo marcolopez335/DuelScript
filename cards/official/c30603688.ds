@@ -1,3 +1,4 @@
+// 幻想の見習い魔導師
 // Apprentice Illusion Magician
 // Transpiled from c30603688.lua
 
@@ -15,19 +16,19 @@ card "Apprentice Illusion Magician" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         on_resolve {
             send (1+, card, you controls, hand) to gy
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         property: 65536
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
@@ -36,9 +37,9 @@ card "Apprentice Illusion Magician" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
@@ -47,10 +48,10 @@ card "Apprentice Illusion Magician" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        category: 2097152
+        effect_type: QuickEffect
+        category: SynchroSummon
         code: 1134
-        range: 6
+        range: Hand + MonsterZone
         cost {
             send self to gy
         }

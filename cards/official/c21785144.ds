@@ -1,3 +1,4 @@
+// ライトロード・ドラゴン グラゴニス
 // Gragonith, Lightsworn Dragon
 // Transpiled from c21785144.lua
 
@@ -15,27 +16,27 @@ card "Gragonith, Lightsworn Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 104
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: def + 0
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 203
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
@@ -43,10 +44,10 @@ card "Gragonith, Lightsworn Dragon" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 514
-        category: 64
+        effect_type: Field + MandatoryTrigger
+        category: AtkChange
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             mill 3

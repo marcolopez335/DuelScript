@@ -1,3 +1,4 @@
+// ダークネス・シムルグ
 // Simorgh of Darkness
 // Transpiled from c22586618.lua
 
@@ -15,20 +16,20 @@ card "Simorgh of Darkness" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 125
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1100
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SummonSuccess
         property: 65536
-        range: 18
+        range: Hand + Graveyard
         count_limit: (1, 22586618)
         on_resolve {
             special_summon (1, monster) from gy
@@ -36,11 +37,11 @@ card "Simorgh of Darkness" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 268435457
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             tribute self

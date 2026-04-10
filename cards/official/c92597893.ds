@@ -1,3 +1,4 @@
+// いたずら風のフィードラン
 // Feedran, the Winds of Mischief
 // Transpiled from c92597893.lua
 
@@ -11,8 +12,8 @@ card "Feedran, the Winds of Mischief" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        code: 1100
+        effect_type: Single + Trigger
+        code: SummonSuccess
         property: 81936
         count_limit: (1, 92597893)
         on_resolve {
@@ -24,8 +25,8 @@ card "Feedran, the Winds of Mischief" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        code: 1102
+        effect_type: Single + Trigger
+        code: SpecialSummonSuccess
         property: 81936
         count_limit: (1, 92597893)
         on_resolve {
@@ -37,11 +38,11 @@ card "Feedran, the Winds of Mischief" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 4104
-        code: 1002
+        effect_type: QuickEffect
+        category: ToHand + DiceRoll
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)

@@ -1,3 +1,4 @@
+// ローズ・テンタクルス
 // Rose Tentacles
 // Transpiled from c41160533.lua
 
@@ -15,7 +16,7 @@ card "Rose Tentacles" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -23,9 +24,9 @@ card "Rose Tentacles" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 8200
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -35,8 +36,8 @@ card "Rose Tentacles" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 524288
+        effect_type: Single + MandatoryTrigger
+        category: Damage
         code: 1139
         on_resolve {
             deal_damage to opponent: 1000

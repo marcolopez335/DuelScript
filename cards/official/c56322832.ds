@@ -1,3 +1,4 @@
+// 転惺竜華－闇巴
 // Tensei Ryu-Ge Anva
 // Transpiled from c56322832.lua
 
@@ -16,19 +17,19 @@ card "Tensei Ryu-Ge Anva" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 3584
-        range: 512
+        range: PendulumZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1020
-        range: 512
+        range: PendulumZone
         on_resolve {
             set_flag "tracked" on self
             negate effect
@@ -37,9 +38,9 @@ card "Tensei Ryu-Ge Anva" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 56322832)
         cost {
             tribute self
@@ -50,9 +51,9 @@ card "Tensei Ryu-Ge Anva" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 1
-        code: 1102
+        effect_type: Single + Trigger
+        category: Destroy
+        code: SpecialSummonSuccess
         property: 65552
         count_limit: (1, 0)
         on_resolve {
@@ -61,8 +62,8 @@ card "Tensei Ryu-Ge Anva" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 129
-        code: 1029
+        effect_type: Single + Trigger
+        code: Destroyed
         property: 65536
         count_limit: (1, 0)
         on_resolve {

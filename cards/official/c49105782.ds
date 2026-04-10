@@ -1,3 +1,4 @@
+// 死翼のフレスヴェイス
 // Hraesvelgr, the Desperate Doom Eagle
 // Transpiled from c49105782.lua
 
@@ -20,21 +21,21 @@ card "Hraesvelgr, the Desperate Doom Eagle" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 2400
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 16
-        code: 1002
+        effect_type: QuickEffect
+        category: ToDeck
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 49105782)
         on_resolve {
             return (1+, monster, you controls) to deck shuffle

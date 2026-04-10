@@ -1,3 +1,4 @@
+// バイス・シャーク
 // Veiss Shark
 // Transpiled from c613013.lua
 
@@ -11,9 +12,9 @@ card "Veiss Shark" {
     def: 1100
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 512
-        code: 1100
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 613013)
         cost {
@@ -29,9 +30,9 @@ card "Veiss Shark" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
-        code: 1102
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 613013)
         cost {
@@ -47,10 +48,10 @@ card "Veiss Shark" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 4352
-        category: 16385
-        code: 1027
-        range: 4
+        effect_type: QuickEffect
+        category: Destroy + Disable
+        code: Chaining
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 2 overlay_unit from self
@@ -62,7 +63,7 @@ card "Veiss Shark" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 67110912
         on_resolve {

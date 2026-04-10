@@ -1,3 +1,4 @@
+// 威炎星－ヒエンシャク
 // Brotherhood of the Fire Fist - Swallow
 // Transpiled from c2521011.lua
 
@@ -15,18 +16,18 @@ card "Brotherhood of the Fire Fist - Swallow" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 263168
-        range: 2
+        range: Hand
         on_resolve {
             send (1+, trap, you controls) to gy
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        code: 1100
+        effect_type: Single + Trigger
+        code: SummonSuccess
         property: 16384
         count_limit: (1, 2521011)
         on_resolve {
@@ -35,8 +36,8 @@ card "Brotherhood of the Fire Fist - Swallow" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        code: 1102
+        effect_type: Single + Trigger
+        code: SpecialSummonSuccess
         property: 16384
         count_limit: (1, 2521011)
         on_resolve {
@@ -45,10 +46,10 @@ card "Brotherhood of the Fire Fist - Swallow" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 71
         property: 128
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }

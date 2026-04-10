@@ -1,3 +1,4 @@
+// Ｇゴーレム・インヴァリッド・ドルメン
 // G Golem Invalid Dolmen
 // Transpiled from c24151924.lua
 
@@ -20,36 +21,36 @@ card "G Golem Invalid Dolmen" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 1
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 191
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: must_attack_if_able duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 344
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: must_attack_if_able duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 65536
-        range: 4
+        effect_type: Ignition
+        category: Draw
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             draw 1
@@ -57,9 +58,9 @@ card "G Golem Invalid Dolmen" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 129
-        category: 16384
-        code: 1029
+        effect_type: Single + Trigger
+        category: Disable
+        code: Destroyed
         property: 65536
         on_resolve {
             register_effect on self {
@@ -78,7 +79,7 @@ card "G Golem Invalid Dolmen" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1019
         property: 1152
         on_resolve {

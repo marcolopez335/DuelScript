@@ -1,3 +1,4 @@
+// ティアラメンツ・カレイドハート
 // Tearlaments Kaleido-Heart
 // Transpiled from c28226490.lua
 
@@ -20,7 +21,7 @@ card "Tearlaments Kaleido-Heart" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 235
         property: 263168
         on_resolve {
@@ -28,9 +29,9 @@ card "Tearlaments Kaleido-Heart" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 16
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToDeck
+        code: SpecialSummonSuccess
         property: 65552
         count_limit: (1, 0)
         on_resolve {
@@ -39,11 +40,11 @@ card "Tearlaments Kaleido-Heart" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 16
-        code: 1014
+        effect_type: Field + Trigger
+        category: ToDeck
+        code: ChainEnd
         property: 65552
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, card, you controls) to deck shuffle
@@ -51,9 +52,9 @@ card "Tearlaments Kaleido-Heart" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 544
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToGrave + SpecialSummon
+        code: ChainEnd
         property: 65536
         count_limit: (1, 0)
         on_resolve {

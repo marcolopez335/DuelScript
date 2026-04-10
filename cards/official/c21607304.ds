@@ -1,3 +1,4 @@
+// サブテラーマリス・ボルティニア
 // Subterror Behemoth Voltelluric
 // Transpiled from c21607304.lua
 
@@ -15,8 +16,8 @@ card "Subterror Behemoth Voltelluric" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 161
-        category: 8192
+        effect_type: Single + Flip + Trigger
+        category: Summon
         property: 65552
         count_limit: (1, 21607304)
         on_resolve {
@@ -25,19 +26,19 @@ card "Subterror Behemoth Voltelluric" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 1016
-        range: 2
+        range: Hand
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 4096
-        range: 4
+        effect_type: Ignition
+        category: DiceRoll
+        range: MonsterZone
         on_resolve {
             change_battle_position (1, monster)
         }

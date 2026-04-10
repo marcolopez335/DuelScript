@@ -1,3 +1,4 @@
+// 儀水鏡の集光
 // Focused Aquamirror
 // Transpiled from c72386290.lua
 
@@ -6,9 +7,9 @@ card "Focused Aquamirror" {
     type: Normal Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 131080
-        code: 1002
+        effect_type: Activate
+        category: ToHand + Search
+        code: FreeChain
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)
@@ -16,9 +17,9 @@ card "Focused Aquamirror" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
+        effect_type: Field + Trigger
         code: 4608
-        range: 16
+        range: Graveyard
         count_limit: (1, 72386290)
         cost {
             banish self

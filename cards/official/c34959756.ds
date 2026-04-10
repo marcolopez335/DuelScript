@@ -1,3 +1,4 @@
+// リビング・フォッシル
 // Living Fossil
 // Transpiled from c34959756.lua
 
@@ -6,9 +7,9 @@ card "Living Fossil" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         property: 16
         count_limit: (1, 34959756)
         on_resolve {
@@ -22,7 +23,7 @@ card "Living Fossil" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk - 1000
@@ -30,7 +31,7 @@ card "Living Fossil" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 4
+        effect_type: Equip
         code: 104
         on_resolve {
             modifier: def - 1000
@@ -38,7 +39,7 @@ card "Living Fossil" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 4
+        effect_type: Equip
         code: 2
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -46,7 +47,7 @@ card "Living Fossil" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1015
         on_resolve {
             banish (1+, card, either_player controls)

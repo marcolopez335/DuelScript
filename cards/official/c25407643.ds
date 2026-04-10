@@ -1,3 +1,4 @@
+// 魔法族の聖域
 // Secret Sanctuary of the Spellcasters
 // Transpiled from c25407643.lua
 
@@ -6,25 +7,25 @@ card "Secret Sanctuary of the Spellcasters" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 141
         property: 131072
-        range: 8
+        range: SpellTrapZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        code: 1100
-        range: 8
+        effect_type: Field + MandatoryTrigger
+        code: SummonSuccess
+        range: SpellTrapZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -38,9 +39,9 @@ card "Secret Sanctuary of the Spellcasters" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 514
-        code: 1102
-        range: 8
+        effect_type: Field + MandatoryTrigger
+        code: SpecialSummonSuccess
+        range: SpellTrapZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

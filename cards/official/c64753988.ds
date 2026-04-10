@@ -1,3 +1,4 @@
+// サイバーダーク・ワールド
 // Cyberdark Realm
 // Transpiled from c64753988.lua
 
@@ -6,9 +7,9 @@ card "Cyberdark Realm" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 131080
-        code: 1002
+        effect_type: Activate
+        category: ToHand + Search
+        code: FreeChain
         count_limit: (1, 64753988)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -17,9 +18,9 @@ card "Cyberdark Realm" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 256
-        range: 8
+        effect_type: Ignition
+        category: Counter
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             normal_summon (1, monster, you controls)
@@ -27,10 +28,10 @@ card "Cyberdark Realm" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 64753988
         property: 2048
-        range: 8
+        range: SpellTrapZone
         on_resolve {
         }
     }

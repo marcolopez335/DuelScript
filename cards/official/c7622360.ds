@@ -1,3 +1,4 @@
+// デーモンズ・マタドール
 // Matador Archfiend
 // Transpiled from c7622360.lua
 
@@ -20,9 +21,9 @@ card "Matador Archfiend" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 7622360)
         on_resolve {
@@ -32,7 +33,7 @@ card "Matador Archfiend" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -40,7 +41,7 @@ card "Matador Archfiend" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 201
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -48,8 +49,8 @@ card "Matador Archfiend" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 513
-        category: 524289
+        effect_type: Single + MandatoryTrigger
+        category: Destroy + Damage
         code: 1138
         on_resolve {
             destroy (1+, card, you controls, deck)
@@ -58,7 +59,7 @@ card "Matador Archfiend" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 85
         property: 67109888
         on_resolve {

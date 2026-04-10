@@ -1,3 +1,4 @@
+// ホープ剣スラッシュ
 // Rising Sun Slash
 // Transpiled from c94807487.lua
 
@@ -6,7 +7,7 @@ card "Rising Sun Slash" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 41
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -14,17 +15,17 @@ card "Rising Sun Slash" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
-        category: 8388608
+        effect_type: Field + Continuous
+        category: LinkSummon
         code: 1142
         property: 65536
-        range: 8
+        range: SpellTrapZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 0
@@ -32,18 +33,18 @@ card "Rising Sun Slash" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 245
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             send (1+, card, either_player controls) to gy
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

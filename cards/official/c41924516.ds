@@ -1,3 +1,4 @@
+// 白き森の魔狼シルウィア
 // Silvera, Wolf Tamer of the White Forest
 // Transpiled from c41924516.lua
 
@@ -21,9 +22,9 @@ card "Silvera, Wolf Tamer of the White Forest" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 4096
-        code: 1102
+        effect_type: Single + Trigger
+        category: DiceRoll
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             change_battle_position (1, monster)
@@ -31,18 +32,18 @@ card "Silvera, Wolf Tamer of the White Forest" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 500
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 203
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }

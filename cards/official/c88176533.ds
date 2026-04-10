@@ -1,3 +1,4 @@
+// ネフティスの祀り手
 // Devotee of Nephthys
 // Transpiled from c88176533.lua
 
@@ -20,9 +21,9 @@ card "Devotee of Nephthys" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 512
-        code: 1102
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 88176533)
         on_resolve {
@@ -31,9 +32,9 @@ card "Devotee of Nephthys" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 513
-        range: 16
+        effect_type: Ignition
+        category: Destroy + SpecialSummon
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, you controls, deck)

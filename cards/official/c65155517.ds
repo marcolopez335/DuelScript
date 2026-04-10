@@ -1,3 +1,4 @@
+// ＳＲクラッカーネル
 // Speedroid Colonel Clackers
 // Transpiled from c65155517.lua
 
@@ -12,8 +13,8 @@ card "Speedroid Colonel Clackers" {
     def: 1800
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        range: 512
+        effect_type: Ignition
+        range: PendulumZone
         count_limit: (1, 65155517)
         cost {
             banish self
@@ -28,9 +29,9 @@ card "Speedroid Colonel Clackers" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -43,10 +44,10 @@ card "Speedroid Colonel Clackers" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 2097156
+        effect_type: Field + Trigger
+        category: Banish + SynchroSummon
         code: 1134
-        range: 64
+        range: Deck
         count_limit: (1, 0)
         on_resolve {
             banish (1+, card, you controls, gy)
@@ -58,7 +59,7 @@ card "Speedroid Colonel Clackers" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 67110912
         on_resolve {
@@ -67,7 +68,7 @@ card "Speedroid Colonel Clackers" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 115
         property: 1024
         on_resolve {
@@ -75,7 +76,7 @@ card "Speedroid Colonel Clackers" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 1024
         on_resolve {

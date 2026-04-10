@@ -1,3 +1,4 @@
+// バージェストマ・アノマロカリス
 // Paleozoic Anomalocaris
 // Transpiled from c61307542.lua
 
@@ -21,21 +22,21 @@ card "Paleozoic Anomalocaris" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 1
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 131144
-        code: 1014
+        effect_type: Field + Trigger
+        category: ToHand + AtkChange + Search
+        code: ChainEnd
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             reveal (1, card, opponent controls, deck)
@@ -46,11 +47,11 @@ card "Paleozoic Anomalocaris" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 1
-        code: 1002
+        effect_type: QuickEffect
+        category: Destroy
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self

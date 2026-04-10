@@ -1,3 +1,4 @@
+// 灰滅の劫火
 // Inferno of the Ashened
 // Transpiled from c62767644.lua
 
@@ -6,8 +7,8 @@ card "Inferno of the Ashened" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         count_limit: (1, 62767644)
         on_resolve {
             special_summon (1, monster) from gy
@@ -15,10 +16,10 @@ card "Inferno of the Ashened" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 544
+        effect_type: Ignition
+        category: ToGrave + SpecialSummon
         property: 16
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, you controls, deck) to gy

@@ -1,3 +1,4 @@
+// マシンナーズ・ルインフォース
 // Machina Ruinforce
 // Transpiled from c46033517.lua
 
@@ -15,7 +16,7 @@ card "Machina Ruinforce" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -23,21 +24,21 @@ card "Machina Ruinforce" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 16
+        range: Graveyard
         on_resolve {
             banish (1+, monster, you controls, gy)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 268435456
-        code: 1027
+        effect_type: QuickEffect
+        category: Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         count_limit: (1, 46033517)
         cost {
             pay_lp your_lp / 2
@@ -50,9 +51,9 @@ card "Machina Ruinforce" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 65536
         count_limit: (1, 0)
         on_resolve {

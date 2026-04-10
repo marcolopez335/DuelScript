@@ -1,3 +1,4 @@
+// ZW－一角獣皇槍
 // ZW - Unicorn Spear
 // Transpiled from c76080032.lua
 
@@ -11,19 +12,19 @@ card "ZW - Unicorn Spear" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 262144
+        effect_type: Ignition
+        category: EquipAction
         property: 16
-        range: 2
+        range: Hand
         on_resolve {
             send (1+, card, either_player controls) to gy
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 1131
-        range: 8
+        effect_type: Field + Continuous
+        code: BattleTarget
+        range: SpellTrapZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -37,7 +38,7 @@ card "ZW - Unicorn Spear" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 1900
@@ -45,7 +46,7 @@ card "ZW - Unicorn Spear" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 2
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -53,7 +54,7 @@ card "ZW - Unicorn Spear" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 8
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -61,14 +62,14 @@ card "ZW - Unicorn Spear" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         on_resolve {
         }
     }
 
     raw_effect "Effect 7" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         on_resolve {
             modifier: atk + 0
@@ -76,14 +77,14 @@ card "ZW - Unicorn Spear" {
     }
 
     raw_effect "Effect 8" {
-        effect_type: 1
+        effect_type: Single
         code: 115
         on_resolve {
         }
     }
 
     raw_effect "Effect 9" {
-        effect_type: 1
+        effect_type: Single
         code: 71
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -91,7 +92,7 @@ card "ZW - Unicorn Spear" {
     }
 
     raw_effect "Effect 10" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -99,7 +100,7 @@ card "ZW - Unicorn Spear" {
     }
 
     raw_effect "Effect 11" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

@@ -1,3 +1,4 @@
+// 機皇枢インフィニティ・コア
 // Meklord Nucleus Infinity Core
 // Transpiled from c77710579.lua
 
@@ -11,19 +12,19 @@ card "Meklord Nucleus Infinity Core" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 47
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         property: 81920
         count_limit: (1, 77710579)
         on_resolve {
@@ -33,9 +34,9 @@ card "Meklord Nucleus Infinity Core" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 81920
         count_limit: (1, 77710579)
         on_resolve {
@@ -45,9 +46,9 @@ card "Meklord Nucleus Infinity Core" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 65536
         count_limit: (1, 0)
         on_resolve {

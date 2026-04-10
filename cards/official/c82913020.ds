@@ -1,3 +1,4 @@
+// セイクリッド・カドケウス
 // Constellar Caduceus
 // Transpiled from c82913020.lua
 
@@ -11,9 +12,9 @@ card "Constellar Caduceus" {
     def: 1550
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 82913020)
         on_resolve {
             special_summon (1, monster) from gy
@@ -21,9 +22,9 @@ card "Constellar Caduceus" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 131080
-        range: 4
+        effect_type: Ignition
+        category: ToHand + Search
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, spell, you controls) to hand
@@ -32,8 +33,8 @@ card "Constellar Caduceus" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 4224
-        category: 4
+        effect_type: Trigger
+        category: Banish
         code: 1133
         on_resolve {
             banish (1+, spell, you controls)

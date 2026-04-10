@@ -1,3 +1,4 @@
+// 漆黒の薔薇の開華
 // Blooming of the Darkest Rose
 // Transpiled from c99092624.lua
 
@@ -6,9 +7,9 @@ card "Blooming of the Darkest Rose" {
     type: Normal Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 1536
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon + Token
+        code: FreeChain
         on_resolve {
             create_token { atk: 0 def: 0 }
             special_summon (1, monster) from gy
@@ -16,11 +17,11 @@ card "Blooming of the Darkest Rose" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 67108884
-        code: 1002
+        effect_type: QuickEffect
+        category: Banish + ToDeck
+        code: FreeChain
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 99092624)
         on_resolve {
             banish (1+, spell, either_player controls)

@@ -1,3 +1,4 @@
+// 天帝アイテール
 // Ehther the Heavenly Monarch
 // Transpiled from c96570609.lua
 
@@ -15,9 +16,9 @@ card "Ehther the Heavenly Monarch" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 544
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToGrave + SpecialSummon
+        code: SummonSuccess
         property: 65536
         on_resolve {
             send (1+, spell, you controls, hand) to gy
@@ -28,17 +29,17 @@ card "Ehther the Heavenly Monarch" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 256
-        code: 1002
-        range: 2
+        effect_type: QuickEffect
+        category: Counter
+        code: FreeChain
+        range: Hand
         on_resolve {
             normal_summon (1, monster, you controls)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 20
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -46,7 +47,7 @@ card "Ehther the Heavenly Monarch" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 23
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }

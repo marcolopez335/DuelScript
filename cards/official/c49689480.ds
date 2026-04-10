@@ -1,3 +1,4 @@
+// クイーンマドルチェ・ティアラフレース
 // Madolche Queen Tiarafraise
 // Transpiled from c49689480.lua
 
@@ -21,11 +22,11 @@ card "Madolche Queen Tiarafraise" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 16
-        code: 1002
+        effect_type: QuickEffect
+        category: ToDeck
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self
@@ -37,9 +38,9 @@ card "Madolche Queen Tiarafraise" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
+        effect_type: Single + MandatoryTrigger
         category: 2147483648
-        code: 1029
+        code: Destroyed
         on_resolve {
             return (1+, card, opponent controls) to deck shuffle
         }

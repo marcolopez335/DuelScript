@@ -1,3 +1,4 @@
+// ＴＧ グレイブ・ブラスター
 // T.G. Glaive Blaster
 // Transpiled from c95973569.lua
 
@@ -21,7 +22,7 @@ card "T.G. Glaive Blaster" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -29,29 +30,29 @@ card "T.G. Glaive Blaster" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 251
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 4
-        code: 1002
+        effect_type: QuickEffect
+        category: Banish
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         on_resolve {
             banish (1+, monster, either_player controls)
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 364409025
         property: 65552
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -59,10 +60,10 @@ card "T.G. Glaive Blaster" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2050
-        code: 1011
+        effect_type: Field + Continuous
+        code: TurnEnd
         property: 1024
-        range: 4
+        range: MonsterZone
         on_resolve {
             emit_event "custom"
         }

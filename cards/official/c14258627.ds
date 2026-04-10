@@ -1,3 +1,4 @@
+// 地球巨人 ガイア・プレート
 // Gaia Plate the Earth Giant
 // Transpiled from c14258627.lua
 
@@ -15,38 +16,38 @@ card "Gaia Plate the Earth Giant" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         on_resolve {
             banish (1+, monster, you controls, gy)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 102
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 106
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: def + 0
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 4098
         property: 263168
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, monster, you controls, gy)

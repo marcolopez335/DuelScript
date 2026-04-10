@@ -1,3 +1,4 @@
+// 深淵の相剣龍
 // The Abyss Dragon Swordsoul
 // Transpiled from c5141117.lua
 
@@ -15,7 +16,7 @@ card "The Abyss Dragon Swordsoul" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -23,10 +24,10 @@ card "The Abyss Dragon Swordsoul" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1011
-        range: 18
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: TurnEnd
+        range: Hand + Graveyard
         count_limit: (1, 5141117)
         on_resolve {
             special_summon (1, monster) from gy
@@ -34,9 +35,9 @@ card "The Abyss Dragon Swordsoul" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 4
-        code: 1102
+        effect_type: Single + Trigger
+        category: Banish
+        code: SpecialSummonSuccess
         property: 65552
         count_limit: (1, 0)
         on_resolve {

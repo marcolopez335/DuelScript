@@ -1,3 +1,4 @@
+// 無尽機関アルギロ・システム
 // Endless Engine Argyro System
 // Transpiled from c21887075.lua
 
@@ -6,9 +7,9 @@ card "Endless Engine Argyro System" {
     type: Normal Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 32
-        code: 1002
+        effect_type: Activate
+        category: ToGrave
+        code: FreeChain
         count_limit: (1, 21887075)
         on_resolve {
             send (1+, card, you controls, deck) to gy
@@ -16,10 +17,10 @@ card "Endless Engine Argyro System" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 24
+        effect_type: Ignition
+        category: ToHand + ToDeck
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 21887075)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck

@@ -1,3 +1,4 @@
+// ヘルフレイムゴースト
 // Infernal Flame Vixen
 // Transpiled from c58712976.lua
 
@@ -21,9 +22,9 @@ card "Infernal Flame Vixen" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 2097152
-        range: 4
+        effect_type: Ignition
+        category: SynchroSummon
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self
@@ -33,8 +34,8 @@ card "Infernal Flame Vixen" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        code: 1029
+        effect_type: Single + MandatoryTrigger
+        code: Destroyed
         property: 16
         on_resolve {
             banish (1+, monster, either_player controls)

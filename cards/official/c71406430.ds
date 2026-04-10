@@ -1,3 +1,4 @@
+// リブロマンサー・デスブローカー
 // Libromancer Doombroker
 // Transpiled from c71406430.lua
 
@@ -20,14 +21,14 @@ card "Libromancer Doombroker" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 251
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 74
         on_resolve {
             register_effect on self { grant: direct_attack duration: until_end_of_turn }
@@ -35,8 +36,8 @@ card "Libromancer Doombroker" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        range: 4
+        effect_type: Ignition
+        range: MonsterZone
         count_limit: (1, 71406430)
         on_resolve {
             set (1, card)
@@ -44,8 +45,8 @@ card "Libromancer Doombroker" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 16
+        effect_type: Single + Trigger
+        category: ToDeck
         code: 1143
         property: 16
         count_limit: (1, 0)

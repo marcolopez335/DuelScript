@@ -1,3 +1,4 @@
+// ホーリーナイツ・レイエル
 // Starry Knight Rayel
 // Transpiled from c23220533.lua
 
@@ -11,9 +12,9 @@ card "Starry Knight Rayel" {
     def: 700
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         count_limit: (1, 23220533)
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck
@@ -22,10 +23,10 @@ card "Starry Knight Rayel" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
+        effect_type: Ignition
+        category: SpecialSummon
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self

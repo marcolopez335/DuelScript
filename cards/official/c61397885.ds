@@ -1,3 +1,4 @@
+// 幻煌龍の浸渦
 // Phantasm Spiral Power
 // Transpiled from c61397885.lua
 
@@ -6,9 +7,9 @@ card "Phantasm Spiral Power" {
     type: Normal Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 6307840
-        code: 1002
+        effect_type: Activate
+        category: Disable + SynchroSummon + XyzSummon
+        code: FreeChain
         property: 16400
         on_resolve {
             negate effect
@@ -32,18 +33,18 @@ card "Phantasm Spiral Power" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 15
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 262144
-        code: 1002
+        effect_type: QuickEffect
+        category: EquipAction
+        code: FreeChain
         property: 16
-        range: 16
+        range: Graveyard
         cost {
             banish self
         }
@@ -53,7 +54,7 @@ card "Phantasm Spiral Power" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         on_resolve {
             modifier: atk - 1000
@@ -61,7 +62,7 @@ card "Phantasm Spiral Power" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 104
         on_resolve {
             modifier: def - 1000
@@ -69,7 +70,7 @@ card "Phantasm Spiral Power" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 1
+        effect_type: Single
         code: 2
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -77,7 +78,7 @@ card "Phantasm Spiral Power" {
     }
 
     raw_effect "Effect 7" {
-        effect_type: 1
+        effect_type: Single
         code: 8
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }

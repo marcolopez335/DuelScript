@@ -1,3 +1,4 @@
+// No.23 冥界の霊騎士ランスロット
 // Number 23: Lancelot, Dark Knight of the Underworld
 // Transpiled from c66547759.lua
 
@@ -21,7 +22,7 @@ card "Number 23: Lancelot, Dark Knight of the Underworld" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 74
         on_resolve {
             register_effect on self { grant: direct_attack duration: until_end_of_turn }
@@ -29,8 +30,8 @@ card "Number 23: Lancelot, Dark Knight of the Underworld" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 1
+        effect_type: Single + Trigger
+        category: Destroy
         code: 1143
         property: 16
         on_resolve {
@@ -39,11 +40,11 @@ card "Number 23: Lancelot, Dark Knight of the Underworld" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1024
-        category: 268435456
-        code: 1027
+        effect_type: MandatoryQuick
+        category: Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self

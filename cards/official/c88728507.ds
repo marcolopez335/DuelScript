@@ -1,3 +1,4 @@
+// ヴァンパイア・ソーサラー
 // Vampire Sorcerer
 // Transpiled from c88728507.lua
 
@@ -11,9 +12,9 @@ card "Vampire Sorcerer" {
     def: 1500
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: ChainEnd
         property: 81920
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck
@@ -22,8 +23,8 @@ card "Vampire Sorcerer" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        range: 16
+        effect_type: Ignition
+        range: Graveyard
         cost {
             banish self
         }

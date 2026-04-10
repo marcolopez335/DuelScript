@@ -1,3 +1,4 @@
+// ユベル－Ｄａｓ Ｅｗｉｇ Ｌｉｅｂｅ Ｗäｃｈｔｅｒ
 // Yubel - The Loving Defender Forever
 // Transpiled from c47172959.lua
 
@@ -20,9 +21,9 @@ card "Yubel - The Loving Defender Forever" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 524288
-        code: 1102
+        effect_type: Single + Trigger
+        category: Damage
+        code: SpecialSummonSuccess
         property: 67584
         on_resolve {
             deal_damage to opponent: 1000
@@ -30,38 +31,38 @@ card "Yubel - The Loving Defender Forever" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 201
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 513
-        category: 524292
+        effect_type: Single + MandatoryTrigger
+        category: Banish + Damage
         code: 1141
         on_resolve {
             deal_damage to opponent: 1000

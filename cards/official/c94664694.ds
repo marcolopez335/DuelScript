@@ -1,3 +1,4 @@
+// マッド・デーモン
 // Mad Archfiend
 // Transpiled from c94664694.lua
 
@@ -11,7 +12,7 @@ card "Mad Archfiend" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 203
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
@@ -19,9 +20,9 @@ card "Mad Archfiend" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 4096
-        code: 1131
+        effect_type: Single + MandatoryTrigger
+        category: DiceRoll
+        code: BattleTarget
         on_resolve {
             change_battle_position (1, monster)
         }

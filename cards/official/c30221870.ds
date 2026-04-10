@@ -1,3 +1,4 @@
+// 機皇帝ワイゼル∞-S・アブソープション
 // Meklord Emperor Wisel - Synchro Absorption
 // Transpiled from c30221870.lua
 
@@ -15,7 +16,7 @@ card "Meklord Emperor Wisel - Synchro Absorption" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -23,9 +24,9 @@ card "Meklord Emperor Wisel - Synchro Absorption" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        code: 1002
-        range: 2
+        effect_type: QuickEffect
+        code: FreeChain
+        range: Hand
         count_limit: (1, 30221870)
         cost {
             send self to gy
@@ -36,8 +37,8 @@ card "Meklord Emperor Wisel - Synchro Absorption" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        code: 1102
+        effect_type: Single + Trigger
+        code: SpecialSummonSuccess
         property: 65552
         on_resolve {
             register_effect on self {
@@ -48,11 +49,11 @@ card "Meklord Emperor Wisel - Synchro Absorption" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        category: 268435457
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         cost {
             tribute self
         }

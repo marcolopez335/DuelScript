@@ -1,3 +1,4 @@
+// ペンデュラムーン
 // PenduLuMoon
 // Transpiled from c66150724.lua
 
@@ -12,9 +13,9 @@ card "PenduLuMoon" {
     def: 700
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 9
-        range: 512
+        effect_type: Ignition
+        category: Destroy + ToHand
+        range: PendulumZone
         count_limit: (1, 66150724)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
@@ -24,9 +25,9 @@ card "PenduLuMoon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 8
-        range: 4
+        effect_type: Ignition
+        category: ToHand
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {

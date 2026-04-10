@@ -1,3 +1,4 @@
+// 白闘気白鯨
 // White Aura Whale
 // Transpiled from c5614808.lua
 
@@ -21,25 +22,25 @@ card "White Aura Whale" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 1
-        code: 1102
+        effect_type: Single + Trigger
+        category: Destroy
+        code: SpecialSummonSuccess
         on_resolve {
             destroy (1+, monster, opponent controls)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 346
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 203
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
@@ -47,9 +48,9 @@ card "White Aura Whale" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 65536
         cost {
             banish self
@@ -60,7 +61,7 @@ card "White Aura Whale" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 115
         property: 1024
         on_resolve {

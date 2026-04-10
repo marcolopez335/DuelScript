@@ -1,3 +1,4 @@
+// 絶火の魔神ゾロア
 // Zoroa, the Magistus Conflagrant Calamity
 // Transpiled from c95911373.lua
 
@@ -21,9 +22,9 @@ card "Zoroa, the Magistus Conflagrant Calamity" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 262144
-        code: 1102
+        effect_type: Single + Trigger
+        category: EquipAction
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             equip (1, card) to (1, monster)
@@ -35,19 +36,19 @@ card "Zoroa, the Magistus Conflagrant Calamity" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 7
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 513
+        effect_type: Ignition
+        category: Destroy + SpecialSummon
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 95911373)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -56,7 +57,7 @@ card "Zoroa, the Magistus Conflagrant Calamity" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         on_resolve {
         }

@@ -1,3 +1,4 @@
+// No.39 希望皇ビヨンド・ザ・ホープ
 // Number 39: Utopia Beyond
 // Transpiled from c21521304.lua
 
@@ -21,9 +22,9 @@ card "Number 39: Utopia Beyond" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 2097152
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: SynchroSummon
+        code: SpecialSummonSuccess
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -33,11 +34,11 @@ card "Number 39: Utopia Beyond" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 1049092
-        code: 1002
+        effect_type: QuickEffect
+        category: Banish + SpecialSummon + Recover
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self

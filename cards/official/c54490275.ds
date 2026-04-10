@@ -1,3 +1,4 @@
+// ゴーストリックの雪女
 // Ghostrick Yuki-onna
 // Transpiled from c54490275.lua
 
@@ -11,7 +12,7 @@ card "Ghostrick Yuki-onna" {
     def: 800
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 20
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -19,18 +20,18 @@ card "Ghostrick Yuki-onna" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 4096
-        range: 4
+        effect_type: Ignition
+        category: DiceRoll
+        range: MonsterZone
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 4096
-        code: 1140
+        effect_type: Single + Trigger
+        category: DiceRoll
+        code: BattleDamage
         on_resolve {
             change_battle_position (1, monster)
             register_effect on self {

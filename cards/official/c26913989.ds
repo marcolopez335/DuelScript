@@ -1,3 +1,4 @@
+// ガイストーチ・ゴーレム
 // Geistgrinder Golem
 // Transpiled from c26913989.lua
 
@@ -15,9 +16,9 @@ card "Geistgrinder Golem" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         on_resolve {
             special_summon (1, monster) from gy
             special_summon (1, monster) from gy
@@ -25,8 +26,8 @@ card "Geistgrinder Golem" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 1048576
+        effect_type: Single + MandatoryTrigger
+        category: Recover
         code: 1134
         count_limit: (1, 0)
         on_resolve {
@@ -35,10 +36,10 @@ card "Geistgrinder Golem" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 512
-        code: 1102
-        range: 16
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
+        range: Graveyard
         on_resolve {
             special_summon (1, monster) from gy
         }

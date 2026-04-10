@@ -1,3 +1,4 @@
+// トリガー・ヴルム
 // Triggering Wurm
 // Transpiled from c95504778.lua
 
@@ -11,8 +12,8 @@ card "Triggering Wurm" {
     def: 600
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 512
+        effect_type: Single + Trigger
+        category: SpecialSummon
         code: 1108
         property: 65536
         count_limit: (1, 0)
@@ -22,9 +23,9 @@ card "Triggering Wurm" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 65536
-        code: 1029
+        effect_type: Single + MandatoryTrigger
+        category: Draw
+        code: Destroyed
         count_limit: (1, 0)
         on_resolve {
             draw 1
@@ -32,9 +33,9 @@ card "Triggering Wurm" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 65536
-        code: 1011
+        effect_type: Single + MandatoryTrigger
+        category: Draw
+        code: TurnEnd
         count_limit: (1, 0)
         on_resolve {
             draw 1
@@ -42,7 +43,7 @@ card "Triggering Wurm" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 239
         property: 67109888
         on_resolve {

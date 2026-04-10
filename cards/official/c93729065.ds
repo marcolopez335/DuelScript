@@ -1,3 +1,4 @@
+// スターヴ・ヴェネミー・ドラゴン
 // Starving Venemy Dragon
 // Transpiled from c93729065.lua
 
@@ -21,36 +22,36 @@ card "Starving Venemy Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2050
-        code: 1014
-        range: 512
+        effect_type: Field + Continuous
+        code: ChainEnd
+        range: PendulumZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 512
+        range: PendulumZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1136
-        range: 512
+        range: PendulumZone
         on_resolve {
             deal_damage to opponent: 0
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 6832128
+        effect_type: Ignition
+        category: Disable + Damage + SynchroSummon + XyzSummon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 93729065)
         on_resolve {
             deal_damage to opponent: 500
@@ -58,8 +59,8 @@ card "Starving Venemy Dragon" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 129
-        code: 1029
+        effect_type: Single + Trigger
+        code: Destroyed
         property: 81920
         on_resolve {
             special_summon (1, monster) from gy
@@ -67,7 +68,7 @@ card "Starving Venemy Dragon" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 1
+        effect_type: Single
         code: 114
         property: 1024
         on_resolve {

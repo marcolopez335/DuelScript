@@ -1,3 +1,4 @@
+// ホーリーエルフ－ホーリー・バースト・ストリーム
 // Mystical Elf - White Lightning
 // Transpiled from c15613529.lua
 
@@ -11,10 +12,10 @@ card "Mystical Elf - White Lightning" {
     def: 2000
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 16896
-        code: 1027
-        range: 2
+        effect_type: QuickEffect
+        category: SpecialSummon + Disable
+        code: Chaining
+        range: Hand
         count_limit: (1, 15613529)
         on_resolve {
             special_summon (1, monster) from gy
@@ -23,11 +24,11 @@ card "Mystical Elf - White Lightning" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 512
-        code: 1002
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -43,18 +44,18 @@ card "Mystical Elf - White Lightning" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 191
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: must_attack_if_able duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 344
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: must_attack_if_able duration: until_end_of_turn }
         }

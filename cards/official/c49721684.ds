@@ -1,3 +1,4 @@
+// 巳剣之神鏡
 // Mitsurugi Mirror
 // Transpiled from c49721684.lua
 
@@ -6,9 +7,9 @@ card "Mitsurugi Mirror" {
     type: Ritual Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         count_limit: (1, 49721684)
         on_resolve {
             ritual_summon (1, ritual monster) using (1+, monster, you controls)
@@ -16,10 +17,10 @@ card "Mitsurugi Mirror" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 16
-        code: 1017
-        range: 16
+        effect_type: Field + Trigger
+        category: ToDeck
+        code: Release
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
@@ -27,9 +28,9 @@ card "Mitsurugi Mirror" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         on_resolve {
             ritual_summon (1, ritual monster) using (1+, monster, you controls)
         }

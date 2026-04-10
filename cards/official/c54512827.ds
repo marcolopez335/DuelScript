@@ -1,3 +1,4 @@
+// ゴーストリック・ランタン
 // Ghostrick Lantern
 // Transpiled from c54512827.lua
 
@@ -11,7 +12,7 @@ card "Ghostrick Lantern" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 20
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -19,19 +20,19 @@ card "Ghostrick Lantern" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 4096
-        range: 4
+        effect_type: Ignition
+        category: DiceRoll
+        range: MonsterZone
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 512
-        code: 1130
-        range: 2
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: AttackAnnounce
+        range: Hand
         on_resolve {
             negate attack
             special_summon (1, monster) from gy
@@ -40,10 +41,10 @@ card "Ghostrick Lantern" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 512
-        code: 1131
-        range: 2
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: BattleTarget
+        range: Hand
         on_resolve {
             negate attack
             special_summon (1, monster) from gy

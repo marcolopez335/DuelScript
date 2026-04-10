@@ -1,3 +1,4 @@
+// 家電機塊世界エレクトリリカル・ワールド
 // Appliancer Electrilyrical World
 // Transpiled from c3875465.lua
 
@@ -6,9 +7,9 @@ card "Appliancer Electrilyrical World" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 131080
-        code: 1002
+        effect_type: Activate
+        category: ToHand + Search
+        code: FreeChain
         count_limit: (1, 3875465)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -17,11 +18,11 @@ card "Appliancer Electrilyrical World" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 8
-        code: 1102
+        effect_type: Field + Trigger
+        category: ToHand
+        code: SpecialSummonSuccess
         property: 65536
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -30,9 +31,9 @@ card "Appliancer Electrilyrical World" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        code: 1130
-        range: 8
+        effect_type: Field + Trigger
+        code: AttackAnnounce
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
         }

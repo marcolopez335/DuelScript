@@ -1,3 +1,4 @@
+// 覇王天龍オッドアイズ・アークレイ・ドラゴン
 // Odd-Eyes Arcray Dragon
 // Transpiled from c6218704.lua
 
@@ -21,7 +22,7 @@ card "Odd-Eyes Arcray Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -29,19 +30,19 @@ card "Odd-Eyes Arcray Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 263168
-        range: 64
+        range: Deck
         on_resolve {
             tribute (1, monster, you controls)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 528
-        range: 512
+        effect_type: Ignition
+        category: ToDeck + SpecialSummon
+        range: PendulumZone
         count_limit: (1, 6218704)
         on_resolve {
             special_summon (1, monster) from gy
@@ -51,8 +52,8 @@ card "Odd-Eyes Arcray Dragon" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        code: 1102
+        effect_type: Single + Trigger
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy
@@ -60,8 +61,8 @@ card "Odd-Eyes Arcray Dragon" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 129
-        code: 1029
+        effect_type: Single + Trigger
+        code: Destroyed
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy

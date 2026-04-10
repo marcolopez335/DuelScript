@@ -1,3 +1,4 @@
+// ガーディアン・キマイラ
 // Guardian Chimera
 // Transpiled from c11321089.lua
 
@@ -20,7 +21,7 @@ card "Guardian Chimera" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 251
         property: 1024
         on_resolve {
@@ -28,9 +29,9 @@ card "Guardian Chimera" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 65537
-        code: 1102
+        effect_type: Single + Trigger
+        category: Destroy + Draw
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 11321089)
         on_resolve {
@@ -40,10 +41,10 @@ card "Guardian Chimera" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 71
         property: 131200
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }

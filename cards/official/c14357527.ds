@@ -1,3 +1,4 @@
+// 重騎甲虫マイティ・ネプチューン
 // Heavy Beetrooper Mighty Neptune
 // Transpiled from c14357527.lua
 
@@ -15,19 +16,19 @@ card "Heavy Beetrooper Mighty Neptune" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 65536
         count_limit: (1, 14357527)
         on_resolve {
@@ -36,9 +37,9 @@ card "Heavy Beetrooper Mighty Neptune" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1011
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: TurnEnd
         property: 65536
         count_limit: (1, 14357527)
         on_resolve {
@@ -47,11 +48,11 @@ card "Heavy Beetrooper Mighty Neptune" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 2097152
+        effect_type: Field + Trigger
+        category: SynchroSummon
         code: 4608
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {

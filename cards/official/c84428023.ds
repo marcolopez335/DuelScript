@@ -1,3 +1,4 @@
+// エレキャッシュ
 // Wattjustment
 // Transpiled from c84428023.lua
 
@@ -6,7 +7,7 @@ card "Wattjustment" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 800
@@ -14,7 +15,7 @@ card "Wattjustment" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 4
+        effect_type: Equip
         code: 2
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -22,20 +23,20 @@ card "Wattjustment" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 65536
+        effect_type: Field + MandatoryTrigger
+        category: Draw
         code: 1111
         property: 2048
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             draw 1
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

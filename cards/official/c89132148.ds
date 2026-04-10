@@ -1,3 +1,4 @@
+// フォトン・オービタル
 // Photon Orbital
 // Transpiled from c89132148.lua
 
@@ -11,10 +12,10 @@ card "Photon Orbital" {
     def: 2000
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 262144
+        effect_type: Ignition
+        category: EquipAction
         property: 16
-        range: 6
+        range: Hand + MonsterZone
         on_resolve {
             send (1+, monster, you controls, deck) to gy
             equip (1, card) to (1, monster)
@@ -22,9 +23,9 @@ card "Photon Orbital" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 131080
-        range: 8
+        effect_type: Ignition
+        category: ToHand + Search
+        range: SpellTrapZone
         count_limit: (1, 89132148)
         cost {
             send self to gy

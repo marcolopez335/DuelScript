@@ -1,3 +1,4 @@
+// 黒炎の騎士－ブラック・フレア・ナイト－
 // Dark Flare Knight
 // Transpiled from c13722870.lua
 
@@ -20,7 +21,7 @@ card "Dark Flare Knight" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 201
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -28,9 +29,9 @@ card "Dark Flare Knight" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 512
-        code: 1140
+        effect_type: Single + MandatoryTrigger
+        category: SpecialSummon
+        code: BattleDamage
         on_resolve {
             special_summon (1, monster) from gy
         }

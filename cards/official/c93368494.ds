@@ -1,3 +1,4 @@
+// 魔妖仙獣 大刃禍是
 // Mayosenju Daibak
 // Transpiled from c93368494.lua
 
@@ -16,10 +17,10 @@ card "Mayosenju Daibak" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 2097152
-        code: 1130
-        range: 512
+        effect_type: Field + Trigger
+        category: SynchroSummon
+        code: AttackAnnounce
+        range: PendulumZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -29,7 +30,7 @@ card "Mayosenju Daibak" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -37,7 +38,7 @@ card "Mayosenju Daibak" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 27
         property: 263168
         on_resolve {
@@ -45,9 +46,9 @@ card "Mayosenju Daibak" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 8
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand
+        code: SummonSuccess
         property: 81936
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
@@ -55,9 +56,9 @@ card "Mayosenju Daibak" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 129
-        category: 8
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand
+        code: SpecialSummonSuccess
         property: 81936
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
@@ -65,10 +66,10 @@ card "Mayosenju Daibak" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 514
-        category: 8
+        effect_type: Field + MandatoryTrigger
+        category: ToHand
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
@@ -76,8 +77,8 @@ card "Mayosenju Daibak" {
     }
 
     raw_effect "Effect 7" {
-        effect_type: 2050
-        code: 1102
+        effect_type: Field + Continuous
+        code: SpecialSummonSuccess
         property: 1024
         on_resolve {
         }

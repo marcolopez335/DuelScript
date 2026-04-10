@@ -1,3 +1,4 @@
+// 破壊竜ガンドラG
 // Gandora-G the Dragon of Destruction
 // Transpiled from c2333466.lua
 
@@ -15,19 +16,19 @@ card "Gandora-G the Dragon of Destruction" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 2333466)
         on_resolve {
             special_summon (1, monster) from gy
@@ -35,9 +36,9 @@ card "Gandora-G the Dragon of Destruction" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 134218245
-        range: 4
+        effect_type: Ignition
+        category: Destroy + Banish + SpecialSummon + LevelChange
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             pay_lp your_lp / 2
@@ -53,7 +54,7 @@ card "Gandora-G the Dragon of Destruction" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 130
         property: 1024
         on_resolve {

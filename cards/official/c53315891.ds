@@ -1,3 +1,4 @@
+// 合神竜ティマイオス
 // Timaeus the Knight of Destiny
 // Transpiled from c53315891.lua
 
@@ -20,28 +21,28 @@ card "Timaeus the Knight of Destiny" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 1
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 6291456
+        effect_type: QuickEffect
+        category: SynchroSummon + XyzSummon
         code: 1134
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1140
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: BattleDamage
         on_resolve {
             special_summon (1, monster) from gy
         }

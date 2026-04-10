@@ -1,3 +1,4 @@
+// 幻影騎士団ティアースケイル
 // The Phantom Knights of Torn Scales
 // Transpiled from c25538345.lua
 
@@ -11,9 +12,9 @@ card "The Phantom Knights of Torn Scales" {
     def: 1600
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 32
-        range: 4
+        effect_type: Ignition
+        category: ToGrave
+        range: MonsterZone
         count_limit: (1, 25538345)
         on_resolve {
             send (1+, monster, you controls, hand) to gy
@@ -21,11 +22,11 @@ card "The Phantom Knights of Torn Scales" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1011
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: TurnEnd
         property: 65536
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

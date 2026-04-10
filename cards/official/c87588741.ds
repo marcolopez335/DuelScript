@@ -1,3 +1,4 @@
+// クリフォート・アクセス
 // Qliphort Cephalopod
 // Transpiled from c87588741.lua
 
@@ -16,59 +17,59 @@ card "Qliphort Cephalopod" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 3584
-        range: 512
+        range: PendulumZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 512
+        range: PendulumZone
         on_resolve {
             modifier: atk - 300
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 32
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 91
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 92
         on_resolve {
         }
     }
 
     raw_effect "Effect 6" {
-        effect_type: 1
+        effect_type: Single
         code: 1
         property: 393216
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 7" {
-        effect_type: 129
-        category: 1572864
-        code: 1100
+        effect_type: Single + Trigger
+        category: Damage + Recover
+        code: SummonSuccess
         on_resolve {
             gain_lp: 1000
             deal_damage to opponent: 1000
@@ -76,7 +77,7 @@ card "Qliphort Cephalopod" {
     }
 
     raw_effect "Effect 8" {
-        effect_type: 1
+        effect_type: Single
         code: 251
         property: 1024
         on_resolve {

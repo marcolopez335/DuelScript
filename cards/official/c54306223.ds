@@ -1,3 +1,4 @@
+// ヴェノム・スワンプ
 // Venom Swamp
 // Transpiled from c54306223.lua
 
@@ -6,17 +7,17 @@ card "Venom Swamp" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 8388608
+        effect_type: Field + MandatoryTrigger
+        category: LinkSummon
         code: 4608
-        range: 256
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             emit_event "custom"
@@ -24,19 +25,19 @@ card "Venom Swamp" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 256
+        range: FieldZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 514
-        category: 1
+        effect_type: Field + MandatoryTrigger
+        category: Destroy
         code: 322741679
-        range: 256
+        range: FieldZone
         on_resolve {
             destroy (1+, card, either_player controls)
         }

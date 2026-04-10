@@ -1,3 +1,4 @@
+// アザミナの妖魔
 // Queen Azamina
 // Transpiled from c65033975.lua
 
@@ -15,11 +16,11 @@ card "Queen Azamina" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 8
+        effect_type: Field + Trigger
+        category: ToHand
         code: 1139
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 65033975)
         on_resolve {
             add_to_hand (1+, spell, either_player controls) from gy
@@ -27,9 +28,9 @@ card "Queen Azamina" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
-        code: 1014
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -38,9 +39,9 @@ card "Queen Azamina" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1011
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: TurnEnd
         property: 65536
         count_limit: (1, 0)
         on_resolve {

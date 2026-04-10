@@ -1,3 +1,4 @@
+// 超重武者ジシャ－Q
 // Superheavy Samurai Magnet
 // Transpiled from c89091772.lua
 
@@ -11,9 +12,9 @@ card "Superheavy Samurai Magnet" {
     def: 1900
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 4608
-        code: 1100
+        effect_type: Single + Trigger
+        category: SpecialSummon + DiceRoll
+        code: SummonSuccess
         on_resolve {
             special_summon (1, monster) from gy
             change_battle_position (1, monster)
@@ -21,9 +22,9 @@ card "Superheavy Samurai Magnet" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 332
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }

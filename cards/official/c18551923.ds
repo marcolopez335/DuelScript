@@ -1,3 +1,4 @@
+// 呪眼の死徒 メドゥサ
 // Medusa, Watcher of the Evil Eye
 // Transpiled from c18551923.lua
 
@@ -11,9 +12,9 @@ card "Medusa, Watcher of the Evil Eye" {
     def: 1600
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 67108872
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand
+        code: SummonSuccess
         property: 16400
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
@@ -22,11 +23,11 @@ card "Medusa, Watcher of the Evil Eye" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 4
-        code: 1002
+        effect_type: QuickEffect
+        category: Banish
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 18551923)
         on_resolve {
             banish (1+, monster, you controls, gy)
@@ -34,10 +35,10 @@ card "Medusa, Watcher of the Evil Eye" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 67108868
+        effect_type: Field + MandatoryTrigger
+        category: Banish
         code: 4098
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, monster, you controls, gy)

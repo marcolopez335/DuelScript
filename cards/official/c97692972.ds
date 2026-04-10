@@ -1,3 +1,4 @@
+// アマゾネスの金鞭使い
 // Amazoness Golden Whip Master
 // Transpiled from c97692972.lua
 
@@ -16,20 +17,20 @@ card "Amazoness Golden Whip Master" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 512
+        range: PendulumZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 1
-        code: 1130
+        effect_type: Field + Trigger
+        category: Destroy
+        code: AttackAnnounce
         property: 16
-        range: 512
+        range: PendulumZone
         count_limit: (1, 97692972)
         on_resolve {
             destroy (1+, spell, either_player controls)
@@ -37,8 +38,8 @@ card "Amazoness Golden Whip Master" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        code: 1029
+        effect_type: Single + Trigger
+        code: Destroyed
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -47,10 +48,10 @@ card "Amazoness Golden Whip Master" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        code: 1102
+        effect_type: Field + Trigger
+        code: SpecialSummonSuccess
         property: 65536
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

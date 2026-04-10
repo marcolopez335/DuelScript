@@ -1,3 +1,4 @@
+// ＤＤＤ零死王ゼロ・マキナ
 // D/D/D Zero Doom Queen Machinex
 // Transpiled from c20715411.lua
 
@@ -16,16 +17,16 @@ card "D/D/D Zero Doom Queen Machinex" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
-        range: 2
+        effect_type: Activate
+        code: FreeChain
+        range: Hand
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        range: 512
+        effect_type: Ignition
+        range: PendulumZone
         count_limit: (1, 20715411)
         on_resolve {
             special_summon (1, monster) from gy
@@ -33,11 +34,11 @@ card "D/D/D Zero Doom Queen Machinex" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 513
-        code: 1029
+        effect_type: Field + Trigger
+        category: Destroy + SpecialSummon
+        code: Destroyed
         property: 81920
-        range: 64
+        range: Deck
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -46,8 +47,8 @@ card "D/D/D Zero Doom Queen Machinex" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        code: 1029
+        effect_type: Single + Trigger
+        code: Destroyed
         property: 65536
         count_limit: (1, 0)
         on_resolve {

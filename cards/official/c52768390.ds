@@ -1,3 +1,4 @@
+// 闇の神－ダークゴッド
 // Dark Creator
 // Transpiled from c52768390.lua
 
@@ -15,17 +16,17 @@ card "Dark Creator" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         on_resolve {
             tribute (1, monster, you controls)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -33,9 +34,9 @@ card "Dark Creator" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 1537
-        range: 4
+        effect_type: Ignition
+        category: Destroy + SpecialSummon + Token
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             create_token { atk: 0 def: 0 }
@@ -57,10 +58,10 @@ card "Dark Creator" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 514
-        category: 524288
-        code: 1140
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        category: Damage
+        code: BattleDamage
+        range: MonsterZone
         on_resolve {
             deal_damage to opponent: 1000
         }

@@ -1,3 +1,4 @@
+// ＤＤイービル
 // D/D Evil
 // Transpiled from c55415564.lua
 
@@ -12,11 +13,11 @@ card "D/D Evil" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 16384
-        code: 1102
+        effect_type: Field + Trigger
+        category: Disable
+        code: SpecialSummonSuccess
         property: 4194304
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -35,7 +36,7 @@ card "D/D Evil" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 85
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -43,11 +44,11 @@ card "D/D Evil" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 16384
-        code: 1002
+        effect_type: QuickEffect
+        category: Disable
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 55415564)
         on_resolve {
             negate effect

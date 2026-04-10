@@ -1,3 +1,4 @@
+// 転生炎獣ウィーゼル
 // Salamangreat Weasel
 // Transpiled from c57357130.lua
 
@@ -11,9 +12,9 @@ card "Salamangreat Weasel" {
     def: 1400
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 57357130)
         on_resolve {
             special_summon (1, monster) from gy
@@ -21,11 +22,11 @@ card "Salamangreat Weasel" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 66064
-        code: 1102
+        effect_type: Field + Trigger
+        category: ToDeck + SpecialSummon + Draw
+        code: SpecialSummonSuccess
         property: 65552
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to deck shuffle

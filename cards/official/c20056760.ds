@@ -1,3 +1,4 @@
+// グレイドル・スライム
 // Graydle Slime
 // Transpiled from c20056760.lua
 
@@ -15,10 +16,10 @@ card "Graydle Slime" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 513
+        effect_type: Ignition
+        category: Destroy + SpecialSummon
         property: 16
-        range: 18
+        range: Hand + Graveyard
         count_limit: (1, 20056760)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -27,9 +28,9 @@ card "Graydle Slime" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
-        code: 1102
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 16
         on_resolve {
             special_summon (1, monster) from gy

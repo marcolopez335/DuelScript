@@ -1,3 +1,4 @@
+// 音響戦士サイザス
 // Symphonic Warrior Synthess
 // Transpiled from c49919798.lua
 
@@ -11,8 +12,8 @@ card "Symphonic Warrior Synthess" {
     def: 1900
 
     raw_effect "Effect 1" {
-        effect_type: 161
-        category: 131080
+        effect_type: Single + Flip + Trigger
+        category: ToHand + Search
         property: 65536
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -21,19 +22,19 @@ card "Symphonic Warrior Synthess" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
+        effect_type: Ignition
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 512
+        effect_type: Ignition
+        category: SpecialSummon
         property: 16
-        range: 16
+        range: Graveyard
         cost {
             banish self
         }

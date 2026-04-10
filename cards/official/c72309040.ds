@@ -1,3 +1,4 @@
+// 最果てのゴーティス
 // Ghoti of the Deep Beyond
 // Transpiled from c72309040.lua
 
@@ -21,18 +22,18 @@ card "Ghoti of the Deep Beyond" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 103
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 4
-        code: 1102
+        effect_type: Single + Trigger
+        category: Banish
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             banish (1+, card, either_player controls)
@@ -40,10 +41,10 @@ card "Ghoti of the Deep Beyond" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 4098
-        range: 32
+        range: Banished
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

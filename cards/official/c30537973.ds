@@ -1,3 +1,4 @@
+// 捕食植物スパイダー・オーキッド
 // Predaplant Spider Orchid
 // Transpiled from c30537973.lua
 
@@ -12,18 +13,18 @@ card "Predaplant Spider Orchid" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
-        range: 2
+        effect_type: Activate
+        code: FreeChain
+        range: Hand
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 1
+        effect_type: Ignition
+        category: Destroy
         property: 16
-        range: 512
+        range: PendulumZone
         count_limit: (1, 30537973)
         on_resolve {
             destroy (1+, card, you controls, hand)
@@ -31,8 +32,8 @@ card "Predaplant Spider Orchid" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
-        code: 1100
+        effect_type: Single + Continuous
+        code: SummonSuccess
         property: 1024
         on_resolve {
             register_effect on self {
@@ -43,8 +44,8 @@ card "Predaplant Spider Orchid" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2049
-        code: 1102
+        effect_type: Single + Continuous
+        code: SpecialSummonSuccess
         property: 1024
         on_resolve {
             register_effect on self {

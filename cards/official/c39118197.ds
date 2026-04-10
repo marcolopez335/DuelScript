@@ -1,3 +1,4 @@
+// カラクリ武者 六参壱八
 // Karakuri Bushi mdl 6318 'Muzanichiha'
 // Transpiled from c39118197.lua
 
@@ -11,7 +12,7 @@ card "Karakuri Bushi mdl 6318 'Muzanichiha'" {
     def: 600
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 191
         on_resolve {
             register_effect on self { grant: must_attack_if_able duration: until_end_of_turn }
@@ -19,19 +20,19 @@ card "Karakuri Bushi mdl 6318 'Muzanichiha'" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 4096
-        code: 1131
+        effect_type: Single + MandatoryTrigger
+        category: DiceRoll
+        code: BattleTarget
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 2097152
-        code: 1029
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        category: SynchroSummon
+        code: Destroyed
+        range: MonsterZone
         on_resolve {
         }
     }

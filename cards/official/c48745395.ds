@@ -1,3 +1,4 @@
+// 白銀の城の魔神像
 // Labrynth Archfiend
 // Transpiled from c48745395.lua
 
@@ -15,11 +16,11 @@ card "Labrynth Archfiend" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 1022
         property: 65536
-        range: 2
+        range: Hand
         count_limit: (1, 48745395)
         on_resolve {
             special_summon (1, monster) from gy
@@ -27,8 +28,8 @@ card "Labrynth Archfiend" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        code: 1102
+        effect_type: Single + Trigger
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -37,19 +38,19 @@ card "Labrynth Archfiend" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 332
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }

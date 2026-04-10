@@ -1,3 +1,4 @@
+// AtoZ−ドラゴン・バスターキャノン
 // A-to-Z-Dragon Buster Cannon
 // Transpiled from c65172015.lua
 
@@ -20,7 +21,7 @@ card "A-to-Z-Dragon Buster Cannon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 230
         property: 263168
         on_resolve {
@@ -28,11 +29,11 @@ card "A-to-Z-Dragon Buster Cannon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 268435457
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         on_resolve {
             negate activation
             destroy (1+, card, you controls)
@@ -40,11 +41,11 @@ card "A-to-Z-Dragon Buster Cannon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 512
-        code: 1002
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         cost {
             banish self
         }

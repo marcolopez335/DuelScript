@@ -1,3 +1,4 @@
+// アマゾネス王女
 // Amazoness Princess
 // Transpiled from c84539520.lua
 
@@ -11,18 +12,18 @@ card "Amazoness Princess" {
     def: 900
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 114
         property: 131072
-        range: 20
+        range: MonsterZone + Graveyard
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 84539520)
         on_resolve {
@@ -32,9 +33,9 @@ card "Amazoness Princess" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 84539520)
         on_resolve {
@@ -44,9 +45,9 @@ card "Amazoness Princess" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 512
-        code: 1130
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: AttackAnnounce
         cost {
             send self to gy
         }

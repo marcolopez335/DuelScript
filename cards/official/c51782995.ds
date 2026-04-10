@@ -1,3 +1,4 @@
+// ネフティスの護り手
 // Defender of Nephthys
 // Transpiled from c51782995.lua
 
@@ -11,9 +12,9 @@ card "Defender of Nephthys" {
     def: 200
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 513
-        range: 4
+        effect_type: Ignition
+        category: Destroy + SpecialSummon
+        range: MonsterZone
         count_limit: (1, 51782995)
         on_resolve {
             destroy (1+, monster, you controls, hand)
@@ -22,8 +23,8 @@ card "Defender of Nephthys" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
-        code: 1029
+        effect_type: Single + Continuous
+        code: Destroyed
         property: 1024
         on_resolve {
             set_flag "tracked" on self
@@ -31,10 +32,10 @@ card "Defender of Nephthys" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 1
+        effect_type: Field + Trigger
+        category: Destroy
         code: 4098
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, you controls, hand)

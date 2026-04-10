@@ -1,3 +1,4 @@
+// 神獣王バルバロス
 // Beast King Barbaros
 // Transpiled from c78651105.lua
 
@@ -15,30 +16,30 @@ card "Beast King Barbaros" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 32
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 36
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 1
-        code: 1100
+        effect_type: Single + MandatoryTrigger
+        category: Destroy
+        code: SummonSuccess
         on_resolve {
             destroy (1+, card, opponent controls)
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 20
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }

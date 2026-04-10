@@ -1,3 +1,4 @@
+// トランス・デーモン
 // Trance Archfiend
 // Transpiled from c94283662.lua
 
@@ -11,9 +12,9 @@ card "Trance Archfiend" {
     def: 500
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 2097280
-        range: 4
+        effect_type: Ignition
+        category: DefChange + SynchroSummon
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             discard (1, card)
@@ -21,9 +22,9 @@ card "Trance Archfiend" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 8
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand
+        code: ChainEnd
         property: 16400
         on_resolve {
             add_to_hand (1+, card, you controls) from hand

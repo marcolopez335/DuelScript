@@ -1,3 +1,4 @@
+// ネフティスの祈り手
 // Disciple of Nephthys
 // Transpiled from c98999181.lua
 
@@ -11,9 +12,9 @@ card "Disciple of Nephthys" {
     def: 2000
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 131081
-        range: 4
+        effect_type: Ignition
+        category: Destroy + ToHand + Search
+        range: MonsterZone
         count_limit: (1, 98999181)
         on_resolve {
             destroy (1+, monster, you controls, deck)
@@ -23,18 +24,18 @@ card "Disciple of Nephthys" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
-        code: 1014
+        effect_type: Single + Continuous
+        code: ChainEnd
         property: 1024
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 131080
+        effect_type: Field + Trigger
+        category: ToHand + Search
         code: 4098
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck

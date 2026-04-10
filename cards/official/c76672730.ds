@@ -1,3 +1,4 @@
+// 暗黒界の文殿
 // Dark World Archives
 // Transpiled from c76672730.lua
 
@@ -6,16 +7,16 @@ card "Dark World Archives" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 2097280
-        range: 8
+        effect_type: Ignition
+        category: DefChange + SynchroSummon
+        range: SpellTrapZone
         count_limit: (1, 76672730)
         on_resolve {
             send (1+, monster, you controls) to gy
@@ -27,11 +28,11 @@ card "Dark World Archives" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 65664
+        effect_type: Field + Trigger
+        category: DefChange + Draw
         code: 1018
         property: 81920
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, monster, you controls) to gy

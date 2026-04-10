@@ -1,3 +1,4 @@
+// 応身の機械天使
 // Incarnated Machine Angel
 // Transpiled from c91946859.lua
 
@@ -6,27 +7,27 @@ card "Incarnated Machine Angel" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 42
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 524288
+        effect_type: Field + Trigger
+        category: Damage
         code: 1111
         property: 16384
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 91946859)
         cost {
             tribute self

@@ -1,3 +1,4 @@
+// カット・イン・シャーク
 // Cutter Shark
 // Transpiled from c68756810.lua
 
@@ -15,10 +16,10 @@ card "Cutter Shark" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 512
+        effect_type: QuickEffect
+        category: SpecialSummon
         code: 1028
-        range: 18
+        range: Hand + Graveyard
         count_limit: (1, 68756810)
         cost {
             tribute self
@@ -29,10 +30,10 @@ card "Cutter Shark" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 512
-        code: 1131
-        range: 18
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: BattleTarget
+        range: Hand + Graveyard
         count_limit: (1, 68756810)
         cost {
             tribute self
@@ -43,9 +44,9 @@ card "Cutter Shark" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 8
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {

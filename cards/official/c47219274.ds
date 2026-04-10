@@ -1,3 +1,4 @@
+// 神碑の牙フレーキ
 // Freki the Runick Fangs
 // Transpiled from c47219274.lua
 
@@ -20,14 +21,14 @@ card "Freki the Runick Fangs" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 200
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 201
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -35,9 +36,9 @@ card "Freki the Runick Fangs" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 4
-        code: 1130
+        effect_type: Field + Trigger
+        category: Banish
+        code: AttackAnnounce
         range: 4096
         on_resolve {
             banish (1+, card, either_player controls)
@@ -45,9 +46,9 @@ card "Freki the Runick Fangs" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 8
-        code: 1029
+        effect_type: Single + Trigger
+        category: ToHand
+        code: Destroyed
         property: 65552
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy

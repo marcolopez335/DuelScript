@@ -1,3 +1,4 @@
+// Ｄ－フォース
 // D - Force
 // Transpiled from c6186304.lua
 
@@ -6,9 +7,9 @@ card "D - Force" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 131080
-        code: 1002
+        effect_type: Activate
+        category: ToHand + Search
+        code: FreeChain
         on_resolve {
             add_to_hand (1+, card, you controls) from gy
             reveal (1+, card, opponent controls)
@@ -16,55 +17,55 @@ card "D - Force" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 25
         property: 2048
-        range: 8
+        range: SpellTrapZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 271
         property: 2048
-        range: 8
+        range: SpellTrapZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 71
         property: 384
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 6" {
-        effect_type: 2
+        effect_type: Field
         code: 41
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 7" {
-        effect_type: 2
+        effect_type: Field
         code: 194
-        range: 8
+        range: SpellTrapZone
         on_resolve {
         }
     }

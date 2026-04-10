@@ -1,3 +1,4 @@
+// オルターガイスト・マテリアリゼーション
 // Altergeist Manifestation
 // Transpiled from c35146019.lua
 
@@ -6,9 +7,9 @@ card "Altergeist Manifestation" {
     type: Normal Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         property: 16
         on_resolve {
             special_summon (1, monster) from gy
@@ -17,7 +18,7 @@ card "Altergeist Manifestation" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1015
         on_resolve {
             destroy (1+, trap, either_player controls)
@@ -25,11 +26,11 @@ card "Altergeist Manifestation" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 8
-        code: 1002
+        effect_type: QuickEffect
+        category: ToHand
+        code: FreeChain
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 35146019)
         cost {
             banish self

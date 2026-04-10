@@ -1,3 +1,4 @@
+// プランキッズ・プランク
 // Prank-Kids Pranks
 // Transpiled from c43664494.lua
 
@@ -6,16 +7,16 @@ card "Prank-Kids Pranks" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 1536
-        range: 8
+        effect_type: Ignition
+        category: SpecialSummon + Token
+        range: SpellTrapZone
         count_limit: (1, 43664494)
         on_resolve {
             create_token { atk: 0 def: 0 }
@@ -32,11 +33,11 @@ card "Prank-Kids Pranks" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 65552
+        effect_type: Field + Trigger
+        category: ToDeck + Draw
         code: 4608
         property: 16
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, card, you controls) to deck shuffle

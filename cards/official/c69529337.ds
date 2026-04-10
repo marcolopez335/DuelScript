@@ -1,3 +1,4 @@
+// トラミッド・ダンサー
 // Triamid Dancer
 // Transpiled from c69529337.lua
 
@@ -11,10 +12,10 @@ card "Triamid Dancer" {
     def: 1900
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 2097168
+        effect_type: Ignition
+        category: ToDeck + SynchroSummon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to deck shuffle
@@ -30,11 +31,11 @@ card "Triamid Dancer" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 32
-        code: 1002
+        effect_type: QuickEffect
+        category: ToGrave
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, monster, you controls) to gy
@@ -42,7 +43,7 @@ card "Triamid Dancer" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 1024
         on_resolve {
@@ -51,7 +52,7 @@ card "Triamid Dancer" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 104
         property: 1024
         on_resolve {

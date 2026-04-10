@@ -1,3 +1,4 @@
+// 堕天使アスモディウス
 // Darklord Asmodeus
 // Transpiled from c85771019.lua
 
@@ -15,18 +16,18 @@ card "Darklord Asmodeus" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 394240
-        range: 17
+        range: Graveyard
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 32
-        range: 4
+        effect_type: Ignition
+        category: ToGrave
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, monster, you controls, deck) to gy
@@ -34,9 +35,9 @@ card "Darklord Asmodeus" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 1536
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: SpecialSummon + Token
+        code: ChainEnd
         on_resolve {
             create_token { atk: 0 def: 0 }
             special_summon (1, monster) from gy

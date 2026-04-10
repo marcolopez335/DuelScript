@@ -1,3 +1,4 @@
+// ファイヤークラッカー
 // Fire Cracker
 // Transpiled from c81109178.lua
 
@@ -11,11 +12,11 @@ card "Fire Cracker" {
     def: 200
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 524288
-        code: 1002
+        effect_type: QuickEffect
+        category: Damage
+        code: FreeChain
         property: 2048
-        range: 2
+        range: Hand
         count_limit: (1, 81109178)
         cost {
             discard (1, card, you controls)
@@ -30,18 +31,18 @@ card "Fire Cracker" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1111
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 524288
+        effect_type: Field + MandatoryTrigger
+        category: Damage
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             deal_damage to opponent: 1000

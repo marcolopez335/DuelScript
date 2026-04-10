@@ -1,3 +1,4 @@
+// BF－隠れ蓑のスチーム
 // Blackwing - Steam the Cloak
 // Transpiled from c9047460.lua
 
@@ -11,8 +12,8 @@ card "Blackwing - Steam the Cloak" {
     def: 1200
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 1536
+        effect_type: Single + MandatoryTrigger
+        category: SpecialSummon + Token
         code: 1015
         on_resolve {
             create_token { atk: 0 def: 0 }
@@ -21,9 +22,9 @@ card "Blackwing - Steam the Cloak" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 16
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Graveyard
         count_limit: (1, 9047460)
         cost {
             tribute self
@@ -34,7 +35,7 @@ card "Blackwing - Steam the Cloak" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 73949684
         property: 263168
         on_resolve {

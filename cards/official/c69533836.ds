@@ -1,3 +1,4 @@
+// 魂を刻む右
 // Soul Fist
 // Transpiled from c69533836.lua
 
@@ -6,7 +7,7 @@ card "Soul Fist" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 1
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -14,9 +15,9 @@ card "Soul Fist" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 2097152
-        range: 8
+        effect_type: Ignition
+        category: SynchroSummon
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -27,11 +28,11 @@ card "Soul Fist" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 2097156
-        code: 1130
+        effect_type: Field + Trigger
+        category: Banish + SynchroSummon
+        code: AttackAnnounce
         property: 16
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, monster, opponent controls)
@@ -43,7 +44,7 @@ card "Soul Fist" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 102
         property: 1024
         on_resolve {
@@ -52,7 +53,7 @@ card "Soul Fist" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 1024
         on_resolve {
@@ -61,9 +62,9 @@ card "Soul Fist" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

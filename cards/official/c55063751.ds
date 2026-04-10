@@ -1,3 +1,4 @@
+// 海亀壊獣ガメシエル
 // Gameciel, the Sea Turtle Kaiju
 // Transpiled from c55063751.lua
 
@@ -15,11 +16,11 @@ card "Gameciel, the Sea Turtle Kaiju" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 268435460
-        code: 1027
+        effect_type: QuickEffect
+        category: Banish + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         on_resolve {
             negate activation
             banish (1+, card, either_player controls)
@@ -27,9 +28,9 @@ card "Gameciel, the Sea Turtle Kaiju" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 514
-        range: 2
+        effect_type: Ignition
+        category: Release + SpecialSummon
+        range: Hand
         cost {
             tribute (1, monster, opponent controls)
         }

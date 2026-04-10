@@ -1,3 +1,4 @@
+// ゴヨウ・エンペラー
 // Goyo Emperor
 // Transpiled from c59255742.lua
 
@@ -20,8 +21,8 @@ card "Goyo Emperor" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 512
+        effect_type: Single + Trigger
+        category: SpecialSummon
         code: 1139
         on_resolve {
             special_summon (1, monster) from gy
@@ -29,20 +30,20 @@ card "Goyo Emperor" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1140
-        range: 4
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: BattleDamage
+        range: MonsterZone
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 8192
-        code: 1102
-        range: 4
+        effect_type: Field + Trigger
+        category: Summon
+        code: SpecialSummonSuccess
+        range: MonsterZone
         cost {
             tribute self
         }
@@ -52,7 +53,7 @@ card "Goyo Emperor" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 513
+        effect_type: Single + MandatoryTrigger
         code: 1015
         on_resolve {
             register_effect on self {

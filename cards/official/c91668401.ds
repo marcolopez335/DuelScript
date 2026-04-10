@@ -1,3 +1,4 @@
+// サイバー・エンジェル-伊舎那-
 // Cyber Angel Izana
 // Transpiled from c91668401.lua
 
@@ -20,9 +21,9 @@ card "Cyber Angel Izana" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 32
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             send (1+, monster, you controls) to gy
@@ -30,17 +31,17 @@ card "Cyber Angel Izana" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
+        effect_type: Single + Trigger
         code: 1139
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 17
-        code: 1027
-        range: 4
+        effect_type: QuickEffect
+        category: Destroy + ToDeck
+        code: Chaining
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to deck shuffle
@@ -49,7 +50,7 @@ card "Cyber Angel Izana" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 73
         property: 1024
         on_resolve {

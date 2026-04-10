@@ -1,3 +1,4 @@
+// クロス・ポーター
 // Cross Porter
 // Transpiled from c73146473.lua
 
@@ -11,10 +12,10 @@ card "Cross Porter" {
     def: 400
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
+        effect_type: Ignition
+        category: SpecialSummon
         property: 16
-        range: 4
+        range: MonsterZone
         on_resolve {
             send (1+, monster, you controls, hand) to gy
             special_summon (1, monster) from gy
@@ -22,9 +23,9 @@ card "Cross Porter" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: ChainEnd
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand
             reveal (1+, card, opponent controls)

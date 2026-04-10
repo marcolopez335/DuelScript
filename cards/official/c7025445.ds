@@ -1,3 +1,4 @@
+// パワー・ジャイアント
 // Power Giant
 // Transpiled from c7025445.lua
 
@@ -15,10 +16,10 @@ card "Power Giant" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         on_resolve {
             send (1+, card, you controls, hand) to gy
             register_effect on self {
@@ -29,8 +30,8 @@ card "Power Giant" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
-        code: 1130
+        effect_type: Single + Continuous
+        code: AttackAnnounce
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -44,8 +45,8 @@ card "Power Giant" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
-        code: 1131
+        effect_type: Single + Continuous
+        code: BattleTarget
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

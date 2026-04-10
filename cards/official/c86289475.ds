@@ -1,3 +1,4 @@
+// 磁石の戦士Ω＋
 // Magnet Warrior Omega Plus
 // Transpiled from c86289475.lua
 
@@ -11,9 +12,9 @@ card "Magnet Warrior Omega Plus" {
     def: 1900
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 517
-        range: 18
+        effect_type: Ignition
+        category: Destroy + Banish + SpecialSummon
+        range: Hand + Graveyard
         count_limit: (1, 86289475)
         on_resolve {
             destroy (1+, monster, you controls, hand)
@@ -22,11 +23,11 @@ card "Magnet Warrior Omega Plus" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 4096
-        code: 1027
+        effect_type: QuickEffect
+        category: DiceRoll
+        code: Chaining
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             tribute self

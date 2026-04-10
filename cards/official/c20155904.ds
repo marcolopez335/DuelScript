@@ -1,3 +1,4 @@
+// 十二獣クックル
 // Zoodiac Kataroost
 // Transpiled from c20155904.lua
 
@@ -11,9 +12,9 @@ card "Zoodiac Kataroost" {
     def: 1200
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 16
-        code: 1029
+        effect_type: Single + Trigger
+        category: ToDeck
+        code: Destroyed
         property: 65552
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
@@ -21,9 +22,9 @@ card "Zoodiac Kataroost" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 4352
-        category: 268435456
-        code: 1027
+        effect_type: QuickEffect
+        category: Negate
+        code: Chaining
         property: 49152
         cost {
             detach 1 overlay_unit from self

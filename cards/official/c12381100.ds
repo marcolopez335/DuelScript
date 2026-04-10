@@ -1,3 +1,4 @@
+// 究極竜魔導師
 // Dragon Master Magia
 // Transpiled from c12381100.lua
 
@@ -20,7 +21,7 @@ card "Dragon Master Magia" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -28,11 +29,11 @@ card "Dragon Master Magia" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 268435457
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         on_resolve {
             negate activation
             destroy (1+, card, you controls, gy)
@@ -40,8 +41,8 @@ card "Dragon Master Magia" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
+        effect_type: Single + Trigger
+        category: SpecialSummon
         code: 1015
         property: 65536
         on_resolve {

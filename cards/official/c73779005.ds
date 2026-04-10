@@ -1,3 +1,4 @@
+// ドラコニアの獣竜騎兵
 // Dragoons of Draconia
 // Transpiled from c73779005.lua
 
@@ -13,10 +14,10 @@ card "Dragoons of Draconia" {
     flavor: "[ Pendulum Effect ] Once per turn, if a Normal Monster you control destroys an opponent's monster by battle, after damage calculation: You can add 1 Level 4 or higher Normal Monster from your Deck to your hand. ---------------------------------------- [ Flavor Text ] Armed with muskets and iron spears, these mounted land troops of the Draconia Empire are feared by the Reptier Kingdom and other bordering nations."
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 131080
+        effect_type: Field + Trigger
+        category: ToHand + Search
         code: 1138
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck

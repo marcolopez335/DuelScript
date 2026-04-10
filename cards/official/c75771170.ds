@@ -1,3 +1,4 @@
+// アラヒメの御巫
 // Arahime the Manifested Mikanko
 // Transpiled from c75771170.lua
 
@@ -20,7 +21,7 @@ card "Arahime the Manifested Mikanko" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -28,17 +29,17 @@ card "Arahime the Manifested Mikanko" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 202
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 262144
+        effect_type: Ignition
+        category: EquipAction
         property: 16
-        range: 18
+        range: Hand + Graveyard
         count_limit: (1, 75771170)
         on_resolve {
             send (1+, card, you controls, gy) to gy
@@ -46,10 +47,10 @@ card "Arahime the Manifested Mikanko" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 8
+        effect_type: Field + Trigger
+        category: ToHand
         code: 4608
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from gy
@@ -57,7 +58,7 @@ card "Arahime the Manifested Mikanko" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         on_resolve {
         }

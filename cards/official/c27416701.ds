@@ -1,3 +1,4 @@
+// 柴戦士タロ
 // Shiba-Warrior Taro
 // Transpiled from c27416701.lua
 
@@ -11,7 +12,7 @@ card "Shiba-Warrior Taro" {
     def: 600
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -19,10 +20,10 @@ card "Shiba-Warrior Taro" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 8
-        code: 1029
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        category: ToHand
+        code: Destroyed
+        range: MonsterZone
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }

@@ -1,3 +1,4 @@
+// 救いの架け橋
 // Rainbow Bridge of Salvation
 // Transpiled from c5611760.lua
 
@@ -6,9 +7,9 @@ card "Rainbow Bridge of Salvation" {
     type: Normal Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 65552
-        code: 1002
+        effect_type: Activate
+        category: ToDeck + Draw
+        code: FreeChain
         on_resolve {
             set_flag "tracked" on self
             return (1+, monster, either_player controls) to deck shuffle
@@ -20,10 +21,10 @@ card "Rainbow Bridge of Salvation" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 131080
-        code: 1002
-        range: 16
+        effect_type: QuickEffect
+        category: ToHand + Search
+        code: FreeChain
+        range: Graveyard
         cost {
             banish self
         }

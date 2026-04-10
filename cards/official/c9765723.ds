@@ -1,3 +1,4 @@
+// 戦乙女の契約書
 // Dark Contract with the Witch
 // Transpiled from c9765723.lua
 
@@ -6,19 +7,19 @@ card "Dark Contract with the Witch" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         property: 16384
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 1
-        code: 1002
+        effect_type: QuickEffect
+        category: Destroy
+        code: FreeChain
         property: 16
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 9765723)
         on_resolve {
             destroy (1+, card, you controls, hand)
@@ -26,19 +27,19 @@ card "Dark Contract with the Witch" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             modifier: atk + 1000
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 514
-        category: 524288
+        effect_type: Field + MandatoryTrigger
+        category: Damage
         code: 4098
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             deal_damage to opponent: 1000

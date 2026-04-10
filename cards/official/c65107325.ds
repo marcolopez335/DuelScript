@@ -1,3 +1,4 @@
+// 赤酢の踏切
 // Sour Scheduling - Red Vinegar Vamoose
 // Transpiled from c65107325.lua
 
@@ -6,18 +7,18 @@ card "Sour Scheduling - Red Vinegar Vamoose" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 8
-        code: 1002
+        effect_type: Activate
+        category: ToHand
+        code: FreeChain
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 260
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }

@@ -1,3 +1,4 @@
+// プリズンクインデーモン
 // Imprisoned Queen Archfiend
 // Transpiled from c52248570.lua
 
@@ -15,10 +16,10 @@ card "Imprisoned Queen Archfiend" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 4098
         property: 263168
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -26,10 +27,10 @@ card "Imprisoned Queen Archfiend" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
+        effect_type: Field + MandatoryTrigger
         code: 4098
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {

@@ -1,3 +1,4 @@
+// 氷水艇エーギロカシス
 // Icejade Creation Aegirocassis
 // Transpiled from c1295442.lua
 
@@ -15,7 +16,7 @@ card "Icejade Creation Aegirocassis" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 0
@@ -23,7 +24,7 @@ card "Icejade Creation Aegirocassis" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 4
+        effect_type: Equip
         code: 104
         on_resolve {
             modifier: def + 0
@@ -31,11 +32,11 @@ card "Icejade Creation Aegirocassis" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 262144
-        code: 1002
+        effect_type: QuickEffect
+        category: EquipAction
+        code: FreeChain
         property: 16
-        range: 18
+        range: Hand + Graveyard
         count_limit: (1, 1295442)
         on_resolve {
             equip (1, card) to (1, monster)
@@ -44,9 +45,9 @@ card "Icejade Creation Aegirocassis" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 512
-        range: 8
+        effect_type: Ignition
+        category: SpecialSummon
+        range: SpellTrapZone
         count_limit: (1, 1295442)
         on_resolve {
             special_summon (1, monster) from gy
@@ -54,7 +55,7 @@ card "Icejade Creation Aegirocassis" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         on_resolve {
         }

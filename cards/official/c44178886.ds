@@ -1,3 +1,4 @@
+// ライトロード・モンク エイリン
 // Ehren, Lightsworn Monk
 // Transpiled from c44178886.lua
 
@@ -11,8 +12,8 @@ card "Ehren, Lightsworn Monk" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 16
+        effect_type: Single + MandatoryTrigger
+        category: ToDeck
         code: 1133
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
@@ -20,10 +21,10 @@ card "Ehren, Lightsworn Monk" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 64
+        effect_type: Field + MandatoryTrigger
+        category: AtkChange
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             mill 3

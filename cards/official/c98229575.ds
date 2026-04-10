@@ -1,3 +1,4 @@
+// U.A.フィールドゼネラル
 // U.A. Playmaker
 // Transpiled from c98229575.lua
 
@@ -15,10 +16,10 @@ card "U.A. Playmaker" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         count_limit: (1, 98229575)
         on_resolve {
             return (1+, monster, you controls) to hand
@@ -26,10 +27,10 @@ card "U.A. Playmaker" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 2097152
-        code: 1130
-        range: 4
+        effect_type: Field + Trigger
+        category: SynchroSummon
+        code: AttackAnnounce
+        range: MonsterZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

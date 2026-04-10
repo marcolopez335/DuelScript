@@ -1,3 +1,4 @@
+// 虎菱之玄
 // Gen the Diamond Tiger
 // Transpiled from c52126602.lua
 
@@ -11,10 +12,10 @@ card "Gen the Diamond Tiger" {
     def: 2000
 
     raw_effect "Effect 1" {
-        effect_type: 514
-        category: 8
+        effect_type: Field + MandatoryTrigger
+        category: ToHand
         code: 4224
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
@@ -23,9 +24,9 @@ card "Gen the Diamond Tiger" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 4
+        effect_type: Ignition
+        category: SpecialSummon
+        range: MonsterZone
         count_limit: (1, 52126602)
         on_resolve {
             special_summon (1, monster) from gy
@@ -33,9 +34,9 @@ card "Gen the Diamond Tiger" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 128
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: DefChange
+        code: SpecialSummonSuccess
         count_limit: (1, 0)
         on_resolve {
             discard (1, card)

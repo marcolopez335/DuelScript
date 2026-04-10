@@ -1,3 +1,4 @@
+// 黒薔薇の魔女
 // Witch of the Black Rose
 // Transpiled from c17720747.lua
 
@@ -11,7 +12,7 @@ card "Witch of the Black Rose" {
     def: 1200
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -19,9 +20,9 @@ card "Witch of the Black Rose" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 65536
-        code: 1100
+        effect_type: Single + MandatoryTrigger
+        category: Draw
+        code: SummonSuccess
         on_resolve {
             draw 1
             reveal (1+, card, opponent controls)

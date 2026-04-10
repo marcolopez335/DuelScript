@@ -1,3 +1,4 @@
+// 独法師
 // Bonze Alone
 // Transpiled from c263926.lua
 
@@ -11,7 +12,7 @@ card "Bonze Alone" {
     def: 100
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 20
         property: 263168
         on_resolve {
@@ -20,7 +21,7 @@ card "Bonze Alone" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -28,39 +29,39 @@ card "Bonze Alone" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 1310720
-        range: 2
+        range: Hand
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 514
-        category: 1
-        code: 1100
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        category: Destroy
+        code: SummonSuccess
+        range: MonsterZone
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 514
-        category: 1
-        code: 1101
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        category: Destroy
+        code: FlipSummonSuccess
+        range: MonsterZone
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
     raw_effect "Effect 6" {
-        effect_type: 514
-        category: 1
-        code: 1102
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        category: Destroy
+        code: SpecialSummonSuccess
+        range: MonsterZone
         on_resolve {
             destroy (1+, card, either_player controls)
         }

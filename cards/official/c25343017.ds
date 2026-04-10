@@ -1,3 +1,4 @@
+// 寡黙なるサイコプリースト
 // Hushed Psychic Cleric
 // Transpiled from c25343017.lua
 
@@ -11,28 +12,28 @@ card "Hushed Psychic Cleric" {
     def: 2100
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 4096
-        code: 1100
+        effect_type: Single + MandatoryTrigger
+        category: DiceRoll
+        code: SummonSuccess
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 4096
-        code: 1101
+        effect_type: Single + MandatoryTrigger
+        category: DiceRoll
+        code: FlipSummonSuccess
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 4
+        effect_type: Ignition
+        category: Banish
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, card, you controls, hand)
@@ -40,9 +41,9 @@ card "Hushed Psychic Cleric" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 513
-        category: 512
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 16
         on_resolve {
             special_summon (1, monster) from gy

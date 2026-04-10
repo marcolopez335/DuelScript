@@ -1,3 +1,4 @@
+// 守護神官マハード
 // Palladium Oracle Mahad
 // Transpiled from c71703785.lua
 
@@ -15,29 +16,29 @@ card "Palladium Oracle Mahad" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 512
+        effect_type: Single + Trigger
+        category: SpecialSummon
         code: 1110
-        range: 2
+        range: Hand
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 102
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy

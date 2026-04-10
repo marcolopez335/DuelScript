@@ -1,3 +1,4 @@
+// ジョーカーズ・ワイルド
 // Joker's Wild
 // Transpiled from c81945678.lua
 
@@ -6,8 +7,8 @@ card "Joker's Wild" {
     type: Normal Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         count_limit: (1, 81945678)
         cost {
             send self to gy
@@ -17,11 +18,11 @@ card "Joker's Wild" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 24
-        code: 1002
+        effect_type: QuickEffect
+        category: ToHand + ToDeck
+        code: FreeChain
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             return (1+, spell, you controls) to deck shuffle

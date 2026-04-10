@@ -1,3 +1,4 @@
+// セフィラの神託
 // Oracle of Zefra
 // Transpiled from c32354768.lua
 
@@ -6,9 +7,9 @@ card "Oracle of Zefra" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 131080
-        code: 1002
+        effect_type: Activate
+        category: ToHand + Search
+        code: FreeChain
         count_limit: (1, 32354768)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -17,10 +18,10 @@ card "Oracle of Zefra" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 16
-        code: 1102
-        range: 256
+        effect_type: Field + Trigger
+        category: ToDeck
+        code: SpecialSummonSuccess
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to deck shuffle
@@ -28,10 +29,10 @@ card "Oracle of Zefra" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 512
-        code: 1102
-        range: 256
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -39,9 +40,9 @@ card "Oracle of Zefra" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        code: 1102
-        range: 256
+        effect_type: Field + Trigger
+        code: SpecialSummonSuccess
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             shuffle_deck
@@ -50,10 +51,10 @@ card "Oracle of Zefra" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 130
-        category: 65664
-        code: 1102
-        range: 256
+        effect_type: Field + Trigger
+        category: DefChange + Draw
+        code: SpecialSummonSuccess
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             draw 1
@@ -63,10 +64,10 @@ card "Oracle of Zefra" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 2
+        effect_type: Field
         code: 251
         property: 1312
-        range: 256
+        range: FieldZone
         on_resolve {
         }
     }

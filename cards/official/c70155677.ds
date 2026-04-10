@@ -1,3 +1,4 @@
+// 夢見るネムレリア
 // Dreaming Nemleria
 // Transpiled from c70155677.lua
 
@@ -16,9 +17,9 @@ card "Dreaming Nemleria" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
+        effect_type: Ignition
         category: 2147483648
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -27,7 +28,7 @@ card "Dreaming Nemleria" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -35,18 +36,18 @@ card "Dreaming Nemleria" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 263168
-        range: 64
+        range: Deck
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 20
-        code: 1102
+        effect_type: Single + Trigger
+        category: Banish + ToDeck
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             banish (1+, card, either_player controls)
@@ -55,7 +56,7 @@ card "Dreaming Nemleria" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 67635200
         on_resolve {

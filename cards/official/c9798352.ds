@@ -1,3 +1,4 @@
+// 奇采のプルフィネス
 // Prufinesse, the Tactical Trapper
 // Transpiled from c9798352.lua
 
@@ -11,9 +12,9 @@ card "Prufinesse, the Tactical Trapper" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 134217728
-        code: 1100
+        effect_type: Single + Trigger
+        category: LevelChange
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 9798352)
         cost {
@@ -24,9 +25,9 @@ card "Prufinesse, the Tactical Trapper" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 134217728
-        code: 1102
+        effect_type: Single + Trigger
+        category: LevelChange
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 9798352)
         cost {
@@ -37,10 +38,10 @@ card "Prufinesse, the Tactical Trapper" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 134217732
+        effect_type: Ignition
+        category: Banish + LevelChange
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, trap, you controls, deck)
@@ -48,8 +49,8 @@ card "Prufinesse, the Tactical Trapper" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        code: 1029
+        effect_type: Single + Trigger
+        code: Destroyed
         property: 81920
         count_limit: (1, 0)
         on_resolve {

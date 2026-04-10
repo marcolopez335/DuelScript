@@ -1,3 +1,4 @@
+// 古神クトグア
 // Old Entity Cthugua
 // Transpiled from c12948099.lua
 
@@ -21,9 +22,9 @@ card "Old Entity Cthugua" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 16
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToDeck
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
@@ -31,8 +32,8 @@ card "Old Entity Cthugua" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 65536
+        effect_type: Single + MandatoryTrigger
+        category: Draw
         code: 1108
         property: 2048
         on_resolve {
@@ -41,7 +42,7 @@ card "Old Entity Cthugua" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1108
         on_resolve {
             register_effect on self {

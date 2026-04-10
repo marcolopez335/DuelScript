@@ -1,3 +1,4 @@
+// 始祖の守護者ティラス
 // Tiras, Keeper of Genesis
 // Transpiled from c31386180.lua
 
@@ -21,21 +22,21 @@ card "Tiras, Keeper of Genesis" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 1
+        effect_type: Field + MandatoryTrigger
+        category: Destroy
         code: 4224
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -43,9 +44,9 @@ card "Tiras, Keeper of Genesis" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
+        effect_type: Field + MandatoryTrigger
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
         }

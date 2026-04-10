@@ -1,3 +1,4 @@
+// 銀河眼の時源竜
 // Galaxy-Eyes Tachyon Primal
 // Transpiled from c45710945.lua
 
@@ -15,19 +16,19 @@ card "Galaxy-Eyes Tachyon Primal" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 514
-        code: 1130
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        code: AttackAnnounce
+        range: MonsterZone
         on_resolve {
             attach (1, card) to self as_material
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 2
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: Hand
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -35,9 +36,9 @@ card "Galaxy-Eyes Tachyon Primal" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 131080
-        code: 1100
+        effect_type: Single + MandatoryTrigger
+        category: ToHand + Search
+        code: SummonSuccess
         count_limit: (1, 0)
         on_resolve {
             return (1+, spell, either_player controls) to hand
@@ -46,9 +47,9 @@ card "Galaxy-Eyes Tachyon Primal" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 513
-        category: 131080
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         count_limit: (1, 0)
         on_resolve {
             return (1+, spell, either_player controls) to hand

@@ -1,3 +1,4 @@
+// フォトン・エンペラー
 // Photon Emperor
 // Transpiled from c73478096.lua
 
@@ -15,9 +16,9 @@ card "Photon Emperor" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 512
-        code: 1014
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 65536
         count_limit: (1, 73478096)
         on_resolve {
@@ -26,8 +27,8 @@ card "Photon Emperor" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
-        code: 1100
+        effect_type: Single + Continuous
+        code: SummonSuccess
         on_resolve {
             set_flag "tracked" on self
             register_effect on self {
@@ -38,8 +39,8 @@ card "Photon Emperor" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
-        code: 1102
+        effect_type: Single + Continuous
+        code: SpecialSummonSuccess
         on_resolve {
             set_flag "tracked" on self
             register_effect on self {
@@ -50,7 +51,7 @@ card "Photon Emperor" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 29
         on_resolve {
         }

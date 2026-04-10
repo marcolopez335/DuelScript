@@ -1,3 +1,4 @@
+// 花札衛－雨四光－
 // Flower Cardian Lightshower
 // Transpiled from c42291297.lua
 
@@ -21,40 +22,40 @@ card "Flower Cardian Lightshower" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 41
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 71
         property: 128
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 524288
+        effect_type: Field + MandatoryTrigger
+        category: Damage
         code: 1110
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             deal_damage to opponent: 1000
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 514
-        category: 16384
+        effect_type: Field + MandatoryTrigger
+        category: Disable
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {

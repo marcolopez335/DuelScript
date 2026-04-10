@@ -1,3 +1,4 @@
+// フェニックス・ギア・ブレード
 // Phoenix Gearblade
 // Transpiled from c33872334.lua
 
@@ -6,7 +7,7 @@ card "Phoenix Gearblade" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 300
@@ -14,9 +15,9 @@ card "Phoenix Gearblade" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
+        effect_type: Field + Trigger
         code: 1141
-        range: 8
+        range: SpellTrapZone
         cost {
             send self to gy
         }
@@ -30,9 +31,9 @@ card "Phoenix Gearblade" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 8
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand
+        code: ChainEnd
         property: 65536
         count_limit: (1, 33872334)
         on_resolve {
@@ -41,9 +42,9 @@ card "Phoenix Gearblade" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 8
-        code: 1011
+        effect_type: Single + Trigger
+        category: ToHand
+        code: TurnEnd
         property: 65536
         count_limit: (1, 33872334)
         on_resolve {
@@ -52,16 +53,16 @@ card "Phoenix Gearblade" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2
+        effect_type: Field
         code: 194
         on_resolve {
         }
     }
 
     raw_effect "Effect 6" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

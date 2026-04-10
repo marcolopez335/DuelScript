@@ -1,3 +1,4 @@
+// ザ・ロック・オブ・ウォークライ
 // War Rock Mountain
 // Transpiled from c45943516.lua
 
@@ -6,9 +7,9 @@ card "War Rock Mountain" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 131080
-        code: 1002
+        effect_type: Activate
+        category: ToHand + Search
+        code: FreeChain
         count_limit: (1, 45943516)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -17,10 +18,10 @@ card "War Rock Mountain" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 4104
-        range: 256
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

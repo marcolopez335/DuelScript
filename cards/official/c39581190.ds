@@ -1,3 +1,4 @@
+// サブテラーの射手
 // Subterror Nemesis Archer
 // Transpiled from c39581190.lua
 
@@ -11,9 +12,9 @@ card "Subterror Nemesis Archer" {
     def: 1400
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 16
-        code: 1132
+        effect_type: Single + Trigger
+        category: ToDeck
+        code: DamageCalculation
         count_limit: (1, 39581190)
         on_resolve {
             return (1+, monster, you controls) to deck shuffle
@@ -21,9 +22,9 @@ card "Subterror Nemesis Archer" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
-        code: 1014
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 65536
         count_limit: (1, 0)
         on_resolve {

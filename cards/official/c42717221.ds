@@ -1,3 +1,4 @@
+// サイバース・クロック・ドラゴン
 // Cyberse Clock Dragon
 // Transpiled from c42717221.lua
 
@@ -20,9 +21,9 @@ card "Cyberse Clock Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 2097248
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToGrave + AtkChange + SynchroSummon
+        code: SpecialSummonSuccess
         on_resolve {
             mill 1
             register_effect on self {
@@ -33,28 +34,28 @@ card "Cyberse Clock Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 71
         property: 128
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 332
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 131080
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: ChainEnd
         property: 81920
         on_resolve {
             return (1+, spell, you controls) to hand

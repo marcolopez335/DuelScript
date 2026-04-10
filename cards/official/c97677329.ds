@@ -1,3 +1,4 @@
+// バックアップ・スーパーバイザー
 // Backup Supervisor
 // Transpiled from c97677329.lua
 
@@ -20,17 +21,17 @@ card "Backup Supervisor" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 251
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 1141
-        range: 4
+        range: MonsterZone
         count_limit: (1, 97677329)
         on_resolve {
             special_summon (1, monster) from gy
@@ -38,9 +39,9 @@ card "Backup Supervisor" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 65536
         count_limit: (1, 0)
         on_resolve {

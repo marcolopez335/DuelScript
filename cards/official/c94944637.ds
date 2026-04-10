@@ -1,3 +1,4 @@
+// 魔族召喚師
 // Doom Shaman
 // Transpiled from c94944637.lua
 
@@ -15,9 +16,9 @@ card "Doom Shaman" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 4
+        effect_type: Ignition
+        category: SpecialSummon
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -25,7 +26,7 @@ card "Doom Shaman" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1015
         on_resolve {
             destroy (1+, card, either_player controls, gy)

@@ -1,3 +1,4 @@
+// クロス・キーパー
 // Cross Keeper
 // Transpiled from c40740224.lua
 
@@ -11,9 +12,9 @@ card "Cross Keeper" {
     def: 400
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 6
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand + MonsterZone
         count_limit: (1, 40740224)
         cost {
             send self to gy
@@ -33,11 +34,11 @@ card "Cross Keeper" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 65552
-        code: 1102
+        effect_type: Field + Trigger
+        category: ToDeck + Draw
+        code: SpecialSummonSuccess
         property: 65536
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self

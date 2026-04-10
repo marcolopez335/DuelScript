@@ -1,3 +1,4 @@
+// 太陽電池メン
 // Batteryman Solar
 // Transpiled from c44586426.lua
 
@@ -11,9 +12,9 @@ card "Batteryman Solar" {
     def: 1500
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 32
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 44586426)
         on_resolve {
@@ -22,9 +23,9 @@ card "Batteryman Solar" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 32
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 44586426)
         on_resolve {
@@ -33,10 +34,10 @@ card "Batteryman Solar" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 1536
-        code: 1100
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        category: SpecialSummon + Token
+        code: SummonSuccess
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             create_token { atk: 0 def: 0 }
@@ -45,10 +46,10 @@ card "Batteryman Solar" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 514
-        category: 1536
-        code: 1102
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        category: SpecialSummon + Token
+        code: SpecialSummonSuccess
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             create_token { atk: 0 def: 0 }
@@ -57,9 +58,9 @@ card "Batteryman Solar" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 64
+        effect_type: Ignition
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 44586428)
         on_resolve {
         }

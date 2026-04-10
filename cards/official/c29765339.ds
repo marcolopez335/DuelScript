@@ -1,3 +1,4 @@
+// エレキリム
 // Watthydra
 // Transpiled from c29765339.lua
 
@@ -21,7 +22,7 @@ card "Watthydra" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 74
         on_resolve {
             register_effect on self { grant: direct_attack duration: until_end_of_turn }
@@ -29,8 +30,8 @@ card "Watthydra" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 4
+        effect_type: Single + MandatoryTrigger
+        category: Banish
         code: 1143
         on_resolve {
             banish (1+, card, opponent controls, deck)

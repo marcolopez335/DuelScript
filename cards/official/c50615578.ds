@@ -1,3 +1,4 @@
+// カラクリ忍者 七七四九
 // Karakuri Ninja mdl 7749 'Nanashick'
 // Transpiled from c50615578.lua
 
@@ -15,7 +16,7 @@ card "Karakuri Ninja mdl 7749 'Nanashick'" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 191
         on_resolve {
             register_effect on self { grant: must_attack_if_able duration: until_end_of_turn }
@@ -23,18 +24,18 @@ card "Karakuri Ninja mdl 7749 'Nanashick'" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 4096
-        code: 1131
+        effect_type: Single + MandatoryTrigger
+        category: DiceRoll
+        code: BattleTarget
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 65536
-        code: 1100
+        effect_type: Single + Trigger
+        category: Draw
+        code: SummonSuccess
         property: 2048
         on_resolve {
             draw 1

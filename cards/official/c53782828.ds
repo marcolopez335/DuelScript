@@ -1,3 +1,4 @@
+// Ｓ－Ｆｏｒｃｅ レトロアクティヴ
 // S-Force Retroactive
 // Transpiled from c53782828.lua
 
@@ -11,19 +12,19 @@ card "S-Force Retroactive" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 358
         property: 2048
-        range: 2
+        range: Hand
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 520
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: ToHand + SpecialSummon
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
@@ -32,10 +33,10 @@ card "S-Force Retroactive" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 55049722
         property: 2048
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             banish (1+, card, you controls, hand)

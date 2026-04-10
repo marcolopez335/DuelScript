@@ -1,3 +1,4 @@
+// シャッフル・リボーン
 // Shuffle Reborn
 // Transpiled from c14816688.lua
 
@@ -6,9 +7,9 @@ card "Shuffle Reborn" {
     type: Normal Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 516
-        code: 1002
+        effect_type: Activate
+        category: Banish + SpecialSummon
+        code: FreeChain
         property: 16
         on_resolve {
             special_summon (1, monster) from gy
@@ -18,10 +19,10 @@ card "Shuffle Reborn" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 65556
+        effect_type: Ignition
+        category: Banish + ToDeck + Draw
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 14816688)
         cost {
             banish self
@@ -38,7 +39,7 @@ card "Shuffle Reborn" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 4608
         count_limit: (1, 0)
         on_resolve {

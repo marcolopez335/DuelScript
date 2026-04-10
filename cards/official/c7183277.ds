@@ -1,3 +1,4 @@
+// ライトロード・ドルイド オルクス
 // Aurkus, Lightsworn Druid
 // Transpiled from c7183277.lua
 
@@ -11,20 +12,20 @@ card "Aurkus, Lightsworn Druid" {
     def: 1800
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 71
         property: 160
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 64
+        effect_type: Field + MandatoryTrigger
+        category: AtkChange
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
         }

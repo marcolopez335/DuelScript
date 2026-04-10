@@ -1,3 +1,4 @@
+// 電池メン－角型
 // Batteryman 9-Volt
 // Transpiled from c60549248.lua
 
@@ -11,9 +12,9 @@ card "Batteryman 9-Volt" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         property: 16384
         count_limit: (1, 60549248)
         on_resolve {
@@ -23,9 +24,9 @@ card "Batteryman 9-Volt" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1101
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: FlipSummonSuccess
         property: 16384
         count_limit: (1, 60549248)
         on_resolve {
@@ -35,9 +36,9 @@ card "Batteryman 9-Volt" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 16384
         count_limit: (1, 60549248)
         on_resolve {
@@ -47,10 +48,10 @@ card "Batteryman 9-Volt" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 514
-        category: 1
+        effect_type: Field + MandatoryTrigger
+        category: Destroy
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, you controls, deck)

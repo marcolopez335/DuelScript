@@ -1,3 +1,4 @@
+// リンク・ディヴォーティー
 // Link Devotee
 // Transpiled from c48068378.lua
 
@@ -20,8 +21,8 @@ card "Link Devotee" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        code: SpecialSummonSuccess
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -31,9 +32,9 @@ card "Link Devotee" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 1536
-        code: 1017
+        effect_type: Single + Trigger
+        category: SpecialSummon + Token
+        code: Release
         property: 81920
         count_limit: (1, 48068378)
         on_resolve {
@@ -43,7 +44,7 @@ card "Link Devotee" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1019
         property: 1152
         on_resolve {

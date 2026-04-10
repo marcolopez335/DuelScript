@@ -1,3 +1,4 @@
+// スターシップ・スパイ・プレーン
 // Starship Spy Plane
 // Transpiled from c15458892.lua
 
@@ -11,18 +12,18 @@ card "Starship Spy Plane" {
     def: 500
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 8
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: ToHand
+        code: SpecialSummonSuccess
         property: 16
         on_resolve {
             return (1+, spell, opponent controls) to hand

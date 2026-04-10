@@ -1,3 +1,4 @@
+// トポロジック・ガンブラー・ドラゴン
 // Topologic Gumblar Dragon
 // Transpiled from c22593417.lua
 
@@ -20,10 +21,10 @@ card "Topologic Gumblar Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 514
-        category: 128
-        code: 1102
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        category: DefChange
+        code: SpecialSummonSuccess
+        range: MonsterZone
         count_limit: (1, 22593417)
         on_resolve {
             send (1+, monster, either_player controls) to gy
@@ -32,9 +33,9 @@ card "Topologic Gumblar Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 524416
-        range: 4
+        effect_type: Ignition
+        category: DefChange + Damage
+        range: MonsterZone
         count_limit: (1, 22593417)
         on_resolve {
             discard (1, card)

@@ -1,3 +1,4 @@
+// F.A.オフロードGP
 // F.A. Off-Road Grand Prix
 // Transpiled from c2144946.lua
 
@@ -6,25 +7,25 @@ card "F.A. Off-Road Grand Prix" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 130
-        range: 256
+        range: FieldZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 128
-        code: 1140
-        range: 256
+        effect_type: Field + Trigger
+        category: DefChange
+        code: BattleDamage
+        range: FieldZone
         count_limit: (1, 2144946)
         on_resolve {
             send (1+, card, you controls, deck) to gy
@@ -32,9 +33,9 @@ card "F.A. Off-Road Grand Prix" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 131080
-        code: 1029
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: Destroyed
         property: 65536
         count_limit: (1, 0)
         on_resolve {

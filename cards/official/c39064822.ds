@@ -1,3 +1,4 @@
+// トロイメア・ゴブリン
 // Knightmare Goblin
 // Transpiled from c39064822.lua
 
@@ -20,8 +21,8 @@ card "Knightmare Goblin" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        code: 1102
+        effect_type: Single + Trigger
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             draw 1
@@ -34,10 +35,10 @@ card "Knightmare Goblin" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 71
         property: 128
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }

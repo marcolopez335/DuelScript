@@ -1,3 +1,4 @@
+// 火車
 // Kasha
 // Transpiled from c52512994.lua
 
@@ -15,7 +16,7 @@ card "Kasha" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -23,18 +24,18 @@ card "Kasha" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 16
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: ToDeck
+        code: SpecialSummonSuccess
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
         }

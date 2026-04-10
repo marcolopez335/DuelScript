@@ -1,3 +1,4 @@
+// 獄神影獣－ネルヴェド
 // Power Patron Shadow Beast Nervedo
 // Transpiled from c17473466.lua
 
@@ -12,9 +13,9 @@ card "Power Patron Shadow Beast Nervedo" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1020
-        range: 512
+        range: PendulumZone
         on_resolve {
             set_flag "tracked" on self
             negate effect
@@ -23,9 +24,9 @@ card "Power Patron Shadow Beast Nervedo" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 513
-        range: 4
+        effect_type: Ignition
+        category: Destroy + SpecialSummon
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             banish self
@@ -37,9 +38,9 @@ card "Power Patron Shadow Beast Nervedo" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1013
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: ChainSolved
         property: 65536
         count_limit: (1, 0)
         on_resolve {

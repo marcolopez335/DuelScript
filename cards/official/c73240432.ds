@@ -1,3 +1,4 @@
+// エッジインプ・コットン・イーター
 // Edge Imp Cotton Eater
 // Transpiled from c73240432.lua
 
@@ -16,20 +17,20 @@ card "Edge Imp Cotton Eater" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 512
+        range: PendulumZone
         on_resolve {
             modifier: atk + 300
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 65536
-        code: 1102
+        effect_type: Field + Trigger
+        category: Draw
+        code: SpecialSummonSuccess
         property: 65536
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             draw 1
@@ -37,9 +38,9 @@ card "Edge Imp Cotton Eater" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 524288
-        code: 1102
+        effect_type: Single + Trigger
+        category: Damage
+        code: SpecialSummonSuccess
         property: 67584
         count_limit: (1, 73240432)
         on_resolve {

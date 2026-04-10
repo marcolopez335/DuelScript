@@ -1,3 +1,4 @@
+// サイバネット・コーデック
 // Cynet Codec
 // Transpiled from c60018643.lua
 
@@ -6,18 +7,18 @@ card "Cynet Codec" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
+        effect_type: Single + Trigger
+        category: ToHand + Search
         code: 328454099
         property: 65552
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)
@@ -29,10 +30,10 @@ card "Cynet Codec" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 1102
+        effect_type: Field + Continuous
+        code: SpecialSummonSuccess
         property: 1024
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             emit_event "custom"
         }

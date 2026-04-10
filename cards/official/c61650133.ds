@@ -1,3 +1,4 @@
+// 召喚の呪詛
 // Summoning Curse
 // Transpiled from c61650133.lua
 
@@ -6,17 +7,17 @@ card "Summoning Curse" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 4608
         property: 263168
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, opponent controls, hand)
@@ -24,10 +25,10 @@ card "Summoning Curse" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 4
-        code: 1102
-        range: 8
+        effect_type: Field + MandatoryTrigger
+        category: Banish
+        code: SpecialSummonSuccess
+        range: SpellTrapZone
         on_resolve {
             banish (1+, card, opponent controls, hand)
         }

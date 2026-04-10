@@ -1,3 +1,4 @@
+// ヴァンパイアの幽鬼
 // Vampire Ghost
 // Transpiled from c90299015.lua
 
@@ -11,9 +12,9 @@ card "Vampire Ghost" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131112
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + ToGrave + Search
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 90299015)
         cost {
@@ -27,10 +28,10 @@ card "Vampire Ghost" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 256
-        code: 1002
-        range: 16
+        effect_type: QuickEffect
+        category: Counter
+        code: FreeChain
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             pay_lp your_lp / 2

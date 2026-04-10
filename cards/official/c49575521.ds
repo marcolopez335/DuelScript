@@ -1,3 +1,4 @@
+// ドラゴンメイド・フルス
 // Dragonmaid Nudyarl
 // Transpiled from c49575521.lua
 
@@ -15,10 +16,10 @@ card "Dragonmaid Nudyarl" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 16
+        effect_type: Ignition
+        category: ToDeck
         property: 16
-        range: 2
+        range: Hand
         count_limit: (1, 49575521)
         cost {
             discard (1, card, you controls)
@@ -29,20 +30,20 @@ card "Dragonmaid Nudyarl" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 520
+        effect_type: Field + Trigger
+        category: ToHand + SpecialSummon
         code: 4224
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to hand

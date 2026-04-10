@@ -1,3 +1,4 @@
+// 犀子の王様
 // Royal Rhino with Deceitful Dice
 // Transpiled from c74289646.lua
 
@@ -11,11 +12,11 @@ card "Royal Rhino with Deceitful Dice" {
     def: 600
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 36175873
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy + Damage + SynchroSummon + FusionSummon
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
@@ -25,7 +26,7 @@ card "Royal Rhino with Deceitful Dice" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         on_resolve {
             modifier: atk + 0

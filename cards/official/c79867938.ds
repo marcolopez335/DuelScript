@@ -1,3 +1,4 @@
+// BK ヘッドギア
 // Battlin' Boxer Headgeared
 // Transpiled from c79867938.lua
 
@@ -11,9 +12,9 @@ card "Battlin' Boxer Headgeared" {
     def: 1800
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 32
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: SummonSuccess
         property: 16384
         on_resolve {
             send (1+, monster, you controls, deck) to gy
@@ -21,10 +22,10 @@ card "Battlin' Boxer Headgeared" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 47
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
         }

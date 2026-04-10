@@ -1,3 +1,4 @@
+// 外神アザトート
 // Outer Entity Azathot
 // Transpiled from c34945480.lua
 
@@ -21,7 +22,7 @@ card "Outer Entity Azathot" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 238
         property: 263168
         on_resolve {
@@ -29,8 +30,8 @@ card "Outer Entity Azathot" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
-        code: 1102
+        effect_type: Single + Continuous
+        code: SpecialSummonSuccess
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -44,9 +45,9 @@ card "Outer Entity Azathot" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 1
-        range: 4
+        effect_type: Ignition
+        category: Destroy
+        range: MonsterZone
         cost {
             detach 1 overlay_unit from self
         }

@@ -1,3 +1,4 @@
+// 地久神－カルボン
 // World Soul - Carbon
 // Transpiled from c15079028.lua
 
@@ -11,10 +12,10 @@ card "World Soul - Carbon" {
     def: 1200
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 131080
-        code: 1002
-        range: 4
+        effect_type: Ignition
+        category: ToHand + Search
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 15079028)
         cost {
             tribute self
@@ -26,11 +27,11 @@ card "World Soul - Carbon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 16
-        code: 1014
+        effect_type: Field + Trigger
+        category: ToDeck
+        code: ChainEnd
         property: 65536
-        range: 16
+        range: Graveyard
         count_limit: (1, 15079028)
         on_resolve {
             return (1+, card, you controls) to deck shuffle

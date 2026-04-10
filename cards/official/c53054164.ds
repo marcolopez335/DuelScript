@@ -1,3 +1,4 @@
+// わくわくメルフィーズ
 // Joyous Melffys
 // Transpiled from c53054164.lua
 
@@ -21,8 +22,8 @@ card "Joyous Melffys" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        range: 4
+        effect_type: Ignition
+        range: MonsterZone
         cost {
             detach 1 overlay_unit from self
         }
@@ -36,11 +37,11 @@ card "Joyous Melffys" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 2147484160
-        code: 1002
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 53054164)
         on_resolve {
             return (1+, card, you controls) to deck shuffle
@@ -49,7 +50,7 @@ card "Joyous Melffys" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 74
         on_resolve {
             register_effect on self { grant: direct_attack duration: until_end_of_turn }

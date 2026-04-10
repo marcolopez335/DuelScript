@@ -1,3 +1,4 @@
+// ゴルゴニック・ゴーレム
 // Gorgonic Golem
 // Transpiled from c37984162.lua
 
@@ -11,9 +12,9 @@ card "Gorgonic Golem" {
     def: 600
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 2097152
-        code: 1140
+        effect_type: Single + MandatoryTrigger
+        category: SynchroSummon
+        code: BattleDamage
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -23,9 +24,9 @@ card "Gorgonic Golem" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
+        effect_type: Ignition
         property: 16
-        range: 16
+        range: Graveyard
         cost {
             banish self
         }

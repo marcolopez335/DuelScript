@@ -1,3 +1,4 @@
+// 死天使ハーヴェスト
 // Harvest Angel of Doom
 // Transpiled from c31987203.lua
 
@@ -12,9 +13,9 @@ card "Harvest Angel of Doom" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 131081
-        range: 512
+        effect_type: Ignition
+        category: Destroy + ToHand + Search
+        range: PendulumZone
         count_limit: (1, 31987203)
         on_resolve {
             destroy (1+, card, you controls, deck)
@@ -24,9 +25,9 @@ card "Harvest Angel of Doom" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -36,9 +37,9 @@ card "Harvest Angel of Doom" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -48,8 +49,8 @@ card "Harvest Angel of Doom" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        code: 1017
+        effect_type: Single + Trigger
+        code: Release
         property: 65536
         count_limit: (1, 0)
         on_resolve {

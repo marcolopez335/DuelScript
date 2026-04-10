@@ -1,3 +1,4 @@
+// 竜咬蟲
 // Dragonbite
 // Transpiled from c84462118.lua
 
@@ -11,9 +12,9 @@ card "Dragonbite" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 512
-        code: 1100
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SummonSuccess
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -21,10 +22,10 @@ card "Dragonbite" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 134217728
+        effect_type: Ignition
+        category: LevelChange
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             banish self

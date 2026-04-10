@@ -1,3 +1,4 @@
+// 真紅眼の黒刃竜
 // Red-Eyes Slash Dragon
 // Transpiled from c21140872.lua
 
@@ -20,10 +21,10 @@ card "Red-Eyes Slash Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        code: 1130
+        effect_type: Field + Trigger
+        code: AttackAnnounce
         property: 16
-        range: 4
+        range: MonsterZone
         on_resolve {
             equip (1, card) to (1, monster)
             register_effect on self {
@@ -38,11 +39,11 @@ card "Red-Eyes Slash Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 268435457
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         cost {
             send self to gy
         }
@@ -53,7 +54,7 @@ card "Red-Eyes Slash Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1019
         property: 1024
         on_resolve {
@@ -61,9 +62,9 @@ card "Red-Eyes Slash Dragon" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy

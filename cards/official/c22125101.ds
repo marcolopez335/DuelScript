@@ -1,3 +1,4 @@
+// 軌跡の魔術師
 // Beyond the Pendulum
 // Transpiled from c22125101.lua
 
@@ -20,9 +21,9 @@ card "Beyond the Pendulum" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         cost {
             pay_lp 1200
@@ -46,11 +47,11 @@ card "Beyond the Pendulum" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 1
-        code: 1102
+        effect_type: Field + Trigger
+        category: Destroy
+        code: SpecialSummonSuccess
         property: 65552
-        range: 4
+        range: MonsterZone
         count_limit: (1, 22125101)
         on_resolve {
             destroy (1+, monster, you controls, deck)

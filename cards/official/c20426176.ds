@@ -1,3 +1,4 @@
+// 海造賊－大航海
 // Plunder Patroll Booty
 // Transpiled from c20426176.lua
 
@@ -6,18 +7,18 @@ card "Plunder Patroll Booty" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 528
-        code: 1002
+        effect_type: QuickEffect
+        category: ToDeck + SpecialSummon
+        code: FreeChain
         property: 16
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 20426176)
         on_resolve {
             register_effect on self {
@@ -30,10 +31,10 @@ card "Plunder Patroll Booty" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 32
+        effect_type: Field + MandatoryTrigger
+        category: ToGrave
         code: 4608
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, monster, opponent controls) to gy

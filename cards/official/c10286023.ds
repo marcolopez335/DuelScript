@@ -1,3 +1,4 @@
+// 魔救の奇石－ドラガイト
 // Adamancipator Crystal - Dragite
 // Transpiled from c10286023.lua
 
@@ -11,9 +12,9 @@ card "Adamancipator Crystal - Dragite" {
     def: 2200
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 65536
-        code: 1102
+        effect_type: Single + Trigger
+        category: Draw
+        code: SpecialSummonSuccess
         property: 81920
         count_limit: (1, 10286023)
         on_resolve {
@@ -22,10 +23,10 @@ card "Adamancipator Crystal - Dragite" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 16
+        effect_type: Ignition
+        category: ToDeck
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle

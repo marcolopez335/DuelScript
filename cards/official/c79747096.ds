@@ -1,3 +1,4 @@
+// ＣＮｏ．１ ゲート・オブ・カオス・ヌメロン－シニューニャ
 // Number C1: Numeron Chaos Gate Sunya
 // Transpiled from c79747096.lua
 
@@ -21,17 +22,17 @@ card "Number C1: Numeron Chaos Gate Sunya" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 4
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: Banish
+        code: SpecialSummonSuccess
         on_resolve {
             banish (1+, card, either_player controls)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
-        code: 1011
+        effect_type: Single + Continuous
+        code: TurnEnd
         property: 1024
         on_resolve {
             register_effect on self {

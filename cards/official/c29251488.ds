@@ -1,3 +1,4 @@
+// シェフ・ド・ヌーベルズ
 // Chef de Nouvelles
 // Transpiled from c29251488.lua
 
@@ -12,17 +13,17 @@ card "Chef de Nouvelles" {
     def: 1850
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
-        range: 2
+        effect_type: Activate
+        code: FreeChain
+        range: Hand
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 131080
-        range: 512
+        effect_type: Ignition
+        category: ToHand + Search
+        range: PendulumZone
         count_limit: (1, 29251488)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -31,11 +32,11 @@ card "Chef de Nouvelles" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 512
-        code: 1102
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -43,8 +44,8 @@ card "Chef de Nouvelles" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        code: 1017
+        effect_type: Single + Trigger
+        code: Release
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy
@@ -52,11 +53,11 @@ card "Chef de Nouvelles" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 256
-        category: 134217728
-        code: 1002
+        effect_type: QuickEffect
+        category: LevelChange
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -67,18 +68,18 @@ card "Chef de Nouvelles" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 130
-        category: 512
-        code: 1102
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
         }
     }
 
     raw_effect "Effect 7" {
-        effect_type: 1
+        effect_type: Single
         code: 130
         property: 1024
         on_resolve {

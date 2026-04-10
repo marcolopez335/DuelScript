@@ -1,3 +1,4 @@
+// スケアクロー・クシャトリラ
 // Scareclaw Kashtira
 // Transpiled from c78534861.lua
 
@@ -15,17 +16,17 @@ card "Scareclaw Kashtira" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 190
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 516
-        code: 1002
-        range: 2
+        effect_type: QuickEffect
+        category: Banish + SpecialSummon
+        code: FreeChain
+        range: Hand
         count_limit: (1, 78534861)
         on_resolve {
             special_summon (1, monster) from gy
@@ -34,19 +35,19 @@ card "Scareclaw Kashtira" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 2
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 1131
+        effect_type: Field + Continuous
+        code: BattleTarget
         property: 1024
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }

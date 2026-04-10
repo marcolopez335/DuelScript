@@ -1,3 +1,4 @@
+// 幻奏の歌姫クープレ
 // Couplet the Melodious Songstress
 // Transpiled from c90276649.lua
 
@@ -16,19 +17,19 @@ card "Couplet the Melodious Songstress" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 3584
-        range: 512
+        range: PendulumZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 131080
-        range: 512
+        effect_type: Ignition
+        category: ToHand + Search
+        range: PendulumZone
         count_limit: (1, 90276649)
         on_resolve {
             return (1+, spell, you controls) to hand
@@ -37,9 +38,9 @@ card "Couplet the Melodious Songstress" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1012
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: ChainSolving
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -48,9 +49,9 @@ card "Couplet the Melodious Songstress" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        code: 1102
-        range: 64
+        effect_type: Field + Trigger
+        code: SpecialSummonSuccess
+        range: Deck
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

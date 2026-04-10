@@ -1,3 +1,4 @@
+// 紋章獣レオ
 // Heraldic Beast Leo
 // Transpiled from c82293134.lua
 
@@ -11,10 +12,10 @@ card "Heraldic Beast Leo" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 514
-        category: 1
+        effect_type: Field + MandatoryTrigger
+        category: Destroy
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, opponent controls, deck)
@@ -22,9 +23,9 @@ card "Heraldic Beast Leo" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 131080
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: ToHand + Search
+        code: ChainEnd
         count_limit: (1, 82293134)
         on_resolve {
             add_to_hand (1+, monster, opponent controls) from deck

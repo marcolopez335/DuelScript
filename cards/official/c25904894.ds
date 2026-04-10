@@ -1,3 +1,4 @@
+// カラクリ大権現 無零武
 // Karakuri Super Shogun mdl 00N 'Bureibu'
 // Transpiled from c25904894.lua
 
@@ -21,9 +22,9 @@ card "Karakuri Super Shogun mdl 00N 'Bureibu'" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 512
-        code: 1102
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy
@@ -31,20 +32,20 @@ card "Karakuri Super Shogun mdl 00N 'Bureibu'" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 42
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 4
+        effect_type: Field + Trigger
+        category: Banish
         code: 1016
         property: 65552
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, card, you controls, deck)

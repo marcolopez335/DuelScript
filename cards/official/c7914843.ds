@@ -1,3 +1,4 @@
+// 電磁ミノ虫
 // Electromagnetic Bagworm
 // Transpiled from c7914843.lua
 
@@ -11,8 +12,8 @@ card "Electromagnetic Bagworm" {
     def: 1400
 
     raw_effect "Effect 1" {
-        effect_type: 33
-        category: 8192
+        effect_type: Single + Flip
+        category: Summon
         property: 16
         on_resolve {
             take_control of (1, monster, opponent controls)
@@ -20,9 +21,9 @@ card "Electromagnetic Bagworm" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 6291456
-        code: 1140
+        effect_type: Single + MandatoryTrigger
+        category: SynchroSummon + XyzSummon
+        code: BattleDamage
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

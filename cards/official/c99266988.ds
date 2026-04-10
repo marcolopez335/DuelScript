@@ -1,3 +1,4 @@
+// 混沌領域
 // Chaos Space
 // Transpiled from c99266988.lua
 
@@ -6,9 +7,9 @@ card "Chaos Space" {
     type: Normal Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 131080
-        code: 1002
+        effect_type: Activate
+        category: ToHand + Search
+        code: FreeChain
         count_limit: (1, 99266988)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -17,10 +18,10 @@ card "Chaos Space" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 65552
+        effect_type: Ignition
+        category: ToDeck + Draw
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self

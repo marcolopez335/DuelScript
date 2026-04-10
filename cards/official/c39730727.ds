@@ -1,3 +1,4 @@
+// 天威無崩の地
 // Flawless Perfection of the Tenyi
 // Transpiled from c39730727.lua
 
@@ -6,27 +7,27 @@ card "Flawless Perfection of the Tenyi" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 1
-        range: 256
+        range: FieldZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 65536
-        code: 1102
+        effect_type: Field + Trigger
+        category: Draw
+        code: SpecialSummonSuccess
         property: 67584
-        range: 256
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             draw 1

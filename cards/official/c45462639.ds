@@ -1,3 +1,4 @@
+// 闇紅の魔導師
 // Dark Red Enchanter
 // Transpiled from c45462639.lua
 
@@ -15,44 +16,44 @@ card "Dark Red Enchanter" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 8388608
-        code: 1100
+        effect_type: Single + MandatoryTrigger
+        category: LinkSummon
+        code: SummonSuccess
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 1027
+        effect_type: Field + Continuous
+        code: Chaining
         property: 1024
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1022
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 64
-        category: 128
-        range: 4
+        effect_type: Ignition
+        category: DefChange
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, you controls, hand) to gy

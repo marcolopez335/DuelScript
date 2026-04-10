@@ -1,3 +1,4 @@
+// 速攻魔力増幅器
 // Quick Booster
 // Transpiled from c45869829.lua
 
@@ -6,9 +7,9 @@ card "Quick Booster" {
     type: Quick-Play Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 16
-        code: 1002
+        effect_type: Activate
+        category: ToDeck
+        code: FreeChain
         property: 16
         on_resolve {
             return (1+, card, you controls) to deck shuffle
@@ -16,9 +17,9 @@ card "Quick Booster" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: ChainEnd
         property: 81920
         on_resolve {
             add_to_hand (1+, card, you controls) from deck

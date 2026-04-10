@@ -1,3 +1,4 @@
+// 花札衛－芒－
 // Flower Cardian Zebra Grass
 // Transpiled from c17141718.lua
 
@@ -15,9 +16,9 @@ card "Flower Cardian Zebra Grass" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {
@@ -32,9 +33,9 @@ card "Flower Cardian Zebra Grass" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 65552
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToDeck + Draw
+        code: SummonSuccess
         property: 65536
         on_resolve {
             reveal (1+, card, opponent controls)
@@ -45,9 +46,9 @@ card "Flower Cardian Zebra Grass" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 65552
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToDeck + Draw
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             reveal (1+, card, opponent controls)

@@ -1,3 +1,4 @@
+// スプリガンズ・メリーメイカ
 // Springans Merrymaker
 // Transpiled from c48285768.lua
 
@@ -21,9 +22,9 @@ card "Springans Merrymaker" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 32
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: SpecialSummonSuccess
         property: 81920
         count_limit: (1, 48285768)
         on_resolve {
@@ -32,10 +33,10 @@ card "Springans Merrymaker" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 36
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: Banish + ToGrave
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, monster, you controls, deck)
@@ -48,7 +49,7 @@ card "Springans Merrymaker" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 4608
         count_limit: (1, 0)
         on_resolve {

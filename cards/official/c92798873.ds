@@ -1,3 +1,4 @@
+// ダイノルフィア・レクスターム
 // Dinomorphia Rexterm
 // Transpiled from c92798873.lua
 
@@ -20,21 +21,21 @@ card "Dinomorphia Rexterm" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 6
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 2097152
-        code: 1002
+        effect_type: QuickEffect
+        category: SynchroSummon
+        code: FreeChain
         property: 16384
-        range: 4
+        range: MonsterZone
         count_limit: (1, 92798873)
         cost {
             pay_lp 1000
@@ -48,9 +49,9 @@ card "Dinomorphia Rexterm" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 65536
         count_limit: (1, 0)
         on_resolve {

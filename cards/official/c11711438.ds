@@ -1,3 +1,4 @@
+// 戦華史略-三顧礼迎
 // Ancient Warriors Saga - Three Visits
 // Transpiled from c11711438.lua
 
@@ -6,18 +7,18 @@ card "Ancient Warriors Saga - Three Visits" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 131080
-        code: 1100
+        effect_type: Field + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         property: 65552
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 11711438)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -26,11 +27,11 @@ card "Ancient Warriors Saga - Three Visits" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 131080
-        code: 1102
+        effect_type: Field + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65552
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 11711438)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -39,9 +40,9 @@ card "Ancient Warriors Saga - Three Visits" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 512
-        code: 1014
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 114688
         count_limit: (1, 0)
         on_resolve {

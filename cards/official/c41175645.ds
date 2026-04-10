@@ -1,3 +1,4 @@
+// 沈黙の魔術師－サイレント・マジシャン
 // Silent Magician
 // Transpiled from c41175645.lua
 
@@ -15,7 +16,7 @@ card "Silent Magician" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -23,31 +24,31 @@ card "Silent Magician" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 263168
-        range: 2
+        range: Hand
         on_resolve {
             tribute (1, monster, you controls)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        category: 268435456
-        code: 1027
+        effect_type: QuickEffect
+        category: Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             negate activation
@@ -56,9 +57,9 @@ card "Silent Magician" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy

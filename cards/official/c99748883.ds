@@ -1,3 +1,4 @@
+// 流星連打－シロクロイド
 // Meteor Rush - Monochroid
 // Transpiled from c99748883.lua
 
@@ -15,10 +16,10 @@ card "Meteor Rush - Monochroid" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 2
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: Hand
         count_limit: (1, 99748883)
         on_resolve {
             special_summon (1, monster) from gy
@@ -26,18 +27,18 @@ card "Meteor Rush - Monochroid" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 1130
+        effect_type: Field + Continuous
+        code: AttackAnnounce
         on_resolve {
             set_flag "tracked" on self
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }

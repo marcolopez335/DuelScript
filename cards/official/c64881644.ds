@@ -1,3 +1,4 @@
+// 幻奏の歌姫ルフラン
 // Refrain the Melodious Songstress
 // Transpiled from c64881644.lua
 
@@ -12,10 +13,10 @@ card "Refrain the Melodious Songstress" {
     def: 800
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 2097184
+        effect_type: Ignition
+        category: ToGrave + SynchroSummon
         property: 16
-        range: 512
+        range: PendulumZone
         count_limit: (1, 64881644)
         on_resolve {
             send (1+, monster, you controls, deck) to gy
@@ -27,9 +28,9 @@ card "Refrain the Melodious Songstress" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -39,9 +40,9 @@ card "Refrain the Melodious Songstress" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -51,9 +52,9 @@ card "Refrain the Melodious Songstress" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        code: 1102
-        range: 64
+        effect_type: Field + Trigger
+        code: SpecialSummonSuccess
+        range: Deck
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

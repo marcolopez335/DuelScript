@@ -1,3 +1,4 @@
+// 剣闘獣ネロキウス
 // Gladiator Beast Nerokius
 // Transpiled from c29357956.lua
 
@@ -20,7 +21,7 @@ card "Gladiator Beast Nerokius" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -28,20 +29,20 @@ card "Gladiator Beast Nerokius" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 6
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 4224
-        range: 4
+        range: MonsterZone
         on_resolve {
             special_summon (1, monster) from gy
             special_summon (1, monster) from gy

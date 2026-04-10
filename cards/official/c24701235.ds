@@ -1,3 +1,4 @@
+// 和魂
 // Nikitama
 // Transpiled from c24701235.lua
 
@@ -11,7 +12,7 @@ card "Nikitama" {
     def: 1800
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -19,8 +20,8 @@ card "Nikitama" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
-        code: 1100
+        effect_type: Single + Continuous
+        code: SummonSuccess
         on_resolve {
             set_flag "tracked" on self
             register_effect on self {
@@ -31,7 +32,7 @@ card "Nikitama" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1001
         on_resolve {
             set_flag "tracked" on self
@@ -43,9 +44,9 @@ card "Nikitama" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 513
-        category: 65536
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: Draw
+        code: ChainEnd
         on_resolve {
             draw 1
         }

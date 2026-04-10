@@ -1,3 +1,4 @@
+// パンデミック・ドラゴン
 // Pandemic Dragon
 // Transpiled from c68299524.lua
 
@@ -15,9 +16,9 @@ card "Pandemic Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 2097152
-        range: 4
+        effect_type: Ignition
+        category: SynchroSummon
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             pay_lp your_lp / 2
@@ -31,10 +32,10 @@ card "Pandemic Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 1
+        effect_type: Ignition
+        category: Destroy
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, either_player controls)
@@ -42,9 +43,9 @@ card "Pandemic Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 2097152
-        code: 1029
+        effect_type: Single + MandatoryTrigger
+        category: SynchroSummon
+        code: Destroyed
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

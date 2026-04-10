@@ -1,3 +1,4 @@
+// 剣闘獣アレクサンデル
 // Gladiator Beast Alexander
 // Transpiled from c42592719.lua
 
@@ -15,20 +16,20 @@ card "Gladiator Beast Alexander" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 1
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 4224
-        range: 4
+        range: MonsterZone
         cost {
             send self to deck
         }
@@ -38,7 +39,7 @@ card "Gladiator Beast Alexander" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {

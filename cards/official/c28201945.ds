@@ -1,3 +1,4 @@
+// カズーラの蟲惑魔
 // Traptrix Nepenthes
 // Transpiled from c28201945.lua
 
@@ -11,21 +12,21 @@ card "Traptrix Nepenthes" {
     def: 2000
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 1
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 131584
-        code: 1027
+        effect_type: Field + Trigger
+        category: SpecialSummon + Search
+        code: Chaining
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 28201945)
         on_resolve {
             special_summon (1, monster) from gy

@@ -1,3 +1,4 @@
+// 剣闘排斥波
 // Gladiator Rejection
 // Transpiled from c93684009.lua
 
@@ -6,28 +7,28 @@ card "Gladiator Rejection" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 71
         property: 128
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 512
-        code: 1102
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 93684009)
         on_resolve {
             special_summon (1, monster) from gy

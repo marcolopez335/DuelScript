@@ -1,3 +1,4 @@
+// B・F－決戦のビッグ・バリスタ
 // Battlewasp - Ballista the Armageddon
 // Transpiled from c26443791.lua
 
@@ -21,7 +22,7 @@ card "Battlewasp - Ballista the Armageddon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 203
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
@@ -29,9 +30,9 @@ card "Battlewasp - Ballista the Armageddon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 2097152
-        code: 1102
+        effect_type: Single + Trigger
+        category: SynchroSummon
+        code: SpecialSummonSuccess
         property: 81920
         cost {
             banish self
@@ -41,9 +42,9 @@ card "Battlewasp - Ballista the Armageddon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy

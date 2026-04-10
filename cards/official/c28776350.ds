@@ -1,3 +1,4 @@
+// アカシック・マジシャン
 // Akashic Magician
 // Transpiled from c28776350.lua
 
@@ -20,8 +21,8 @@ card "Akashic Magician" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2049
-        code: 1102
+        effect_type: Single + Continuous
+        code: SpecialSummonSuccess
         property: 1024
         on_resolve {
             register_effect on self {
@@ -32,18 +33,18 @@ card "Akashic Magician" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 8
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: ToHand
+        code: SpecialSummonSuccess
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 131144
-        range: 4
+        effect_type: Ignition
+        category: ToHand + AtkChange + Search
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             reveal (1, card, opponent controls, deck)

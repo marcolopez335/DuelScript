@@ -1,3 +1,4 @@
+// 風竜星－ホロウ
 // Pulao, Wind of the Yang Zing
 // Transpiled from c35089369.lua
 
@@ -11,9 +12,9 @@ card "Pulao, Wind of the Yang Zing" {
     def: 1800
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 512
-        code: 1014
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 16384
         count_limit: (1, 35089369)
         on_resolve {
@@ -22,10 +23,10 @@ card "Pulao, Wind of the Yang Zing" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             synchro_summon (1, synchro monster) using (1+, monster, you controls)
@@ -33,7 +34,7 @@ card "Pulao, Wind of the Yang Zing" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1108
         property: 128
         on_resolve {

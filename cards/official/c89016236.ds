@@ -1,3 +1,4 @@
+// ポワレティス・ド・ヌーベルズ
 // Poeltis de Nouvelles
 // Transpiled from c89016236.lua
 
@@ -20,17 +21,17 @@ card "Poeltis de Nouvelles" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2049
-        code: 1102
+        effect_type: Single + Continuous
+        code: SpecialSummonSuccess
         property: 1024
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 65536
-        code: 1102
+        effect_type: Single + Trigger
+        category: Draw
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 89016236)
         on_resolve {
@@ -39,10 +40,10 @@ card "Poeltis de Nouvelles" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 514
-        code: 1131
-        range: 4
+        effect_type: QuickEffect
+        category: Release + SpecialSummon
+        code: BattleTarget
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             tribute (1, monster, you controls)
@@ -51,10 +52,10 @@ card "Poeltis de Nouvelles" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        category: 514
+        effect_type: QuickEffect
+        category: Release + SpecialSummon
         code: 1028
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             tribute (1, monster, you controls)

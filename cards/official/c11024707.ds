@@ -1,3 +1,4 @@
+// 回猫
 // Flipping Feline
 // Transpiled from c11024707.lua
 
@@ -11,9 +12,9 @@ card "Flipping Feline" {
     def: 200
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 512
-        code: 1014
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 65536
         count_limit: (1, 11024707)
         on_resolve {
@@ -23,11 +24,11 @@ card "Flipping Feline" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
+        effect_type: Single + Trigger
+        category: SpecialSummon
         code: 279460163
         property: 65552
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -36,7 +37,7 @@ card "Flipping Feline" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1001
         property: 1024
         on_resolve {
@@ -44,10 +45,10 @@ card "Flipping Feline" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 1014
+        effect_type: Field + Continuous
+        code: ChainEnd
         property: 1024
-        range: 4
+        range: MonsterZone
         on_resolve {
             emit_event "custom"
         }

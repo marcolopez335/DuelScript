@@ -1,3 +1,4 @@
+// 捕食植物キメラフレシア
 // Predaplant Chimerafflesia
 // Transpiled from c25586143.lua
 
@@ -20,10 +21,10 @@ card "Predaplant Chimerafflesia" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 4
+        effect_type: Ignition
+        category: Banish
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, spell, you controls, deck)
@@ -31,10 +32,10 @@ card "Predaplant Chimerafflesia" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 2097152
-        code: 1130
-        range: 4
+        effect_type: Field + Trigger
+        category: SynchroSummon
+        code: AttackAnnounce
+        range: MonsterZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -44,18 +45,18 @@ card "Predaplant Chimerafflesia" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
-        code: 1014
+        effect_type: Single + Continuous
+        code: ChainEnd
         property: 1024
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 131080
+        effect_type: Field + Trigger
+        category: ToHand + Search
         code: 4098
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck

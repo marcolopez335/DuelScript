@@ -1,3 +1,4 @@
+// ブルーアイズ・ジェット・ドラゴン
 // Blue-Eyes Jet Dragon
 // Transpiled from c30576089.lua
 
@@ -15,11 +16,11 @@ card "Blue-Eyes Jet Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
-        code: 1029
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 81920
-        range: 18
+        range: Hand + Graveyard
         count_limit: (1, 30576089)
         on_resolve {
             special_summon (1, monster) from gy
@@ -27,19 +28,19 @@ card "Blue-Eyes Jet Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 41
         property: 256
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 8
-        code: 1132
+        effect_type: Single + Trigger
+        category: ToHand
+        code: DamageCalculation
         property: 16
         count_limit: (1, 0)
         on_resolve {

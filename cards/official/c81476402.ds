@@ -1,3 +1,4 @@
+// 邪悪龍エビルナイト・ドラゴン
 // Wicked Serpent Night Dragon
 // Transpiled from c81476402.lua
 
@@ -15,9 +16,9 @@ card "Wicked Serpent Night Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 81476402)
         cost {
             tribute self
@@ -28,9 +29,9 @@ card "Wicked Serpent Night Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 544
-        code: 1140
+        effect_type: Single + Trigger
+        category: ToGrave + SpecialSummon
+        code: BattleDamage
         property: 16
         on_resolve {
             send (1+, card, either_player controls) to gy

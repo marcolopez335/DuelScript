@@ -1,3 +1,4 @@
+// エヴォルダー・ペルタ
 // Evolsaur Pelta
 // Transpiled from c16480084.lua
 
@@ -11,15 +12,15 @@ card "Evolsaur Pelta" {
     def: 2000
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 2097152
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: SynchroSummon
+        code: SpecialSummonSuccess
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1019
         property: 1024
         on_resolve {
@@ -27,9 +28,9 @@ card "Evolsaur Pelta" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
-        code: 1140
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: BattleDamage
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)

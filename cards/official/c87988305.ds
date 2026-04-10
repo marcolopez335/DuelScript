@@ -1,3 +1,4 @@
+// 怨念の邪悪霊
 // Dark Spirit of Malice
 // Transpiled from c87988305.lua
 
@@ -11,11 +12,11 @@ card "Dark Spirit of Malice" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 512
-        code: 1027
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: Chaining
         property: 16
-        range: 6
+        range: Hand + MonsterZone
         count_limit: (1, 87988305)
         cost {
             send self to gy
@@ -34,11 +35,11 @@ card "Dark Spirit of Malice" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 8
-        code: 1014
+        effect_type: Field + Trigger
+        category: ToHand
+        code: ChainEnd
         property: 65536
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy

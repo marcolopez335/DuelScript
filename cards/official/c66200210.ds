@@ -1,3 +1,4 @@
+// 幻獣機ハムストラット
 // Mecha Phantom Beast Hamstrat
 // Transpiled from c66200210.lua
 
@@ -11,37 +12,37 @@ card "Mecha Phantom Beast Hamstrat" {
     def: 1600
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 130
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 513
-        category: 1536
+        effect_type: Single + MandatoryTrigger
+        category: SpecialSummon + Token
         code: 1001
         on_resolve {
             create_token { atk: 0 def: 0 }
@@ -52,10 +53,10 @@ card "Mecha Phantom Beast Hamstrat" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 64
-        category: 512
+        effect_type: Ignition
+        category: SpecialSummon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 66200210)
         cost {
             tribute self

@@ -1,3 +1,4 @@
+// 刀神－不知火
 // Shiranui Samuraisaga
 // Transpiled from c57288064.lua
 
@@ -21,11 +22,11 @@ card "Shiranui Samuraisaga" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 4112
-        code: 1002
+        effect_type: QuickEffect
+        category: ToDeck + DiceRoll
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, opponent controls) to deck shuffle
@@ -34,8 +35,8 @@ card "Shiranui Samuraisaga" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        code: 1011
+        effect_type: Single + Trigger
+        code: TurnEnd
         property: 81936
         on_resolve {
             register_effect on self {

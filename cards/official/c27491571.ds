@@ -1,3 +1,4 @@
+// ゴーストリックの魔女
 // Ghostrick Witch
 // Transpiled from c27491571.lua
 
@@ -11,7 +12,7 @@ card "Ghostrick Witch" {
     def: 200
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 20
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -19,19 +20,19 @@ card "Ghostrick Witch" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 4096
-        range: 4
+        effect_type: Ignition
+        category: DiceRoll
+        range: MonsterZone
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 4096
+        effect_type: Ignition
+        category: DiceRoll
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)

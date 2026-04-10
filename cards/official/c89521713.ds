@@ -1,3 +1,4 @@
+// マドルチェ・クロワンサン
 // Madolche Cruffssant
 // Transpiled from c89521713.lua
 
@@ -11,19 +12,19 @@ card "Madolche Cruffssant" {
     def: 1200
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 16
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: ToDeck
+        code: ChainEnd
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 8
+        effect_type: Ignition
+        category: ToHand
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy

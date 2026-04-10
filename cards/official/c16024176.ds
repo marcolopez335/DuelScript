@@ -1,3 +1,4 @@
+// 花札衛－松に鶴－
 // Flower Cardian Pine with Crane
 // Transpiled from c16024176.lua
 
@@ -15,19 +16,19 @@ card "Flower Cardian Pine with Crane" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 263168
-        range: 2
+        range: Hand
         on_resolve {
             tribute (1, monster, you controls)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 66080
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: ToGrave + SpecialSummon + Draw
+        code: SpecialSummonSuccess
         on_resolve {
             draw 1
             reveal (1+, card, opponent controls)
@@ -38,10 +39,10 @@ card "Flower Cardian Pine with Crane" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 65536
+        effect_type: Field + Trigger
+        category: Draw
         code: 4224
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             draw 1

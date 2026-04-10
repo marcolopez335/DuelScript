@@ -1,3 +1,4 @@
+// Ｌｉｖｅ☆Ｔｗｉｎ リィラ・スウィート
 // Live☆Twin Lil-la Sweet
 // Transpiled from c82699999.lua
 
@@ -11,10 +12,10 @@ card "Live☆Twin Lil-la Sweet" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 16384
-        code: 1027
-        range: 2
+        effect_type: QuickEffect
+        category: Disable
+        code: Chaining
+        range: Hand
         count_limit: (1, 82699999)
         cost {
             discard (1, card, you controls)
@@ -25,9 +26,9 @@ card "Live☆Twin Lil-la Sweet" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 16
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -35,10 +36,10 @@ card "Live☆Twin Lil-la Sweet" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 67111936
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

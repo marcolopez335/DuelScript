@@ -1,3 +1,4 @@
+// ダイナソーイング
 // Dino-Sewing
 // Transpiled from c27143874.lua
 
@@ -11,7 +12,7 @@ card "Dino-Sewing" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -19,15 +20,15 @@ card "Dino-Sewing" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 6291456
-        code: 1131
+        effect_type: Single + MandatoryTrigger
+        category: SynchroSummon + XyzSummon
+        code: BattleTarget
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
+        effect_type: Single + MandatoryTrigger
         code: 1138
         on_resolve {
         }

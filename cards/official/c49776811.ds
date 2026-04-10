@@ -1,3 +1,4 @@
+// ピースリア
 // Shining Piecephilia
 // Transpiled from c49776811.lua
 
@@ -11,7 +12,7 @@ card "Shining Piecephilia" {
     def: 2000
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -19,8 +20,8 @@ card "Shining Piecephilia" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 8585224
+        effect_type: Single + Trigger
+        category: ToHand + Draw + Search + LinkSummon
         code: 1141
         on_resolve {
             shuffle_deck

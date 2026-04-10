@@ -1,3 +1,4 @@
+// ライゼオル・クロス
 // Ryzeal Cross
 // Transpiled from c6798031.lua
 
@@ -6,27 +7,27 @@ card "Ryzeal Cross" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 2048
-        range: 256
+        range: FieldZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 65552
+        effect_type: Ignition
+        category: ToDeck + Draw
         property: 16
-        range: 256
+        range: FieldZone
         count_limit: (1, 6798031)
         on_resolve {
             return (1+, monster, you controls) to deck shuffle
@@ -36,9 +37,9 @@ card "Ryzeal Cross" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1020
-        range: 256
+        range: FieldZone
         on_resolve {
             detach 1 overlay_unit from self
             negate effect

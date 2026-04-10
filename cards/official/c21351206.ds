@@ -1,3 +1,4 @@
+// 焔聖騎士-オジエ
 // Infernoble Knight Ogier
 // Transpiled from c21351206.lua
 
@@ -11,9 +12,9 @@ card "Infernoble Knight Ogier" {
     def: 2000
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 32
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 21351206)
         on_resolve {
@@ -22,9 +23,9 @@ card "Infernoble Knight Ogier" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 32
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 21351206)
         on_resolve {
@@ -33,10 +34,10 @@ card "Infernoble Knight Ogier" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 262144
+        effect_type: Ignition
+        category: EquipAction
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             equip (1, card) to (1, monster)
@@ -44,7 +45,7 @@ card "Infernoble Knight Ogier" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 4
+        effect_type: Equip
         code: 41
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

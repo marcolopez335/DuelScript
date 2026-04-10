@@ -1,3 +1,4 @@
+// 翼の魔妖-天狗
 // Tengu, the Winged Mayakashi
 // Transpiled from c4103668.lua
 
@@ -21,9 +22,9 @@ card "Tengu, the Winged Mayakashi" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 1
-        code: 1102
+        effect_type: Single + Trigger
+        category: Destroy
+        code: SpecialSummonSuccess
         property: 81920
         count_limit: (1, 4103668)
         on_resolve {
@@ -32,11 +33,11 @@ card "Tengu, the Winged Mayakashi" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 516
-        code: 1029
+        effect_type: Field + Trigger
+        category: Banish + SpecialSummon
+        code: Destroyed
         property: 81920
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             banish (1+, spell, opponent controls)

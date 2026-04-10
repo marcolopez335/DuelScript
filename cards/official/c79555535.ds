@@ -1,3 +1,4 @@
+// イグニッションP
 // Ignition Phoenix
 // Transpiled from c79555535.lua
 
@@ -6,35 +7,35 @@ card "Ignition Phoenix" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 256
+        range: FieldZone
         on_resolve {
             modifier: atk + 300
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 104
-        range: 256
+        range: FieldZone
         on_resolve {
             modifier: def + 300
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 131081
+        effect_type: Ignition
+        category: Destroy + ToHand + Search
         property: 16
-        range: 256
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, you controls, deck)

@@ -1,3 +1,4 @@
+// リチュアの氷魔鏡
 // Gishki Nekromirror
 // Transpiled from c36982581.lua
 
@@ -6,9 +7,9 @@ card "Gishki Nekromirror" {
     type: Ritual Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         on_resolve {
             special_summon (1, monster) from gy
             gain_lp: 0
@@ -16,10 +17,10 @@ card "Gishki Nekromirror" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 16
+        effect_type: Ignition
+        category: ToDeck
         property: 16
-        range: 16
+        range: Graveyard
         on_resolve {
             return (1+, monster, opponent controls) to deck shuffle
             reveal (1, card, opponent controls, deck)

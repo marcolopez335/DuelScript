@@ -1,3 +1,4 @@
+// ＦＡ－ダーク・ナイト・ランサー
 // Full Armored Dark Knight Lancer
 // Transpiled from c67630394.lua
 
@@ -21,20 +22,20 @@ card "Full Armored Dark Knight Lancer" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 8
+        effect_type: Ignition
+        category: ToHand
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, opponent controls) to hand
@@ -42,10 +43,10 @@ card "Full Armored Dark Knight Lancer" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
+        effect_type: Field + Trigger
         code: 1121
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             attach (1, card) to self as_material

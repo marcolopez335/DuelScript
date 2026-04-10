@@ -1,3 +1,4 @@
+// ミミグル・ケルベロス
 // Mimighoul Cerberus
 // Transpiled from c23920796.lua
 
@@ -11,8 +12,8 @@ card "Mimighoul Cerberus" {
     def: 1800
 
     raw_effect "Effect 1" {
-        effect_type: 545
-        category: 8708
+        effect_type: Single + Flip + MandatoryTrigger
+        category: Banish + SpecialSummon + Summon
         count_limit: (1, 23920796)
         on_resolve {
             banish (1+, monster, either_player controls)
@@ -22,9 +23,9 @@ card "Mimighoul Cerberus" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -33,10 +34,10 @@ card "Mimighoul Cerberus" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 71
         property: 128
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }

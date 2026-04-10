@@ -1,3 +1,4 @@
+// 道化の一座 フレア
 // Clown Crew Flair
 // Transpiled from c42759961.lua
 
@@ -16,9 +17,9 @@ card "Clown Crew Flair" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 131208
-        range: 2
+        effect_type: Ignition
+        category: ToHand + DefChange + Search
+        range: Hand
         count_limit: (1, 42759961)
         cost {
             reveal self
@@ -32,8 +33,8 @@ card "Clown Crew Flair" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        code: 1017
+        effect_type: Single + Trigger
+        code: Release
         property: 65536
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle

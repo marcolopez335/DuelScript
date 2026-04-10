@@ -1,3 +1,4 @@
+// 方界胤ヴィジャム
 // Vijam the Cubic Seed
 // Transpiled from c15610297.lua
 
@@ -11,18 +12,18 @@ card "Vijam the Cubic Seed" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 8388608
+        effect_type: Single + Trigger
+        category: LinkSummon
         code: 1141
         on_resolve {
             special_summon (1, monster) from gy
@@ -38,9 +39,9 @@ card "Vijam the Cubic Seed" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 512
-        range: 8
+        effect_type: Ignition
+        category: SpecialSummon
+        range: SpellTrapZone
         on_resolve {
             special_summon (1, monster) from gy
         }

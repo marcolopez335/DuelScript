@@ -1,3 +1,4 @@
+// 凭依装着-达克
 // Familiar-Possessed - Dharc
 // Transpiled from c21390858.lua
 
@@ -11,10 +12,10 @@ card "Familiar-Possessed - Dharc" {
     def: 1500
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 3
+        range: Hand
         on_resolve {
             send (1+, monster, you controls) to gy
             shuffle_deck
@@ -26,9 +27,9 @@ card "Familiar-Possessed - Dharc" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         on_resolve {
             return (1+, monster, you controls) to hand
             reveal (1+, card, opponent controls)

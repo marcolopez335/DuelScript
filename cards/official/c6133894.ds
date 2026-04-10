@@ -1,3 +1,4 @@
+// デビルマゼラ
 // Mazera DeVille
 // Transpiled from c6133894.lua
 
@@ -15,7 +16,7 @@ card "Mazera DeVille" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -23,19 +24,19 @@ card "Mazera DeVille" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 263168
-        range: 2
+        range: Hand
         on_resolve {
             tribute (1, monster, you controls)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 128
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: DefChange
+        code: SpecialSummonSuccess
         on_resolve {
             send (1+, card, either_player controls) to gy
         }

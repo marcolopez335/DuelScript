@@ -1,3 +1,4 @@
+// 切り込み隊長
 // Marauding Captain
 // Transpiled from c2460565.lua
 
@@ -11,18 +12,18 @@ card "Marauding Captain" {
     def: 400
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 332
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
-        code: 1100
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SummonSuccess
         on_resolve {
             special_summon (1, monster) from gy
         }

@@ -1,3 +1,4 @@
+// 外法の騎士
 // Illegal Knight
 // Transpiled from c42198835.lua
 
@@ -15,10 +16,10 @@ card "Illegal Knight" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 2
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: Hand
         count_limit: (1, 42198835)
         on_resolve {
             special_summon (1, monster) from gy
@@ -26,11 +27,11 @@ card "Illegal Knight" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 8200
-        code: 1002
+        effect_type: QuickEffect
+        category: ToHand + Summon
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             take_control of (1, monster, opponent controls)

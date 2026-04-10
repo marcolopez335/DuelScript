@@ -1,3 +1,4 @@
+// E・HERO ストーム・ネオス
 // Elemental HERO Storm Neos
 // Transpiled from c49352945.lua
 
@@ -20,9 +21,9 @@ card "Elemental HERO Storm Neos" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 1
-        range: 4
+        effect_type: Ignition
+        category: Destroy
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, spell, you controls)
@@ -30,29 +31,29 @@ card "Elemental HERO Storm Neos" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 16
-        code: 1013
+        effect_type: Single + MandatoryTrigger
+        category: ToDeck
+        code: ChainSolved
         on_resolve {
             return (1+, spell, you controls) to deck shuffle
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 16
+        effect_type: Field + MandatoryTrigger
+        category: ToDeck
         code: 4608
-        range: 4
+        range: MonsterZone
         on_resolve {
             return self to deck shuffle
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 16
+        effect_type: Field + Trigger
+        category: ToDeck
         code: 4608
-        range: 4
+        range: MonsterZone
         on_resolve {
             return self to deck shuffle
         }

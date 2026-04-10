@@ -1,3 +1,4 @@
+// ペンギン僧侶
 // Penguin Cleric
 // Transpiled from c73640163.lua
 
@@ -11,11 +12,11 @@ card "Penguin Cleric" {
     def: 1700
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 640
-        code: 1014
+        effect_type: Field + Trigger
+        category: DefChange + SpecialSummon
+        code: ChainEnd
         property: 81936
-        range: 2
+        range: Hand
         count_limit: (1, 73640163)
         on_resolve {
             send (1+, card, either_player controls) to gy
@@ -25,10 +26,10 @@ card "Penguin Cleric" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 3145728
+        effect_type: Ignition
+        category: Recover + SynchroSummon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {

@@ -1,3 +1,4 @@
+// ヴァンパイア・サッカー
 // Vampire Sucker
 // Transpiled from c37129797.lua
 
@@ -20,10 +21,10 @@ card "Vampire Sucker" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
+        effect_type: Ignition
+        category: SpecialSummon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 37129797)
         on_resolve {
             special_summon (1, monster) from gy
@@ -35,10 +36,10 @@ card "Vampire Sucker" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 65536
-        code: 1102
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        category: Draw
+        code: SpecialSummonSuccess
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             draw 1
@@ -46,8 +47,8 @@ card "Vampire Sucker" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 8194
-        range: 4
+        effect_type: Field + Grant
+        range: MonsterZone
         on_resolve {
         }
     }

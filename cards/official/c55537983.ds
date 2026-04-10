@@ -1,3 +1,4 @@
+// ミミグル・マスター
 // Mimighoul Master
 // Transpiled from c55537983.lua
 
@@ -11,29 +12,29 @@ card "Mimighoul Master" {
     def: 1200
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 55537983)
         on_resolve {
@@ -43,9 +44,9 @@ card "Mimighoul Master" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 55537983)
         on_resolve {
@@ -55,10 +56,10 @@ card "Mimighoul Master" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 256
-        category: 4096
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: DiceRoll
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)

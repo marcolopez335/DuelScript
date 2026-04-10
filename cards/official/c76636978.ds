@@ -1,3 +1,4 @@
+// スターダスト・ドラゴン－ヴィクテム・サンクチュアリ
 // Stardust Dragon - Victim Sanctuary
 // Transpiled from c76636978.lua
 
@@ -21,10 +22,10 @@ card "Stardust Dragon - Victim Sanctuary" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 16385
-        code: 1027
-        range: 4
+        effect_type: QuickEffect
+        category: Destroy + Disable
+        code: Chaining
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             negate effect
@@ -33,10 +34,10 @@ card "Stardust Dragon - Victim Sanctuary" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 16
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self
@@ -47,8 +48,8 @@ card "Stardust Dragon - Victim Sanctuary" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 1017
+        effect_type: Field + Continuous
+        code: Release
         on_resolve {
             set_flag "tracked" on self
             set_flag "tracked" on self

@@ -1,3 +1,4 @@
+// ゴーストリック・アルカード
 // Ghostrick Alucard
 // Transpiled from c75367227.lua
 
@@ -21,19 +22,19 @@ card "Ghostrick Alucard" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 332
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 1
+        effect_type: Ignition
+        category: Destroy
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 75367227)
         cost {
             detach 1 overlay_unit from self
@@ -44,9 +45,9 @@ card "Ghostrick Alucard" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 8
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand
+        code: ChainEnd
         property: 65552
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy

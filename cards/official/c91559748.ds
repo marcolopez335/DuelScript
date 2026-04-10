@@ -1,3 +1,4 @@
+// 棘の妖精
 // Prickle Fairy
 // Transpiled from c91559748.lua
 
@@ -11,8 +12,8 @@ card "Prickle Fairy" {
     def: 2000
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 4096
+        effect_type: Single + MandatoryTrigger
+        category: DiceRoll
         code: 1141
         on_resolve {
             change_battle_position (1, monster)
@@ -20,9 +21,9 @@ card "Prickle Fairy" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 332
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }

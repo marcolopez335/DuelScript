@@ -1,3 +1,4 @@
+// Ａ・Ｏ・Ｇ リターンゼロ
 // Arms of Genex Return Zero
 // Transpiled from c61775475.lua
 
@@ -21,11 +22,11 @@ card "Arms of Genex Return Zero" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 268435457
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         cost {
             banish self
         }
@@ -36,10 +37,10 @@ card "Arms of Genex Return Zero" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 17
+        effect_type: Ignition
+        category: Destroy + ToDeck
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, card, you controls) to deck shuffle

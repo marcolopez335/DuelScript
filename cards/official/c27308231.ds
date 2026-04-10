@@ -1,3 +1,4 @@
+// Ｋ９－ＬＣ拘束解除
 // K9-LC Release Restraint
 // Transpiled from c27308231.lua
 
@@ -6,9 +7,9 @@ card "K9-LC Release Restraint" {
     type: Quick-Play Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         property: 16
         count_limit: (1, 27308231)
         on_resolve {
@@ -18,9 +19,9 @@ card "K9-LC Release Restraint" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
+        effect_type: Field + Trigger
         code: 4224
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             set (1, card)
@@ -28,7 +29,7 @@ card "K9-LC Release Restraint" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1138
         on_resolve {
             set_flag "tracked" on self

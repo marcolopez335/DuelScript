@@ -1,3 +1,4 @@
+// グリッド・ロッド
 // Grid Rod
 // Transpiled from c30552375.lua
 
@@ -6,7 +7,7 @@ card "Grid Rod" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 300
@@ -14,7 +15,7 @@ card "Grid Rod" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 4
+        effect_type: Equip
         code: 1
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -22,7 +23,7 @@ card "Grid Rod" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 4
+        effect_type: Equip
         code: 47
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
@@ -30,8 +31,8 @@ card "Grid Rod" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        code: 1029
+        effect_type: Single + Trigger
+        code: Destroyed
         property: 65536
         on_resolve {
             register_effect on self {
@@ -46,9 +47,9 @@ card "Grid Rod" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

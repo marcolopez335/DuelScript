@@ -1,3 +1,4 @@
+// 三英の相剣師
 // The Three Brave Swordsouls
 // Transpiled from c74405783.lua
 
@@ -21,9 +22,9 @@ card "The Three Brave Swordsouls" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -33,10 +34,10 @@ card "The Three Brave Swordsouls" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 16385
+        effect_type: Ignition
+        category: Destroy + Disable
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, you controls, gy)

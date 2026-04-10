@@ -1,3 +1,4 @@
+// 魔界大道具「ニゲ馬車」
 // Abyss Prop - Wild Wagon
 // Transpiled from c86578200.lua
 
@@ -6,25 +7,25 @@ card "Abyss Prop - Wild Wagon" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 47
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
+        effect_type: Ignition
         property: 16
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -35,9 +36,9 @@ card "Abyss Prop - Wild Wagon" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 8
-        code: 1029
+        effect_type: Single + Trigger
+        category: ToHand
+        code: Destroyed
         property: 65536
         on_resolve {
             return (1+, card, opponent controls) to hand
@@ -45,7 +46,7 @@ card "Abyss Prop - Wild Wagon" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 71
         property: 67108864
         on_resolve {

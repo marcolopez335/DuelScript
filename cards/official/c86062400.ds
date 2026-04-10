@@ -1,3 +1,4 @@
+// エクシーズ・アヴェンジャー
 // Xyz Avenger
 // Transpiled from c86062400.lua
 
@@ -11,19 +12,19 @@ card "Xyz Avenger" {
     def: 700
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 1
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 32
-        code: 1140
+        effect_type: Single + MandatoryTrigger
+        category: ToGrave
+        code: BattleDamage
         on_resolve {
             reveal (1+, card, opponent controls)
             send (1+, card, either_player controls) to gy

@@ -1,3 +1,4 @@
+// 魔装戦士 ドラゴディウス
 // Dragodies, the Empowered Warrior
 // Transpiled from c65472618.lua
 
@@ -12,10 +13,10 @@ card "Dragodies, the Empowered Warrior" {
     def: 1500
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 2097152
-        code: 1132
-        range: 512
+        effect_type: Field + Trigger
+        category: SynchroSummon
+        code: DamageCalculation
+        range: PendulumZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -29,9 +30,9 @@ card "Dragodies, the Empowered Warrior" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1029
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: Destroyed
         property: 65536
         on_resolve {
             register_effect on self {

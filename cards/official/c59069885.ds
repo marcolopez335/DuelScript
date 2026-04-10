@@ -1,3 +1,4 @@
+// ティスティナの抱擁
 // Embrace of the Tistina
 // Transpiled from c59069885.lua
 
@@ -6,18 +7,18 @@ card "Embrace of the Tistina" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 4096
-        code: 1027
+        effect_type: QuickEffect
+        category: DiceRoll
+        code: Chaining
         property: 16
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 59069885)
         on_resolve {
             change_battle_position (1, monster)
@@ -25,11 +26,11 @@ card "Embrace of the Tistina" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 8192
-        code: 1002
+        effect_type: QuickEffect
+        category: Summon
+        code: FreeChain
         property: 16
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             take_control of (1, monster, opponent controls)

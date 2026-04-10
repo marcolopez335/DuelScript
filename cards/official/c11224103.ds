@@ -1,3 +1,4 @@
+// ホルスの黒炎竜 LV6
 // Horus the Black Flame Dragon LV6
 // Transpiled from c11224103.lua
 
@@ -15,7 +16,7 @@ card "Horus the Black Flame Dragon LV6" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1139
         property: 1024
         on_resolve {
@@ -23,20 +24,20 @@ card "Horus the Black Flame Dragon LV6" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 1
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 4608
-        range: 4
+        range: MonsterZone
         cost {
             send self to gy
         }

@@ -1,3 +1,4 @@
+// 秘竜星－セフィラシウゴ
 // Zefraniu, Secret of the Yang Zing
 // Transpiled from c58990362.lua
 
@@ -16,19 +17,19 @@ card "Zefraniu, Secret of the Yang Zing" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 3584
-        range: 512
+        range: PendulumZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         count_limit: (1, 58990362)
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck
@@ -37,9 +38,9 @@ card "Zefraniu, Secret of the Yang Zing" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
-        code: 1029
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: Destroyed
         property: 16384
         count_limit: (1, 58990362)
         on_resolve {

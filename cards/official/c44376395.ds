@@ -1,3 +1,4 @@
+// ＡＳＨＬＡＮ－Ｕ１０００型
 // ASHLAN U1000
 // Transpiled from c44376395.lua
 
@@ -20,18 +21,18 @@ card "ASHLAN U1000" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 203
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 131080
-        range: 4
+        effect_type: Ignition
+        category: ToHand + Search
+        range: MonsterZone
         count_limit: (1, 44376395)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -40,11 +41,11 @@ card "ASHLAN U1000" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 8
-        code: 1102
+        effect_type: Field + Trigger
+        category: ToHand
+        code: SpecialSummonSuccess
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck

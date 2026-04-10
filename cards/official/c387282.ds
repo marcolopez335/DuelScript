@@ -1,3 +1,4 @@
+// ガガガシスター
 // Gagaga Sister
 // Transpiled from c387282.lua
 
@@ -11,9 +12,9 @@ card "Gagaga Sister" {
     def: 800
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck
             reveal (1+, card, opponent controls)
@@ -21,10 +22,10 @@ card "Gagaga Sister" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 134217728
+        effect_type: Ignition
+        category: LevelChange
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 387282)
         on_resolve {
             register_effect on self {

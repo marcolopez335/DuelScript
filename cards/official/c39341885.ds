@@ -1,3 +1,4 @@
+// 絢嵐たる海霊ヴァルルーン
 // Radiant Typhoon Varuroon, the Marine Eidolon
 // Transpiled from c39341885.lua
 
@@ -20,9 +21,9 @@ card "Radiant Typhoon Varuroon, the Marine Eidolon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -32,9 +33,9 @@ card "Radiant Typhoon Varuroon, the Marine Eidolon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
+        effect_type: Ignition
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, monster, either_player controls) to gy
@@ -47,10 +48,10 @@ card "Radiant Typhoon Varuroon, the Marine Eidolon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        code: 1027
+        effect_type: Field + Trigger
+        code: Chaining
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -58,7 +59,7 @@ card "Radiant Typhoon Varuroon, the Marine Eidolon" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 117
         property: 1024
         on_resolve {

@@ -1,3 +1,4 @@
+// 王家の守護者スフィンクス
 // Pharaonic Guardian Sphinx
 // Transpiled from c89707961.lua
 
@@ -15,18 +16,18 @@ card "Pharaonic Guardian Sphinx" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 4096
-        range: 4
+        effect_type: Ignition
+        category: DiceRoll
+        range: MonsterZone
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 16
-        code: 1101
+        effect_type: Single + MandatoryTrigger
+        category: ToDeck
+        code: FlipSummonSuccess
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, opponent controls) to deck shuffle
@@ -34,9 +35,9 @@ card "Pharaonic Guardian Sphinx" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 65536
         count_limit: (1, 0)
         on_resolve {

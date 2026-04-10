@@ -1,3 +1,4 @@
+// 神碑の鬣スレイプニル
 // Sleipnir the Runick Mane
 // Transpiled from c74659582.lua
 
@@ -20,11 +21,11 @@ card "Sleipnir the Runick Mane" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 4
-        code: 1002
+        effect_type: QuickEffect
+        category: Banish
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, monster, opponent controls)
@@ -32,11 +33,11 @@ card "Sleipnir the Runick Mane" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 1536
-        code: 1012
+        effect_type: Field + Trigger
+        category: SpecialSummon + Token
+        code: ChainSolving
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             create_token { atk: 0 def: 0 }

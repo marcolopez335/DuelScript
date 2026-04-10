@@ -1,3 +1,4 @@
+// ふわんだりぃず×えんぺん
 // Floowandereeze & Empen
 // Transpiled from c80611581.lua
 
@@ -15,9 +16,9 @@ card "Floowandereeze & Empen" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131336
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Counter + Search
+        code: SummonSuccess
         property: 65536
         on_resolve {
             add_to_hand (1+, spell, you controls) from hand
@@ -28,20 +29,20 @@ card "Floowandereeze & Empen" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 6
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 6291456
+        effect_type: QuickEffect
+        category: SynchroSummon + XyzSummon
         code: 1134
-        range: 4
+        range: MonsterZone
         cost {
             banish self
         }

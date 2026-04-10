@@ -1,3 +1,4 @@
+// 守護者スフィンクス
 // Guardian Sphinx
 // Transpiled from c40659562.lua
 
@@ -15,18 +16,18 @@ card "Guardian Sphinx" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 4096
-        range: 4
+        effect_type: Ignition
+        category: DiceRoll
+        range: MonsterZone
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 8
-        code: 1101
+        effect_type: Single + MandatoryTrigger
+        category: ToHand
+        code: FlipSummonSuccess
         on_resolve {
             return (1+, monster, opponent controls) to hand
         }

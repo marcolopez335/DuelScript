@@ -1,3 +1,4 @@
+// M・HERO アシッド
 // Masked HERO Acid
 // Transpiled from c29095552.lua
 
@@ -20,7 +21,7 @@ card "Masked HERO Acid" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -28,9 +29,9 @@ card "Masked HERO Acid" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 2097153
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: Destroy + SynchroSummon
+        code: SpecialSummonSuccess
         on_resolve {
             destroy (1+, spell, opponent controls)
             register_effect on self {

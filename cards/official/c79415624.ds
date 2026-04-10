@@ -1,3 +1,4 @@
+// 蛇眼の断罪龍
 // Snake-Eyes Vengeance Dragon
 // Transpiled from c79415624.lua
 
@@ -21,10 +22,10 @@ card "Snake-Eyes Vengeance Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        code: 1002
+        effect_type: QuickEffect
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 79415624)
         on_resolve {
             send (1+, monster, either_player controls) to gy
@@ -37,11 +38,11 @@ card "Snake-Eyes Vengeance Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 1
-        code: 1002
+        effect_type: QuickEffect
+        category: Destroy
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, either_player controls)
@@ -49,7 +50,7 @@ card "Snake-Eyes Vengeance Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 117
         property: 1024
         on_resolve {

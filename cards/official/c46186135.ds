@@ -1,3 +1,4 @@
+// 神光の龍
 // Enlightenment Dragon
 // Transpiled from c46186135.lua
 
@@ -20,10 +21,10 @@ card "Enlightenment Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 4
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: Banish
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             pay_lp 2000
@@ -34,19 +35,19 @@ card "Enlightenment Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 64
+        effect_type: Field + MandatoryTrigger
+        category: AtkChange
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 520
-        code: 1029
+        effect_type: Single + Trigger
+        category: ToHand + SpecialSummon
+        code: Destroyed
         property: 65536
         on_resolve {
             add_to_hand (1+, card, you controls) from gy

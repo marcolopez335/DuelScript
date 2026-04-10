@@ -1,3 +1,4 @@
+// E・HERO マグマ・ネオス
 // Elemental HERO Magma Neos
 // Transpiled from c78512663.lua
 
@@ -20,39 +21,39 @@ card "Elemental HERO Magma Neos" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 8
-        code: 1013
+        effect_type: Single + MandatoryTrigger
+        category: ToHand
+        code: ChainSolved
         on_resolve {
             return (1+, card, you controls) to hand
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 16
+        effect_type: Field + MandatoryTrigger
+        category: ToDeck
         code: 4608
-        range: 4
+        range: MonsterZone
         on_resolve {
             return self to deck shuffle
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 16
+        effect_type: Field + Trigger
+        category: ToDeck
         code: 4608
-        range: 4
+        range: MonsterZone
         on_resolve {
             return self to deck shuffle
         }

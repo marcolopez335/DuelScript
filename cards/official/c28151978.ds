@@ -1,3 +1,4 @@
+// SRドミノバタフライ
 // Speedroid Dominobutterfly
 // Transpiled from c28151978.lua
 
@@ -12,20 +13,20 @@ card "Speedroid Dominobutterfly" {
     def: 300
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 3584
-        range: 512
+        range: PendulumZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 8
+        effect_type: Ignition
+        category: ToHand
         property: 16
-        range: 512
+        range: PendulumZone
         count_limit: (1, 28151978)
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand
@@ -33,7 +34,7 @@ card "Speedroid Dominobutterfly" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 236
         property: 263168
         on_resolve {
@@ -41,7 +42,7 @@ card "Speedroid Dominobutterfly" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 63
         property: 263168
         on_resolve {

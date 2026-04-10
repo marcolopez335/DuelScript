@@ -1,3 +1,4 @@
+// メガリス・ハギト
 // Megalith Hagith
 // Transpiled from c90444325.lua
 
@@ -20,9 +21,9 @@ card "Megalith Hagith" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck
@@ -31,18 +32,18 @@ card "Megalith Hagith" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 514
-        range: 4
+        effect_type: Ignition
+        category: Release + SpecialSummon
+        range: MonsterZone
         count_limit: (1, 90444325)
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         on_resolve {
             ritual_summon (1, ritual monster) using (1+, monster, you controls)
         }

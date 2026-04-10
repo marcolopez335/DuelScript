@@ -1,3 +1,4 @@
+// 召喚師アレイスター
 // Aleister the Invoker
 // Transpiled from c86120751.lua
 
@@ -11,11 +12,11 @@ card "Aleister the Invoker" {
     def: 1800
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 6291456
-        code: 1002
+        effect_type: QuickEffect
+        category: SynchroSummon + XyzSummon
+        code: FreeChain
         property: 16400
-        range: 2
+        range: Hand
         cost {
             send self to gy
         }
@@ -32,9 +33,9 @@ card "Aleister the Invoker" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         property: 81920
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -43,8 +44,8 @@ card "Aleister the Invoker" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
+        effect_type: Single + Trigger
+        category: ToHand + Search
         code: 1001
         property: 81920
         on_resolve {

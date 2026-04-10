@@ -1,3 +1,4 @@
+// 剣闘海戦
 // Gladiator Naumachia
 // Transpiled from c52394047.lua
 
@@ -6,27 +7,27 @@ card "Gladiator Naumachia" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 191
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: must_attack_if_able duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 2097152
-        code: 1002
+        effect_type: QuickEffect
+        category: SynchroSummon
+        code: FreeChain
         property: 16400
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -37,8 +38,8 @@ card "Gladiator Naumachia" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        code: 1029
+        effect_type: Single + Trigger
+        code: Destroyed
         property: 114688
         on_resolve {
             register_effect on self {

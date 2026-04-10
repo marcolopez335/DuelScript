@@ -1,3 +1,4 @@
+// EMリターンタンタン
 // Performapal Handstandaccoon
 // Transpiled from c81055000.lua
 
@@ -12,10 +13,10 @@ card "Performapal Handstandaccoon" {
     def: 600
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 8
+        effect_type: Ignition
+        category: ToHand
         property: 16
-        range: 512
+        range: PendulumZone
         count_limit: (1, 81055000)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
@@ -27,9 +28,9 @@ card "Performapal Handstandaccoon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 8
-        code: 1140
+        effect_type: Single + Trigger
+        category: ToHand
+        code: BattleDamage
         property: 16
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy

@@ -1,3 +1,4 @@
+// 花札衛－柳に小野道風－
 // Flower Cardian Willow with Calligrapher
 // Transpiled from c89818984.lua
 
@@ -15,19 +16,19 @@ card "Flower Cardian Willow with Calligrapher" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 263168
-        range: 2
+        range: Hand
         on_resolve {
             tribute (1, monster, you controls)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 66080
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: ToGrave + SpecialSummon + Draw
+        code: SpecialSummonSuccess
         on_resolve {
             draw 1
             reveal (1+, card, opponent controls)
@@ -38,7 +39,7 @@ card "Flower Cardian Willow with Calligrapher" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 237
         on_resolve {
         }

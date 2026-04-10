@@ -1,3 +1,4 @@
+// ヴェンデット・キマイラ
 // Vendread Chimera
 // Transpiled from c13482075.lua
 
@@ -20,11 +21,11 @@ card "Vendread Chimera" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 268435457
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         count_limit: (1, 13482075)
         cost {
             banish self
@@ -36,9 +37,9 @@ card "Vendread Chimera" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 6291456
-        code: 1017
+        effect_type: Single + MandatoryTrigger
+        category: SynchroSummon + XyzSummon
+        code: Release
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -53,9 +54,9 @@ card "Vendread Chimera" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 6291456
-        code: 1011
+        effect_type: Single + MandatoryTrigger
+        category: SynchroSummon + XyzSummon
+        code: TurnEnd
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {

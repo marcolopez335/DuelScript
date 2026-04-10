@@ -1,3 +1,4 @@
+// マイン・モール
 // Mine Mole
 // Transpiled from c94079037.lua
 
@@ -11,18 +12,18 @@ card "Mine Mole" {
     def: 1200
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 47
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 65536
+        effect_type: Single + MandatoryTrigger
+        category: Draw
         code: 1108
         property: 2048
         on_resolve {
@@ -31,7 +32,7 @@ card "Mine Mole" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 60
         on_resolve {
         }

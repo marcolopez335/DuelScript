@@ -1,3 +1,4 @@
+// 流離のグリフォンライダー
 // Wandering Gryphon Rider
 // Transpiled from c2563463.lua
 
@@ -15,10 +16,10 @@ card "Wandering Gryphon Rider" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 2
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: Hand
         count_limit: (1, 2563463)
         on_resolve {
             special_summon (1, monster) from gy
@@ -26,11 +27,11 @@ card "Wandering Gryphon Rider" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 268435473
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy + ToDeck + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, card, you controls) to deck shuffle

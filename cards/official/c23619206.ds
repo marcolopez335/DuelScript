@@ -1,3 +1,4 @@
+// 招神鳥シムルグ
 // Simorgh, Bird of Calamity
 // Transpiled from c23619206.lua
 
@@ -11,9 +12,9 @@ card "Simorgh, Bird of Calamity" {
     def: 200
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 32
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: SummonSuccess
         count_limit: (1, 23619206)
         on_resolve {
             send (1+, card, you controls, deck) to gy
@@ -21,9 +22,9 @@ card "Simorgh, Bird of Calamity" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 16
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

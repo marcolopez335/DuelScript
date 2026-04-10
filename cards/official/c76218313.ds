@@ -1,3 +1,4 @@
+// 破壊剣－ドラゴンバスターブレード
 // Dragon Buster Destruction Sword
 // Transpiled from c76218313.lua
 
@@ -11,10 +12,10 @@ card "Dragon Buster Destruction Sword" {
     def: 300
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 262144
+        effect_type: Ignition
+        category: EquipAction
         property: 16
-        range: 6
+        range: Hand + MonsterZone
         on_resolve {
             send (1+, card, either_player controls) to gy
             equip (1, card) to (1, monster)
@@ -22,19 +23,19 @@ card "Dragon Buster Destruction Sword" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 2048
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 512
-        range: 8
+        effect_type: Ignition
+        category: SpecialSummon
+        range: SpellTrapZone
         count_limit: (1, 76218313)
         on_resolve {
             special_summon (1, monster) from gy
@@ -42,7 +43,7 @@ card "Dragon Buster Destruction Sword" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         on_resolve {
         }

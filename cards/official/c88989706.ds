@@ -1,3 +1,4 @@
+// 大神官デ・ザード
 // Great Dezard
 // Transpiled from c88989706.lua
 
@@ -15,18 +16,18 @@ card "Great Dezard" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1139
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1024
-        category: 268435457
-        code: 1027
+        effect_type: MandatoryQuick
+        category: Destroy + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         on_resolve {
             negate activation
             destroy (1+, card, you controls, hand)
@@ -34,9 +35,9 @@ card "Great Dezard" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 512
-        range: 4
+        effect_type: Ignition
+        category: SpecialSummon
+        range: MonsterZone
         cost {
             tribute self
         }

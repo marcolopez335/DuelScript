@@ -1,3 +1,4 @@
+// 炎王獣 キリン
 // Fire King Avatar Kirin
 // Transpiled from c96594609.lua
 
@@ -11,20 +12,20 @@ card "Fire King Avatar Kirin" {
     def: 200
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
-        code: 1029
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 65536
-        range: 2
+        range: Hand
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 32
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: ChainEnd
         property: 81920
         on_resolve {
             send (1+, card, you controls, deck) to gy

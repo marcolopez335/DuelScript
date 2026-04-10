@@ -1,3 +1,4 @@
+// 蒼の深淵 ディープアイズ・ホワイト・ドラゴン
 // Deep-Eyes White Dragon, the Blue Abyss
 // Transpiled from c67886895.lua
 
@@ -15,9 +16,9 @@ card "Deep-Eyes White Dragon, the Blue Abyss" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 131080
-        range: 2
+        effect_type: Ignition
+        category: ToHand + Search
+        range: Hand
         count_limit: (1, 0)
         cost {
             discard (1, card, you controls)
@@ -29,11 +30,11 @@ card "Deep-Eyes White Dragon, the Blue Abyss" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 2097668
+        effect_type: Field + Trigger
+        category: Banish + SpecialSummon + SynchroSummon
         code: 336322351
         property: 65552
-        range: 18
+        range: Hand + Graveyard
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -41,8 +42,8 @@ card "Deep-Eyes White Dragon, the Blue Abyss" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 1014
+        effect_type: Field + Continuous
+        code: ChainEnd
         on_resolve {
             emit_event "custom"
         }

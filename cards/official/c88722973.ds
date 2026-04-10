@@ -1,3 +1,4 @@
+// 昇竜剣士マジェスターＰ
 // Majester Paladin, the Ascending Dracoslayer
 // Transpiled from c88722973.lua
 
@@ -21,9 +22,9 @@ card "Majester Paladin, the Ascending Dracoslayer" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -33,9 +34,9 @@ card "Majester Paladin, the Ascending Dracoslayer" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 4
+        effect_type: Ignition
+        category: SpecialSummon
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self
@@ -50,7 +51,7 @@ card "Majester Paladin, the Ascending Dracoslayer" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 4608
         count_limit: (1, 0)
         on_resolve {
@@ -60,7 +61,7 @@ card "Majester Paladin, the Ascending Dracoslayer" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 248
         property: 67372032
         on_resolve {

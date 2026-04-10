@@ -1,3 +1,4 @@
+// 剣闘獣ノクシウス
 // Gladiator Beast Noxious
 // Transpiled from c67385964.lua
 
@@ -15,19 +16,19 @@ card "Gladiator Beast Noxious" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
-        code: 1130
-        range: 2
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: AttackAnnounce
+        range: Hand
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 32
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             send (1+, monster, you controls, deck) to gy
@@ -35,10 +36,10 @@ card "Gladiator Beast Noxious" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 4224
-        range: 4
+        range: MonsterZone
         cost {
             send self to deck
         }

@@ -1,3 +1,4 @@
+// 決闘塔アルカトラズ
 // Duel Tower
 // Transpiled from c43940008.lua
 
@@ -6,17 +7,17 @@ card "Duel Tower" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 516
+        effect_type: Field + MandatoryTrigger
+        category: Banish + SpecialSummon
         code: 4104
-        range: 256
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             reveal (1+, card, opponent controls)
@@ -30,9 +31,9 @@ card "Duel Tower" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
+        effect_type: Field + Trigger
         code: 4608
-        range: 256
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {

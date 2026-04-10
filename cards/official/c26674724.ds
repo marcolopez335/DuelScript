@@ -1,3 +1,4 @@
+// ブリューナクの影霊衣
 // Nekroz of Brionac
 // Transpiled from c26674724.lua
 
@@ -20,7 +21,7 @@ card "Nekroz of Brionac" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -28,9 +29,9 @@ card "Nekroz of Brionac" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 131080
-        range: 2
+        effect_type: Ignition
+        category: ToHand + Search
+        range: Hand
         count_limit: (1, 26674724)
         cost {
             discard (1, card, you controls)
@@ -42,10 +43,10 @@ card "Nekroz of Brionac" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 16
+        effect_type: Ignition
+        category: ToDeck
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to deck shuffle

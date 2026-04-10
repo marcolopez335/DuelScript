@@ -1,3 +1,4 @@
+// ダーク・ドリアード
 // Dark Doriado
 // Transpiled from c62312469.lua
 
@@ -12,26 +13,26 @@ card "Dark Doriado" {
     def: 1400
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 512
+        range: PendulumZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 104
-        range: 512
+        range: PendulumZone
         on_resolve {
             modifier: def + 0
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        code: 1100
+        effect_type: Single + Trigger
+        code: SummonSuccess
         property: 65536
         on_resolve {
             reveal (1+, card, opponent controls)
@@ -42,8 +43,8 @@ card "Dark Doriado" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        code: 1102
+        effect_type: Single + Trigger
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             reveal (1+, card, opponent controls)

@@ -1,3 +1,4 @@
+// トゥーン・バスター・ブレイダー
 // Toon Buster Blader
 // Transpiled from c61190918.lua
 
@@ -15,8 +16,8 @@ card "Toon Buster Blader" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2049
-        code: 1100
+        effect_type: Single + Continuous
+        code: SummonSuccess
         property: 1024
         on_resolve {
             register_effect on self {
@@ -27,8 +28,8 @@ card "Toon Buster Blader" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
-        code: 1102
+        effect_type: Single + Continuous
+        code: SpecialSummonSuccess
         property: 1024
         on_resolve {
             register_effect on self {
@@ -39,8 +40,8 @@ card "Toon Buster Blader" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
-        code: 1101
+        effect_type: Single + Continuous
+        code: FlipSummonSuccess
         property: 1024
         on_resolve {
             register_effect on self {
@@ -51,17 +52,17 @@ card "Toon Buster Blader" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 74
         on_resolve {
             register_effect on self { grant: direct_attack duration: until_end_of_turn }

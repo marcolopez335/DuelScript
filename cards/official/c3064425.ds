@@ -1,3 +1,4 @@
+// 超重武者装留ビッグバン
 // Superheavy Samurai Soulbang Cannon
 // Transpiled from c3064425.lua
 
@@ -11,10 +12,10 @@ card "Superheavy Samurai Soulbang Cannon" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 262144
+        effect_type: Ignition
+        category: EquipAction
         property: 16
-        range: 6
+        range: Hand + MonsterZone
         on_resolve {
             send (1+, monster, either_player controls) to gy
             equip (1, card) to (1, monster)
@@ -22,11 +23,11 @@ card "Superheavy Samurai Soulbang Cannon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 268959745
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy + Damage + Negate
+        code: Chaining
         property: 49152
-        range: 16
+        range: Graveyard
         cost {
             banish self
         }

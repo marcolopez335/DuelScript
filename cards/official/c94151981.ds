@@ -1,3 +1,4 @@
+// エクシーズ・アーマー・トルピード
 // Xyz Armor Torpedo
 // Transpiled from c94151981.lua
 
@@ -21,7 +22,7 @@ card "Xyz Armor Torpedo" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 85
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -29,10 +30,10 @@ card "Xyz Armor Torpedo" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 65536
+        effect_type: Ignition
+        category: Draw
         property: 2048
-        range: 4
+        range: MonsterZone
         count_limit: (1, 94151981)
         cost {
             detach 2 overlay_unit from self
@@ -43,26 +44,26 @@ card "Xyz Armor Torpedo" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 6
         property: 2048
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 2
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 4
+        effect_type: Equip
         code: 71
         property: 128
         on_resolve {
@@ -71,10 +72,10 @@ card "Xyz Armor Torpedo" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 2050
-        code: 1131
+        effect_type: Field + Continuous
+        code: BattleTarget
         property: 1024
-        range: 8
+        range: SpellTrapZone
         on_resolve {
         }
     }

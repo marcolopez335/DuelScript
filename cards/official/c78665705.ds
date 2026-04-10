@@ -1,3 +1,4 @@
+// 古の呪文
 // Ancient Chant
 // Transpiled from c78665705.lua
 
@@ -6,9 +7,9 @@ card "Ancient Chant" {
     type: Normal Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 131080
-        code: 1002
+        effect_type: Activate
+        category: ToHand + Search
+        code: FreeChain
         count_limit: (1, 78665705)
         on_resolve {
             add_to_hand (1+, card, you controls) from gy
@@ -25,8 +26,8 @@ card "Ancient Chant" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        range: 16
+        effect_type: Ignition
+        range: Graveyard
         cost {
             banish self
         }
@@ -40,22 +41,22 @@ card "Ancient Chant" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 29
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 35
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2050
-        code: 1100
+        effect_type: Field + Continuous
+        code: SummonSuccess
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -69,7 +70,7 @@ card "Ancient Chant" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 1
+        effect_type: Single
         code: 103
         property: 1024
         on_resolve {
@@ -77,7 +78,7 @@ card "Ancient Chant" {
     }
 
     raw_effect "Effect 7" {
-        effect_type: 1
+        effect_type: Single
         code: 107
         property: 1024
         on_resolve {

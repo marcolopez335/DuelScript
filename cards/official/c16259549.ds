@@ -1,3 +1,4 @@
+// No.49 秘鳥フォーチュンチュン
 // Number 49: Fortune Tune
 // Transpiled from c16259549.lua
 
@@ -21,11 +22,11 @@ card "Number 49: Fortune Tune" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 514
-        category: 1048576
+        effect_type: Field + MandatoryTrigger
+        category: Recover
         code: 4098
         property: 2048
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             gain_lp: 1000
@@ -33,10 +34,10 @@ card "Number 49: Fortune Tune" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 71
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
@@ -50,9 +51,9 @@ card "Number 49: Fortune Tune" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 513
-        category: 16
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: ToDeck
+        code: ChainEnd
         property: 16
         count_limit: (1, 16259549)
         on_resolve {

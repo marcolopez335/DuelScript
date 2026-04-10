@@ -1,3 +1,4 @@
+// 混沌の場
 // Gateway to Chaos
 // Transpiled from c40089744.lua
 
@@ -6,9 +7,9 @@ card "Gateway to Chaos" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 131080
-        code: 1002
+        effect_type: Activate
+        category: ToHand + Search
+        code: FreeChain
         count_limit: (1, 40089744)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -17,17 +18,17 @@ card "Gateway to Chaos" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 1014
-        range: 256
+        effect_type: Field + Continuous
+        code: ChainEnd
+        range: FieldZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 131080
-        range: 256
+        effect_type: Ignition
+        category: ToHand + Search
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck

@@ -1,3 +1,4 @@
+// 地縛戒隷 ジオグレムリーナ
 // Earthbound Servant Geo Gremlina
 // Transpiled from c33202303.lua
 
@@ -20,9 +21,9 @@ card "Earthbound Servant Geo Gremlina" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -32,9 +33,9 @@ card "Earthbound Servant Geo Gremlina" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
+        effect_type: Ignition
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -45,11 +46,11 @@ card "Earthbound Servant Geo Gremlina" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 524288
-        code: 1029
+        effect_type: Field + Trigger
+        category: Damage
+        code: Destroyed
         property: 65552
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             deal_damage to opponent: 1000
@@ -57,7 +58,7 @@ card "Earthbound Servant Geo Gremlina" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 74
         property: 67109888
         on_resolve {

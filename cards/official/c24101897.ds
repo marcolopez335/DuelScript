@@ -1,3 +1,4 @@
+// ゴーストリックの猫娘
 // Ghostrick Nekomusume
 // Transpiled from c24101897.lua
 
@@ -11,7 +12,7 @@ card "Ghostrick Nekomusume" {
     def: 900
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 20
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -19,29 +20,29 @@ card "Ghostrick Nekomusume" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 4096
-        range: 4
+        effect_type: Ignition
+        category: DiceRoll
+        range: MonsterZone
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 4096
-        code: 1102
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        category: DiceRoll
+        code: SpecialSummonSuccess
+        range: MonsterZone
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 514
-        category: 4096
-        code: 1100
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        category: DiceRoll
+        code: SummonSuccess
+        range: MonsterZone
         on_resolve {
             change_battle_position (1, monster)
         }

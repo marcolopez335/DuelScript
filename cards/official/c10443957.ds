@@ -1,3 +1,4 @@
+// サイバー・ドラゴン・インフィニティ
 // Cyber Dragon Infinity
 // Transpiled from c10443957.lua
 
@@ -21,19 +22,19 @@ card "Cyber Dragon Infinity" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
+        effect_type: Ignition
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             attach (1, card) to self as_material
@@ -41,11 +42,11 @@ card "Cyber Dragon Infinity" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 268435457
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self

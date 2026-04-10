@@ -1,3 +1,4 @@
+// 真紅眼の幼竜
 // Red-Eyes Baby Dragon
 // Transpiled from c58257569.lua
 
@@ -11,9 +12,9 @@ card "Red-Eyes Baby Dragon" {
     def: 700
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 262656
-        code: 1140
+        effect_type: Single + Trigger
+        category: SpecialSummon + EquipAction
+        code: BattleDamage
         on_resolve {
             special_summon (1, monster) from gy
             equip (1, card) to (1, monster)
@@ -21,9 +22,9 @@ card "Red-Eyes Baby Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: ChainEnd
         property: 65536
         on_resolve {
             add_to_hand (1+, card, you controls) from deck

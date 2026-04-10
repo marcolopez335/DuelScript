@@ -1,3 +1,4 @@
+// ダイダラボッチ
 // Daidara-Bocchi
 // Transpiled from c69133798.lua
 
@@ -15,7 +16,7 @@ card "Daidara-Bocchi" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -23,19 +24,19 @@ card "Daidara-Bocchi" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 8
-        range: 16
+        effect_type: Ignition
+        category: ToHand
+        range: Graveyard
         on_resolve {
             add_to_hand (1+, card, you controls) from gy
             reveal (1+, card, opponent controls)
@@ -43,7 +44,7 @@ card "Daidara-Bocchi" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 20
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }

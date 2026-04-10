@@ -1,3 +1,4 @@
+// ダーク・アンセリオン・ドラゴン
 // Dark Anthelion Dragon
 // Transpiled from c95685352.lua
 
@@ -22,9 +23,9 @@ card "Dark Anthelion Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
+        effect_type: Ignition
         property: 16
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -35,10 +36,10 @@ card "Dark Anthelion Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        code: 1002
+        effect_type: QuickEffect
+        code: FreeChain
         property: 16400
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self
@@ -52,8 +53,8 @@ card "Dark Anthelion Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        code: 1029
+        effect_type: Single + Trigger
+        code: Destroyed
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy

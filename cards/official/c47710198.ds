@@ -1,3 +1,4 @@
+// 相剣大邪－七星龍淵
 // Swordsoul Sinister Sovereign - Qixing Longyuan
 // Transpiled from c47710198.lua
 
@@ -21,11 +22,11 @@ card "Swordsoul Sinister Sovereign - Qixing Longyuan" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 65536
-        code: 1102
+        effect_type: Field + Trigger
+        category: Draw
+        code: SpecialSummonSuccess
         property: 2048
-        range: 4
+        range: MonsterZone
         count_limit: (1, 47710198)
         on_resolve {
             draw 1
@@ -33,11 +34,11 @@ card "Swordsoul Sinister Sovereign - Qixing Longyuan" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 524292
+        effect_type: Single + Trigger
+        category: Banish + Damage
         code: 316145654
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, card, either_player controls)
@@ -46,20 +47,20 @@ card "Swordsoul Sinister Sovereign - Qixing Longyuan" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 1102
+        effect_type: Field + Continuous
+        code: SpecialSummonSuccess
         property: 1024
-        range: 4
+        range: MonsterZone
         on_resolve {
             emit_event "custom"
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        category: 524292
-        code: 1027
-        range: 4
+        effect_type: QuickEffect
+        category: Banish + Damage
+        code: Chaining
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, card, either_player controls)

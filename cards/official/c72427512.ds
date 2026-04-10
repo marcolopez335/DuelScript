@@ -1,3 +1,4 @@
+// 擬態する人喰い虫
 // Mimicking Man-Eater Bug
 // Transpiled from c72427512.lua
 
@@ -11,8 +12,8 @@ card "Mimicking Man-Eater Bug" {
     def: 600
 
     raw_effect "Effect 1" {
-        effect_type: 33
-        category: 2097153
+        effect_type: Single + Flip
+        category: Destroy + SynchroSummon
         property: 16
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -20,20 +21,20 @@ card "Mimicking Man-Eater Bug" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }

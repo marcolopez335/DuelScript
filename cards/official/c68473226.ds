@@ -1,3 +1,4 @@
+// ハードアームドラゴン
 // Hardened Armed Dragon
 // Transpiled from c68473226.lua
 
@@ -11,18 +12,18 @@ card "Hardened Armed Dragon" {
     def: 800
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         on_resolve {
             send (1+, card, you controls, hand) to gy
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
-        code: 1109
+        effect_type: Single + Continuous
+        code: FlipResult
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

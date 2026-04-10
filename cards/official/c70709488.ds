@@ -1,3 +1,4 @@
+// 虫忍 ハガクレミノ
 // Shinobi Insect Hagakuremino
 // Transpiled from c70709488.lua
 
@@ -20,21 +21,21 @@ card "Shinobi Insect Hagakuremino" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 70
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1029
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 114688
-        range: 4
+        range: MonsterZone
         count_limit: (1, 70709488)
         on_resolve {
             special_summon (1, monster) from gy

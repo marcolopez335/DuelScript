@@ -1,3 +1,4 @@
+// 機甲忍法フリーズ・ロック
 // Armor Ninjitsu Art of Freezing
 // Transpiled from c65150219.lua
 
@@ -6,18 +7,18 @@ card "Armor Ninjitsu Art of Freezing" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1130
+        effect_type: Activate
+        code: AttackAnnounce
         on_resolve {
             negate attack
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 14
         property: 256
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }
         }

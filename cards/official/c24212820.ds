@@ -1,3 +1,4 @@
+// 幻影騎士団ダーク・ガントレット
 // The Phantom Knights of Dark Gauntlets
 // Transpiled from c24212820.lua
 
@@ -6,29 +7,29 @@ card "The Phantom Knights of Dark Gauntlets" {
     type: Normal Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 32
-        code: 1002
+        effect_type: Activate
+        category: ToGrave
+        code: FreeChain
         on_resolve {
             send (1+, spell, you controls, deck) to gy
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 512
-        code: 1130
-        range: 16
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: AttackAnnounce
+        range: Graveyard
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 104
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: def + 0
         }

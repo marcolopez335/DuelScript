@@ -1,3 +1,4 @@
+// 神書の使いラハムゥ
 // Lahamu the Messenger of Sacred Scripture
 // Transpiled from c53904087.lua
 
@@ -16,20 +17,20 @@ card "Lahamu the Messenger of Sacred Scripture" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 32
         property: 4194304
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 256
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: Counter
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             normal_summon (1, monster, you controls)
@@ -37,11 +38,11 @@ card "Lahamu the Messenger of Sacred Scripture" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 65552
+        effect_type: Field + Trigger
+        category: ToDeck + Draw
         code: 4608
         property: 2048
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             reveal (1+, card, opponent controls)

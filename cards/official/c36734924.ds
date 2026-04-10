@@ -1,3 +1,4 @@
+// 青き眼の巫女
 // Priestess with Eyes of Blue
 // Transpiled from c36734924.lua
 
@@ -11,10 +12,10 @@ card "Priestess with Eyes of Blue" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 131112
+        effect_type: QuickEffect
+        category: ToHand + ToGrave + Search
         code: 1028
-        range: 4
+        range: MonsterZone
         count_limit: (1, 36734924)
         on_resolve {
             send (1+, monster, you controls, deck) to gy
@@ -24,10 +25,10 @@ card "Priestess with Eyes of Blue" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 528
+        effect_type: Ignition
+        category: ToDeck + SpecialSummon
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 36734924)
         on_resolve {
             return (1+, monster, you controls) to deck shuffle

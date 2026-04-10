@@ -1,3 +1,4 @@
+// ワーム・ホープ
 // Worm Hope
 // Transpiled from c11159464.lua
 
@@ -11,17 +12,17 @@ card "Worm Hope" {
     def: 1500
 
     raw_effect "Effect 1" {
-        effect_type: 33
-        category: 65536
+        effect_type: Single + Flip
+        category: Draw
         on_resolve {
             draw 1
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 128
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: DefChange
+        code: ChainEnd
         on_resolve {
             discard (1, card)
         }

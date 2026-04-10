@@ -1,3 +1,4 @@
+// 巨大戦艦 ブラスターキャノン・コア
 // B.E.S. Blaster Cannon Core
 // Transpiled from c84257883.lua
 
@@ -15,33 +16,33 @@ card "B.E.S. Blaster Cannon Core" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         count_limit: (1, 84257883)
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 8388608
-        code: 1100
+        effect_type: Single + MandatoryTrigger
+        category: LinkSummon
+        code: SummonSuccess
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 8388608
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: LinkSummon
+        code: SpecialSummonSuccess
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -49,8 +50,8 @@ card "B.E.S. Blaster Cannon Core" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 513
-        category: 1
+        effect_type: Single + MandatoryTrigger
+        category: Destroy
         code: 1141
         on_resolve {
             destroy (1+, card, either_player controls)

@@ -1,3 +1,4 @@
+// Ａ宝玉獣コバルト・イーグル
 // Advanced Crystal Beast Cobalt Eagle
 // Transpiled from c45236142.lua
 
@@ -11,16 +12,16 @@ card "Advanced Crystal Beast Cobalt Eagle" {
     def: 800
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 142
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 313
         property: 262144
         on_resolve {
@@ -29,9 +30,9 @@ card "Advanced Crystal Beast Cobalt Eagle" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 131080
-        range: 6
+        effect_type: Ignition
+        category: ToHand + Search
+        range: Hand + MonsterZone
         cost {
             send self to gy
         }
@@ -42,10 +43,10 @@ card "Advanced Crystal Beast Cobalt Eagle" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 24
+        effect_type: Ignition
+        category: ToHand + ToDeck
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1, card, you controls) from gy

@@ -1,3 +1,4 @@
+// インフェルノイド・ヴァエル
 // Infernoid Seitsemas
 // Transpiled from c51316684.lua
 
@@ -15,10 +16,10 @@ card "Infernoid Seitsemas" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 4
+        effect_type: Field + Trigger
+        category: Banish
         code: 4224
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, card, either_player controls)
@@ -26,11 +27,11 @@ card "Infernoid Seitsemas" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 4
-        code: 1002
+        effect_type: QuickEffect
+        category: Banish
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             tribute self

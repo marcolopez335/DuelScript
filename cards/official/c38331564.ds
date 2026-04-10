@@ -1,3 +1,4 @@
+// 光天使セプター
 // Star Seraph Scepter
 // Transpiled from c38331564.lua
 
@@ -11,9 +12,9 @@ card "Star Seraph Scepter" {
     def: 400
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         property: 16384
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -22,9 +23,9 @@ card "Star Seraph Scepter" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 16384
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -33,7 +34,7 @@ card "Star Seraph Scepter" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1108
         on_resolve {
             register_effect on self {

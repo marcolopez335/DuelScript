@@ -1,3 +1,4 @@
+// ＤＤドッグ
 // D/D Dog
 // Transpiled from c32349062.lua
 
@@ -16,10 +17,10 @@ card "D/D Dog" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 16385
+        effect_type: Ignition
+        category: Destroy + Disable
         property: 16
-        range: 512
+        range: PendulumZone
         count_limit: (1, 32349062)
         on_resolve {
             negate effect
@@ -40,11 +41,11 @@ card "D/D Dog" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 16384
+        effect_type: Single + Trigger
+        category: Disable
         code: 300784518
         property: 65552
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -63,10 +64,10 @@ card "D/D Dog" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 1102
+        effect_type: Field + Continuous
+        code: SpecialSummonSuccess
         property: 1024
-        range: 4
+        range: MonsterZone
         on_resolve {
             set_flag "tracked" on self
             emit_event "custom"

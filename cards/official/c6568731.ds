@@ -1,3 +1,4 @@
+// 極氷獣アイスバーグ・ナーワル
 // Glacial Beast Iceberg Narwhal
 // Transpiled from c6568731.lua
 
@@ -21,21 +22,21 @@ card "Glacial Beast Iceberg Narwhal" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 514
-        category: 524288
-        code: 1029
+        effect_type: Field + MandatoryTrigger
+        category: Damage
+        code: Destroyed
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             deal_damage to opponent: 1000
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 16385
-        code: 1027
-        range: 4
+        effect_type: QuickEffect
+        category: Destroy + Disable
+        code: Chaining
+        range: MonsterZone
         count_limit: (1, 6568731)
         on_resolve {
             negate effect

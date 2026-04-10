@@ -1,3 +1,4 @@
+// 溟界王－アロン
 // Aron, the Ogdoadic King
 // Transpiled from c34172284.lua
 
@@ -15,9 +16,9 @@ card "Aron, the Ogdoadic King" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 16
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Graveyard
         count_limit: (1, 34172284)
         cost {
             tribute self
@@ -28,11 +29,11 @@ card "Aron, the Ogdoadic King" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 32
-        code: 1012
+        effect_type: Field + Trigger
+        category: ToGrave
+        code: ChainSolving
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, monster, opponent controls, hand) to gy
@@ -40,11 +41,11 @@ card "Aron, the Ogdoadic King" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 131080
-        code: 1014
+        effect_type: Field + Trigger
+        category: ToHand + Search
+        code: ChainEnd
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, opponent controls) from hand

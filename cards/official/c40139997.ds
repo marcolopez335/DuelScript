@@ -1,3 +1,4 @@
+// ブラッド・ローズ・ドラゴン
 // Ruddy Rose Dragon
 // Transpiled from c40139997.lua
 
@@ -21,9 +22,9 @@ card "Ruddy Rose Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 5
-        code: 1102
+        effect_type: Single + Trigger
+        category: Destroy + Banish
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             banish (1+, card, either_player controls, gy)
@@ -32,11 +33,11 @@ card "Ruddy Rose Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 268435968
-        code: 1027
+        effect_type: QuickEffect
+        category: SpecialSummon + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         cost {
             tribute self
         }

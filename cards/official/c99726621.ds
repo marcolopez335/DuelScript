@@ -1,3 +1,4 @@
+// 鉄獣戦線 凶鳥のシュライグ
 // Tri-Brigade Shuraig the Ominous Omen
 // Transpiled from c99726621.lua
 
@@ -20,9 +21,9 @@ card "Tri-Brigade Shuraig the Ominous Omen" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 4
-        code: 1102
+        effect_type: Single + Trigger
+        category: Banish
+        code: SpecialSummonSuccess
         property: 81920
         count_limit: (1, 99726621)
         on_resolve {
@@ -31,11 +32,11 @@ card "Tri-Brigade Shuraig the Ominous Omen" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 4
-        code: 1102
+        effect_type: Field + Trigger
+        category: Banish
+        code: SpecialSummonSuccess
         property: 81920
-        range: 4
+        range: MonsterZone
         count_limit: (1, 99726621)
         on_resolve {
             banish (1+, monster, either_player controls)
@@ -43,9 +44,9 @@ card "Tri-Brigade Shuraig the Ominous Omen" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: ChainEnd
         property: 114688
         count_limit: (1, 0)
         on_resolve {

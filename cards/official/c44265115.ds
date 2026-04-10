@@ -1,3 +1,4 @@
+// ブレインコントローラー
 // Brain Controller
 // Transpiled from c44265115.lua
 
@@ -11,9 +12,9 @@ card "Brain Controller" {
     def: 200
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 44265115)
         on_resolve {
@@ -23,9 +24,9 @@ card "Brain Controller" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 44265115)
         on_resolve {
@@ -35,11 +36,11 @@ card "Brain Controller" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 134217728
+        effect_type: Field + Trigger
+        category: LevelChange
         code: 1201
         property: 65552
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -50,8 +51,8 @@ card "Brain Controller" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 512
+        effect_type: Single + Trigger
+        category: SpecialSummon
         code: 1108
         property: 65536
         count_limit: (1, 0)
@@ -61,7 +62,7 @@ card "Brain Controller" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 131
         property: 1024
         on_resolve {

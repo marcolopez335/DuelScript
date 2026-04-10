@@ -1,3 +1,4 @@
+// ＧＰ－Ｎヘッド
 // Gold Pride - Nytro Head
 // Transpiled from c59900655.lua
 
@@ -15,9 +16,9 @@ card "Gold Pride - Nytro Head" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 59900655)
         on_resolve {
             special_summon (1, monster) from gy
@@ -25,10 +26,10 @@ card "Gold Pride - Nytro Head" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 1536
+        effect_type: Field + Trigger
+        category: SpecialSummon + Token
         code: 4098
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             create_token { atk: 0 def: 0 }
@@ -41,11 +42,11 @@ card "Gold Pride - Nytro Head" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 1
-        code: 1002
+        effect_type: QuickEffect
+        category: Destroy
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -53,7 +54,7 @@ card "Gold Pride - Nytro Head" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 239
         property: 67109888
         on_resolve {

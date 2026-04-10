@@ -1,3 +1,4 @@
+// 星遺物－『星鎧』
 // World Legacy - 'World Armor'
 // Transpiled from c83477829.lua
 
@@ -15,10 +16,10 @@ card "World Legacy - 'World Armor'" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
-        code: 1101
-        range: 2
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: FlipSummonSuccess
+        range: Hand
         count_limit: (1, 83477829)
         on_resolve {
             special_summon (1, monster) from gy
@@ -26,9 +27,9 @@ card "World Legacy - 'World Armor'" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -38,9 +39,9 @@ card "World Legacy - 'World Armor'" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -50,11 +51,11 @@ card "World Legacy - 'World Armor'" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        category: 8
-        code: 1002
+        effect_type: QuickEffect
+        category: ToHand
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 83477831)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck

@@ -1,3 +1,4 @@
+// 機械仕掛けの騎士
 // Clockwork Knight
 // Transpiled from c41739381.lua
 
@@ -20,9 +21,9 @@ card "Clockwork Knight" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 41739381)
         cost {
@@ -35,10 +36,10 @@ card "Clockwork Knight" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 514
+        effect_type: Ignition
+        category: Release + SpecialSummon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             tribute (1, monster, you controls)

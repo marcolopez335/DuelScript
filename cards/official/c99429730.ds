@@ -1,3 +1,4 @@
+// 森羅の番人 オーク
 // Sylvan Guardioak
 // Transpiled from c99429730.lua
 
@@ -15,9 +16,9 @@ card "Sylvan Guardioak" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 64
-        range: 4
+        effect_type: Ignition
+        category: AtkChange
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             reveal (1, card, opponent controls, deck)
@@ -28,9 +29,9 @@ card "Sylvan Guardioak" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 16
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToDeck
+        code: ChainEnd
         property: 65552
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle

@@ -1,3 +1,4 @@
+// ＳＰＹＲＡＬ ＧＥＡＲ－ドローン
 // SPYRAL GEAR - Drone
 // Transpiled from c4474060.lua
 
@@ -11,8 +12,8 @@ card "SPYRAL GEAR - Drone" {
     def: 100
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        code: 1100
+        effect_type: Single + Trigger
+        code: SummonSuccess
         property: 65536
         on_resolve {
             send_to_deck (1+, card, you controls)
@@ -20,8 +21,8 @@ card "SPYRAL GEAR - Drone" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        code: 1102
+        effect_type: Single + Trigger
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             send_to_deck (1+, card, you controls)
@@ -29,11 +30,11 @@ card "SPYRAL GEAR - Drone" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 2097152
-        code: 1002
+        effect_type: QuickEffect
+        category: SynchroSummon
+        code: FreeChain
         property: 16400
-        range: 4
+        range: MonsterZone
         cost {
             tribute self
         }
@@ -46,10 +47,10 @@ card "SPYRAL GEAR - Drone" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 8
+        effect_type: Ignition
+        category: ToHand
         property: 16
-        range: 16
+        range: Graveyard
         cost {
             banish self
         }

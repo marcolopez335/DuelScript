@@ -1,3 +1,4 @@
+// 葬角のカルノヴルス
 // Horned Brute Carnovorus
 // Transpiled from c34149150.lua
 
@@ -21,10 +22,10 @@ card "Horned Brute Carnovorus" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 34149150)
         on_resolve {
             synchro_summon (1, synchro monster) using (1+, monster, you controls)
@@ -32,10 +33,10 @@ card "Horned Brute Carnovorus" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1130
-        range: 4
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: AttackAnnounce
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -47,7 +48,7 @@ card "Horned Brute Carnovorus" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 67110912
         on_resolve {

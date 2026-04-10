@@ -1,3 +1,4 @@
+// 粛声なる祝福
 // Blessing of the Voiceless Voice
 // Transpiled from c39114494.lua
 
@@ -6,17 +7,17 @@ card "Blessing of the Voiceless Voice" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 8
+        effect_type: Ignition
+        category: ToHand
         property: 16
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 39114494)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
@@ -24,11 +25,11 @@ card "Blessing of the Voiceless Voice" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 512
-        code: 1102
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             ritual_summon (1, ritual monster) using (1+, monster, you controls)
@@ -36,11 +37,11 @@ card "Blessing of the Voiceless Voice" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 512
-        code: 1100
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SummonSuccess
         property: 65536
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             ritual_summon (1, ritual monster) using (1+, monster, you controls)
@@ -48,7 +49,7 @@ card "Blessing of the Voiceless Voice" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         property: 67108864
         on_resolve {
@@ -57,9 +58,9 @@ card "Blessing of the Voiceless Voice" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         on_resolve {
             ritual_summon (1, ritual monster) using (1+, monster, you controls)
         }

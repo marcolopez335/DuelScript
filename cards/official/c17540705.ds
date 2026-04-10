@@ -1,3 +1,4 @@
+// EMダグ・ダガーマン
 // Performapal Dag Daggerman
 // Transpiled from c17540705.lua
 
@@ -16,18 +17,18 @@ card "Performapal Dag Daggerman" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
-        range: 2
+        effect_type: Activate
+        code: FreeChain
+        range: Hand
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 8
+        effect_type: Ignition
+        category: ToHand
         property: 16
-        range: 512
+        range: PendulumZone
         count_limit: (1, 17540705)
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand
@@ -35,17 +36,17 @@ card "Performapal Dag Daggerman" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
-        code: 1102
+        effect_type: Single + Continuous
+        code: SpecialSummonSuccess
         property: 1024
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 65536
-        range: 4
+        effect_type: Ignition
+        category: Draw
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             draw 1

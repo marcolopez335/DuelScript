@@ -1,3 +1,4 @@
+// セレンの呪眼
 // Evil Eye of Selene
 // Transpiled from c44133040.lua
 
@@ -6,7 +7,7 @@ card "Evil Eye of Selene" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -14,7 +15,7 @@ card "Evil Eye of Selene" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 4
+        effect_type: Equip
         code: 71
         property: 128
         on_resolve {
@@ -23,7 +24,7 @@ card "Evil Eye of Selene" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 4
+        effect_type: Equip
         code: 41
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -31,19 +32,19 @@ card "Evil Eye of Selene" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 514
-        category: 2097152
-        code: 1027
+        effect_type: Field + MandatoryTrigger
+        category: SynchroSummon
+        code: Chaining
         property: 114688
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             gain_lp: 0
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 64
-        range: 16
+        effect_type: Ignition
+        range: Graveyard
         count_limit: (1, 44133040)
         cost {
             banish self
@@ -55,9 +56,9 @@ card "Evil Eye of Selene" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

@@ -1,3 +1,4 @@
+// Ｄ－ＨＥＲＯ ドローガイ
 // Destiny HERO - Drawhand
 // Transpiled from c48150362.lua
 
@@ -11,9 +12,9 @@ card "Destiny HERO - Drawhand" {
     def: 800
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 65536
-        code: 1102
+        effect_type: Single + Trigger
+        category: Draw
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 48150362)
         on_resolve {
@@ -23,18 +24,18 @@ card "Destiny HERO - Drawhand" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
-        code: 1014
+        effect_type: Single + Continuous
+        code: ChainEnd
         property: 1024
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 4098
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

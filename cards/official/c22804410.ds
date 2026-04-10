@@ -1,3 +1,4 @@
+// ディープアイズ・ホワイト・ドラゴン
 // Deep-Eyes White Dragon
 // Transpiled from c22804410.lua
 
@@ -15,11 +16,11 @@ card "Deep-Eyes White Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 524800
-        code: 1029
+        effect_type: Field + Trigger
+        category: SpecialSummon + Damage
+        code: Destroyed
         property: 16384
-        range: 2
+        range: Hand
         on_resolve {
             special_summon (1, monster) from gy
             deal_damage to opponent: 1000
@@ -27,27 +28,27 @@ card "Deep-Eyes White Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 2097152
-        code: 1100
+        effect_type: Single + MandatoryTrigger
+        category: SynchroSummon
+        code: SummonSuccess
         property: 16
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 2097152
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: SynchroSummon
+        code: SpecialSummonSuccess
         property: 16
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 513
-        category: 1
-        code: 1029
+        effect_type: Single + MandatoryTrigger
+        category: Destroy
+        code: Destroyed
         on_resolve {
             destroy (1+, card, you controls, gy)
         }

@@ -1,3 +1,4 @@
+// 森の聖騎士 ワンコ
 // Wonko, Noble Knight of the Forest
 // Transpiled from c17832359.lua
 
@@ -11,9 +12,9 @@ card "Wonko, Noble Knight of the Forest" {
     def: 1600
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 196616
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Draw + Search
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 17832359)
         on_resolve {
@@ -24,9 +25,9 @@ card "Wonko, Noble Knight of the Forest" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 196616
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Draw + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 17832359)
         on_resolve {
@@ -37,18 +38,18 @@ card "Wonko, Noble Knight of the Forest" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 332
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 2097152
-        code: 1140
+        effect_type: Single + Trigger
+        category: SynchroSummon
+        code: BattleDamage
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -58,7 +59,7 @@ card "Wonko, Noble Knight of the Forest" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 1024
         on_resolve {

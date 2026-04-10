@@ -1,3 +1,4 @@
+// 半纏鳥官－コンバード
 // Conbirdable
 // Transpiled from c79627627.lua
 
@@ -15,8 +16,8 @@ card "Conbirdable" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 161
-        category: 512
+        effect_type: Single + Flip + Trigger
+        category: SpecialSummon
         property: 65536
         count_limit: (1, 79627627)
         on_resolve {
@@ -26,11 +27,11 @@ card "Conbirdable" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 544
-        code: 1002
+        effect_type: QuickEffect
+        category: ToGrave + SpecialSummon
+        code: FreeChain
         property: 16
-        range: 2
+        range: Hand
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, you controls, deck) to gy

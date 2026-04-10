@@ -1,3 +1,4 @@
+// 究極宝玉神 レインボー・ドラゴン オーバー・ドライブ
 // Ultimate Crystal Rainbow Dragon Overdrive
 // Transpiled from c84544192.lua
 
@@ -20,15 +21,15 @@ card "Ultimate Crystal Rainbow Dragon Overdrive" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2050
-        code: 1102
+        effect_type: Field + Continuous
+        code: SpecialSummonSuccess
         on_resolve {
             set_flag "tracked" on self
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -36,20 +37,20 @@ card "Ultimate Crystal Rainbow Dragon Overdrive" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 7000
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        category: 528
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: ToDeck + SpecialSummon
+        code: FreeChain
+        range: MonsterZone
         cost {
             tribute self
         }

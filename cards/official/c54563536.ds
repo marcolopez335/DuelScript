@@ -1,3 +1,4 @@
+// マシンナーズ・リザーブレイク
 // Machina Resavenger
 // Transpiled from c54563536.lua
 
@@ -11,11 +12,11 @@ card "Machina Resavenger" {
     def: 1800
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 2097152
-        code: 1002
+        effect_type: QuickEffect
+        category: SynchroSummon
+        code: FreeChain
         property: 16400
-        range: 6
+        range: Hand + MonsterZone
         count_limit: (1, 54563536)
         cost {
             send self to gy
@@ -29,9 +30,9 @@ card "Machina Resavenger" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
+        effect_type: Field + Trigger
         code: 1139
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy

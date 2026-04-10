@@ -1,3 +1,4 @@
+// エレキングコブラ
 // Wattcobra
 // Transpiled from c88205593.lua
 
@@ -11,7 +12,7 @@ card "Wattcobra" {
     def: 500
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 74
         on_resolve {
             register_effect on self { grant: direct_attack duration: until_end_of_turn }
@@ -19,8 +20,8 @@ card "Wattcobra" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 131080
+        effect_type: Single + MandatoryTrigger
+        category: ToHand + Search
         code: 1143
         on_resolve {
             add_to_hand (1+, monster, opponent controls) from deck

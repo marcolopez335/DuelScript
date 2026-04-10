@@ -1,3 +1,4 @@
+// ラヴァル・ステライド
 // Laval Stennon
 // Transpiled from c20374351.lua
 
@@ -21,20 +22,20 @@ card "Laval Stennon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 128
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: DefChange
+        code: SpecialSummonSuccess
         on_resolve {
             send (1+, monster, you controls, gy) to gy
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 268435457
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         cost {
             banish self
         }

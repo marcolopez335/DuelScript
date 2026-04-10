@@ -1,3 +1,4 @@
+// 夢幻崩界イヴリース
 // Knightmare Corruptor Iblee
 // Transpiled from c10158145.lua
 
@@ -11,9 +12,9 @@ card "Knightmare Corruptor Iblee" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 512
-        code: 1100
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SummonSuccess
         property: 65552
         on_resolve {
             special_summon (1, monster) from gy
@@ -33,19 +34,19 @@ card "Knightmare Corruptor Iblee" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1014
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 65536
         count_limit: (1, 10158145)
         on_resolve {
@@ -54,9 +55,9 @@ card "Knightmare Corruptor Iblee" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }

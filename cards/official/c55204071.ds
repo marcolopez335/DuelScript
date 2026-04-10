@@ -1,3 +1,4 @@
+// ギミック・パペット－ナイトメア
 // Gimmick Puppet Nightmare
 // Transpiled from c55204071.lua
 
@@ -15,10 +16,10 @@ card "Gimmick Puppet Nightmare" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         count_limit: (1, 55204071)
         on_resolve {
             tribute (1, monster, you controls)
@@ -26,17 +27,17 @@ card "Gimmick Puppet Nightmare" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
-        code: 1102
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
-        code: 1102
+        effect_type: Single + Continuous
+        code: SpecialSummonSuccess
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -46,7 +47,7 @@ card "Gimmick Puppet Nightmare" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 67110912
         on_resolve {

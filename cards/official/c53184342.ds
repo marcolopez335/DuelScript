@@ -1,3 +1,4 @@
+// ドラグニティアームズ－グラム
 // Dragunity Arma Gram
 // Transpiled from c53184342.lua
 
@@ -15,9 +16,9 @@ card "Dragunity Arma Gram" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 18
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand + Graveyard
         count_limit: (1, 53184342)
         cost {
             banish self
@@ -28,10 +29,10 @@ card "Dragunity Arma Gram" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 2113536
+        effect_type: Ignition
+        category: Disable + SynchroSummon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -50,10 +51,10 @@ card "Dragunity Arma Gram" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 262144
-        code: 1140
-        range: 4
+        effect_type: Field + Trigger
+        category: EquipAction
+        code: BattleDamage
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             equip (1, card) to (1, monster)
@@ -65,14 +66,14 @@ card "Dragunity Arma Gram" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 71
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -80,7 +81,7 @@ card "Dragunity Arma Gram" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -88,7 +89,7 @@ card "Dragunity Arma Gram" {
     }
 
     raw_effect "Effect 7" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

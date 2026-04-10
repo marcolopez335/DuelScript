@@ -1,3 +1,4 @@
+// メタファイズ・デコイドラゴン
 // Metaphys Decoy Dragon
 // Transpiled from c12196873.lua
 
@@ -12,11 +13,11 @@ card "Metaphys Decoy Dragon" {
     def: 200
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
-        code: 1131
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: BattleTarget
         property: 16
-        range: 512
+        range: PendulumZone
         count_limit: (1, 12196873)
         on_resolve {
             banish (1+, card, either_player controls)
@@ -25,11 +26,11 @@ card "Metaphys Decoy Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1131
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: BattleTarget
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, card, either_player controls)
@@ -38,10 +39,10 @@ card "Metaphys Decoy Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 4098
-        range: 32
+        range: Banished
         count_limit: (1, 12196875)
         on_resolve {
             special_summon (1, monster) from gy

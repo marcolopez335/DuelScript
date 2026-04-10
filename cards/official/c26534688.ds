@@ -1,3 +1,4 @@
+// 深海の都 マガラニカ
 // Magellanica, the Deep Sea City
 // Transpiled from c26534688.lua
 
@@ -6,8 +7,8 @@ card "Magellanica, the Deep Sea City" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
             shuffle_deck
             reveal (1, card, opponent controls, deck)
@@ -15,9 +16,9 @@ card "Magellanica, the Deep Sea City" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
+        effect_type: Ignition
         property: 16
-        range: 256
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -28,11 +29,11 @@ card "Magellanica, the Deep Sea City" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 4
-        code: 1102
+        effect_type: Field + Trigger
+        category: Banish
+        code: SpecialSummonSuccess
         property: 65536
-        range: 256
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             reveal (1+, card, opponent controls)

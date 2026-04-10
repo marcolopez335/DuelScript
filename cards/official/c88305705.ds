@@ -1,3 +1,4 @@
+// ブレイブアイズ・ペンデュラム・ドラゴン
 // Brave-Eyes Pendulum Dragon
 // Transpiled from c88305705.lua
 
@@ -20,9 +21,9 @@ card "Brave-Eyes Pendulum Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 2097152
-        code: 1102
+        effect_type: Single + Trigger
+        category: SynchroSummon
+        code: SpecialSummonSuccess
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -36,17 +37,17 @@ card "Brave-Eyes Pendulum Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1020
-        range: 4
+        range: MonsterZone
         on_resolve {
             negate effect
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 4
+        effect_type: Single + Trigger
+        category: Banish
         code: 1141
         on_resolve {
             banish (1+, monster, opponent controls)

@@ -1,3 +1,4 @@
+// 聖天樹の大精霊
 // Sunavalon Dryanome
 // Transpiled from c65285459.lua
 
@@ -20,20 +21,20 @@ card "Sunavalon Dryanome" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 72
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 1111
         property: 114688
-        range: 4
+        range: MonsterZone
         count_limit: (3, 0)
         on_resolve {
             gain_lp: 1000
@@ -42,9 +43,9 @@ card "Sunavalon Dryanome" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        code: 1131
-        range: 4
+        effect_type: Field + Trigger
+        code: BattleTarget
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             negate attack

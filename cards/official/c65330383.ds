@@ -1,3 +1,4 @@
+// トロイメア・グリフォン
 // Knightmare Gryphon
 // Transpiled from c65330383.lua
 
@@ -20,8 +21,8 @@ card "Knightmare Gryphon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        code: 1102
+        effect_type: Single + Trigger
+        code: SpecialSummonSuccess
         property: 65552
         count_limit: (1, 65330383)
         cost {
@@ -38,17 +39,17 @@ card "Knightmare Gryphon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 6
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 7
         property: 67109888
         on_resolve {

@@ -1,3 +1,4 @@
+// 妖仙獣 鎌壱太刀
 // Yosenju Kama 1
 // Transpiled from c65247798.lua
 
@@ -11,9 +12,9 @@ card "Yosenju Kama 1" {
     def: 500
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 256
-        code: 1100
+        effect_type: Single + Trigger
+        category: Counter
+        code: SummonSuccess
         property: 65536
         on_resolve {
             normal_summon (1, monster, you controls)
@@ -21,10 +22,10 @@ card "Yosenju Kama 1" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 8
+        effect_type: Ignition
+        category: ToHand
         property: 4194320
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
@@ -32,8 +33,8 @@ card "Yosenju Kama 1" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
-        code: 1100
+        effect_type: Single + Continuous
+        code: SummonSuccess
         property: 1024
         on_resolve {
         }

@@ -1,3 +1,4 @@
+// ギミック・パペット－シャドー・フィーラー
 // Gimmick Puppet Shadow Feeler
 // Transpiled from c34620088.lua
 
@@ -15,7 +16,7 @@ card "Gimmick Puppet Shadow Feeler" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -23,10 +24,10 @@ card "Gimmick Puppet Shadow Feeler" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 524800
+        effect_type: Field + Trigger
+        category: SpecialSummon + Damage
         code: 1143
-        range: 16
+        range: Graveyard
         count_limit: (1, 34620088)
         on_resolve {
             special_summon (1, monster) from gy

@@ -1,3 +1,4 @@
+// エピュアリィ・ハピネス
 // Epurrely Happiness
 // Transpiled from c52645235.lua
 
@@ -21,8 +22,8 @@ card "Epurrely Happiness" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 2228232
+        effect_type: Single + Trigger
+        category: ToHand + Search + SynchroSummon
         code: 1141
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck
@@ -35,17 +36,17 @@ card "Epurrely Happiness" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1138
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 8
-        code: 1027
-        range: 4
+        effect_type: QuickEffect
+        category: ToHand
+        code: Chaining
+        range: MonsterZone
         count_limit: (3, 0)
         on_resolve {
             attach (1, card) to self as_material
@@ -54,7 +55,7 @@ card "Epurrely Happiness" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 102
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

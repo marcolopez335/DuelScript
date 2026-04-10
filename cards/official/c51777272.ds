@@ -1,3 +1,4 @@
+// 月光舞猫姫
 // Lunalight Cat Dancer
 // Transpiled from c51777272.lua
 
@@ -20,7 +21,7 @@ card "Lunalight Cat Dancer" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -28,8 +29,8 @@ card "Lunalight Cat Dancer" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        range: 4
+        effect_type: Ignition
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             tribute self
@@ -43,9 +44,9 @@ card "Lunalight Cat Dancer" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 524288
-        code: 1130
+        effect_type: Single + MandatoryTrigger
+        category: Damage
+        code: AttackAnnounce
         on_resolve {
             deal_damage to opponent: 1000
         }

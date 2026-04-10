@@ -1,3 +1,4 @@
+// 黒衣の大賢者
 // Dark Sage
 // Transpiled from c92377303.lua
 
@@ -15,10 +16,10 @@ card "Dark Sage" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 340060678
-        range: 2
+        range: Hand
         cost {
             tribute self
         }
@@ -28,8 +29,8 @@ card "Dark Sage" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 340060678
         range: 1
         cost {
@@ -41,10 +42,10 @@ card "Dark Sage" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 131080
-        code: 1102
-        range: 4
+        effect_type: Single + MandatoryTrigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
+        range: MonsterZone
         on_resolve {
             add_to_hand (1+, spell, opponent controls) from deck
             reveal (1+, card, opponent controls)

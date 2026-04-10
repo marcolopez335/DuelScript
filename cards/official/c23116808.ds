@@ -1,3 +1,4 @@
+// 怨念の魂 業火
 // Goka, the Pyre of Malice
 // Transpiled from c23116808.lua
 
@@ -15,18 +16,18 @@ card "Goka, the Pyre of Malice" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 1
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: Destroy
+        code: SpecialSummonSuccess
         property: 16
         on_resolve {
             destroy (1+, monster, you controls)
@@ -34,10 +35,10 @@ card "Goka, the Pyre of Malice" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 1536
+        effect_type: Field + MandatoryTrigger
+        category: SpecialSummon + Token
         code: 4098
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             create_token { atk: 0 def: 0 }
@@ -46,9 +47,9 @@ card "Goka, the Pyre of Malice" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 2097152
-        range: 4
+        effect_type: Ignition
+        category: SynchroSummon
+        range: MonsterZone
         cost {
             tribute self
         }
@@ -57,7 +58,7 @@ card "Goka, the Pyre of Malice" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         on_resolve {
             modifier: atk + 500

@@ -1,3 +1,4 @@
+// ストーム・サモナー
 // Storm Caller
 // Transpiled from c15935204.lua
 
@@ -15,9 +16,9 @@ card "Storm Caller" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1138
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -31,9 +32,9 @@ card "Storm Caller" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 524288
-        code: 1029
+        effect_type: Single + MandatoryTrigger
+        category: Damage
+        code: Destroyed
         on_resolve {
             deal_damage to opponent: 1000
         }

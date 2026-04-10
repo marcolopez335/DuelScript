@@ -1,3 +1,4 @@
+// ワーム・ルクイエ
 // Worm Rakuyeh
 // Transpiled from c17649753.lua
 
@@ -11,14 +12,14 @@ card "Worm Rakuyeh" {
     def: 1200
 
     raw_effect "Effect 1" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1001
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 86
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -26,9 +27,9 @@ card "Worm Rakuyeh" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 4224
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)

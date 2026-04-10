@@ -1,3 +1,4 @@
+// 幻影騎士団ラスティ・バルディッシュ
 // The Phantom Knights of Rusty Bardiche
 // Transpiled from c26692769.lua
 
@@ -20,9 +21,9 @@ card "The Phantom Knights of Rusty Bardiche" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 32
-        range: 4
+        effect_type: Ignition
+        category: ToGrave
+        range: MonsterZone
         count_limit: (1, 26692769)
         on_resolve {
             send (1+, monster, you controls, deck) to gy
@@ -31,11 +32,11 @@ card "The Phantom Knights of Rusty Bardiche" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 1
-        code: 1102
+        effect_type: Field + Trigger
+        category: Destroy
+        code: SpecialSummonSuccess
         property: 65552
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, you controls, deck)
@@ -43,7 +44,7 @@ card "The Phantom Knights of Rusty Bardiche" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 239
         property: 263168
         on_resolve {

@@ -1,3 +1,4 @@
+// 氷結界の霜精
 // Hexa Spirit of the Ice Barrier
 // Transpiled from c70703416.lua
 
@@ -11,27 +12,27 @@ card "Hexa Spirit of the Ice Barrier" {
     def: 200
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk - 500
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 104
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: def - 500
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 134217760
-        range: 4
+        effect_type: Ignition
+        category: ToGrave + LevelChange
+        range: MonsterZone
         count_limit: (1, 70703416)
         on_resolve {
             send (1+, monster, you controls) to gy

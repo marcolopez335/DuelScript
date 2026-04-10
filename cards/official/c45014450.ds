@@ -1,3 +1,4 @@
+// 覇王紫竜オッドアイズ・ヴェノム・ドラゴン
 // Odd-Eyes Venom Dragon
 // Transpiled from c45014450.lua
 
@@ -21,7 +22,7 @@ card "Odd-Eyes Venom Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -29,10 +30,10 @@ card "Odd-Eyes Venom Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 2097152
+        effect_type: Ignition
+        category: SynchroSummon
         property: 16
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -43,18 +44,18 @@ card "Odd-Eyes Venom Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
+        effect_type: Ignition
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy

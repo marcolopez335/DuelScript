@@ -1,3 +1,4 @@
+// 電極獣アニオン
 // Electrode Beast Anion
 // Transpiled from c58680635.lua
 
@@ -11,9 +12,9 @@ card "Electrode Beast Anion" {
     def: 100
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 134348808
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search + LevelChange
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 58680635)
         on_resolve {
@@ -23,10 +24,10 @@ card "Electrode Beast Anion" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 65568
+        effect_type: Ignition
+        category: ToGrave + Draw
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, you controls, gy) to gy

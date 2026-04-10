@@ -1,3 +1,4 @@
+// 水精鱗－メガロアビス
 // Mermail Abyssmegalo
 // Transpiled from c21954587.lua
 
@@ -15,18 +16,18 @@ card "Mermail Abyssmegalo" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         on_resolve {
             add_to_hand (1+, spell, you controls) from hand
             reveal (1+, card, opponent controls)
@@ -34,8 +35,8 @@ card "Mermail Abyssmegalo" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        range: 4
+        effect_type: Ignition
+        range: MonsterZone
         cost {
             tribute self
         }

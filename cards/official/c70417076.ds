@@ -1,3 +1,4 @@
+// Ｅｍウィンド・サッカー
 // Performage Wind Drainer
 // Transpiled from c70417076.lua
 
@@ -16,9 +17,9 @@ card "Performage Wind Drainer" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
+        effect_type: Ignition
         property: 16
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -29,9 +30,9 @@ card "Performage Wind Drainer" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 70417076)
         on_resolve {
             special_summon (1, monster) from gy
@@ -39,18 +40,18 @@ card "Performage Wind Drainer" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 134217728
-        code: 1102
+        effect_type: Single + Trigger
+        category: LevelChange
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 134217728
-        range: 4
+        effect_type: Ignition
+        category: LevelChange
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {

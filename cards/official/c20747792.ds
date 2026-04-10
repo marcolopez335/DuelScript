@@ -1,3 +1,4 @@
+// ベリー・マジシャン・ガール
 // Berry Magician Girl
 // Transpiled from c20747792.lua
 
@@ -11,9 +12,9 @@ card "Berry Magician Girl" {
     def: 400
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         property: 65536
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -22,10 +23,10 @@ card "Berry Magician Girl" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 512
+        effect_type: QuickEffect
+        category: SpecialSummon
         code: 1028
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)
@@ -34,10 +35,10 @@ card "Berry Magician Girl" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 512
-        code: 1131
-        range: 4
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: BattleTarget
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)

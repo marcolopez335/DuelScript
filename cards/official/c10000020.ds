@@ -1,3 +1,4 @@
+// オシリスの天空竜
 // Slifer the Sky Dragon
 // Transpiled from c10000020.lua
 
@@ -15,7 +16,7 @@ card "Slifer the Sky Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 26
         property: 263168
         on_resolve {
@@ -23,17 +24,17 @@ card "Slifer the Sky Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
-        code: 1100
+        effect_type: Single + Continuous
+        code: SummonSuccess
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 32
+        effect_type: Field + MandatoryTrigger
+        category: ToGrave
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, either_player controls) to gy
@@ -41,30 +42,30 @@ card "Slifer the Sky Dragon" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 104
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: def + 0
         }
     }
 
     raw_effect "Effect 6" {
-        effect_type: 514
-        category: 2097153
-        code: 1100
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        category: Destroy + SynchroSummon
+        code: SummonSuccess
+        range: MonsterZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -75,10 +76,10 @@ card "Slifer the Sky Dragon" {
     }
 
     raw_effect "Effect 7" {
-        effect_type: 514
-        category: 2097153
-        code: 1102
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        category: Destroy + SynchroSummon
+        code: SpecialSummonSuccess
+        range: MonsterZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -89,7 +90,7 @@ card "Slifer the Sky Dragon" {
     }
 
     raw_effect "Effect 8" {
-        effect_type: 1
+        effect_type: Single
         code: 20
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -97,7 +98,7 @@ card "Slifer the Sky Dragon" {
     }
 
     raw_effect "Effect 9" {
-        effect_type: 1
+        effect_type: Single
         code: 23
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }

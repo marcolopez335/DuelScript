@@ -1,3 +1,4 @@
+// 騎甲虫アサルト・ローラー
 // Beetrooper Assault Roller
 // Transpiled from c51578214.lua
 
@@ -11,10 +12,10 @@ card "Beetrooper Assault Roller" {
     def: 1400
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         count_limit: (1, 51578214)
         on_resolve {
             banish (1+, monster, you controls, gy)
@@ -22,19 +23,19 @@ card "Beetrooper Assault Roller" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
-        code: 1140
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: BattleDamage
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy

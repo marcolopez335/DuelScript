@@ -1,3 +1,4 @@
+// 星神器デミウルギア
 // World Gears of Theurlogical Demiurgy
 // Transpiled from c57282724.lua
 
@@ -20,7 +21,7 @@ card "World Gears of Theurlogical Demiurgy" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 239
         property: 263168
         on_resolve {
@@ -28,26 +29,26 @@ card "World Gears of Theurlogical Demiurgy" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 1
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 251
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 1
-        range: 4
+        effect_type: Ignition
+        category: Destroy
+        range: MonsterZone
         count_limit: (1, 57282724)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -55,11 +56,11 @@ card "World Gears of Theurlogical Demiurgy" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 130
-        category: 512
-        code: 1102
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

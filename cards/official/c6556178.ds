@@ -1,3 +1,4 @@
+// ヴァレル・リロード
 // Borrel Regenerator
 // Transpiled from c6556178.lua
 
@@ -6,9 +7,9 @@ card "Borrel Regenerator" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         property: 16
         count_limit: (1, 6556178)
         on_resolve {
@@ -18,7 +19,7 @@ card "Borrel Regenerator" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1015
         on_resolve {
             banish (1+, card, either_player controls)
@@ -26,9 +27,9 @@ card "Borrel Regenerator" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 65536
-        code: 1014
+        effect_type: Single + Trigger
+        category: Draw
+        code: ChainEnd
         property: 65536
         count_limit: (1, 0)
         on_resolve {

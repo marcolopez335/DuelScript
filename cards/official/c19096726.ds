@@ -1,3 +1,4 @@
+// 鉄獣鳥 メルクーリエ
 // Tri-Brigade Mercourier
 // Transpiled from c19096726.lua
 
@@ -11,10 +12,10 @@ card "Tri-Brigade Mercourier" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 16384
-        code: 1027
-        range: 6
+        effect_type: QuickEffect
+        category: Disable
+        code: Chaining
+        range: Hand + MonsterZone
         count_limit: (1, 19096726)
         cost {
             send self to gy
@@ -25,9 +26,9 @@ card "Tri-Brigade Mercourier" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1011
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: TurnEnd
         property: 81920
         count_limit: (1, 0)
         on_resolve {

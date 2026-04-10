@@ -1,3 +1,4 @@
+// ガード・マンティス
 // Guard Mantis
 // Transpiled from c53754104.lua
 
@@ -11,9 +12,9 @@ card "Guard Mantis" {
     def: 2400
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 53754104)
         cost {
             pay_lp 1000
@@ -24,11 +25,11 @@ card "Guard Mantis" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 4096
-        code: 1002
+        effect_type: QuickEffect
+        category: DiceRoll
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)
@@ -36,10 +37,10 @@ card "Guard Mantis" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 3072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

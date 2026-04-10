@@ -1,3 +1,4 @@
+// 超越竜メテオロス
 // Transcendosaurus Meteorus
 // Transpiled from c31241087.lua
 
@@ -15,7 +16,7 @@ card "Transcendosaurus Meteorus" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -23,10 +24,10 @@ card "Transcendosaurus Meteorus" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 513
-        code: 1002
-        range: 2
+        effect_type: QuickEffect
+        category: Destroy + SpecialSummon
+        code: FreeChain
+        range: Hand
         count_limit: (1, 31241087)
         on_resolve {
             destroy (1+, monster, you controls, hand)
@@ -35,9 +36,9 @@ card "Transcendosaurus Meteorus" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 32
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -46,9 +47,9 @@ card "Transcendosaurus Meteorus" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 528
-        code: 1029
+        effect_type: Single + Trigger
+        category: ToDeck + SpecialSummon
+        code: Destroyed
         property: 65536
         count_limit: (1, 0)
         on_resolve {

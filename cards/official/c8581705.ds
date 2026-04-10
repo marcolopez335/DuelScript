@@ -1,3 +1,4 @@
+// インフェルノクインデーモン
 // Infernalqueen Archfiend
 // Transpiled from c8581705.lua
 
@@ -11,10 +12,10 @@ card "Infernalqueen Archfiend" {
     def: 1500
 
     raw_effect "Effect 1" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 4098
         property: 263168
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -22,9 +23,9 @@ card "Infernalqueen Archfiend" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1020
-        range: 4
+        range: MonsterZone
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
             negate effect
@@ -33,11 +34,11 @@ card "Infernalqueen Archfiend" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 2097152
+        effect_type: Field + MandatoryTrigger
+        category: SynchroSummon
         code: 4098
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -48,7 +49,7 @@ card "Infernalqueen Archfiend" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 1024
         on_resolve {

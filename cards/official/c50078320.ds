@@ -1,3 +1,4 @@
+// 刻印の調停者
 // Engraver of the Mark
 // Transpiled from c50078320.lua
 
@@ -11,9 +12,9 @@ card "Engraver of the Mark" {
     def: 1200
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        code: 1027
-        range: 2
+        effect_type: QuickEffect
+        code: Chaining
+        range: Hand
         cost {
             send self to gy
         }
@@ -22,11 +23,11 @@ card "Engraver of the Mark" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 1
-        code: 1002
+        effect_type: QuickEffect
+        category: Destroy
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, opponent controls)

@@ -1,3 +1,4 @@
+// 双天拳の熊羆
 // Dual Avatar Fists - Yuhi
 // Transpiled from c85360035.lua
 
@@ -11,10 +12,10 @@ card "Dual Avatar Fists - Yuhi" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 131081
+        effect_type: Ignition
+        category: Destroy + ToHand + Search
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 85360035)
         on_resolve {
             destroy (1+, monster, you controls, deck)
@@ -24,11 +25,11 @@ card "Dual Avatar Fists - Yuhi" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 8
+        effect_type: Field + Trigger
+        category: ToHand
         code: 1015
         property: 81920
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck

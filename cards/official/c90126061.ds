@@ -1,3 +1,4 @@
+// No.5 亡霊竜デス・キマイラ・ドラゴン
 // Number 5: Doom Chimera Dragon
 // Transpiled from c90126061.lua
 
@@ -21,17 +22,17 @@ card "Number 5: Doom Chimera Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 193
         on_resolve {
             register_effect on self { grant: attack_all_opponent_monsters duration: until_end_of_turn }
@@ -39,10 +40,10 @@ card "Number 5: Doom Chimera Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
+        effect_type: Field + Trigger
         code: 4224
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             attach (1, card) to self as_material
@@ -50,11 +51,11 @@ card "Number 5: Doom Chimera Dragon" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 16
+        effect_type: Field + Trigger
+        category: ToDeck
         code: 4224
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle

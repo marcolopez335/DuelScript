@@ -1,3 +1,4 @@
+// フェニキシアン・クラスター・アマリリス
 // Phoenixian Cluster Amaryllis
 // Transpiled from c23558733.lua
 
@@ -15,7 +16,7 @@ card "Phoenixian Cluster Amaryllis" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -23,7 +24,7 @@ card "Phoenixian Cluster Amaryllis" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1138
         on_resolve {
             destroy (1+, monster, you controls, gy)
@@ -31,9 +32,9 @@ card "Phoenixian Cluster Amaryllis" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 524288
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: Damage
+        code: ChainEnd
         property: 2048
         on_resolve {
             deal_damage to opponent: 1000
@@ -41,10 +42,10 @@ card "Phoenixian Cluster Amaryllis" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 4608
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self

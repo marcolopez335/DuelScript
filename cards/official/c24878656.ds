@@ -1,3 +1,4 @@
+// トイ・ボックス
 // Toy Box
 // Transpiled from c24878656.lua
 
@@ -6,17 +7,17 @@ card "Toy Box" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 1
-        code: 1130
-        range: 8
+        effect_type: Field + Trigger
+        category: Destroy
+        code: AttackAnnounce
+        range: SpellTrapZone
         count_limit: (1, 0)
         cost {
             send self to gy
@@ -27,8 +28,8 @@ card "Toy Box" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        range: 8
+        effect_type: Ignition
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             set (1, card)

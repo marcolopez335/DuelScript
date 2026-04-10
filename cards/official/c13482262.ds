@@ -1,3 +1,4 @@
+// 魔神儀の隠れ房
 // Impcantation Thanatosis
 // Transpiled from c13482262.lua
 
@@ -6,9 +7,9 @@ card "Impcantation Thanatosis" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 528
-        code: 1002
+        effect_type: Activate
+        category: ToDeck + SpecialSummon
+        code: FreeChain
         count_limit: (1, 13482262)
         on_resolve {
             reveal (1+, card, opponent controls)
@@ -18,11 +19,11 @@ card "Impcantation Thanatosis" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 1
-        code: 1102
+        effect_type: Field + Trigger
+        category: Destroy
+        code: SpecialSummonSuccess
         property: 65552
-        range: 256
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, you controls, hand)

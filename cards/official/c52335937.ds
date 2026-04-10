@@ -1,3 +1,4 @@
+// エクソシスター・バト・マーテル
 // Exosister Betrayal
 // Transpiled from c52335937.lua
 
@@ -6,9 +7,9 @@ card "Exosister Betrayal" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 131208
-        code: 1002
+        effect_type: Activate
+        category: ToHand + DefChange + Search
+        code: FreeChain
         count_limit: (1, 52335937)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -19,10 +20,10 @@ card "Exosister Betrayal" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 256
+        effect_type: Ignition
+        category: Counter
         property: 16
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             normal_summon (1, monster, you controls)
@@ -30,11 +31,11 @@ card "Exosister Betrayal" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 4
+        effect_type: Single + Trigger
+        category: Banish
         code: 320771393
         property: 65536
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, monster, you controls, deck)
@@ -42,10 +43,10 @@ card "Exosister Betrayal" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 1014
+        effect_type: Field + Continuous
+        code: ChainEnd
         property: 1024
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             emit_event "custom"
         }

@@ -1,3 +1,4 @@
+// BK グラスジョー
 // Battlin' Boxer Glassjaw
 // Transpiled from c5361647.lua
 
@@ -11,18 +12,18 @@ card "Battlin' Boxer Glassjaw" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 1
-        code: 1131
+        effect_type: Single + MandatoryTrigger
+        category: Destroy
+        code: BattleTarget
         on_resolve {
             destroy (1+, monster, either_player controls)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 8
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand
+        code: ChainEnd
         property: 16
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy

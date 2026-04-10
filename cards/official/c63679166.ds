@@ -1,3 +1,4 @@
+// スローン・オブ・デーモンズ
 // Throne of the Archfiends
 // Transpiled from c63679166.lua
 
@@ -6,10 +7,10 @@ card "Throne of the Archfiends" {
     type: Ritual Spell
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 8
+        effect_type: Field + Trigger
+        category: ToHand
         code: 4098
-        range: 48
+        range: Graveyard + Banished
         count_limit: (1, 63679166)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
@@ -17,9 +18,9 @@ card "Throne of the Archfiends" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         on_resolve {
             ritual_summon (1, ritual monster) using (1+, monster, you controls)
         }

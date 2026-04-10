@@ -1,3 +1,4 @@
+// 妖仙獣 大幽谷響
 // Yosenju Oyam
 // Transpiled from c69838592.lua
 
@@ -15,10 +16,10 @@ card "Yosenju Oyam" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
-        code: 1130
-        range: 2
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: AttackAnnounce
+        range: Hand
         count_limit: (1, 69838592)
         on_resolve {
             special_summon (1, monster) from gy
@@ -26,16 +27,16 @@ card "Yosenju Oyam" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        code: 1132
+        effect_type: Single + Trigger
+        code: DamageCalculation
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
-        code: 1140
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: BattleDamage
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand
             reveal (1+, card, opponent controls)

@@ -1,3 +1,4 @@
+// ヴォルカニック・トルーパー
 // Volcanic Trooper
 // Transpiled from c22411609.lua
 
@@ -11,9 +12,9 @@ card "Volcanic Trooper" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 22411609)
         on_resolve {
@@ -23,9 +24,9 @@ card "Volcanic Trooper" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 22411609)
         on_resolve {
@@ -35,9 +36,9 @@ card "Volcanic Trooper" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 1536
-        range: 4
+        effect_type: Ignition
+        category: SpecialSummon + Token
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             create_token { atk: 0 def: 0 }

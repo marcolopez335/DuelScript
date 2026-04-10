@@ -1,3 +1,4 @@
+// ライトロード・アーク ミカエル
 // Michael, the Arch-Lightsworn
 // Transpiled from c4779823.lua
 
@@ -21,10 +22,10 @@ card "Michael, the Arch-Lightsworn" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 4
+        effect_type: Ignition
+        category: Banish
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             pay_lp 1000
@@ -35,9 +36,9 @@ card "Michael, the Arch-Lightsworn" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 1048592
-        code: 1029
+        effect_type: Single + Trigger
+        category: ToDeck + Recover
+        code: Destroyed
         property: 16400
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
@@ -46,10 +47,10 @@ card "Michael, the Arch-Lightsworn" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 64
+        effect_type: Field + MandatoryTrigger
+        category: AtkChange
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             mill 3

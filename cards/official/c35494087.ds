@@ -1,3 +1,4 @@
+// SRビードロ・ドクロ
 // Speedroid Skull Marbles
 // Transpiled from c35494087.lua
 
@@ -15,10 +16,10 @@ card "Speedroid Skull Marbles" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 4098
-        range: 2
+        range: Hand
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -26,7 +27,7 @@ card "Speedroid Skull Marbles" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -34,17 +35,17 @@ card "Speedroid Skull Marbles" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 202
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 141
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }

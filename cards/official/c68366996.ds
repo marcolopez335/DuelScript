@@ -1,3 +1,4 @@
+// デュアル・ソルジャー
 // Gemini Soldier
 // Transpiled from c68366996.lua
 
@@ -11,18 +12,18 @@ card "Gemini Soldier" {
     def: 300
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 47
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
+        effect_type: Single + Trigger
+        category: SpecialSummon
         code: 1138
         on_resolve {
             special_summon (1, monster) from gy

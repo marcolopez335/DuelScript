@@ -1,3 +1,4 @@
+// 聖魔の乙女アルテミス
 // Artemis, the Magistus Moon Maiden
 // Transpiled from c34755994.lua
 
@@ -20,11 +21,11 @@ card "Artemis, the Magistus Moon Maiden" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 262144
-        code: 1100
+        effect_type: Field + Trigger
+        category: EquipAction
+        code: SummonSuccess
         property: 65552
-        range: 4
+        range: MonsterZone
         count_limit: (1, 34755994)
         on_resolve {
             send (1+, monster, you controls, deck) to gy
@@ -33,11 +34,11 @@ card "Artemis, the Magistus Moon Maiden" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 262144
-        code: 1102
+        effect_type: Field + Trigger
+        category: EquipAction
+        code: SpecialSummonSuccess
         property: 65552
-        range: 4
+        range: MonsterZone
         count_limit: (1, 34755994)
         on_resolve {
             send (1+, monster, you controls, deck) to gy
@@ -46,9 +47,9 @@ card "Artemis, the Magistus Moon Maiden" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 131080
-        range: 8
+        effect_type: Ignition
+        category: ToHand + Search
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -57,7 +58,7 @@ card "Artemis, the Magistus Moon Maiden" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         on_resolve {
         }

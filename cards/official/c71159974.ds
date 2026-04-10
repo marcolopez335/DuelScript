@@ -1,3 +1,4 @@
+// 魔鍵召竜－アンドラビムス
 // Magikey Dragon - Andrabime
 // Transpiled from c71159974.lua
 
@@ -20,8 +21,8 @@ card "Magikey Dragon - Andrabime" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2049
-        code: 1102
+        effect_type: Single + Continuous
+        code: SpecialSummonSuccess
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -35,18 +36,18 @@ card "Magikey Dragon - Andrabime" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1026
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 1
+        effect_type: Ignition
+        category: Destroy
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, opponent controls)
@@ -54,11 +55,11 @@ card "Magikey Dragon - Andrabime" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 65536
-        code: 1029
+        effect_type: Field + Trigger
+        category: Draw
+        code: Destroyed
         property: 81920
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             draw 1

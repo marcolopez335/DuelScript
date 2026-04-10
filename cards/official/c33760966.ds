@@ -1,3 +1,4 @@
+// 星辰爪竜アルザリオン
 // Dracotail Arthalion
 // Transpiled from c33760966.lua
 
@@ -20,7 +21,7 @@ card "Dracotail Arthalion" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 251
         property: 1024
         on_resolve {
@@ -28,9 +29,9 @@ card "Dracotail Arthalion" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 8
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand
+        code: SpecialSummonSuccess
         property: 65552
         count_limit: (1, 33760966)
         on_resolve {
@@ -39,10 +40,10 @@ card "Dracotail Arthalion" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 516
+        effect_type: Single + Trigger
+        category: Banish + SpecialSummon
         code: 302196422
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -50,40 +51,40 @@ card "Dracotail Arthalion" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 1014
-        range: 16
+        effect_type: Field + Continuous
+        code: ChainEnd
+        range: Graveyard
         on_resolve {
             emit_event "custom"
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2050
-        code: 1027
-        range: 16
+        effect_type: Field + Continuous
+        code: Chaining
+        range: Graveyard
         on_resolve {
         }
     }
 
     raw_effect "Effect 6" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1022
-        range: 16
+        range: Graveyard
         on_resolve {
         }
     }
 
     raw_effect "Effect 7" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1050
-        range: 16
+        range: Graveyard
         on_resolve {
         }
     }
 
     raw_effect "Effect 8" {
-        effect_type: 1
+        effect_type: Single
         code: 60
         property: 67109888
         on_resolve {

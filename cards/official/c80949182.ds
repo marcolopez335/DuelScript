@@ -1,3 +1,4 @@
+// Ｂ・Ｆ－降魔弓のハマ
 // Battlewasp - Hama the Conquering Bow
 // Transpiled from c80949182.lua
 
@@ -21,25 +22,25 @@ card "Battlewasp - Hama the Conquering Bow" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2049
-        code: 1102
+        effect_type: Single + Continuous
+        code: SpecialSummonSuccess
         property: 1024
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 251
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 2097152
+        effect_type: Single + Trigger
+        category: SynchroSummon
         code: 1143
-        range: 4
+        range: MonsterZone
         count_limit: (1, 80949182)
         on_resolve {
             register_effect on self {
@@ -54,11 +55,11 @@ card "Battlewasp - Hama the Conquering Bow" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 524288
+        effect_type: Field + Trigger
+        category: Damage
         code: 4224
         property: 2048
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             deal_damage to opponent: 1000
@@ -66,7 +67,7 @@ card "Battlewasp - Hama the Conquering Bow" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1143
         property: 16384
         on_resolve {
@@ -74,7 +75,7 @@ card "Battlewasp - Hama the Conquering Bow" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1040
         count_limit: (1, 0)
         on_resolve {

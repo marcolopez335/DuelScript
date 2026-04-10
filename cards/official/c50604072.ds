@@ -1,3 +1,4 @@
+// クリムゾン・ブレーダー／バスタ
 // Crimson Blader/Assault Mode
 // Transpiled from c50604072.lua
 
@@ -15,9 +16,9 @@ card "Crimson Blader/Assault Mode" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 131096
-        range: 2
+        effect_type: Ignition
+        category: ToHand + ToDeck + Search
+        range: Hand
         count_limit: (1, 50604072)
         cost {
             reveal self
@@ -30,19 +31,19 @@ card "Crimson Blader/Assault Mode" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 6
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy

@@ -1,3 +1,4 @@
+// 絶対魔法禁止区域
 // Non-Spellcasting Area
 // Transpiled from c20065549.lua
 
@@ -6,16 +7,16 @@ card "Non-Spellcasting Area" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 1
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
         }

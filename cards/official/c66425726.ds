@@ -1,3 +1,4 @@
+// オッドアイズ・ペンデュラムグラフ・ドラゴン
 // Odd-Eyes Pendulumgraph Dragon
 // Transpiled from c66425726.lua
 
@@ -21,7 +22,7 @@ card "Odd-Eyes Pendulumgraph Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 31
         property: 263168
         on_resolve {
@@ -29,7 +30,7 @@ card "Odd-Eyes Pendulumgraph Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -37,10 +38,10 @@ card "Odd-Eyes Pendulumgraph Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 131080
+        effect_type: Field + Trigger
+        category: ToHand + Search
         code: 4608
-        range: 512
+        range: PendulumZone
         count_limit: (1, 66425726)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
@@ -51,19 +52,19 @@ card "Odd-Eyes Pendulumgraph Dragon" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 1102
-        range: 4
+        effect_type: Field + Continuous
+        code: SpecialSummonSuccess
+        range: MonsterZone
         on_resolve {
             deal_damage to opponent: 300
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 256
-        category: 16896
-        code: 1027
-        range: 4
+        effect_type: QuickEffect
+        category: SpecialSummon + Disable
+        code: Chaining
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, either_player controls) to gy

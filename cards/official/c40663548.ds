@@ -1,3 +1,4 @@
+// アロマージ－マジョラム
 // Aromage Marjoram
 // Transpiled from c40663548.lua
 
@@ -15,20 +16,20 @@ card "Aromage Marjoram" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 201
         property: 128
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 1049088
-        code: 1140
-        range: 2
+        effect_type: Field + Trigger
+        category: SpecialSummon + Recover
+        code: BattleDamage
+        range: Hand
         count_limit: (1, 40663548)
         on_resolve {
             special_summon (1, monster) from gy
@@ -37,11 +38,11 @@ card "Aromage Marjoram" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 4
+        effect_type: Field + MandatoryTrigger
+        category: Banish
         code: 1112
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, monster, you controls)

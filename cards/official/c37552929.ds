@@ -1,3 +1,4 @@
+// ミレニアムーン・メイデン
 // Maiden of the Millennium Moon
 // Transpiled from c37552929.lua
 
@@ -11,17 +12,17 @@ card "Maiden of the Millennium Moon" {
     def: 1300
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 42
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        range: 2
+        effect_type: Ignition
+        range: Hand
         count_limit: (1, 37552929)
         on_resolve {
             special_summon (1, monster) from gy
@@ -29,11 +30,11 @@ card "Maiden of the Millennium Moon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 1049088
-        code: 1027
+        effect_type: Field + Trigger
+        category: SpecialSummon + Recover
+        code: Chaining
         property: 65536
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -45,7 +46,7 @@ card "Maiden of the Millennium Moon" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 117
         property: 1024
         on_resolve {
@@ -53,7 +54,7 @@ card "Maiden of the Millennium Moon" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2
+        effect_type: Field
         code: 71
         property: 128
         on_resolve {

@@ -1,3 +1,4 @@
+// 憑依共鳴－ウィン
 // Possessed Resonance - Wynn
 // Transpiled from c60516416.lua
 
@@ -20,9 +21,9 @@ card "Possessed Resonance - Wynn" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 8192
-        code: 1102
+        effect_type: Single + Trigger
+        category: Summon
+        code: SpecialSummonSuccess
         property: 65552
         count_limit: (1, 60516416)
         on_resolve {
@@ -31,11 +32,11 @@ card "Possessed Resonance - Wynn" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 16
-        code: 1002
+        effect_type: QuickEffect
+        category: ToDeck
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 60516416)
         on_resolve {
             return (1+, monster, you controls) to deck shuffle

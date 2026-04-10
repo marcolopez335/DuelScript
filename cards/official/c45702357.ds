@@ -1,3 +1,4 @@
+// リバーシブル・ビートル
 // Reversible Beetle
 // Transpiled from c45702357.lua
 
@@ -11,8 +12,8 @@ card "Reversible Beetle" {
     def: 1500
 
     raw_effect "Effect 1" {
-        effect_type: 33
-        category: 16
+        effect_type: Single + Flip
+        category: ToDeck
         count_limit: (1, 45702357)
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
@@ -20,9 +21,9 @@ card "Reversible Beetle" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 4096
-        code: 1100
+        effect_type: Single + MandatoryTrigger
+        category: DiceRoll
+        code: SummonSuccess
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)
@@ -30,9 +31,9 @@ card "Reversible Beetle" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 4096
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: DiceRoll
+        code: SpecialSummonSuccess
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)

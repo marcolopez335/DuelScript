@@ -1,3 +1,4 @@
+// ダーク・サンクチュアリ
 // Dark Sanctuary
 // Transpiled from c16625614.lua
 
@@ -6,26 +7,26 @@ card "Dark Sanctuary" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 16625614
         property: 2048
-        range: 256
+        range: FieldZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 16777216
-        code: 1130
-        range: 256
+        effect_type: Field + MandatoryTrigger
+        category: RitualSummon
+        code: AttackAnnounce
+        range: FieldZone
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
             negate attack

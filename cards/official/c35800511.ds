@@ -1,3 +1,4 @@
+// 超重武者装留バスター・ガントレット
 // Superheavy Samurai Soulbuster Gauntlet
 // Transpiled from c35800511.lua
 
@@ -11,10 +12,10 @@ card "Superheavy Samurai Soulbuster Gauntlet" {
     def: 400
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 262144
+        effect_type: Ignition
+        category: EquipAction
         property: 16
-        range: 6
+        range: Hand + MonsterZone
         on_resolve {
             send (1+, spell, you controls, gy) to gy
             equip (1, card) to (1, monster)
@@ -22,10 +23,10 @@ card "Superheavy Samurai Soulbuster Gauntlet" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        code: 1002
+        effect_type: QuickEffect
+        code: FreeChain
         property: 16384
-        range: 2
+        range: Hand
         cost {
             send self to gy
         }

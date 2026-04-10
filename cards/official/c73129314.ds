@@ -1,3 +1,4 @@
+// 魂宿りし暗黒騎士ガイア
 // Heart of Gaia
 // Transpiled from c73129314.lua
 
@@ -15,20 +16,20 @@ card "Heart of Gaia" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
-        category: 256
+        effect_type: Single
+        category: Counter
         code: 32
         property: 262144
-        range: 2
+        range: Hand
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
-        category: 134217728
-        code: 1100
-        range: 4
+        effect_type: Field + Continuous
+        category: LevelChange
+        code: SummonSuccess
+        range: MonsterZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -38,10 +39,10 @@ card "Heart of Gaia" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        category: 134217728
-        code: 1102
-        range: 4
+        effect_type: Field + Continuous
+        category: LevelChange
+        code: SpecialSummonSuccess
+        range: MonsterZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -51,11 +52,11 @@ card "Heart of Gaia" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        category: 268435457
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         count_limit: (1, 73129314)
         cost {
             send self to gy
@@ -67,7 +68,7 @@ card "Heart of Gaia" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 130
         property: 1024
         on_resolve {

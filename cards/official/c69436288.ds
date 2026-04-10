@@ -1,3 +1,4 @@
+// デス・クラーケン
 // Doom Kraken
 // Transpiled from c69436288.lua
 
@@ -11,11 +12,11 @@ card "Doom Kraken" {
     def: 1600
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 521
-        code: 1002
+        effect_type: QuickEffect
+        category: Destroy + ToHand + SpecialSummon
+        code: FreeChain
         property: 16
-        range: 2
+        range: Hand
         count_limit: (1, 69436288)
         on_resolve {
             special_summon (1, monster) from gy
@@ -25,10 +26,10 @@ card "Doom Kraken" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 8
-        code: 1130
-        range: 4
+        effect_type: Field + Trigger
+        category: ToHand
+        code: AttackAnnounce
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, card, either_player controls) to hand

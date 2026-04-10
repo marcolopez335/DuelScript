@@ -1,3 +1,4 @@
+// ディメンション・ガーディアン
 // Dimension Guardian
 // Transpiled from c54175023.lua
 
@@ -6,36 +7,36 @@ card "Dimension Guardian" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 42
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 41
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1015
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 514
+        effect_type: Field + MandatoryTrigger
         code: 1015
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }

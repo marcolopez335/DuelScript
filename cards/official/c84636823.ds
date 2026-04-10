@@ -1,3 +1,4 @@
+// マジック・キャンセラー
 // Spell Canceller
 // Transpiled from c84636823.lua
 
@@ -15,28 +16,28 @@ card "Spell Canceller" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 6
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 2
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1020
-        range: 4
+        range: MonsterZone
         on_resolve {
             negate effect
         }

@@ -1,3 +1,4 @@
+// 剣闘獣の闘器ハルバード
 // Gladiator Beast's Battle Halberd
 // Transpiled from c99013397.lua
 
@@ -6,20 +7,20 @@ card "Gladiator Beast's Battle Halberd" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 514
-        category: 1
+        effect_type: Field + MandatoryTrigger
+        category: Destroy
         code: 1141
         property: 16
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             destroy (1+, spell, either_player controls)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 8
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: ToHand
+        code: ChainEnd
         on_resolve {
             add_to_hand (1+, spell, either_player controls) from gy
             reveal (1+, card, opponent controls)
@@ -27,9 +28,9 @@ card "Gladiator Beast's Battle Halberd" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

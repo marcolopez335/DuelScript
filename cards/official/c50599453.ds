@@ -1,3 +1,4 @@
+// 枯鰈葉リプレース
 // Leafplace Plaice
 // Transpiled from c50599453.lua
 
@@ -11,10 +12,10 @@ card "Leafplace Plaice" {
     def: ?
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 4098
-        range: 18
+        range: Hand + Graveyard
         count_limit: (1, 50599453)
         on_resolve {
             special_summon (1, monster) from gy
@@ -22,20 +23,20 @@ card "Leafplace Plaice" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 104
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: def + 0
         }

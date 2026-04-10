@@ -1,3 +1,4 @@
+// インスタント・ネオスペース
 // Instant Neo Space
 // Transpiled from c11913700.lua
 
@@ -6,15 +7,15 @@ card "Instant Neo Space" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 42015635
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
+        effect_type: Single + Trigger
+        category: SpecialSummon
         code: 1015
         property: 81920
         on_resolve {
@@ -23,9 +24,9 @@ card "Instant Neo Space" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

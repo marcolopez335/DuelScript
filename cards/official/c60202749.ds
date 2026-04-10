@@ -1,3 +1,4 @@
+// アビスフィアー
 // Abyss-sphere
 // Transpiled from c60202749.lua
 
@@ -6,9 +7,9 @@ card "Abyss-sphere" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {
@@ -19,17 +20,17 @@ card "Abyss-sphere" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 6
         property: 2048
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1015
         on_resolve {
             destroy (1+, card, you controls, deck)

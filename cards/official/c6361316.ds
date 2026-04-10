@@ -1,3 +1,4 @@
+// ＷＡＫＥ ＣＵＰ！ クロ
 // WAKE CUP! Kuro
 // Transpiled from c6361316.lua
 
@@ -12,8 +13,8 @@ card "WAKE CUP! Kuro" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 161
-        category: 4096
+        effect_type: Single + Flip + Trigger
+        category: DiceRoll
         property: 65552
         count_limit: (1, 0)
         on_resolve {
@@ -22,9 +23,9 @@ card "WAKE CUP! Kuro" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 131208
-        range: 2
+        effect_type: Ignition
+        category: ToHand + DefChange + Search
+        range: Hand
         count_limit: (1, 0)
         cost {
             reveal self
@@ -38,11 +39,11 @@ card "WAKE CUP! Kuro" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 4096
-        code: 1002
+        effect_type: QuickEffect
+        category: DiceRoll
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)

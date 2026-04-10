@@ -1,3 +1,4 @@
+// 小法師ヒダルマー
 // Fire Fighting Daruma Doll
 // Transpiled from c64514892.lua
 
@@ -20,20 +21,20 @@ card "Fire Fighting Daruma Doll" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 1
+        effect_type: Ignition
+        category: Destroy
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, spell, either_player controls)
@@ -41,8 +42,8 @@ card "Fire Fighting Daruma Doll" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 8
+        effect_type: Single + Trigger
+        category: ToHand
         code: 1139
         property: 16
         on_resolve {

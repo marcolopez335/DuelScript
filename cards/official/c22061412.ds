@@ -1,3 +1,4 @@
+// E・HERO The シャイニング
 // Elemental HERO The Shining
 // Transpiled from c22061412.lua
 
@@ -20,9 +21,9 @@ card "Elemental HERO The Shining" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 8
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand
+        code: ChainEnd
         property: 16400
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
@@ -30,17 +31,17 @@ card "Elemental HERO The Shining" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {

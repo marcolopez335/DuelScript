@@ -1,3 +1,4 @@
+// 冥占術の儀式
 // Underworld Ritual of Prediction
 // Transpiled from c8428836.lua
 
@@ -6,10 +7,10 @@ card "Underworld Ritual of Prediction" {
     type: Ritual Spell
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 4098
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self
@@ -21,9 +22,9 @@ card "Underworld Ritual of Prediction" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         on_resolve {
             ritual_summon (1, ritual monster) using (1+, monster, you controls)
         }

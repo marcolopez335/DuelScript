@@ -1,3 +1,4 @@
+// Ｅｖｉｌ★Ｔｗｉｎ キスキル
 // Evil★Twin Ki-sikil
 // Transpiled from c9205573.lua
 
@@ -20,9 +21,9 @@ card "Evil★Twin Ki-sikil" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 65536
-        code: 1102
+        effect_type: Single + Trigger
+        category: Draw
+        code: SpecialSummonSuccess
         property: 81920
         count_limit: (1, 9205573)
         on_resolve {
@@ -31,10 +32,10 @@ card "Evil★Twin Ki-sikil" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {

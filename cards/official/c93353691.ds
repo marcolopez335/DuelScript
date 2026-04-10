@@ -1,3 +1,4 @@
+// 不退の荒武者
 // Driven Daredevil
 // Transpiled from c93353691.lua
 
@@ -21,17 +22,17 @@ card "Driven Daredevil" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 1
+        effect_type: Single + MandatoryTrigger
+        category: Destroy
         code: 1138
         on_resolve {
             destroy (1+, card, either_player controls)

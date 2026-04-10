@@ -1,3 +1,4 @@
+// 戦華の叛－呂奉
 // Ancient Warriors - Rebellious Lu Feng
 // Transpiled from c82791472.lua
 
@@ -15,7 +16,7 @@ card "Ancient Warriors - Rebellious Lu Feng" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -23,20 +24,20 @@ card "Ancient Warriors - Rebellious Lu Feng" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 263168
-        range: 2
+        range: Hand
         count_limit: (1, 82791472)
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 1
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: Destroy
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, either_player controls)
@@ -44,10 +45,10 @@ card "Ancient Warriors - Rebellious Lu Feng" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 514
-        category: 8192
+        effect_type: Field + MandatoryTrigger
+        category: Summon
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             take_control of (1, monster, opponent controls)

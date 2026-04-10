@@ -1,3 +1,4 @@
+// 幻獣機オライオン
 // Mecha Phantom Beast O-Lion
 // Transpiled from c72291078.lua
 
@@ -11,29 +12,29 @@ card "Mecha Phantom Beast O-Lion" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 256
-        range: 16
+        effect_type: Ignition
+        category: Counter
+        range: Graveyard
         cost {
             banish self
         }
@@ -43,9 +44,9 @@ card "Mecha Phantom Beast O-Lion" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 1536
-        code: 1014
+        effect_type: Single + Trigger
+        category: SpecialSummon + Token
+        code: ChainEnd
         property: 65536
         count_limit: (1, 72291078)
         on_resolve {

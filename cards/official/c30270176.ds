@@ -1,3 +1,4 @@
+// 暗黒方界神クリムゾン・ノヴァ
 // Crimson Nova the Dark Cubic Lord
 // Transpiled from c30270176.lua
 
@@ -15,7 +16,7 @@ card "Crimson Nova the Dark Cubic Lord" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -23,10 +24,10 @@ card "Crimson Nova the Dark Cubic Lord" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 263168
-        range: 2
+        range: Hand
         on_resolve {
             reveal (1+, card, opponent controls)
             shuffle_hand
@@ -34,27 +35,27 @@ card "Crimson Nova the Dark Cubic Lord" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 1
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
+        effect_type: Single + Trigger
         code: 1139
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 514
-        category: 524288
+        effect_type: Field + MandatoryTrigger
+        category: Damage
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 30270176)
         on_resolve {
             deal_damage to opponent: 3000

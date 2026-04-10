@@ -1,3 +1,4 @@
+// 魔界劇団－メロー・マドンナ
 // Abyss Actor - Mellow Madonna
 // Transpiled from c78310590.lua
 
@@ -16,9 +17,9 @@ card "Abyss Actor - Mellow Madonna" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 131080
-        range: 512
+        effect_type: Ignition
+        category: ToHand + Search
+        range: PendulumZone
         count_limit: (1, 78310590)
         cost {
             pay_lp 1000
@@ -34,20 +35,20 @@ card "Abyss Actor - Mellow Madonna" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 512
-        code: 1140
-        range: 2
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: BattleDamage
+        range: Hand
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -55,11 +56,11 @@ card "Abyss Actor - Mellow Madonna" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 512
-        code: 1027
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: Chaining
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 78310592)
         on_resolve {
             special_summon (1, monster) from gy

@@ -1,3 +1,4 @@
+// スピリット変換装置
 // Spirit Converter
 // Transpiled from c20802187.lua
 
@@ -6,16 +7,16 @@ card "Spirit Converter" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
+        effect_type: Ignition
         property: 16
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             attach (1, card) to self as_material
@@ -23,9 +24,9 @@ card "Spirit Converter" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 8
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: ToHand
+        code: ChainEnd
         property: 16
         on_resolve {
             add_to_hand (1+, card, you controls) from gy

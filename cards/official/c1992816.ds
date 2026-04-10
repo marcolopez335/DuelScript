@@ -1,3 +1,4 @@
+// No.9 天蓋星ダイソン・スフィア
 // Number 9: Dyson Sphere
 // Transpiled from c1992816.lua
 
@@ -21,17 +22,17 @@ card "Number 9: Dyson Sphere" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        code: FreeChain
+        range: MonsterZone
         on_resolve {
             negate attack
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        code: 1131
+        effect_type: Single + Trigger
+        code: BattleTarget
         property: 16
         on_resolve {
             attach (1, card) to self as_material
@@ -39,8 +40,8 @@ card "Number 9: Dyson Sphere" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        range: 4
+        effect_type: Ignition
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self

@@ -1,3 +1,4 @@
+// ＣＸ ギミック・パペット－ファナティクス・マキナ
 // CXyz Gimmick Puppet Fanatix Machinix
 // Transpiled from c3685372.lua
 
@@ -21,9 +22,9 @@ card "CXyz Gimmick Puppet Fanatix Machinix" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 3685372)
         on_resolve {
@@ -33,9 +34,9 @@ card "CXyz Gimmick Puppet Fanatix Machinix" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 4
+        effect_type: Ignition
+        category: SpecialSummon
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self
@@ -46,11 +47,11 @@ card "CXyz Gimmick Puppet Fanatix Machinix" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 524289
+        effect_type: Single + Trigger
+        category: Destroy + Damage
         code: 272120828
         property: 65552
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, trap, you controls, deck)
@@ -59,10 +60,10 @@ card "CXyz Gimmick Puppet Fanatix Machinix" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 1102
+        effect_type: Field + Continuous
+        code: SpecialSummonSuccess
         property: 1024
-        range: 4
+        range: MonsterZone
         on_resolve {
             emit_event "custom"
         }

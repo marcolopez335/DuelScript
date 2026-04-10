@@ -1,3 +1,4 @@
+// 調律師の陰謀
 // Tuner's Scheme
 // Transpiled from c70284332.lua
 
@@ -6,9 +7,9 @@ card "Tuner's Scheme" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 8192
-        code: 1102
+        effect_type: Activate
+        category: Summon
+        code: SpecialSummonSuccess
         property: 16
         on_resolve {
             register_effect on self {
@@ -23,9 +24,9 @@ card "Tuner's Scheme" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1015
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             destroy (1+, card, either_player controls)
         }

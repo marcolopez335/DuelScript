@@ -1,3 +1,4 @@
+// 幻朧竜華-覇巴
 // Genro Ryu-Ge Hakva
 // Transpiled from c56499179.lua
 
@@ -15,9 +16,9 @@ card "Genro Ryu-Ge Hakva" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 131080
-        range: 2
+        effect_type: Ignition
+        category: ToHand + Search
+        range: Hand
         count_limit: (1, 56499179)
         cost {
             banish self
@@ -29,10 +30,10 @@ card "Genro Ryu-Ge Hakva" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1011
-        range: 32
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: TurnEnd
+        range: Banished
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -40,9 +41,9 @@ card "Genro Ryu-Ge Hakva" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 131080
-        range: 4
+        effect_type: Ignition
+        category: ToHand + Search
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck

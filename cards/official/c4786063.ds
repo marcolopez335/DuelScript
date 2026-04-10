@@ -1,3 +1,4 @@
+// 超重武者装留ファイヤー・アーマー
 // Superheavy Samurai Soulfire Suit
 // Transpiled from c4786063.lua
 
@@ -11,10 +12,10 @@ card "Superheavy Samurai Soulfire Suit" {
     def: 800
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 262144
+        effect_type: Ignition
+        category: EquipAction
         property: 16
-        range: 6
+        range: Hand + MonsterZone
         on_resolve {
             equip (1, card) to (1, monster)
             send (1+, card, either_player controls) to gy
@@ -22,11 +23,11 @@ card "Superheavy Samurai Soulfire Suit" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 4194304
-        code: 1002
+        effect_type: QuickEffect
+        category: XyzSummon
+        code: FreeChain
         property: 16400
-        range: 2
+        range: Hand
         cost {
             discard (1, card, you controls)
         }
@@ -47,7 +48,7 @@ card "Superheavy Samurai Soulfire Suit" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         property: 1024
         on_resolve {
@@ -55,14 +56,14 @@ card "Superheavy Samurai Soulfire Suit" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 4
+        effect_type: Equip
         code: 131
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 104
         on_resolve {
             modifier: def - 800
@@ -70,7 +71,7 @@ card "Superheavy Samurai Soulfire Suit" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         property: 67108864
         on_resolve {
@@ -79,7 +80,7 @@ card "Superheavy Samurai Soulfire Suit" {
     }
 
     raw_effect "Effect 7" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         property: 67108864
         on_resolve {

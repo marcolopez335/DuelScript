@@ -1,3 +1,4 @@
+// 星辰竜パーン
 // Dracotail Pan
 // Transpiled from c44482554.lua
 
@@ -15,8 +16,8 @@ card "Dracotail Pan" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 1
+        effect_type: Single + Trigger
+        category: Destroy
         code: 1108
         property: 65536
         count_limit: (1, 44482554)
@@ -28,10 +29,10 @@ card "Dracotail Pan" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 528
-        code: 1029
-        range: 16
+        effect_type: Field + Trigger
+        category: ToDeck + SpecialSummon
+        code: Destroyed
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             return (1+, spell, either_player controls) to deck shuffle

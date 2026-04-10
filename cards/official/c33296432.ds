@@ -1,3 +1,4 @@
+// 教導の天啓アディン
 // Dogmatika Adin, the Enlightened
 // Transpiled from c33296432.lua
 
@@ -11,9 +12,9 @@ card "Dogmatika Adin, the Enlightened" {
     def: 1800
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 33296432)
         on_resolve {
             special_summon (1, monster) from gy
@@ -21,7 +22,7 @@ card "Dogmatika Adin, the Enlightened" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -29,9 +30,9 @@ card "Dogmatika Adin, the Enlightened" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 81920
         count_limit: (1, 0)
         on_resolve {

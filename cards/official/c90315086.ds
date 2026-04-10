@@ -1,3 +1,4 @@
+// ジェット・シャーク
 // Hydrojet Shark
 // Transpiled from c90315086.lua
 
@@ -11,10 +12,10 @@ card "Hydrojet Shark" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -24,9 +25,9 @@ card "Hydrojet Shark" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 32
-        range: 4
+        effect_type: Ignition
+        category: ToGrave
+        range: MonsterZone
         count_limit: (1, 90315086)
         on_resolve {
             send (1+, spell, either_player controls) to gy
@@ -34,9 +35,9 @@ card "Hydrojet Shark" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 131080
-        range: 16
+        effect_type: Ignition
+        category: ToHand + Search
+        range: Graveyard
         count_limit: (1, 90315086)
         cost {
             banish self

@@ -1,3 +1,4 @@
+// ネフティスの鳳凰神
 // Sacred Phoenix of Nephthys
 // Transpiled from c61441708.lua
 
@@ -15,27 +16,27 @@ card "Sacred Phoenix of Nephthys" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2049
-        code: 1014
+        effect_type: Single + Continuous
+        code: ChainEnd
         property: 1024
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 512
+        effect_type: Field + MandatoryTrigger
+        category: SpecialSummon
         code: 4098
-        range: 16
+        range: Graveyard
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 1
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: Destroy
+        code: SpecialSummonSuccess
         on_resolve {
             destroy (1+, spell, either_player controls)
         }

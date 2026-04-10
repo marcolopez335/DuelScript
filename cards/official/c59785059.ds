@@ -1,3 +1,4 @@
+// イグナイト・スティンガー
 // Igknight Champion
 // Transpiled from c59785059.lua
 
@@ -15,10 +16,10 @@ card "Igknight Champion" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 513
+        effect_type: Ignition
+        category: Destroy + SpecialSummon
         property: 16
-        range: 2
+        range: Hand
         on_resolve {
             destroy (1+, card, you controls)
             special_summon (1, monster) from gy
@@ -26,10 +27,10 @@ card "Igknight Champion" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 24
+        effect_type: Ignition
+        category: ToHand + ToDeck
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, card, you controls) to hand

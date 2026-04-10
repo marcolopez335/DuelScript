@@ -1,3 +1,4 @@
+// トライゲート・ウィザード
 // Tri-Gate Wizard
 // Transpiled from c32617464.lua
 
@@ -20,19 +21,19 @@ card "Tri-Gate Wizard" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 208
         property: 128
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 4
+        effect_type: Ignition
+        category: Banish
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, card, either_player controls)
@@ -40,11 +41,11 @@ card "Tri-Gate Wizard" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 268435460
-        code: 1027
+        effect_type: QuickEffect
+        category: Banish + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             negate activation

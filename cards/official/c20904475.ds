@@ -1,3 +1,4 @@
+// 海瀧竜華－淵巴
 // Kairo Ryu-Ge Emva
 // Transpiled from c20904475.lua
 
@@ -15,9 +16,9 @@ card "Kairo Ryu-Ge Emva" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 131080
-        range: 2
+        effect_type: Ignition
+        category: ToHand + Search
+        range: Hand
         count_limit: (1, 20904475)
         cost {
             discard (1, card, you controls)
@@ -29,9 +30,9 @@ card "Kairo Ryu-Ge Emva" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 16
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -39,17 +40,17 @@ card "Kairo Ryu-Ge Emva" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 1014
+        effect_type: Field + Continuous
+        code: ChainEnd
         on_resolve {
             set_flag "tracked" on self
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 65540
-        range: 4
+        effect_type: Ignition
+        category: Banish + Draw
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, monster, you controls, deck)

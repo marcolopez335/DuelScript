@@ -1,3 +1,4 @@
+// 壊獄神ユピテル
 // Jupiter the Power Patron of Destruction
 // Transpiled from c68231287.lua
 
@@ -21,9 +22,9 @@ card "Jupiter the Power Patron of Destruction" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 262144
-        code: 1102
+        effect_type: Single + Trigger
+        category: EquipAction
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             equip (1, card) to (1, monster)
@@ -31,19 +32,19 @@ card "Jupiter the Power Patron of Destruction" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 3000
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 513
-        range: 4
+        effect_type: Ignition
+        category: Destroy + SpecialSummon
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self

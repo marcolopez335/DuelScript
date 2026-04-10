@@ -1,3 +1,4 @@
+// 覇王門無限
 // Supreme King Gate Infinity
 // Transpiled from c22211622.lua
 
@@ -16,20 +17,20 @@ card "Supreme King Gate Infinity" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 3584
-        range: 512
+        range: PendulumZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 1048576
+        effect_type: Ignition
+        category: Recover
         property: 16
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             gain_lp: 1000
@@ -37,10 +38,10 @@ card "Supreme King Gate Infinity" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 513
+        effect_type: Ignition
+        category: Destroy + SpecialSummon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, you controls)
@@ -73,8 +74,8 @@ card "Supreme King Gate Infinity" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        code: 1029
+        effect_type: Single + Trigger
+        code: Destroyed
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy

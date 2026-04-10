@@ -1,3 +1,4 @@
+// アルカナフォースＥＸ－ＴＨＥ ＣＨＡＯＳ ＲＵＬＥＲ
 // Arcana Force EX - The Chaos Ruler
 // Transpiled from c12686296.lua
 
@@ -20,9 +21,9 @@ card "Arcana Force EX - The Chaos Ruler" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 16908808
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: ToHand + SpecialSummon + Search + RitualSummon
+        code: SpecialSummonSuccess
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
             special_summon (1, monster) from gy
@@ -32,10 +33,10 @@ card "Arcana Force EX - The Chaos Ruler" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 6
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }

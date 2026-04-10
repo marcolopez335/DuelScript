@@ -1,3 +1,4 @@
+// 幻想の黒魔導師
 // Ebon Illusion Magician
 // Transpiled from c96471335.lua
 
@@ -21,9 +22,9 @@ card "Ebon Illusion Magician" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 4
+        effect_type: Ignition
+        category: SpecialSummon
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self
@@ -34,11 +35,11 @@ card "Ebon Illusion Magician" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 4
-        code: 1130
+        effect_type: Field + Trigger
+        category: Banish
+        code: AttackAnnounce
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 96471335)
         on_resolve {
             banish (1+, card, you controls, hand)

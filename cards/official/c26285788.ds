@@ -1,3 +1,4 @@
+// 招来の対価
 // Trial and Tribulation
 // Transpiled from c26285788.lua
 
@@ -6,9 +7,9 @@ card "Trial and Tribulation" {
     type: Normal Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 65545
-        code: 1002
+        effect_type: Activate
+        category: Destroy + ToHand + Draw
+        code: FreeChain
         count_limit: (1, 26285788)
         on_resolve {
             register_effect on self {
@@ -19,8 +20,8 @@ card "Trial and Tribulation" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 1017
+        effect_type: Field + Continuous
+        code: Release
         on_resolve {
             set_flag "tracked" on self
         }

@@ -1,3 +1,4 @@
+// 刻まれし魔の鎮魂棺
 // Fiendsmith's Requiem
 // Transpiled from c2463794.lua
 
@@ -20,10 +21,10 @@ card "Fiendsmith's Requiem" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: MonsterZone
         cost {
             tribute self
         }
@@ -33,10 +34,10 @@ card "Fiendsmith's Requiem" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 262144
+        effect_type: Ignition
+        category: EquipAction
         property: 16
-        range: 20
+        range: MonsterZone + Graveyard
         count_limit: (1, 2463794)
         on_resolve {
             equip (1, card) to (1, monster)
@@ -45,7 +46,7 @@ card "Fiendsmith's Requiem" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         property: 1024
         on_resolve {
@@ -53,7 +54,7 @@ card "Fiendsmith's Requiem" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 600

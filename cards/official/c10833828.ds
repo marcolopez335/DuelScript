@@ -1,3 +1,4 @@
+// 魔神王の禁断契約書
 // Forbidden Dark Contract with the Swamp King
 // Transpiled from c10833828.lua
 
@@ -6,16 +7,16 @@ card "Forbidden Dark Contract with the Swamp King" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 8
+        effect_type: Ignition
+        category: SpecialSummon
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -31,19 +32,19 @@ card "Forbidden Dark Contract with the Swamp King" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 1073742336
-        range: 8
+        effect_type: Ignition
+        category: SpecialSummon
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 514
-        category: 524288
+        effect_type: Field + MandatoryTrigger
+        category: Damage
         code: 4098
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             deal_damage to opponent: 1000
@@ -51,7 +52,7 @@ card "Forbidden Dark Contract with the Swamp King" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 2
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -59,7 +60,7 @@ card "Forbidden Dark Contract with the Swamp King" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 1
+        effect_type: Single
         code: 8
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }

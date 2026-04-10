@@ -1,3 +1,4 @@
+// 天霆號アーゼウス
 // Divine Arsenal AA-ZEUS - Sky Thunder
 // Transpiled from c90448279.lua
 
@@ -21,10 +22,10 @@ card "Divine Arsenal AA-ZEUS - Sky Thunder" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 32
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: ToGrave
+        code: FreeChain
+        range: MonsterZone
         cost {
             detach 2 overlay_unit from self
         }
@@ -34,10 +35,10 @@ card "Divine Arsenal AA-ZEUS - Sky Thunder" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        code: 1029
+        effect_type: Field + Trigger
+        code: Destroyed
         property: 81920
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             attach (1, card) to self as_material
@@ -45,7 +46,7 @@ card "Divine Arsenal AA-ZEUS - Sky Thunder" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1138
         on_resolve {
             set_flag "tracked" on self

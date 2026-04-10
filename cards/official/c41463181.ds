@@ -1,3 +1,4 @@
+// 転生炎獣ヒートライオ
 // Salamangreat Heatleo
 // Transpiled from c41463181.lua
 
@@ -20,9 +21,9 @@ card "Salamangreat Heatleo" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 16
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToDeck
+        code: SpecialSummonSuccess
         property: 65552
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
@@ -30,10 +31,10 @@ card "Salamangreat Heatleo" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 2097152
+        effect_type: Ignition
+        category: SynchroSummon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -44,7 +45,7 @@ card "Salamangreat Heatleo" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 102
         property: 1024
         on_resolve {

@@ -1,3 +1,4 @@
+// ホロウヴァレット・ドラゴン
 // Hollowrokket Dragon
 // Transpiled from c51548207.lua
 
@@ -15,10 +16,10 @@ card "Hollowrokket Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 5
-        code: 1027
-        range: 4
+        effect_type: QuickEffect
+        category: Destroy + Banish
+        code: Chaining
+        range: MonsterZone
         count_limit: (1, 51548207)
         on_resolve {
             destroy (1+, card, you controls, deck)
@@ -28,10 +29,10 @@ card "Hollowrokket Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 4608
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

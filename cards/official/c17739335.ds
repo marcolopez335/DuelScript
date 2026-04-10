@@ -1,3 +1,4 @@
+// 呪眼の王 ザラキエル
 // Zerrziel, Ruler of the Evil Eyed
 // Transpiled from c17739335.lua
 
@@ -20,18 +21,18 @@ card "Zerrziel, Ruler of the Evil Eyed" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 251
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 1
-        code: 1002
+        effect_type: QuickEffect
+        category: Destroy
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 17739335)
         on_resolve {
             destroy (1+, monster, opponent controls)
@@ -39,10 +40,10 @@ card "Zerrziel, Ruler of the Evil Eyed" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 16384
+        effect_type: Field + MandatoryTrigger
+        category: Disable
         code: 4098
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {

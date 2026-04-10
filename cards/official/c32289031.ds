@@ -1,3 +1,4 @@
+// 星騎士 セイクリッド・デルタテロス
 // Tellarknight Constellar Delteros
 // Transpiled from c32289031.lua
 
@@ -21,19 +22,19 @@ card "Tellarknight Constellar Delteros" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 71
         property: 128
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 131336
-        range: 4
+        effect_type: Ignition
+        category: ToHand + Counter + Search
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self
@@ -47,9 +48,9 @@ card "Tellarknight Constellar Delteros" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1014
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy

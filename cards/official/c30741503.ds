@@ -1,3 +1,4 @@
+// オルフェゴール・ガラテア
 // Galatea, the Orcust Automaton
 // Transpiled from c30741503.lua
 
@@ -20,20 +21,20 @@ card "Galatea, the Orcust Automaton" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 16
+        effect_type: Ignition
+        category: ToDeck
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 30741503)
         on_resolve {
             return (1+, spell, you controls) to deck shuffle
@@ -43,11 +44,11 @@ card "Galatea, the Orcust Automaton" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 16
-        code: 1002
+        effect_type: QuickEffect
+        category: ToDeck
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 30741503)
         on_resolve {
             return (1+, spell, you controls) to deck shuffle

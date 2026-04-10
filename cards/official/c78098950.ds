@@ -1,3 +1,4 @@
+// 刀皇－都牟羽沓薙
 // Tsumuha-Kutsunagi the Lord of Swords
 // Transpiled from c78098950.lua
 
@@ -15,7 +16,7 @@ card "Tsumuha-Kutsunagi the Lord of Swords" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -23,9 +24,9 @@ card "Tsumuha-Kutsunagi the Lord of Swords" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 65584
-        code: 1100
+        effect_type: Single + MandatoryTrigger
+        category: ToDeck + ToGrave + Draw
+        code: SummonSuccess
         on_resolve {
             send (1+, card, opponent controls) to gy
             draw 1
@@ -38,8 +39,8 @@ card "Tsumuha-Kutsunagi the Lord of Swords" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 65584
+        effect_type: Single + MandatoryTrigger
+        category: ToDeck + ToGrave + Draw
         code: 1001
         on_resolve {
             send (1+, card, opponent controls) to gy
@@ -53,7 +54,7 @@ card "Tsumuha-Kutsunagi the Lord of Swords" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 20
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -61,7 +62,7 @@ card "Tsumuha-Kutsunagi the Lord of Swords" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 23
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }

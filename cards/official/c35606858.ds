@@ -1,3 +1,4 @@
+// パーペチュアルキングデーモン
 // Masterking Archfiend
 // Transpiled from c35606858.lua
 
@@ -20,10 +21,10 @@ card "Masterking Archfiend" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 4098
         property: 263168
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, you controls, deck)
@@ -31,11 +32,11 @@ card "Masterking Archfiend" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 32
+        effect_type: Field + Trigger
+        category: ToGrave
         code: 1201
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, monster, you controls, deck) to gy
@@ -43,11 +44,11 @@ card "Masterking Archfiend" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 33554968
+        effect_type: Single + Trigger
+        category: ToHand + ToDeck + SpecialSummon + FusionSummon
         code: 304042314
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
@@ -59,10 +60,10 @@ card "Masterking Archfiend" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 1014
+        effect_type: Field + Continuous
+        code: ChainEnd
         property: 1024
-        range: 4
+        range: MonsterZone
         on_resolve {
             emit_event "custom"
         }

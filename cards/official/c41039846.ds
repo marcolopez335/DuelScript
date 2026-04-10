@@ -1,3 +1,4 @@
+// カラスの巨群
 // Swarm of Crows
 // Transpiled from c41039846.lua
 
@@ -15,25 +16,25 @@ card "Swarm of Crows" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 4096
-        range: 4
+        effect_type: Ignition
+        category: DiceRoll
+        range: MonsterZone
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 128
-        code: 1101
+        effect_type: Single + MandatoryTrigger
+        category: DefChange
+        code: FlipSummonSuccess
         on_resolve {
             send (1+, card, either_player controls) to gy
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 394240
         range: 1

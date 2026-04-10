@@ -1,3 +1,4 @@
+// 白の救済
 // Whitefish Salvage
 // Transpiled from c63509474.lua
 
@@ -6,17 +7,17 @@ card "Whitefish Salvage" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 8
+        effect_type: Ignition
+        category: ToHand
         property: 16
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 63509474)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -24,9 +25,9 @@ card "Whitefish Salvage" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131592
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand + SpecialSummon + Search
+        code: ChainEnd
         property: 81920
         on_resolve {
             add_to_hand (1, card, you controls) from gy

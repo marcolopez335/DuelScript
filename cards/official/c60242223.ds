@@ -1,3 +1,4 @@
+// 深淵の獣サロニール
 // Bystial Saronir
 // Transpiled from c60242223.lua
 
@@ -15,10 +16,10 @@ card "Bystial Saronir" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 516
+        effect_type: Ignition
+        category: Banish + SpecialSummon
         property: 16
-        range: 2
+        range: Hand
         count_limit: (1, 60242223)
         on_resolve {
             banish (1+, monster, you controls, deck)
@@ -27,11 +28,11 @@ card "Bystial Saronir" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 516
-        code: 1002
+        effect_type: QuickEffect
+        category: Banish + SpecialSummon
+        code: FreeChain
         property: 16
-        range: 2
+        range: Hand
         count_limit: (1, 60242223)
         on_resolve {
             banish (1+, monster, you controls, deck)
@@ -40,9 +41,9 @@ card "Bystial Saronir" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 32
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: ChainEnd
         property: 65536
         count_limit: (1, 0)
         on_resolve {

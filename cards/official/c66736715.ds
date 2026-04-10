@@ -1,3 +1,4 @@
+// 彗聖の将－ワンモア・ザ・ナイト
 // Moissa Knight, the Comet General
 // Transpiled from c66736715.lua
 
@@ -12,17 +13,17 @@ card "Moissa Knight, the Comet General" {
     def: 100
 
     raw_effect "Effect 1" {
-        effect_type: 514
-        category: 16
-        code: 1102
-        range: 512
+        effect_type: Field + MandatoryTrigger
+        category: ToDeck
+        code: SpecialSummonSuccess
+        range: PendulumZone
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
+        effect_type: Single + Trigger
         code: 1110
         cost {
             reveal self

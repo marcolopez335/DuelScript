@@ -1,3 +1,4 @@
+// エレキハダマグロ
 // Wattuna
 // Transpiled from c10113611.lua
 
@@ -11,7 +12,7 @@ card "Wattuna" {
     def: 700
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 74
         on_resolve {
             register_effect on self { grant: direct_attack duration: until_end_of_turn }
@@ -19,10 +20,10 @@ card "Wattuna" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 1141
-        range: 2
+        range: Hand
         count_limit: (1, 10113611)
         on_resolve {
             special_summon (1, monster) from gy
@@ -30,8 +31,8 @@ card "Wattuna" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 514
+        effect_type: Single + Trigger
+        category: Release + SpecialSummon
         code: 1143
         count_limit: (1, 0)
         on_resolve {
@@ -41,7 +42,7 @@ card "Wattuna" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1143
         on_resolve {
             set_flag "tracked" on self

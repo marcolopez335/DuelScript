@@ -1,3 +1,4 @@
+// 魔導戦士 ブレイカー
 // Breaker the Magical Warrior
 // Transpiled from c71413901.lua
 
@@ -11,28 +12,28 @@ card "Breaker the Magical Warrior" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 8388608
-        code: 1100
+        effect_type: Single + MandatoryTrigger
+        category: LinkSummon
+        code: SummonSuccess
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 1
+        effect_type: Ignition
+        category: Destroy
         property: 16
-        range: 4
+        range: MonsterZone
         on_resolve {
             destroy (1+, spell, either_player controls)
         }

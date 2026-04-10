@@ -1,3 +1,4 @@
+// スピードロイドヘキサソーサー
 // Speedroid Hexasaucer
 // Transpiled from c23792058.lua
 
@@ -12,10 +13,10 @@ card "Speedroid Hexasaucer" {
     def: 1600
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 16
+        effect_type: Ignition
+        category: ToDeck
         property: 16
-        range: 512
+        range: PendulumZone
         count_limit: (1, 23792058)
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
@@ -23,23 +24,23 @@ card "Speedroid Hexasaucer" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 206
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 208
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy

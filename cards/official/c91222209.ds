@@ -1,3 +1,4 @@
+// Ｒ－ＡＣＥイントルーダー
 // Rescue-ACE Monitor
 // Transpiled from c91222209.lua
 
@@ -11,9 +12,9 @@ card "Rescue-ACE Monitor" {
     def: 1800
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 91222209)
         on_resolve {
@@ -23,9 +24,9 @@ card "Rescue-ACE Monitor" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 91222209)
         on_resolve {
@@ -35,11 +36,11 @@ card "Rescue-ACE Monitor" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 512
-        code: 1027
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: Chaining
         property: 16
-        range: 6
+        range: Hand + MonsterZone
         count_limit: (1, 0)
         cost {
             tribute self

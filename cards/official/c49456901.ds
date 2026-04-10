@@ -1,3 +1,4 @@
+// CNo.104 仮面魔踏士アンブラル
 // Number C104: Umbral Horror Masquerade
 // Transpiled from c49456901.lua
 
@@ -21,9 +22,9 @@ card "Number C104: Umbral Horror Masquerade" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 1
-        code: 1102
+        effect_type: Single + Trigger
+        category: Destroy
+        code: SpecialSummonSuccess
         property: 16
         on_resolve {
             destroy (1+, spell, either_player controls)
@@ -31,11 +32,11 @@ card "Number C104: Umbral Horror Masquerade" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 268435584
-        code: 1027
+        effect_type: QuickEffect
+        category: DefChange + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self

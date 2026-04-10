@@ -1,3 +1,4 @@
+// 魔界劇団－プリティ・ヒロイン
 // Abyss Actor - Leading Lady
 // Transpiled from c24907044.lua
 
@@ -12,10 +13,10 @@ card "Abyss Actor - Leading Lady" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 2097152
+        effect_type: Field + Trigger
+        category: SynchroSummon
         code: 1143
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -26,10 +27,10 @@ card "Abyss Actor - Leading Lady" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 8
+        effect_type: Field + Trigger
+        category: ToHand
         code: 1143
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, spell, either_player controls) from gy
@@ -38,11 +39,11 @@ card "Abyss Actor - Leading Lady" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 2097152
+        effect_type: Field + Trigger
+        category: SynchroSummon
         code: 1143
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -53,8 +54,8 @@ card "Abyss Actor - Leading Lady" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        code: 1029
+        effect_type: Single + Trigger
+        code: Destroyed
         on_resolve {
             set (1, card)
         }

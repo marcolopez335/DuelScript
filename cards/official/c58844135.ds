@@ -1,3 +1,4 @@
+// 人攻智能ME-PSY-YA
 // Antihuman Intelligence ME-PSY-YA
 // Transpiled from c58844135.lua
 
@@ -16,18 +17,18 @@ card "Antihuman Intelligence ME-PSY-YA" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 63
         property: 416
-        range: 512
+        range: PendulumZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 58844135)
         on_resolve {
             send (1+, card, you controls) to extra_deck
@@ -36,9 +37,9 @@ card "Antihuman Intelligence ME-PSY-YA" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        code: 1100
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        code: SummonSuccess
+        range: MonsterZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -48,9 +49,9 @@ card "Antihuman Intelligence ME-PSY-YA" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 514
-        code: 1102
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        code: SpecialSummonSuccess
+        range: MonsterZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

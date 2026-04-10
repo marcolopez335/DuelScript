@@ -1,3 +1,4 @@
+// ミミグル・アーマー
 // Mimighoul Armor
 // Transpiled from c11677278.lua
 
@@ -11,8 +12,8 @@ card "Mimighoul Armor" {
     def: 1500
 
     raw_effect "Effect 1" {
-        effect_type: 545
-        category: 8192
+        effect_type: Single + Flip + MandatoryTrigger
+        category: Summon
         count_limit: (1, 11677278)
         on_resolve {
             register_effect on self {
@@ -24,9 +25,9 @@ card "Mimighoul Armor" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -36,7 +37,7 @@ card "Mimighoul Armor" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

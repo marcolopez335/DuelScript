@@ -1,3 +1,4 @@
+// 聖刻龍－アセトドラゴン
 // Hieratic Dragon of Eset
 // Transpiled from c4022819.lua
 
@@ -15,7 +16,7 @@ card "Hieratic Dragon of Eset" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 32
         property: 262144
         on_resolve {
@@ -23,10 +24,10 @@ card "Hieratic Dragon of Eset" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 134217728
+        effect_type: Ignition
+        category: LevelChange
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -37,9 +38,9 @@ card "Hieratic Dragon of Eset" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 6291968
-        code: 1017
+        effect_type: Single + MandatoryTrigger
+        category: SpecialSummon + SynchroSummon + XyzSummon
+        code: Release
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {

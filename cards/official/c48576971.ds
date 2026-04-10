@@ -1,3 +1,4 @@
+// 与奪の首飾り
 // Necklace of Command
 // Transpiled from c48576971.lua
 
@@ -6,8 +7,8 @@ card "Necklace of Command" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        code: ChainEnd
         on_resolve {
             draw 1
             send (1+, card, either_player controls) to gy
@@ -15,9 +16,9 @@ card "Necklace of Command" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

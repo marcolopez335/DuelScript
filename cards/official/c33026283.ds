@@ -1,3 +1,4 @@
+// 双天将 金剛
 // Dual Avatar - Empowered Kon-Gyo
 // Transpiled from c33026283.lua
 
@@ -20,18 +21,18 @@ card "Dual Avatar - Empowered Kon-Gyo" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 6
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 8
+        effect_type: Single + Trigger
+        category: ToHand
         code: 1138
         on_resolve {
             return (1+, monster, opponent controls) to hand
@@ -39,11 +40,11 @@ card "Dual Avatar - Empowered Kon-Gyo" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 268435456
-        code: 1027
+        effect_type: QuickEffect
+        category: Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         count_limit: (1, 33026283)
         on_resolve {
             negate activation

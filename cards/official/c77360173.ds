@@ -1,3 +1,4 @@
+// シンクローン・リゾネーター
 // Synkron Resonator
 // Transpiled from c77360173.lua
 
@@ -11,19 +12,19 @@ card "Synkron Resonator" {
     def: 100
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         count_limit: (1, 77360173)
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 8
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand
+        code: ChainEnd
         property: 81936
         on_resolve {
             return (1+, monster, either_player controls) to hand

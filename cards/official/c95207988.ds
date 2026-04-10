@@ -1,3 +1,4 @@
+// 地縛共振
 // Earthbound Resonance
 // Transpiled from c95207988.lua
 
@@ -6,18 +7,18 @@ card "Earthbound Resonance" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 524288
+        effect_type: Field + Trigger
+        category: Damage
         code: 363643444
         property: 65552
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 95207988)
         on_resolve {
             deal_damage to opponent: 1000
@@ -26,19 +27,19 @@ card "Earthbound Resonance" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 1029
+        effect_type: Field + Continuous
+        code: Destroyed
         on_resolve {
             emit_event "custom"
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        category: 1
-        code: 1131
+        effect_type: QuickEffect
+        category: Destroy
+        code: BattleTarget
         property: 16
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)

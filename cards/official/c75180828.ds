@@ -1,3 +1,4 @@
+// 水精鱗－サルフアビス
 // Mermail Abyssbalaen
 // Transpiled from c75180828.lua
 
@@ -15,18 +16,18 @@ card "Mermail Abyssbalaen" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 2097153
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: Destroy + SynchroSummon
+        code: SpecialSummonSuccess
         property: 16
         on_resolve {
             destroy (1+, monster, you controls, hand)
@@ -34,8 +35,8 @@ card "Mermail Abyssbalaen" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        range: 4
+        effect_type: Ignition
+        range: MonsterZone
         cost {
             tribute self
         }

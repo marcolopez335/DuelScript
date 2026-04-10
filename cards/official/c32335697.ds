@@ -1,3 +1,4 @@
+// ホーンテッド・アンデット
 // Haunted Zombies
 // Transpiled from c32335697.lua
 
@@ -6,9 +7,9 @@ card "Haunted Zombies" {
     type: Normal Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 1540
-        code: 1002
+        effect_type: Activate
+        category: Banish + SpecialSummon + Token
+        code: FreeChain
         count_limit: (1, 32335697)
         on_resolve {
             banish (1+, monster, either_player controls, gy)
@@ -22,10 +23,10 @@ card "Haunted Zombies" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 67108880
-        code: 1002
-        range: 16
+        effect_type: QuickEffect
+        category: ToDeck
+        code: FreeChain
+        range: Graveyard
         count_limit: (1, 32335697)
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle

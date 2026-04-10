@@ -1,3 +1,4 @@
+// 暴風竜の防人
 // Rider of the Storm Winds
 // Transpiled from c14235211.lua
 
@@ -11,10 +12,10 @@ card "Rider of the Storm Winds" {
     def: 200
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 262144
+        effect_type: Ignition
+        category: EquipAction
         property: 16
-        range: 6
+        range: Hand + MonsterZone
         on_resolve {
             send (1+, card, either_player controls) to gy
             equip (1, card) to (1, monster)
@@ -22,7 +23,7 @@ card "Rider of the Storm Winds" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 4
+        effect_type: Equip
         code: 203
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
@@ -30,7 +31,7 @@ card "Rider of the Storm Winds" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 4
+        effect_type: Equip
         code: 45
         property: 128
         on_resolve {

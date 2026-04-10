@@ -1,3 +1,4 @@
+// 守護天霊ロガエス
 // Protecting Spirit Loagaeth
 // Transpiled from c84339249.lua
 
@@ -15,8 +16,8 @@ card "Protecting Spirit Loagaeth" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        code: 1029
+        effect_type: Single + Trigger
+        code: Destroyed
         property: 65552
         on_resolve {
             register_effect on self {
@@ -27,11 +28,11 @@ card "Protecting Spirit Loagaeth" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1027
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: Chaining
         property: 65536
-        range: 2
+        range: Hand
         count_limit: (1, 84339249)
         on_resolve {
             special_summon (1, monster) from gy
@@ -39,10 +40,10 @@ card "Protecting Spirit Loagaeth" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 4100
+        effect_type: Ignition
+        category: Banish + DiceRoll
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, card, either_player controls)
@@ -51,7 +52,7 @@ card "Protecting Spirit Loagaeth" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         property: 67109888
         on_resolve {

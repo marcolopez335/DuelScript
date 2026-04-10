@@ -1,3 +1,4 @@
+// 超量機神剣－マグナスレイヤー
 // Super Quantal Mech Sword - Magnaslayer
 // Transpiled from c47819246.lua
 
@@ -6,9 +7,9 @@ card "Super Quantal Mech Sword - Magnaslayer" {
     type: Normal Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         property: 16400
         on_resolve {
             equip (1, card) to (1, monster)
@@ -16,7 +17,7 @@ card "Super Quantal Mech Sword - Magnaslayer" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 0
@@ -24,7 +25,7 @@ card "Super Quantal Mech Sword - Magnaslayer" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 4
+        effect_type: Equip
         code: 203
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
@@ -32,9 +33,9 @@ card "Super Quantal Mech Sword - Magnaslayer" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        code: 1002
-        range: 8
+        effect_type: QuickEffect
+        code: FreeChain
+        range: SpellTrapZone
         cost {
             send self to gy
         }

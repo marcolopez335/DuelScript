@@ -1,3 +1,4 @@
+// パラメタルフォーゼ・アゾートレス
 // Parametalfoes Azortless
 // Transpiled from c37491810.lua
 
@@ -21,11 +22,11 @@ card "Parametalfoes Azortless" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 1
-        code: 1029
+        effect_type: Field + Trigger
+        category: Destroy
+        code: Destroyed
         property: 65552
-        range: 512
+        range: PendulumZone
         count_limit: (1, 37491810)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -33,9 +34,9 @@ card "Parametalfoes Azortless" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 17
-        code: 1102
+        effect_type: Single + Trigger
+        category: Destroy + ToDeck
+        code: SpecialSummonSuccess
         property: 81936
         count_limit: (1, 0)
         on_resolve {
@@ -45,8 +46,8 @@ card "Parametalfoes Azortless" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        code: 1029
+        effect_type: Single + Trigger
+        code: Destroyed
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy

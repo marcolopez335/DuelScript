@@ -1,3 +1,4 @@
+// 閃刀空域－エリアゼロ
 // Sky Striker Airspace - Area Zero
 // Transpiled from c50005218.lua
 
@@ -6,17 +7,17 @@ card "Sky Striker Airspace - Area Zero" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 131112
+        effect_type: Ignition
+        category: ToHand + ToGrave + Search
         property: 16
-        range: 256
+        range: FieldZone
         count_limit: (1, 50005218)
         on_resolve {
             reveal (1, card, opponent controls, deck)
@@ -29,9 +30,9 @@ card "Sky Striker Airspace - Area Zero" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1014
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 65536
         count_limit: (1, 0)
         on_resolve {

@@ -1,3 +1,4 @@
+// コアキメイル・ルークロード
 // Koa'ki Meiru Rooklord
 // Transpiled from c10060427.lua
 
@@ -15,10 +16,10 @@ card "Koa'ki Meiru Rooklord" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 4608
         property: 263168
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, monster, you controls, hand) to gy
@@ -29,9 +30,9 @@ card "Koa'ki Meiru Rooklord" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 1
-        code: 1100
+        effect_type: Single + Trigger
+        category: Destroy
+        code: SummonSuccess
         property: 16
         cost {
             banish self
@@ -42,7 +43,7 @@ card "Koa'ki Meiru Rooklord" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 20
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -50,7 +51,7 @@ card "Koa'ki Meiru Rooklord" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 23
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }

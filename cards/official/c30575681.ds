@@ -1,3 +1,4 @@
+// 聖騎士ベディヴィエール
 // Noble Knight Bedwyr
 // Transpiled from c30575681.lua
 
@@ -11,9 +12,9 @@ card "Noble Knight Bedwyr" {
     def: 1500
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 32
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: SummonSuccess
         property: 16384
         on_resolve {
             send (1+, card, you controls, deck) to gy
@@ -21,9 +22,9 @@ card "Noble Knight Bedwyr" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 32
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: SpecialSummonSuccess
         property: 16384
         on_resolve {
             send (1+, card, you controls, deck) to gy
@@ -31,10 +32,10 @@ card "Noble Knight Bedwyr" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        code: 1002
+        effect_type: QuickEffect
+        code: FreeChain
         property: 4194320
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             equip (1, card) to (1, monster)

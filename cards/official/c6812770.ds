@@ -1,3 +1,4 @@
+// Ｅｍカップ・トリッカー
 // Performage Cup Tricker
 // Transpiled from c6812770.lua
 
@@ -16,9 +17,9 @@ card "Performage Cup Tricker" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
+        effect_type: Ignition
         property: 16
-        range: 512
+        range: PendulumZone
         count_limit: (1, 6812770)
         on_resolve {
             attach (1, card) to self as_material
@@ -26,11 +27,11 @@ card "Performage Cup Tricker" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 8
-        code: 1013
+        effect_type: Field + Trigger
+        category: ToHand
+        code: ChainSolved
         property: 65536
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to hand
@@ -39,10 +40,10 @@ card "Performage Cup Tricker" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 2097664
+        effect_type: Ignition
+        category: SpecialSummon + SynchroSummon
         property: 16
-        range: 2
+        range: Hand
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -54,8 +55,8 @@ card "Performage Cup Tricker" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        code: 1014
+        effect_type: Single + Trigger
+        code: ChainEnd
         property: 65552
         count_limit: (1, 0)
         on_resolve {

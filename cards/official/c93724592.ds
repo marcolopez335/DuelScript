@@ -1,3 +1,4 @@
+// カラクリ忍者 参参九
 // Karakuri Ninja mdl 339 'Sazank'
 // Transpiled from c93724592.lua
 
@@ -11,7 +12,7 @@ card "Karakuri Ninja mdl 339 'Sazank'" {
     def: 1200
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 191
         on_resolve {
             register_effect on self { grant: must_attack_if_able duration: until_end_of_turn }
@@ -19,17 +20,17 @@ card "Karakuri Ninja mdl 339 'Sazank'" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 4096
-        code: 1131
+        effect_type: Single + MandatoryTrigger
+        category: DiceRoll
+        code: BattleTarget
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 32
+        effect_type: Single + MandatoryTrigger
+        category: ToGrave
         code: 1001
         property: 16
         on_resolve {
@@ -38,7 +39,7 @@ card "Karakuri Ninja mdl 339 'Sazank'" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1001
         on_resolve {
             register_effect on self {

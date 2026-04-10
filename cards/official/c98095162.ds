@@ -1,3 +1,4 @@
+// ライトロード・ドミニオン キュリオス
 // Curious, the Lightsworn Dominion
 // Transpiled from c98095162.lua
 
@@ -20,8 +21,8 @@ card "Curious, the Lightsworn Dominion" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 8
+        effect_type: Single + Trigger
+        category: ToHand
         code: 1015
         property: 65552
         on_resolve {
@@ -30,9 +31,9 @@ card "Curious, the Lightsworn Dominion" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 32
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 98095162)
         on_resolve {
@@ -41,10 +42,10 @@ card "Curious, the Lightsworn Dominion" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 64
-        code: 1014
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        category: AtkChange
+        code: ChainEnd
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
         }

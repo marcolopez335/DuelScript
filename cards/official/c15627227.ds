@@ -1,3 +1,4 @@
+// リローダー・ドラゴン
 // Overburst Dragon
 // Transpiled from c15627227.lua
 
@@ -20,10 +21,10 @@ card "Overburst Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
+        effect_type: Ignition
+        category: SpecialSummon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 15627227)
         on_resolve {
             special_summon (1, monster) from gy
@@ -39,9 +40,9 @@ card "Overburst Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 8
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand
+        code: ChainEnd
         property: 65552
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand

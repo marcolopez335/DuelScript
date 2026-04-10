@@ -1,3 +1,4 @@
+// 幻獣機グリーフィン
 // Mecha Phantom Beast Kalgriffin
 // Transpiled from c41329458.lua
 
@@ -15,9 +16,9 @@ card "Mecha Phantom Beast Kalgriffin" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 41329458)
         cost {
             tribute self
@@ -28,29 +29,29 @@ card "Mecha Phantom Beast Kalgriffin" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 1536
-        range: 4
+        effect_type: Ignition
+        category: SpecialSummon + Token
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             create_token { atk: 0 def: 0 }

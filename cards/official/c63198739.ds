@@ -1,3 +1,4 @@
+// 原石竜アナザー・ベリル
 // Primite Dragon Ether Beryl
 // Transpiled from c63198739.lua
 
@@ -11,8 +12,8 @@ card "Primite Dragon Ether Beryl" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        code: 1100
+        effect_type: Single + Trigger
+        code: SummonSuccess
         property: 65536
         on_resolve {
             set (1, card)
@@ -20,9 +21,9 @@ card "Primite Dragon Ether Beryl" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 32
-        range: 4
+        effect_type: Ignition
+        category: ToGrave
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             tribute self
@@ -33,10 +34,10 @@ card "Primite Dragon Ether Beryl" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 8
+        effect_type: Field + Trigger
+        category: ToHand
         code: 4098
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, spell, you controls) from gy

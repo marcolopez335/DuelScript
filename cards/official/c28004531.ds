@@ -1,3 +1,4 @@
+// 空牙団の積荷 レクス
 // Rex, Freight Fur Hire
 // Transpiled from c28004531.lua
 
@@ -11,9 +12,9 @@ card "Rex, Freight Fur Hire" {
     def: 200
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 28004531)
         on_resolve {
@@ -23,9 +24,9 @@ card "Rex, Freight Fur Hire" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 28004531)
         on_resolve {
@@ -35,11 +36,11 @@ card "Rex, Freight Fur Hire" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 520
-        code: 1002
+        effect_type: QuickEffect
+        category: ToHand + SpecialSummon
+        code: FreeChain
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self

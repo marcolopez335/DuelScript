@@ -1,3 +1,4 @@
+// ミミグル・ダンジョン
 // Mimighoul Dungeon
 // Transpiled from c86809440.lua
 
@@ -6,45 +7,45 @@ card "Mimighoul Dungeon" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 256
+        range: FieldZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 20
         property: 2048
-        range: 256
+        range: FieldZone
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 86
         property: 128
-        range: 256
+        range: FieldZone
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 64
-        category: 131080
-        range: 256
+        effect_type: Ignition
+        category: ToHand + Search
+        range: FieldZone
         count_limit: (1, 86809440)
         on_resolve {
             return (1+, monster, you controls) to hand

@@ -1,3 +1,4 @@
+// トリックスター・マジカローラ
 // Trickstar Magical Laurel
 // Transpiled from c22159429.lua
 
@@ -6,9 +7,9 @@ card "Trickstar Magical Laurel" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         property: 16
         count_limit: (1, 22159429)
         on_resolve {
@@ -18,7 +19,7 @@ card "Trickstar Magical Laurel" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1019
         property: 1024
         on_resolve {
@@ -26,7 +27,7 @@ card "Trickstar Magical Laurel" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1015
         on_resolve {
             destroy (1+, card, you controls, hand)
@@ -34,11 +35,11 @@ card "Trickstar Magical Laurel" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 1111
         property: 81920
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

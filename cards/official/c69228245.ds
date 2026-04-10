@@ -1,3 +1,4 @@
+// ＥＭチェーンジラフ
 // Performapal Changeraffe
 // Transpiled from c69228245.lua
 
@@ -12,10 +13,10 @@ card "Performapal Changeraffe" {
     def: 500
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
-        code: 1140
-        range: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: BattleDamage
+        range: PendulumZone
         on_resolve {
             destroy (1+, card, either_player controls)
             special_summon (1, monster) from gy
@@ -27,9 +28,9 @@ card "Performapal Changeraffe" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 16384
-        code: 1100
+        effect_type: Single + Trigger
+        category: Disable
+        code: SummonSuccess
         property: 16
         on_resolve {
             register_effect on self {
@@ -44,9 +45,9 @@ card "Performapal Changeraffe" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 16384
-        code: 1102
+        effect_type: Single + Trigger
+        category: Disable
+        code: SpecialSummonSuccess
         property: 16
         on_resolve {
             register_effect on self {

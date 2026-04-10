@@ -1,3 +1,4 @@
+// 光天使スケール
 // Star Seraph Scale
 // Transpiled from c64726269.lua
 
@@ -11,9 +12,9 @@ card "Star Seraph Scale" {
     def: 900
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 528
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToDeck + SpecialSummon
+        code: SpecialSummonSuccess
         on_resolve {
             special_summon (1, monster) from gy
             return (1+, card, you controls) to deck shuffle
@@ -21,7 +22,7 @@ card "Star Seraph Scale" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1108
         on_resolve {
             register_effect on self {

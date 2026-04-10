@@ -1,3 +1,4 @@
+// ウォークライ・バシレオス
 // War Rock Bashileos
 // Transpiled from c18558867.lua
 
@@ -15,11 +16,11 @@ card "War Rock Bashileos" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 2097152
-        code: 1002
+        effect_type: QuickEffect
+        category: SynchroSummon
+        code: FreeChain
         property: 16384
-        range: 4
+        range: MonsterZone
         count_limit: (1, 18558867)
         on_resolve {
             register_effect on self {
@@ -30,10 +31,10 @@ card "War Rock Bashileos" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1140
-        range: 18
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: BattleDamage
+        range: Hand + Graveyard
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -41,7 +42,7 @@ card "War Rock Bashileos" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1138
         on_resolve {
             set_flag "tracked" on self

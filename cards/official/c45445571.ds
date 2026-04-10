@@ -1,3 +1,4 @@
+// 死霊公爵
 // The Duke of Demise
 // Transpiled from c45445571.lua
 
@@ -20,10 +21,10 @@ card "The Duke of Demise" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 4098
         property: 263168
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, you controls, hand)
@@ -31,19 +32,19 @@ card "The Duke of Demise" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 256
-        range: 4
+        effect_type: Ignition
+        category: Counter
+        range: MonsterZone
         count_limit: (1, 45445571)
         on_resolve {
             normal_summon (1, monster, you controls)
@@ -51,10 +52,10 @@ card "The Duke of Demise" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 8
+        effect_type: Ignition
+        category: ToHand
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self

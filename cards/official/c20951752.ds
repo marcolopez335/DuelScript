@@ -1,3 +1,4 @@
+// 裁きを下す者－ボルテニス
 // Voltanis the Adjudicator
 // Transpiled from c20951752.lua
 
@@ -15,27 +16,27 @@ card "Voltanis the Adjudicator" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2050
-        code: 1027
-        range: 2
+        effect_type: Field + Continuous
+        code: Chaining
+        range: Hand
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1022
-        range: 2
+        range: Hand
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 1026
         property: 65536
-        range: 2
+        range: Hand
         cost {
             tribute self
         }
@@ -45,9 +46,9 @@ card "Voltanis the Adjudicator" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 1
-        code: 1102
+        effect_type: Single + Trigger
+        category: Destroy
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             destroy (1+, card, opponent controls)

@@ -1,3 +1,4 @@
+// EMソード・フィッシュ
 // Performapal Sword Fish
 // Transpiled from c15452043.lua
 
@@ -11,8 +12,8 @@ card "Performapal Sword Fish" {
     def: 600
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        code: 1100
+        effect_type: Single + MandatoryTrigger
+        code: SummonSuccess
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -26,8 +27,8 @@ card "Performapal Sword Fish" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        code: SpecialSummonSuccess
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -41,9 +42,9 @@ card "Performapal Sword Fish" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        code: 1102
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        code: SpecialSummonSuccess
+        range: MonsterZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

@@ -1,3 +1,4 @@
+// 失烙印
 // Branded Lost
 // Transpiled from c18973184.lua
 
@@ -6,24 +7,24 @@ card "Branded Lost" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 12
-        range: 8
+        range: SpellTrapZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 1102
-        range: 8
+        effect_type: Field + Continuous
+        code: SpecialSummonSuccess
+        range: SpellTrapZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -37,19 +38,19 @@ card "Branded Lost" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1026
-        range: 8
+        range: SpellTrapZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 130
-        category: 131080
-        code: 1102
+        effect_type: Field + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck

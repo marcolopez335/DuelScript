@@ -1,3 +1,4 @@
+// X・HERO ワンダー・ドライバー
 // Xtra HERO Wonder Driver
 // Transpiled from c1948619.lua
 
@@ -20,10 +21,10 @@ card "Xtra HERO Wonder Driver" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 514
-        code: 1100
+        effect_type: Field + MandatoryTrigger
+        code: SummonSuccess
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 1948619)
         on_resolve {
             set (1, card)
@@ -31,10 +32,10 @@ card "Xtra HERO Wonder Driver" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        code: 1102
+        effect_type: Field + MandatoryTrigger
+        code: SpecialSummonSuccess
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 1948619)
         on_resolve {
             set (1, card)
@@ -42,9 +43,9 @@ card "Xtra HERO Wonder Driver" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1014
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 81920
         on_resolve {
             special_summon (1, monster) from gy

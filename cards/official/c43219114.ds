@@ -1,3 +1,4 @@
+// 白き龍の威光
 // Majesty of the White Dragons
 // Transpiled from c43219114.lua
 
@@ -6,9 +7,9 @@ card "Majesty of the White Dragons" {
     type: Normal Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 1
-        code: 1002
+        effect_type: Activate
+        category: Destroy
+        code: FreeChain
         count_limit: (1, 43219114)
         on_resolve {
             reveal (1+, card, opponent controls)
@@ -17,10 +18,10 @@ card "Majesty of the White Dragons" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 16
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self
@@ -31,9 +32,9 @@ card "Majesty of the White Dragons" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         on_resolve {
             ritual_summon (1, ritual monster) using (1+, monster, you controls)
         }

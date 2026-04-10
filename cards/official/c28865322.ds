@@ -1,3 +1,4 @@
+// 魔装邪龍 イーサルウェポン
 // Aether, the Evil Empowering Dragon
 // Transpiled from c28865322.lua
 
@@ -16,10 +17,10 @@ card "Aether, the Evil Empowering Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 1
+        effect_type: Ignition
+        category: Destroy
         property: 16
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         cost {
             banish self
@@ -30,9 +31,9 @@ card "Aether, the Evil Empowering Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 4
-        code: 1100
+        effect_type: Single + Trigger
+        category: Banish
+        code: SummonSuccess
         property: 16400
         on_resolve {
             banish (1+, monster, you controls, gy)
@@ -40,9 +41,9 @@ card "Aether, the Evil Empowering Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 4
-        code: 1102
+        effect_type: Single + Trigger
+        category: Banish
+        code: SpecialSummonSuccess
         property: 16400
         on_resolve {
             banish (1+, monster, you controls, gy)

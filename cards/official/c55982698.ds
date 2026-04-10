@@ -1,3 +1,4 @@
+// A・O・J リバース・ブレイク
 // Ally of Justice Reverse Break
 // Transpiled from c55982698.lua
 
@@ -11,19 +12,19 @@ card "Ally of Justice Reverse Break" {
     def: 1200
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 1
-        code: 1132
+        effect_type: Single + MandatoryTrigger
+        category: Destroy
+        code: DamageCalculation
         on_resolve {
             destroy (1+, monster, either_player controls)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 141
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }

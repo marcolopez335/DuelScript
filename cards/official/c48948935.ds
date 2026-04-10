@@ -1,3 +1,4 @@
+// 仮面魔獣デス・ガーディウス
 // Masked Beast Des Gardius
 // Transpiled from c48948935.lua
 
@@ -15,19 +16,19 @@ card "Masked Beast Des Gardius" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         on_resolve {
             tribute (1, monster, you controls)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 262144
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: EquipAction
+        code: ChainEnd
         property: 16400
         on_resolve {
             equip (1, card) to (1, monster)

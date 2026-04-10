@@ -1,3 +1,4 @@
+// 機動石器ドグラード
 // Dogurad, the Stonetrooper
 // Transpiled from c42021064.lua
 
@@ -20,22 +21,22 @@ card "Dogurad, the Stonetrooper" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 2097152
-        code: 1102
+        effect_type: Single + Trigger
+        category: SynchroSummon
+        code: SpecialSummonSuccess
         property: 65552
-        range: 4
+        range: MonsterZone
         count_limit: (1, 42021064)
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 2097153
-        code: 1002
+        effect_type: QuickEffect
+        category: Destroy + SynchroSummon
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -43,7 +44,7 @@ card "Dogurad, the Stonetrooper" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         on_resolve {
             modifier: atk + 0

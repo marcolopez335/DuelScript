@@ -1,3 +1,4 @@
+// EMシルバー・クロウ
 // Performapal Silver Claw
 // Transpiled from c26270847.lua
 
@@ -12,18 +13,18 @@ card "Performapal Silver Claw" {
     def: 700
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 512
+        range: PendulumZone
         on_resolve {
             modifier: atk + 300
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 2097152
-        code: 1130
+        effect_type: Single + MandatoryTrigger
+        category: SynchroSummon
+        code: AttackAnnounce
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

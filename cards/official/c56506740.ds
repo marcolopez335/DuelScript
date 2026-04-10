@@ -1,3 +1,4 @@
+// 原石の皇脈
 // Primite Lordly Lode
 // Transpiled from c56506740.lua
 
@@ -6,9 +7,9 @@ card "Primite Lordly Lode" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 131080
-        code: 1002
+        effect_type: Activate
+        category: ToHand + Search
+        code: FreeChain
         count_limit: (1, 56506740)
         on_resolve {
             add_to_hand (1+, card, you controls) from gy
@@ -17,9 +18,9 @@ card "Primite Lordly Lode" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 8
+        effect_type: Ignition
+        category: SpecialSummon
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -31,16 +32,16 @@ card "Primite Lordly Lode" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 6
         property: 67110912
         on_resolve {

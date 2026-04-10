@@ -1,3 +1,4 @@
+// 白銀の迷宮城
 // Labrynth Labyrinth
 // Transpiled from c33407125.lua
 
@@ -6,18 +7,18 @@ card "Labrynth Labyrinth" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1027
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: Chaining
         property: 65536
-        range: 256
+        range: FieldZone
         count_limit: (1, 33407125)
         on_resolve {
             special_summon (1, monster) from gy
@@ -25,9 +26,9 @@ card "Labrynth Labyrinth" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         property: 2048
-        range: 256
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
         }

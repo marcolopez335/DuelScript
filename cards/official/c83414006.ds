@@ -1,3 +1,4 @@
+// Ｖ・ＨＥＲＯ ポイズナー
 // Vision HERO Poisoner
 // Transpiled from c83414006.lua
 
@@ -11,10 +12,10 @@ card "Vision HERO Poisoner" {
     def: 700
 
     raw_effect "Effect 1" {
-        effect_type: 130
+        effect_type: Field + Trigger
         code: 1111
         property: 49152
-        range: 16
+        range: Graveyard
         count_limit: (1, 83414006)
         on_resolve {
             special_summon (1, monster) from gy
@@ -22,10 +23,10 @@ card "Vision HERO Poisoner" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 8
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: SpellTrapZone
         count_limit: (1, 0)
         cost {
             tribute self
@@ -36,9 +37,9 @@ card "Vision HERO Poisoner" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 2097152
-        code: 1102
+        effect_type: Single + Trigger
+        category: SynchroSummon
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -50,7 +51,7 @@ card "Vision HERO Poisoner" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 117
         property: 1024
         on_resolve {
@@ -58,7 +59,7 @@ card "Vision HERO Poisoner" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 102
         property: 1024
         on_resolve {

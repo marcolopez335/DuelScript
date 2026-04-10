@@ -1,3 +1,4 @@
+// ファイヤー・バック
 // Fire Recovery
 // Transpiled from c42516299.lua
 
@@ -6,9 +7,9 @@ card "Fire Recovery" {
     type: Normal Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 544
-        code: 1002
+        effect_type: Activate
+        category: ToGrave + SpecialSummon
+        code: FreeChain
         property: 16
         on_resolve {
             send (1+, card, you controls, hand) to gy
@@ -17,10 +18,10 @@ card "Fire Recovery" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 65552
+        effect_type: Ignition
+        category: ToDeck + Draw
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 42516299)
         cost {
             banish self

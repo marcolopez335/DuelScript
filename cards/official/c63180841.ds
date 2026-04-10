@@ -1,3 +1,4 @@
+// シューティング・スター・ドラゴン・TG-EX
 // Shooting Star Dragon T.G. EX
 // Transpiled from c63180841.lua
 
@@ -21,11 +22,11 @@ card "Shooting Star Dragon T.G. EX" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 268435457
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         cost {
             banish self
         }
@@ -36,9 +37,9 @@ card "Shooting Star Dragon T.G. EX" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        code: 1130
-        range: 4
+        effect_type: Field + Trigger
+        code: AttackAnnounce
+        range: MonsterZone
         count_limit: (1, 63180841)
         on_resolve {
             negate attack
@@ -46,10 +47,10 @@ card "Shooting Star Dragon T.G. EX" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 16
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             tribute self

@@ -1,3 +1,4 @@
+// ナチュル・レディバグ
 // Naturia Ladybug
 // Transpiled from c19605133.lua
 
@@ -11,20 +12,20 @@ card "Naturia Ladybug" {
     def: 100
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
-        code: 1102
-        range: 16
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
+        range: Graveyard
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 2097152
+        effect_type: Ignition
+        category: SynchroSummon
         property: 16
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

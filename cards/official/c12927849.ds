@@ -1,3 +1,4 @@
+// SZW－天聖輝狼剣
 // SZW - Fenrir Sword
 // Transpiled from c12927849.lua
 
@@ -11,9 +12,9 @@ card "SZW - Fenrir Sword" {
     def: 1100
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 512
-        code: 1100
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SummonSuccess
         property: 16
         on_resolve {
             special_summon (1, monster) from gy
@@ -21,21 +22,21 @@ card "SZW - Fenrir Sword" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 262144
+        effect_type: Ignition
+        category: EquipAction
         property: 16
-        range: 2
+        range: Hand
         on_resolve {
             send (1+, monster, either_player controls) to gy
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 8
+        effect_type: Field + Trigger
+        category: ToHand
         code: 1139
         property: 16
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
             reveal (1+, card, opponent controls)
@@ -43,14 +44,14 @@ card "SZW - Fenrir Sword" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         on_resolve {
             modifier: atk + 0
@@ -58,14 +59,14 @@ card "SZW - Fenrir Sword" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 1
+        effect_type: Single
         code: 115
         on_resolve {
         }
     }
 
     raw_effect "Effect 7" {
-        effect_type: 1
+        effect_type: Single
         code: 71
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -73,7 +74,7 @@ card "SZW - Fenrir Sword" {
     }
 
     raw_effect "Effect 8" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -81,7 +82,7 @@ card "SZW - Fenrir Sword" {
     }
 
     raw_effect "Effect 9" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

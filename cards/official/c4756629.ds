@@ -1,3 +1,4 @@
+// ヴェルズ・ケルキオン
 // Evilswarm Kerykeion
 // Transpiled from c4756629.lua
 
@@ -11,10 +12,10 @@ card "Evilswarm Kerykeion" {
     def: 1550
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 8
+        effect_type: Ignition
+        category: ToHand
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 4756629)
         cost {
             banish self
@@ -26,9 +27,9 @@ card "Evilswarm Kerykeion" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 256
-        range: 4
+        effect_type: Ignition
+        category: Counter
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             normal_summon (1, monster, you controls)
@@ -36,8 +37,8 @@ card "Evilswarm Kerykeion" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
-        code: 1014
+        effect_type: Single + Continuous
+        code: ChainEnd
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

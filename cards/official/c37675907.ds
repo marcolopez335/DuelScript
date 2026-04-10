@@ -1,3 +1,4 @@
+// アクセル・シンクロン
 // Accel Synchron
 // Transpiled from c37675907.lua
 
@@ -21,8 +22,8 @@ card "Accel Synchron" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2049
-        code: 1102
+        effect_type: Single + Continuous
+        code: SpecialSummonSuccess
         property: 1024
         on_resolve {
             register_effect on self {
@@ -33,8 +34,8 @@ card "Accel Synchron" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        range: 4
+        effect_type: Ignition
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             send self to gy
@@ -44,10 +45,10 @@ card "Accel Synchron" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: MonsterZone
         on_resolve {
             synchro_summon (1, synchro monster) using (1+, monster, you controls)
         }

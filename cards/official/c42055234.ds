@@ -1,3 +1,4 @@
+// ドラゴンメイド・フランメ
 // Dragonmaid Tinkhec
 // Transpiled from c42055234.lua
 
@@ -15,11 +16,11 @@ card "Dragonmaid Tinkhec" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 2097152
-        code: 1002
+        effect_type: QuickEffect
+        category: SynchroSummon
+        code: FreeChain
         property: 16400
-        range: 2
+        range: Hand
         count_limit: (1, 42055234)
         cost {
             discard (1, card, you controls)
@@ -33,20 +34,20 @@ card "Dragonmaid Tinkhec" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 520
+        effect_type: Field + Trigger
+        category: ToHand + SpecialSummon
         code: 4224
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to hand

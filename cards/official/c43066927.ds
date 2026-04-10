@@ -1,3 +1,4 @@
+// ミミグル・フェアリー
 // Mimighoul Fairy
 // Transpiled from c43066927.lua
 
@@ -11,8 +12,8 @@ card "Mimighoul Fairy" {
     def: 100
 
     raw_effect "Effect 1" {
-        effect_type: 545
-        category: 8192
+        effect_type: Single + Flip + MandatoryTrigger
+        category: Summon
         count_limit: (1, 43066927)
         on_resolve {
             register_effect on self {
@@ -24,9 +25,9 @@ card "Mimighoul Fairy" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -36,7 +37,7 @@ card "Mimighoul Fairy" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 6
         property: 67110912
         on_resolve {

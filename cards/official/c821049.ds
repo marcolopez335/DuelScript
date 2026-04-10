@@ -1,3 +1,4 @@
+// ヴィサス＝アムリターラ
 // Visas Amritara
 // Transpiled from c821049.lua
 
@@ -21,18 +22,18 @@ card "Visas Amritara" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 114
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 821049)
         on_resolve {
@@ -42,9 +43,9 @@ card "Visas Amritara" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 2097153
-        range: 4
+        effect_type: Ignition
+        category: Destroy + SynchroSummon
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, spell, you controls, deck)
@@ -56,14 +57,14 @@ card "Visas Amritara" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 251
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2
+        effect_type: Field
         code: 100
         on_resolve {
             modifier: atk + 800
@@ -71,7 +72,7 @@ card "Visas Amritara" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 1
+        effect_type: Single
         code: 21142671
         property: 263168
         on_resolve {

@@ -1,3 +1,4 @@
+// 侵略的外来種－Ｉ．Ａ．Ｓ
 // I.A.S. -Invasive Alien Species-
 // Transpiled from c71768839.lua
 
@@ -11,30 +12,30 @@ card "I.A.S. -Invasive Alien Species-" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 2097153
+        effect_type: Ignition
+        category: Destroy + SynchroSummon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 71768839)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -42,9 +43,9 @@ card "I.A.S. -Invasive Alien Species-" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 512
-        range: 16
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

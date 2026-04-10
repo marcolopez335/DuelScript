@@ -1,3 +1,4 @@
+// ミュートリアル・ミスト
 // Myutant Mist
 // Transpiled from c61089209.lua
 
@@ -15,7 +16,7 @@ card "Myutant Mist" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -23,21 +24,21 @@ card "Myutant Mist" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 71
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 65536
-        code: 1027
+        effect_type: QuickEffect
+        category: Draw
+        code: Chaining
         property: 2048
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             banish self
@@ -48,9 +49,9 @@ card "Myutant Mist" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 8
-        code: 1029
+        effect_type: Single + Trigger
+        category: ToHand
+        code: Destroyed
         property: 65552
         count_limit: (1, 0)
         on_resolve {

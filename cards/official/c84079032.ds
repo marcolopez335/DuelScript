@@ -1,3 +1,4 @@
+// 面子蝙蝠
 // Bettan Bat
 // Transpiled from c84079032.lua
 
@@ -11,11 +12,11 @@ card "Bettan Bat" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 16781312
-        code: 1100
+        effect_type: Field + Trigger
+        category: DiceRoll + RitualSummon
+        code: SummonSuccess
         property: 65552
-        range: 4
+        range: MonsterZone
         count_limit: (3, 0)
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
@@ -24,11 +25,11 @@ card "Bettan Bat" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 16781312
-        code: 1102
+        effect_type: Field + Trigger
+        category: DiceRoll + RitualSummon
+        code: SpecialSummonSuccess
         property: 65552
-        range: 4
+        range: MonsterZone
         count_limit: (3, 0)
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
@@ -37,11 +38,11 @@ card "Bettan Bat" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 4096
+        effect_type: Field + Trigger
+        category: DiceRoll
         code: 1016
         property: 65552
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)

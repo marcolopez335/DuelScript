@@ -1,3 +1,4 @@
+// ビッグバン・シュート
 // Big Bang Shot
 // Transpiled from c61127349.lua
 
@@ -6,7 +7,7 @@ card "Big Bang Shot" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 400
@@ -14,7 +15,7 @@ card "Big Bang Shot" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 4
+        effect_type: Equip
         code: 203
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
@@ -22,7 +23,7 @@ card "Big Bang Shot" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1015
         on_resolve {
             banish (1+, card, either_player controls)
@@ -30,9 +31,9 @@ card "Big Bang Shot" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

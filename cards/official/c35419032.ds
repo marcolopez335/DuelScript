@@ -1,3 +1,4 @@
+// 侵略の侵喰感染
 // Infestation Infection
 // Transpiled from c35419032.lua
 
@@ -6,8 +7,8 @@ card "Infestation Infection" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand
             reveal (1+, card, opponent controls)
@@ -15,10 +16,10 @@ card "Infestation Infection" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 131080
-        code: 1002
-        range: 8
+        effect_type: QuickEffect
+        category: ToHand + Search
+        code: FreeChain
+        range: SpellTrapZone
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand
             reveal (1+, card, opponent controls)

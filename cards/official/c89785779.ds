@@ -1,3 +1,4 @@
+// ミレニアム・アイズ・イリュージョニスト
 // Millennium-Eyes Illusionist
 // Transpiled from c89785779.lua
 
@@ -11,11 +12,11 @@ card "Millennium-Eyes Illusionist" {
     def: 1400
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 262144
-        code: 1002
+        effect_type: QuickEffect
+        category: EquipAction
+        code: FreeChain
         property: 16
-        range: 2
+        range: Hand
         count_limit: (1, 89785779)
         cost {
             discard (1, card, you controls)
@@ -25,9 +26,9 @@ card "Millennium-Eyes Illusionist" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        code: 1102
-        range: 16
+        effect_type: Field + MandatoryTrigger
+        code: SpecialSummonSuccess
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to hand

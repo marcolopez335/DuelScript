@@ -1,3 +1,4 @@
+// エターナル・エヴォリューション・バースト
 // Super Strident Blaze
 // Transpiled from c81193865.lua
 
@@ -6,9 +7,9 @@ card "Super Strident Blaze" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         property: 16
         on_resolve {
             equip (1, card) to (1, monster)
@@ -16,7 +17,7 @@ card "Super Strident Blaze" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         property: 1024
         on_resolve {
@@ -24,19 +25,19 @@ card "Super Strident Blaze" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 6
         property: 2048
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
+        effect_type: Field + Trigger
         code: 1141
-        range: 8
+        range: SpellTrapZone
         cost {
             banish self
         }
@@ -49,8 +50,8 @@ card "Super Strident Blaze" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2050
-        code: 1130
+        effect_type: Field + Continuous
+        code: AttackAnnounce
         on_resolve {
         }
     }

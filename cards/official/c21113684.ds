@@ -1,3 +1,4 @@
+// 覇魔導士アーカナイト・マジシャン
 // Supreme Arcanite Magician
 // Transpiled from c21113684.lua
 
@@ -20,15 +21,15 @@ card "Supreme Arcanite Magician" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 8388608
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: LinkSummon
+        code: SpecialSummonSuccess
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         on_resolve {
             modifier: atk + 0
@@ -36,8 +37,8 @@ card "Supreme Arcanite Magician" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        range: 4
+        effect_type: Ignition
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)

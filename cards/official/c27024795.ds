@@ -1,3 +1,4 @@
+// 極星霊アルヴィース
 // Alviss of the Nordic Alfar
 // Transpiled from c27024795.lua
 
@@ -11,11 +12,11 @@ card "Alviss of the Nordic Alfar" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 544
-        code: 1011
+        effect_type: Field + Trigger
+        category: ToGrave + SpecialSummon
+        code: TurnEnd
         property: 65536
-        range: 32
+        range: Banished
         on_resolve {
             send (1+, monster, you controls, deck) to gy
             special_summon (1, monster) from gy
@@ -23,11 +24,11 @@ card "Alviss of the Nordic Alfar" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1014
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 65536
-        range: 16
+        range: Graveyard
         count_limit: (1, 27024795)
         cost {
             banish self

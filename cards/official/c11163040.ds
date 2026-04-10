@@ -1,3 +1,4 @@
+// 壊獣の出現記録
 // The Kaiju Files
 // Transpiled from c11163040.lua
 
@@ -6,25 +7,25 @@ card "The Kaiju Files" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 1102
-        range: 8
+        effect_type: Field + Continuous
+        code: SpecialSummonSuccess
+        range: SpellTrapZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 513
+        effect_type: Ignition
+        category: Destroy + SpecialSummon
         property: 16
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, spell, you controls, deck)
@@ -33,9 +34,9 @@ card "The Kaiju Files" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 131080
-        range: 8
+        effect_type: Ignition
+        category: ToHand + Search
+        range: SpellTrapZone
         cost {
             send self to gy
         }

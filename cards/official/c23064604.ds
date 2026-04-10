@@ -1,3 +1,4 @@
+// 冥帝エレボス
 // Erebus the Underworld Monarch
 // Transpiled from c23064604.lua
 
@@ -15,9 +16,9 @@ card "Erebus the Underworld Monarch" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 48
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToDeck + ToGrave
+        code: SummonSuccess
         property: 65536
         on_resolve {
             send (1+, spell, you controls, hand) to gy
@@ -26,11 +27,11 @@ card "Erebus the Underworld Monarch" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 8
-        code: 1002
+        effect_type: QuickEffect
+        category: ToHand
+        code: FreeChain
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, spell, you controls) from hand
@@ -38,7 +39,7 @@ card "Erebus the Underworld Monarch" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 20
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -46,7 +47,7 @@ card "Erebus the Underworld Monarch" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 23
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }

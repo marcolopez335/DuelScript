@@ -1,3 +1,4 @@
+// 地縛囚人 ライン・ウォーカー
 // Earthbound Prisoner Line Walker
 // Transpiled from c19322865.lua
 
@@ -11,9 +12,9 @@ card "Earthbound Prisoner Line Walker" {
     def: 1100
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -23,9 +24,9 @@ card "Earthbound Prisoner Line Walker" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -35,10 +36,10 @@ card "Earthbound Prisoner Line Walker" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 528
+        effect_type: Ignition
+        category: ToDeck + SpecialSummon
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self

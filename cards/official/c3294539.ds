@@ -1,3 +1,4 @@
+// クリムゾン・ブレード・ドラゴン
 // Crimson Blade Dragon
 // Transpiled from c3294539.lua
 
@@ -16,9 +17,9 @@ card "Crimson Blade Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131592
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + SpecialSummon + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 3294539)
         on_resolve {
@@ -28,9 +29,9 @@ card "Crimson Blade Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 1
-        code: 1132
+        effect_type: Single + Trigger
+        category: Destroy
+        code: DamageCalculation
         on_resolve {
             destroy (1+, card, you controls, gy)
         }

@@ -1,3 +1,4 @@
+// オルフェゴール・クリマクス
 // Orcust Crescendo
 // Transpiled from c703897.lua
 
@@ -6,9 +7,9 @@ card "Orcust Crescendo" {
     type: Normal Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 268435460
-        code: 1027
+        effect_type: Activate
+        category: Banish + Negate
+        code: Chaining
         count_limit: (1, 703897)
         on_resolve {
             negate activation
@@ -17,10 +18,10 @@ card "Orcust Crescendo" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 8
-        code: 1002
-        range: 16
+        effect_type: QuickEffect
+        category: ToHand
+        code: FreeChain
+        range: Graveyard
         count_limit: (1, 703897)
         on_resolve {
             return (1+, monster, you controls) to hand

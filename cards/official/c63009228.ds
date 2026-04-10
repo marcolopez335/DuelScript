@@ -1,3 +1,4 @@
+// レスキュー・インターレーサー
 // Rescue Interlacer
 // Transpiled from c63009228.lua
 
@@ -11,9 +12,9 @@ card "Rescue Interlacer" {
     def: 1200
 
     raw_effect "Effect 1" {
-        effect_type: 256
+        effect_type: QuickEffect
         code: 1134
-        range: 2
+        range: Hand
         count_limit: (1, 63009228)
         cost {
             send self to gy
@@ -27,10 +28,10 @@ card "Rescue Interlacer" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 512
+        effect_type: Field + MandatoryTrigger
+        category: SpecialSummon
         code: 4608
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

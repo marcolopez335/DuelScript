@@ -1,3 +1,4 @@
+// Ｈ－Ｃ マグナム・エクスカリバー
 // Heroic Champion - Magnum Excalibur
 // Transpiled from c14301396.lua
 
@@ -21,10 +22,10 @@ card "Heroic Champion - Magnum Excalibur" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 2097152
+        effect_type: QuickEffect
+        category: SynchroSummon
         code: 1134
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 2 overlay_unit from self
@@ -34,11 +35,11 @@ card "Heroic Champion - Magnum Excalibur" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 262144
-        code: 1002
+        effect_type: QuickEffect
+        category: EquipAction
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, you controls, gy) to gy
@@ -47,9 +48,9 @@ card "Heroic Champion - Magnum Excalibur" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 16
-        range: 16
+        effect_type: Ignition
+        category: ToDeck
+        range: Graveyard
         cost {
             banish self
         }
@@ -59,7 +60,7 @@ card "Heroic Champion - Magnum Excalibur" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 102
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -67,7 +68,7 @@ card "Heroic Champion - Magnum Excalibur" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         property: 1024
         on_resolve {
@@ -75,7 +76,7 @@ card "Heroic Champion - Magnum Excalibur" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 2000
@@ -83,7 +84,7 @@ card "Heroic Champion - Magnum Excalibur" {
     }
 
     raw_effect "Effect 7" {
-        effect_type: 4
+        effect_type: Equip
         code: 104
         on_resolve {
             modifier: def + 2000

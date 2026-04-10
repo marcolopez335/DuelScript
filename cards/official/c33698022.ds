@@ -1,3 +1,4 @@
+// 月華竜 ブラック・ローズ
 // Black Rose Moonlight Dragon
 // Transpiled from c33698022.lua
 
@@ -21,9 +22,9 @@ card "Black Rose Moonlight Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 8
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: ToHand
+        code: SpecialSummonSuccess
         property: 16
         count_limit: (1, 33698022)
         on_resolve {
@@ -32,8 +33,8 @@ card "Black Rose Moonlight Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 8
+        effect_type: Single + MandatoryTrigger
+        category: ToHand
         code: 302133478
         property: 16
         count_limit: (1, 33698022)
@@ -43,9 +44,9 @@ card "Black Rose Moonlight Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 1102
-        range: 4
+        effect_type: Field + Continuous
+        code: SpecialSummonSuccess
+        range: MonsterZone
         on_resolve {
             emit_event "custom"
         }

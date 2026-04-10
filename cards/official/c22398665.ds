@@ -1,3 +1,4 @@
+// 流星輝巧群
 // Meteonis Drytron
 // Transpiled from c22398665.lua
 
@@ -6,10 +7,10 @@ card "Meteonis Drytron" {
     type: Ritual Spell
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 2097160
+        effect_type: Ignition
+        category: ToHand + SynchroSummon
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 22398665)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
@@ -17,9 +18,9 @@ card "Meteonis Drytron" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         on_resolve {
             ritual_summon (1, ritual monster) using (1+, monster, you controls)
         }

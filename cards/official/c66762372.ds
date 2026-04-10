@@ -1,3 +1,4 @@
+// 孤炎星－ロシシン
 // Brotherhood of the Fire Fist - Boar
 // Transpiled from c66762372.lua
 
@@ -11,18 +12,18 @@ card "Brotherhood of the Fire Fist - Boar" {
     def: 1400
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 512
-        code: 1140
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: BattleDamage
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        code: 1102
-        range: 4
+        effect_type: Field + Trigger
+        code: SpecialSummonSuccess
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             set (1, card)
@@ -30,7 +31,7 @@ card "Brotherhood of the Fire Fist - Boar" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 236
         property: 263168
         on_resolve {

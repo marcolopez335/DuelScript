@@ -1,3 +1,4 @@
+// モコモッコ
 // Mokomoko
 // Transpiled from c85401123.lua
 
@@ -11,8 +12,8 @@ card "Mokomoko" {
     def: 300
 
     raw_effect "Effect 1" {
-        effect_type: 33
-        category: 65536
+        effect_type: Single + Flip
+        category: Draw
         property: 2048
         count_limit: (1, 85401123)
         on_resolve {
@@ -21,9 +22,9 @@ card "Mokomoko" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 4096
-        range: 4
+        effect_type: Ignition
+        category: DiceRoll
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)
@@ -31,9 +32,9 @@ card "Mokomoko" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 42
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

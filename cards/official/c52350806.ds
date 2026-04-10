@@ -1,3 +1,4 @@
+// 未み界かい域いきのモスマン
 // Danger! Mothman!
 // Transpiled from c52350806.lua
 
@@ -11,10 +12,10 @@ card "Danger! Mothman!" {
     def: 400
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 66176
-        code: 1002
-        range: 2
+        effect_type: Ignition
+        category: DefChange + SpecialSummon + Draw
+        code: FreeChain
+        range: Hand
         on_resolve {
             shuffle_hand
             send (1+, card, opponent controls, hand) to gy
@@ -24,9 +25,9 @@ card "Danger! Mothman!" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 65664
-        code: 1014
+        effect_type: Single + Trigger
+        category: DefChange + Draw
+        code: ChainEnd
         property: 65536
         count_limit: (1, 52350806)
         on_resolve {
@@ -40,9 +41,9 @@ card "Danger! Mothman!" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 65664
-        code: 1011
+        effect_type: Single + Trigger
+        category: DefChange + Draw
+        code: TurnEnd
         property: 65536
         count_limit: (1, 52350806)
         on_resolve {

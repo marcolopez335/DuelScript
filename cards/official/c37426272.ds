@@ -1,3 +1,4 @@
+// マテリアクトル・エクサレプト
 // Materiactor Exareptor
 // Transpiled from c37426272.lua
 
@@ -11,9 +12,9 @@ card "Materiactor Exareptor" {
     def: 1500
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 520
-        range: 2
+        effect_type: Ignition
+        category: ToHand + SpecialSummon
+        range: Hand
         count_limit: (1, 37426272)
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
@@ -23,11 +24,11 @@ card "Materiactor Exareptor" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 2097152
-        code: 1002
+        effect_type: QuickEffect
+        category: SynchroSummon
+        code: FreeChain
         property: 16400
-        range: 2
+        range: Hand
         cost {
             discard (1, card, you controls)
         }
@@ -40,7 +41,7 @@ card "Materiactor Exareptor" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 1024
         on_resolve {

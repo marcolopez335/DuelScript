@@ -1,3 +1,4 @@
+// 幻獣機アウローラドン
 // Mecha Phantom Beast Auroradon
 // Transpiled from c44097050.lua
 
@@ -20,9 +21,9 @@ card "Mecha Phantom Beast Auroradon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 512
-        code: 1102
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             create_token { atk: 0 def: 0 }
@@ -43,8 +44,8 @@ card "Mecha Phantom Beast Auroradon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        range: 4
+        effect_type: Ignition
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, trap, either_player controls)

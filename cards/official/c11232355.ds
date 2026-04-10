@@ -1,3 +1,4 @@
+// ディストラクター
 // Destructotron
 // Transpiled from c11232355.lua
 
@@ -11,10 +12,10 @@ card "Destructotron" {
     def: 400
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 1
+        effect_type: Ignition
+        category: Destroy
         property: 16
-        range: 4
+        range: MonsterZone
         cost {
             pay_lp 1000
         }
@@ -24,10 +25,10 @@ card "Destructotron" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 1
+        effect_type: Field + MandatoryTrigger
+        category: Destroy
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, you controls)

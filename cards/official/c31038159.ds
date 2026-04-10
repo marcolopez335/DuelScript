@@ -1,3 +1,4 @@
+// 創世竜
 // Genesis Dragon
 // Transpiled from c31038159.lua
 
@@ -15,10 +16,10 @@ card "Genesis Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 8
+        effect_type: Ignition
+        category: ToHand
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from gy
@@ -27,9 +28,9 @@ card "Genesis Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 16
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToDeck
+        code: ChainEnd
         property: 16384
         on_resolve {
             return (1+, card, you controls) to deck shuffle

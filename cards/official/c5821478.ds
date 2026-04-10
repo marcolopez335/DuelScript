@@ -1,3 +1,4 @@
+// トポロジック・ボマー・ドラゴン
 // Topologic Bomber Dragon
 // Transpiled from c5821478.lua
 
@@ -20,10 +21,10 @@ card "Topologic Bomber Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 514
-        category: 1
-        code: 1102
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        category: Destroy
+        code: SpecialSummonSuccess
+        range: MonsterZone
         on_resolve {
             destroy (1+, monster, either_player controls)
             register_effect on self {
@@ -34,8 +35,8 @@ card "Topologic Bomber Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 524288
+        effect_type: Single + MandatoryTrigger
+        category: Damage
         code: 1138
         on_resolve {
             deal_damage to opponent: 1000

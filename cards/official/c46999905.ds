@@ -1,3 +1,4 @@
+// 絆醒師セームベル
 // Saambell the Star Bonder
 // Transpiled from c46999905.lua
 
@@ -12,9 +13,9 @@ card "Saambell the Star Bonder" {
     def: 1300
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 513
-        range: 512
+        effect_type: Ignition
+        category: Destroy + SpecialSummon
+        range: PendulumZone
         count_limit: (1, 46999905)
         on_resolve {
             destroy (1+, card, you controls, hand)
@@ -23,11 +24,11 @@ card "Saambell the Star Bonder" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1102
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

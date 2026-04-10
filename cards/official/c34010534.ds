@@ -1,3 +1,4 @@
+// サイバネット・オプティマイズ
 // Cynet Optimization
 // Transpiled from c34010534.lua
 
@@ -6,16 +7,16 @@ card "Cynet Optimization" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 256
-        range: 8
+        effect_type: Ignition
+        category: Counter
+        range: SpellTrapZone
         count_limit: (1, 34010534)
         on_resolve {
             normal_summon (1, monster, you controls)
@@ -27,10 +28,10 @@ card "Cynet Optimization" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 6
         property: 2048
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }

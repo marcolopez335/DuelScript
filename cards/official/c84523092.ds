@@ -1,3 +1,4 @@
+// ウィッチクラフト・ハイネ
 // Witchcrafter Haine
 // Transpiled from c84523092.lua
 
@@ -15,21 +16,21 @@ card "Witchcrafter Haine" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 71
         property: 128
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 1
-        code: 1002
+        effect_type: QuickEffect
+        category: Destroy
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 84523092)
         on_resolve {
             destroy (1+, card, either_player controls)

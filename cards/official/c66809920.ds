@@ -1,3 +1,4 @@
+// ワルキューレ・アルテスト
 // Valkyrie Erste
 // Transpiled from c66809920.lua
 
@@ -15,9 +16,9 @@ card "Valkyrie Erste" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 8
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand
+        code: SpecialSummonSuccess
         property: 65552
         count_limit: (1, 66809920)
         on_resolve {
@@ -26,10 +27,10 @@ card "Valkyrie Erste" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 2097156
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: Banish + SynchroSummon
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, monster, you controls)
@@ -37,7 +38,7 @@ card "Valkyrie Erste" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 101
         on_resolve {
             modifier: atk + 0

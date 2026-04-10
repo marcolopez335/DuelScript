@@ -1,3 +1,4 @@
+// リチュア・エミリア
 // Gishki Emilia
 // Transpiled from c73551138.lua
 
@@ -11,7 +12,7 @@ card "Gishki Emilia" {
     def: 800
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -19,9 +20,9 @@ card "Gishki Emilia" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 16384
-        code: 1100
+        effect_type: Single + MandatoryTrigger
+        category: Disable
+        code: SummonSuccess
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -39,8 +40,8 @@ card "Gishki Emilia" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 16384
+        effect_type: Single + MandatoryTrigger
+        category: Disable
         code: 1001
         on_resolve {
             register_effect on self {
@@ -59,8 +60,8 @@ card "Gishki Emilia" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2049
-        code: 1100
+        effect_type: Single + Continuous
+        code: SummonSuccess
         property: 1024
         on_resolve {
             register_effect on self {
@@ -71,7 +72,7 @@ card "Gishki Emilia" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1001
         property: 1024
         on_resolve {

@@ -1,3 +1,4 @@
+// 白銀の城の火吹炉
 // Labrynth Stovie Torbie
 // Transpiled from c74018812.lua
 
@@ -11,9 +12,9 @@ card "Labrynth Stovie Torbie" {
     def: 2000
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        code: 1002
-        range: 6
+        effect_type: QuickEffect
+        code: FreeChain
+        range: Hand + MonsterZone
         count_limit: (1, 74018812)
         cost {
             send self to gy
@@ -24,10 +25,10 @@ card "Labrynth Stovie Torbie" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 1015
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

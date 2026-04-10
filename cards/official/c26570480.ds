@@ -1,3 +1,4 @@
+// マドルチェ・ピョコレート
 // Madolche Chickolates
 // Transpiled from c26570480.lua
 
@@ -11,19 +12,19 @@ card "Madolche Chickolates" {
     def: 1500
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 16
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: ToDeck
+        code: ChainEnd
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
+        effect_type: Field + Trigger
         code: 1016
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)

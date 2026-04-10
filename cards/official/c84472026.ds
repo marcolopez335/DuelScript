@@ -1,3 +1,4 @@
+// ゴーストリック・イエティ
 // Ghostrick Yeti
 // Transpiled from c84472026.lua
 
@@ -11,7 +12,7 @@ card "Ghostrick Yeti" {
     def: 2000
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 20
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -19,17 +20,17 @@ card "Ghostrick Yeti" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 4096
-        range: 4
+        effect_type: Ignition
+        category: DiceRoll
+        range: MonsterZone
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 4
+        effect_type: Single + Trigger
+        category: Banish
         code: 1001
         property: 16400
         on_resolve {

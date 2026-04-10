@@ -1,3 +1,4 @@
+// Ｄ・スキャナン
 // Morphtronic Scannen
 // Transpiled from c1876841.lua
 
@@ -15,19 +16,19 @@ card "Morphtronic Scannen" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         on_resolve {
             banish (1+, monster, you controls, hand)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 131096
-        range: 4
+        effect_type: Ignition
+        category: ToHand + ToDeck + Search
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand
@@ -39,9 +40,9 @@ card "Morphtronic Scannen" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 24
-        range: 4
+        effect_type: Ignition
+        category: ToHand + ToDeck
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand

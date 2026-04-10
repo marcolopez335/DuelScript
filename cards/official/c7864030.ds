@@ -1,3 +1,4 @@
+// 超重武者タイマ－2
 // Superheavy Samurai Blowtorch
 // Transpiled from c7864030.lua
 
@@ -11,10 +12,10 @@ card "Superheavy Samurai Blowtorch" {
     def: 300
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        code: 1130
+        effect_type: Field + Trigger
+        code: AttackAnnounce
         property: 16
-        range: 2
+        range: Hand
         cost {
             send self to gy
         }
@@ -23,16 +24,16 @@ card "Superheavy Samurai Blowtorch" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        code: 1130
-        range: 4
+        effect_type: Field + Trigger
+        code: AttackAnnounce
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

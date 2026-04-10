@@ -1,3 +1,4 @@
+// トリックスター・リンカーネイション
 // Trickstar Reincarnation
 // Transpiled from c21076084.lua
 
@@ -6,9 +7,9 @@ card "Trickstar Reincarnation" {
     type: Normal Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 65540
-        code: 1002
+        effect_type: Activate
+        category: Banish + Draw
+        code: FreeChain
         on_resolve {
             banish (1+, card, either_player controls)
             draw 1
@@ -16,11 +17,11 @@ card "Trickstar Reincarnation" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 512
-        code: 1002
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
         property: 16
-        range: 16
+        range: Graveyard
         cost {
             banish self
         }

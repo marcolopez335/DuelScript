@@ -1,3 +1,4 @@
+// 幻創龍ファンタズメイ
 // Fantastical Dragon Phantazmay
 // Transpiled from c78661338.lua
 
@@ -15,11 +16,11 @@ card "Fantastical Dragon Phantazmay" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 66064
-        code: 1102
+        effect_type: Field + Trigger
+        category: ToDeck + SpecialSummon + Draw
+        code: SpecialSummonSuccess
         property: 65536
-        range: 2
+        range: Hand
         count_limit: (1, 78661338)
         on_resolve {
             special_summon (1, monster) from gy
@@ -29,11 +30,11 @@ card "Fantastical Dragon Phantazmay" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 268435457
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             negate activation

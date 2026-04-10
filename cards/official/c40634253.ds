@@ -1,3 +1,4 @@
+// BM-4 ボムスパイダー
 // BM-4 Blast Spider
 // Transpiled from c40634253.lua
 
@@ -11,10 +12,10 @@ card "BM-4 Blast Spider" {
     def: 2200
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 1
+        effect_type: Ignition
+        category: Destroy
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, either_player controls)
@@ -22,11 +23,11 @@ card "BM-4 Blast Spider" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 524288
-        code: 1140
+        effect_type: Field + Trigger
+        category: Damage
+        code: BattleDamage
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 40634253)
         on_resolve {
             deal_damage to opponent: 1000
@@ -34,11 +35,11 @@ card "BM-4 Blast Spider" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 524288
-        code: 1014
+        effect_type: Field + Trigger
+        category: Damage
+        code: ChainEnd
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 40634253)
         on_resolve {
             deal_damage to opponent: 1000

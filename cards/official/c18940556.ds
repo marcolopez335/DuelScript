@@ -1,3 +1,4 @@
+// 究極伝導恐獣
 // Ultimate Conductor Tyranno
 // Transpiled from c18940556.lua
 
@@ -15,20 +16,20 @@ card "Ultimate Conductor Tyranno" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 263168
-        range: 2
+        range: Hand
         on_resolve {
             banish (1+, monster, you controls, gy)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 4097
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: Destroy + DiceRoll
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, you controls, gy)
@@ -37,7 +38,7 @@ card "Ultimate Conductor Tyranno" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 193
         on_resolve {
             register_effect on self { grant: attack_all_opponent_monsters duration: until_end_of_turn }
@@ -45,9 +46,9 @@ card "Ultimate Conductor Tyranno" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 524320
-        code: 1132
+        effect_type: Single + Trigger
+        category: ToGrave + Damage
+        code: DamageCalculation
         on_resolve {
             deal_damage to opponent: 1000
             send (1+, monster, you controls, gy) to gy

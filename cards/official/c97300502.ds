@@ -1,3 +1,4 @@
+// 召喚獣アウゴエイデス
 // Invoked Augoeides
 // Transpiled from c97300502.lua
 
@@ -20,8 +21,8 @@ card "Invoked Augoeides" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        range: 4
+        effect_type: Ignition
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             banish self
@@ -31,11 +32,11 @@ card "Invoked Augoeides" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 1
-        code: 1102
+        effect_type: Field + Trigger
+        category: Destroy
+        code: SpecialSummonSuccess
         property: 81936
-        range: 4
+        range: MonsterZone
         count_limit: (1, 97300502)
         on_resolve {
             destroy (1+, card, you controls, gy)
@@ -43,9 +44,9 @@ card "Invoked Augoeides" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 1
-        code: 1102
+        effect_type: Single + Trigger
+        category: Destroy
+        code: SpecialSummonSuccess
         property: 81936
         count_limit: (1, 97300502)
         on_resolve {

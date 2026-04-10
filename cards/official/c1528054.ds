@@ -1,3 +1,4 @@
+// 影法師トップハットヘア
 // Silhouhatte Rabbit
 // Transpiled from c1528054.lua
 
@@ -20,17 +21,17 @@ card "Silhouhatte Rabbit" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 42
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        code: 1102
+        effect_type: Single + Trigger
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 1528054)
         on_resolve {
@@ -39,11 +40,11 @@ card "Silhouhatte Rabbit" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 1
-        code: 1102
+        effect_type: Field + Trigger
+        category: Destroy
+        code: SpecialSummonSuccess
         property: 65552
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, spell, you controls, deck)
@@ -51,7 +52,7 @@ card "Silhouhatte Rabbit" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 239
         property: 67109888
         on_resolve {

@@ -1,3 +1,4 @@
+// ヴァンパイア・ロード
 // Vampire Lord
 // Transpiled from c53839837.lua
 
@@ -15,26 +16,26 @@ card "Vampire Lord" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2049
-        code: 1014
+        effect_type: Single + Continuous
+        code: ChainEnd
         property: 1024
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 512
+        effect_type: Field + MandatoryTrigger
+        category: SpecialSummon
         code: 4098
-        range: 16
+        range: Graveyard
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 32
+        effect_type: Single + MandatoryTrigger
+        category: ToGrave
         code: 1143
         on_resolve {
             send (1+, card, opponent controls, deck) to gy

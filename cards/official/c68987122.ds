@@ -1,3 +1,4 @@
+// ヴァレルガード・ドラゴン
 // Borrelguard Dragon
 // Transpiled from c68987122.lua
 
@@ -20,19 +21,19 @@ card "Borrelguard Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 4
+        effect_type: Ignition
+        category: SpecialSummon
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             send self to gy
@@ -51,11 +52,11 @@ card "Borrelguard Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 4096
-        code: 1002
+        effect_type: QuickEffect
+        category: DiceRoll
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)

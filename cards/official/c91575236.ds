@@ -1,3 +1,4 @@
+// イモータル・ドラゴン
 // Immortal Dragon
 // Transpiled from c91575236.lua
 
@@ -21,9 +22,9 @@ card "Immortal Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 134217760
-        range: 4
+        effect_type: Ignition
+        category: ToGrave + LevelChange
+        range: MonsterZone
         count_limit: (1, 91575236)
         on_resolve {
             send (1+, card, you controls, deck) to gy
@@ -31,10 +32,10 @@ card "Immortal Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1140
-        range: 16
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: BattleDamage
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

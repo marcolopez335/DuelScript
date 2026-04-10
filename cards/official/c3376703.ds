@@ -1,3 +1,4 @@
+// アルカナフォースＶ－ＴＨＥ ＨＩＥＲＯＰＨＡＮＴ
 // Arcana Force V - The Hierophant
 // Transpiled from c3376703.lua
 
@@ -11,8 +12,8 @@ card "Arcana Force V - The Hierophant" {
     def: 1500
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        range: 2
+        effect_type: Ignition
+        range: Hand
         cost {
             discard (1, card, you controls)
         }
@@ -38,9 +39,9 @@ card "Arcana Force V - The Hierophant" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 16777728
-        code: 1100
+        effect_type: Single + MandatoryTrigger
+        category: SpecialSummon + RitualSummon
+        code: SummonSuccess
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
             special_summon (1, monster) from gy
@@ -49,9 +50,9 @@ card "Arcana Force V - The Hierophant" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 16777728
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: SpecialSummon + RitualSummon
+        code: SpecialSummonSuccess
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
             special_summon (1, monster) from gy
@@ -60,9 +61,9 @@ card "Arcana Force V - The Hierophant" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 513
-        category: 16777728
-        code: 1101
+        effect_type: Single + MandatoryTrigger
+        category: SpecialSummon + RitualSummon
+        code: FlipSummonSuccess
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
             special_summon (1, monster) from gy
@@ -71,28 +72,28 @@ card "Arcana Force V - The Hierophant" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2050
-        code: 1100
+        effect_type: Field + Continuous
+        code: SummonSuccess
         on_resolve {
         }
     }
 
     raw_effect "Effect 6" {
-        effect_type: 2050
-        code: 1102
+        effect_type: Field + Continuous
+        code: SpecialSummonSuccess
         on_resolve {
         }
     }
 
     raw_effect "Effect 7" {
-        effect_type: 2050
-        code: 1101
+        effect_type: Field + Continuous
+        code: FlipSummonSuccess
         on_resolve {
         }
     }
 
     raw_effect "Effect 8" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1026
         on_resolve {
         }

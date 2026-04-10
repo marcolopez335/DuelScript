@@ -1,3 +1,4 @@
+// ゴーティスの兆イグジープ
 // Ixeep, Omen of the Ghoti
 // Transpiled from c3137279.lua
 
@@ -11,11 +12,11 @@ card "Ixeep, Omen of the Ghoti" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
-        code: 1011
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: TurnEnd
         property: 65536
-        range: 2
+        range: Hand
         count_limit: (1, 3137279)
         on_resolve {
             special_summon (1, monster) from gy
@@ -23,10 +24,10 @@ card "Ixeep, Omen of the Ghoti" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
+        effect_type: Field + Trigger
         code: 4098
         property: 16
-        range: 32
+        range: Banished
         count_limit: (1, 0)
         on_resolve {
             set (1, card)

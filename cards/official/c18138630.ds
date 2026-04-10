@@ -1,3 +1,4 @@
+// デストーイ・ポット
 // Frightfur Jar
 // Transpiled from c18138630.lua
 
@@ -6,26 +7,26 @@ card "Frightfur Jar" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 114
         property: 131072
-        range: 24
+        range: SpellTrapZone + Graveyard
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 65537
-        code: 1002
-        range: 8
+        effect_type: QuickEffect
+        category: Destroy + Draw
+        code: FreeChain
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             draw 1
@@ -39,9 +40,9 @@ card "Frightfur Jar" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 2097152
-        code: 1014
+        effect_type: Single + Trigger
+        category: SynchroSummon
+        code: ChainEnd
         property: 65552
         on_resolve {
             register_effect on self {

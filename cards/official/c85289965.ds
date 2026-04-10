@@ -1,3 +1,4 @@
+// ヴァレルソード・ドラゴン
 // Borrelsword Dragon
 // Transpiled from c85289965.lua
 
@@ -20,21 +21,21 @@ card "Borrelsword Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 4096
-        code: 1002
+        effect_type: QuickEffect
+        category: DiceRoll
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)
@@ -42,9 +43,9 @@ card "Borrelsword Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 2097152
-        code: 1130
+        effect_type: Single + Trigger
+        category: SynchroSummon
+        code: AttackAnnounce
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {

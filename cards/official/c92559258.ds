@@ -1,3 +1,4 @@
+// サーヴァント・オブ・エンディミオン
 // Servant of Endymion
 // Transpiled from c92559258.lua
 
@@ -12,25 +13,25 @@ card "Servant of Endymion" {
     def: 1500
 
     raw_effect "Effect 1" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1020
         property: 65536
-        range: 512
+        range: PendulumZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 8389120
-        range: 512
+        effect_type: Ignition
+        category: SpecialSummon + LinkSummon
+        range: PendulumZone
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 74
         on_resolve {
             register_effect on self { grant: direct_attack duration: until_end_of_turn }
@@ -38,25 +39,25 @@ card "Servant of Endymion" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        category: 8388608
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: LinkSummon
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1010
         on_resolve {
         }
     }
 
     raw_effect "Effect 6" {
-        effect_type: 129
-        code: 1029
+        effect_type: Single + Trigger
+        code: Destroyed
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy

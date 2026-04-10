@@ -1,3 +1,4 @@
+// オッドアイズ・ペルソナ・ドラゴン
 // Odd-Eyes Persona Dragon
 // Transpiled from c21250202.lua
 
@@ -16,26 +17,26 @@ card "Odd-Eyes Persona Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1028
-        range: 512
+        range: PendulumZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1022
-        range: 512
+        range: PendulumZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 512
+        effect_type: Field + MandatoryTrigger
+        category: SpecialSummon
         code: 4608
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -44,11 +45,11 @@ card "Odd-Eyes Persona Dragon" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        category: 16384
-        code: 1002
+        effect_type: QuickEffect
+        category: Disable
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             negate effect

@@ -1,3 +1,4 @@
+// 魁炎星王－ソウコ
 // Brotherhood of the Fire Fist - Tiger King
 // Transpiled from c96381979.lua
 
@@ -21,17 +22,17 @@ card "Brotherhood of the Fire Fist - Tiger King" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        code: 1102
+        effect_type: Single + Trigger
+        code: SpecialSummonSuccess
         on_resolve {
             set (1, card)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 16384
-        range: 4
+        effect_type: Ignition
+        category: Disable
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self
@@ -49,9 +50,9 @@ card "Brotherhood of the Fire Fist - Tiger King" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1014
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 16384
         cost {
             send self to gy

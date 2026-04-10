@@ -1,3 +1,4 @@
+// 赫の聖女カルテシア
 // Blazing Cartesia, the Virtuous
 // Transpiled from c95515789.lua
 
@@ -11,9 +12,9 @@ card "Blazing Cartesia, the Virtuous" {
     def: 1500
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -21,20 +22,20 @@ card "Blazing Cartesia, the Virtuous" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 1073742336
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 8
+        effect_type: Field + Trigger
+        category: ToHand
         code: 4608
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from gy
@@ -42,8 +43,8 @@ card "Blazing Cartesia, the Virtuous" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 1014
+        effect_type: Field + Continuous
+        code: ChainEnd
         on_resolve {
             set_flag "tracked" on self
         }

@@ -1,3 +1,4 @@
+// 神蝕む光 ティスティナ
 // Tistina, the Divinity that Defies Darkness
 // Transpiled from c87676171.lua
 
@@ -21,9 +22,9 @@ card "Tistina, the Divinity that Defies Darkness" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 32
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 87676171)
         on_resolve {
@@ -32,9 +33,9 @@ card "Tistina, the Divinity that Defies Darkness" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 2097152
-        range: 4
+        effect_type: Ignition
+        category: SynchroSummon
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self
@@ -44,9 +45,9 @@ card "Tistina, the Divinity that Defies Darkness" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy
@@ -54,7 +55,7 @@ card "Tistina, the Divinity that Defies Darkness" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1019
         property: 1024
         on_resolve {
@@ -62,7 +63,7 @@ card "Tistina, the Divinity that Defies Darkness" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         on_resolve {
             modifier: atk + 2000

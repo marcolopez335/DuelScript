@@ -1,3 +1,4 @@
+// No.92 偽骸神龍 Heart－eartH Dragon
 // Number 92: Heart-eartH Dragon
 // Transpiled from c97403510.lua
 
@@ -21,14 +22,14 @@ card "Number 92: Heart-eartH Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 202
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -36,10 +37,10 @@ card "Number 92: Heart-eartH Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 4
+        effect_type: Field + Trigger
+        category: Banish
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self
@@ -50,9 +51,9 @@ card "Number 92: Heart-eartH Dragon" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 512
-        code: 1014
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 81920
         on_resolve {
             special_summon (1, monster) from gy
@@ -60,15 +61,15 @@ card "Number 92: Heart-eartH Dragon" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 513
-        category: 2097152
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: SynchroSummon
+        code: SpecialSummonSuccess
         on_resolve {
         }
     }
 
     raw_effect "Effect 6" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1107
         on_resolve {
         }

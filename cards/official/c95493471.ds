@@ -1,3 +1,4 @@
+// 真超量機神王ブラスター・マグナ
 // Neo Super Quantal Mech King Blaster Magna
 // Transpiled from c95493471.lua
 
@@ -20,32 +21,32 @@ card "Neo Super Quantal Mech King Blaster Magna" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 65536
-        code: 1102
+        effect_type: Field + MandatoryTrigger
+        category: Draw
+        code: SpecialSummonSuccess
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             draw 1
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 512
-        code: 1029
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 81920
-        range: 4
+        range: MonsterZone
         count_limit: (1, 95493471)
         on_resolve {
             special_summon (1, monster) from gy

@@ -1,3 +1,4 @@
+// 古代の機械究極巨人
 // Ultimate Ancient Gear Golem
 // Transpiled from c12652643.lua
 
@@ -20,7 +21,7 @@ card "Ultimate Ancient Gear Golem" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -28,7 +29,7 @@ card "Ultimate Ancient Gear Golem" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 203
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
@@ -36,19 +37,19 @@ card "Ultimate Ancient Gear Golem" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 6
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 81936
         on_resolve {
             special_summon (1, monster) from gy

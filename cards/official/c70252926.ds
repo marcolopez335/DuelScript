@@ -1,3 +1,4 @@
+// フォーチュンレディ・エヴァリー
 // Fortune Lady Every
 // Transpiled from c70252926.lua
 
@@ -21,30 +22,30 @@ card "Fortune Lady Every" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 101
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 105
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: def + 0
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 134217732
+        effect_type: Field + MandatoryTrigger
+        category: Banish + LevelChange
         code: 4098
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, monster, opponent controls)
@@ -52,10 +53,10 @@ card "Fortune Lady Every" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 4608
-        range: 16
+        range: Graveyard
         count_limit: (1, 70252926)
         cost {
             banish self
@@ -66,7 +67,7 @@ card "Fortune Lady Every" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 130
         on_resolve {
         }

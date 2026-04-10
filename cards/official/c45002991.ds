@@ -1,3 +1,4 @@
+// アークロード・パラディオン
 // Crusadia Equimax
 // Transpiled from c45002991.lua
 
@@ -20,30 +21,30 @@ card "Crusadia Equimax" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 85
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 16384
-        code: 1002
+        effect_type: QuickEffect
+        category: Disable
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             tribute self

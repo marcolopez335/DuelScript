@@ -1,3 +1,4 @@
+// 海晶乙女グレート・バブルリーフ
 // Marincess Great Bubble Reef
 // Transpiled from c47910940.lua
 
@@ -20,11 +21,11 @@ card "Marincess Great Bubble Reef" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 65536
+        effect_type: Field + Trigger
+        category: Draw
         code: 4098
         property: 2048
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             banish self
@@ -35,28 +36,28 @@ card "Marincess Great Bubble Reef" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 2097152
+        effect_type: Single + MandatoryTrigger
+        category: SynchroSummon
         code: 316346396
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 1011
+        effect_type: Field + Continuous
+        code: TurnEnd
         property: 1024
-        range: 4
+        range: MonsterZone
         on_resolve {
             emit_event "custom"
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 512
-        range: 4
+        effect_type: Ignition
+        category: SpecialSummon
+        range: MonsterZone
         count_limit: (1, 47910940)
         cost {
             send self to gy

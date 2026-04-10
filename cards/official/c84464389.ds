@@ -1,3 +1,4 @@
+// ヴァレルロード・ＦＦ・ドラゴン
 // Borreload Fatalflare Dragon
 // Transpiled from c84464389.lua
 
@@ -20,9 +21,9 @@ card "Borreload Fatalflare Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -32,10 +33,10 @@ card "Borreload Fatalflare Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 262144
+        effect_type: Ignition
+        category: EquipAction
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             equip (1, card) to (1, monster)
@@ -51,8 +52,8 @@ card "Borreload Fatalflare Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 1
+        effect_type: Single + Trigger
+        category: Destroy
         code: 1108
         property: 65552
         count_limit: (1, 0)
@@ -62,7 +63,7 @@ card "Borreload Fatalflare Dragon" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 500
@@ -70,7 +71,7 @@ card "Borreload Fatalflare Dragon" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         property: 1024
         on_resolve {

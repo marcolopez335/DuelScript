@@ -1,3 +1,4 @@
+// 覇王龍ズァーク
 // Supreme King Z-ARC
 // Transpiled from c13331639.lua
 
@@ -21,7 +22,7 @@ card "Supreme King Z-ARC" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -29,20 +30,20 @@ card "Supreme King Z-ARC" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 6
         property: 2048
-        range: 512
+        range: PendulumZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 1
-        code: 1012
-        range: 512
+        effect_type: Field + Trigger
+        category: Destroy
+        code: ChainSolving
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, you controls, deck)
@@ -50,37 +51,37 @@ card "Supreme King Z-ARC" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 513
-        category: 1
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: Destroy
+        code: SpecialSummonSuccess
         on_resolve {
             destroy (1+, card, you controls, deck)
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 71
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 6" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 7" {
-        effect_type: 129
-        category: 512
+        effect_type: Single + Trigger
+        category: SpecialSummon
         code: 1139
         on_resolve {
             special_summon (1, monster) from gy
@@ -88,8 +89,8 @@ card "Supreme King Z-ARC" {
     }
 
     raw_effect "Effect 8" {
-        effect_type: 129
-        code: 1029
+        effect_type: Single + Trigger
+        code: Destroyed
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy

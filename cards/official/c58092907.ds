@@ -1,3 +1,4 @@
+// ＥＭ天空の魔術師
 // Performapal Celestial Magician
 // Transpiled from c58092907.lua
 
@@ -12,11 +13,11 @@ card "Performapal Celestial Magician" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 513
-        code: 1029
+        effect_type: Field + Trigger
+        category: Destroy + SpecialSummon
+        code: Destroyed
         property: 16384
-        range: 512
+        range: PendulumZone
         count_limit: (1, 58092907)
         on_resolve {
             destroy (1+, monster, you controls)
@@ -24,9 +25,9 @@ card "Performapal Celestial Magician" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 2228232
-        range: 4
+        effect_type: Ignition
+        category: ToHand + Search + SynchroSummon
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -41,16 +42,16 @@ card "Performapal Celestial Magician" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 1100
+        effect_type: Field + Continuous
+        code: SummonSuccess
         property: 1024
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 1102
+        effect_type: Field + Continuous
+        code: SpecialSummonSuccess
         property: 1024
         on_resolve {
         }

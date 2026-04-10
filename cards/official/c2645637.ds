@@ -1,3 +1,4 @@
+// 零氷の魔妖－雪女
 // Yuki-Onna, the Absolute Zero Mayakashi
 // Transpiled from c2645637.lua
 
@@ -20,20 +21,20 @@ card "Yuki-Onna, the Absolute Zero Mayakashi" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1020
-        range: 4
+        range: MonsterZone
         on_resolve {
             negate effect
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 2113536
-        code: 1102
+        effect_type: Field + Trigger
+        category: Disable + SynchroSummon
+        code: SpecialSummonSuccess
         property: 65552
-        range: 4
+        range: MonsterZone
         count_limit: (2, 2645637)
         on_resolve {
             register_effect on self {
@@ -44,11 +45,11 @@ card "Yuki-Onna, the Absolute Zero Mayakashi" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 2113536
-        code: 1027
+        effect_type: Field + Trigger
+        category: Disable + SynchroSummon
+        code: Chaining
         property: 65552
-        range: 4
+        range: MonsterZone
         count_limit: (2, 2645637)
         on_resolve {
             register_effect on self {
@@ -59,7 +60,7 @@ card "Yuki-Onna, the Absolute Zero Mayakashi" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 102
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

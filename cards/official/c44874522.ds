@@ -1,3 +1,4 @@
+// 古代の機械熱核竜
 // Ancient Gear Reactor Dragon
 // Transpiled from c44874522.lua
 
@@ -15,33 +16,33 @@ card "Ancient Gear Reactor Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 251
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
-        code: 1100
+        effect_type: Single + Continuous
+        code: SummonSuccess
         property: 1024
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 6
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 1
+        effect_type: Single + Trigger
+        category: Destroy
         code: 1141
         on_resolve {
             destroy (1+, spell, either_player controls)
@@ -49,7 +50,7 @@ card "Ancient Gear Reactor Dragon" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 203
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
@@ -57,7 +58,7 @@ card "Ancient Gear Reactor Dragon" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 1
+        effect_type: Single
         code: 194
         on_resolve {
         }

@@ -1,3 +1,4 @@
+// 機動要塞 メタル・ホールド
 // Metalhold the Moving Blockade
 // Transpiled from c42237854.lua
 
@@ -6,9 +7,9 @@ card "Metalhold the Moving Blockade" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 262656
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon + EquipAction
+        code: FreeChain
         property: 16
         on_resolve {
             special_summon (1, monster) from gy
@@ -16,19 +17,19 @@ card "Metalhold the Moving Blockade" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 332
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 71
         property: 384
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }

@@ -1,3 +1,4 @@
+// ゴーティスの灯ペイシス
 // Paces, Light of the Ghoti
 // Transpiled from c46037983.lua
 
@@ -11,9 +12,9 @@ card "Paces, Light of the Ghoti" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 4
+        effect_type: Ignition
+        category: SpecialSummon
+        range: MonsterZone
         count_limit: (1, 46037983)
         cost {
             banish self
@@ -24,10 +25,10 @@ card "Paces, Light of the Ghoti" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 4098
-        range: 32
+        range: Banished
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -35,10 +36,10 @@ card "Paces, Light of the Ghoti" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             synchro_summon (1, synchro monster) using (1+, monster, you controls)

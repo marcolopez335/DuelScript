@@ -1,3 +1,4 @@
+// エクリプス・ワイバーン
 // Eclipse Wyvern
 // Transpiled from c51858306.lua
 
@@ -11,18 +12,18 @@ card "Eclipse Wyvern" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 4
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: Banish
+        code: ChainEnd
         on_resolve {
             banish (1+, card, opponent controls, deck)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 8
-        code: 1011
+        effect_type: Single + Trigger
+        category: ToHand
+        code: TurnEnd
         property: 81920
         on_resolve {
             add_to_hand (1+, card, opponent controls) from deck

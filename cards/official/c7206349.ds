@@ -1,3 +1,4 @@
+// 春化精の花盛
 // Vernusylph in Full Bloom
 // Transpiled from c7206349.lua
 
@@ -6,25 +7,25 @@ card "Vernusylph in Full Bloom" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 256
+        range: FieldZone
         on_resolve {
             modifier: atk + 1000
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 512
-        range: 256
+        effect_type: Ignition
+        category: SpecialSummon
+        range: FieldZone
         count_limit: (1, 7206349)
         cost {
             banish self
@@ -35,11 +36,11 @@ card "Vernusylph in Full Bloom" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 8
-        code: 1102
+        effect_type: Field + Trigger
+        category: ToHand
+        code: SpecialSummonSuccess
         property: 65552
-        range: 256
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to hand

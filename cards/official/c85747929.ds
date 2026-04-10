@@ -1,3 +1,4 @@
+// 銀河光子竜
 // Galaxy Photon Dragon
 // Transpiled from c85747929.lua
 
@@ -21,18 +22,18 @@ card "Galaxy Photon Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 500
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 131112
-        range: 4
+        effect_type: Ignition
+        category: ToHand + ToGrave + Search
+        range: MonsterZone
         count_limit: (1, 85747929)
         cost {
             detach 1 overlay_unit from self
@@ -43,11 +44,11 @@ card "Galaxy Photon Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 134217728
+        effect_type: Single + Trigger
+        category: LevelChange
         code: 354183385
         property: 65552
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -58,17 +59,17 @@ card "Galaxy Photon Dragon" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 1102
+        effect_type: Field + Continuous
+        code: SpecialSummonSuccess
         property: 1024
-        range: 4
+        range: MonsterZone
         on_resolve {
             emit_event "custom"
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 131
         property: 1024
         on_resolve {

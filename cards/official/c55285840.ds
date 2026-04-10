@@ -1,3 +1,4 @@
+// クロノダイバー・リダン
 // Time Thief Redoer
 // Transpiled from c55285840.lua
 
@@ -21,9 +22,9 @@ card "Time Thief Redoer" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
+        effect_type: Field + Trigger
         code: 4098
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             attach (1, card) to self as_material
@@ -31,10 +32,10 @@ card "Time Thief Redoer" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 65556
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: Banish + ToDeck + Draw
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 55285840)
         on_resolve {
             send (1+, card, opponent controls) to gy

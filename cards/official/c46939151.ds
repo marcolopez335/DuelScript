@@ -1,3 +1,4 @@
+// 地縛囚人グランド・キーパー
 // Earthbound Prisoner Ground Keeper
 // Transpiled from c46939151.lua
 
@@ -11,9 +12,9 @@ card "Earthbound Prisoner Ground Keeper" {
     def: 300
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 512
-        code: 1100
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 46939151)
         on_resolve {
@@ -26,9 +27,9 @@ card "Earthbound Prisoner Ground Keeper" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
-        code: 1102
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 46939151)
         on_resolve {
@@ -41,25 +42,25 @@ card "Earthbound Prisoner Ground Keeper" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 42
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 41
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 67110912
         on_resolve {

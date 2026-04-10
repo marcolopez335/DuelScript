@@ -1,3 +1,4 @@
+// 幻惑のバリア －ミラージュフォース－
 // Mirage Mirror Force
 // Transpiled from c52607696.lua
 
@@ -6,9 +7,9 @@ card "Mirage Mirror Force" {
     type: Normal Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 520
-        code: 1130
+        effect_type: Activate
+        category: ToHand + SpecialSummon
+        code: AttackAnnounce
         on_resolve {
             special_summon (1, monster) from gy
             add_to_hand (1+, card, you controls) from gy
@@ -16,10 +17,10 @@ card "Mirage Mirror Force" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 1015
-        range: 16
+        range: Graveyard
         count_limit: (1, 52607696)
         cost {
             banish self

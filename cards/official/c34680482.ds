@@ -1,3 +1,4 @@
+// マドルチェ・エンジェリー
 // Madolche Anjelly
 // Transpiled from c34680482.lua
 
@@ -11,18 +12,18 @@ card "Madolche Anjelly" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 16
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: ToDeck
+        code: ChainEnd
         on_resolve {
             return (1+, card, you controls) to deck shuffle
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 4
+        effect_type: Ignition
+        category: SpecialSummon
+        range: MonsterZone
         count_limit: (1, 34680482)
         cost {
             tribute self

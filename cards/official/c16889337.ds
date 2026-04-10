@@ -1,3 +1,4 @@
+// 荒魂
 // Aratama
 // Transpiled from c16889337.lua
 
@@ -11,7 +12,7 @@ card "Aratama" {
     def: 1800
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -19,9 +20,9 @@ card "Aratama" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)
@@ -29,8 +30,8 @@ card "Aratama" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
+        effect_type: Single + Trigger
+        category: ToHand + Search
         code: 1001
         on_resolve {
             add_to_hand (1+, card, you controls) from deck

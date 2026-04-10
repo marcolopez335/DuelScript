@@ -1,3 +1,4 @@
+// ジャンク・ディフェンダー
 // Junk Defender
 // Transpiled from c68120130.lua
 
@@ -11,21 +12,21 @@ card "Junk Defender" {
     def: 1800
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
-        code: 1130
-        range: 2
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: AttackAnnounce
+        range: Hand
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 4194304
-        code: 1002
+        effect_type: QuickEffect
+        category: XyzSummon
+        code: FreeChain
         property: 16384
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
         }

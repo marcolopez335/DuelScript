@@ -1,3 +1,4 @@
+// Ｓ－Ｆｏｒｃｅ オリフィス
 // S-Force Orrafist
 // Transpiled from c95974848.lua
 
@@ -11,10 +12,10 @@ card "S-Force Orrafist" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 1
-        code: 1027
-        range: 4
+        effect_type: QuickEffect
+        category: Destroy
+        code: Chaining
+        range: MonsterZone
         count_limit: (1, 95974848)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -22,10 +23,10 @@ card "S-Force Orrafist" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 71
         property: 128
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }

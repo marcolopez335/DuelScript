@@ -1,3 +1,4 @@
+// 超天新龍オッドアイズ・レボリューション・ドラゴン
 // Odd-Eyes Revolution Dragon
 // Transpiled from c16306932.lua
 
@@ -16,7 +17,7 @@ card "Odd-Eyes Revolution Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 31
         property: 263168
         on_resolve {
@@ -24,20 +25,20 @@ card "Odd-Eyes Revolution Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 3584
-        range: 512
+        range: PendulumZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 512
+        effect_type: Ignition
+        category: SpecialSummon
         property: 16
-        range: 512
+        range: PendulumZone
         on_resolve {
             destroy (1+, card, either_player controls, gy)
             special_summon (1, monster) from gy
@@ -45,7 +46,7 @@ card "Odd-Eyes Revolution Dragon" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -53,19 +54,19 @@ card "Odd-Eyes Revolution Dragon" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         on_resolve {
             tribute (1, monster, you controls)
         }
     }
 
     raw_effect "Effect 6" {
-        effect_type: 64
-        category: 131080
-        range: 2
+        effect_type: Ignition
+        category: ToHand + Search
+        range: Hand
         cost {
             send self to gy
             pay_lp your_lp / 2
@@ -77,29 +78,29 @@ card "Odd-Eyes Revolution Dragon" {
     }
 
     raw_effect "Effect 7" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 8" {
-        effect_type: 1
+        effect_type: Single
         code: 104
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: def + 0
         }
     }
 
     raw_effect "Effect 9" {
-        effect_type: 64
-        category: 16
-        range: 4
+        effect_type: Ignition
+        category: ToDeck
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             pay_lp your_lp / 2

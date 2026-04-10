@@ -1,3 +1,4 @@
+// Ｓｉｎ Ｆｏｒｃｅ
 // Malefic Force
 // Transpiled from c68721020.lua
 
@@ -6,9 +7,9 @@ card "Malefic Force" {
     type: Normal Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         property: 16
         count_limit: (1, 0)
         on_resolve {
@@ -17,10 +18,10 @@ card "Malefic Force" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 1
-        code: 1002
-        range: 16
+        effect_type: QuickEffect
+        category: Destroy
+        code: FreeChain
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self
@@ -31,7 +32,7 @@ card "Malefic Force" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         property: 1024
         on_resolve {
@@ -39,7 +40,7 @@ card "Malefic Force" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 4
+        effect_type: Equip
         code: 1
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -47,10 +48,10 @@ card "Malefic Force" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 256
-        category: 131081
-        code: 1002
-        range: 8
+        effect_type: QuickEffect
+        category: Destroy + ToHand + Search
+        code: FreeChain
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)

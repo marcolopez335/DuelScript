@@ -1,3 +1,4 @@
+// 竜輝巧－ファフニール
 // Drytron Fafnir
 // Transpiled from c58793369.lua
 
@@ -6,9 +7,9 @@ card "Drytron Fafnir" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 131080
-        code: 1002
+        effect_type: Activate
+        category: ToHand + Search
+        code: FreeChain
         count_limit: (1, 58793369)
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck
@@ -17,26 +18,26 @@ card "Drytron Fafnir" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 12
-        range: 256
+        range: FieldZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 13
-        range: 256
+        range: FieldZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        code: 1102
+        effect_type: Field + Trigger
+        code: SpecialSummonSuccess
         property: 65536
-        range: 256
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -47,10 +48,10 @@ card "Drytron Fafnir" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 130
-        code: 1100
+        effect_type: Field + Trigger
+        code: SummonSuccess
         property: 65536
-        range: 256
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {

@@ -1,3 +1,4 @@
+// Ｆ．Ａ．フォーミュラアスリートウィナーズ
 // F.A. Winners
 // Transpiled from c69553552.lua
 
@@ -6,27 +7,27 @@ card "F.A. Winners" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         property: 131072
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 4
+        effect_type: Field + Trigger
+        category: Banish
         code: 1143
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 69553552)
         on_resolve {
             banish (1+, card, either_player controls)

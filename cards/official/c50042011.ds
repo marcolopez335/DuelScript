@@ -1,3 +1,4 @@
+// メメント・スリーピィ
 // Mementotlan Shleepy
 // Transpiled from c50042011.lua
 
@@ -11,10 +12,10 @@ card "Mementotlan Shleepy" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 2
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: Hand
         count_limit: (1, 50042011)
         on_resolve {
             special_summon (1, monster) from gy
@@ -22,9 +23,9 @@ card "Mementotlan Shleepy" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 1073742336
-        code: 1100
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -32,9 +33,9 @@ card "Mementotlan Shleepy" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 1073742336
-        code: 1102
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -42,9 +43,9 @@ card "Mementotlan Shleepy" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 32
-        code: 1029
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: Destroyed
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -53,7 +54,7 @@ card "Mementotlan Shleepy" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1010
         on_resolve {
             set_flag "tracked" on self

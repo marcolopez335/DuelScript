@@ -1,3 +1,4 @@
+// 彼岸の鬼神 ヘルレイカー
 // Malacoda, Netherlord of the Burning Abyss
 // Transpiled from c35330871.lua
 
@@ -20,7 +21,7 @@ card "Malacoda, Netherlord of the Burning Abyss" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -28,11 +29,11 @@ card "Malacoda, Netherlord of the Burning Abyss" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 6291456
-        code: 1002
+        effect_type: QuickEffect
+        category: SynchroSummon + XyzSummon
+        code: FreeChain
         property: 16400
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             send self to gy
@@ -50,9 +51,9 @@ card "Malacoda, Netherlord of the Burning Abyss" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 32
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: ChainEnd
         property: 81936
         on_resolve {
             send (1+, monster, you controls, hand) to gy

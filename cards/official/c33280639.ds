@@ -1,3 +1,4 @@
+// 破壊剣士の揺籃
 // Prologue of the Destruction Swordsman
 // Transpiled from c33280639.lua
 
@@ -6,9 +7,9 @@ card "Prologue of the Destruction Swordsman" {
     type: Normal Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         count_limit: (1, 33280639)
         cost {
             send self to gy
@@ -21,9 +22,9 @@ card "Prologue of the Destruction Swordsman" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        code: 1002
-        range: 16
+        effect_type: QuickEffect
+        code: FreeChain
+        range: Graveyard
         cost {
             banish self
         }
@@ -41,7 +42,7 @@ card "Prologue of the Destruction Swordsman" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 41
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -49,7 +50,7 @@ card "Prologue of the Destruction Swordsman" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

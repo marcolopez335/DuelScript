@@ -1,3 +1,4 @@
+// ＤＤグリフォン
 // D/D Gryphon
 // Transpiled from c28406301.lua
 
@@ -12,10 +13,10 @@ card "D/D Gryphon" {
     def: 1200
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 2097153
+        effect_type: Ignition
+        category: Destroy + SynchroSummon
         property: 16
-        range: 512
+        range: PendulumZone
         count_limit: (1, 28406301)
         on_resolve {
             register_effect on self {
@@ -27,9 +28,9 @@ card "D/D Gryphon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -37,9 +38,9 @@ card "D/D Gryphon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 65536
-        code: 1102
+        effect_type: Single + Trigger
+        category: Draw
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         cost {
@@ -51,9 +52,9 @@ card "D/D Gryphon" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -63,7 +64,7 @@ card "D/D Gryphon" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 1024
         on_resolve {

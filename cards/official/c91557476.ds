@@ -1,3 +1,4 @@
+// 聖蔓の剣士
 // Sunvine Thrasher
 // Transpiled from c91557476.lua
 
@@ -20,28 +21,28 @@ card "Sunvine Thrasher" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 514
-        category: 1
+        effect_type: Field + MandatoryTrigger
+        category: Destroy
         code: 1015
         property: 16384
-        range: 4
+        range: MonsterZone
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 2097152
-        code: 1102
+        effect_type: Single + Trigger
+        category: SynchroSummon
+        code: SpecialSummonSuccess
         property: 81936
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
+        effect_type: Single + Trigger
+        category: SpecialSummon
         code: 1139
         on_resolve {
             special_summon (1, monster) from gy

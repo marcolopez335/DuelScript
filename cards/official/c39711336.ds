@@ -1,3 +1,4 @@
+// 不死王リッチー
 // Fushioh Richie
 // Transpiled from c39711336.lua
 
@@ -15,17 +16,17 @@ card "Fushioh Richie" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 4096
-        range: 4
+        effect_type: Ignition
+        category: DiceRoll
+        range: MonsterZone
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
+        effect_type: Single + Trigger
+        category: SpecialSummon
         code: 1001
         property: 16400
         on_resolve {
@@ -34,11 +35,11 @@ card "Fushioh Richie" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1024
-        category: 268435457
-        code: 1027
+        effect_type: MandatoryQuick
+        category: Destroy + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         on_resolve {
             negate activation
             destroy (1+, card, either_player controls)

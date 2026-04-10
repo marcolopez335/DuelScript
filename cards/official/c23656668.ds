@@ -1,3 +1,4 @@
+// グラビティ・コントローラー
 // Gravity Controller
 // Transpiled from c23656668.lua
 
@@ -20,7 +21,7 @@ card "Gravity Controller" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 239
         property: 263168
         on_resolve {
@@ -28,7 +29,7 @@ card "Gravity Controller" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -36,9 +37,9 @@ card "Gravity Controller" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 16
-        code: 1132
+        effect_type: Single + Trigger
+        category: ToDeck
+        code: DamageCalculation
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
         }

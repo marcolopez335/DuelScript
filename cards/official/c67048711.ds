@@ -1,3 +1,4 @@
+// ７
 // 7
 // Transpiled from c67048711.lua
 
@@ -6,16 +7,16 @@ card "7" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
             emit_event "custom"
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 65537
+        effect_type: Single + MandatoryTrigger
+        category: Destroy + Draw
         code: 335484167
         on_resolve {
             draw 3
@@ -24,9 +25,9 @@ card "7" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 1048576
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: Recover
+        code: ChainEnd
         property: 2048
         on_resolve {
             gain_lp: 1000

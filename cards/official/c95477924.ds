@@ -1,3 +1,4 @@
+// マジシャンズ・サルベーション
 // Magician's Salvation
 // Transpiled from c95477924.lua
 
@@ -6,8 +7,8 @@ card "Magician's Salvation" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         count_limit: (1, 95477924)
         on_resolve {
             set (1, card)
@@ -15,11 +16,11 @@ card "Magician's Salvation" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
+        effect_type: Single + Trigger
+        category: SpecialSummon
         code: 363913380
         property: 65552
-        range: 256
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -27,20 +28,20 @@ card "Magician's Salvation" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 1100
+        effect_type: Field + Continuous
+        code: SummonSuccess
         property: 1024
-        range: 256
+        range: FieldZone
         on_resolve {
             emit_event "custom"
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 1102
+        effect_type: Field + Continuous
+        code: SpecialSummonSuccess
         property: 1024
-        range: 256
+        range: FieldZone
         on_resolve {
             emit_event "custom"
         }

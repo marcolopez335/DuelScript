@@ -1,3 +1,4 @@
+// ペンデュラム・ウィッチ
 // Pendulum Witch
 // Transpiled from c43502497.lua
 
@@ -12,11 +13,11 @@ card "Pendulum Witch" {
     def: 800
 
     raw_effect "Effect 1" {
-        effect_type: 130
+        effect_type: Field + Trigger
         category: 2147483648
-        code: 1029
+        code: Destroyed
         property: 65536
-        range: 512
+        range: PendulumZone
         count_limit: (1, 43502497)
         on_resolve {
             send (1+, card, you controls) to extra_deck
@@ -24,9 +25,9 @@ card "Pendulum Witch" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131081
-        code: 1100
+        effect_type: Single + Trigger
+        category: Destroy + ToHand + Search
+        code: SummonSuccess
         property: 65552
         count_limit: (1, 0)
         on_resolve {
@@ -37,9 +38,9 @@ card "Pendulum Witch" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131081
-        code: 1102
+        effect_type: Single + Trigger
+        category: Destroy + ToHand + Search
+        code: SpecialSummonSuccess
         property: 65552
         count_limit: (1, 0)
         on_resolve {
@@ -50,8 +51,8 @@ card "Pendulum Witch" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        code: 1029
+        effect_type: Single + Trigger
+        code: Destroyed
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy

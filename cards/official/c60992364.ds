@@ -1,3 +1,4 @@
+// ＺＷ－獣王獅子武装
 // ZW - Leo Arms
 // Transpiled from c60992364.lua
 
@@ -21,7 +22,7 @@ card "ZW - Leo Arms" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 73
         on_resolve {
             register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
@@ -29,9 +30,9 @@ card "ZW - Leo Arms" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 131080
-        range: 4
+        effect_type: Ignition
+        category: ToHand + Search
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self
@@ -43,19 +44,19 @@ card "ZW - Leo Arms" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 262144
+        effect_type: Ignition
+        category: EquipAction
         property: 16
-        range: 4
+        range: MonsterZone
         on_resolve {
             send (1+, monster, you controls, deck) to gy
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        code: 1002
-        range: 8
+        effect_type: QuickEffect
+        code: FreeChain
+        range: SpellTrapZone
         cost {
             send self to gy
         }
@@ -72,7 +73,7 @@ card "ZW - Leo Arms" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 3000
@@ -80,7 +81,7 @@ card "ZW - Leo Arms" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 1
+        effect_type: Single
         code: 194
         property: 67108864
         on_resolve {
@@ -88,7 +89,7 @@ card "ZW - Leo Arms" {
     }
 
     raw_effect "Effect 7" {
-        effect_type: 1
+        effect_type: Single
         code: 73
         on_resolve {
             register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
@@ -96,14 +97,14 @@ card "ZW - Leo Arms" {
     }
 
     raw_effect "Effect 8" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         on_resolve {
         }
     }
 
     raw_effect "Effect 9" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         on_resolve {
             modifier: atk + 0
@@ -111,14 +112,14 @@ card "ZW - Leo Arms" {
     }
 
     raw_effect "Effect 10" {
-        effect_type: 1
+        effect_type: Single
         code: 115
         on_resolve {
         }
     }
 
     raw_effect "Effect 11" {
-        effect_type: 1
+        effect_type: Single
         code: 71
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -126,7 +127,7 @@ card "ZW - Leo Arms" {
     }
 
     raw_effect "Effect 12" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -134,7 +135,7 @@ card "ZW - Leo Arms" {
     }
 
     raw_effect "Effect 13" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

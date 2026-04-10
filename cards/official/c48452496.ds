@@ -1,3 +1,4 @@
+// 蛇眼の炎龍
 // Snake-Eyes Flamberge Dragon
 // Transpiled from c48452496.lua
 
@@ -15,9 +16,9 @@ card "Snake-Eyes Flamberge Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
+        effect_type: Ignition
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 48452496)
         on_resolve {
             send (1+, monster, you controls, gy) to gy
@@ -30,11 +31,11 @@ card "Snake-Eyes Flamberge Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 512
-        code: 1002
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -42,9 +43,9 @@ card "Snake-Eyes Flamberge Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1014
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -53,7 +54,7 @@ card "Snake-Eyes Flamberge Dragon" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 117
         property: 1024
         on_resolve {

@@ -1,3 +1,4 @@
+// M・HERO カミカゼ
 // Masked HERO Divine Wind
 // Transpiled from c22093873.lua
 
@@ -20,7 +21,7 @@ card "Masked HERO Divine Wind" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -28,7 +29,7 @@ card "Masked HERO Divine Wind" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -36,27 +37,27 @@ card "Masked HERO Divine Wind" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 86
         property: 128
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 1130
+        effect_type: Field + Continuous
+        code: AttackAnnounce
         property: 1024
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 129
-        category: 65536
+        effect_type: Single + Trigger
+        category: Draw
         code: 1139
         property: 2048
         on_resolve {

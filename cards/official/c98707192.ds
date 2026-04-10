@@ -1,3 +1,4 @@
+// ゴーストリック・マリー
 // Ghostrick Mary
 // Transpiled from c98707192.lua
 
@@ -11,7 +12,7 @@ card "Ghostrick Mary" {
     def: 1600
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 20
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -19,20 +20,20 @@ card "Ghostrick Mary" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 4096
-        range: 4
+        effect_type: Ignition
+        category: DiceRoll
+        range: MonsterZone
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 1111
         property: 16384
-        range: 2
+        range: Hand
         count_limit: (1, 98707192)
         cost {
             discard (1, card, you controls)

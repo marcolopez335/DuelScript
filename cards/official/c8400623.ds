@@ -1,3 +1,4 @@
+// 邪龍アナンタ
 // Evil Dragon Ananta
 // Transpiled from c8400623.lua
 
@@ -15,7 +16,7 @@ card "Evil Dragon Ananta" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -23,21 +24,21 @@ card "Evil Dragon Ananta" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         on_resolve {
             banish (1+, monster, you controls)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 1
+        effect_type: Field + MandatoryTrigger
+        category: Destroy
         code: 4608
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, you controls)

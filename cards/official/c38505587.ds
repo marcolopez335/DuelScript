@@ -1,3 +1,4 @@
+// マシマシュマロン
 // Moremarshmallon
 // Transpiled from c38505587.lua
 
@@ -11,29 +12,29 @@ card "Moremarshmallon" {
     def: 500
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 332
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 2
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: Hand
         count_limit: (1, 38505587)
         on_resolve {
             special_summon (1, monster) from gy
@@ -41,9 +42,9 @@ card "Moremarshmallon" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 524800
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon + Damage
+        code: Destroyed
         property: 65536
         count_limit: (1, 0)
         on_resolve {

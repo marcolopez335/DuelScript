@@ -1,3 +1,4 @@
+// ギミック・パペット－テラー・ベビー
 // Gimmick Puppet Terror Baby
 // Transpiled from c43598843.lua
 
@@ -11,9 +12,9 @@ card "Gimmick Puppet Terror Baby" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 512
-        code: 1100
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SummonSuccess
         property: 16
         on_resolve {
             special_summon (1, monster) from gy
@@ -21,8 +22,8 @@ card "Gimmick Puppet Terror Baby" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        range: 16
+        effect_type: Ignition
+        range: Graveyard
         cost {
             banish self
         }
@@ -36,8 +37,8 @@ card "Gimmick Puppet Terror Baby" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 1027
+        effect_type: Field + Continuous
+        code: Chaining
         on_resolve {
         }
     }

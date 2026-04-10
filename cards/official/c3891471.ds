@@ -1,3 +1,4 @@
+// サイコ・チューン
 // Psychic Tuning
 // Transpiled from c3891471.lua
 
@@ -6,9 +7,9 @@ card "Psychic Tuning" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         property: 16
         on_resolve {
             special_summon (1, monster) from gy
@@ -20,7 +21,7 @@ card "Psychic Tuning" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1015
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -28,17 +29,17 @@ card "Psychic Tuning" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1015
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 513
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        code: ChainEnd
         on_resolve {
             deal_damage to opponent: 1000
         }

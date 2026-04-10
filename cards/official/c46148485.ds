@@ -1,3 +1,4 @@
+// 転輪のスフィンクス
 // Sphinx of the Cycle
 // Transpiled from c46148485.lua
 
@@ -15,11 +16,11 @@ card "Sphinx of the Cycle" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 8
+        effect_type: Field + Trigger
+        category: ToHand
         code: 1016
         property: 65552
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, spell, you controls) from gy
@@ -27,10 +28,10 @@ card "Sphinx of the Cycle" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 1016
-        range: 18
+        range: Hand + Graveyard
         count_limit: (1, 46148485)
         cost {
             banish self
@@ -41,8 +42,8 @@ card "Sphinx of the Cycle" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        range: 4
+        effect_type: Ignition
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             set (1, card)

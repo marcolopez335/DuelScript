@@ -1,3 +1,4 @@
+// 蛇眼神殿スネークアイ
 // Divine Temple of the Snake-Eye
 // Transpiled from c53639887.lua
 
@@ -6,8 +7,8 @@ card "Divine Temple of the Snake-Eye" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         count_limit: (1, 53639887)
         on_resolve {
             special_summon (1, monster) from gy
@@ -19,20 +20,20 @@ card "Divine Temple of the Snake-Eye" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 256
+        range: FieldZone
         on_resolve {
             modifier: atk + 1100
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 512
-        code: 1100
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SummonSuccess
         property: 65552
-        range: 256
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -40,11 +41,11 @@ card "Divine Temple of the Snake-Eye" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 512
-        code: 1102
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65552
-        range: 256
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -52,7 +53,7 @@ card "Divine Temple of the Snake-Eye" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 117
         property: 1024
         on_resolve {

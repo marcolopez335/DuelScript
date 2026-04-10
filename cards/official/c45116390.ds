@@ -1,3 +1,4 @@
+// 重装騎士バベルデッカー
 // Heavy Knight Babel Decker
 // Transpiled from c45116390.lua
 
@@ -12,7 +13,7 @@ card "Heavy Knight Babel Decker" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 32
         property: 262144
         on_resolve {
@@ -20,9 +21,9 @@ card "Heavy Knight Babel Decker" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
-        code: 1100
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -31,9 +32,9 @@ card "Heavy Knight Babel Decker" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1102
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -42,9 +43,9 @@ card "Heavy Knight Babel Decker" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 512
-        range: 4
+        effect_type: Ignition
+        category: SpecialSummon
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             attach (1, card) to self as_material

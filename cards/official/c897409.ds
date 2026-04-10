@@ -1,3 +1,4 @@
+// 銀河百式
 // Galaxy Hundred
 // Transpiled from c897409.lua
 
@@ -6,9 +7,9 @@ card "Galaxy Hundred" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 32
-        code: 1002
+        effect_type: Activate
+        category: ToGrave
+        code: FreeChain
         count_limit: (1, 897409)
         on_resolve {
             send (1+, card, you controls, deck) to gy
@@ -16,11 +17,11 @@ card "Galaxy Hundred" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 516
-        code: 1102
+        effect_type: Field + Trigger
+        category: Banish + SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             reveal (1+, card, opponent controls)

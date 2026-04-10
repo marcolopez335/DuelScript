@@ -1,3 +1,4 @@
+// 地縛戒隷 ジオクラーケン
 // Earthbound Servant Geo Kraken
 // Transpiled from c45716579.lua
 
@@ -20,9 +21,9 @@ card "Earthbound Servant Geo Kraken" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -32,11 +33,11 @@ card "Earthbound Servant Geo Kraken" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 524289
-        code: 1102
+        effect_type: Field + Trigger
+        category: Destroy + Damage
+        code: SpecialSummonSuccess
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, opponent controls)

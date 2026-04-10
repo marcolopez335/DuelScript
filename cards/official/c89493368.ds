@@ -1,3 +1,4 @@
+// サモン・リアクター・AI
 // Summon Reactor ・SK
 // Transpiled from c89493368.lua
 
@@ -15,10 +16,10 @@ card "Summon Reactor ・SK" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 514
-        category: 524288
-        code: 1100
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        category: Damage
+        code: SummonSuccess
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             deal_damage to opponent: 800
@@ -26,10 +27,10 @@ card "Summon Reactor ・SK" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 524288
-        code: 1102
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        category: Damage
+        code: SpecialSummonSuccess
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             deal_damage to opponent: 800
@@ -37,10 +38,10 @@ card "Summon Reactor ・SK" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 524288
-        code: 1101
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        category: Damage
+        code: FlipSummonSuccess
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             deal_damage to opponent: 800
@@ -48,10 +49,10 @@ card "Summon Reactor ・SK" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        code: 1130
+        effect_type: Field + Trigger
+        code: AttackAnnounce
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             negate attack
@@ -59,9 +60,9 @@ card "Summon Reactor ・SK" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 64
-        category: 512
-        range: 4
+        effect_type: Ignition
+        category: SpecialSummon
+        range: MonsterZone
         cost {
             send self to gy
         }

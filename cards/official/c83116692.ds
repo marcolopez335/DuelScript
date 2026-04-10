@@ -1,3 +1,4 @@
+// 死眼の伝霊－プシュコポンポス
 // Doombearer Psychopompos
 // Transpiled from c83116692.lua
 
@@ -11,10 +12,10 @@ card "Doombearer Psychopompos" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 4608
-        range: 32
+        range: Banished
         count_limit: (1, 83116692)
         on_resolve {
             special_summon (1, monster) from gy
@@ -22,9 +23,9 @@ card "Doombearer Psychopompos" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 36
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: Banish + ToGrave
+        code: SpecialSummonSuccess
         count_limit: (1, 0)
         on_resolve {
             banish (1+, monster, opponent controls)

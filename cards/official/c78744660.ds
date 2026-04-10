@@ -1,3 +1,4 @@
+// デス・レジーナ・デーモン
 // Doom Regina Archfiend
 // Transpiled from c78744660.lua
 
@@ -16,10 +17,10 @@ card "Doom Regina Archfiend" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 9
+        effect_type: Ignition
+        category: Destroy + ToHand
         property: 16
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, spell, opponent controls)
@@ -28,9 +29,9 @@ card "Doom Regina Archfiend" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 5
-        code: 1102
+        effect_type: Single + Trigger
+        category: Destroy + Banish
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -40,7 +41,7 @@ card "Doom Regina Archfiend" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 1
         property: 131072
         range: 4096

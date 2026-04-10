@@ -1,3 +1,4 @@
+// 聖月の魔導士エンディミオン
 // Endymion, the Crescent Magistus
 // Transpiled from c20714553.lua
 
@@ -20,9 +21,9 @@ card "Endymion, the Crescent Magistus" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 262144
-        code: 1102
+        effect_type: Single + Trigger
+        category: EquipAction
+        code: SpecialSummonSuccess
         property: 65552
         count_limit: (1, 20714553)
         on_resolve {
@@ -35,11 +36,11 @@ card "Endymion, the Crescent Magistus" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 8
-        code: 1002
+        effect_type: QuickEffect
+        category: ToHand
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 20714553)
         on_resolve {
             add_to_hand (1+, card, you controls) from gy
@@ -47,7 +48,7 @@ card "Endymion, the Crescent Magistus" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         property: 1024
         on_resolve {

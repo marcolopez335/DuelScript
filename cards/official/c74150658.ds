@@ -1,3 +1,4 @@
+// タロンズ・オブ・シュリーレン
 // Talons of Shurilane
 // Transpiled from c74150658.lua
 
@@ -15,20 +16,20 @@ card "Talons of Shurilane" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 42
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 520
-        code: 1002
+        effect_type: QuickEffect
+        category: ToHand + SpecialSummon
+        code: FreeChain
         property: 16
-        range: 2
+        range: Hand
         count_limit: (1, 74150658)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
@@ -37,11 +38,11 @@ card "Talons of Shurilane" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 9
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy + ToHand
+        code: Chaining
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy

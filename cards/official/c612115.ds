@@ -1,3 +1,4 @@
+// 剣闘獣レティアリィ
 // Gladiator Beast Retiari
 // Transpiled from c612115.lua
 
@@ -11,9 +12,9 @@ card "Gladiator Beast Retiari" {
     def: 800
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 4
-        code: 1102
+        effect_type: Single + Trigger
+        category: Banish
+        code: SpecialSummonSuccess
         property: 16
         on_resolve {
             banish (1+, card, you controls, deck)
@@ -21,10 +22,10 @@ card "Gladiator Beast Retiari" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 4224
-        range: 4
+        range: MonsterZone
         cost {
             send self to deck
         }

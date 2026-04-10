@@ -1,3 +1,4 @@
+// トリックスター・スイートデビル
 // Trickstar Black Catbat
 // Transpiled from c94626871.lua
 
@@ -20,20 +21,20 @@ card "Trickstar Black Catbat" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2050
-        category: 524288
-        code: 1014
-        range: 4
+        effect_type: Field + Continuous
+        category: Damage
+        code: ChainEnd
+        range: MonsterZone
         on_resolve {
             deal_damage to opponent: 200
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 2097152
+        effect_type: Field + MandatoryTrigger
+        category: SynchroSummon
         code: 1111
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

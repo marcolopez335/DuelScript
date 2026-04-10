@@ -1,3 +1,4 @@
+// 覇王眷竜ライトヴルム
 // Supreme King Dragon Lightwurm
 // Transpiled from c41908872.lua
 
@@ -12,11 +13,11 @@ card "Supreme King Dragon Lightwurm" {
     def: 1800
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 134218240
-        code: 1102
+        effect_type: Field + Trigger
+        category: SpecialSummon + LevelChange
+        code: SpecialSummonSuccess
         property: 65536
-        range: 512
+        range: PendulumZone
         count_limit: (1, 41908872)
         on_resolve {
             special_summon (1, monster) from gy
@@ -32,9 +33,9 @@ card "Supreme King Dragon Lightwurm" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 520
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + SpecialSummon
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -46,9 +47,9 @@ card "Supreme King Dragon Lightwurm" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 520
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -60,11 +61,11 @@ card "Supreme King Dragon Lightwurm" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 8
-        code: 1029
+        effect_type: Field + Trigger
+        category: ToHand
+        code: Destroyed
         property: 81920
-        range: 64
+        range: Deck
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to hand

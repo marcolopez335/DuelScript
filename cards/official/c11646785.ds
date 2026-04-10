@@ -1,3 +1,4 @@
+// 超量機獣エアロボロス
 // Super Quantal Mech Beast Aeroboros
 // Transpiled from c11646785.lua
 
@@ -21,7 +22,7 @@ card "Super Quantal Mech Beast Aeroboros" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 85
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -29,10 +30,10 @@ card "Super Quantal Mech Beast Aeroboros" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 4096
+        effect_type: Ignition
+        category: DiceRoll
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self
@@ -43,11 +44,11 @@ card "Super Quantal Mech Beast Aeroboros" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 4096
-        code: 1002
+        effect_type: QuickEffect
+        category: DiceRoll
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self
@@ -58,8 +59,8 @@ card "Super Quantal Mech Beast Aeroboros" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        range: 4
+        effect_type: Ignition
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             attach (1, card) to self as_material

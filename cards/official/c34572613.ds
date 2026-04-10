@@ -1,3 +1,4 @@
+// ミュートリア進化研究所
 // Myutant Evolution Lab
 // Transpiled from c34572613.lua
 
@@ -6,9 +7,9 @@ card "Myutant Evolution Lab" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         count_limit: (1, 34572613)
         on_resolve {
             special_summon (1, monster) from gy
@@ -16,18 +17,18 @@ card "Myutant Evolution Lab" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 256
+        range: FieldZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 65552
-        range: 256
+        effect_type: Ignition
+        category: ToDeck + Draw
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             reveal (1+, card, opponent controls)

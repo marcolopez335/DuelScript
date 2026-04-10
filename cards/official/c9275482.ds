@@ -1,3 +1,4 @@
+// 幻日灯火
 // UFOLight
 // Transpiled from c9275482.lua
 
@@ -15,29 +16,29 @@ card "UFOLight" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 71
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 42
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 2162692
+        effect_type: Field + Trigger
+        category: Banish + Draw + SynchroSummon
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 9275482)
         on_resolve {
             draw 1
@@ -47,7 +48,7 @@ card "UFOLight" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         on_resolve {
             modifier: atk + 0

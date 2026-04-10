@@ -1,3 +1,4 @@
+// 暗黒竜 コラプサーペント
 // Black Dragon Collapserpent
 // Transpiled from c61901281.lua
 
@@ -15,7 +16,7 @@ card "Black Dragon Collapserpent" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -23,10 +24,10 @@ card "Black Dragon Collapserpent" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         count_limit: (1, 61901281)
         on_resolve {
             banish (1+, monster, you controls, gy)
@@ -34,9 +35,9 @@ card "Black Dragon Collapserpent" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: ChainEnd
         property: 81920
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy

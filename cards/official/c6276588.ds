@@ -1,3 +1,4 @@
+// カラクリ忍者 九壱九
 // Karakuri Ninja mdl 919 'Kuick'
 // Transpiled from c6276588.lua
 
@@ -11,7 +12,7 @@ card "Karakuri Ninja mdl 919 'Kuick'" {
     def: 1500
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 191
         on_resolve {
             register_effect on self { grant: must_attack_if_able duration: until_end_of_turn }
@@ -19,20 +20,20 @@ card "Karakuri Ninja mdl 919 'Kuick'" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 4096
-        code: 1131
+        effect_type: Single + MandatoryTrigger
+        category: DiceRoll
+        code: BattleTarget
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 512
-        code: 1140
+        effect_type: Field + MandatoryTrigger
+        category: SpecialSummon
+        code: BattleDamage
         property: 16
-        range: 4
+        range: MonsterZone
         on_resolve {
             special_summon (1, monster) from gy
         }

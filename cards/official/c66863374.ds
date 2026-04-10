@@ -1,3 +1,4 @@
+// スレイブパンサー
 // Test Panther
 // Transpiled from c66863374.lua
 
@@ -20,9 +21,9 @@ card "Test Panther" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 81920
         count_limit: (1, 66863374)
         on_resolve {
@@ -32,10 +33,10 @@ card "Test Panther" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 528
+        effect_type: Ignition
+        category: ToDeck + SpecialSummon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, card, you controls) to deck shuffle

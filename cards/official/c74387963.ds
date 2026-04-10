@@ -1,3 +1,4 @@
+// ＤＤエクストラ・サーベイヤー
 // D/D Extra Surveyor
 // Transpiled from c74387963.lua
 
@@ -16,11 +17,11 @@ card "D/D Extra Surveyor" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 4
-        code: 1029
+        effect_type: Field + Trigger
+        category: Banish
+        code: Destroyed
         property: 81936
-        range: 512
+        range: PendulumZone
         count_limit: (1, 74387963)
         on_resolve {
             banish (1+, card, either_player controls)
@@ -32,9 +33,9 @@ card "D/D Extra Surveyor" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 8
-        range: 2
+        effect_type: Ignition
+        category: ToHand
+        range: Hand
         count_limit: (1, 0)
         cost {
             discard (1, card, you controls)
@@ -46,9 +47,9 @@ card "D/D Extra Surveyor" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 2097156
-        code: 1011
+        effect_type: Single + Trigger
+        category: Banish + SynchroSummon
+        code: TurnEnd
         property: 65536
         count_limit: (1, 0)
         on_resolve {

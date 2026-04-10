@@ -1,3 +1,4 @@
+// 異端なるフォボスコボス
 // Heretical Phobos Covos
 // Transpiled from c76078185.lua
 
@@ -21,10 +22,10 @@ card "Heretical Phobos Covos" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 24576
+        effect_type: Ignition
+        category: Summon + Disable
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 76078185)
         on_resolve {
             take_control of (1, monster, opponent controls)
@@ -32,11 +33,11 @@ card "Heretical Phobos Covos" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 24576
-        code: 1002
+        effect_type: QuickEffect
+        category: Summon + Disable
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 76078185)
         on_resolve {
             take_control of (1, monster, opponent controls)
@@ -44,16 +45,16 @@ card "Heretical Phobos Covos" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 42
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1138
         on_resolve {
         }

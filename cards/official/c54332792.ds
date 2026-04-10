@@ -1,3 +1,4 @@
+// ネオ・カイザー・シーホース
 // Neo Kaiser Sea Horse
 // Transpiled from c54332792.lua
 
@@ -11,9 +12,9 @@ card "Neo Kaiser Sea Horse" {
     def: 1650
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 54332792)
         on_resolve {
             special_summon (1, monster) from gy
@@ -21,10 +22,10 @@ card "Neo Kaiser Sea Horse" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 134217728
+        effect_type: Ignition
+        category: LevelChange
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -35,9 +36,9 @@ card "Neo Kaiser Sea Horse" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 32
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: ChainEnd
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -46,7 +47,7 @@ card "Neo Kaiser Sea Horse" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 130
         property: 1024
         on_resolve {

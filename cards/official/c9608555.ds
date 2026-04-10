@@ -1,3 +1,4 @@
+// 転生炎獣ブレイズ・ドラゴン
 // Salamangreat Blaze Dragon
 // Transpiled from c9608555.lua
 
@@ -28,10 +29,10 @@ card "Salamangreat Blaze Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 9608555)
         on_resolve {
             attach (1, card) to self as_material
@@ -40,9 +41,9 @@ card "Salamangreat Blaze Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 1
-        code: 1102
+        effect_type: Single + Trigger
+        category: Destroy
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             destroy (1+, monster, opponent controls)

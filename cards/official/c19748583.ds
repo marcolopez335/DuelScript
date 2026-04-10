@@ -1,3 +1,4 @@
+// 聖剣を抱く王妃ギネヴィア
 // Gwenhwyfar, Queen of Noble Arms
 // Transpiled from c19748583.lua
 
@@ -11,10 +12,10 @@ card "Gwenhwyfar, Queen of Noble Arms" {
     def: 300
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 262144
+        effect_type: Ignition
+        category: EquipAction
         property: 16
-        range: 18
+        range: Hand + Graveyard
         count_limit: (1, 19748583)
         on_resolve {
             send (1+, card, either_player controls) to gy
@@ -23,7 +24,7 @@ card "Gwenhwyfar, Queen of Noble Arms" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 300
@@ -38,10 +39,10 @@ card "Gwenhwyfar, Queen of Noble Arms" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 1
-        code: 1132
-        range: 8
+        effect_type: Field + Trigger
+        category: Destroy
+        code: DamageCalculation
+        range: SpellTrapZone
         on_resolve {
             destroy (1+, card, either_player controls)
             destroy (1+, card, either_player controls)

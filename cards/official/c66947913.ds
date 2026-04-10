@@ -1,3 +1,4 @@
+// ライジング・オブ・ファイア
 // Rising Fire
 // Transpiled from c66947913.lua
 
@@ -6,9 +7,9 @@ card "Rising Fire" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         property: 16
         count_limit: (1, 66947913)
         on_resolve {
@@ -18,7 +19,7 @@ card "Rising Fire" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1019
         property: 1024
         on_resolve {
@@ -26,7 +27,7 @@ card "Rising Fire" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1015
         on_resolve {
             destroy (1+, monster, either_player controls)
@@ -34,7 +35,7 @@ card "Rising Fire" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 500
@@ -42,9 +43,9 @@ card "Rising Fire" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 129
-        category: 4
-        code: 1029
+        effect_type: Single + Trigger
+        category: Banish
+        code: Destroyed
         property: 81920
         count_limit: (1, 0)
         on_resolve {

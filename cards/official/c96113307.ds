@@ -1,3 +1,4 @@
+// 聖霊獣騎 レイラウタリ
 // Ritual Beast Ulti-Reirautari
 // Transpiled from c96113307.lua
 
@@ -20,19 +21,19 @@ card "Ritual Beast Ulti-Reirautari" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 46
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 2147483912
+        effect_type: Ignition
+        category: ToHand + Counter
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 96113307)
         on_resolve {
             return (1+, card, either_player controls) to hand
@@ -42,11 +43,11 @@ card "Ritual Beast Ulti-Reirautari" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 4
-        code: 1002
+        effect_type: QuickEffect
+        category: Banish
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, card, either_player controls)

@@ -1,3 +1,4 @@
+// 法典の守護者アイワス
 // Aiwass, the Magistus Spell Spirit
 // Transpiled from c35877582.lua
 
@@ -20,11 +21,11 @@ card "Aiwass, the Magistus Spell Spirit" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 262144
-        code: 1002
+        effect_type: QuickEffect
+        category: EquipAction
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 35877582)
         on_resolve {
             send (1+, card, either_player controls) to gy
@@ -33,7 +34,7 @@ card "Aiwass, the Magistus Spell Spirit" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 1000
@@ -41,7 +42,7 @@ card "Aiwass, the Magistus Spell Spirit" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 4
+        effect_type: Equip
         code: 104
         on_resolve {
             modifier: def + 1000
@@ -49,14 +50,14 @@ card "Aiwass, the Magistus Spell Spirit" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 4
+        effect_type: Equip
         code: 7
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -64,7 +65,7 @@ card "Aiwass, the Magistus Spell Spirit" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 4
+        effect_type: Equip
         code: 4
         on_resolve {
         }

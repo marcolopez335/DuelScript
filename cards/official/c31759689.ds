@@ -1,3 +1,4 @@
+// ティンダングル・ハウンド
 // Tindangle Hound
 // Transpiled from c31759689.lua
 
@@ -15,8 +16,8 @@ card "Tindangle Hound" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 161
-        category: 2101248
+        effect_type: Single + Flip + Trigger
+        category: DiceRoll + SynchroSummon
         property: 65552
         on_resolve {
             change_battle_position (1, monster)
@@ -24,18 +25,18 @@ card "Tindangle Hound" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 4096
-        code: 1014
+        effect_type: Single + Trigger
+        category: DiceRoll
+        code: ChainEnd
         property: 16
         on_resolve {
             change_battle_position (1, monster)

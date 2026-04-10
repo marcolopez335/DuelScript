@@ -1,3 +1,4 @@
+// 斬機サーキュラー
 // Mathmech Circular
 // Transpiled from c36521307.lua
 
@@ -11,9 +12,9 @@ card "Mathmech Circular" {
     def: 1500
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 36521307)
         cost {
             send self to gy
@@ -32,11 +33,11 @@ card "Mathmech Circular" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 131080
-        code: 1100
+        effect_type: Field + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -45,11 +46,11 @@ card "Mathmech Circular" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 131080
-        code: 1102
+        effect_type: Field + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck

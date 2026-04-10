@@ -1,3 +1,4 @@
+// 絶対王 バック・ジャック
 // Absolute King Back Jack
 // Transpiled from c60990740.lua
 
@@ -11,10 +12,10 @@ card "Absolute King Back Jack" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 32
-        code: 1002
-        range: 16
+        effect_type: QuickEffect
+        category: ToGrave
+        code: FreeChain
+        range: Graveyard
         count_limit: (1, 60990740)
         cost {
             banish self
@@ -31,8 +32,8 @@ card "Absolute King Back Jack" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        code: 1014
+        effect_type: Single + Trigger
+        code: ChainEnd
         property: 81920
         count_limit: (1, 0)
         on_resolve {
@@ -41,7 +42,7 @@ card "Absolute King Back Jack" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 16
         property: 256
         on_resolve {

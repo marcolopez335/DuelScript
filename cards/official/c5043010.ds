@@ -1,3 +1,4 @@
+// ファイアウォール・ドラゴン
 // Firewall Dragon
 // Transpiled from c5043010.lua
 
@@ -20,11 +21,11 @@ card "Firewall Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 8
-        code: 1002
+        effect_type: QuickEffect
+        category: ToHand
+        code: FreeChain
         property: 4194320
-        range: 4
+        range: MonsterZone
         count_limit: (1, 5043010)
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand
@@ -32,31 +33,31 @@ card "Firewall Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 1140
+        effect_type: Field + Continuous
+        code: BattleDamage
         property: 1024
-        range: 4
+        range: MonsterZone
         on_resolve {
             emit_event "custom"
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 1014
+        effect_type: Field + Continuous
+        code: ChainEnd
         property: 1024
-        range: 4
+        range: MonsterZone
         on_resolve {
             emit_event "custom"
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 512
+        effect_type: Single + Trigger
+        category: SpecialSummon
         code: 273478466
         property: 196608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

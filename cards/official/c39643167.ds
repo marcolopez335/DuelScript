@@ -1,3 +1,4 @@
+// ウサミミ導師
 // Bunny Ear Enthusiast
 // Transpiled from c39643167.lua
 
@@ -11,10 +12,10 @@ card "Bunny Ear Enthusiast" {
     def: 100
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 8388608
-        code: 1027
-        range: 4
+        effect_type: QuickEffect
+        category: LinkSummon
+        code: Chaining
+        range: MonsterZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -24,11 +25,11 @@ card "Bunny Ear Enthusiast" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 4
-        code: 1002
+        effect_type: QuickEffect
+        category: Banish
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, monster, opponent controls)

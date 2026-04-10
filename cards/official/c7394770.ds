@@ -1,3 +1,4 @@
+// ブリリアント・フュージョン
 // Brilliant Fusion
 // Transpiled from c7394770.lua
 
@@ -6,9 +7,9 @@ card "Brilliant Fusion" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 1073742336
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         count_limit: (1, 7394770)
         on_resolve {
             fusion_summon (1, fusion monster) using (1+, monster, you controls)
@@ -16,7 +17,7 @@ card "Brilliant Fusion" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1015
         property: 128
         on_resolve {
@@ -25,9 +26,9 @@ card "Brilliant Fusion" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 6291456
-        range: 8
+        effect_type: Ignition
+        category: SynchroSummon + XyzSummon
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {

@@ -1,3 +1,4 @@
+// エルフの聖剣士
 // Celtic Guard of Noble Arms
 // Transpiled from c45531624.lua
 
@@ -11,7 +12,7 @@ card "Celtic Guard of Noble Arms" {
     def: 700
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 85
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -19,9 +20,9 @@ card "Celtic Guard of Noble Arms" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 4
+        effect_type: Ignition
+        category: SpecialSummon
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -29,8 +30,8 @@ card "Celtic Guard of Noble Arms" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 65536
+        effect_type: Single + Trigger
+        category: Draw
         code: 1143
         property: 2048
         on_resolve {

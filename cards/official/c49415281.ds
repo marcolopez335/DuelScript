@@ -1,3 +1,4 @@
+// シンクロ・エマージェンシー
 // Synchro Emergency
 // Transpiled from c49415281.lua
 
@@ -6,7 +7,7 @@ card "Synchro Emergency" {
     type: Normal Trap
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 15
         property: 1024
         on_resolve {
@@ -14,9 +15,9 @@ card "Synchro Emergency" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 16
-        category: 16896
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon + Disable
+        code: FreeChain
         count_limit: (1, 49415281)
         on_resolve {
             special_summon (1, monster) from gy
@@ -25,10 +26,10 @@ card "Synchro Emergency" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 16
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: Graveyard
         cost {
             banish self
         }
@@ -38,7 +39,7 @@ card "Synchro Emergency" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 67110912
         on_resolve {

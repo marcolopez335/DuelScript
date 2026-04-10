@@ -1,3 +1,4 @@
+// デトネイト・デリーター
 // Detonate Deleter
 // Transpiled from c24487411.lua
 
@@ -20,9 +21,9 @@ card "Detonate Deleter" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 1
-        code: 1132
+        effect_type: Single + Trigger
+        category: Destroy
+        code: DamageCalculation
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -30,10 +31,10 @@ card "Detonate Deleter" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 1
+        effect_type: Ignition
+        category: Destroy
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             tribute self

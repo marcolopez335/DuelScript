@@ -1,3 +1,4 @@
+// ヴァレルコード・ドラゴン
 // Borrelcode Dragon
 // Transpiled from c67288539.lua
 
@@ -20,19 +21,19 @@ card "Borrelcode Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 1
-        code: 1132
+        effect_type: Single + Trigger
+        category: Destroy
+        code: DamageCalculation
         count_limit: (1, 67288539)
         on_resolve {
             destroy (1+, monster, either_player controls)
@@ -40,16 +41,16 @@ card "Borrelcode Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 251
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        category: 516
-        range: 16
+        effect_type: Ignition
+        category: Banish + SpecialSummon
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self

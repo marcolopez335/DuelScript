@@ -1,3 +1,4 @@
+// メンタルプロシージャー
 // Mind Procedure
 // Transpiled from c62606805.lua
 
@@ -11,18 +12,18 @@ card "Mind Procedure" {
     def: 1100
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 244
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 62606805)
         cost {
@@ -35,9 +36,9 @@ card "Mind Procedure" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 62606805)
         cost {
@@ -50,9 +51,9 @@ card "Mind Procedure" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 512
-        code: 1011
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: TurnEnd
         property: 65536
         count_limit: (1, 62606805)
         cost {

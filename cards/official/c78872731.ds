@@ -1,3 +1,4 @@
+// 十二獣モルモラット
 // Zoodiac Ratpier
 // Transpiled from c78872731.lua
 
@@ -11,17 +12,17 @@ card "Zoodiac Ratpier" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 32
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: SummonSuccess
         on_resolve {
             send (1+, card, you controls, deck) to gy
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 4160
-        category: 512
+        effect_type: Ignition
+        category: SpecialSummon
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self

@@ -1,3 +1,4 @@
+// EMブランコブラ
 // Performapal Swincobra
 // Transpiled from c93892436.lua
 
@@ -12,10 +13,10 @@ card "Performapal Swincobra" {
     def: 1800
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 64
+        effect_type: Field + Trigger
+        category: AtkChange
         code: 1143
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             mill 1
@@ -23,7 +24,7 @@ card "Performapal Swincobra" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 74
         on_resolve {
             register_effect on self { grant: direct_attack duration: until_end_of_turn }
@@ -31,10 +32,10 @@ card "Performapal Swincobra" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        category: 4096
+        effect_type: Field + Continuous
+        category: DiceRoll
         code: 4224
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)

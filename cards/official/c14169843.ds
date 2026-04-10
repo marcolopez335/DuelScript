@@ -1,3 +1,4 @@
+// アロマージ－ローリエ
 // Aromage Laurel
 // Transpiled from c14169843.lua
 
@@ -11,9 +12,9 @@ card "Aromage Laurel" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 14169843)
         on_resolve {
             special_summon (1, monster) from gy
@@ -21,10 +22,10 @@ card "Aromage Laurel" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
+        effect_type: Field + MandatoryTrigger
         code: 1112
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -35,9 +36,9 @@ card "Aromage Laurel" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 1048576
-        code: 1014
+        effect_type: Single + Trigger
+        category: Recover
+        code: ChainEnd
         property: 67584
         count_limit: (1, 0)
         on_resolve {

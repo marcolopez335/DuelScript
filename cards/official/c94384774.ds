@@ -1,3 +1,4 @@
+// 海老須神鮮まつり
 // Ebisu Shinsen Matsuri
 // Transpiled from c94384774.lua
 
@@ -6,18 +7,18 @@ card "Ebisu Shinsen Matsuri" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 1536
+        effect_type: Field + Trigger
+        category: SpecialSummon + Token
         code: 362820230
         property: 65552
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             create_token { atk: 0 def: 0 }
@@ -26,18 +27,18 @@ card "Ebisu Shinsen Matsuri" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 1102
+        effect_type: Field + Continuous
+        code: SpecialSummonSuccess
         on_resolve {
             emit_event "custom"
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 1537
+        effect_type: Field + Trigger
+        category: Destroy + SpecialSummon + Token
         code: 4104
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             destroy (1+, card, either_player controls)
             create_token { atk: 0 def: 0 }
@@ -54,7 +55,7 @@ card "Ebisu Shinsen Matsuri" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 101
         property: 1024
         on_resolve {
@@ -63,7 +64,7 @@ card "Ebisu Shinsen Matsuri" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 1
+        effect_type: Single
         code: 105
         property: 1024
         on_resolve {

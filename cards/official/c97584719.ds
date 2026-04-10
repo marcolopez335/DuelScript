@@ -1,3 +1,4 @@
+// 無限起動アースシェイカー
 // Infinitrack Earth Slicer
 // Transpiled from c97584719.lua
 
@@ -21,7 +22,7 @@ card "Infinitrack Earth Slicer" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
+        effect_type: Single + Trigger
         code: 1139
         on_resolve {
             attach (1, card) to self as_material
@@ -29,10 +30,10 @@ card "Infinitrack Earth Slicer" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 1
+        effect_type: Ignition
+        category: Destroy
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 97584719)
         cost {
             detach 1 overlay_unit from self
@@ -43,9 +44,9 @@ card "Infinitrack Earth Slicer" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 512
-        range: 16
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             tribute self

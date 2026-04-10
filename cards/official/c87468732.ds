@@ -1,3 +1,4 @@
+// 変導機咎 クロックアーク
 // Clock Arc
 // Transpiled from c87468732.lua
 
@@ -12,10 +13,10 @@ card "Clock Arc" {
     def: 1200
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 4098
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -23,33 +24,33 @@ card "Clock Arc" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 134
         property: 131072
-        range: 512
+        range: PendulumZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 136
         property: 131072
-        range: 512
+        range: PendulumZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2049
-        code: 1102
+        effect_type: Single + Continuous
+        code: SpecialSummonSuccess
         on_resolve {
             destroy (1, card)
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -57,11 +58,11 @@ card "Clock Arc" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 130
-        category: 1
+        effect_type: Field + Trigger
+        category: Destroy
         code: 4608
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, you controls)

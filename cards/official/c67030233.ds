@@ -1,3 +1,4 @@
+// セイヴァー・デモン・ドラゴン
 // Majestic Red Dragon
 // Transpiled from c67030233.lua
 
@@ -21,8 +22,8 @@ card "Majestic Red Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 1
+        effect_type: Single + MandatoryTrigger
+        category: Destroy
         code: 1138
         on_resolve {
             destroy (1+, monster, either_player controls)
@@ -30,10 +31,10 @@ card "Majestic Red Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 2113536
+        effect_type: Ignition
+        category: Disable + SynchroSummon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -48,11 +49,11 @@ card "Majestic Red Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 528
+        effect_type: Field + MandatoryTrigger
+        category: ToDeck + SpecialSummon
         code: 4608
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
@@ -61,17 +62,17 @@ card "Majestic Red Dragon" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 251
         on_resolve {
         }

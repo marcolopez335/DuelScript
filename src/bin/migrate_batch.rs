@@ -104,11 +104,17 @@ fn main() {
 
         let Ok(source) = fs::read_to_string(entry.path()) else { continue };
 
-        // Extract card name (prefer English, 2nd comment line)
-        let card_name = source.lines()
+        // Extract card names from Lua comment header.
+        // Line 1 is typically the Japanese name, line 2 is English.
+        let comment_lines: Vec<&str> = source.lines()
             .filter(|l| l.starts_with("--") && !l.starts_with("---"))
-            .nth(1)
-            .or_else(|| source.lines().find(|l| l.starts_with("--")))
+            .take(2)
+            .collect();
+        let jp_name = comment_lines.first()
+            .and_then(|l| l.strip_prefix("--"))
+            .map(|s| s.trim().to_string());
+        let card_name = comment_lines.get(1)
+            .or(comment_lines.first())
             .and_then(|l| l.strip_prefix("--"))
             .map(|s| s.trim().to_string())
             .unwrap_or_else(|| format!("Card {}", passcode));

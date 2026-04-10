@@ -1,3 +1,4 @@
+// レッド・デーモンズ・チェーン
 // Red Dragon Archfiend's Chain
 // Transpiled from c92936364.lua
 
@@ -6,7 +7,7 @@ card "Red Dragon Archfiend's Chain" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 16
         property: 256
         on_resolve {
@@ -14,9 +15,9 @@ card "Red Dragon Archfiend's Chain" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 16
-        category: 2113536
-        code: 1002
+        effect_type: Activate
+        category: Disable + SynchroSummon
+        code: FreeChain
         property: 16400
         count_limit: (1, 92936364)
         on_resolve {
@@ -24,28 +25,28 @@ card "Red Dragon Archfiend's Chain" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 2
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 141
         property: 131072
-        range: 8
+        range: SpellTrapZone
         on_resolve {
         }
     }

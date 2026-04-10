@@ -1,3 +1,4 @@
+// 墓守の召喚師
 // Gravekeeper's Recruiter
 // Transpiled from c93023479.lua
 
@@ -11,9 +12,9 @@ card "Gravekeeper's Recruiter" {
     def: 1500
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 131080
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: ToHand + Search
+        code: ChainEnd
         on_resolve {
             add_to_hand (1+, monster, opponent controls) from deck
             reveal (1+, card, opponent controls)

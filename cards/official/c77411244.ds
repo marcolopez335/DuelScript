@@ -1,3 +1,4 @@
+// B－バスター・ドレイク
 // B-Buster Drake
 // Transpiled from c77411244.lua
 
@@ -11,7 +12,7 @@ card "B-Buster Drake" {
     def: 1800
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 1
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -19,9 +20,9 @@ card "B-Buster Drake" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: ChainEnd
         property: 65536
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -30,31 +31,31 @@ card "B-Buster Drake" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        range: 4
+        effect_type: Ignition
+        range: MonsterZone
         on_resolve {
             equip self to (1, monster, you controls)
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        range: 8
+        effect_type: Ignition
+        range: SpellTrapZone
         on_resolve {
             special_summon self from spell_trap_zone
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         on_resolve {
         }
     }
 
     raw_effect "Effect 6" {
-        effect_type: 2049
-        code: 1029
+        effect_type: Single + Continuous
+        code: Destroyed
         on_resolve {
         }
     }

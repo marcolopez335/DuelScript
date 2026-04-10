@@ -1,3 +1,4 @@
+// 時械神メタイオン
 // Metaion, the Timelord
 // Transpiled from c74530899.lua
 
@@ -15,7 +16,7 @@ card "Metaion, the Timelord" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 394240
         range: 1
@@ -24,7 +25,7 @@ card "Metaion, the Timelord" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 32
         property: 263168
         on_resolve {
@@ -32,40 +33,40 @@ card "Metaion, the Timelord" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 201
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 6" {
-        effect_type: 514
-        category: 524296
+        effect_type: Field + MandatoryTrigger
+        category: ToHand + Damage
         code: 4224
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, either_player controls) to hand
@@ -74,10 +75,10 @@ card "Metaion, the Timelord" {
     }
 
     raw_effect "Effect 7" {
-        effect_type: 514
-        category: 16
+        effect_type: Field + MandatoryTrigger
+        category: ToDeck
         code: 4098
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle

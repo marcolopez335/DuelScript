@@ -1,3 +1,4 @@
+// 怨邪帝ガイウス
 // Caius the Mega Monarch
 // Transpiled from c87288189.lua
 
@@ -15,9 +16,9 @@ card "Caius the Mega Monarch" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 524292
-        code: 1100
+        effect_type: Single + MandatoryTrigger
+        category: Banish + Damage
+        code: SummonSuccess
         property: 16
         on_resolve {
             banish (1+, card, you controls, hand)
@@ -27,14 +28,14 @@ card "Caius the Mega Monarch" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 251
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 20
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -42,7 +43,7 @@ card "Caius the Mega Monarch" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 23
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }

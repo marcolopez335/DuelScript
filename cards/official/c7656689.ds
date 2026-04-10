@@ -1,3 +1,4 @@
+// エンディミオンの侍女ジェニー
 // Genni, the Maid of Endymion
 // Transpiled from c7656689.lua
 
@@ -11,9 +12,9 @@ card "Genni, the Maid of Endymion" {
     def: 500
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -21,11 +22,11 @@ card "Genni, the Maid of Endymion" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 516
-        code: 1002
+        effect_type: QuickEffect
+        category: Banish + SpecialSummon
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, monster, you controls)

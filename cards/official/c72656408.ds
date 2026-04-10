@@ -1,3 +1,4 @@
+// 深淵の獣バルドレイク
 // Bystial Baldrake
 // Transpiled from c72656408.lua
 
@@ -15,10 +16,10 @@ card "Bystial Baldrake" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 516
+        effect_type: Ignition
+        category: Banish + SpecialSummon
         property: 16
-        range: 2
+        range: Hand
         count_limit: (1, 72656408)
         on_resolve {
             banish (1+, card, either_player controls)
@@ -27,11 +28,11 @@ card "Bystial Baldrake" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 516
-        code: 1002
+        effect_type: QuickEffect
+        category: Banish + SpecialSummon
+        code: FreeChain
         property: 16
-        range: 2
+        range: Hand
         count_limit: (1, 72656408)
         on_resolve {
             banish (1+, card, either_player controls)
@@ -40,11 +41,11 @@ card "Bystial Baldrake" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 4
+        effect_type: Single + Trigger
+        category: Banish
         code: 341091864
         property: 65552
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             tribute self
@@ -55,10 +56,10 @@ card "Bystial Baldrake" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 1102
+        effect_type: Field + Continuous
+        code: SpecialSummonSuccess
         property: 1024
-        range: 4
+        range: MonsterZone
         on_resolve {
             emit_event "custom"
         }

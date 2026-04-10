@@ -1,3 +1,4 @@
+// 幻獣魔王バフォメット
 // Berfomet the Mythical King of Phantom Beasts
 // Transpiled from c69601012.lua
 
@@ -20,18 +21,18 @@ card "Berfomet the Mythical King of Phantom Beasts" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 114
         property: 131072
-        range: 20
+        range: MonsterZone + Graveyard
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 32
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 69601012)
         on_resolve {
@@ -40,11 +41,11 @@ card "Berfomet the Mythical King of Phantom Beasts" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 512
-        code: 1002
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self

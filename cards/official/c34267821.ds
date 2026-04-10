@@ -1,3 +1,4 @@
+// アーティファクト－ロンギヌス
 // Artifact Lancea
 // Transpiled from c34267821.lua
 
@@ -15,25 +16,25 @@ card "Artifact Lancea" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 18
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 512
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: SpecialSummon
+        code: ChainEnd
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        code: 1002
-        range: 6
+        effect_type: QuickEffect
+        code: FreeChain
+        range: Hand + MonsterZone
         cost {
             tribute self
         }

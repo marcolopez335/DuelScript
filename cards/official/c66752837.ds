@@ -1,3 +1,4 @@
+// 霊廟の守護者
 // Keeper of the Shrine
 // Transpiled from c66752837.lua
 
@@ -11,18 +12,18 @@ card "Keeper of the Shrine" {
     def: 2100
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 150
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 520
-        code: 1014
+        effect_type: Field + Trigger
+        category: ToHand + SpecialSummon
+        code: ChainEnd
         property: 81920
-        range: 18
+        range: Hand + Graveyard
         count_limit: (1, 66752837)
         on_resolve {
             special_summon (1, monster) from gy

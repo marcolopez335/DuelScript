@@ -1,3 +1,4 @@
+// シルフィード
 // Silpheed
 // Transpiled from c73001017.lua
 
@@ -15,19 +16,19 @@ card "Silpheed" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         on_resolve {
             banish (1+, monster, you controls, gy)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 128
-        code: 1140
+        effect_type: Single + MandatoryTrigger
+        category: DefChange
+        code: BattleDamage
         on_resolve {
             send (1+, monster, you controls, gy) to gy
         }

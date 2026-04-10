@@ -1,3 +1,4 @@
+// 烙印の使徒
 // Branded Disciple
 // Transpiled from c34536828.lua
 
@@ -6,16 +7,16 @@ card "Branded Disciple" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1020
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             set_flag "tracked" on self
             negate effect
@@ -23,11 +24,11 @@ card "Branded Disciple" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 1
+        effect_type: Field + Trigger
+        category: Destroy
         code: 1141
         property: 65536
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 34536828)
         on_resolve {
             destroy (1+, monster, you controls)

@@ -1,3 +1,4 @@
+// 原石竜インペリアル・ドラゴン
 // Primite Imperial Dragon
 // Transpiled from c81418467.lua
 
@@ -15,7 +16,7 @@ card "Primite Imperial Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 33
         property: 263168
         on_resolve {
@@ -24,10 +25,10 @@ card "Primite Imperial Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 256
-        code: 1002
-        range: 2
+        effect_type: QuickEffect
+        category: Counter
+        code: FreeChain
+        range: Hand
         count_limit: (1, 81418467)
         cost {
             reveal self
@@ -38,9 +39,9 @@ card "Primite Imperial Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 16388
-        code: 1100
+        effect_type: Single + Trigger
+        category: Banish + Disable
+        code: SummonSuccess
         property: 65536
         on_resolve {
             banish (1+, monster, you controls, hand)

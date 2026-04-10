@@ -1,3 +1,4 @@
+// 海皇龍 ポセイドラ
 // Poseidra, the Atlantean Dragon
 // Transpiled from c47826112.lua
 
@@ -15,9 +16,9 @@ card "Poseidra, the Atlantean Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 18
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand + Graveyard
         cost {
             tribute self
         }
@@ -27,9 +28,9 @@ card "Poseidra, the Atlantean Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 8
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: ToHand
+        code: SpecialSummonSuccess
         on_resolve {
             return (1+, spell, either_player controls) to hand
             register_effect on self {

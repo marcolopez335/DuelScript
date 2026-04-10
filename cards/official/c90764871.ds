@@ -1,3 +1,4 @@
+// デーモンの盤上遊戯
 // Archfiend Strategy
 // Transpiled from c90764871.lua
 
@@ -6,24 +7,24 @@ card "Archfiend Strategy" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 256
+        range: FieldZone
         on_resolve {
             modifier: atk + 1000
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        range: 256
+        effect_type: Ignition
+        range: FieldZone
         count_limit: (1, 90764871)
         on_resolve {
             add_to_hand (1+, card, you controls) from gy

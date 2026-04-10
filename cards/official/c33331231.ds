@@ -1,3 +1,4 @@
+// 閃術兵器-H.A.M.P.
 // Surgical Striker - H.A.M.P.
 // Transpiled from c33331231.lua
 
@@ -15,10 +16,10 @@ card "Surgical Striker - H.A.M.P." {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         count_limit: (1, 0)
         on_resolve {
             tribute (1, monster, you controls)
@@ -26,9 +27,9 @@ card "Surgical Striker - H.A.M.P." {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 1
-        code: 1140
+        effect_type: Single + Trigger
+        category: Destroy
+        code: BattleDamage
         property: 16
         on_resolve {
             destroy (1+, monster, you controls)
@@ -36,9 +37,9 @@ card "Surgical Striker - H.A.M.P." {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 512
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         on_resolve {
             special_summon self from hand
         }

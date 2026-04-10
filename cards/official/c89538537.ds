@@ -1,3 +1,4 @@
+// オルターガイスト・シルキタス
 // Altergeist Silquitous
 // Transpiled from c89538537.lua
 
@@ -11,11 +12,11 @@ card "Altergeist Silquitous" {
     def: 1500
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 8
-        code: 1002
+        effect_type: QuickEffect
+        category: ToHand
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 89538537)
         on_resolve {
             return (1+, trap, you controls) to hand
@@ -23,9 +24,9 @@ card "Altergeist Silquitous" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 8
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand
+        code: ChainEnd
         property: 65552
         count_limit: (1, 0)
         on_resolve {

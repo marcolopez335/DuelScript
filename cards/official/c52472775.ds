@@ -1,3 +1,4 @@
+// 粛声なる祈り
 // Prayers of the Voiceless Voice
 // Transpiled from c52472775.lua
 
@@ -6,11 +7,11 @@ card "Prayers of the Voiceless Voice" {
     type: Ritual Spell
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 1015
         property: 65536
-        range: 16
+        range: Graveyard
         count_limit: (1, 52472775)
         cost {
             banish self
@@ -21,9 +22,9 @@ card "Prayers of the Voiceless Voice" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         on_resolve {
             ritual_summon (1, ritual monster) using (1+, monster, you controls)
         }

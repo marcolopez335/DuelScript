@@ -1,3 +1,4 @@
+// ゴッドアイズ・ファントム・ドラゴン
 // All-Eyes Phantom Dragon
 // Transpiled from c70335319.lua
 
@@ -16,16 +17,16 @@ card "All-Eyes Phantom Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
+        effect_type: Field + Trigger
         code: 1141
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -33,10 +34,10 @@ card "All-Eyes Phantom Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 263168
-        range: 2
+        range: Hand
         count_limit: (1, 70335319)
         on_resolve {
             tribute (1, monster, you controls)
@@ -44,10 +45,10 @@ card "All-Eyes Phantom Dragon" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 263168
-        range: 64
+        range: Deck
         count_limit: (1, 70335319)
         on_resolve {
             tribute (1, monster, you controls)
@@ -55,21 +56,21 @@ card "All-Eyes Phantom Dragon" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 513
-        category: 2097152
+        effect_type: Single + MandatoryTrigger
+        category: SynchroSummon
         code: 1134
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
         }
     }
 
     raw_effect "Effect 6" {
-        effect_type: 256
-        category: 268435456
-        code: 1027
+        effect_type: QuickEffect
+        category: Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             send self to gy
@@ -80,8 +81,8 @@ card "All-Eyes Phantom Dragon" {
     }
 
     raw_effect "Effect 7" {
-        effect_type: 2050
-        code: 1130
+        effect_type: Field + Continuous
+        code: AttackAnnounce
         on_resolve {
         }
     }

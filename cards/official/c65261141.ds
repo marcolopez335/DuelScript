@@ -1,3 +1,4 @@
+// ナイトメア・ペイン
 // Nightmare Pain
 // Transpiled from c65261141.lua
 
@@ -6,16 +7,16 @@ card "Nightmare Pain" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 131081
-        range: 8
+        effect_type: Ignition
+        category: Destroy + ToHand + Search
+        range: SpellTrapZone
         count_limit: (1, 65261141)
         on_resolve {
             destroy (1+, monster, you controls)
@@ -25,27 +26,27 @@ card "Nightmare Pain" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 191
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: must_attack_if_able duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 344
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: must_attack_if_able duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2
+        effect_type: Field
         code: 202
-        range: 8
+        range: SpellTrapZone
         on_resolve {
         }
     }

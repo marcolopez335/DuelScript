@@ -1,3 +1,4 @@
+// 黄血鬼
 // Yellow-Bellied Oni
 // Transpiled from c53090623.lua
 
@@ -11,19 +12,19 @@ card "Yellow-Bellied Oni" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
-        code: 1102
-        range: 2
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
+        range: Hand
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
+        effect_type: Ignition
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self

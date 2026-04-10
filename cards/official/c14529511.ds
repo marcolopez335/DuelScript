@@ -1,3 +1,4 @@
+// 冥骸王－メメントラン・テクトリカ
 // Mementomictlan Tecuhtlica - Creation King
 // Transpiled from c14529511.lua
 
@@ -20,9 +21,9 @@ card "Mementomictlan Tecuhtlica - Creation King" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 131080
-        range: 16
+        effect_type: Ignition
+        category: ToHand + Search
+        range: Graveyard
         count_limit: (1, 14529511)
         cost {
             banish self
@@ -34,9 +35,9 @@ card "Mementomictlan Tecuhtlica - Creation King" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 32
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -45,11 +46,11 @@ card "Mementomictlan Tecuhtlica - Creation King" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 1
-        code: 1002
+        effect_type: QuickEffect
+        category: Destroy
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)

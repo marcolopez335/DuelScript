@@ -1,3 +1,4 @@
+// ホールディング・レッグス
 // Holding Legs
 // Transpiled from c70124586.lua
 
@@ -11,9 +12,9 @@ card "Holding Legs" {
     def: 600
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 8
-        code: 1100
+        effect_type: Single + MandatoryTrigger
+        category: ToHand
+        code: SummonSuccess
         property: 16
         on_resolve {
             return (1+, spell, either_player controls) to hand
@@ -21,9 +22,9 @@ card "Holding Legs" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 8
-        code: 1101
+        effect_type: Single + MandatoryTrigger
+        category: ToHand
+        code: FlipSummonSuccess
         property: 16
         on_resolve {
             return (1+, spell, either_player controls) to hand
@@ -31,9 +32,9 @@ card "Holding Legs" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 8
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: ToHand
+        code: SpecialSummonSuccess
         property: 16
         on_resolve {
             return (1+, spell, either_player controls) to hand
@@ -41,9 +42,9 @@ card "Holding Legs" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
+        effect_type: Ignition
         property: 16
-        range: 16
+        range: Graveyard
         cost {
             banish self
         }

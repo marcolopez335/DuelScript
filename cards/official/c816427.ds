@@ -1,3 +1,4 @@
+// ネオフレムベル・レディ
 // Neo Flamvell Lady
 // Transpiled from c816427.lua
 
@@ -11,11 +12,11 @@ card "Neo Flamvell Lady" {
     def: 200
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 4
-        code: 1002
+        effect_type: QuickEffect
+        category: Banish
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 816427)
         cost {
             send self to gy
@@ -26,11 +27,11 @@ card "Neo Flamvell Lady" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 32
-        code: 1011
+        effect_type: Field + Trigger
+        category: ToGrave
+        code: TurnEnd
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, you controls, hand) to gy

@@ -1,3 +1,4 @@
+// 静寂のサイコガール+
 // Serene Psychic Girl
 // Transpiled from c9213491.lua
 
@@ -11,9 +12,9 @@ card "Serene Psychic Girl" {
     def: 300
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 516
-        code: 1100
+        effect_type: Single + Trigger
+        category: Banish + SpecialSummon
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 9213491)
         on_resolve {
@@ -27,9 +28,9 @@ card "Serene Psychic Girl" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 516
-        code: 1102
+        effect_type: Single + Trigger
+        category: Banish + SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 9213491)
         on_resolve {
@@ -43,10 +44,10 @@ card "Serene Psychic Girl" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 134217728
+        effect_type: Ignition
+        category: LevelChange
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {

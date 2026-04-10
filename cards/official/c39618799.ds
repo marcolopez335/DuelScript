@@ -1,3 +1,4 @@
+// サイバー・エンジェル－荼吉尼－
 // Cyber Angel Dakini
 // Transpiled from c39618799.lua
 
@@ -20,9 +21,9 @@ card "Cyber Angel Dakini" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 32
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             send (1+, monster, you controls) to gy
@@ -30,20 +31,20 @@ card "Cyber Angel Dakini" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 203
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 8
+        effect_type: Field + Trigger
+        category: ToHand
         code: 4608
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to hand

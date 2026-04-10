@@ -1,3 +1,4 @@
+// 光の天穿バハルティヤ
 // Bahalutiya, the Grand Radiance
 // Transpiled from c53318263.lua
 
@@ -15,11 +16,11 @@ card "Bahalutiya, the Grand Radiance" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 256
-        code: 1012
+        effect_type: Field + Trigger
+        category: Counter
+        code: ChainSolving
         property: 65536
-        range: 2
+        range: Hand
         on_resolve {
             normal_summon (1, monster, you controls)
             set (1, monster, you controls)
@@ -27,9 +28,9 @@ card "Bahalutiya, the Grand Radiance" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 28
-        code: 1100
+        effect_type: Single + Trigger
+        category: Banish + ToHand + ToDeck
+        code: SummonSuccess
         property: 67584
         count_limit: (1, 53318263)
         on_resolve {
@@ -40,9 +41,9 @@ card "Bahalutiya, the Grand Radiance" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 28
-        code: 1102
+        effect_type: Single + Trigger
+        category: Banish + ToHand + ToDeck
+        code: SpecialSummonSuccess
         property: 67584
         count_limit: (1, 53318263)
         on_resolve {
@@ -53,7 +54,7 @@ card "Bahalutiya, the Grand Radiance" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 20
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -61,7 +62,7 @@ card "Bahalutiya, the Grand Radiance" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 23
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }

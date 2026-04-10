@@ -1,3 +1,4 @@
+// 竜儀巧－メテオニス＝ＤＡＤ
 // Drytron Meteonis DA Draconids
 // Transpiled from c56863746.lua
 
@@ -20,20 +21,20 @@ card "Drytron Meteonis DA Draconids" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 41
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 268435457
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         count_limit: (2, 0)
         cost {
             banish self
@@ -45,9 +46,9 @@ card "Drytron Meteonis DA Draconids" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 65536
         on_resolve {
             special_summon (1, monster) from gy

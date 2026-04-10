@@ -1,3 +1,4 @@
+// ホワイトポータン
 // White Potan
 // Transpiled from c98024118.lua
 
@@ -11,7 +12,7 @@ card "White Potan" {
     def: 200
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -19,11 +20,11 @@ card "White Potan" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 524288
-        code: 1140
+        effect_type: Field + MandatoryTrigger
+        category: Damage
+        code: BattleDamage
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             deal_damage to opponent: 1000
         }

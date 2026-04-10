@@ -1,3 +1,4 @@
+// 破壊剣－ウィザードバスターブレード
 // Wizard Buster Destruction Sword
 // Transpiled from c2602411.lua
 
@@ -11,10 +12,10 @@ card "Wizard Buster Destruction Sword" {
     def: 900
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 262144
+        effect_type: Ignition
+        category: EquipAction
         property: 16
-        range: 6
+        range: Hand + MonsterZone
         on_resolve {
             send (1+, monster, either_player controls) to gy
             equip (1, card) to (1, monster)
@@ -22,20 +23,20 @@ card "Wizard Buster Destruction Sword" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 6
         property: 2048
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 8
+        effect_type: Ignition
+        category: ToHand
         property: 16
-        range: 8
+        range: SpellTrapZone
         cost {
             send self to gy
         }
@@ -45,7 +46,7 @@ card "Wizard Buster Destruction Sword" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         on_resolve {
         }

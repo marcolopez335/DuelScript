@@ -1,3 +1,4 @@
+// 森羅の仙樹 レギア
 // Sylvan Hermitree
 // Transpiled from c25824484.lua
 
@@ -15,9 +16,9 @@ card "Sylvan Hermitree" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 65600
-        range: 4
+        effect_type: Ignition
+        category: AtkChange + Draw
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             reveal (1, card, opponent controls, deck)
@@ -28,8 +29,8 @@ card "Sylvan Hermitree" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        code: ChainEnd
         on_resolve {
             send_to_deck (1+, card, you controls)
         }

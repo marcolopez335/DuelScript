@@ -1,3 +1,4 @@
+// アークジェット・ライトクラフター
 // Arcjet Lightcraft
 // Transpiled from c38173725.lua
 
@@ -15,7 +16,7 @@ card "Arcjet Lightcraft" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 32
         property: 262144
         on_resolve {
@@ -23,9 +24,9 @@ card "Arcjet Lightcraft" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
-        code: 1100
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SummonSuccess
         property: 81936
         count_limit: (1, 38173725)
         on_resolve {
@@ -46,9 +47,9 @@ card "Arcjet Lightcraft" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1102
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 81936
         count_limit: (1, 38173725)
         on_resolve {
@@ -69,10 +70,10 @@ card "Arcjet Lightcraft" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 67110912
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

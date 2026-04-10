@@ -1,3 +1,4 @@
+// 妖竜の禁姫
 // Filia Regis
 // Transpiled from c70538272.lua
 
@@ -20,11 +21,11 @@ card "Filia Regis" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 12
-        code: 1002
+        effect_type: QuickEffect
+        category: Banish + ToHand
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 70538272)
         on_resolve {
             banish (1+, monster, you controls)
@@ -33,10 +34,10 @@ card "Filia Regis" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 2147484168
+        effect_type: Field + Trigger
+        category: ToHand + SpecialSummon
         code: 4104
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to hand

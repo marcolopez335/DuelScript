@@ -1,3 +1,4 @@
+// ナチュルの神星樹
 // Naturia Sacred Tree
 // Transpiled from c3734202.lua
 
@@ -6,17 +7,17 @@ card "Naturia Sacred Tree" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 8
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: SpellTrapZone
         count_limit: (1, 3734202)
         cost {
             tribute self
@@ -27,10 +28,10 @@ card "Naturia Sacred Tree" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 8
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: SpellTrapZone
         count_limit: (1, 3734202)
         cost {
             tribute self
@@ -41,9 +42,9 @@ card "Naturia Sacred Tree" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 513
-        category: 131080
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: ToHand + Search
+        code: ChainEnd
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)

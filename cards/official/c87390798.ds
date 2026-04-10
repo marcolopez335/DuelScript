@@ -1,3 +1,4 @@
+// 魔界台本 「ファンタジー・マジック」
 // Abyss Script - Fantasy Magic
 // Transpiled from c87390798.lua
 
@@ -6,8 +7,8 @@ card "Abyss Script - Fantasy Magic" {
     type: Normal Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         property: 16
         on_resolve {
             register_effect on self {
@@ -18,9 +19,9 @@ card "Abyss Script - Fantasy Magic" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 16
-        code: 1029
+        effect_type: Single + Trigger
+        category: ToDeck
+        code: Destroyed
         property: 65552
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle

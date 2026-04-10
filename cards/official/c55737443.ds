@@ -1,3 +1,4 @@
+// 守護神エクゾード
 // Exxod, Master of The Guard
 // Transpiled from c55737443.lua
 
@@ -15,7 +16,7 @@ card "Exxod, Master of The Guard" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -23,21 +24,21 @@ card "Exxod, Master of The Guard" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 262144
-        range: 2
+        range: Hand
         on_resolve {
             tribute (1, monster, you controls)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 524288
-        code: 1101
+        effect_type: Field + MandatoryTrigger
+        category: Damage
+        code: FlipSummonSuccess
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             deal_damage to opponent: 1000
         }

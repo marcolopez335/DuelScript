@@ -1,3 +1,4 @@
+// ロイヤル・ストレート・スラッシャー
 // Royal Straight Slasher
 // Transpiled from c11020863.lua
 
@@ -15,7 +16,7 @@ card "Royal Straight Slasher" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -23,9 +24,9 @@ card "Royal Straight Slasher" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 33
-        range: 4
+        effect_type: Ignition
+        category: Destroy + ToGrave
+        range: MonsterZone
         count_limit: (1, 11020863)
         on_resolve {
             send (1+, monster, opponent controls) to gy
@@ -34,9 +35,9 @@ card "Royal Straight Slasher" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1140
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: BattleDamage
         property: 16
         count_limit: (1, 0)
         on_resolve {

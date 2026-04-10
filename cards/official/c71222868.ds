@@ -1,3 +1,4 @@
+// ＲＲ－ライジング・リベリオン・ファルコン
 // Raidraptor - Rising Rebellion Falcon
 // Transpiled from c71222868.lua
 
@@ -21,9 +22,9 @@ card "Raidraptor - Rising Rebellion Falcon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 524289
-        code: 1102
+        effect_type: Single + Trigger
+        category: Destroy + Damage
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -32,19 +33,19 @@ card "Raidraptor - Rising Rebellion Falcon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 1
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
+        effect_type: Ignition
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 3 overlay_unit from self

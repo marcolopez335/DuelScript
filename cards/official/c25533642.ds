@@ -1,3 +1,4 @@
+// オルターガイスト・メリュシーク
 // Altergeist Meluseek
 // Transpiled from c25533642.lua
 
@@ -11,7 +12,7 @@ card "Altergeist Meluseek" {
     def: 300
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 74
         on_resolve {
             register_effect on self { grant: direct_attack duration: until_end_of_turn }
@@ -19,8 +20,8 @@ card "Altergeist Meluseek" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 32
+        effect_type: Single + Trigger
+        category: ToGrave
         code: 1143
         property: 16
         on_resolve {
@@ -29,9 +30,9 @@ card "Altergeist Meluseek" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: ChainEnd
         property: 65536
         count_limit: (1, 25533642)
         on_resolve {

@@ -1,3 +1,4 @@
+// フォーチュン・ヴィジョン
 // Fortune Vision
 // Transpiled from c91407982.lua
 
@@ -6,9 +7,9 @@ card "Fortune Vision" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 131080
-        code: 1002
+        effect_type: Activate
+        category: ToHand + Search
+        code: FreeChain
         count_limit: (1, 91407982)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -17,10 +18,10 @@ card "Fortune Vision" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        code: 1011
+        effect_type: Field + Trigger
+        code: TurnEnd
         property: 65536
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             set_flag "tracked" on self
@@ -32,10 +33,10 @@ card "Fortune Vision" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        code: 1011
+        effect_type: Field + Trigger
+        code: TurnEnd
         property: 65536
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -46,7 +47,7 @@ card "Fortune Vision" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 41
         property: 256
         on_resolve {
@@ -55,7 +56,7 @@ card "Fortune Vision" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2
+        effect_type: Field
         code: 201
         property: 67110912
         on_resolve {

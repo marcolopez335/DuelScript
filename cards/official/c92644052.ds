@@ -1,3 +1,4 @@
+// ＥＭ稀代の決闘者
 // Performapal Duelist Extraordinaire
 // Transpiled from c92644052.lua
 
@@ -12,10 +13,10 @@ card "Performapal Duelist Extraordinaire" {
     def: 400
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 12
-        code: 1132
-        range: 512
+        effect_type: Field + Trigger
+        category: Banish + ToHand
+        code: DamageCalculation
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -32,8 +33,8 @@ card "Performapal Duelist Extraordinaire" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131080
+        effect_type: Single + Trigger
+        category: ToHand + Search
         code: 1143
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -42,10 +43,10 @@ card "Performapal Duelist Extraordinaire" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 4
+        effect_type: Field + MandatoryTrigger
+        category: Banish
         code: 4098
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, monster, you controls, deck)
@@ -53,10 +54,10 @@ card "Performapal Duelist Extraordinaire" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 514
-        category: 136
-        code: 1130
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        category: ToHand + DefChange
+        code: AttackAnnounce
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -66,7 +67,7 @@ card "Performapal Duelist Extraordinaire" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         property: 1024
         on_resolve {
@@ -75,7 +76,7 @@ card "Performapal Duelist Extraordinaire" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 2
+        effect_type: Field
         code: 208
         property: 2048
         on_resolve {

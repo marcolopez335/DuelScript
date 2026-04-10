@@ -1,3 +1,4 @@
+// ハネクリボー ＬＶ６
 // Winged Kuriboh LV6
 // Transpiled from c48486809.lua
 
@@ -15,7 +16,7 @@ card "Winged Kuriboh LV6" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -23,10 +24,10 @@ card "Winged Kuriboh LV6" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 263168
-        range: 18
+        range: Hand + Graveyard
         count_limit: (1, 48486809)
         on_resolve {
             banish (1+, monster, you controls, gy)
@@ -34,10 +35,10 @@ card "Winged Kuriboh LV6" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 524289
-        code: 1130
-        range: 4
+        effect_type: QuickEffect
+        category: Destroy + Damage
+        code: AttackAnnounce
+        range: MonsterZone
         cost {
             tribute self
         }
@@ -48,10 +49,10 @@ card "Winged Kuriboh LV6" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        category: 524289
-        code: 1027
-        range: 4
+        effect_type: QuickEffect
+        category: Destroy + Damage
+        code: Chaining
+        range: MonsterZone
         cost {
             tribute self
         }

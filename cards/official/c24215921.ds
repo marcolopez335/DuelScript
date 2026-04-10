@@ -1,3 +1,4 @@
+// ヘルグレイブ・スクワーマー
 // Gruesome Grave Squirmer
 // Transpiled from c24215921.lua
 
@@ -11,10 +12,10 @@ card "Gruesome Grave Squirmer" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 513
-        code: 1002
-        range: 2
+        effect_type: QuickEffect
+        category: Destroy + SpecialSummon
+        code: FreeChain
+        range: Hand
         count_limit: (1, 24215921)
         on_resolve {
             special_summon (1, monster) from gy
@@ -23,9 +24,9 @@ card "Gruesome Grave Squirmer" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 16
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self

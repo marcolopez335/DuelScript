@@ -1,3 +1,4 @@
+// 王女の試練
 // Trial of the Princesses
 // Transpiled from c72709014.lua
 
@@ -6,7 +7,7 @@ card "Trial of the Princesses" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 800
@@ -14,18 +15,18 @@ card "Trial of the Princesses" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1139
         property: 1024
-        range: 8
+        range: SpellTrapZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 512
-        range: 8
+        effect_type: Ignition
+        category: SpecialSummon
+        range: SpellTrapZone
         cost {
             tribute self
         }
@@ -35,9 +36,9 @@ card "Trial of the Princesses" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

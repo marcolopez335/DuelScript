@@ -1,3 +1,4 @@
+// ペンギン勇士
 // Penguin Squire
 // Transpiled from c14761450.lua
 
@@ -15,7 +16,7 @@ card "Penguin Squire" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 236
         property: 263168
         on_resolve {
@@ -23,11 +24,11 @@ card "Penguin Squire" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 134218240
+        effect_type: Field + Trigger
+        category: SpecialSummon + LevelChange
         code: 1016
         property: 65536
-        range: 2
+        range: Hand
         count_limit: (1, 14761450)
         on_resolve {
             special_summon (1, monster) from gy
@@ -35,11 +36,11 @@ card "Penguin Squire" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 134218240
+        effect_type: Field + Trigger
+        category: SpecialSummon + LevelChange
         code: 1106
         property: 65536
-        range: 2
+        range: Hand
         count_limit: (1, 14761450)
         on_resolve {
             special_summon (1, monster) from gy
@@ -47,11 +48,11 @@ card "Penguin Squire" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 134218240
-        code: 1102
+        effect_type: Field + Trigger
+        category: SpecialSummon + LevelChange
+        code: SpecialSummonSuccess
         property: 65536
-        range: 2
+        range: Hand
         count_limit: (1, 14761450)
         on_resolve {
             special_summon (1, monster) from gy
@@ -59,9 +60,9 @@ card "Penguin Squire" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 64
+        effect_type: Ignition
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)

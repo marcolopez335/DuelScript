@@ -1,3 +1,4 @@
+// アルカナ エクストラジョーカー
 // Arcana Extra Joker
 // Transpiled from c64454614.lua
 
@@ -20,11 +21,11 @@ card "Arcana Extra Joker" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 268435456
-        code: 1027
+        effect_type: QuickEffect
+        category: Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             negate activation
@@ -33,9 +34,9 @@ card "Arcana Extra Joker" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131592
-        code: 1140
+        effect_type: Single + Trigger
+        category: ToHand + SpecialSummon + Search
+        code: BattleDamage
         on_resolve {
             special_summon (1, monster) from gy
             reveal (1+, card, opponent controls)

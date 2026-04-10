@@ -1,3 +1,4 @@
+// 武神籬
 // Bujincandescence
 // Transpiled from c68045685.lua
 
@@ -6,27 +7,27 @@ card "Bujincandescence" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 41
         property: 128
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 16384
+        effect_type: Ignition
+        category: Disable
         property: 16
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         cost {
             send self to gy
@@ -48,11 +49,11 @@ card "Bujincandescence" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 4608
         property: 16
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         cost {
             send self to gy
@@ -63,7 +64,7 @@ card "Bujincandescence" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 2
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -71,7 +72,7 @@ card "Bujincandescence" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 1
+        effect_type: Single
         code: 8
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -79,7 +80,7 @@ card "Bujincandescence" {
     }
 
     raw_effect "Effect 7" {
-        effect_type: 1
+        effect_type: Single
         code: 10
         property: 1024
         on_resolve {

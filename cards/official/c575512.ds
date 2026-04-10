@@ -1,3 +1,4 @@
+// PSYフレーム・サーキット
 // PSY-Frame Circuit
 // Transpiled from c575512.lua
 
@@ -6,28 +7,28 @@ card "PSY-Frame Circuit" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1102
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
-        range: 256
+        range: FieldZone
         on_resolve {
             synchro_summon (1, synchro monster) using (1+, monster, you controls)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 2097152
-        code: 1132
-        range: 256
+        effect_type: Field + Trigger
+        category: SynchroSummon
+        code: DamageCalculation
+        range: FieldZone
         cost {
             send self to gy
         }

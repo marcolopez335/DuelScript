@@ -1,3 +1,4 @@
+// プリベント・スター
 // Prevention Star
 // Transpiled from c94303232.lua
 
@@ -6,9 +7,9 @@ card "Prevention Star" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         property: 16
         on_resolve {
             register_effect on self {
@@ -23,7 +24,7 @@ card "Prevention Star" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         property: 1024
         on_resolve {
@@ -31,8 +32,8 @@ card "Prevention Star" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 4
+        effect_type: Single + MandatoryTrigger
+        category: Banish
         code: 1015
         on_resolve {
             banish (1+, card, either_player controls)
@@ -40,7 +41,7 @@ card "Prevention Star" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1016
         on_resolve {
         }

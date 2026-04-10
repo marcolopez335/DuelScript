@@ -1,3 +1,4 @@
+// 終刻反転『Ａ．Ｄ．Ｒ．Ａ．Ｓ．Ｔ．Ｅ．Ｉ．Ａ．』
 // DoomZ Command 'A.D.R.A.S.T.E.I.A.'
 // Transpiled from c84054556.lua
 
@@ -12,7 +13,7 @@ card "DoomZ Command 'A.D.R.A.S.T.E.I.A.'" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 47
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
@@ -20,9 +21,9 @@ card "DoomZ Command 'A.D.R.A.S.T.E.I.A.'" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 513
-        range: 8
+        effect_type: Ignition
+        category: Destroy + SpecialSummon
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, you controls, gy)
@@ -31,10 +32,10 @@ card "DoomZ Command 'A.D.R.A.S.T.E.I.A.'" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 786432
+        effect_type: Ignition
+        category: EquipAction + Damage
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             equip (1, card) to (1, monster)
@@ -43,9 +44,9 @@ card "DoomZ Command 'A.D.R.A.S.T.E.I.A.'" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

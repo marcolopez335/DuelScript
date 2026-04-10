@@ -1,3 +1,4 @@
+// 竜星の気脈
 // Yang Zing Prana
 // Transpiled from c43577607.lua
 
@@ -6,16 +7,16 @@ card "Yang Zing Prana" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             modifier: atk + 500
         }
@@ -29,27 +30,27 @@ card "Yang Zing Prana" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 23
         property: 2048
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2
+        effect_type: Field
         code: 140
-        range: 8
+        range: SpellTrapZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 6" {
-        effect_type: 64
-        category: 1
-        range: 8
+        effect_type: Ignition
+        category: Destroy
+        range: SpellTrapZone
         cost {
             send self to gy
         }

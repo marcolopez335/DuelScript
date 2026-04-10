@@ -1,3 +1,4 @@
+// 妖精伝姫－シラユキ
 // Fairy Tail - Snow
 // Transpiled from c55623480.lua
 
@@ -11,9 +12,9 @@ card "Fairy Tail - Snow" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 4096
-        code: 1100
+        effect_type: Single + Trigger
+        category: DiceRoll
+        code: SummonSuccess
         property: 65552
         on_resolve {
             change_battle_position (1, monster)
@@ -21,9 +22,9 @@ card "Fairy Tail - Snow" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 4096
-        code: 1102
+        effect_type: Single + Trigger
+        category: DiceRoll
+        code: SpecialSummonSuccess
         property: 65552
         on_resolve {
             change_battle_position (1, monster)
@@ -31,10 +32,10 @@ card "Fairy Tail - Snow" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 16
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: Graveyard
         cost {
             banish self
         }

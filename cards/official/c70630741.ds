@@ -1,3 +1,4 @@
+// レスキュー・ウォリアー
 // Rescue Warrior
 // Transpiled from c70630741.lua
 
@@ -11,7 +12,7 @@ card "Rescue Warrior" {
     def: 1700
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 201
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -19,9 +20,9 @@ card "Rescue Warrior" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 8192
-        code: 1140
+        effect_type: Single + MandatoryTrigger
+        category: Summon
+        code: BattleDamage
         property: 16
         on_resolve {
             take_control of (1, monster, opponent controls)

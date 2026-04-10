@@ -1,3 +1,4 @@
+// 真刀竹光
 // Original Bamboo Sword
 // Transpiled from c33578406.lua
 
@@ -6,7 +7,7 @@ card "Original Bamboo Sword" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 0
@@ -14,19 +15,19 @@ card "Original Bamboo Sword" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 1
+        effect_type: Field + Trigger
+        category: Destroy
         code: 1143
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             destroy (1+, monster, either_player controls)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 262144
-        range: 8
+        effect_type: Ignition
+        category: EquipAction
+        range: SpellTrapZone
         cost {
             send self to gy
         }
@@ -36,9 +37,9 @@ card "Original Bamboo Sword" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

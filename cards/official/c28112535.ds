@@ -1,3 +1,4 @@
+// トゥーン・リボルバー・ドラゴン
 // Toon Barrel Dragon
 // Transpiled from c28112535.lua
 
@@ -15,8 +16,8 @@ card "Toon Barrel Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2049
-        code: 1100
+        effect_type: Single + Continuous
+        code: SummonSuccess
         property: 1024
         on_resolve {
             register_effect on self {
@@ -27,8 +28,8 @@ card "Toon Barrel Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
-        code: 1101
+        effect_type: Single + Continuous
+        code: FlipSummonSuccess
         property: 1024
         on_resolve {
             register_effect on self {
@@ -39,8 +40,8 @@ card "Toon Barrel Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
-        code: 1102
+        effect_type: Single + Continuous
+        code: SpecialSummonSuccess
         property: 1024
         on_resolve {
             register_effect on self {
@@ -51,7 +52,7 @@ card "Toon Barrel Dragon" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 74
         on_resolve {
             register_effect on self { grant: direct_attack duration: until_end_of_turn }
@@ -59,10 +60,10 @@ card "Toon Barrel Dragon" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 64
-        category: 16777217
+        effect_type: Ignition
+        category: Destroy + RitualSummon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, you controls)

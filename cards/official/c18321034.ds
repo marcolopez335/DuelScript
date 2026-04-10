@@ -1,3 +1,4 @@
+// 見えざる手マキブエル
 // Hecahands Makibel
 // Transpiled from c18321034.lua
 
@@ -12,18 +13,18 @@ card "Hecahands Makibel" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 42
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 1073742336
-        range: 2
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand
         count_limit: (1, 0)
         cost {
             reveal self
@@ -33,10 +34,10 @@ card "Hecahands Makibel" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 8
-        code: 1014
-        range: 16
+        effect_type: Field + Trigger
+        category: ToHand
+        code: ChainEnd
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy

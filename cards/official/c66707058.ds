@@ -1,3 +1,4 @@
+// ゴブリン暗殺部隊
 // Goblin Black Ops
 // Transpiled from c66707058.lua
 
@@ -11,9 +12,9 @@ card "Goblin Black Ops" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 4224
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)
@@ -21,7 +22,7 @@ card "Goblin Black Ops" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 74
         on_resolve {
             register_effect on self { grant: direct_attack duration: until_end_of_turn }

@@ -1,3 +1,4 @@
+// Ｋ９－６６ｂ号 ランタン
 // K9-66b Lantern
 // Transpiled from c55031170.lua
 
@@ -15,7 +16,7 @@ card "K9-66b Lantern" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 32
         property: 262144
         on_resolve {
@@ -23,10 +24,10 @@ card "K9-66b Lantern" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
+        effect_type: Ignition
+        category: SpecialSummon
         property: 16
-        range: 2
+        range: Hand
         count_limit: (1, 55031170)
         on_resolve {
             special_summon (1, monster) from gy
@@ -38,9 +39,9 @@ card "K9-66b Lantern" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 131080
-        range: 4
+        effect_type: Ignition
+        category: ToHand + Search
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck

@@ -1,3 +1,4 @@
+// 白き森の幻妖
 // Poplar of the White Forest
 // Transpiled from c5800323.lua
 
@@ -21,8 +22,8 @@ card "Poplar of the White Forest" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        code: 1102
+        effect_type: Single + Trigger
+        code: SpecialSummonSuccess
         property: 65552
         count_limit: (1, 5800323)
         on_resolve {
@@ -35,10 +36,10 @@ card "Poplar of the White Forest" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 4
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             synchro_summon (1, synchro monster) using (1+, monster, you controls)
@@ -46,7 +47,7 @@ card "Poplar of the White Forest" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 117
         property: 1024
         on_resolve {

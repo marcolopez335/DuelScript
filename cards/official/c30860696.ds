@@ -1,3 +1,4 @@
+// ロケット戦士
 // Rocket Warrior
 // Transpiled from c30860696.lua
 
@@ -11,7 +12,7 @@ card "Rocket Warrior" {
     def: 1300
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -19,7 +20,7 @@ card "Rocket Warrior" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 201
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -27,8 +28,8 @@ card "Rocket Warrior" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 2097152
+        effect_type: Single + MandatoryTrigger
+        category: SynchroSummon
         code: 1138
         on_resolve {
             register_effect on self {

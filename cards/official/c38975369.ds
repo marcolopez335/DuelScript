@@ -1,3 +1,4 @@
+// 軍荼利
 // Gundari
 // Transpiled from c38975369.lua
 
@@ -11,7 +12,7 @@ card "Gundari" {
     def: 200
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -19,9 +20,9 @@ card "Gundari" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 8
-        code: 1132
+        effect_type: Single + MandatoryTrigger
+        category: ToHand
+        code: DamageCalculation
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }

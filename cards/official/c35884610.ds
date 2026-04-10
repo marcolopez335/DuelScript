@@ -1,3 +1,4 @@
+// Ｕ．Ａ．パワードギプス
 // U.A. Powered Jersey
 // Transpiled from c35884610.lua
 
@@ -6,7 +7,7 @@ card "U.A. Powered Jersey" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 1000
@@ -14,7 +15,7 @@ card "U.A. Powered Jersey" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 4
+        effect_type: Equip
         code: 104
         on_resolve {
             modifier: def + 1000
@@ -22,7 +23,7 @@ card "U.A. Powered Jersey" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 4
+        effect_type: Equip
         code: 208
         property: 128
         on_resolve {
@@ -30,9 +31,9 @@ card "U.A. Powered Jersey" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        code: 1140
-        range: 8
+        effect_type: Field + Trigger
+        code: BattleDamage
+        range: SpellTrapZone
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -42,10 +43,10 @@ card "U.A. Powered Jersey" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 514
-        category: 4
+        effect_type: Field + MandatoryTrigger
+        category: Banish
         code: 4098
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, card, either_player controls)
@@ -53,9 +54,9 @@ card "U.A. Powered Jersey" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 129
-        category: 8
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand
+        code: ChainEnd
         property: 65536
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
@@ -63,7 +64,7 @@ card "U.A. Powered Jersey" {
     }
 
     raw_effect "Effect 7" {
-        effect_type: 1
+        effect_type: Single
         code: 194
         property: 1024
         on_resolve {
@@ -71,9 +72,9 @@ card "U.A. Powered Jersey" {
     }
 
     raw_effect "Effect 8" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

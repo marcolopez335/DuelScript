@@ -1,3 +1,4 @@
+// オルターガイスト・マリオネッター
 // Altergeist Marionetter
 // Transpiled from c53143898.lua
 
@@ -11,18 +12,18 @@ card "Altergeist Marionetter" {
     def: 1700
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        code: 1100
+        effect_type: Single + Trigger
+        code: SummonSuccess
         on_resolve {
             set (1, card)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 544
+        effect_type: Ignition
+        category: ToGrave + SpecialSummon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 53143898)
         on_resolve {
             send (1+, trap, you controls, deck) to gy

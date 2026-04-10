@@ -1,3 +1,4 @@
+// フリント
 // Flint
 // Transpiled from c75560629.lua
 
@@ -6,7 +7,7 @@ card "Flint" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk - 300
@@ -14,7 +15,7 @@ card "Flint" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 4
+        effect_type: Equip
         code: 86
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -22,7 +23,7 @@ card "Flint" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 4
+        effect_type: Equip
         code: 14
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }
@@ -30,8 +31,8 @@ card "Flint" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 513
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        code: ChainEnd
         property: 16
         on_resolve {
             equip (1, card) to (1, monster)
@@ -39,8 +40,8 @@ card "Flint" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 513
-        code: 1011
+        effect_type: Single + MandatoryTrigger
+        code: TurnEnd
         property: 16
         on_resolve {
             equip (1, card) to (1, monster)
@@ -48,9 +49,9 @@ card "Flint" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

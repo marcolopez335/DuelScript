@@ -1,3 +1,4 @@
+// E HERO コズモ・ネオス
 // Elemental HERO Cosmo Neos
 // Transpiled from c90050480.lua
 
@@ -20,8 +21,8 @@ card "Elemental HERO Cosmo Neos" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        code: 1102
+        effect_type: Single + Trigger
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             register_effect on self {
@@ -32,20 +33,20 @@ card "Elemental HERO Cosmo Neos" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 16
+        effect_type: Field + MandatoryTrigger
+        category: ToDeck
         code: 4608
-        range: 4
+        range: MonsterZone
         on_resolve {
             return self to deck shuffle
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 16
+        effect_type: Field + Trigger
+        category: ToDeck
         code: 4608
-        range: 4
+        range: MonsterZone
         on_resolve {
             return self to deck shuffle
         }

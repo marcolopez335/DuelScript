@@ -1,3 +1,4 @@
+// カオス・ビースト－混沌の魔獣
 // Chaos Beast
 // Transpiled from c49565413.lua
 
@@ -21,20 +22,20 @@ card "Chaos Beast" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 1000
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 8
+        effect_type: Ignition
+        category: ToHand
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 49565413)
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
@@ -42,9 +43,9 @@ card "Chaos Beast" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 512
-        range: 16
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self
@@ -55,8 +56,8 @@ card "Chaos Beast" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2050
-        code: 1011
+        effect_type: Field + Continuous
+        code: TurnEnd
         on_resolve {
             set_flag "tracked" on self
         }

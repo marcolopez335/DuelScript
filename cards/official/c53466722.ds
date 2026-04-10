@@ -1,3 +1,4 @@
+// 始祖の竜王
 // First of the Dragonlords
 // Transpiled from c53466722.lua
 
@@ -20,7 +21,7 @@ card "First of the Dragonlords" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -28,21 +29,21 @@ card "First of the Dragonlords" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 1
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 1
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy
+        code: Chaining
         property: 4194304
-        range: 4
+        range: MonsterZone
         count_limit: (1, 53466722)
         on_resolve {
             destroy (1+, spell, either_player controls)

@@ -1,3 +1,4 @@
+// 白き森のリゼット
 // Elzette of the White Forest
 // Transpiled from c61980241.lua
 
@@ -11,9 +12,9 @@ card "Elzette of the White Forest" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 131592
-        range: 2
+        effect_type: Ignition
+        category: ToHand + SpecialSummon + Search
+        range: Hand
         count_limit: (1, 61980241)
         cost {
             send self to gy
@@ -26,10 +27,10 @@ card "Elzette of the White Forest" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 8
-        code: 1102
-        range: 16
+        effect_type: Field + Trigger
+        category: ToHand
+        code: SpecialSummonSuccess
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand

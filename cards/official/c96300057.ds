@@ -1,3 +1,4 @@
+// W－ウィング・カタパルト
 // W-Wing Catapult
 // Transpiled from c96300057.lua
 
@@ -11,7 +12,7 @@ card "W-Wing Catapult" {
     def: 1500
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 400
@@ -19,7 +20,7 @@ card "W-Wing Catapult" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 4
+        effect_type: Equip
         code: 104
         on_resolve {
             modifier: def + 400
@@ -27,31 +28,31 @@ card "W-Wing Catapult" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        range: 4
+        effect_type: Ignition
+        range: MonsterZone
         on_resolve {
             equip self to (1, monster, you controls)
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 64
-        range: 8
+        effect_type: Ignition
+        range: SpellTrapZone
         on_resolve {
             special_summon self from spell_trap_zone
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 76
         on_resolve {
         }
     }
 
     raw_effect "Effect 6" {
-        effect_type: 2049
-        code: 1029
+        effect_type: Single + Continuous
+        code: Destroyed
         on_resolve {
         }
     }

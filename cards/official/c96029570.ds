@@ -1,3 +1,4 @@
+// 漆黒の太陽
 // Ebon Sun
 // Transpiled from c96029570.lua
 
@@ -6,18 +7,18 @@ card "Ebon Sun" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 1048576
+        effect_type: Single + Trigger
+        category: Recover
         code: 364465026
         property: 65536
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 96029570)
         on_resolve {
             gain_lp: 1000
@@ -25,21 +26,21 @@ card "Ebon Sun" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
-        code: 1029
+        effect_type: Field + Continuous
+        code: Destroyed
         property: 1024
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             emit_event "custom"
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 129
-        category: 2097152
+        effect_type: Single + Trigger
+        category: SynchroSummon
         code: 364465027
         property: 65552
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -50,21 +51,21 @@ card "Ebon Sun" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2050
-        code: 1102
+        effect_type: Field + Continuous
+        code: SpecialSummonSuccess
         property: 1024
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             emit_event "custom"
         }
     }
 
     raw_effect "Effect 6" {
-        effect_type: 129
-        category: 8
+        effect_type: Single + Trigger
+        category: ToHand
         code: 364465026
         property: 65552
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, spell, either_player controls) from gy
@@ -72,10 +73,10 @@ card "Ebon Sun" {
     }
 
     raw_effect "Effect 7" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1018
         property: 1024
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             emit_event "custom"
         }

@@ -1,3 +1,4 @@
+// 死の宣告
 // Sentence of Doom
 // Transpiled from c40771118.lua
 
@@ -6,18 +7,18 @@ card "Sentence of Doom" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 8
-        code: 1002
+        effect_type: QuickEffect
+        category: ToHand
+        code: FreeChain
         property: 16
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 40771118)
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
@@ -25,9 +26,9 @@ card "Sentence of Doom" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        code: 1002
-        range: 8
+        effect_type: QuickEffect
+        code: FreeChain
+        range: SpellTrapZone
         count_limit: (1, 40771118)
         cost {
             send self to gy

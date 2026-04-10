@@ -1,3 +1,4 @@
+// ダイガスタ・ラプラムピリカ
 // Daigusto Laplampilica
 // Transpiled from c76937326.lua
 
@@ -21,9 +22,9 @@ card "Daigusto Laplampilica" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 512
-        code: 1102
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             register_effect on self {
@@ -44,10 +45,10 @@ card "Daigusto Laplampilica" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 71
         property: 128
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }

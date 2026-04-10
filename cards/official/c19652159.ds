@@ -1,3 +1,4 @@
+// 光と闇の竜王
 // Light and Darkness Dragonlord
 // Transpiled from c19652159.lua
 
@@ -20,20 +21,20 @@ card "Light and Darkness Dragonlord" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 125
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1024
-        category: 274726912
-        code: 1027
+        effect_type: MandatoryQuick
+        category: SynchroSummon + XyzSummon + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             negate activation
@@ -41,9 +42,9 @@ card "Light and Darkness Dragonlord" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 65552
         on_resolve {
             special_summon (1, monster) from gy
@@ -51,7 +52,7 @@ card "Light and Darkness Dragonlord" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 8192
         on_resolve {
@@ -60,7 +61,7 @@ card "Light and Darkness Dragonlord" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 1
+        effect_type: Single
         code: 104
         property: 8192
         on_resolve {

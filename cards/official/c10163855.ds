@@ -1,3 +1,4 @@
+// シェル・ナイト
 // Shell Knight
 // Transpiled from c10163855.lua
 
@@ -11,9 +12,9 @@ card "Shell Knight" {
     def: 2000
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 528384
-        code: 1100
+        effect_type: Single + Trigger
+        category: DiceRoll + Damage
+        code: SummonSuccess
         on_resolve {
             change_battle_position (1, monster)
             deal_damage to opponent: 500
@@ -21,9 +22,9 @@ card "Shell Knight" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131592
-        code: 1140
+        effect_type: Single + Trigger
+        category: ToHand + SpecialSummon + Search
+        code: BattleDamage
         property: 65536
         count_limit: (1, 10163855)
         on_resolve {
@@ -37,9 +38,9 @@ card "Shell Knight" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131592
-        code: 1014
+        effect_type: Single + Trigger
+        category: ToHand + SpecialSummon + Search
+        code: ChainEnd
         property: 65536
         count_limit: (1, 10163855)
         on_resolve {
@@ -53,7 +54,7 @@ card "Shell Knight" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 6
         property: 2048
         on_resolve {

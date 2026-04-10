@@ -1,3 +1,4 @@
+// スクラップ・サーチャー
 // Scrap Searcher
 // Transpiled from c92901944.lua
 
@@ -11,19 +12,19 @@ card "Scrap Searcher" {
     def: 300
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
-        code: 1014
-        range: 16
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: ChainEnd
+        range: Graveyard
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 1
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: Destroy
+        code: SpecialSummonSuccess
         on_resolve {
             destroy (1+, monster, you controls)
         }

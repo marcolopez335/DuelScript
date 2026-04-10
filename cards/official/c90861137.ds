@@ -1,3 +1,4 @@
+// 『焔聖剣－ジョワユーズ』
 // 'Infernoble Arms - Joyeuse'
 // Transpiled from c90861137.lua
 
@@ -6,10 +7,10 @@ card "'Infernoble Arms - Joyeuse'" {
     type: Equip Spell
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 9
+        effect_type: Ignition
+        category: Destroy + ToHand
         property: 16
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 90861137)
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
@@ -19,9 +20,9 @@ card "'Infernoble Arms - Joyeuse'" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
-        code: 1014
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 81920
         count_limit: (1, 90861137)
         on_resolve {
@@ -30,9 +31,9 @@ card "'Infernoble Arms - Joyeuse'" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

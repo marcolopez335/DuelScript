@@ -1,3 +1,4 @@
+// 転生炎獣の聖域
 // Salamangreat Sanctuary
 // Transpiled from c1295111.lua
 
@@ -6,25 +7,25 @@ card "Salamangreat Sanctuary" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 8194
-        range: 256
+        effect_type: Field + Grant
+        range: FieldZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 3145728
+        effect_type: Field + Trigger
+        category: Recover + SynchroSummon
         code: 1134
         property: 16
-        range: 256
+        range: FieldZone
         count_limit: (1, 1295111)
         cost {
             pay_lp 1000
@@ -39,7 +40,7 @@ card "Salamangreat Sanctuary" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 102
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

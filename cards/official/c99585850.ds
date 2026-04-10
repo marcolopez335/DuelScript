@@ -1,3 +1,4 @@
+// スカーレッド・スーパーノヴァ・ドラゴン
 // Red Supernova Dragon
 // Transpiled from c99585850.lua
 
@@ -21,39 +22,39 @@ card "Red Supernova Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 394240
-        range: 64
+        range: Deck
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 100
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 258
-        category: 4
-        code: 1130
-        range: 4
+        effect_type: Field + QuickEffect
+        category: Banish
+        code: AttackAnnounce
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, card, opponent controls)
@@ -61,10 +62,10 @@ card "Red Supernova Dragon" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 258
-        category: 4
-        code: 1027
-        range: 4
+        effect_type: Field + QuickEffect
+        category: Banish
+        code: Chaining
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, card, opponent controls)
@@ -72,10 +73,10 @@ card "Red Supernova Dragon" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 514
-        category: 512
+        effect_type: Field + MandatoryTrigger
+        category: SpecialSummon
         code: 4608
-        range: 32
+        range: Banished
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -83,7 +84,7 @@ card "Red Supernova Dragon" {
     }
 
     raw_effect "Effect 7" {
-        effect_type: 1
+        effect_type: Single
         code: 21142671
         property: 263168
         on_resolve {

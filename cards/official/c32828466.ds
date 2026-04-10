@@ -1,3 +1,4 @@
+// Ｗａｋｅ Ｕｐ Ｙｏｕｒ Ｅ・ＨＥＲＯ
 // Wake Up Your Elemental HERO
 // Transpiled from c32828466.lua
 
@@ -20,7 +21,7 @@ card "Wake Up Your Elemental HERO" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -28,15 +29,15 @@ card "Wake Up Your Elemental HERO" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 251
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 524289
+        effect_type: Single + MandatoryTrigger
+        category: Destroy + Damage
         code: 1138
         on_resolve {
             destroy (1+, card, opponent controls, hand)
@@ -45,9 +46,9 @@ card "Wake Up Your Elemental HERO" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 513
-        category: 512
-        code: 1029
+        effect_type: Single + MandatoryTrigger
+        category: SpecialSummon
+        code: Destroyed
         on_resolve {
             special_summon (1, monster) from gy
         }

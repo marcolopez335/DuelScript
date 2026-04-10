@@ -1,3 +1,4 @@
+// 魔導獣 マスターケルベロス
 // Mythical Beast Master Cerberus
 // Transpiled from c53842431.lua
 
@@ -16,9 +17,9 @@ card "Mythical Beast Master Cerberus" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 131081
-        range: 512
+        effect_type: Ignition
+        category: Destroy + ToHand + Search
+        range: PendulumZone
         count_limit: (1, 53842431)
         on_resolve {
             destroy (1+, card, you controls, deck)
@@ -28,38 +29,38 @@ card "Mythical Beast Master Cerberus" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
-        code: 1027
+        effect_type: Field + Continuous
+        code: Chaining
         property: 1024
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1020
         property: 65536
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 64
-        category: 2097156
+        effect_type: Ignition
+        category: Banish + SynchroSummon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, card, you controls, deck)

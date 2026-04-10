@@ -1,3 +1,4 @@
+// 恐楽園の死配人 ＜Ａｒｌｅｃｈｉｎｏ＞
 // Amazement Abomination Arlekino
 // Transpiled from c31600845.lua
 
@@ -15,9 +16,9 @@ card "Amazement Abomination Arlekino" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 131592
-        range: 2
+        effect_type: Ignition
+        category: ToHand + SpecialSummon + Search
+        range: Hand
         count_limit: (1, 31600845)
         on_resolve {
             special_summon (1, monster) from gy
@@ -27,11 +28,11 @@ card "Amazement Abomination Arlekino" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 2097680
-        code: 1002
+        effect_type: QuickEffect
+        category: ToDeck + SpecialSummon + SynchroSummon
+        code: FreeChain
         property: 16400
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, card, you controls) to deck shuffle
@@ -44,7 +45,7 @@ card "Amazement Abomination Arlekino" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 102
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

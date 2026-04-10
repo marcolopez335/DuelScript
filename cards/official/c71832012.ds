@@ -1,3 +1,4 @@
+// 六世壊＝パライゾス
 // Pressured Planet Wraitsoth
 // Transpiled from c71832012.lua
 
@@ -6,9 +7,9 @@ card "Pressured Planet Wraitsoth" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 131080
-        code: 1002
+        effect_type: Activate
+        category: ToHand + Search
+        code: FreeChain
         count_limit: (1, 71832012)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -17,29 +18,29 @@ card "Pressured Planet Wraitsoth" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 256
+        range: FieldZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 104
-        range: 256
+        range: FieldZone
         on_resolve {
             modifier: def + 0
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 1
-        code: 1027
+        effect_type: Field + Trigger
+        category: Destroy
+        code: Chaining
         property: 65552
-        range: 256
+        range: FieldZone
         count_limit: (1, 71832012)
         on_resolve {
             destroy (1+, monster, you controls, deck)

@@ -1,3 +1,4 @@
+// 極星霊ドヴェルグ
 // Dverg of the Nordic Alfar
 // Transpiled from c13455953.lua
 
@@ -11,8 +12,8 @@ card "Dverg of the Nordic Alfar" {
     def: 1000
 
     raw_effect "Effect 1" {
-        effect_type: 2049
-        code: 1100
+        effect_type: Single + Continuous
+        code: SummonSuccess
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -23,9 +24,9 @@ card "Dverg of the Nordic Alfar" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 8
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: ToHand
+        code: ChainEnd
         property: 16
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy

@@ -1,3 +1,4 @@
+// 絢嵐豪火フォニクス
 // Radiant Typhoon Fonix, the Great Flame
 // Transpiled from c85315450.lua
 
@@ -15,11 +16,11 @@ card "Radiant Typhoon Fonix, the Great Flame" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
-        code: 1027
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: Chaining
         property: 65536
-        range: 2
+        range: Hand
         count_limit: (1, 85315450)
         on_resolve {
             special_summon (1, monster) from gy
@@ -27,11 +28,11 @@ card "Radiant Typhoon Fonix, the Great Flame" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 16
-        code: 1027
+        effect_type: Field + Trigger
+        category: ToDeck
+        code: Chaining
         property: 65552
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
@@ -39,10 +40,10 @@ card "Radiant Typhoon Fonix, the Great Flame" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 512
-        code: 1027
-        range: 16
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: Chaining
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

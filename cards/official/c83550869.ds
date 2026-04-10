@@ -1,3 +1,4 @@
+// トワイライトロード・ファイター ライコウ
 // Ryko, Twilightsworn Fighter
 // Transpiled from c83550869.lua
 
@@ -11,9 +12,9 @@ card "Ryko, Twilightsworn Fighter" {
     def: 100
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 4
-        code: 1100
+        effect_type: Single + Trigger
+        category: Banish
+        code: SummonSuccess
         property: 81920
         cost {
             banish self
@@ -24,8 +25,8 @@ card "Ryko, Twilightsworn Fighter" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 4
+        effect_type: Single + Trigger
+        category: Banish
         code: 1001
         property: 81920
         cost {
@@ -37,10 +38,10 @@ card "Ryko, Twilightsworn Fighter" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 514
-        category: 64
-        code: 1027
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        category: AtkChange
+        code: Chaining
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             mill 3

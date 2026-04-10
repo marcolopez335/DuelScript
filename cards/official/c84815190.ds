@@ -1,3 +1,4 @@
+// フルール・ド・バロネス
 // Baronne de Fleur
 // Transpiled from c84815190.lua
 
@@ -21,10 +22,10 @@ card "Baronne de Fleur" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 1
+        effect_type: Ignition
+        category: Destroy
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -32,11 +33,11 @@ card "Baronne de Fleur" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 268435457
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy + Negate
+        code: Chaining
         property: 4243456
-        range: 4
+        range: MonsterZone
         count_limit: (1, 84815190)
         on_resolve {
             negate activation
@@ -45,11 +46,11 @@ card "Baronne de Fleur" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 2147484160
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 4098
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle

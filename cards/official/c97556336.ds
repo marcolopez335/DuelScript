@@ -1,3 +1,4 @@
+// 無垢なる者 メディウス
 // Medius the Pure
 // Transpiled from c97556336.lua
 
@@ -11,9 +12,9 @@ card "Medius the Pure" {
     def: 1800
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131592
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + SpecialSummon + Search
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 97556336)
         on_resolve {
@@ -23,9 +24,9 @@ card "Medius the Pure" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 131592
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + SpecialSummon + Search
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 97556336)
         on_resolve {
@@ -35,9 +36,9 @@ card "Medius the Pure" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 528
-        range: 16
+        effect_type: Ignition
+        category: ToDeck + SpecialSummon
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             reveal (1+, card, opponent controls)

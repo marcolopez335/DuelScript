@@ -1,3 +1,4 @@
+// 煉獄の消華
 // Void Vanishment
 // Transpiled from c78748366.lua
 
@@ -6,16 +7,16 @@ card "Void Vanishment" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 131080
-        range: 8
+        effect_type: Ignition
+        category: ToHand + Search
+        range: SpellTrapZone
         count_limit: (1, 78748366)
         on_resolve {
             add_to_hand (1+, spell, you controls) from hand
@@ -32,10 +33,10 @@ card "Void Vanishment" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 4
+        effect_type: Field + Trigger
+        category: Banish
         code: 1138
-        range: 8
+        range: SpellTrapZone
         cost {
             send self to gy
         }

@@ -1,3 +1,4 @@
+// 燃えさかる大地
 // Burning Land
 // Transpiled from c24294108.lua
 
@@ -6,20 +7,20 @@ card "Burning Land" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 1
-        code: 1002
+        effect_type: Activate
+        category: Destroy
+        code: FreeChain
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 524288
+        effect_type: Field + MandatoryTrigger
+        category: Damage
         code: 4098
         property: 2048
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             deal_damage to opponent: 1000

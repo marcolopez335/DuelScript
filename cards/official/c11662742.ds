@@ -1,3 +1,4 @@
+// ジェルエンデュオ
 // Gellenduo
 // Transpiled from c11662742.lua
 
@@ -11,7 +12,7 @@ card "Gellenduo" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -19,10 +20,10 @@ card "Gellenduo" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 1
+        effect_type: Field + MandatoryTrigger
+        category: Destroy
         code: 1111
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -30,7 +31,7 @@ card "Gellenduo" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 150
         on_resolve {
         }

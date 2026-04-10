@@ -1,3 +1,4 @@
+// ノクトビジョン・ドラゴン
 // Noctovision Dragon
 // Transpiled from c70333910.lua
 
@@ -15,10 +16,10 @@ card "Noctovision Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 16384
-        code: 1027
-        range: 16
+        effect_type: QuickEffect
+        category: Disable
+        code: Chaining
+        range: Graveyard
         cost {
             banish self
         }
@@ -32,8 +33,8 @@ card "Noctovision Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 65536
+        effect_type: Single + Trigger
+        category: Draw
         code: 1108
         property: 67584
         count_limit: (1, 70333910)
@@ -43,11 +44,11 @@ card "Noctovision Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 512
-        code: 1102
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
-        range: 2
+        range: Hand
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

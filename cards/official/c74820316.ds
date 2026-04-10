@@ -1,3 +1,4 @@
+// 宵星の騎士エンリルギルス
 // Enlilgirsu, the Orcust Mekk-Knight
 // Transpiled from c74820316.lua
 
@@ -20,10 +21,10 @@ card "Enlilgirsu, the Orcust Mekk-Knight" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 8216
+        effect_type: Ignition
+        category: ToHand + ToDeck + Summon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 74820316)
         on_resolve {
             return (1+, card, either_player controls) to hand
@@ -34,11 +35,11 @@ card "Enlilgirsu, the Orcust Mekk-Knight" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 8216
-        code: 1002
+        effect_type: QuickEffect
+        category: ToHand + ToDeck + Summon
+        code: FreeChain
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 74820316)
         on_resolve {
             return (1+, card, either_player controls) to hand
@@ -49,9 +50,9 @@ card "Enlilgirsu, the Orcust Mekk-Knight" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 32
-        range: 16
+        effect_type: Ignition
+        category: ToGrave
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self
@@ -62,10 +63,10 @@ card "Enlilgirsu, the Orcust Mekk-Knight" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        category: 32
-        code: 1002
-        range: 16
+        effect_type: QuickEffect
+        category: ToGrave
+        code: FreeChain
+        range: Graveyard
         count_limit: (1, 0)
         cost {
             banish self

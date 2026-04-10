@@ -1,3 +1,4 @@
+// ネフティスの語り手
 // Chronicler of Nephthys
 // Transpiled from c25397880.lua
 
@@ -11,10 +12,10 @@ card "Chronicler of Nephthys" {
     def: 1200
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 9
+        effect_type: Ignition
+        category: Destroy + ToHand
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 25397880)
         on_resolve {
             destroy (1+, card, you controls, hand)
@@ -23,18 +24,18 @@ card "Chronicler of Nephthys" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
-        code: 1014
+        effect_type: Single + Continuous
+        code: ChainEnd
         property: 1024
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 8
+        effect_type: Field + Trigger
+        category: ToHand
         code: 4098
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from hand

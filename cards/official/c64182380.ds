@@ -1,3 +1,4 @@
+// 炎王神 ガルドニクス・エタニティ
 // Garunix Eternity, Hyang of the Fire Kings
 // Transpiled from c64182380.lua
 
@@ -21,9 +22,9 @@ card "Garunix Eternity, Hyang of the Fire Kings" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 1
-        code: 1102
+        effect_type: Single + Trigger
+        category: Destroy
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 64182380)
         on_resolve {
@@ -32,10 +33,10 @@ card "Garunix Eternity, Hyang of the Fire Kings" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 2097153
+        effect_type: Ignition
+        category: Destroy + SynchroSummon
         property: 16
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self
@@ -46,9 +47,9 @@ card "Garunix Eternity, Hyang of the Fire Kings" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1029
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
         property: 65536
         count_limit: (1, 0)
         on_resolve {
@@ -57,7 +58,7 @@ card "Garunix Eternity, Hyang of the Fire Kings" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1019
         property: 1024
         on_resolve {

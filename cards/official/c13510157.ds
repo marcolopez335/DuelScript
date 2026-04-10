@@ -1,3 +1,4 @@
+// ティスティナの猟犬
 // Hound of the Tistina
 // Transpiled from c13510157.lua
 
@@ -11,9 +12,9 @@ card "Hound of the Tistina" {
     def: 700
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 18
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Hand + Graveyard
         count_limit: (1, 13510157)
         on_resolve {
             special_summon (1, monster) from gy
@@ -21,9 +22,9 @@ card "Hound of the Tistina" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 74
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: direct_attack duration: until_end_of_turn }
         }

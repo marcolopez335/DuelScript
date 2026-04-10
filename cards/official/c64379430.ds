@@ -1,3 +1,4 @@
+// 終焉の精霊
 // Doomsday Horror
 // Transpiled from c64379430.lua
 
@@ -11,29 +12,29 @@ card "Doomsday Horror" {
     def: ?
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 101
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 105
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: def + 0
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 32
-        code: 1014
+        effect_type: Single + MandatoryTrigger
+        category: ToGrave
+        code: ChainEnd
         on_resolve {
             send (1+, card, either_player controls) to gy
         }

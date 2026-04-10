@@ -1,3 +1,4 @@
+// 密林の狩猟者シュヴルイユ
 // Chevreuil, Hunting Scout of the Deep Forest
 // Transpiled from c13023431.lua
 
@@ -20,38 +21,38 @@ card "Chevreuil, Hunting Scout of the Deep Forest" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 1
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 191
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: must_attack_if_able duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 344
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: must_attack_if_able duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 1139
-        range: 4
+        range: MonsterZone
         count_limit: (1, 13023431)
         on_resolve {
             special_summon (1, monster) from gy

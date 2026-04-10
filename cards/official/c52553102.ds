@@ -1,3 +1,4 @@
+// ジュラック・アステロ
 // Jurrac Astero
 // Transpiled from c52553102.lua
 
@@ -21,8 +22,8 @@ card "Jurrac Astero" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        code: 1102
+        effect_type: Single + Trigger
+        code: SpecialSummonSuccess
         property: 65536
         on_resolve {
             set (1, card)
@@ -30,10 +31,10 @@ card "Jurrac Astero" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 32769
+        effect_type: QuickEffect
+        category: Destroy
         code: 1105
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             banish self
@@ -45,10 +46,10 @@ card "Jurrac Astero" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 256
-        category: 512
-        code: 1002
-        range: 16
+        effect_type: QuickEffect
+        category: SpecialSummon
+        code: FreeChain
+        range: Graveyard
         cost {
             banish self
         }

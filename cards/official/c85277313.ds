@@ -1,3 +1,4 @@
+// ティスティナの胎動
 // Signs of the Tistina
 // Transpiled from c85277313.lua
 
@@ -6,9 +7,9 @@ card "Signs of the Tistina" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         property: 16
         on_resolve {
             special_summon (1, monster) from gy
@@ -16,16 +17,16 @@ card "Signs of the Tistina" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 1015
-        range: 4
+        range: MonsterZone
         on_resolve {
             destroy (1, card)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1015
         on_resolve {
             destroy (1+, card, either_player controls)

@@ -1,3 +1,4 @@
+// ライトロード・マジシャン ライラ
 // Lyla, Lightsworn Sorceress
 // Transpiled from c22624373.lua
 
@@ -11,10 +12,10 @@ card "Lyla, Lightsworn Sorceress" {
     def: 200
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 1
+        effect_type: Ignition
+        category: Destroy
         property: 16
-        range: 4
+        range: MonsterZone
         on_resolve {
             change_battle_position (1, monster)
             destroy (1+, spell, either_player controls)
@@ -22,10 +23,10 @@ card "Lyla, Lightsworn Sorceress" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 64
+        effect_type: Field + MandatoryTrigger
+        category: AtkChange
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             mill 3

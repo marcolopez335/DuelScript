@@ -1,3 +1,4 @@
+// キャット・シャーク
 // Cat Shark
 // Transpiled from c84224627.lua
 
@@ -21,7 +22,7 @@ card "Cat Shark" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -29,11 +30,11 @@ card "Cat Shark" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 6291456
-        code: 1002
+        effect_type: QuickEffect
+        category: SynchroSummon + XyzSummon
+        code: FreeChain
         property: 16400
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             detach 1 overlay_unit from self

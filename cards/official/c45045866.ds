@@ -1,3 +1,4 @@
+// オーシャンズ・オーパー
 // Ocean's Keeper
 // Transpiled from c45045866.lua
 
@@ -11,7 +12,7 @@ card "Ocean's Keeper" {
     def: 1200
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 203
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
@@ -19,9 +20,9 @@ card "Ocean's Keeper" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 513
-        category: 131080
-        code: 1140
+        effect_type: Single + MandatoryTrigger
+        category: ToHand + Search
+        code: BattleDamage
         on_resolve {
             add_to_hand (1+, card, opponent controls) from deck
             reveal (1+, card, opponent controls)

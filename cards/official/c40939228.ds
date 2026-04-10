@@ -1,3 +1,4 @@
+// シューティング・セイヴァー・スター・ドラゴン
 // Shooting Majestic Star Dragon
 // Transpiled from c40939228.lua
 
@@ -21,18 +22,18 @@ card "Shooting Majestic Star Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 394240
-        range: 64
+        range: Deck
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 16384
-        range: 4
+        effect_type: Ignition
+        category: Disable
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -47,20 +48,20 @@ card "Shooting Majestic Star Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 194
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        category: 268435460
-        code: 1027
+        effect_type: QuickEffect
+        category: Banish + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, monster, opponent controls)

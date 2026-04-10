@@ -1,3 +1,4 @@
+// ユベル－Das Abscheulich Ritter
 // Yubel - Terror Incarnate
 // Transpiled from c4779091.lua
 
@@ -15,7 +16,7 @@ card "Yubel - Terror Incarnate" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 42
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -23,7 +24,7 @@ card "Yubel - Terror Incarnate" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 1
+        effect_type: Single
         code: 201
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -31,8 +32,8 @@ card "Yubel - Terror Incarnate" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 513
-        category: 524288
+        effect_type: Single + MandatoryTrigger
+        category: Damage
         code: 1133
         property: 2048
         on_resolve {
@@ -41,10 +42,10 @@ card "Yubel - Terror Incarnate" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 514
-        category: 1
+        effect_type: Field + MandatoryTrigger
+        category: Destroy
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, either_player controls)
@@ -52,8 +53,8 @@ card "Yubel - Terror Incarnate" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: 129
-        category: 512
+        effect_type: Single + Trigger
+        category: SpecialSummon
         code: 1015
         property: 16384
         on_resolve {
@@ -62,7 +63,7 @@ card "Yubel - Terror Incarnate" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {

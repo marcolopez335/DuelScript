@@ -1,3 +1,4 @@
+// 先史遺産ネブラ・ディスク
 // Chronomaly Nebra Disk
 // Transpiled from c24861088.lua
 
@@ -11,9 +12,9 @@ card "Chronomaly Nebra Disk" {
     def: 1500
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1100
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SummonSuccess
         count_limit: (1, 24861088)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -22,9 +23,9 @@ card "Chronomaly Nebra Disk" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 16
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Graveyard
         count_limit: (1, 24861088)
         on_resolve {
             special_summon (1, monster) from gy

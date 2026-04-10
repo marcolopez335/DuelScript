@@ -1,3 +1,4 @@
+// 激撮ディスパラッチ
 // Dispatchparazzi
 // Transpiled from c64966519.lua
 
@@ -20,18 +21,18 @@ card "Dispatchparazzi" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        code: 1131
-        range: 4
+        effect_type: Field + Trigger
+        code: BattleTarget
+        range: MonsterZone
         count_limit: (1, 64966519)
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 1048577
-        code: 1029
+        effect_type: Single + Trigger
+        category: Destroy + Recover
+        code: Destroyed
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)

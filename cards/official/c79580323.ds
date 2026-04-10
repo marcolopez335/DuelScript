@@ -1,3 +1,4 @@
+// 剣闘獣スパルティクス
 // Gladiator Beast Spartacus
 // Transpiled from c79580323.lua
 
@@ -15,9 +16,9 @@ card "Gladiator Beast Spartacus" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 513
-        category: 131080
-        code: 1102
+        effect_type: Single + MandatoryTrigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)
@@ -25,10 +26,10 @@ card "Gladiator Beast Spartacus" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 4224
-        range: 4
+        range: MonsterZone
         cost {
             send self to deck
         }
@@ -38,7 +39,7 @@ card "Gladiator Beast Spartacus" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {

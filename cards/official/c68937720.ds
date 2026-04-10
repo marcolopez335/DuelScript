@@ -1,3 +1,4 @@
+// メンタルドレイン
 // Mind Drain
 // Transpiled from c68937720.lua
 
@@ -6,8 +7,8 @@ card "Mind Drain" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         cost {
             pay_lp 1000
         }
@@ -16,10 +17,10 @@ card "Mind Drain" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 6
         property: 2048
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }

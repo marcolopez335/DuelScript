@@ -1,3 +1,4 @@
+// シュトロームベルクの金の城
 // Golden Castle of Stromberg
 // Transpiled from c72283691.lua
 
@@ -6,17 +7,17 @@ card "Golden Castle of Stromberg" {
     type: Field Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2050
+        effect_type: Field + Continuous
         code: 4098
         property: 263168
-        range: 256
+        range: FieldZone
         count_limit: (1, 0)
         on_resolve {
             banish (1+, card, you controls, deck)
@@ -25,9 +26,9 @@ card "Golden Castle of Stromberg" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 512
-        range: 256
+        effect_type: Ignition
+        category: SpecialSummon
+        range: FieldZone
         count_limit: (1, 72283691)
         on_resolve {
             special_summon (1, monster) from gy
@@ -35,10 +36,10 @@ card "Golden Castle of Stromberg" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 514
-        category: 524289
-        code: 1130
-        range: 256
+        effect_type: Field + MandatoryTrigger
+        category: Destroy + Damage
+        code: AttackAnnounce
+        range: FieldZone
         on_resolve {
             destroy (1+, card, you controls, deck)
             deal_damage to opponent: 1000

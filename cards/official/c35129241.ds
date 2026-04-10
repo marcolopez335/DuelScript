@@ -1,3 +1,4 @@
+// 星屑の願い
 // Stardust Wish
 // Transpiled from c35129241.lua
 
@@ -6,18 +7,18 @@ card "Stardust Wish" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1017
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: Release
         property: 81936
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -25,9 +26,9 @@ card "Stardust Wish" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 2
+        effect_type: Field
         code: 42
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

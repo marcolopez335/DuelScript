@@ -1,3 +1,4 @@
+// 炎王の聖域
 // Fire King Sanctuary
 // Transpiled from c65305978.lua
 
@@ -6,8 +7,8 @@ card "Fire King Sanctuary" {
     type: Continuous Spell
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         count_limit: (1, 65305978)
         on_resolve {
             special_summon (1, monster) from gy
@@ -22,11 +23,11 @@ card "Fire King Sanctuary" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 512
-        code: 1102
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             xyz_summon (1, xyz monster) using (1+, monster, you controls)

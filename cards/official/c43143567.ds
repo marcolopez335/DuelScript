@@ -1,3 +1,4 @@
+// 黄金郷のアンヘルカイド
 // Fallen Angel of the Golden Land
 // Transpiled from c43143567.lua
 
@@ -20,8 +21,8 @@ card "Fallen Angel of the Golden Land" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2049
-        code: 1102
+        effect_type: Single + Continuous
+        code: SpecialSummonSuccess
         property: 1024
         on_resolve {
             register_effect on self {
@@ -32,19 +33,19 @@ card "Fallen Angel of the Golden Land" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 34
         property: 263168
-        range: 64
+        range: Deck
         on_resolve {
             tribute (1, monster, you controls)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 512
-        code: 1014
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: ChainEnd
         property: 65536
         count_limit: (1, 43143567)
         on_resolve {
@@ -53,7 +54,7 @@ card "Fallen Angel of the Golden Land" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 2048
         on_resolve {

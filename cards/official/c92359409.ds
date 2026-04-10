@@ -1,3 +1,4 @@
+// 超弩級砲塔列車グスタフ・ロケット
 // Superdreadnought Rail Cannon Gustav Rocket
 // Transpiled from c92359409.lua
 
@@ -16,10 +17,10 @@ card "Superdreadnought Rail Cannon Gustav Rocket" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 256
-        category: 540673
-        code: 1027
-        range: 4
+        effect_type: QuickEffect
+        category: Destroy + Disable + Damage
+        code: Chaining
+        range: MonsterZone
         count_limit: (1, 92359409)
         on_resolve {
             negate effect
@@ -28,10 +29,10 @@ card "Superdreadnought Rail Cannon Gustav Rocket" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 1
+        effect_type: Field + MandatoryTrigger
+        category: Destroy
         code: 4608
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, you controls, hand)

@@ -1,3 +1,4 @@
+// 賜炎の咎姫
 // Promethean Princess, Bestower of Flames
 // Transpiled from c2772337.lua
 
@@ -20,19 +21,19 @@ card "Promethean Princess, Bestower of Flames" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 2048
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 512
-        range: 4
+        effect_type: Ignition
+        category: SpecialSummon
+        range: MonsterZone
         count_limit: (1, 2772337)
         on_resolve {
             special_summon (1, monster) from gy
@@ -40,11 +41,11 @@ card "Promethean Princess, Bestower of Flames" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 513
-        code: 1102
+        effect_type: Field + Trigger
+        category: Destroy + SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
-        range: 16
+        range: Graveyard
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, either_player controls)

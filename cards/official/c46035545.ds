@@ -1,3 +1,4 @@
+// ＤＤ魔導賢者ニコラ
 // D/D Savant Nikola
 // Transpiled from c46035545.lua
 
@@ -16,20 +17,20 @@ card "D/D Savant Nikola" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 22
         property: 3584
-        range: 512
+        range: PendulumZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 6291456
+        effect_type: Ignition
+        category: SynchroSummon + XyzSummon
         property: 16
-        range: 512
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -44,9 +45,9 @@ card "D/D Savant Nikola" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 8
-        code: 1029
+        effect_type: Single + Trigger
+        category: ToHand
+        code: Destroyed
         property: 81936
         count_limit: (1, 46035545)
         on_resolve {

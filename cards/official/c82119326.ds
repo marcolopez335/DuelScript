@@ -1,3 +1,4 @@
+// テールズオブ妖精伝姫
 // Tales of Fairy Tail
 // Transpiled from c82119326.lua
 
@@ -12,7 +13,7 @@ card "Tales of Fairy Tail" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 4
+        effect_type: Equip
         code: 100
         on_resolve {
             modifier: atk + 1000
@@ -20,18 +21,18 @@ card "Tales of Fairy Tail" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 64
-        category: 1073742336
-        range: 8
+        effect_type: Ignition
+        category: SpecialSummon
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 64
-        category: 262400
-        range: 16
+        effect_type: Ignition
+        category: Counter + EquipAction
+        range: Graveyard
         count_limit: (1, 82119326)
         on_resolve {
             equip (1, card) to (1, monster)
@@ -40,9 +41,9 @@ card "Tales of Fairy Tail" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 16
-        category: 262144
-        code: 1002
+        effect_type: Activate
+        category: EquipAction
+        code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)
         }

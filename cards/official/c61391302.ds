@@ -1,3 +1,4 @@
+// オッドアイズ・アドバンス・ドラゴン
 // Odd-Eyes Advance Dragon
 // Transpiled from c61391302.lua
 
@@ -15,9 +16,9 @@ card "Odd-Eyes Advance Dragon" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 524289
-        code: 1100
+        effect_type: Single + Trigger
+        category: Destroy + Damage
+        code: SummonSuccess
         property: 67584
         on_resolve {
             destroy (1+, card, you controls, gy)
@@ -26,8 +27,8 @@ card "Odd-Eyes Advance Dragon" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
+        effect_type: Single + Trigger
+        category: SpecialSummon
         code: 1139
         count_limit: (1, 61391302)
         on_resolve {
@@ -36,7 +37,7 @@ card "Odd-Eyes Advance Dragon" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 20
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }

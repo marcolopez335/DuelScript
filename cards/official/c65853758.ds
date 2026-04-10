@@ -1,3 +1,4 @@
+// ヤミー★リデンプション
 // Yummy★Redemption
 // Transpiled from c65853758.lua
 
@@ -6,28 +7,28 @@ card "Yummy★Redemption" {
     type: Continuous Trap
 
     raw_effect "Effect 1" {
-        effect_type: 16
-        code: 1002
+        effect_type: Activate
+        code: FreeChain
         property: 16384
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 8
+        range: SpellTrapZone
         on_resolve {
             modifier: atk + 0
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 65552
-        code: 1102
+        effect_type: Field + Trigger
+        category: ToDeck + Draw
+        code: SpecialSummonSuccess
         property: 65536
-        range: 8
+        range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
             draw 1
@@ -37,11 +38,11 @@ card "Yummy★Redemption" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 256
-        category: 8192
-        code: 1002
+        effect_type: QuickEffect
+        category: Summon
+        code: FreeChain
         property: 16
-        range: 16
+        range: Graveyard
         count_limit: (1, 65853758)
         cost {
             banish self

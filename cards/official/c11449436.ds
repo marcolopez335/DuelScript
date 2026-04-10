@@ -1,3 +1,4 @@
+// 氷河のアクア・マドール
 // Glacier Aqua Madoor
 // Transpiled from c11449436.lua
 
@@ -15,10 +16,10 @@ card "Glacier Aqua Madoor" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 128
-        code: 1132
-        range: 2
+        effect_type: Field + Trigger
+        category: DefChange
+        code: DamageCalculation
+        range: Hand
         on_resolve {
             discard (1, card)
             register_effect on self {
@@ -29,9 +30,9 @@ card "Glacier Aqua Madoor" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 129
-        code: 1132
+        effect_type: Single + Trigger
+        category: Destroy + DefChange
+        code: DamageCalculation
         on_resolve {
             discard (1, card)
             destroy (1+, card, you controls, hand)

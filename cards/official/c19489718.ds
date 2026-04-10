@@ -1,3 +1,4 @@
+// 魔鍵銃－バトスバスター
 // Magikey Mechmusket - Batosbuster
 // Transpiled from c19489718.lua
 
@@ -20,9 +21,9 @@ card "Magikey Mechmusket - Batosbuster" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 131080
-        code: 1102
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: SpecialSummonSuccess
         property: 81920
         count_limit: (1, 19489718)
         on_resolve {
@@ -32,10 +33,10 @@ card "Magikey Mechmusket - Batosbuster" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 81936
-        code: 1130
-        range: 4
+        effect_type: Field + Trigger
+        category: ToDeck + Disable + Draw
+        code: AttackAnnounce
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to deck shuffle

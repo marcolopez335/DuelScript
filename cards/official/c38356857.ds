@@ -1,3 +1,4 @@
+// グリム・リチュア
 // Gishki Grimness
 // Transpiled from c38356857.lua
 
@@ -11,9 +12,9 @@ card "Gishki Grimness" {
     def: 700
 
     raw_effect "Effect 1" {
-        effect_type: 129
-        category: 512
-        code: 1100
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SummonSuccess
         property: 65536
         count_limit: (1, 38356857)
         on_resolve {
@@ -26,9 +27,9 @@ card "Gishki Grimness" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 129
-        category: 512
-        code: 1102
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
         count_limit: (1, 38356857)
         on_resolve {
@@ -41,9 +42,9 @@ card "Gishki Grimness" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 16
-        category: 512
-        code: 1002
+        effect_type: Activate
+        category: SpecialSummon
+        code: FreeChain
         on_resolve {
             ritual_summon (1, ritual monster) using (1+, monster, you controls)
         }

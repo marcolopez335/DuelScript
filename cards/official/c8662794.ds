@@ -1,3 +1,4 @@
+// コードブレイカー・ゼロデイ
 // Codebreaker Zero Day
 // Transpiled from c8662794.lua
 
@@ -11,28 +12,28 @@ card "Codebreaker Zero Day" {
     def: 0
 
     raw_effect "Effect 1" {
-        effect_type: 2
+        effect_type: Field
         code: 100
-        range: 4
+        range: MonsterZone
         on_resolve {
             modifier: atk - 1000
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 1
-        code: 1029
-        range: 4
+        effect_type: Field + MandatoryTrigger
+        category: Destroy
+        code: Destroyed
+        range: MonsterZone
         on_resolve {
             destroy (1+, card, you controls, deck)
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 131080
-        code: 1029
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: Destroyed
         property: 65536
         on_resolve {
             add_to_hand (1+, card, you controls) from deck

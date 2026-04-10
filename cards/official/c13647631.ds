@@ -1,3 +1,4 @@
+// 重機貨列車デリックレーン
 // Heavy Freight Train Derricrane
 // Transpiled from c13647631.lua
 
@@ -15,11 +16,11 @@ card "Heavy Freight Train Derricrane" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 130
-        category: 512
-        code: 1100
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SummonSuccess
         property: 65536
-        range: 2
+        range: Hand
         count_limit: (1, 13647631)
         on_resolve {
             special_summon (1, monster) from gy
@@ -27,11 +28,11 @@ card "Heavy Freight Train Derricrane" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 130
-        category: 512
-        code: 1102
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: SpecialSummonSuccess
         property: 65536
-        range: 2
+        range: Hand
         count_limit: (1, 13647631)
         on_resolve {
             special_summon (1, monster) from gy
@@ -39,9 +40,9 @@ card "Heavy Freight Train Derricrane" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 129
-        category: 1
-        code: 1014
+        effect_type: Single + Trigger
+        category: Destroy
+        code: ChainEnd
         property: 81936
         on_resolve {
             destroy (1+, card, either_player controls)

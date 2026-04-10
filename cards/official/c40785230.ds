@@ -1,3 +1,4 @@
+// ヴェーダ＝ウパニシャッド
 // Veda Kalarcanum
 // Transpiled from c40785230.lua
 
@@ -16,7 +17,7 @@ card "Veda Kalarcanum" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 1
+        effect_type: Single
         code: 30
         property: 263168
         on_resolve {
@@ -24,47 +25,47 @@ card "Veda Kalarcanum" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 514
-        category: 8388608
-        code: 1029
-        range: 512
+        effect_type: Field + MandatoryTrigger
+        category: LinkSummon
+        code: Destroyed
+        range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 134
         property: 131072
-        range: 512
+        range: PendulumZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 136
         property: 131072
-        range: 512
+        range: PendulumZone
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 64
-        category: 512
-        range: 512
+        effect_type: Ignition
+        category: SpecialSummon
+        range: PendulumZone
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
     raw_effect "Effect 6" {
-        effect_type: 130
-        code: 1102
+        effect_type: Field + Trigger
+        code: SpecialSummonSuccess
         property: 65536
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         cost {
             banish self
@@ -78,10 +79,10 @@ card "Veda Kalarcanum" {
     }
 
     raw_effect "Effect 7" {
-        effect_type: 514
-        category: 520
+        effect_type: Field + MandatoryTrigger
+        category: ToHand + SpecialSummon
         code: 4098
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
@@ -91,7 +92,7 @@ card "Veda Kalarcanum" {
     }
 
     raw_effect "Effect 8" {
-        effect_type: 2
+        effect_type: Field
         code: 185
         property: 2048
         on_resolve {

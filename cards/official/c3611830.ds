@@ -1,3 +1,4 @@
+// 創聖魔導王 エンディミオン
 // Endymion, the Mighty Master of Magic
 // Transpiled from c3611830.lua
 
@@ -16,9 +17,9 @@ card "Endymion, the Mighty Master of Magic" {
     }
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 8389121
-        range: 512
+        effect_type: Ignition
+        category: Destroy + SpecialSummon + LinkSummon
+        range: PendulumZone
         count_limit: (1, 3611830)
         on_resolve {
             special_summon (1, monster) from gy
@@ -27,11 +28,11 @@ card "Endymion, the Mighty Master of Magic" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 256
-        category: 276824073
-        code: 1027
+        effect_type: QuickEffect
+        category: Destroy + ToHand + LinkSummon + Negate
+        code: Chaining
         property: 49152
-        range: 4
+        range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
             return (1+, card, either_player controls) to hand
@@ -40,27 +41,27 @@ card "Endymion, the Mighty Master of Magic" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 1
+        effect_type: Single
         code: 71
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 4" {
-        effect_type: 1
+        effect_type: Single
         code: 41
         property: 131072
-        range: 4
+        range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 5" {
-        effect_type: 2049
+        effect_type: Single + Continuous
         code: 1019
         property: 1024
         on_resolve {
@@ -68,9 +69,9 @@ card "Endymion, the Mighty Master of Magic" {
     }
 
     raw_effect "Effect 6" {
-        effect_type: 129
-        category: 131080
-        code: 1140
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: BattleDamage
         on_resolve {
             return (1+, card, either_player controls) to hand
             reveal (1+, card, opponent controls)

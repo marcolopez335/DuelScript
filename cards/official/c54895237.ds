@@ -1,3 +1,4 @@
+// 晴天気ベンガーラ
 // The Weather Painter Sun
 // Transpiled from c54895237.lua
 
@@ -11,9 +12,9 @@ card "The Weather Painter Sun" {
     def: 400
 
     raw_effect "Effect 1" {
-        effect_type: 64
-        category: 512
-        range: 16
+        effect_type: Ignition
+        category: SpecialSummon
+        range: Graveyard
         count_limit: (1, 54895237)
         cost {
             send self to gy
@@ -24,18 +25,18 @@ card "The Weather Painter Sun" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 2049
-        code: 1011
+        effect_type: Single + Continuous
+        code: TurnEnd
         property: 1024
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
-        effect_type: 130
-        category: 512
+        effect_type: Field + Trigger
+        category: SpecialSummon
         code: 4098
-        range: 32
+        range: Banished
         on_resolve {
             special_summon (1, monster) from gy
         }
