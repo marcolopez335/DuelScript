@@ -3,7 +3,7 @@
 // Transpiled from c7375867.lua
 
 card "Dracotail Mululu" {
-    password: 7375867
+    id: 7375867
     type: Effect Monster
     attribute: DARK
     race: Dragon
@@ -13,7 +13,7 @@ card "Dracotail Mululu" {
 
     raw_effect "Effect 1" {
         effect_type: QuickEffect
-        category: SpecialSummon
+        category: SpecialSummon + Control
         code: FreeChain
         range: MonsterZone
         count_limit: (1, 7375867)
@@ -28,8 +28,8 @@ card "Dracotail Mululu" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: Disable
-        code: 1108
-        property: 65536
+        code: FlipSuccess
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             set (1, card)
@@ -38,8 +38,8 @@ card "Dracotail Mululu" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

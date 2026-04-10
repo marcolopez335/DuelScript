@@ -3,7 +3,7 @@
 // Transpiled from c41406613.lua
 
 card "Reign-Beaux, Overking of Dark World" {
-    password: 41406613
+    id: 41406613
     type: Effect Monster
     attribute: DARK
     race: Fiend
@@ -17,8 +17,8 @@ card "Reign-Beaux, Overking of Dark World" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Graveyard
         on_resolve {
             return (1+, monster, you controls) to hand
@@ -28,7 +28,7 @@ card "Reign-Beaux, Overking of Dark World" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         code: ChainEnd
-        property: 65536
+        property: Delay
         on_resolve {
             return (1+, monster, you controls) to hand
             reveal (1+, card, opponent controls)

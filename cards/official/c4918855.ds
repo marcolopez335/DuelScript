@@ -3,7 +3,7 @@
 // Transpiled from c4918855.lua
 
 card "Vampire Voivode" {
-    password: 4918855
+    id: 4918855
     type: Effect Monster
     attribute: DARK
     race: Zombie
@@ -19,7 +19,7 @@ card "Vampire Voivode" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SummonSuccess
-        property: 81936
+        property: CardTarget + Oath + Delay
         count_limit: (1, 4918855)
         on_resolve {
             special_summon (1, monster) from gy
@@ -38,7 +38,7 @@ card "Vampire Voivode" {
         effect_type: QuickEffect
         category: Negate
         code: Chaining
-        property: 49152
+        property: Oath + CountCodeDuel
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -50,7 +50,7 @@ card "Vampire Voivode" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         range: Graveyard
         count_limit: (1, 0)
         cost {
@@ -63,7 +63,7 @@ card "Vampire Voivode" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 2
+        code: Disable
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }

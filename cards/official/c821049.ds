@@ -3,7 +3,7 @@
 // Transpiled from c821049.lua
 
 card "Visas Amritara" {
-    password: 821049
+    id: 821049
     type: Synchro Monster | Tuner
     attribute: LIGHT
     race: Warrior
@@ -24,7 +24,7 @@ card "Visas Amritara" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 114
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -34,7 +34,7 @@ card "Visas Amritara" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 821049)
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck
@@ -58,14 +58,14 @@ card "Visas Amritara" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 800
         }
@@ -74,7 +74,7 @@ card "Visas Amritara" {
     raw_effect "Effect 6" {
         effect_type: Single
         code: 21142671
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }

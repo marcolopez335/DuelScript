@@ -3,7 +3,7 @@
 // Transpiled from c21887175.lua
 
 card "Mekk-Knight Crusadia Avramax" {
-    password: 21887175
+    id: 21887175
     type: Link Monster
     attribute: LIGHT
     race: Cyberse
@@ -22,8 +22,8 @@ card "Mekk-Knight Crusadia Avramax" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 71
-        property: 131072
+        code: CannotDirectAttack2
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -52,7 +52,7 @@ card "Mekk-Knight Crusadia Avramax" {
         effect_type: Single + Trigger
         category: ToDeck
         code: ChainEnd
-        property: 65536
+        property: Delay
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
         }

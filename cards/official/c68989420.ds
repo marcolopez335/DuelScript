@@ -3,7 +3,7 @@
 // Transpiled from c68989420.lua
 
 card "T.G. Over Dragonar" {
-    password: 68989420
+    id: 68989420
     type: Synchro Monster
     attribute: DARK
     race: Dragon
@@ -25,7 +25,7 @@ card "T.G. Over Dragonar" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 68989420)
         on_resolve {
             register_effect on self {
@@ -40,7 +40,7 @@ card "T.G. Over Dragonar" {
         effect_type: Single + MandatoryTrigger
         category: Draw
         code: Destroyed
-        property: 2048
+        property: InitialValue
         on_resolve {
             draw 1
         }
@@ -48,8 +48,8 @@ card "T.G. Over Dragonar" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

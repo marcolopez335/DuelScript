@@ -3,7 +3,7 @@
 // Transpiled from c74388798.lua
 
 card "Silent Swordsman LV5" {
-    password: 74388798
+    id: 74388798
     type: Effect Monster
     attribute: LIGHT
     race: Warrior
@@ -17,8 +17,8 @@ card "Silent Swordsman LV5" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 1
-        property: 131072
+        code: ImmuneEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -27,7 +27,7 @@ card "Silent Swordsman LV5" {
 
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
-        code: 1143
+        code: BattleDestroyed
         on_resolve {
         }
     }

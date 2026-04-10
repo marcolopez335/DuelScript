@@ -3,7 +3,7 @@
 // Transpiled from c72006609.lua
 
 card "Mekk-Knight of the Morning Star" {
-    password: 72006609
+    id: 72006609
     type: Link Monster
     attribute: LIGHT
     race: Machine
@@ -24,7 +24,7 @@ card "Mekk-Knight of the Morning Star" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 72006609)
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand
@@ -34,7 +34,7 @@ card "Mekk-Knight of the Morning Star" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -44,7 +44,7 @@ card "Mekk-Knight of the Morning Star" {
     raw_effect "Effect 3" {
         effect_type: Field
         code: 201
-        property: 128
+        property: SetAvailable
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

@@ -3,7 +3,7 @@
 // Transpiled from c90173539.lua
 
 card "World Dino Wrestling" {
-    password: 90173539
+    id: 90173539
     type: Field Spell
 
     raw_effect "Effect 1" {
@@ -16,7 +16,7 @@ card "World Dino Wrestling" {
     raw_effect "Effect 2" {
         effect_type: Field
         code: 85
-        property: 128
+        property: SetAvailable
         range: FieldZone
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -26,7 +26,7 @@ card "World Dino Wrestling" {
     raw_effect "Effect 3" {
         effect_type: Field + Continuous
         code: AttackAnnounce
-        property: 1024
+        property: BothSide
         range: FieldZone
         on_resolve {
         }
@@ -34,7 +34,7 @@ card "World Dino Wrestling" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: FieldZone
         on_resolve {
             modifier: atk + 200

@@ -3,12 +3,12 @@
 // Transpiled from c32939238.lua
 
 card "Ninjitsu Art Tool - Iron Digger" {
-    password: 32939238
+    id: 32939238
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 500
         }
@@ -24,7 +24,7 @@ card "Ninjitsu Art Tool - Iron Digger" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: Destroy
-        property: 16
+        property: CardTarget
         range: SpellTrapZone
         count_limit: (1, 32939238)
         cost {
@@ -39,7 +39,7 @@ card "Ninjitsu Art Tool - Iron Digger" {
         effect_type: Single + Trigger
         category: ToHand + SpecialSummon
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1, card, you controls) from gy

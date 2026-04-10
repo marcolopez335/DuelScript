@@ -3,7 +3,7 @@
 // Transpiled from c73734821.lua
 
 card "Performapal Sky Magician" {
-    password: 73734821
+    id: 73734821
     type: Effect Monster
     attribute: WIND
     race: Spellcaster
@@ -39,7 +39,7 @@ card "Performapal Sky Magician" {
         effect_type: QuickEffect
         category: ToHand
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 73734821)
         on_resolve {
@@ -52,8 +52,8 @@ card "Performapal Sky Magician" {
     raw_effect "Effect 4" {
         effect_type: Single + Trigger
         category: Destroy
-        code: 1015
-        property: 81936
+        code: ChainNegated
+        property: CardTarget + Oath + Delay
         on_resolve {
             destroy (1+, card, you controls, hand)
         }

@@ -3,12 +3,12 @@
 // Transpiled from c55154048.lua
 
 card "Nordic Relic Draupnir" {
-    password: 55154048
+    id: 55154048
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 800
         }
@@ -17,8 +17,8 @@ card "Nordic Relic Draupnir" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: ToHand + Search
-        code: 1015
-        property: 81920
+        code: ChainNegated
+        property: Oath + Delay
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)

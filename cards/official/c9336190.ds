@@ -3,14 +3,14 @@
 // Transpiled from c9336190.lua
 
 card "The Phantom Knights of Mist Claws" {
-    password: 9336190
+    id: 9336190
     type: Normal Trap
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: ToHand
         code: FreeChain
-        property: 16
+        property: CardTarget
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
             reveal (1+, card, opponent controls)
@@ -21,7 +21,7 @@ card "The Phantom Knights of Mist Claws" {
         effect_type: QuickEffect
         category: SpecialSummon
         code: AttackAnnounce
-        property: 16
+        property: CardTarget
         range: Graveyard
         on_resolve {
             special_summon (1, monster) from gy
@@ -31,8 +31,8 @@ card "The Phantom Knights of Mist Claws" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 60
-        property: 67109888
+        code: CannotAttack
+        property: BothSide + IgnoreRange2
         on_resolve {
         }
     }
@@ -40,7 +40,7 @@ card "The Phantom Knights of Mist Claws" {
     raw_effect "Effect 4" {
         effect_type: Single
         code: 314
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }

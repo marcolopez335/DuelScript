@@ -3,7 +3,7 @@
 // Transpiled from c20011655.lua
 
 card "Beast of Talwar - The Sword Summit" {
-    password: 20011655
+    id: 20011655
     type: Effect Monster
     attribute: DARK
     race: Fiend
@@ -17,8 +17,8 @@ card "Beast of Talwar - The Sword Summit" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
         }
@@ -27,7 +27,7 @@ card "Beast of Talwar - The Sword Summit" {
     raw_effect "Effect 2" {
         effect_type: Single
         code: 47
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
@@ -36,8 +36,8 @@ card "Beast of Talwar - The Sword Summit" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 71
-        property: 288
+        code: CannotDirectAttack2
+        property: IgnoreRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }

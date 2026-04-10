@@ -3,7 +3,7 @@
 // Transpiled from c97800311.lua
 
 card "Divine Serpent Apophis" {
-    password: 97800311
+    id: 97800311
     type: Fusion Monster
     attribute: EARTH
     race: Reptile
@@ -22,8 +22,8 @@ card "Divine Serpent Apophis" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Deck
         on_resolve {
             tribute (1, monster, you controls)
@@ -32,7 +32,7 @@ card "Divine Serpent Apophis" {
 
     raw_effect "Effect 2" {
         effect_type: Ignition
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -44,7 +44,7 @@ card "Divine Serpent Apophis" {
         effect_type: Field + Trigger
         category: Destroy
         code: Chaining
-        property: 65552
+        property: CardTarget + Delay
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

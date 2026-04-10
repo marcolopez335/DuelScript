@@ -3,7 +3,7 @@
 // Transpiled from c86282581.lua
 
 card "Evil HERO Darkest Knight" {
-    password: 86282581
+    id: 86282581
     type: Fusion Monster
     attribute: EARTH
     race: Fiend
@@ -22,14 +22,14 @@ card "Evil HERO Darkest Knight" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -39,7 +39,7 @@ card "Evil HERO Darkest Knight" {
     raw_effect "Effect 3" {
         effect_type: Single
         code: 194
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -48,8 +48,8 @@ card "Evil HERO Darkest Knight" {
     raw_effect "Effect 4" {
         effect_type: Single + Trigger
         category: SpecialSummon
-        code: 1015
-        property: 65552
+        code: ChainNegated
+        property: CardTarget + Delay
         on_resolve {
             special_summon (1, monster) from gy
         }

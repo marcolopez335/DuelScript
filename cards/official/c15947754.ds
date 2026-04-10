@@ -3,7 +3,7 @@
 // Transpiled from c15947754.lua
 
 card "Silent Wolf Calupo" {
-    password: 15947754
+    id: 15947754
     type: Effect Monster
     attribute: DARK
     race: Beast-Warrior
@@ -46,7 +46,7 @@ card "Silent Wolf Calupo" {
     raw_effect "Effect 3" {
         effect_type: Field + MandatoryTrigger
         category: ToHand + ToGrave + DefChange
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 15947754)
         on_resolve {
@@ -59,8 +59,8 @@ card "Silent Wolf Calupo" {
 
     raw_effect "Effect 4" {
         effect_type: Equip
-        code: 100
-        property: 256
+        code: UpdateAttack
+        property: IgnoreRange
         on_resolve {
             modifier: atk + 500
         }
@@ -68,8 +68,8 @@ card "Silent Wolf Calupo" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 76
-        property: 1024
+        code: CannotAttack2
+        property: BothSide
         on_resolve {
         }
     }

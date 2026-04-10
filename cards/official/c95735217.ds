@@ -3,7 +3,7 @@
 // Transpiled from c95735217.lua
 
 card "Ancient Gear Golem - Ultimate Pound" {
-    password: 95735217
+    id: 95735217
     type: Effect Monster
     attribute: EARTH
     race: Machine
@@ -17,15 +17,15 @@ card "Ancient Gear Golem - Ultimate Pound" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }
@@ -33,7 +33,7 @@ card "Ancient Gear Golem - Ultimate Pound" {
 
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
-        code: 1139
+        code: BattleConfirmed
         count_limit: (2, 0)
         on_resolve {
         }
@@ -43,7 +43,7 @@ card "Ancient Gear Golem - Ultimate Pound" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: Destroyed
-        property: 65536
+        property: Delay
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand
             reveal (1+, card, opponent controls)

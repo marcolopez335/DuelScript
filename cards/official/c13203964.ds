@@ -3,7 +3,7 @@
 // Transpiled from c13203964.lua
 
 card "Perfectron Hydradrive Dragon" {
-    password: 13203964
+    id: 13203964
     type: Link Monster
     attribute: EARTH
     race: Cyberse
@@ -42,8 +42,8 @@ card "Perfectron Hydradrive Dragon" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 125
-        property: 131072
+        code: AddType
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -51,8 +51,8 @@ card "Perfectron Hydradrive Dragon" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 1
-        property: 131072
+        code: ImmuneEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -68,7 +68,7 @@ card "Perfectron Hydradrive Dragon" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 102
+        code: SetAttackFinal
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

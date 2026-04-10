@@ -3,7 +3,7 @@
 // Transpiled from c14625090.lua
 
 card "Dragonmaid Welcome" {
-    password: 14625090
+    id: 14625090
     type: Continuous Spell
 
     raw_effect "Effect 1" {
@@ -15,7 +15,7 @@ card "Dragonmaid Welcome" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: SpellTrapZone
         on_resolve {
             modifier: atk + 0
@@ -24,7 +24,7 @@ card "Dragonmaid Welcome" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 104
+        code: UpdateDefense
         range: SpellTrapZone
         on_resolve {
             modifier: def + 0
@@ -34,7 +34,7 @@ card "Dragonmaid Welcome" {
     raw_effect "Effect 4" {
         effect_type: Ignition
         category: ToHand
-        property: 16
+        property: CardTarget
         range: SpellTrapZone
         count_limit: (1, 14625090)
         on_resolve {
@@ -45,7 +45,7 @@ card "Dragonmaid Welcome" {
     raw_effect "Effect 5" {
         effect_type: Single + MandatoryTrigger
         code: ChainEnd
-        property: 65536
+        property: Delay
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

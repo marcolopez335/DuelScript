@@ -3,7 +3,7 @@
 // Transpiled from c43735670.lua
 
 card "Marincess Blue Slug" {
-    password: 43735670
+    id: 43735670
     type: Link Monster
     attribute: WATER
     race: Cyberse
@@ -23,7 +23,7 @@ card "Marincess Blue Slug" {
     raw_effect "Effect 1" {
         effect_type: Single + Continuous
         code: SpecialSummonSuccess
-        property: 1024
+        property: BothSide
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -36,7 +36,7 @@ card "Marincess Blue Slug" {
         effect_type: Single + Trigger
         category: ToHand
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
             register_effect on self {

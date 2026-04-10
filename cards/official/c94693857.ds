@@ -3,7 +3,7 @@
 // Transpiled from c94693857.lua
 
 card "Deskbot 001" {
-    password: 94693857
+    id: 94693857
     type: Effect Monster | Tuner
     attribute: EARTH
     race: Machine
@@ -13,8 +13,8 @@ card "Deskbot 001" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -23,8 +23,8 @@ card "Deskbot 001" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 104
-        property: 131072
+        code: UpdateDefense
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: def + 0
@@ -35,7 +35,7 @@ card "Deskbot 001" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         range: Graveyard
         on_resolve {
             special_summon (1, monster) from gy

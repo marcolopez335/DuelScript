@@ -3,7 +3,7 @@
 // Transpiled from c10000080.lua
 
 card "The Winged Dragon of Ra - Sphere Mode" {
-    password: 10000080
+    id: 10000080
     type: Effect Monster
     attribute: DIVINE
     race: Divine-Beast
@@ -18,7 +18,7 @@ card "The Winged Dragon of Ra - Sphere Mode" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 33
-        property: 1311744
+        property: BothSide + Uncopyable + PlayerTarget
         on_resolve {
             tribute (1, monster, you controls)
         }
@@ -26,8 +26,8 @@ card "The Winged Dragon of Ra - Sphere Mode" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -35,7 +35,7 @@ card "The Winged Dragon of Ra - Sphere Mode" {
     raw_effect "Effect 3" {
         effect_type: Single + Continuous
         code: SummonSuccess
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -55,7 +55,7 @@ card "The Winged Dragon of Ra - Sphere Mode" {
     raw_effect "Effect 5" {
         effect_type: Single
         code: 70
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -64,8 +64,8 @@ card "The Winged Dragon of Ra - Sphere Mode" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 71
-        property: 131072
+        code: CannotDirectAttack2
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }

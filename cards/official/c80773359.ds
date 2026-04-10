@@ -3,7 +3,7 @@
 // Transpiled from c80773359.lua
 
 card "Assault Blackwing - Onimaru the Divine Thunder" {
-    password: 80773359
+    id: 80773359
     type: Synchro Monster
     attribute: DARK
     race: Winged Beast
@@ -24,22 +24,22 @@ card "Assault Blackwing - Onimaru the Divine Thunder" {
     raw_effect "Effect 1" {
         effect_type: Single + Continuous
         code: SpecialSummonSuccess
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -49,7 +49,7 @@ card "Assault Blackwing - Onimaru the Divine Thunder" {
     raw_effect "Effect 4" {
         effect_type: Ignition
         category: LevelChange
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 80773359)
         on_resolve {
@@ -58,8 +58,8 @@ card "Assault Blackwing - Onimaru the Divine Thunder" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 3000

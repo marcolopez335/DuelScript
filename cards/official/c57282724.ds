@@ -3,7 +3,7 @@
 // Transpiled from c57282724.lua
 
 card "World Gears of Theurlogical Demiurgy" {
-    password: 57282724
+    id: 57282724
     type: Link Monster
     attribute: DARK
     race: Cyberse
@@ -23,15 +23,15 @@ card "World Gears of Theurlogical Demiurgy" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 239
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 1
-        property: 131072
+        code: ImmuneEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -40,7 +40,7 @@ card "World Gears of Theurlogical Demiurgy" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }
@@ -59,7 +59,7 @@ card "World Gears of Theurlogical Demiurgy" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

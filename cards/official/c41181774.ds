@@ -3,7 +3,7 @@
 // Transpiled from c41181774.lua
 
 card "Earthbound Immortal Wiraqocha Rasca" {
-    password: 41181774
+    id: 41181774
     type: Effect Monster
     attribute: DARK
     race: Winged Beast
@@ -18,7 +18,7 @@ card "Earthbound Immortal Wiraqocha Rasca" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 141
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -27,7 +27,7 @@ card "Earthbound Immortal Wiraqocha Rasca" {
     raw_effect "Effect 2" {
         effect_type: Single
         code: 70
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -46,7 +46,7 @@ card "Earthbound Immortal Wiraqocha Rasca" {
         effect_type: Single + MandatoryTrigger
         category: ToDeck + DefChange
         code: SummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
             send (1+, card, either_player controls) to gy

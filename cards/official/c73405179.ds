@@ -3,7 +3,7 @@
 // Transpiled from c73405179.lua
 
 card "Iron Knight" {
-    password: 73405179
+    id: 73405179
     type: Effect Monster
     attribute: EARTH
     race: Warrior
@@ -13,8 +13,8 @@ card "Iron Knight" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk - 1000
@@ -25,7 +25,7 @@ card "Iron Knight" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 73405179)
         on_resolve {
             return (1+, monster, you controls) to hand

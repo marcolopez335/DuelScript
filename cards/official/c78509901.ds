@@ -3,7 +3,7 @@
 // Transpiled from c78509901.lua
 
 card "Blade Garoodia the Cubic Beast" {
-    password: 78509901
+    id: 78509901
     type: Effect Monster | Spirit
     attribute: FIRE
     race: Beast
@@ -17,8 +17,8 @@ card "Blade Garoodia the Cubic Beast" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             send (1+, monster, you controls) to gy
@@ -39,8 +39,8 @@ card "Blade Garoodia the Cubic Beast" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         category: ToHand + SpecialSummon + Search
-        code: 1139
-        property: 16
+        code: BattleConfirmed
+        property: CardTarget
         on_resolve {
             send (1+, monster, you controls) to gy
             special_summon (1, monster) from gy

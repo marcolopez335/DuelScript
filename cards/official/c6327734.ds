@@ -3,7 +3,7 @@
 // Transpiled from c6327734.lua
 
 card "Hu-Li the Jewel Mikanko" {
-    password: 6327734
+    id: 6327734
     type: Effect Monster
     attribute: WIND
     race: Psychic
@@ -21,7 +21,7 @@ card "Hu-Li the Jewel Mikanko" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -36,8 +36,8 @@ card "Hu-Li the Jewel Mikanko" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 71
-        property: 128
+        code: CannotDirectAttack2
+        property: SetAvailable
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -48,7 +48,7 @@ card "Hu-Li the Jewel Mikanko" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: 1121
-        property: 65536
+        property: Delay
         count_limit: (1, 6327734)
         on_resolve {
             add_to_hand (1+, trap, either_player controls) from gy

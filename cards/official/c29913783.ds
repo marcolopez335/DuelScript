@@ -3,7 +3,7 @@
 // Transpiled from c29913783.lua
 
 card "Super Anti-Kaiju War Machine Mecha-Thunder-King" {
-    password: 29913783
+    id: 29913783
     type: Effect Monster
     attribute: LIGHT
     race: Machine
@@ -31,7 +31,7 @@ card "Super Anti-Kaiju War Machine Mecha-Thunder-King" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -39,8 +39,8 @@ card "Super Anti-Kaiju War Machine Mecha-Thunder-King" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 1
-        property: 131072
+        code: ImmuneEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -50,7 +50,7 @@ card "Super Anti-Kaiju War Machine Mecha-Thunder-King" {
     raw_effect "Effect 4" {
         effect_type: Field + Trigger
         category: SpecialSummon
-        code: 4608
+        code: PhaseEnd
         range: Graveyard
         count_limit: (1, 29913783)
         on_resolve {

@@ -3,7 +3,7 @@
 // Transpiled from c63487632.lua
 
 card "Dragunity Arma Leyvaten" {
-    password: 63487632
+    id: 63487632
     type: Effect Monster
     attribute: WIND
     race: Dragon
@@ -17,8 +17,8 @@ card "Dragunity Arma Leyvaten" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand + Graveyard
         on_resolve {
             banish (1+, monster, you controls)
@@ -29,7 +29,7 @@ card "Dragunity Arma Leyvaten" {
         effect_type: Single + Trigger
         category: EquipAction
         code: SummonSuccess
-        property: 16400
+        property: CardTarget + Oath
         on_resolve {
         }
     }
@@ -38,7 +38,7 @@ card "Dragunity Arma Leyvaten" {
         effect_type: Single + Trigger
         category: EquipAction
         code: SpecialSummonSuccess
-        property: 16400
+        property: CardTarget + Oath
         on_resolve {
         }
     }
@@ -46,7 +46,7 @@ card "Dragunity Arma Leyvaten" {
     raw_effect "Effect 4" {
         effect_type: Single + Continuous
         code: 1019
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
@@ -55,7 +55,7 @@ card "Dragunity Arma Leyvaten" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: ChainEnd
-        property: 16400
+        property: CardTarget + Oath
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -63,14 +63,14 @@ card "Dragunity Arma Leyvaten" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 76
+        code: CannotAttack2
         on_resolve {
         }
     }
 
     raw_effect "Effect 7" {
         effect_type: Single
-        code: 71
+        code: CannotDirectAttack2
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
@@ -78,7 +78,7 @@ card "Dragunity Arma Leyvaten" {
 
     raw_effect "Effect 8" {
         effect_type: Single
-        code: 41
+        code: IndestructableEffect
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
@@ -86,7 +86,7 @@ card "Dragunity Arma Leyvaten" {
 
     raw_effect "Effect 9" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -94,14 +94,14 @@ card "Dragunity Arma Leyvaten" {
 
     raw_effect "Effect 10" {
         effect_type: Single
-        code: 76
+        code: CannotAttack2
         on_resolve {
         }
     }
 
     raw_effect "Effect 11" {
         effect_type: Single
-        code: 71
+        code: CannotDirectAttack2
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
@@ -109,7 +109,7 @@ card "Dragunity Arma Leyvaten" {
 
     raw_effect "Effect 12" {
         effect_type: Single
-        code: 41
+        code: IndestructableEffect
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
@@ -117,7 +117,7 @@ card "Dragunity Arma Leyvaten" {
 
     raw_effect "Effect 13" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

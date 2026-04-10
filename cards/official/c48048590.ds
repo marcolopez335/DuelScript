@@ -3,7 +3,7 @@
 // Transpiled from c48048590.lua
 
 card "Keeper of Dragon Magic" {
-    password: 48048590
+    id: 48048590
     type: Effect Monster
     attribute: DARK
     race: Dragon
@@ -15,7 +15,7 @@ card "Keeper of Dragon Magic" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 48048590)
         cost {
             discard (1, card, you controls)
@@ -30,7 +30,7 @@ card "Keeper of Dragon Magic" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 48048590)
         cost {
             discard (1, card, you controls)
@@ -54,8 +54,8 @@ card "Keeper of Dragon Magic" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 22
-        property: 67635200
+        code: CannotDisable
+        property: InitialValue + CannotDisable + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

@@ -3,14 +3,14 @@
 // Transpiled from c59258334.lua
 
 card "Brainwashing Beam" {
-    password: 59258334
+    id: 59258334
     type: Continuous Trap
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: Summon
         code: FreeChain
-        property: 16
+        property: CardTarget
         on_resolve {
         }
     }
@@ -18,7 +18,7 @@ card "Brainwashing Beam" {
     raw_effect "Effect 2" {
         effect_type: Field + Continuous
         code: 1022
-        property: 1024
+        property: BothSide
         range: SpellTrapZone
         on_resolve {
         }
@@ -26,7 +26,7 @@ card "Brainwashing Beam" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 4
+        code: CannotActivate
         range: SpellTrapZone
         on_resolve {
         }
@@ -35,7 +35,7 @@ card "Brainwashing Beam" {
     raw_effect "Effect 4" {
         effect_type: Single
         code: 141
-        property: 131072
+        property: SingleRange
         range: SpellTrapZone
         on_resolve {
         }
@@ -43,7 +43,7 @@ card "Brainwashing Beam" {
 
     raw_effect "Effect 5" {
         effect_type: Field + Continuous
-        code: 1015
+        code: ChainNegated
         range: SpellTrapZone
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -52,7 +52,7 @@ card "Brainwashing Beam" {
 
     raw_effect "Effect 6" {
         effect_type: Field + Continuous
-        code: 4608
+        code: PhaseEnd
         range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {

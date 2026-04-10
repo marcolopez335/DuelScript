@@ -3,7 +3,7 @@
 // Transpiled from c12496261.lua
 
 card "Dragunity Knight - Luin" {
-    password: 12496261
+    id: 12496261
     type: Synchro Monster | Tuner
     attribute: WIND
     race: Dragon
@@ -25,7 +25,7 @@ card "Dragunity Knight - Luin" {
         effect_type: Single + Trigger
         category: EquipAction
         code: SpecialSummonSuccess
-        property: 81936
+        property: CardTarget + Oath + Delay
         count_limit: (1, 12496261)
         on_resolve {
         }
@@ -35,7 +35,7 @@ card "Dragunity Knight - Luin" {
         effect_type: Single + Trigger
         category: EquipAction
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             equip (1, card) to (1, monster)
@@ -44,14 +44,14 @@ card "Dragunity Knight - Luin" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 76
+        code: CannotAttack2
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 71
+        code: CannotDirectAttack2
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
@@ -59,7 +59,7 @@ card "Dragunity Knight - Luin" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 41
+        code: IndestructableEffect
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
@@ -67,7 +67,7 @@ card "Dragunity Knight - Luin" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

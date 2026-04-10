@@ -3,7 +3,7 @@
 // Transpiled from c14235211.lua
 
 card "Rider of the Storm Winds" {
-    password: 14235211
+    id: 14235211
     type: Effect Monster | Tuner
     attribute: LIGHT
     race: Dragon
@@ -14,7 +14,7 @@ card "Rider of the Storm Winds" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: EquipAction
-        property: 16
+        property: CardTarget
         range: Hand + MonsterZone
         on_resolve {
             send (1+, card, either_player controls) to gy
@@ -24,7 +24,7 @@ card "Rider of the Storm Winds" {
 
     raw_effect "Effect 2" {
         effect_type: Equip
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }
@@ -33,7 +33,7 @@ card "Rider of the Storm Winds" {
     raw_effect "Effect 3" {
         effect_type: Equip
         code: 45
-        property: 128
+        property: SetAvailable
         on_resolve {
         }
     }

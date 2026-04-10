@@ -3,7 +3,7 @@
 // Transpiled from c44509529.lua
 
 card "Prank-Kids Weather Washer" {
-    password: 44509529
+    id: 44509529
     type: Fusion Monster
     attribute: WATER
     race: Aqua
@@ -22,8 +22,8 @@ card "Prank-Kids Weather Washer" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 6
-        property: 2048
+        code: CannotChangeControl
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -34,7 +34,7 @@ card "Prank-Kids Weather Washer" {
         effect_type: QuickEffect
         category: SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 44509529)
         cost {
@@ -51,8 +51,8 @@ card "Prank-Kids Weather Washer" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 42
-        property: 67109888
+        code: CannotBeEffectTarget
+        property: BothSide + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

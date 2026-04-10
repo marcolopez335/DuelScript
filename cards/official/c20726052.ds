@@ -3,7 +3,7 @@
 // Transpiled from c20726052.lua
 
 card "Maliss <C> GWC-06" {
-    password: 20726052
+    id: 20726052
     type: Normal Trap
 
     raw_effect "Effect 1" {
@@ -23,15 +23,15 @@ card "Maliss <C> GWC-06" {
     raw_effect "Effect 2" {
         effect_type: Single
         code: 16
-        property: 256
+        property: IgnoreRange
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 1
-        property: 263552
+        code: ImmuneEffect
+        property: SetAvailable + IgnoreRange + BothSide + Uncopyable
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
         }

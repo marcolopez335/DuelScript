@@ -3,7 +3,7 @@
 // Transpiled from c42055234.lua
 
 card "Dragonmaid Tinkhec" {
-    password: 42055234
+    id: 42055234
     type: Effect Monster
     attribute: FIRE
     race: Dragon
@@ -19,7 +19,7 @@ card "Dragonmaid Tinkhec" {
         effect_type: QuickEffect
         category: SynchroSummon
         code: FreeChain
-        property: 16400
+        property: CardTarget + Oath
         range: Hand
         count_limit: (1, 42055234)
         cost {
@@ -35,8 +35,8 @@ card "Dragonmaid Tinkhec" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

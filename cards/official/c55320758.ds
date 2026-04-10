@@ -3,7 +3,7 @@
 // Transpiled from c55320758.lua
 
 card "Goblin Bikers Gone Wild" {
-    password: 55320758
+    id: 55320758
     type: Effect Monster
     attribute: DARK
     race: Fiend
@@ -18,7 +18,7 @@ card "Goblin Bikers Gone Wild" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 32
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -27,7 +27,7 @@ card "Goblin Bikers Gone Wild" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 55320758)
         on_resolve {
             special_summon (1, monster) from gy
@@ -38,7 +38,7 @@ card "Goblin Bikers Gone Wild" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 55320758)
         on_resolve {
             special_summon (1, monster) from gy
@@ -48,7 +48,7 @@ card "Goblin Bikers Gone Wild" {
     raw_effect "Effect 4" {
         effect_type: Single + Trigger
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             attach (1, card) to self as_material

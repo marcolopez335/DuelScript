@@ -3,7 +3,7 @@
 // Transpiled from c34225426.lua
 
 card "Tearlaments Perlegia" {
-    password: 34225426
+    id: 34225426
     type: Field Spell
 
     raw_effect "Effect 1" {
@@ -15,7 +15,7 @@ card "Tearlaments Perlegia" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: FieldZone
         on_resolve {
             modifier: atk + 500
@@ -26,7 +26,7 @@ card "Tearlaments Perlegia" {
         effect_type: Field + Trigger
         category: ToGrave
         code: ChainEnd
-        property: 65536
+        property: Delay
         range: FieldZone
         count_limit: (1, 34225426)
         on_resolve {
@@ -40,8 +40,8 @@ card "Tearlaments Perlegia" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 6
-        property: 67110912
+        code: CannotChangeControl
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }

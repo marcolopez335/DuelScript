@@ -3,7 +3,7 @@
 // Transpiled from c30327674.lua
 
 card "Chaos Witch" {
-    password: 30327674
+    id: 30327674
     type: Effect Monster
     attribute: DARK
     race: Spellcaster
@@ -29,7 +29,7 @@ card "Chaos Witch" {
         effect_type: Single + Trigger
         category: SpecialSummon + Token
         code: TurnEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 30327674)
         cost {
             tribute self
@@ -42,8 +42,8 @@ card "Chaos Witch" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 67635200
+        code: CannotDisable
+        property: InitialValue + CannotDisable + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

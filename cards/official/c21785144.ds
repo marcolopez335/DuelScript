@@ -3,7 +3,7 @@
 // Transpiled from c21785144.lua
 
 card "Gragonith, Lightsworn Dragon" {
-    password: 21785144
+    id: 21785144
     type: Effect Monster
     attribute: LIGHT
     race: Dragon
@@ -17,8 +17,8 @@ card "Gragonith, Lightsworn Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -27,8 +27,8 @@ card "Gragonith, Lightsworn Dragon" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 104
-        property: 131072
+        code: UpdateDefense
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: def + 0
@@ -37,7 +37,7 @@ card "Gragonith, Lightsworn Dragon" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }
@@ -46,7 +46,7 @@ card "Gragonith, Lightsworn Dragon" {
     raw_effect "Effect 4" {
         effect_type: Field + MandatoryTrigger
         category: AtkChange
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

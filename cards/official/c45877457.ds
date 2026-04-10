@@ -3,7 +3,7 @@
 // Transpiled from c45877457.lua
 
 card "Magikey Mechmortar - Garesglasser" {
-    password: 45877457
+    id: 45877457
     type: Ritual Monster
     attribute: EARTH
     race: Machine
@@ -22,7 +22,7 @@ card "Magikey Mechmortar - Garesglasser" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 0
         }
@@ -32,7 +32,7 @@ card "Magikey Mechmortar - Garesglasser" {
         effect_type: QuickEffect
         category: Destroy + Negate
         code: Chaining
-        property: 49152
+        property: Oath + CountCodeDuel
         range: MonsterZone
         count_limit: (1, 45877457)
         on_resolve {
@@ -45,7 +45,7 @@ card "Magikey Mechmortar - Garesglasser" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy

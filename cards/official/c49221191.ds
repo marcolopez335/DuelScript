@@ -3,7 +3,7 @@
 // Transpiled from c49221191.lua
 
 card "Number C32: Shark Drake Veiss" {
-    password: 49221191
+    id: 49221191
     type: Xyz Monster
     attribute: WATER
     race: Sea Serpent
@@ -25,7 +25,7 @@ card "Number C32: Shark Drake Veiss" {
         effect_type: QuickEffect
         category: SynchroSummon + XyzSummon
         code: FreeChain
-        property: 16400
+        property: CardTarget + Oath
         range: MonsterZone
         cost {
             detach 1 overlay_unit from self
@@ -44,8 +44,8 @@ card "Number C32: Shark Drake Veiss" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 102
-        property: 1024
+        code: SetAttackFinal
+        property: BothSide
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -53,8 +53,8 @@ card "Number C32: Shark Drake Veiss" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 106
-        property: 1024
+        code: SetDefenseFinal
+        property: BothSide
         on_resolve {
             modifier: def + 0
         }

@@ -3,7 +3,7 @@
 // Transpiled from c90365482.lua
 
 card "Hebo, Lord of the River" {
-    password: 90365482
+    id: 90365482
     type: Effect Monster | Flip
     attribute: WATER
     race: Aqua
@@ -13,8 +13,8 @@ card "Hebo, Lord of the River" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -22,7 +22,7 @@ card "Hebo, Lord of the River" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         code: SummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -39,7 +39,7 @@ card "Hebo, Lord of the River" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         code: 1001
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

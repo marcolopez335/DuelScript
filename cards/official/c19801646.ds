@@ -3,7 +3,7 @@
 // Transpiled from c19801646.lua
 
 card "The Legendary Fisherman II" {
-    password: 19801646
+    id: 19801646
     type: Effect Monster
     attribute: WATER
     race: Warrior
@@ -18,7 +18,7 @@ card "The Legendary Fisherman II" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 114
-        property: 131072
+        property: SingleRange
         range: MonsterZone + Graveyard
         on_resolve {
         }
@@ -26,8 +26,8 @@ card "The Legendary Fisherman II" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 1
-        property: 131072
+        code: ImmuneEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -37,8 +37,8 @@ card "The Legendary Fisherman II" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         category: ToHand + Search
-        code: 1015
-        property: 83968
+        code: ChainNegated
+        property: InitialValue + Oath + Delay
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)

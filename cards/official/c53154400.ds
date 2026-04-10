@@ -3,7 +3,7 @@
 // Transpiled from c53154400.lua
 
 card "Psychic Rover" {
-    password: 53154400
+    id: 53154400
     type: Effect Monster
     attribute: DARK
     race: Psychic
@@ -15,7 +15,7 @@ card "Psychic Rover" {
         effect_type: Single + Trigger
         category: Destroy + FusionSummon
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
             destroy (1+, card, either_player controls)
@@ -26,7 +26,7 @@ card "Psychic Rover" {
         effect_type: Single + Trigger
         category: SpecialSummon + FusionSummon
         code: ChainEnd
-        property: 65536
+        property: Delay
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
             special_summon (1, monster) from gy

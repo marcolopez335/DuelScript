@@ -3,7 +3,7 @@
 // Transpiled from c91691605.lua
 
 card "Destiny HERO - Drilldark" {
-    password: 91691605
+    id: 91691605
     type: Effect Monster
     attribute: DARK
     race: Warrior
@@ -15,7 +15,7 @@ card "Destiny HERO - Drilldark" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 91691605)
         on_resolve {
             special_summon (1, monster) from gy
@@ -26,7 +26,7 @@ card "Destiny HERO - Drilldark" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 91691605)
         on_resolve {
             special_summon (1, monster) from gy
@@ -35,7 +35,7 @@ card "Destiny HERO - Drilldark" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }

@@ -3,7 +3,7 @@
 // Transpiled from c21960890.lua
 
 card "Dark Necromancer" {
-    password: 21960890
+    id: 21960890
     type: Effect Monster
     attribute: DARK
     race: Zombie
@@ -15,7 +15,7 @@ card "Dark Necromancer" {
         effect_type: Single + Trigger
         category: ToHand + ToGrave + Search
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 21960890)
         on_resolve {
             send (1+, card, you controls, hand) to gy
@@ -28,7 +28,7 @@ card "Dark Necromancer" {
         effect_type: Single + Trigger
         category: ToHand + ToGrave + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 21960890)
         on_resolve {
             send (1+, card, you controls, hand) to gy
@@ -41,7 +41,7 @@ card "Dark Necromancer" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: TurnEnd
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

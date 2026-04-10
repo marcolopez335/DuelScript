@@ -3,7 +3,7 @@
 // Transpiled from c56585883.lua
 
 card "Harpie Harpist" {
-    password: 56585883
+    id: 56585883
     type: Effect Monster
     attribute: WIND
     race: Winged Beast
@@ -14,7 +14,7 @@ card "Harpie Harpist" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 114
-        property: 131072
+        property: SingleRange
         range: MonsterZone + Graveyard
         on_resolve {
         }
@@ -24,7 +24,7 @@ card "Harpie Harpist" {
         effect_type: Single + Trigger
         category: ToHand
         code: SummonSuccess
-        property: 16
+        property: CardTarget
         count_limit: (1, 56585883)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -34,7 +34,7 @@ card "Harpie Harpist" {
     raw_effect "Effect 3" {
         effect_type: Single + Continuous
         code: ChainEnd
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
@@ -42,7 +42,7 @@ card "Harpie Harpist" {
     raw_effect "Effect 4" {
         effect_type: Field + Trigger
         category: ToHand + Search
-        code: 4608
+        code: PhaseEnd
         range: Graveyard
         count_limit: (1, 0)
         on_resolve {

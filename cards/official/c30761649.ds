@@ -3,7 +3,7 @@
 // Transpiled from c30761649.lua
 
 card "Barian Untopia" {
-    password: 30761649
+    id: 30761649
     type: Field Spell
 
     raw_effect "Effect 1" {
@@ -15,7 +15,7 @@ card "Barian Untopia" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 41
+        code: IndestructableEffect
         range: FieldZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -24,8 +24,8 @@ card "Barian Untopia" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 71
-        property: 128
+        code: CannotDirectAttack2
+        property: SetAvailable
         range: FieldZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -35,7 +35,7 @@ card "Barian Untopia" {
     raw_effect "Effect 4" {
         effect_type: Field + Trigger
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         range: FieldZone
         count_limit: (1, 0)
         on_resolve {

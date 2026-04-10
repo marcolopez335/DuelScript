@@ -3,7 +3,7 @@
 // Transpiled from c12067160.lua
 
 card "Gorgon of Zilofthonia" {
-    password: 12067160
+    id: 12067160
     type: Link Monster
     attribute: DARK
     race: Reptile
@@ -23,7 +23,7 @@ card "Gorgon of Zilofthonia" {
     raw_effect "Effect 1" {
         effect_type: Field
         code: 265
-        property: 265216
+        property: BothSide + InitialValue + Uncopyable
         range: MonsterZone
         on_resolve {
         }
@@ -49,8 +49,8 @@ card "Gorgon of Zilofthonia" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -59,8 +59,8 @@ card "Gorgon of Zilofthonia" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -69,8 +69,8 @@ card "Gorgon of Zilofthonia" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

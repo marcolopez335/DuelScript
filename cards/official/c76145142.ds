@@ -3,7 +3,7 @@
 // Transpiled from c76145142.lua
 
 card "Longirsu, the Orcust Orchestrator" {
-    password: 76145142
+    id: 76145142
     type: Link Monster
     attribute: DARK
     race: Machine
@@ -22,8 +22,8 @@ card "Longirsu, the Orcust Orchestrator" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -33,7 +33,7 @@ card "Longirsu, the Orcust Orchestrator" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: ToDeck + ToGrave
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 76145142)
         on_resolve {
@@ -47,7 +47,7 @@ card "Longirsu, the Orcust Orchestrator" {
         effect_type: QuickEffect
         category: ToDeck + ToGrave
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 76145142)
         on_resolve {

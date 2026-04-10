@@ -3,7 +3,7 @@
 // Transpiled from c24943456.lua
 
 card "T.G. Power Gladiator" {
-    password: 24943456
+    id: 24943456
     type: Synchro Monster
     attribute: EARTH
     race: Warrior
@@ -23,7 +23,7 @@ card "T.G. Power Gladiator" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }
@@ -32,8 +32,8 @@ card "T.G. Power Gladiator" {
     raw_effect "Effect 2" {
         effect_type: Single + MandatoryTrigger
         category: Draw
-        code: 1015
-        property: 2048
+        code: ChainNegated
+        property: InitialValue
         on_resolve {
             draw 1
         }

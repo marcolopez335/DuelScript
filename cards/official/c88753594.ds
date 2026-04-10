@@ -3,7 +3,7 @@
 // Transpiled from c88753594.lua
 
 card "Lunalight Sabre Dancer" {
-    password: 88753594
+    id: 88753594
     type: Fusion Monster
     attribute: DARK
     race: Beast-Warrior
@@ -22,16 +22,16 @@ card "Lunalight Sabre Dancer" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -40,8 +40,8 @@ card "Lunalight Sabre Dancer" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 71
-        property: 131072
+        code: CannotDirectAttack2
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -51,7 +51,7 @@ card "Lunalight Sabre Dancer" {
     raw_effect "Effect 4" {
         effect_type: Ignition
         category: SynchroSummon
-        property: 16
+        property: CardTarget
         range: Graveyard
         count_limit: (1, 88753594)
         cost {

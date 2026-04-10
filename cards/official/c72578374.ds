@@ -3,7 +3,7 @@
 // Transpiled from c72578374.lua
 
 card "Khaos Starsource Dragon" {
-    password: 72578374
+    id: 72578374
     type: Fusion Monster
     attribute: LIGHT
     race: Dragon
@@ -24,7 +24,7 @@ card "Khaos Starsource Dragon" {
         effect_type: Single + Trigger
         category: Destroy
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 72578374)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -33,7 +33,7 @@ card "Khaos Starsource Dragon" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }
@@ -42,7 +42,7 @@ card "Khaos Starsource Dragon" {
         effect_type: Single + Trigger
         category: LevelChange
         code: TurnEnd
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -55,7 +55,7 @@ card "Khaos Starsource Dragon" {
     raw_effect "Effect 4" {
         effect_type: Single
         code: 131
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }

@@ -3,7 +3,7 @@
 // Transpiled from c96945958.lua
 
 card "Speedroid CarTurbo" {
-    password: 96945958
+    id: 96945958
     type: Effect Monster | Tuner
     attribute: WIND
     race: Machine
@@ -43,8 +43,8 @@ card "Speedroid CarTurbo" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 6
-        property: 67110912
+        code: CannotChangeControl
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
@@ -52,8 +52,8 @@ card "Speedroid CarTurbo" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 100
-        property: 1024
+        code: UpdateAttack
+        property: BothSide
         on_resolve {
             modifier: atk + 800
         }

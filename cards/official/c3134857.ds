@@ -3,7 +3,7 @@
 // Transpiled from c3134857.lua
 
 card "Orcustrion" {
-    password: 3134857
+    id: 3134857
     type: Link Monster
     attribute: DARK
     race: Machine
@@ -22,8 +22,8 @@ card "Orcustrion" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -32,8 +32,8 @@ card "Orcustrion" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -43,7 +43,7 @@ card "Orcustrion" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: ToDeck + Disable + SynchroSummon + XyzSummon
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 3134857)
         on_resolve {
@@ -76,7 +76,7 @@ card "Orcustrion" {
         effect_type: QuickEffect
         category: ToDeck + Disable + SynchroSummon + XyzSummon
         code: FreeChain
-        property: 16400
+        property: CardTarget + Oath
         range: MonsterZone
         count_limit: (1, 3134857)
         on_resolve {

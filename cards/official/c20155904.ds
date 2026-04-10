@@ -3,7 +3,7 @@
 // Transpiled from c20155904.lua
 
 card "Zoodiac Kataroost" {
-    password: 20155904
+    id: 20155904
     type: Effect Monster
     attribute: EARTH
     race: Beast-Warrior
@@ -15,17 +15,17 @@ card "Zoodiac Kataroost" {
         effect_type: Single + Trigger
         category: ToDeck
         code: Destroyed
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
         }
     }
 
     raw_effect "Effect 2" {
-        effect_type: QuickEffect
+        effect_type: QuickEffect + XyzMaterial
         category: Negate
         code: Chaining
-        property: 49152
+        property: Oath + CountCodeDuel
         cost {
             detach 1 overlay_unit from self
         }

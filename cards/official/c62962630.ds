@@ -3,7 +3,7 @@
 // Transpiled from c62962630.lua
 
 card "Aluber the Jester of Despia" {
-    password: 62962630
+    id: 62962630
     type: Effect Monster
     attribute: DARK
     race: Fairy
@@ -15,7 +15,7 @@ card "Aluber the Jester of Despia" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SummonSuccess
-        property: 81920
+        property: Oath + Delay
         count_limit: (1, 62962630)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -27,7 +27,7 @@ card "Aluber the Jester of Despia" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 81920
+        property: Oath + Delay
         count_limit: (1, 62962630)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -38,8 +38,8 @@ card "Aluber the Jester of Despia" {
     raw_effect "Effect 3" {
         effect_type: Field + Trigger
         category: SpecialSummon + Disable
-        code: 1015
-        property: 81936
+        code: ChainNegated
+        property: CardTarget + Oath + Delay
         range: Graveyard
         count_limit: (1, 62962630)
         on_resolve {

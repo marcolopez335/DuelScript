@@ -3,7 +3,7 @@
 // Transpiled from c87804747.lua
 
 card "Ultimate Great Insect" {
-    password: 87804747
+    id: 87804747
     type: Fusion Monster
     attribute: EARTH
     race: Insect
@@ -22,16 +22,16 @@ card "Ultimate Great Insect" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Deck
         on_resolve {
             tribute (1, monster, you controls)
@@ -40,8 +40,8 @@ card "Ultimate Great Insect" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

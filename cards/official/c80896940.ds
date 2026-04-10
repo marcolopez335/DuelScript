@@ -3,7 +3,7 @@
 // Transpiled from c80896940.lua
 
 card "Nirvana High Paladin" {
-    password: 80896940
+    id: 80896940
     type: Synchro Monster | Pendulum Monster
     attribute: DARK
     race: Spellcaster
@@ -55,7 +55,7 @@ card "Nirvana High Paladin" {
         effect_type: Single + Trigger
         category: ToHand
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             return (1+, monster, opponent controls) to hand
         }
@@ -63,14 +63,14 @@ card "Nirvana High Paladin" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
         effect_type: Single + Trigger
-        code: 1139
+        code: BattleConfirmed
         on_resolve {
             gain_lp: 0
         }
@@ -79,7 +79,7 @@ card "Nirvana High Paladin" {
     raw_effect "Effect 6" {
         effect_type: Single + Trigger
         code: Destroyed
-        property: 65536
+        property: Delay
         on_resolve {
             special_summon (1, monster) from gy
         }

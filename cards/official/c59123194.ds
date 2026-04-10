@@ -3,7 +3,7 @@
 // Transpiled from c59123194.lua
 
 card "Enlightenment Paladin" {
-    password: 59123194
+    id: 59123194
     type: Synchro Monster
     attribute: DARK
     race: Spellcaster
@@ -25,7 +25,7 @@ card "Enlightenment Paladin" {
         effect_type: Single + Trigger
         category: ToHand
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 59123194)
         on_resolve {
             add_to_hand (1+, spell, either_player controls) from gy
@@ -35,8 +35,8 @@ card "Enlightenment Paladin" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: Damage
-        code: 1139
-        property: 2048
+        code: BattleConfirmed
+        property: InitialValue
         on_resolve {
             deal_damage to opponent: 1000
         }

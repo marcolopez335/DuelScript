@@ -3,7 +3,7 @@
 // Transpiled from c77360173.lua
 
 card "Synkron Resonator" {
-    password: 77360173
+    id: 77360173
     type: Effect Monster | Tuner
     attribute: DARK
     race: Fiend
@@ -13,8 +13,8 @@ card "Synkron Resonator" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         count_limit: (1, 77360173)
         on_resolve {
@@ -25,7 +25,7 @@ card "Synkron Resonator" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 81936
+        property: CardTarget + Oath + Delay
         on_resolve {
             return (1+, monster, either_player controls) to hand
         }

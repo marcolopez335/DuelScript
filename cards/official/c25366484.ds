@@ -3,7 +3,7 @@
 // Transpiled from c25366484.lua
 
 card "Elemental HERO Shining Flare Wingman" {
-    password: 25366484
+    id: 25366484
     type: Fusion Monster
     attribute: LIGHT
     race: Warrior
@@ -22,8 +22,8 @@ card "Elemental HERO Shining Flare Wingman" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -31,8 +31,8 @@ card "Elemental HERO Shining Flare Wingman" {
     raw_effect "Effect 2" {
         effect_type: Single + MandatoryTrigger
         category: Damage
-        code: 1139
-        property: 2048
+        code: BattleConfirmed
+        property: InitialValue
         on_resolve {
             deal_damage to opponent: 1000
         }
@@ -40,8 +40,8 @@ card "Elemental HERO Shining Flare Wingman" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0

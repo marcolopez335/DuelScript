@@ -3,7 +3,7 @@
 // Transpiled from c69529337.lua
 
 card "Triamid Dancer" {
-    password: 69529337
+    id: 69529337
     type: Effect Monster
     attribute: EARTH
     race: Rock
@@ -14,7 +14,7 @@ card "Triamid Dancer" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: ToDeck + SynchroSummon
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -34,7 +34,7 @@ card "Triamid Dancer" {
         effect_type: QuickEffect
         category: ToGrave
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -44,8 +44,8 @@ card "Triamid Dancer" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 100
-        property: 1024
+        code: UpdateAttack
+        property: BothSide
         on_resolve {
             modifier: atk + 500
         }
@@ -53,8 +53,8 @@ card "Triamid Dancer" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 104
-        property: 1024
+        code: UpdateDefense
+        property: BothSide
         on_resolve {
             modifier: def + 500
         }

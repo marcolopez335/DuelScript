@@ -3,7 +3,7 @@
 // Transpiled from c76504386.lua
 
 card "Number 39: Utopia the Envoy of Light" {
-    password: 76504386
+    id: 76504386
     type: Xyz Monster
     attribute: LIGHT
     race: Warrior
@@ -23,7 +23,7 @@ card "Number 39: Utopia the Envoy of Light" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -32,7 +32,7 @@ card "Number 39: Utopia the Envoy of Light" {
     raw_effect "Effect 2" {
         effect_type: QuickEffect
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         cost {
             detach 1 overlay_unit from self
@@ -65,7 +65,7 @@ card "Number 39: Utopia the Envoy of Light" {
     raw_effect "Effect 5" {
         effect_type: Single
         code: 47
-        property: 67109120
+        property: IgnoreRange + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
         }
@@ -74,7 +74,7 @@ card "Number 39: Utopia the Envoy of Light" {
     raw_effect "Effect 6" {
         effect_type: Single + Trigger
         category: SpecialSummon
-        code: 1139
+        code: BattleConfirmed
         on_resolve {
             special_summon (1, monster) from gy
         }

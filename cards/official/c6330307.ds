@@ -3,7 +3,7 @@
 // Transpiled from c6330307.lua
 
 card "DZW - Chimera Clad" {
-    password: 6330307
+    id: 6330307
     type: Effect Monster
     attribute: DARK
     race: Fiend
@@ -14,7 +14,7 @@ card "DZW - Chimera Clad" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: EquipAction
-        property: 16
+        property: CardTarget
         range: Hand + MonsterZone
         on_resolve {
             send (1+, card, either_player controls) to gy
@@ -23,8 +23,8 @@ card "DZW - Chimera Clad" {
 
     raw_effect "Effect 2" {
         effect_type: Equip
-        code: 42
-        property: 128
+        code: CannotBeEffectTarget
+        property: SetAvailable
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -44,7 +44,7 @@ card "DZW - Chimera Clad" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 102
+        code: SetAttackFinal
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -52,14 +52,14 @@ card "DZW - Chimera Clad" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 76
+        code: CannotAttack2
         on_resolve {
         }
     }
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 0
         }
@@ -74,7 +74,7 @@ card "DZW - Chimera Clad" {
 
     raw_effect "Effect 8" {
         effect_type: Single
-        code: 71
+        code: CannotDirectAttack2
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
@@ -82,7 +82,7 @@ card "DZW - Chimera Clad" {
 
     raw_effect "Effect 9" {
         effect_type: Single
-        code: 41
+        code: IndestructableEffect
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
@@ -90,7 +90,7 @@ card "DZW - Chimera Clad" {
 
     raw_effect "Effect 10" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

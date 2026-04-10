@@ -3,7 +3,7 @@
 // Transpiled from c52698008.lua
 
 card "Cyberse Wicckid" {
-    password: 52698008
+    id: 52698008
     type: Link Monster
     attribute: DARK
     race: Cyberse
@@ -22,8 +22,8 @@ card "Cyberse Wicckid" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -32,8 +32,8 @@ card "Cyberse Wicckid" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -42,7 +42,7 @@ card "Cyberse Wicckid" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 41
+        code: IndestructableEffect
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -53,7 +53,7 @@ card "Cyberse Wicckid" {
         effect_type: Field + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         range: MonsterZone
         count_limit: (1, 52698008)
         cost {

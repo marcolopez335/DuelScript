@@ -3,7 +3,7 @@
 // Transpiled from c72270339.lua
 
 card "Diabellstar the Black Witch" {
-    password: 72270339
+    id: 72270339
     type: Effect Monster
     attribute: DARK
     race: Spellcaster
@@ -17,8 +17,8 @@ card "Diabellstar the Black Witch" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         count_limit: (1, 72270339)
         on_resolve {
@@ -29,7 +29,7 @@ card "Diabellstar the Black Witch" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             set (1, card)
@@ -39,7 +39,7 @@ card "Diabellstar the Black Witch" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             set (1, card)
@@ -50,7 +50,7 @@ card "Diabellstar the Black Witch" {
         effect_type: Single + Trigger
         category: ToGrave + SpecialSummon
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             send (1+, spell, you controls, hand) to gy

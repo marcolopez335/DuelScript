@@ -3,7 +3,7 @@
 // Transpiled from c33296432.lua
 
 card "Dogmatika Adin, the Enlightened" {
-    password: 33296432
+    id: 33296432
     type: Effect Monster
     attribute: LIGHT
     race: Spellcaster
@@ -23,7 +23,7 @@ card "Dogmatika Adin, the Enlightened" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -33,7 +33,7 @@ card "Dogmatika Adin, the Enlightened" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 81920
+        property: Oath + Delay
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

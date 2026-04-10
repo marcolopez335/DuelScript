@@ -3,7 +3,7 @@
 // Transpiled from c25451652.lua
 
 card "Darklord Morningstar" {
-    password: 25451652
+    id: 25451652
     type: Effect Monster
     attribute: DARK
     race: Fairy
@@ -17,8 +17,8 @@ card "Darklord Morningstar" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -27,7 +27,7 @@ card "Darklord Morningstar" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -35,8 +35,8 @@ card "Darklord Morningstar" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 71
-        property: 131072
+        code: CannotDirectAttack2
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }

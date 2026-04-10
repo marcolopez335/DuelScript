@@ -3,7 +3,7 @@
 // Transpiled from c43138260.lua
 
 card "Xyz Remora" {
-    password: 43138260
+    id: 43138260
     type: Effect Monster
     attribute: WATER
     race: Fish
@@ -13,8 +13,8 @@ card "Xyz Remora" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             detach 1 overlay_unit from self
@@ -25,7 +25,7 @@ card "Xyz Remora" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {

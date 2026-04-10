@@ -3,7 +3,7 @@
 // Transpiled from c41685633.lua
 
 card "Thunder Dragon Titan" {
-    password: 41685633
+    id: 41685633
     type: Fusion Monster
     attribute: LIGHT
     race: Thunder
@@ -22,16 +22,16 @@ card "Thunder Dragon Titan" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Deck
         on_resolve {
             banish (1+, monster, you controls, hand)
@@ -42,7 +42,7 @@ card "Thunder Dragon Titan" {
         effect_type: QuickEffect
         category: Destroy
         code: Chaining
-        property: 16384
+        property: Oath
         range: MonsterZone
         on_resolve {
             destroy (1+, monster, you controls, hand)

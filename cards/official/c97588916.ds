@@ -3,7 +3,7 @@
 // Transpiled from c97588916.lua
 
 card "Deskbot 007" {
-    password: 97588916
+    id: 97588916
     type: Effect Monster | Pendulum Monster
     attribute: EARTH
     race: Machine
@@ -18,8 +18,8 @@ card "Deskbot 007" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 22
-        property: 3072
+        code: CannotDisable
+        property: BothSide + InitialValue
         range: PendulumZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -28,8 +28,8 @@ card "Deskbot 007" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -38,7 +38,7 @@ card "Deskbot 007" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }

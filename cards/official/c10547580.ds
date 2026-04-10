@@ -3,7 +3,7 @@
 // Transpiled from c10547580.lua
 
 card "Ancient Gear Ballista" {
-    password: 10547580
+    id: 10547580
     type: Link Monster
     attribute: EARTH
     race: Machine
@@ -24,7 +24,7 @@ card "Ancient Gear Ballista" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 10547580)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -35,7 +35,7 @@ card "Ancient Gear Ballista" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: Destroy + SynchroSummon
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -53,7 +53,7 @@ card "Ancient Gear Ballista" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 102
+        code: SetAttackFinal
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -61,7 +61,7 @@ card "Ancient Gear Ballista" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 106
+        code: SetDefenseFinal
         on_resolve {
             modifier: def + 0
         }

@@ -3,12 +3,12 @@
 // Transpiled from c42199039.lua
 
 card "Cursed Bamboo Sword" {
-    password: 42199039
+    id: 42199039
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 0
         }
@@ -17,7 +17,7 @@ card "Cursed Bamboo Sword" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: ToHand
-        property: 16
+        property: CardTarget
         range: SpellTrapZone
         count_limit: (1, 42199039)
         on_resolve {
@@ -33,7 +33,7 @@ card "Cursed Bamboo Sword" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: ChainEnd
-        property: 65536
+        property: Delay
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)

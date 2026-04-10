@@ -3,7 +3,7 @@
 // Transpiled from c78527720.lua
 
 card "Prinzessin" {
-    password: 78527720
+    id: 78527720
     type: Effect Monster
     attribute: LIGHT
     race: Fairy
@@ -15,7 +15,7 @@ card "Prinzessin" {
         effect_type: Single + Trigger
         category: SpecialSummon + EquipAction
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 78527720)
         on_resolve {
             special_summon (1, monster) from gy
@@ -27,7 +27,7 @@ card "Prinzessin" {
         effect_type: Single + Trigger
         category: SpecialSummon + EquipAction
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 78527720)
         on_resolve {
             special_summon (1, monster) from gy
@@ -37,8 +37,8 @@ card "Prinzessin" {
 
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
-        code: 1143
-        property: 81936
+        code: BattleDestroyed
+        property: CardTarget + Oath + Delay
         on_resolve {
             equip (1, card) to (1, monster)
         }

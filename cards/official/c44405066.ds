@@ -3,7 +3,7 @@
 // Transpiled from c44405066.lua
 
 card "Red-Eyes Flare Metal Dragon" {
-    password: 44405066
+    id: 44405066
     type: Xyz Monster
     attribute: DARK
     race: Dragon
@@ -23,8 +23,8 @@ card "Red-Eyes Flare Metal Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -34,7 +34,7 @@ card "Red-Eyes Flare Metal Dragon" {
     raw_effect "Effect 2" {
         effect_type: Field + Continuous
         code: Chaining
-        property: 1024
+        property: BothSide
         range: MonsterZone
         on_resolve {
         }
@@ -53,7 +53,7 @@ card "Red-Eyes Flare Metal Dragon" {
         effect_type: QuickEffect
         category: SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         cost {

@@ -3,7 +3,7 @@
 // Transpiled from c5063379.lua
 
 card "Flavian - Colosseum of the Gladiator Beasts" {
-    password: 5063379
+    id: 5063379
     type: Field Spell
 
     raw_effect "Effect 1" {
@@ -41,7 +41,7 @@ card "Flavian - Colosseum of the Gladiator Beasts" {
 
     raw_effect "Effect 4" {
         effect_type: Field + Trigger
-        code: 4608
+        code: PhaseEnd
         range: FieldZone
         count_limit: (1, 0)
         on_resolve {
@@ -59,8 +59,8 @@ card "Flavian - Colosseum of the Gladiator Beasts" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 42
-        property: 67108864
+        code: CannotBeEffectTarget
+        property: IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

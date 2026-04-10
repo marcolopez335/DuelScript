@@ -3,7 +3,7 @@
 // Transpiled from c35405755.lua
 
 card "Kurikara Divincarnate" {
-    password: 35405755
+    id: 35405755
     type: Effect Monster | Spirit
     attribute: FIRE
     race: Fairy
@@ -17,16 +17,16 @@ card "Kurikara Divincarnate" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             tribute (1, monster, you controls)
@@ -36,8 +36,8 @@ card "Kurikara Divincarnate" {
     raw_effect "Effect 3" {
         effect_type: Field + Trigger
         category: SpecialSummon
-        code: 4608
-        property: 16
+        code: PhaseEnd
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 35405755)
         on_resolve {
@@ -54,7 +54,7 @@ card "Kurikara Divincarnate" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 0
         }

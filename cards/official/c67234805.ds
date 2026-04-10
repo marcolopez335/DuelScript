@@ -3,7 +3,7 @@
 // Transpiled from c67234805.lua
 
 card "Powersink Stone" {
-    password: 67234805
+    id: 67234805
     type: Continuous Trap
 
     raw_effect "Effect 1" {
@@ -16,7 +16,7 @@ card "Powersink Stone" {
     raw_effect "Effect 2" {
         effect_type: Field + Continuous
         code: Chaining
-        property: 1024
+        property: BothSide
         range: SpellTrapZone
         on_resolve {
         }
@@ -25,7 +25,7 @@ card "Powersink Stone" {
     raw_effect "Effect 3" {
         effect_type: Field + Continuous
         code: 1020
-        property: 65536
+        property: Delay
         range: SpellTrapZone
         on_resolve {
         }
@@ -42,7 +42,7 @@ card "Powersink Stone" {
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 2
+        code: Disable
         range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -51,7 +51,7 @@ card "Powersink Stone" {
 
     raw_effect "Effect 6" {
         effect_type: Field + MandatoryTrigger
-        code: 4608
+        code: PhaseEnd
         range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {

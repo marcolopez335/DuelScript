@@ -3,7 +3,7 @@
 // Transpiled from c74641045.lua
 
 card "Madolche Puddingcess" {
-    password: 74641045
+    id: 74641045
     type: Effect Monster
     attribute: EARTH
     race: Fairy
@@ -26,8 +26,8 @@ card "Madolche Puddingcess" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 800
@@ -36,8 +36,8 @@ card "Madolche Puddingcess" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 104
-        property: 131072
+        code: UpdateDefense
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: def + 800
@@ -48,7 +48,7 @@ card "Madolche Puddingcess" {
         effect_type: Single + Trigger
         category: Destroy
         code: 1138
-        property: 16
+        property: CardTarget
         on_resolve {
             destroy (1+, card, you controls, gy)
         }

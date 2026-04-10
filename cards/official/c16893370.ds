@@ -3,7 +3,7 @@
 // Transpiled from c16893370.lua
 
 card "Dreaming Reality of Nemleria, Realized" {
-    password: 16893370
+    id: 16893370
     type: Effect Monster
     attribute: LIGHT
     race: Fairy
@@ -17,8 +17,8 @@ card "Dreaming Reality of Nemleria, Realized" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -28,7 +28,7 @@ card "Dreaming Reality of Nemleria, Realized" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: ToDeck + SpecialSummon
-        property: 16
+        property: CardTarget
         range: Hand
         count_limit: (1, 16893370)
         on_resolve {
@@ -40,7 +40,7 @@ card "Dreaming Reality of Nemleria, Realized" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, you controls) to extra_deck

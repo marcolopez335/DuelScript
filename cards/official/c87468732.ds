@@ -3,7 +3,7 @@
 // Transpiled from c87468732.lua
 
 card "Clock Arc" {
-    password: 87468732
+    id: 87468732
     type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Machine
@@ -26,7 +26,7 @@ card "Clock Arc" {
     raw_effect "Effect 2" {
         effect_type: Single
         code: 134
-        property: 131072
+        property: SingleRange
         range: PendulumZone
         on_resolve {
         }
@@ -35,7 +35,7 @@ card "Clock Arc" {
     raw_effect "Effect 3" {
         effect_type: Single
         code: 136
-        property: 131072
+        property: SingleRange
         range: PendulumZone
         on_resolve {
         }
@@ -51,7 +51,7 @@ card "Clock Arc" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -60,8 +60,8 @@ card "Clock Arc" {
     raw_effect "Effect 6" {
         effect_type: Field + Trigger
         category: Destroy
-        code: 4608
-        property: 16
+        code: PhaseEnd
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

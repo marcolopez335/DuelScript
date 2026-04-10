@@ -3,7 +3,7 @@
 // Transpiled from c30227494.lua
 
 card "Psychic Tracker" {
-    password: 30227494
+    id: 30227494
     type: Effect Monster
     attribute: EARTH
     race: Psychic
@@ -13,8 +13,8 @@ card "Psychic Tracker" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 1310720
+        code: CannotSummon
+        property: Uncopyable + PlayerTarget
         range: Hand
         count_limit: (1, 30227494)
         on_resolve {
@@ -23,8 +23,8 @@ card "Psychic Tracker" {
 
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
-        code: 1108
-        property: 128
+        code: FlipSuccess
+        property: SetAvailable
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

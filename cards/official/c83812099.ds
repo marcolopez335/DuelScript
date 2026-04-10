@@ -3,7 +3,7 @@
 // Transpiled from c83812099.lua
 
 card "Flint Lock" {
-    password: 83812099
+    id: 83812099
     type: Effect Monster
     attribute: LIGHT
     race: Machine
@@ -22,7 +22,7 @@ card "Flint Lock" {
 
     raw_effect "Effect 2" {
         effect_type: Ignition
-        property: 16
+        property: CardTarget
         range: MonsterZone
         on_resolve {
             equip (1, card) to (1, monster)
@@ -31,7 +31,7 @@ card "Flint Lock" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

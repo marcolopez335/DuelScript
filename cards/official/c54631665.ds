@@ -3,7 +3,7 @@
 // Transpiled from c54631665.lua
 
 card "SPYRAL Resort" {
-    password: 54631665
+    id: 54631665
     type: Field Spell
 
     raw_effect "Effect 1" {
@@ -15,8 +15,8 @@ card "SPYRAL Resort" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 71
-        property: 128
+        code: CannotDirectAttack2
+        property: SetAvailable
         range: FieldZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -36,8 +36,8 @@ card "SPYRAL Resort" {
 
     raw_effect "Effect 4" {
         effect_type: Field + Continuous
-        code: 4608
-        property: 263168
+        code: PhaseEnd
+        property: BothSide + Uncopyable
         range: FieldZone
         count_limit: (1, 0)
         on_resolve {

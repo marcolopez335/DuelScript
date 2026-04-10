@@ -3,7 +3,7 @@
 // Transpiled from c4538826.lua
 
 card "Chaos Emperor, the Dragon of Armageddon" {
-    password: 4538826
+    id: 4538826
     type: Effect Monster | Pendulum Monster | Spirit
     attribute: DARK
     race: Dragon
@@ -19,7 +19,7 @@ card "Chaos Emperor, the Dragon of Armageddon" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: Destroy + ToHand
-        property: 16
+        property: CardTarget
         range: PendulumZone
         count_limit: (1, 4538826)
         cost {
@@ -33,16 +33,16 @@ card "Chaos Emperor, the Dragon of Armageddon" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Hand + Deck
         count_limit: (1, 0)
         on_resolve {
@@ -67,8 +67,8 @@ card "Chaos Emperor, the Dragon of Armageddon" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 60
-        property: 1024
+        code: CannotAttack
+        property: BothSide
         on_resolve {
         }
     }
@@ -76,7 +76,7 @@ card "Chaos Emperor, the Dragon of Armageddon" {
     raw_effect "Effect 6" {
         effect_type: Single + Continuous
         code: SpecialSummonSuccess
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }

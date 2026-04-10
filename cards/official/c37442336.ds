@@ -3,7 +3,7 @@
 // Transpiled from c37442336.lua
 
 card "Cosmic Quasar Dragon" {
-    password: 37442336
+    id: 37442336
     type: Synchro Monster
     attribute: LIGHT
     race: Dragon
@@ -23,8 +23,8 @@ card "Cosmic Quasar Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -32,7 +32,7 @@ card "Cosmic Quasar Dragon" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: Disable
-        property: 33555984
+        property: CardTarget + IgnoreImmune + BothSide
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -62,8 +62,8 @@ card "Cosmic Quasar Dragon" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 2
-        property: 1024
+        code: Disable
+        property: BothSide
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
@@ -72,7 +72,7 @@ card "Cosmic Quasar Dragon" {
     raw_effect "Effect 5" {
         effect_type: Single
         code: 8
-        property: 1024
+        property: BothSide
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }

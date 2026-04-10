@@ -3,7 +3,7 @@
 // Transpiled from c54525057.lua
 
 card "Crusadia Draco" {
-    password: 54525057
+    id: 54525057
     type: Effect Monster
     attribute: WIND
     race: Dragon
@@ -13,8 +13,8 @@ card "Crusadia Draco" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 1310720
+        code: CannotSummon
+        property: Uncopyable + PlayerTarget
         range: Hand
         count_limit: (1, 54525057)
         on_resolve {
@@ -25,7 +25,7 @@ card "Crusadia Draco" {
         effect_type: Single + Trigger
         category: ToHand
         code: SummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
@@ -36,7 +36,7 @@ card "Crusadia Draco" {
         effect_type: Single + Trigger
         category: ToHand
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy

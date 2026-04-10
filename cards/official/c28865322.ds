@@ -3,7 +3,7 @@
 // Transpiled from c28865322.lua
 
 card "Aether, the Evil Empowering Dragon" {
-    password: 28865322
+    id: 28865322
     type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Dragon
@@ -19,7 +19,7 @@ card "Aether, the Evil Empowering Dragon" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: Destroy
-        property: 16
+        property: CardTarget
         range: PendulumZone
         count_limit: (1, 0)
         cost {
@@ -34,7 +34,7 @@ card "Aether, the Evil Empowering Dragon" {
         effect_type: Single + Trigger
         category: Banish
         code: SummonSuccess
-        property: 16400
+        property: CardTarget + Oath
         on_resolve {
             banish (1+, monster, you controls, gy)
         }
@@ -44,7 +44,7 @@ card "Aether, the Evil Empowering Dragon" {
         effect_type: Single + Trigger
         category: Banish
         code: SpecialSummonSuccess
-        property: 16400
+        property: CardTarget + Oath
         on_resolve {
             banish (1+, monster, you controls, gy)
         }

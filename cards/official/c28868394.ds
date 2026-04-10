@@ -3,7 +3,7 @@
 // Transpiled from c28868394.lua
 
 card "Traptrix Vesiculo" {
-    password: 28868394
+    id: 28868394
     type: Effect Monster
     attribute: EARTH
     race: Plant
@@ -13,8 +13,8 @@ card "Traptrix Vesiculo" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 1
-        property: 131072
+        code: ImmuneEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -36,7 +36,7 @@ card "Traptrix Vesiculo" {
 
     raw_effect "Effect 3" {
         effect_type: Ignition
-        property: 16
+        property: CardTarget
         range: Graveyard
         count_limit: (1, 28868394)
         cost {

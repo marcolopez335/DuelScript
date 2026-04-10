@@ -3,7 +3,7 @@
 // Transpiled from c72162751.lua
 
 card "Queen of the Blazing Domain" {
-    password: 72162751
+    id: 72162751
     type: Effect Monster
     attribute: DARK
     race: Pyro
@@ -17,8 +17,8 @@ card "Queen of the Blazing Domain" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -28,7 +28,7 @@ card "Queen of the Blazing Domain" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: Destroy + SpecialSummon
-        property: 16
+        property: CardTarget
         range: Hand
         count_limit: (1, 72162751)
         on_resolve {

@@ -3,7 +3,7 @@
 // Transpiled from c32975247.lua
 
 card "Divine Dragon Titanomakhia" {
-    password: 32975247
+    id: 32975247
     type: Effect Monster
     attribute: LIGHT
     race: Dragon
@@ -17,8 +17,8 @@ card "Divine Dragon Titanomakhia" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -41,7 +41,7 @@ card "Divine Dragon Titanomakhia" {
     raw_effect "Effect 3" {
         effect_type: Field + Trigger
         category: AtkChange
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

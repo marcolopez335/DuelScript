@@ -3,7 +3,7 @@
 // Transpiled from c22423493.lua
 
 card "Qliphort Genius" {
-    password: 22423493
+    id: 22423493
     type: Link Monster
     attribute: EARTH
     race: Machine
@@ -22,8 +22,8 @@ card "Qliphort Genius" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 1
-        property: 393216
+        code: ImmuneEffect
+        property: SingleRange + Uncopyable
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -33,7 +33,7 @@ card "Qliphort Genius" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: Disable
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

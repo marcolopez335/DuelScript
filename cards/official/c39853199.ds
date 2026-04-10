@@ -3,7 +3,7 @@
 // Transpiled from c39853199.lua
 
 card "Yosenju Misak" {
-    password: 39853199
+    id: 39853199
     type: Effect Monster
     attribute: WIND
     race: Beast
@@ -28,7 +28,7 @@ card "Yosenju Misak" {
         effect_type: Single + Trigger
         category: Destroy
         code: SpecialSummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
             destroy (1+, card, either_player controls)
         }
@@ -37,7 +37,7 @@ card "Yosenju Misak" {
     raw_effect "Effect 3" {
         effect_type: Field + MandatoryTrigger
         category: ToHand
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -48,7 +48,7 @@ card "Yosenju Misak" {
     raw_effect "Effect 4" {
         effect_type: Field + Continuous
         code: SpecialSummonSuccess
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }

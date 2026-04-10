@@ -3,7 +3,7 @@
 // Transpiled from c26873574.lua
 
 card "Chaos Daedalus" {
-    password: 26873574
+    id: 26873574
     type: Effect Monster | Spirit
     attribute: DARK
     race: Sea Serpent
@@ -17,8 +17,8 @@ card "Chaos Daedalus" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             banish (1+, spell, you controls, gy)
@@ -27,8 +27,8 @@ card "Chaos Daedalus" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 71
-        property: 128
+        code: CannotDirectAttack2
+        property: SetAvailable
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -38,7 +38,7 @@ card "Chaos Daedalus" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: Banish
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 26873574)
         on_resolve {

@@ -3,7 +3,7 @@
 // Transpiled from c9486959.lua
 
 card "Onibimaru Soul Sweeper" {
-    password: 9486959
+    id: 9486959
     type: Xyz Monster
     attribute: DARK
     race: Fiend
@@ -24,7 +24,7 @@ card "Onibimaru Soul Sweeper" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: Banish
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         cost {
@@ -43,7 +43,7 @@ card "Onibimaru Soul Sweeper" {
         effect_type: Single + Trigger
         category: ToDeck
         code: Destroyed
-        property: 81936
+        property: CardTarget + Oath + Delay
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
         }
@@ -52,7 +52,7 @@ card "Onibimaru Soul Sweeper" {
     raw_effect "Effect 3" {
         effect_type: Single + Continuous
         code: 1019
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }

@@ -3,7 +3,7 @@
 // Transpiled from c98095162.lua
 
 card "Curious, the Lightsworn Dominion" {
-    password: 98095162
+    id: 98095162
     type: Link Monster
     attribute: LIGHT
     race: Warrior
@@ -23,8 +23,8 @@ card "Curious, the Lightsworn Dominion" {
     raw_effect "Effect 1" {
         effect_type: Single + Trigger
         category: ToHand
-        code: 1015
-        property: 65552
+        code: ChainNegated
+        property: CardTarget + Delay
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
         }
@@ -34,7 +34,7 @@ card "Curious, the Lightsworn Dominion" {
         effect_type: Single + Trigger
         category: ToGrave
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 98095162)
         on_resolve {
             send (1+, card, you controls, deck) to gy

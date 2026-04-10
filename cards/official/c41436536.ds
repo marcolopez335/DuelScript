@@ -3,7 +3,7 @@
 // Transpiled from c41436536.lua
 
 card "Elemental HERO Phoenix Enforcer" {
-    password: 41436536
+    id: 41436536
     type: Fusion Monster
     attribute: FIRE
     race: Warrior
@@ -22,15 +22,15 @@ card "Elemental HERO Phoenix Enforcer" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

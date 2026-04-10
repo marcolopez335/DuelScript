@@ -3,7 +3,7 @@
 // Transpiled from c12421694.lua
 
 card "Sky Striker Ace - Kaina" {
-    password: 12421694
+    id: 12421694
     type: Link Monster
     attribute: EARTH
     race: Machine
@@ -23,7 +23,7 @@ card "Sky Striker Ace - Kaina" {
     raw_effect "Effect 1" {
         effect_type: Single + Trigger
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -35,7 +35,7 @@ card "Sky Striker Ace - Kaina" {
     raw_effect "Effect 2" {
         effect_type: Field + Continuous
         code: Chaining
-        property: 1024
+        property: BothSide
         range: MonsterZone
         on_resolve {
         }
@@ -44,7 +44,7 @@ card "Sky Striker Ace - Kaina" {
     raw_effect "Effect 3" {
         effect_type: Field + Continuous
         code: 1022
-        property: 65536
+        property: Delay
         range: MonsterZone
         on_resolve {
             gain_lp: 100
@@ -54,7 +54,7 @@ card "Sky Striker Ace - Kaina" {
     raw_effect "Effect 4" {
         effect_type: Single
         code: 85
-        property: 67108864
+        property: IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }

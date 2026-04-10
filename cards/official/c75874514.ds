@@ -3,7 +3,7 @@
 // Transpiled from c75874514.lua
 
 card "Shining Star Dragon" {
-    password: 75874514
+    id: 75874514
     type: Effect Monster | Tuner
     attribute: LIGHT
     race: Dragon
@@ -15,7 +15,7 @@ card "Shining Star Dragon" {
         effect_type: QuickEffect
         category: SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: Hand
         count_limit: (1, 75874514)
         on_resolve {
@@ -27,8 +27,8 @@ card "Shining Star Dragon" {
 
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
-        code: 1108
-        property: 128
+        code: FlipSuccess
+        property: SetAvailable
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -39,8 +39,8 @@ card "Shining Star Dragon" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 42
-        property: 67108864
+        code: CannotBeEffectTarget
+        property: IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

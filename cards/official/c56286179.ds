@@ -3,7 +3,7 @@
 // Transpiled from c56286179.lua
 
 card "Drill Synchron" {
-    password: 56286179
+    id: 56286179
     type: Effect Monster | Tuner
     attribute: EARTH
     race: Machine
@@ -13,7 +13,7 @@ card "Drill Synchron" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 203
+        code: GraveRedirectCb
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
@@ -23,8 +23,8 @@ card "Drill Synchron" {
     raw_effect "Effect 2" {
         effect_type: Field + Trigger
         category: Draw
-        code: 1143
-        property: 2048
+        code: BattleDestroyed
+        property: InitialValue
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

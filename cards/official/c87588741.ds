@@ -3,7 +3,7 @@
 // Transpiled from c87588741.lua
 
 card "Qliphort Cephalopod" {
-    password: 87588741
+    id: 87588741
     type: Effect Monster | Pendulum Monster
     attribute: EARTH
     race: Machine
@@ -18,8 +18,8 @@ card "Qliphort Cephalopod" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 22
-        property: 3584
+        code: CannotDisable
+        property: IgnoreImmune + BothSide + InitialValue
         range: PendulumZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -28,7 +28,7 @@ card "Qliphort Cephalopod" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: PendulumZone
         on_resolve {
             modifier: atk - 300
@@ -58,8 +58,8 @@ card "Qliphort Cephalopod" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 1
-        property: 393216
+        code: ImmuneEffect
+        property: SingleRange + Uncopyable
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -78,8 +78,8 @@ card "Qliphort Cephalopod" {
 
     raw_effect "Effect 8" {
         effect_type: Single
-        code: 251
-        property: 1024
+        code: ChangeCode3
+        property: BothSide
         on_resolve {
         }
     }

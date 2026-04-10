@@ -3,7 +3,7 @@
 // Transpiled from c3859859.lua
 
 card "Performapal Sky Magician Girl" {
-    password: 3859859
+    id: 3859859
     type: Effect Monster
     attribute: WIND
     race: Spellcaster
@@ -29,7 +29,7 @@ card "Performapal Sky Magician Girl" {
         effect_type: Single + Trigger
         category: ToGrave
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             send (1+, spell, you controls) to gy
@@ -39,8 +39,8 @@ card "Performapal Sky Magician Girl" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         category: Destroy
-        code: 1015
-        property: 65552
+        code: ChainNegated
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, spell, you controls)

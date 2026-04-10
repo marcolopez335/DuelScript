@@ -3,7 +3,7 @@
 // Transpiled from c23587624.lua
 
 card "A Wild Monster Appears!" {
-    password: 23587624
+    id: 23587624
     type: Normal Spell
 
     raw_effect "Effect 1" {
@@ -43,8 +43,8 @@ card "A Wild Monster Appears!" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 1
-        property: 131072
+        code: ImmuneEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -54,7 +54,7 @@ card "A Wild Monster Appears!" {
     raw_effect "Effect 3" {
         effect_type: Field
         code: 20
-        property: 67110912
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
@@ -63,7 +63,7 @@ card "A Wild Monster Appears!" {
     raw_effect "Effect 4" {
         effect_type: Field
         code: 23
-        property: 67110912
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }
         }
@@ -71,8 +71,8 @@ card "A Wild Monster Appears!" {
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
@@ -81,7 +81,7 @@ card "A Wild Monster Appears!" {
     raw_effect "Effect 6" {
         effect_type: Field
         code: 82
-        property: 2048
+        property: InitialValue
         on_resolve {
         }
     }
@@ -89,7 +89,7 @@ card "A Wild Monster Appears!" {
     raw_effect "Effect 7" {
         effect_type: Field
         code: 335
-        property: 2048
+        property: InitialValue
         on_resolve {
         }
     }

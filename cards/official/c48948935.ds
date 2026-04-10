@@ -3,7 +3,7 @@
 // Transpiled from c48948935.lua
 
 card "Masked Beast Des Gardius" {
-    password: 48948935
+    id: 48948935
     type: Effect Monster | Spirit
     attribute: DARK
     race: Fiend
@@ -17,8 +17,8 @@ card "Masked Beast Des Gardius" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             tribute (1, monster, you controls)
@@ -29,7 +29,7 @@ card "Masked Beast Des Gardius" {
         effect_type: Single + MandatoryTrigger
         category: EquipAction
         code: ChainEnd
-        property: 16400
+        property: CardTarget + Oath
         on_resolve {
             equip (1, card) to (1, monster)
             register_effect on self {

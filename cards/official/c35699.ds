@@ -3,7 +3,7 @@
 // Transpiled from c35699.lua
 
 card "SPYRAL Sleeper" {
-    password: 35699
+    id: 35699
     type: Effect Monster | Spirit
     attribute: LIGHT
     race: Fiend
@@ -17,16 +17,16 @@ card "SPYRAL Sleeper" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Hand
         on_resolve {
             banish (1+, monster, you controls, gy)
@@ -37,7 +37,7 @@ card "SPYRAL Sleeper" {
         effect_type: QuickEffect
         category: Destroy
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

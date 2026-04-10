@@ -3,7 +3,7 @@
 // Transpiled from c43047672.lua
 
 card "Raidraptor - Final Fortress Falcon" {
-    password: 43047672
+    id: 43047672
     type: Xyz Monster
     attribute: DARK
     race: Winged Beast
@@ -23,8 +23,8 @@ card "Raidraptor - Final Fortress Falcon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 1
-        property: 131072
+        code: ImmuneEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -46,7 +46,7 @@ card "Raidraptor - Final Fortress Falcon" {
 
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
-        code: 1139
+        code: BattleConfirmed
         count_limit: (2, 0)
         cost {
             banish self

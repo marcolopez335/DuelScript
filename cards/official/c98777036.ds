@@ -3,7 +3,7 @@
 // Transpiled from c98777036.lua
 
 card "Tragoedia" {
-    password: 98777036
+    id: 98777036
     type: Effect Monster
     attribute: DARK
     race: Fiend
@@ -18,7 +18,7 @@ card "Tragoedia" {
     raw_effect "Effect 1" {
         effect_type: Field + Trigger
         category: SpecialSummon
-        code: 1143
+        code: BattleDestroyed
         range: Hand
         on_resolve {
             special_summon (1, monster) from gy
@@ -27,8 +27,8 @@ card "Tragoedia" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -37,8 +37,8 @@ card "Tragoedia" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 104
-        property: 131072
+        code: UpdateDefense
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: def + 0
@@ -48,7 +48,7 @@ card "Tragoedia" {
     raw_effect "Effect 4" {
         effect_type: Ignition
         category: Summon
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         cost {
@@ -62,7 +62,7 @@ card "Tragoedia" {
     raw_effect "Effect 5" {
         effect_type: Ignition
         category: LevelChange
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

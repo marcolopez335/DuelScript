@@ -3,7 +3,7 @@
 // Transpiled from c78135071.lua
 
 card "Exosister Kaspitell" {
-    password: 78135071
+    id: 78135071
     type: Xyz Monster
     attribute: LIGHT
     race: Warrior
@@ -23,15 +23,15 @@ card "Exosister Kaspitell" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -41,7 +41,7 @@ card "Exosister Kaspitell" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 78135071)
         on_resolve {
             register_effect on self {
@@ -67,8 +67,8 @@ card "Exosister Kaspitell" {
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

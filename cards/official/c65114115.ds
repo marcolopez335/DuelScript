@@ -3,14 +3,14 @@
 // Transpiled from c65114115.lua
 
 card "Seven Stars Slash - Army Annihilator Hagun" {
-    password: 65114115
+    id: 65114115
     type: Quick-Play Spell
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: ToHand + EquipAction
         code: FreeChain
-        property: 16400
+        property: CardTarget + Oath
         count_limit: (1, 65114115)
         on_resolve {
             equip (1, card) to (1, monster)
@@ -39,7 +39,7 @@ card "Seven Stars Slash - Army Annihilator Hagun" {
 
     raw_effect "Effect 3" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 700
         }
@@ -47,8 +47,8 @@ card "Seven Stars Slash - Army Annihilator Hagun" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 76
-        property: 1024
+        code: CannotAttack2
+        property: BothSide
         on_resolve {
         }
     }

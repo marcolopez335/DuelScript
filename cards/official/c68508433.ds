@@ -3,7 +3,7 @@
 // Transpiled from c68508433.lua
 
 card "Master Spirit Tech Force - Pendulum Ruler" {
-    password: 68508433
+    id: 68508433
     type: Fusion Monster | Pendulum Monster
     attribute: LIGHT
     race: Machine
@@ -35,8 +35,8 @@ card "Master Spirit Tech Force - Pendulum Ruler" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -55,7 +55,7 @@ card "Master Spirit Tech Force - Pendulum Ruler" {
     raw_effect "Effect 4" {
         effect_type: Ignition
         category: Destroy + Damage
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (2, 0)
         cost {

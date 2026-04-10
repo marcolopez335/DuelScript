@@ -3,7 +3,7 @@
 // Transpiled from c11464648.lua
 
 card "Fiendsmith's Rextremende" {
-    password: 11464648
+    id: 11464648
     type: Fusion Monster
     attribute: LIGHT
     race: Fiend
@@ -22,8 +22,8 @@ card "Fiendsmith's Rextremende" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 1
-        property: 131072
+        code: ImmuneEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -34,7 +34,7 @@ card "Fiendsmith's Rextremende" {
         effect_type: Single + Trigger
         category: ToGrave
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 11464648)
         on_resolve {
             send (1+, card, you controls, hand) to gy
@@ -45,7 +45,7 @@ card "Fiendsmith's Rextremende" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from hand

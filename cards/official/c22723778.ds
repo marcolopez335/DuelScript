@@ -3,7 +3,7 @@
 // Transpiled from c22723778.lua
 
 card "Clorless, Chaos King of Dark World" {
-    password: 22723778
+    id: 22723778
     type: Fusion Monster
     attribute: DARK
     race: Fiend
@@ -24,7 +24,7 @@ card "Clorless, Chaos King of Dark World" {
         effect_type: Single + Trigger
         category: Destroy
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             destroy (1+, card, you controls, hand)
         }
@@ -41,7 +41,7 @@ card "Clorless, Chaos King of Dark World" {
         effect_type: QuickEffect
         category: DefChange
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -55,22 +55,22 @@ card "Clorless, Chaos King of Dark World" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 103
+        code: SetBaseAttack
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 107
+        code: SetBaseDefense
         on_resolve {
         }
     }
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 71
-        property: 67109888
+        code: CannotDirectAttack2
+        property: BothSide + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }

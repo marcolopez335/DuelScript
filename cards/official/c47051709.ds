@@ -3,7 +3,7 @@
 // Transpiled from c47051709.lua
 
 card "Photon Delta Wing" {
-    password: 47051709
+    id: 47051709
     type: Effect Monster
     attribute: LIGHT
     race: Machine
@@ -15,7 +15,7 @@ card "Photon Delta Wing" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {
@@ -28,7 +28,7 @@ card "Photon Delta Wing" {
     raw_effect "Effect 2" {
         effect_type: Field
         code: 86
-        property: 2048
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -37,8 +37,8 @@ card "Photon Delta Wing" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

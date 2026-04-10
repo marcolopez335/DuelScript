@@ -3,7 +3,7 @@
 // Transpiled from c32467459.lua
 
 card "El Shaddoll Meshahrail" {
-    password: 32467459
+    id: 32467459
     type: Fusion Monster
     attribute: EARTH
     race: Machine
@@ -22,8 +22,8 @@ card "El Shaddoll Meshahrail" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 1
-        property: 131072
+        code: ImmuneEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -48,7 +48,7 @@ card "El Shaddoll Meshahrail" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: ChainEnd
-        property: 65536
+        property: Delay
         on_resolve {
             special_summon (1, monster) from gy
         }

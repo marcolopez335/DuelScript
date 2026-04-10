@@ -3,7 +3,7 @@
 // Transpiled from c6728559.lua
 
 card "Archnemeses Protos" {
-    password: 6728559
+    id: 6728559
     type: Effect Monster | Spirit
     attribute: DARK
     race: Wyrm
@@ -17,8 +17,8 @@ card "Archnemeses Protos" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Hand
         on_resolve {
             banish (1+, monster, you controls, gy)
@@ -27,8 +27,8 @@ card "Archnemeses Protos" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

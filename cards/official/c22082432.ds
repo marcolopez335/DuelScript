@@ -3,7 +3,7 @@
 // Transpiled from c22082432.lua
 
 card "Dangers of the Divine" {
-    password: 22082432
+    id: 22082432
     type: Quick-Play Spell
 
     raw_effect "Effect 1" {
@@ -45,8 +45,8 @@ card "Dangers of the Divine" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 101
-        property: 1152
+        code: SetAttack
+        property: SetAvailable + BothSide
         on_resolve {
             modifier: atk + 4000
         }
@@ -54,8 +54,8 @@ card "Dangers of the Divine" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 105
-        property: 1152
+        code: SetDefense
+        property: SetAvailable + BothSide
         on_resolve {
             modifier: def + 4000
         }
@@ -64,7 +64,7 @@ card "Dangers of the Divine" {
     raw_effect "Effect 5" {
         effect_type: Single
         code: 85
-        property: 1152
+        property: SetAvailable + BothSide
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }

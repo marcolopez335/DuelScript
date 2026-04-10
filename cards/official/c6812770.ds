@@ -3,7 +3,7 @@
 // Transpiled from c6812770.lua
 
 card "Performage Cup Tricker" {
-    password: 6812770
+    id: 6812770
     type: Effect Monster | Pendulum Monster
     attribute: LIGHT
     race: Spellcaster
@@ -18,7 +18,7 @@ card "Performage Cup Tricker" {
 
     raw_effect "Effect 1" {
         effect_type: Ignition
-        property: 16
+        property: CardTarget
         range: PendulumZone
         count_limit: (1, 6812770)
         on_resolve {
@@ -30,7 +30,7 @@ card "Performage Cup Tricker" {
         effect_type: Field + Trigger
         category: ToHand
         code: ChainSolved
-        property: 65536
+        property: Delay
         range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
@@ -42,7 +42,7 @@ card "Performage Cup Tricker" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: SpecialSummon + SynchroSummon
-        property: 16
+        property: CardTarget
         range: Hand
         count_limit: (1, 0)
         on_resolve {
@@ -57,7 +57,7 @@ card "Performage Cup Tricker" {
     raw_effect "Effect 4" {
         effect_type: Single + Trigger
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             attach (1, card) to self as_material

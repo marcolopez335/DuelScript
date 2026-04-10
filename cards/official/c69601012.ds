@@ -3,7 +3,7 @@
 // Transpiled from c69601012.lua
 
 card "Berfomet the Mythical King of Phantom Beasts" {
-    password: 69601012
+    id: 69601012
     type: Fusion Monster
     attribute: WIND
     race: Fiend
@@ -23,7 +23,7 @@ card "Berfomet the Mythical King of Phantom Beasts" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 114
-        property: 131072
+        property: SingleRange
         range: MonsterZone + Graveyard
         on_resolve {
         }
@@ -33,7 +33,7 @@ card "Berfomet the Mythical King of Phantom Beasts" {
         effect_type: Single + Trigger
         category: ToGrave
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 69601012)
         on_resolve {
             send (1+, card, you controls, deck) to gy
@@ -44,7 +44,7 @@ card "Berfomet the Mythical King of Phantom Beasts" {
         effect_type: QuickEffect
         category: SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: Graveyard
         count_limit: (1, 0)
         cost {

@@ -3,7 +3,7 @@
 // Transpiled from c63265554.lua
 
 card "Power Tool Braver Dragon" {
-    password: 63265554
+    id: 63265554
     type: Synchro Monster
     attribute: EARTH
     race: Machine
@@ -25,7 +25,7 @@ card "Power Tool Braver Dragon" {
         effect_type: Single + Trigger
         category: EquipAction
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 63265554)
         on_resolve {
             equip (1, card) to (1, monster)
@@ -36,7 +36,7 @@ card "Power Tool Braver Dragon" {
         effect_type: QuickEffect
         category: DiceRoll + Disable
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         cost {
@@ -58,8 +58,8 @@ card "Power Tool Braver Dragon" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 2
-        property: 1024
+        code: Disable
+        property: BothSide
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
@@ -68,7 +68,7 @@ card "Power Tool Braver Dragon" {
     raw_effect "Effect 4" {
         effect_type: Single
         code: 8
-        property: 1024
+        property: BothSide
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }

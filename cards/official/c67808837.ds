@@ -3,7 +3,7 @@
 // Transpiled from c67808837.lua
 
 card "Performapal King Bear" {
-    password: 67808837
+    id: 67808837
     type: Effect Monster | Pendulum Monster
     attribute: EARTH
     race: Beast-Warrior
@@ -27,7 +27,7 @@ card "Performapal King Bear" {
     raw_effect "Effect 2" {
         effect_type: Field + Trigger
         category: Destroy + ToHand
-        code: 4608
+        code: PhaseEnd
         range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
@@ -39,8 +39,8 @@ card "Performapal King Bear" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -49,8 +49,8 @@ card "Performapal King Bear" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0

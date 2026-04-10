@@ -3,7 +3,7 @@
 // Transpiled from c65541655.lua
 
 card "Red Nova Dragon - Burning Soul" {
-    password: 65541655
+    id: 65541655
     type: Synchro Monster
     attribute: DARK
     race: Dragon
@@ -23,8 +23,8 @@ card "Red Nova Dragon - Burning Soul" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Deck
         on_resolve {
             banish (1+, monster, you controls, gy)
@@ -35,7 +35,7 @@ card "Red Nova Dragon - Burning Soul" {
         effect_type: Single + Trigger
         category: ToHand + SynchroSummon
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 65541655)
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
@@ -52,8 +52,8 @@ card "Red Nova Dragon - Burning Soul" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -63,7 +63,7 @@ card "Red Nova Dragon - Burning Soul" {
     raw_effect "Effect 5" {
         effect_type: Single
         code: 21142671
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }

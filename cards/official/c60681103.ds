@@ -3,7 +3,7 @@
 // Transpiled from c60681103.lua
 
 card "Divine Dragon Lord Felgrand" {
-    password: 60681103
+    id: 60681103
     type: Effect Monster
     attribute: LIGHT
     race: Dragon
@@ -19,7 +19,7 @@ card "Divine Dragon Lord Felgrand" {
         effect_type: Single + Trigger
         category: Banish
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             banish (1+, monster, either_player controls)
         }
@@ -28,8 +28,8 @@ card "Divine Dragon Lord Felgrand" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: SpecialSummon
-        code: 1139
-        property: 65552
+        code: BattleConfirmed
+        property: CardTarget + Delay
         on_resolve {
             special_summon (1, monster) from gy
         }

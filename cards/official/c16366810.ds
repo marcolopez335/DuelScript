@@ -3,7 +3,7 @@
 // Transpiled from c16366810.lua
 
 card "Yellow Duston" {
-    password: 16366810
+    id: 16366810
     type: Effect Monster
     attribute: EARTH
     race: Fiend
@@ -13,8 +13,8 @@ card "Yellow Duston" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 43
-        property: 131072
+        code: CannotBeBattleTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -22,8 +22,8 @@ card "Yellow Duston" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 44
-        property: 131072
+        code: CannotRemove
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -32,7 +32,7 @@ card "Yellow Duston" {
     raw_effect "Effect 3" {
         effect_type: Single
         code: 248
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -41,7 +41,7 @@ card "Yellow Duston" {
         effect_type: Single + MandatoryTrigger
         category: ToDeck
         code: Destroyed
-        property: 16
+        property: CardTarget
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
         }

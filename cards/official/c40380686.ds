@@ -3,7 +3,7 @@
 // Transpiled from c40380686.lua
 
 card "Baby Mudragon" {
-    password: 40380686
+    id: 40380686
     type: Effect Monster | Tuner
     attribute: DARK
     race: Dragon
@@ -14,7 +14,7 @@ card "Baby Mudragon" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 244
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -22,8 +22,8 @@ card "Baby Mudragon" {
 
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
-        code: 1108
-        property: 65552
+        code: FlipSuccess
+        property: CardTarget + Delay
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

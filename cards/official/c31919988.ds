@@ -3,7 +3,7 @@
 // Transpiled from c31919988.lua
 
 card "Dark Diviner" {
-    password: 31919988
+    id: 31919988
     type: Synchro Monster
     attribute: DARK
     race: Fiend
@@ -23,7 +23,7 @@ card "Dark Diviner" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -44,7 +44,7 @@ card "Dark Diviner" {
     raw_effect "Effect 3" {
         effect_type: Single + MandatoryTrigger
         category: AtkChange
-        code: 1139
+        code: BattleConfirmed
         on_resolve {
             mill 3
         }

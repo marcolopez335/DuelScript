@@ -3,7 +3,7 @@
 // Transpiled from c34072799.lua
 
 card "Transonic Bird" {
-    password: 34072799
+    id: 34072799
     type: Ritual Monster
     attribute: DARK
     race: Winged Beast
@@ -46,8 +46,8 @@ card "Transonic Bird" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         category: Disable
-        code: Release
-        property: 65552
+        code: Released
+        property: CardTarget + Delay
         on_resolve {
             negate effect
             register_effect on self {
@@ -67,8 +67,8 @@ card "Transonic Bird" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 2
-        property: 1024
+        code: Disable
+        property: BothSide
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
@@ -77,7 +77,7 @@ card "Transonic Bird" {
     raw_effect "Effect 5" {
         effect_type: Single
         code: 8
-        property: 1024
+        property: BothSide
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
@@ -86,7 +86,7 @@ card "Transonic Bird" {
     raw_effect "Effect 6" {
         effect_type: Single
         code: 10
-        property: 1024
+        property: BothSide
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }

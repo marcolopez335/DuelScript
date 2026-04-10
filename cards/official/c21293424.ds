@@ -3,7 +3,7 @@
 // Transpiled from c21293424.lua
 
 card "Gunkan Suship Shirauo-class Carrier" {
-    password: 21293424
+    id: 21293424
     type: Xyz Monster
     attribute: FIRE
     race: Aqua
@@ -23,7 +23,7 @@ card "Gunkan Suship Shirauo-class Carrier" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 41
+        code: IndestructableEffect
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -32,7 +32,7 @@ card "Gunkan Suship Shirauo-class Carrier" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -42,7 +42,7 @@ card "Gunkan Suship Shirauo-class Carrier" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 21293424)
         on_resolve {
             draw 1
@@ -53,7 +53,7 @@ card "Gunkan Suship Shirauo-class Carrier" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }

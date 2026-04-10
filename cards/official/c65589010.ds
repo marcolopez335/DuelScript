@@ -3,7 +3,7 @@
 // Transpiled from c65589010.lua
 
 card "Dogmatika Nation" {
-    password: 65589010
+    id: 65589010
     type: Field Spell
 
     raw_effect "Effect 1" {
@@ -15,8 +15,8 @@ card "Dogmatika Nation" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 71
-        property: 128
+        code: CannotDirectAttack2
+        property: SetAvailable
         range: FieldZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -38,7 +38,7 @@ card "Dogmatika Nation" {
         effect_type: Single + Trigger
         category: ToGrave
         code: Destroyed
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, either_player controls) to gy

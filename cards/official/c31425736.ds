@@ -3,7 +3,7 @@
 // Transpiled from c31425736.lua
 
 card "Cupsy☆Yummy" {
-    password: 31425736
+    id: 31425736
     type: Effect Monster
     attribute: LIGHT
     race: Beast
@@ -13,8 +13,8 @@ card "Cupsy☆Yummy" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         count_limit: (1, 31425736)
         on_resolve {
@@ -25,7 +25,7 @@ card "Cupsy☆Yummy" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to hand
@@ -38,7 +38,7 @@ card "Cupsy☆Yummy" {
         effect_type: Single + Trigger
         category: ToHand + Draw + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to hand

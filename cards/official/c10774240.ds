@@ -3,7 +3,7 @@
 // Transpiled from c10774240.lua
 
 card "Skull Guardian, Protector of the Voiceless Voice" {
-    password: 10774240
+    id: 10774240
     type: Ritual Monster
     attribute: LIGHT
     race: Warrior
@@ -22,8 +22,8 @@ card "Skull Guardian, Protector of the Voiceless Voice" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 2050
@@ -34,7 +34,7 @@ card "Skull Guardian, Protector of the Voiceless Voice" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 10774240)
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
@@ -46,7 +46,7 @@ card "Skull Guardian, Protector of the Voiceless Voice" {
         effect_type: QuickEffect
         category: Destroy + Negate
         code: Chaining
-        property: 49152
+        property: Oath + CountCodeDuel
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

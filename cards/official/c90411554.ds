@@ -3,7 +3,7 @@
 // Transpiled from c90411554.lua
 
 card "Redox, Dragon Ruler of Boulders" {
-    password: 90411554
+    id: 90411554
     type: Effect Monster
     attribute: EARTH
     race: Dragon
@@ -31,7 +31,7 @@ card "Redox, Dragon Ruler of Boulders" {
     raw_effect "Effect 2" {
         effect_type: Field + MandatoryTrigger
         category: ToHand
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 90411554)
         on_resolve {
@@ -42,7 +42,7 @@ card "Redox, Dragon Ruler of Boulders" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: SpecialSummon
-        property: 16
+        property: CardTarget
         range: Hand
         count_limit: (1, 90411554)
         on_resolve {
@@ -54,7 +54,7 @@ card "Redox, Dragon Ruler of Boulders" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: TurnEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 90411554)
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy

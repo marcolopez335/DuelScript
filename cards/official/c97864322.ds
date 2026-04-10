@@ -3,7 +3,7 @@
 // Transpiled from c97864322.lua
 
 card "Emperor Charles the Great" {
-    password: 97864322
+    id: 97864322
     type: Link Monster
     attribute: FIRE
     race: Warrior
@@ -24,7 +24,7 @@ card "Emperor Charles the Great" {
         effect_type: Single + Trigger
         category: EquipAction
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
         }
     }
@@ -33,7 +33,7 @@ card "Emperor Charles the Great" {
         effect_type: QuickEffect
         category: Destroy + Negate
         code: Chaining
-        property: 49152
+        property: Oath + CountCodeDuel
         range: MonsterZone
         count_limit: (1, 0)
         cost {
@@ -48,15 +48,15 @@ card "Emperor Charles the Great" {
     raw_effect "Effect 3" {
         effect_type: Single
         code: 114
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
         effect_type: Equip
-        code: 100
-        property: 16777344
+        code: UpdateAttack
+        property: SetAvailable
         on_resolve {
             modifier: atk + 500
         }
@@ -64,14 +64,14 @@ card "Emperor Charles the Great" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 76
+        code: CannotAttack2
         on_resolve {
         }
     }
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 71
+        code: CannotDirectAttack2
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
@@ -79,7 +79,7 @@ card "Emperor Charles the Great" {
 
     raw_effect "Effect 7" {
         effect_type: Single
-        code: 41
+        code: IndestructableEffect
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
@@ -87,7 +87,7 @@ card "Emperor Charles the Great" {
 
     raw_effect "Effect 8" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

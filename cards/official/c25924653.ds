@@ -3,7 +3,7 @@
 // Transpiled from c25924653.lua
 
 card "Gladiator Beast Darius" {
-    password: 25924653
+    id: 25924653
     type: Effect Monster
     attribute: EARTH
     race: Beast-Warrior
@@ -15,7 +15,7 @@ card "Gladiator Beast Darius" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -43,7 +43,7 @@ card "Gladiator Beast Darius" {
 
     raw_effect "Effect 4" {
         effect_type: Single + Continuous
-        code: 1015
+        code: ChainNegated
         on_resolve {
             return (1+, card, you controls) to deck shuffle
         }

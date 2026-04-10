@@ -3,7 +3,7 @@
 // Transpiled from c74875003.lua
 
 card "Ra's Disciple" {
-    password: 74875003
+    id: 74875003
     type: Effect Monster
     attribute: LIGHT
     race: Fairy
@@ -15,7 +15,7 @@ card "Ra's Disciple" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SummonSuccess
-        property: 16384
+        property: Oath
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -25,7 +25,7 @@ card "Ra's Disciple" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 16384
+        property: Oath
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -35,7 +35,7 @@ card "Ra's Disciple" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: FlipSummonSuccess
-        property: 16384
+        property: Oath
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -43,8 +43,8 @@ card "Ra's Disciple" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 44
-        property: 131072
+        code: CannotRemove
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -52,8 +52,8 @@ card "Ra's Disciple" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 43
-        property: 131072
+        code: CannotBeBattleTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -61,8 +61,8 @@ card "Ra's Disciple" {
 
     raw_effect "Effect 6" {
         effect_type: Field
-        code: 22
-        property: 2048
+        code: CannotDisable
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }

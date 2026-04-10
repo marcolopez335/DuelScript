@@ -3,7 +3,7 @@
 // Transpiled from c5126490.lua
 
 card "Neos Wiseman" {
-    password: 5126490
+    id: 5126490
     type: Effect Monster | Spirit
     attribute: LIGHT
     race: Spellcaster
@@ -17,16 +17,16 @@ card "Neos Wiseman" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             send (1+, monster, you controls) to gy
@@ -45,8 +45,8 @@ card "Neos Wiseman" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

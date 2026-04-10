@@ -3,7 +3,7 @@
 // Transpiled from c47030842.lua
 
 card "Geargiaccelerator" {
-    password: 47030842
+    id: 47030842
     type: Effect Monster
     attribute: EARTH
     race: Machine
@@ -13,8 +13,8 @@ card "Geargiaccelerator" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 1048576
+        code: CannotSummon
+        property: PlayerTarget
         range: Hand
         on_resolve {
         }
@@ -24,7 +24,7 @@ card "Geargiaccelerator" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 16400
+        property: CardTarget + Oath
         on_resolve {
             return (1+, monster, you controls) to hand
             reveal (1+, card, opponent controls)

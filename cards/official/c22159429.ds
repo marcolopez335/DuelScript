@@ -3,14 +3,14 @@
 // Transpiled from c22159429.lua
 
 card "Trickstar Magical Laurel" {
-    password: 22159429
+    id: 22159429
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         count_limit: (1, 22159429)
         on_resolve {
             special_summon (1, monster) from gy
@@ -21,14 +21,14 @@ card "Trickstar Magical Laurel" {
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
         code: 1019
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
         effect_type: Single + Continuous
-        code: 1015
+        code: ChainNegated
         on_resolve {
             destroy (1+, card, you controls, hand)
         }
@@ -38,7 +38,7 @@ card "Trickstar Magical Laurel" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: 1111
-        property: 81920
+        property: Oath + Delay
         range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {

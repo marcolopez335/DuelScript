@@ -3,7 +3,7 @@
 // Transpiled from c30741503.lua
 
 card "Galatea, the Orcust Automaton" {
-    password: 30741503
+    id: 30741503
     type: Link Monster
     attribute: DARK
     race: Machine
@@ -22,8 +22,8 @@ card "Galatea, the Orcust Automaton" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -33,7 +33,7 @@ card "Galatea, the Orcust Automaton" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: ToDeck
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 30741503)
         on_resolve {
@@ -47,7 +47,7 @@ card "Galatea, the Orcust Automaton" {
         effect_type: QuickEffect
         category: ToDeck
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 30741503)
         on_resolve {

@@ -3,7 +3,7 @@
 // Transpiled from c26268488.lua
 
 card "Stardust Sifr Divine Dragon" {
-    password: 26268488
+    id: 26268488
     type: Synchro Monster
     attribute: LIGHT
     race: Dragon
@@ -23,8 +23,8 @@ card "Stardust Sifr Divine Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -32,7 +32,7 @@ card "Stardust Sifr Divine Dragon" {
     raw_effect "Effect 2" {
         effect_type: Field
         code: 47
-        property: 256
+        property: IgnoreRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
@@ -54,7 +54,7 @@ card "Stardust Sifr Divine Dragon" {
     raw_effect "Effect 4" {
         effect_type: Ignition
         category: SpecialSummon
-        property: 16
+        property: CardTarget
         range: Graveyard
         cost {
             banish self

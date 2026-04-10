@@ -3,7 +3,7 @@
 // Transpiled from c37260677.lua
 
 card "Zoroa, the Magistus Verethragna" {
-    password: 37260677
+    id: 37260677
     type: Fusion Monster
     attribute: FIRE
     race: Spellcaster
@@ -23,7 +23,7 @@ card "Zoroa, the Magistus Verethragna" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: EquipAction
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 37260677)
         on_resolve {
@@ -48,14 +48,14 @@ card "Zoroa, the Magistus Verethragna" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 76
+        code: CannotAttack2
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 71
+        code: CannotDirectAttack2
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
@@ -63,7 +63,7 @@ card "Zoroa, the Magistus Verethragna" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 41
+        code: IndestructableEffect
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
@@ -71,7 +71,7 @@ card "Zoroa, the Magistus Verethragna" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

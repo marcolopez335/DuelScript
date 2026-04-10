@@ -3,7 +3,7 @@
 // Transpiled from c52182715.lua
 
 card "Green Duston" {
-    password: 52182715
+    id: 52182715
     type: Effect Monster
     attribute: WIND
     race: Fiend
@@ -13,8 +13,8 @@ card "Green Duston" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 43
-        property: 131072
+        code: CannotBeBattleTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -22,8 +22,8 @@ card "Green Duston" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 44
-        property: 131072
+        code: CannotRemove
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -32,7 +32,7 @@ card "Green Duston" {
     raw_effect "Effect 3" {
         effect_type: Single
         code: 248
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -41,7 +41,7 @@ card "Green Duston" {
         effect_type: Single + MandatoryTrigger
         category: ToHand
         code: Destroyed
-        property: 16
+        property: CardTarget
         on_resolve {
             add_to_hand (1+, spell, either_player controls) from gy
         }

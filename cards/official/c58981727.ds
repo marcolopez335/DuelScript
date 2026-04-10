@@ -3,7 +3,7 @@
 // Transpiled from c58981727.lua
 
 card "Yosenju Sabu" {
-    password: 58981727
+    id: 58981727
     type: Effect Monster
     attribute: WIND
     race: Beast-Warrior
@@ -14,7 +14,7 @@ card "Yosenju Sabu" {
     raw_effect "Effect 1" {
         effect_type: Field + MandatoryTrigger
         category: ToHand
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -26,7 +26,7 @@ card "Yosenju Sabu" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 58981727)
         on_resolve {
             return (1+, card, you controls) to hand
@@ -37,7 +37,7 @@ card "Yosenju Sabu" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: ToDeck
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

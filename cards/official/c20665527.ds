@@ -3,7 +3,7 @@
 // Transpiled from c20665527.lua
 
 card "Amphibious Swarmship Amblowhale" {
-    password: 20665527
+    id: 20665527
     type: Link Monster
     attribute: FIRE
     race: Machine
@@ -22,8 +22,8 @@ card "Amphibious Swarmship Amblowhale" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -34,7 +34,7 @@ card "Amphibious Swarmship Amblowhale" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 20665527)
         on_resolve {
             special_summon (1, monster) from gy
@@ -45,7 +45,7 @@ card "Amphibious Swarmship Amblowhale" {
         effect_type: Field + Trigger
         category: Destroy
         code: Destroyed
-        property: 114688
+        property: Oath + CountCodeDuel + Delay
         range: Graveyard
         count_limit: (1, 0)
         cost {

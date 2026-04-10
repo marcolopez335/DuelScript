@@ -3,12 +3,12 @@
 // Transpiled from c65079854.lua
 
 card "Thorn of Malice" {
-    password: 65079854
+    id: 65079854
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 600
         }
@@ -16,7 +16,7 @@ card "Thorn of Malice" {
 
     raw_effect "Effect 2" {
         effect_type: Equip
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }
@@ -24,7 +24,7 @@ card "Thorn of Malice" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

@@ -3,7 +3,7 @@
 // Transpiled from c13173832.lua
 
 card "Salamangreat Wolvie" {
-    password: 13173832
+    id: 13173832
     type: Effect Monster
     attribute: FIRE
     race: Cyberse
@@ -13,7 +13,7 @@ card "Salamangreat Wolvie" {
 
     raw_effect "Effect 1" {
         effect_type: Single + Continuous
-        code: 1108
+        code: FlipSuccess
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -30,7 +30,7 @@ card "Salamangreat Wolvie" {
         effect_type: Single + Trigger
         category: ToHand
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 13173832)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
@@ -41,7 +41,7 @@ card "Salamangreat Wolvie" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainSolving
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 13173832)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy

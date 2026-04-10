@@ -3,7 +3,7 @@
 // Transpiled from c37343995.lua
 
 card "Exosister Martha" {
-    password: 37343995
+    id: 37343995
     type: Effect Monster
     attribute: LIGHT
     race: Spellcaster
@@ -25,8 +25,8 @@ card "Exosister Martha" {
     raw_effect "Effect 2" {
         effect_type: Field + Trigger
         category: SpecialSummon
-        code: 1031
-        property: 65536
+        code: ChangePosition
+        property: Delay
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -37,8 +37,8 @@ card "Exosister Martha" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 67635200
+        code: CannotDisable
+        property: InitialValue + CannotDisable + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

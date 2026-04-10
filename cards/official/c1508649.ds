@@ -3,7 +3,7 @@
 // Transpiled from c1508649.lua
 
 card "Altergeist Hexstia" {
-    password: 1508649
+    id: 1508649
     type: Link Monster
     attribute: FIRE
     race: Spellcaster
@@ -22,8 +22,8 @@ card "Altergeist Hexstia" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -34,7 +34,7 @@ card "Altergeist Hexstia" {
         effect_type: QuickEffect
         category: Destroy + Negate
         code: Chaining
-        property: 49152
+        property: Oath + CountCodeDuel
         range: MonsterZone
         cost {
             tribute self
@@ -49,7 +49,7 @@ card "Altergeist Hexstia" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 1508649)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck

@@ -3,7 +3,7 @@
 // Transpiled from c20654247.lua
 
 card "Blue-Eyes Chaos Dragon" {
-    password: 20654247
+    id: 20654247
     type: Ritual Monster
     attribute: DARK
     race: Dragon
@@ -22,16 +22,16 @@ card "Blue-Eyes Chaos Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 71
-        property: 131072
+        code: CannotDirectAttack2
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -40,8 +40,8 @@ card "Blue-Eyes Chaos Dragon" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -67,7 +67,7 @@ card "Blue-Eyes Chaos Dragon" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }

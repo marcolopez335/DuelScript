@@ -3,7 +3,7 @@
 // Transpiled from c76218313.lua
 
 card "Dragon Buster Destruction Sword" {
-    password: 76218313
+    id: 76218313
     type: Effect Monster | Tuner
     attribute: DARK
     race: Dragon
@@ -14,7 +14,7 @@ card "Dragon Buster Destruction Sword" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: EquipAction
-        property: 16
+        property: CardTarget
         range: Hand + MonsterZone
         on_resolve {
             send (1+, card, either_player controls) to gy
@@ -24,8 +24,8 @@ card "Dragon Buster Destruction Sword" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 22
-        property: 2048
+        code: CannotDisable
+        property: InitialValue
         range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -44,7 +44,7 @@ card "Dragon Buster Destruction Sword" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 76
+        code: CannotAttack2
         on_resolve {
         }
     }

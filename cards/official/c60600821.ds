@@ -3,7 +3,7 @@
 // Transpiled from c60600821.lua
 
 card "Spring" {
-    password: 60600821
+    id: 60600821
     type: Field Spell
 
     raw_effect "Effect 1" {
@@ -24,7 +24,7 @@ card "Spring" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: FieldZone
         on_resolve {
             modifier: atk + 0
@@ -34,7 +34,7 @@ card "Spring" {
     raw_effect "Effect 4" {
         effect_type: Field + Trigger
         category: LinkSummon
-        code: 4608
+        code: PhaseEnd
         range: FieldZone
         count_limit: (1, 0)
         on_resolve {
@@ -50,7 +50,7 @@ card "Spring" {
     raw_effect "Effect 5" {
         effect_type: Field
         code: 260
-        property: 1024
+        property: BothSide
         range: FieldZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -60,7 +60,7 @@ card "Spring" {
     raw_effect "Effect 6" {
         effect_type: Single
         code: 7
-        property: 67109888
+        property: BothSide + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }

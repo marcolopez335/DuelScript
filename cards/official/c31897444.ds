@@ -3,7 +3,7 @@
 // Transpiled from c31897444.lua
 
 card "Defender of the Labyrinth" {
-    password: 31897444
+    id: 31897444
     type: Link Monster
     attribute: EARTH
     race: Warrior
@@ -22,7 +22,7 @@ card "Defender of the Labyrinth" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 500
@@ -31,7 +31,7 @@ card "Defender of the Labyrinth" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk - 500
@@ -42,7 +42,7 @@ card "Defender of the Labyrinth" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 31897444)
         on_resolve {
             special_summon (1, monster) from gy

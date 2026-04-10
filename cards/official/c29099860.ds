@@ -3,7 +3,7 @@
 // Transpiled from c29099860.lua
 
 card "Gouki Machine Suprex" {
-    password: 29099860
+    id: 29099860
     type: Effect Monster | Tuner
     attribute: EARTH
     race: Warrior
@@ -29,7 +29,7 @@ card "Gouki Machine Suprex" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
@@ -39,8 +39,8 @@ card "Gouki Machine Suprex" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 265216
+        code: CannotDisable
+        property: BothSide + InitialValue + Uncopyable
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }

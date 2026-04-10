@@ -3,7 +3,7 @@
 // Transpiled from c41578483.lua
 
 card "Millennium-Eyes Restrict" {
-    password: 41578483
+    id: 41578483
     type: Fusion Monster
     attribute: DARK
     race: Spellcaster
@@ -24,7 +24,7 @@ card "Millennium-Eyes Restrict" {
         effect_type: QuickEffect
         category: EquipAction
         code: Chaining
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -33,8 +33,8 @@ card "Millennium-Eyes Restrict" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -43,8 +43,8 @@ card "Millennium-Eyes Restrict" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 104
-        property: 131072
+        code: UpdateDefense
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: def + 0
@@ -62,7 +62,7 @@ card "Millennium-Eyes Restrict" {
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 2
+        code: Disable
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -80,14 +80,14 @@ card "Millennium-Eyes Restrict" {
 
     raw_effect "Effect 7" {
         effect_type: Single
-        code: 76
+        code: CannotAttack2
         on_resolve {
         }
     }
 
     raw_effect "Effect 8" {
         effect_type: Single
-        code: 71
+        code: CannotDirectAttack2
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
@@ -95,7 +95,7 @@ card "Millennium-Eyes Restrict" {
 
     raw_effect "Effect 9" {
         effect_type: Single
-        code: 41
+        code: IndestructableEffect
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
@@ -103,7 +103,7 @@ card "Millennium-Eyes Restrict" {
 
     raw_effect "Effect 10" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

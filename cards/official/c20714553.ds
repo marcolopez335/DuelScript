@@ -3,7 +3,7 @@
 // Transpiled from c20714553.lua
 
 card "Endymion, the Crescent Magistus" {
-    password: 20714553
+    id: 20714553
     type: Link Monster
     attribute: LIGHT
     race: Spellcaster
@@ -24,7 +24,7 @@ card "Endymion, the Crescent Magistus" {
         effect_type: Single + Trigger
         category: EquipAction
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 20714553)
         on_resolve {
             equip (1, card) to (1, monster)
@@ -39,7 +39,7 @@ card "Endymion, the Crescent Magistus" {
         effect_type: QuickEffect
         category: ToHand
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 20714553)
         on_resolve {
@@ -49,8 +49,8 @@ card "Endymion, the Crescent Magistus" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 76
-        property: 1024
+        code: CannotAttack2
+        property: BothSide
         on_resolve {
         }
     }

@@ -3,7 +3,7 @@
 // Transpiled from c58518520.lua
 
 card "Clear Effector" {
-    password: 58518520
+    id: 58518520
     type: Effect Monster
     attribute: LIGHT
     race: Spellcaster
@@ -14,8 +14,8 @@ card "Clear Effector" {
     raw_effect "Effect 1" {
         effect_type: Single + MandatoryTrigger
         category: Draw
-        code: 1108
-        property: 2048
+        code: FlipSuccess
+        property: InitialValue
         on_resolve {
             draw 1
         }
@@ -23,8 +23,8 @@ card "Clear Effector" {
 
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
-        code: 1108
-        property: 128
+        code: FlipSuccess
+        property: SetAvailable
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

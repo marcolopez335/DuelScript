@@ -3,7 +3,7 @@
 // Transpiled from c95401059.lua
 
 card "Shaddoll Zefracore" {
-    password: 95401059
+    id: 95401059
     type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Rock
@@ -14,8 +14,8 @@ card "Shaddoll Zefracore" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 22
-        property: 3584
+        code: CannotDisable
+        property: IgnoreImmune + BothSide + InitialValue
         range: PendulumZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -26,7 +26,7 @@ card "Shaddoll Zefracore" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 81936
+        property: CardTarget + Oath + Delay
         count_limit: (1, 95401059)
         on_resolve {
             special_summon (1, monster) from gy
@@ -37,7 +37,7 @@ card "Shaddoll Zefracore" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: ChainEnd
-        property: 81936
+        property: CardTarget + Oath + Delay
         count_limit: (1, 95401059)
         on_resolve {
             special_summon (1, monster) from gy

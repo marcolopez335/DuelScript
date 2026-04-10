@@ -3,7 +3,7 @@
 // Transpiled from c18474999.lua
 
 card "Impcantation Bookstone" {
-    password: 18474999
+    id: 18474999
     type: Effect Monster
     attribute: DARK
     race: Spellcaster
@@ -29,7 +29,7 @@ card "Impcantation Bookstone" {
         effect_type: Single + Trigger
         category: ToHand
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 18474999)
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
@@ -38,8 +38,8 @@ card "Impcantation Bookstone" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 2048
+        code: CannotDisable
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }

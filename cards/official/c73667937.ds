@@ -3,7 +3,7 @@
 // Transpiled from c73667937.lua
 
 card "Windwitch - Diamond Bell" {
-    password: 73667937
+    id: 73667937
     type: Synchro Monster
     attribute: WIND
     race: Spellcaster
@@ -25,7 +25,7 @@ card "Windwitch - Diamond Bell" {
         effect_type: Single + Trigger
         category: Damage
         code: SpecialSummonSuccess
-        property: 67600
+        property: CardTarget + InitialValue + Delay
         count_limit: (1, 73667937)
         on_resolve {
             deal_damage to opponent: 1000
@@ -35,7 +35,7 @@ card "Windwitch - Diamond Bell" {
     raw_effect "Effect 2" {
         effect_type: Field + Trigger
         code: 1111
-        property: 81936
+        property: CardTarget + Oath + Delay
         range: MonsterZone
         on_resolve {
             destroy (1+, monster, either_player controls)
@@ -44,7 +44,7 @@ card "Windwitch - Diamond Bell" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }

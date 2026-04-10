@@ -3,7 +3,7 @@
 // Transpiled from c44694191.lua
 
 card "Transient Masquerader of Illusion" {
-    password: 44694191
+    id: 44694191
     // FIXME: card not found in CDB — type/stats are placeholders
     type: Effect Monster
     attribute: DARK
@@ -16,7 +16,7 @@ card "Transient Masquerader of Illusion" {
         effect_type: Single + Trigger
         category: ToGrave
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             send (1+, spell, you controls, deck) to gy
@@ -27,7 +27,7 @@ card "Transient Masquerader of Illusion" {
         effect_type: Single + Trigger
         category: ToGrave
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             send (1+, spell, you controls, deck) to gy
@@ -36,7 +36,7 @@ card "Transient Masquerader of Illusion" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

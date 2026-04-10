@@ -3,7 +3,7 @@
 // Transpiled from c60145298.lua
 
 card "Diabellze the White Witch" {
-    password: 60145298
+    id: 60145298
     type: Effect Monster
     attribute: LIGHT
     race: Unknown
@@ -17,7 +17,7 @@ card "Diabellze the White Witch" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 41
+        code: IndestructableEffect
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -41,7 +41,7 @@ card "Diabellze the White Witch" {
         effect_type: Single + Trigger
         category: ToGrave
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             send (1+, spell, you controls) to gy
@@ -52,7 +52,7 @@ card "Diabellze the White Witch" {
         effect_type: Single + Trigger
         category: ToGrave
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             send (1+, spell, you controls) to gy

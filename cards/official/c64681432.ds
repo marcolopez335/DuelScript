@@ -3,7 +3,7 @@
 // Transpiled from c64681432.lua
 
 card "Gandora the Dragon of Destruction" {
-    password: 64681432
+    id: 64681432
     type: Effect Monster
     attribute: DARK
     race: Dragon
@@ -17,8 +17,8 @@ card "Gandora the Dragon of Destruction" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -26,7 +26,7 @@ card "Gandora the Dragon of Destruction" {
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
         code: SummonSuccess
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
@@ -34,7 +34,7 @@ card "Gandora the Dragon of Destruction" {
     raw_effect "Effect 3" {
         effect_type: Single + Continuous
         code: FlipSummonSuccess
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
@@ -54,7 +54,7 @@ card "Gandora the Dragon of Destruction" {
     raw_effect "Effect 5" {
         effect_type: Field + MandatoryTrigger
         category: ToGrave
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

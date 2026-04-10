@@ -3,7 +3,7 @@
 // Transpiled from c79480466.lua
 
 card "Bazoo the Soul-Devourer" {
-    password: 79480466
+    id: 79480466
     type: Xyz Monster
     attribute: EARTH
     race: Beast
@@ -23,8 +23,8 @@ card "Bazoo the Soul-Devourer" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 63
-        property: 416
+        code: CannotBeTributed
+        property: SetAvailable + IgnoreRange
         range: MonsterZone
         on_resolve {
         }
@@ -33,7 +33,7 @@ card "Bazoo the Soul-Devourer" {
     raw_effect "Effect 2" {
         effect_type: Field + Trigger
         code: ChainEnd
-        property: 65536
+        property: Delay
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -44,7 +44,7 @@ card "Bazoo the Soul-Devourer" {
         effect_type: Single + Trigger
         category: 67108864
         code: 1202
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             attach (1, card) to self as_material
         }

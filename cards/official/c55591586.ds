@@ -3,7 +3,7 @@
 // Transpiled from c55591586.lua
 
 card "Thunder Dragonduo" {
-    password: 55591586
+    id: 55591586
     type: Effect Monster | Spirit
     attribute: DARK
     race: Thunder
@@ -17,8 +17,8 @@ card "Thunder Dragonduo" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             banish (1+, monster, you controls, gy)
@@ -38,7 +38,7 @@ card "Thunder Dragonduo" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         category: ToHand + Search
-        code: 1139
+        code: BattleConfirmed
         cost {
             banish self
         }
@@ -51,8 +51,8 @@ card "Thunder Dragonduo" {
     raw_effect "Effect 4" {
         effect_type: Field + Trigger
         category: ToDeck
-        code: 4608
-        property: 16
+        code: PhaseEnd
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

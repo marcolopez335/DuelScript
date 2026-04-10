@@ -3,7 +3,7 @@
 // Transpiled from c82738277.lua
 
 card "Traptrix Mantis" {
-    password: 82738277
+    id: 82738277
     type: Effect Monster
     attribute: EARTH
     race: Insect
@@ -13,8 +13,8 @@ card "Traptrix Mantis" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 1
-        property: 131072
+        code: ImmuneEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -35,7 +35,7 @@ card "Traptrix Mantis" {
         effect_type: QuickEffect
         category: ToHand
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

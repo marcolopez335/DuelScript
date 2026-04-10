@@ -3,7 +3,7 @@
 // Transpiled from c47946130.lua
 
 card "Gouki The Giant Ogre" {
-    password: 47946130
+    id: 47946130
     type: Link Monster
     attribute: EARTH
     race: Warrior
@@ -22,8 +22,8 @@ card "Gouki The Giant Ogre" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -32,8 +32,8 @@ card "Gouki The Giant Ogre" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 1
-        property: 131072
+        code: ImmuneEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -44,7 +44,7 @@ card "Gouki The Giant Ogre" {
         effect_type: QuickEffect
         category: Negate
         code: Chaining
-        property: 49152
+        property: Oath + CountCodeDuel
         range: MonsterZone
         on_resolve {
             negate activation
@@ -56,7 +56,7 @@ card "Gouki The Giant Ogre" {
         effect_type: QuickEffect
         category: SynchroSummon
         code: FreeChain
-        property: 16384
+        property: Oath
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

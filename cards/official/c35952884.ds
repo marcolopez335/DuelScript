@@ -3,7 +3,7 @@
 // Transpiled from c35952884.lua
 
 card "Shooting Quasar Dragon" {
-    password: 35952884
+    id: 35952884
     type: Synchro Monster
     attribute: LIGHT
     race: Dragon
@@ -23,8 +23,8 @@ card "Shooting Quasar Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -38,7 +38,7 @@ card "Shooting Quasar Dragon" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }
@@ -47,7 +47,7 @@ card "Shooting Quasar Dragon" {
         effect_type: QuickEffect
         category: Destroy + Negate
         code: Chaining
-        property: 49152
+        property: Oath + CountCodeDuel
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -59,8 +59,8 @@ card "Shooting Quasar Dragon" {
     raw_effect "Effect 5" {
         effect_type: Single + Trigger
         category: SpecialSummon
-        code: 1015
-        property: 16384
+        code: ChainNegated
+        property: Oath
         on_resolve {
             special_summon (1, monster) from gy
         }

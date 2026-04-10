@@ -3,7 +3,7 @@
 // Transpiled from c7864030.lua
 
 card "Superheavy Samurai Blowtorch" {
-    password: 7864030
+    id: 7864030
     type: Effect Monster
     attribute: EARTH
     race: Machine
@@ -14,7 +14,7 @@ card "Superheavy Samurai Blowtorch" {
     raw_effect "Effect 1" {
         effect_type: Field + Trigger
         code: AttackAnnounce
-        property: 16
+        property: CardTarget
         range: Hand
         cost {
             send self to gy
@@ -34,7 +34,7 @@ card "Superheavy Samurai Blowtorch" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

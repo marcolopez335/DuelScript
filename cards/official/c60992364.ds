@@ -3,7 +3,7 @@
 // Transpiled from c60992364.lua
 
 card "ZW - Leo Arms" {
-    password: 60992364
+    id: 60992364
     type: Xyz Monster
     attribute: LIGHT
     race: Beast
@@ -23,7 +23,7 @@ card "ZW - Leo Arms" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 73
+        code: CannotAttackAnnounce
         on_resolve {
             register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
         }
@@ -46,7 +46,7 @@ card "ZW - Leo Arms" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: EquipAction
-        property: 16
+        property: CardTarget
         range: MonsterZone
         on_resolve {
             send (1+, monster, you controls, deck) to gy
@@ -74,7 +74,7 @@ card "ZW - Leo Arms" {
 
     raw_effect "Effect 5" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 3000
         }
@@ -83,14 +83,14 @@ card "ZW - Leo Arms" {
     raw_effect "Effect 6" {
         effect_type: Single
         code: 194
-        property: 67108864
+        property: IgnoreRange2
         on_resolve {
         }
     }
 
     raw_effect "Effect 7" {
         effect_type: Single
-        code: 73
+        code: CannotAttackAnnounce
         on_resolve {
             register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
         }
@@ -98,14 +98,14 @@ card "ZW - Leo Arms" {
 
     raw_effect "Effect 8" {
         effect_type: Single
-        code: 76
+        code: CannotAttack2
         on_resolve {
         }
     }
 
     raw_effect "Effect 9" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 0
         }
@@ -120,7 +120,7 @@ card "ZW - Leo Arms" {
 
     raw_effect "Effect 11" {
         effect_type: Single
-        code: 71
+        code: CannotDirectAttack2
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
@@ -128,7 +128,7 @@ card "ZW - Leo Arms" {
 
     raw_effect "Effect 12" {
         effect_type: Single
-        code: 41
+        code: IndestructableEffect
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
@@ -136,7 +136,7 @@ card "ZW - Leo Arms" {
 
     raw_effect "Effect 13" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

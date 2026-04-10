@@ -3,7 +3,7 @@
 // Transpiled from c56311997.lua
 
 card "GMX - ALLOS" {
-    password: 56311997
+    id: 56311997
     type: Fusion Monster
     attribute: LIGHT
     race: Dinosaur
@@ -43,7 +43,7 @@ card "GMX - ALLOS" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: SpecialSummon
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -55,7 +55,7 @@ card "GMX - ALLOS" {
         effect_type: Single + Trigger
         category: Destroy
         code: DamageCalculation
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -80,7 +80,7 @@ card "GMX - ALLOS" {
     raw_effect "Effect 7" {
         effect_type: Single
         code: 85
-        property: 67634176
+        property: BothSide + CannotDisable + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }

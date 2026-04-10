@@ -3,7 +3,7 @@
 // Transpiled from c17272964.lua
 
 card "Mannadium Fearless" {
-    password: 17272964
+    id: 17272964
     type: Effect Monster | Tuner
     attribute: EARTH
     race: Fairy
@@ -13,8 +13,8 @@ card "Mannadium Fearless" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         count_limit: (1, 17272964)
         on_resolve {
@@ -25,7 +25,7 @@ card "Mannadium Fearless" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 65536
+        property: Delay
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -37,7 +37,7 @@ card "Mannadium Fearless" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 500
         }

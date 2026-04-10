@@ -3,7 +3,7 @@
 // Transpiled from c48505422.lua
 
 card "Legendary Six Samurai - Shinai" {
-    password: 48505422
+    id: 48505422
     type: Effect Monster
     attribute: WATER
     race: Warrior
@@ -13,8 +13,8 @@ card "Legendary Six Samurai - Shinai" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
         }
@@ -23,8 +23,8 @@ card "Legendary Six Samurai - Shinai" {
     raw_effect "Effect 2" {
         effect_type: Single + MandatoryTrigger
         category: ToHand
-        code: Release
-        property: 16
+        code: Released
+        property: CardTarget
         on_resolve {
             return (1+, monster, you controls) to hand
             reveal (1+, card, opponent controls)

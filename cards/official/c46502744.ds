@@ -3,7 +3,7 @@
 // Transpiled from c46502744.lua
 
 card "Retaliating 'C'" {
-    password: 46502744
+    id: 46502744
     type: Effect Monster
     attribute: EARTH
     race: Insect
@@ -23,8 +23,8 @@ card "Retaliating 'C'" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 63
-        property: 416
+        code: CannotBeTributed
+        property: SetAvailable + IgnoreRange
         range: MonsterZone
         on_resolve {
         }
@@ -34,7 +34,7 @@ card "Retaliating 'C'" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: ChainEnd
-        property: 81920
+        property: Oath + Delay
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)

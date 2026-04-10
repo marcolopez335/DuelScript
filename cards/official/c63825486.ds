@@ -3,7 +3,7 @@
 // Transpiled from c63825486.lua
 
 card "Gimmick Puppet Rouge Doll" {
-    password: 63825486
+    id: 63825486
     type: Effect Monster
     attribute: DARK
     race: Machine
@@ -29,7 +29,7 @@ card "Gimmick Puppet Rouge Doll" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -38,8 +38,8 @@ card "Gimmick Puppet Rouge Doll" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 67635200
+        code: CannotDisable
+        property: InitialValue + CannotDisable + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
@@ -47,8 +47,8 @@ card "Gimmick Puppet Rouge Doll" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 22
-        property: 67635200
+        code: CannotDisable
+        property: InitialValue + CannotDisable + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

@@ -3,7 +3,7 @@
 // Transpiled from c71645463.lua
 
 card "Dragunity Quirinus" {
-    password: 71645463
+    id: 71645463
     type: Effect Monster
     attribute: WIND
     race: Winged Beast
@@ -13,7 +13,7 @@ card "Dragunity Quirinus" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -24,7 +24,7 @@ card "Dragunity Quirinus" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 71645463)
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck
@@ -36,7 +36,7 @@ card "Dragunity Quirinus" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 71645463)
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck
@@ -46,8 +46,8 @@ card "Dragunity Quirinus" {
 
     raw_effect "Effect 4" {
         effect_type: Ignition
-        category: ToHand + SpecialSummon
-        property: 16
+        category: ToHand + SpecialSummon + Announce
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

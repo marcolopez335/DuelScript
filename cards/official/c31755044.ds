@@ -3,7 +3,7 @@
 // Transpiled from c31755044.lua
 
 card "Zoodiac Whiptail" {
-    password: 31755044
+    id: 31755044
     type: Effect Monster
     attribute: EARTH
     race: Beast-Warrior
@@ -14,7 +14,7 @@ card "Zoodiac Whiptail" {
     raw_effect "Effect 1" {
         effect_type: QuickEffect
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: Hand + MonsterZone
         on_resolve {
             attach (1, card) to self as_material
@@ -22,7 +22,7 @@ card "Zoodiac Whiptail" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: MandatoryTrigger
+        effect_type: MandatoryTrigger + XyzMaterial
         category: Banish
         code: 1138
         on_resolve {

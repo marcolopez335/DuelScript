@@ -3,7 +3,7 @@
 // Transpiled from c18046862.lua
 
 card "Grief Tablet" {
-    password: 18046862
+    id: 18046862
     type: Equip Spell
 
     raw_effect "Effect 1" {
@@ -16,21 +16,21 @@ card "Grief Tablet" {
 
     raw_effect "Effect 2" {
         effect_type: Equip
-        code: 43
+        code: CannotBeBattleTarget
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
         effect_type: Equip
-        code: 44
+        code: CannotRemove
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
         effect_type: Equip
-        code: 2
+        code: Disable
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
@@ -51,7 +51,7 @@ card "Grief Tablet" {
         effect_type: Single + Trigger
         category: Damage
         code: ChainEnd
-        property: 67584
+        property: InitialValue + Delay
         on_resolve {
             deal_damage to opponent: 1000
         }

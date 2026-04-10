@@ -3,7 +3,7 @@
 // Transpiled from c4252828.lua
 
 card "Mermaid Archer" {
-    password: 4252828
+    id: 4252828
     type: Effect Monster
     attribute: WATER
     race: Sea Serpent
@@ -14,7 +14,7 @@ card "Mermaid Archer" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: EquipAction
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -30,14 +30,14 @@ card "Mermaid Archer" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 76
+        code: CannotAttack2
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 71
+        code: CannotDirectAttack2
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
@@ -45,7 +45,7 @@ card "Mermaid Archer" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 41
+        code: IndestructableEffect
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
@@ -53,7 +53,7 @@ card "Mermaid Archer" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

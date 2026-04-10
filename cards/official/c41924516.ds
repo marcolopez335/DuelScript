@@ -3,7 +3,7 @@
 // Transpiled from c41924516.lua
 
 card "Silvera, Wolf Tamer of the White Forest" {
-    password: 41924516
+    id: 41924516
     type: Synchro Monster | Tuner
     attribute: LIGHT
     race: Spellcaster
@@ -25,7 +25,7 @@ card "Silvera, Wolf Tamer of the White Forest" {
         effect_type: Single + Trigger
         category: DiceRoll
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             change_battle_position (1, monster)
         }
@@ -33,7 +33,7 @@ card "Silvera, Wolf Tamer of the White Forest" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 500
@@ -42,7 +42,7 @@ card "Silvera, Wolf Tamer of the White Forest" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 203
+        code: GraveRedirectCb
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }

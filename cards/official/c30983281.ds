@@ -3,7 +3,7 @@
 // Transpiled from c30983281.lua
 
 card "Accel Synchro Stardust Dragon" {
-    password: 30983281
+    id: 30983281
     type: Synchro Monster
     attribute: WIND
     race: Dragon
@@ -25,7 +25,7 @@ card "Accel Synchro Stardust Dragon" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -53,8 +53,8 @@ card "Accel Synchro Stardust Dragon" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 1
-        property: 67108992
+        code: ImmuneEffect
+        property: SetAvailable + IgnoreRange2
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
         }

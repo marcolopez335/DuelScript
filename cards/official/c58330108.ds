@@ -3,7 +3,7 @@
 // Transpiled from c58330108.lua
 
 card "Gigarays Gandora the Dragon of Destruction" {
-    password: 58330108
+    id: 58330108
     type: Effect Monster | Spirit
     attribute: DARK
     race: Dragon
@@ -17,8 +17,8 @@ card "Gigarays Gandora the Dragon of Destruction" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Hand
         on_resolve {
             send (1+, monster, you controls, hand) to gy
@@ -27,8 +27,8 @@ card "Gigarays Gandora the Dragon of Destruction" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0

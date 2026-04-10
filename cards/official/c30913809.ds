@@ -3,7 +3,7 @@
 // Transpiled from c30913809.lua
 
 card "Light Force" {
-    password: 30913809
+    id: 30913809
     type: Continuous Spell
 
     raw_effect "Effect 1" {
@@ -26,7 +26,7 @@ card "Light Force" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: SpellTrapZone
         on_resolve {
             modifier: atk + 300
@@ -35,7 +35,7 @@ card "Light Force" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 104
+        code: UpdateDefense
         range: SpellTrapZone
         on_resolve {
             modifier: def + 300
@@ -59,8 +59,8 @@ card "Light Force" {
 
     raw_effect "Effect 6" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

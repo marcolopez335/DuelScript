@@ -3,14 +3,14 @@
 // Transpiled from c35146019.lua
 
 card "Altergeist Manifestation" {
-    password: 35146019
+    id: 35146019
     type: Normal Trap
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         on_resolve {
             special_summon (1, monster) from gy
             equip (1, card) to (1, monster)
@@ -19,7 +19,7 @@ card "Altergeist Manifestation" {
 
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
-        code: 1015
+        code: ChainNegated
         on_resolve {
             destroy (1+, trap, either_player controls)
         }
@@ -29,7 +29,7 @@ card "Altergeist Manifestation" {
         effect_type: QuickEffect
         category: ToHand
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: Graveyard
         count_limit: (1, 35146019)
         cost {

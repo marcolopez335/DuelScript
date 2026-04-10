@@ -3,7 +3,7 @@
 // Transpiled from c38412161.lua
 
 card "Chow Sai the Ghost Stopper" {
-    password: 38412161
+    id: 38412161
     type: Effect Monster
     attribute: DARK
     race: Spellcaster
@@ -13,8 +13,8 @@ card "Chow Sai the Ghost Stopper" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 6
-        property: 2048
+        code: CannotChangeControl
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -24,7 +24,7 @@ card "Chow Sai the Ghost Stopper" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             banish (1+, spell, either_player controls)
         }

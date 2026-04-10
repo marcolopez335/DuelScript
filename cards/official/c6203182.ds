@@ -3,14 +3,14 @@
 // Transpiled from c6203182.lua
 
 card "Two Toads with One Sting" {
-    password: 6203182
+    id: 6203182
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         count_limit: (1, 6203182)
         on_resolve {
             special_summon (1, monster) from gy
@@ -29,14 +29,14 @@ card "Two Toads with One Sting" {
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
         code: 1019
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
         effect_type: Single + Continuous
-        code: 1015
+        code: ChainNegated
         on_resolve {
             destroy (1+, card, either_player controls)
         }
@@ -62,7 +62,7 @@ card "Two Toads with One Sting" {
         effect_type: Single + Trigger
         category: Summon
         code: ChainEnd
-        property: 65536
+        property: Delay
         on_resolve {
             take_control of (1, monster, opponent controls)
         }

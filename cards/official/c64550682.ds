@@ -3,7 +3,7 @@
 // Transpiled from c64550682.lua
 
 card "Scrap Orthros" {
-    password: 64550682
+    id: 64550682
     type: Effect Monster | Tuner | Spirit
     attribute: EARTH
     race: Beast
@@ -17,8 +17,8 @@ card "Scrap Orthros" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
         }
@@ -28,7 +28,7 @@ card "Scrap Orthros" {
         effect_type: Single + MandatoryTrigger
         category: Destroy
         code: SpecialSummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
             destroy (1+, monster, you controls)
         }
@@ -38,7 +38,7 @@ card "Scrap Orthros" {
         effect_type: Single + Trigger
         category: ToHand
         code: Destroyed
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             return (1+, monster, you controls) to hand
             reveal (1+, card, opponent controls)

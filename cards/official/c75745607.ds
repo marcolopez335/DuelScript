@@ -3,7 +3,7 @@
 // Transpiled from c75745607.lua
 
 card "Hino-Kagu-Tsuchi" {
-    password: 75745607
+    id: 75745607
     type: Effect Monster | Flip
     attribute: FIRE
     race: Pyro
@@ -17,15 +17,15 @@ card "Hino-Kagu-Tsuchi" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Single + MandatoryTrigger
-        code: 1143
+        code: BattleDestroyed
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

@@ -3,7 +3,7 @@
 // Transpiled from c99173029.lua
 
 card "Spiritual Energy Settle Machine" {
-    password: 99173029
+    id: 99173029
     type: Continuous Spell
 
     raw_effect "Effect 1" {
@@ -23,7 +23,7 @@ card "Spiritual Energy Settle Machine" {
 
     raw_effect "Effect 3" {
         effect_type: Single + Continuous
-        code: 1015
+        code: ChainNegated
         on_resolve {
             return (1+, monster, either_player controls) to hand
         }
@@ -31,8 +31,8 @@ card "Spiritual Energy Settle Machine" {
 
     raw_effect "Effect 4" {
         effect_type: Field + Continuous
-        code: 4608
-        property: 263168
+        code: PhaseEnd
+        property: BothSide + Uncopyable
         range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {

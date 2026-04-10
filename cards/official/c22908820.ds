@@ -3,7 +3,7 @@
 // Transpiled from c22908820.lua
 
 card "Elemental HERO Sunrise" {
-    password: 22908820
+    id: 22908820
     type: Fusion Monster
     attribute: LIGHT
     race: Warrior
@@ -22,7 +22,7 @@ card "Elemental HERO Sunrise" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -33,7 +33,7 @@ card "Elemental HERO Sunrise" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 22908820)
         on_resolve {
             return (1+, monster, you controls) to hand
@@ -45,7 +45,7 @@ card "Elemental HERO Sunrise" {
         effect_type: Field + Trigger
         category: Destroy
         code: AttackAnnounce
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

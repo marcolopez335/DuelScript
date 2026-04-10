@@ -3,7 +3,7 @@
 // Transpiled from c32302078.lua
 
 card "Dhampir Vampire Sheridan" {
-    password: 32302078
+    id: 32302078
     type: Xyz Monster
     attribute: DARK
     race: Zombie
@@ -24,7 +24,7 @@ card "Dhampir Vampire Sheridan" {
     raw_effect "Effect 1" {
         effect_type: Field
         code: 242
-        property: 384
+        property: SetAvailable + IgnoreRange
         range: Deck
         on_resolve {
         }
@@ -33,7 +33,7 @@ card "Dhampir Vampire Sheridan" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: ToGrave
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         cost {
@@ -48,7 +48,7 @@ card "Dhampir Vampire Sheridan" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: 300737534
-        property: 81920
+        property: Oath + Delay
         range: MonsterZone
         count_limit: (1, 0)
         cost {
@@ -62,7 +62,7 @@ card "Dhampir Vampire Sheridan" {
     raw_effect "Effect 4" {
         effect_type: Field + Continuous
         code: ChainEnd
-        property: 1024
+        property: BothSide
         range: MonsterZone
         on_resolve {
             set_flag "tracked" on self

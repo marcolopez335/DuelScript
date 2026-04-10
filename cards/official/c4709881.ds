@@ -3,7 +3,7 @@
 // Transpiled from c4709881.lua
 
 card "Auram the World Chalice Blademaster" {
-    password: 4709881
+    id: 4709881
     type: Link Monster
     attribute: FIRE
     race: Cyberse
@@ -22,8 +22,8 @@ card "Auram the World Chalice Blademaster" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -33,7 +33,7 @@ card "Auram the World Chalice Blademaster" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: SpecialSummon
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 4709881)
         cost {
@@ -48,7 +48,7 @@ card "Auram the World Chalice Blademaster" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: ChainEnd
-        property: 65536
+        property: Delay
         on_resolve {
             special_summon (1, monster) from gy
         }

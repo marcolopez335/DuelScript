@@ -3,7 +3,7 @@
 // Transpiled from c58288565.lua
 
 card "Butterfly Fish" {
-    password: 58288565
+    id: 58288565
     type: Effect Monster
     attribute: WATER
     race: Fish
@@ -15,7 +15,7 @@ card "Butterfly Fish" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 58288565)
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand
@@ -35,8 +35,8 @@ card "Butterfly Fish" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 67635200
+        code: CannotDisable
+        property: InitialValue + CannotDisable + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

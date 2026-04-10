@@ -3,7 +3,7 @@
 // Transpiled from c65910922.lua
 
 card "Arionpos, Serpent of the Ghoti" {
-    password: 65910922
+    id: 65910922
     type: Synchro Monster
     attribute: WATER
     race: Fish
@@ -25,7 +25,7 @@ card "Arionpos, Serpent of the Ghoti" {
         effect_type: Single + Trigger
         category: Banish
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 65910922)
         on_resolve {
             banish (1+, card, you controls, deck)
@@ -35,8 +35,8 @@ card "Arionpos, Serpent of the Ghoti" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: Banish + ToHand + Search
-        code: 1108
-        property: 65552
+        code: FlipSuccess
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             banish (1+, card, you controls, deck)

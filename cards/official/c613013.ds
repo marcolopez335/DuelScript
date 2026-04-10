@@ -3,7 +3,7 @@
 // Transpiled from c613013.lua
 
 card "Veiss Shark" {
-    password: 613013
+    id: 613013
     type: Effect Monster
     attribute: WATER
     race: Fish
@@ -15,7 +15,7 @@ card "Veiss Shark" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 613013)
         cost {
             tribute self
@@ -33,7 +33,7 @@ card "Veiss Shark" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 613013)
         cost {
             tribute self
@@ -48,7 +48,7 @@ card "Veiss Shark" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: QuickEffect
+        effect_type: QuickEffect + XyzMaterial
         category: Destroy + Disable
         code: Chaining
         range: MonsterZone
@@ -64,8 +64,8 @@ card "Veiss Shark" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

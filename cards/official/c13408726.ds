@@ -3,7 +3,7 @@
 // Transpiled from c13408726.lua
 
 card "Nekroz of Metaltron" {
-    password: 13408726
+    id: 13408726
     type: Ritual Monster | Pendulum Monster
     attribute: LIGHT
     race: Wyrm
@@ -25,7 +25,7 @@ card "Nekroz of Metaltron" {
         effect_type: Field + Trigger
         category: Banish
         code: TurnEnd
-        property: 65552
+        property: CardTarget + Delay
         range: PendulumZone
         count_limit: (1, 13408726)
         on_resolve {
@@ -37,7 +37,7 @@ card "Nekroz of Metaltron" {
         effect_type: QuickEffect
         category: Banish
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -48,8 +48,8 @@ card "Nekroz of Metaltron" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 204
-        property: 128
+        code: LeaveFieldRedirect
+        property: SetAvailable
         range: MonsterZone
         on_resolve {
         }

@@ -3,7 +3,7 @@
 // Transpiled from c58807980.lua
 
 card "Monoceros" {
-    password: 58807980
+    id: 58807980
     type: Effect Monster | Spirit
     attribute: LIGHT
     race: Beast
@@ -17,8 +17,8 @@ card "Monoceros" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             banish (1+, spell, you controls, hand)
@@ -28,8 +28,8 @@ card "Monoceros" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: SpecialSummon
-        code: 1108
-        property: 16
+        code: FlipSuccess
+        property: CardTarget
         on_resolve {
             special_summon (1, monster) from gy
         }

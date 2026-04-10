@@ -3,7 +3,7 @@
 // Transpiled from c14418464.lua
 
 card "Vaylantz Buster Baron" {
-    password: 14418464
+    id: 14418464
     type: Effect Monster | Pendulum Monster
     attribute: FIRE
     race: Machine
@@ -28,7 +28,7 @@ card "Vaylantz Buster Baron" {
 
     raw_effect "Effect 2" {
         effect_type: Ignition
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -38,7 +38,7 @@ card "Vaylantz Buster Baron" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         code: LeaveField
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -50,8 +50,8 @@ card "Vaylantz Buster Baron" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
@@ -60,7 +60,7 @@ card "Vaylantz Buster Baron" {
     raw_effect "Effect 5" {
         effect_type: Single
         code: 117
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }

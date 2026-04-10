@@ -3,7 +3,7 @@
 // Transpiled from c28651380.lua
 
 card "Raviel, Lord of Phantasms - Shimmering Scraper" {
-    password: 28651380
+    id: 28651380
     type: Effect Monster | Spirit
     attribute: DARK
     race: Fiend
@@ -17,16 +17,16 @@ card "Raviel, Lord of Phantasms - Shimmering Scraper" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             tribute (1, monster, you controls)
@@ -37,7 +37,7 @@ card "Raviel, Lord of Phantasms - Shimmering Scraper" {
         effect_type: QuickEffect
         category: SynchroSummon
         code: FreeChain
-        property: 16400
+        property: CardTarget + Oath
         range: Hand
         count_limit: (1, 28651380)
         cost {

@@ -3,7 +3,7 @@
 // Transpiled from c23931679.lua
 
 card "Ocean Dragon Lord - Kairyu-Shin" {
-    password: 23931679
+    id: 23931679
     type: Effect Monster
     attribute: WATER
     race: Sea Serpent
@@ -18,7 +18,7 @@ card "Ocean Dragon Lord - Kairyu-Shin" {
     raw_effect "Effect 1" {
         effect_type: Field + Continuous
         code: 1040
-        property: 128
+        property: SetAvailable
         range: MonsterZone
         on_resolve {
             send (1+, spell, you controls) to gy
@@ -29,7 +29,7 @@ card "Ocean Dragon Lord - Kairyu-Shin" {
     raw_effect "Effect 2" {
         effect_type: Field
         code: 20
-        property: 2048
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -39,7 +39,7 @@ card "Ocean Dragon Lord - Kairyu-Shin" {
     raw_effect "Effect 3" {
         effect_type: Field
         code: 21
-        property: 2048
+        property: InitialValue
         range: MonsterZone
         on_resolve {
         }
@@ -48,7 +48,7 @@ card "Ocean Dragon Lord - Kairyu-Shin" {
     raw_effect "Effect 4" {
         effect_type: Field
         code: 427
-        property: 2048
+        property: InitialValue
         range: MonsterZone
         on_resolve {
         }
@@ -67,8 +67,8 @@ card "Ocean Dragon Lord - Kairyu-Shin" {
 
     raw_effect "Effect 6" {
         effect_type: Field
-        code: 6
-        property: 2048
+        code: CannotChangeControl
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }

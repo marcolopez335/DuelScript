@@ -3,14 +3,14 @@
 // Transpiled from c70786111.lua
 
 card "Stonehenge" {
-    password: 70786111
+    id: 70786111
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         count_limit: (1, 70786111)
         on_resolve {
             special_summon (1, monster) from gy
@@ -20,7 +20,7 @@ card "Stonehenge" {
 
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
-        code: 1015
+        code: ChainNegated
         on_resolve {
             destroy (1+, card, either_player controls)
         }

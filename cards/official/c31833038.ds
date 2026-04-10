@@ -3,7 +3,7 @@
 // Transpiled from c31833038.lua
 
 card "Borreload Dragon" {
-    password: 31833038
+    id: 31833038
     type: Link Monster
     attribute: DARK
     race: Dragon
@@ -22,8 +22,8 @@ card "Borreload Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 71
-        property: 131072
+        code: CannotDirectAttack2
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -34,7 +34,7 @@ card "Borreload Dragon" {
         effect_type: QuickEffect
         category: SynchroSummon + XyzSummon
         code: FreeChain
-        property: 16400
+        property: CardTarget + Oath
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -62,8 +62,8 @@ card "Borreload Dragon" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 100
-        property: 1024
+        code: UpdateAttack
+        property: BothSide
         on_resolve {
             modifier: atk - 500
         }
@@ -71,8 +71,8 @@ card "Borreload Dragon" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 104
-        property: 1024
+        code: UpdateDefense
+        property: BothSide
         on_resolve {
             modifier: def - 500
         }

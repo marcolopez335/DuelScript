@@ -3,7 +3,7 @@
 // Transpiled from c2980764.lua
 
 card "Consecrated Light" {
-    password: 2980764
+    id: 2980764
     type: Effect Monster
     attribute: LIGHT
     race: Fairy
@@ -21,7 +21,7 @@ card "Consecrated Light" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -39,7 +39,7 @@ card "Consecrated Light" {
     raw_effect "Effect 4" {
         effect_type: Field
         code: 20
-        property: 2048
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -48,8 +48,8 @@ card "Consecrated Light" {
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 22
-        property: 2048
+        code: CannotDisable
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }

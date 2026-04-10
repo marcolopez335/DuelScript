@@ -3,7 +3,7 @@
 // Transpiled from c92644052.lua
 
 card "Performapal Duelist Extraordinaire" {
-    password: 92644052
+    id: 92644052
     type: Effect Monster | Pendulum Monster
     attribute: LIGHT
     race: Spellcaster
@@ -35,7 +35,7 @@ card "Performapal Duelist Extraordinaire" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: ToHand + Search
-        code: 1143
+        code: BattleDestroyed
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)
@@ -68,8 +68,8 @@ card "Performapal Duelist Extraordinaire" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 42
-        property: 1024
+        code: CannotBeEffectTarget
+        property: BothSide
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -78,7 +78,7 @@ card "Performapal Duelist Extraordinaire" {
     raw_effect "Effect 6" {
         effect_type: Field
         code: 208
-        property: 2048
+        property: InitialValue
         on_resolve {
         }
     }

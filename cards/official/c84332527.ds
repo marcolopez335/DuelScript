@@ -3,7 +3,7 @@
 // Transpiled from c84332527.lua
 
 card "Therion 'Bull' Ain" {
-    password: 84332527
+    id: 84332527
     type: Effect Monster
     attribute: FIRE
     race: Warrior
@@ -18,7 +18,7 @@ card "Therion 'Bull' Ain" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: SpecialSummon + EquipAction
-        property: 16
+        property: CardTarget
         range: Hand
         count_limit: (1, 84332527)
         on_resolve {
@@ -29,7 +29,7 @@ card "Therion 'Bull' Ain" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: Destroy
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -39,7 +39,7 @@ card "Therion 'Bull' Ain" {
 
     raw_effect "Effect 3" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 700
         }
@@ -54,14 +54,14 @@ card "Therion 'Bull' Ain" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 76
+        code: CannotAttack2
         on_resolve {
         }
     }
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 71
+        code: CannotDirectAttack2
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
@@ -69,7 +69,7 @@ card "Therion 'Bull' Ain" {
 
     raw_effect "Effect 7" {
         effect_type: Single
-        code: 41
+        code: IndestructableEffect
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
@@ -77,7 +77,7 @@ card "Therion 'Bull' Ain" {
 
     raw_effect "Effect 8" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

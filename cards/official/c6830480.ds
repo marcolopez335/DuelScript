@@ -3,7 +3,7 @@
 // Transpiled from c6830480.lua
 
 card "Twilight Ninja Kagen" {
-    password: 6830480
+    id: 6830480
     type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Warrior
@@ -14,8 +14,8 @@ card "Twilight Ninja Kagen" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 22
-        property: 3584
+        code: CannotDisable
+        property: IgnoreImmune + BothSide + InitialValue
         range: PendulumZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -39,7 +39,7 @@ card "Twilight Ninja Kagen" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: SynchroSummon
-        property: 16
+        property: CardTarget
         range: MonsterZone
         cost {
             tribute self

@@ -3,7 +3,7 @@
 // Transpiled from c40240595.lua
 
 card "Cocoon of Evolution" {
-    password: 40240595
+    id: 40240595
     type: Effect Monster
     attribute: EARTH
     race: Insect
@@ -14,7 +14,7 @@ card "Cocoon of Evolution" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: EquipAction
-        property: 16
+        property: CardTarget
         range: Hand
         on_resolve {
             send (1+, card, either_player controls) to gy
@@ -24,8 +24,8 @@ card "Cocoon of Evolution" {
 
     raw_effect "Effect 2" {
         effect_type: Field + Continuous
-        code: 4608
-        property: 1024
+        code: PhaseEnd
+        property: BothSide
         range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
@@ -35,7 +35,7 @@ card "Cocoon of Evolution" {
     raw_effect "Effect 3" {
         effect_type: Field + Continuous
         code: 1040
-        property: 1024
+        property: BothSide
         range: SpellTrapZone
         on_resolve {
         }

@@ -3,7 +3,7 @@
 // Transpiled from c31149212.lua
 
 card "Kashtira Riseheart" {
-    password: 31149212
+    id: 31149212
     type: Effect Monster
     attribute: FIRE
     race: Warrior
@@ -41,7 +41,7 @@ card "Kashtira Riseheart" {
     raw_effect "Effect 3" {
         effect_type: Field + Continuous
         code: SummonSuccess
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
@@ -49,15 +49,15 @@ card "Kashtira Riseheart" {
     raw_effect "Effect 4" {
         effect_type: Field + Continuous
         code: SpecialSummonSuccess
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

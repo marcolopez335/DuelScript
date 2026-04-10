@@ -3,7 +3,7 @@
 // Transpiled from c20212491.lua
 
 card "Stray Purrely Street" {
-    password: 20212491
+    id: 20212491
     type: Field Spell
 
     raw_effect "Effect 1" {
@@ -15,7 +15,7 @@ card "Stray Purrely Street" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 71
+        code: CannotDirectAttack2
         range: FieldZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -25,7 +25,7 @@ card "Stray Purrely Street" {
     raw_effect "Effect 3" {
         effect_type: Field + MandatoryTrigger
         category: SpecialSummon
-        code: 1015
+        code: ChainNegated
         range: FieldZone
         count_limit: (1, 0)
         on_resolve {
@@ -35,8 +35,8 @@ card "Stray Purrely Street" {
 
     raw_effect "Effect 4" {
         effect_type: Field + Trigger
-        code: 4608
-        property: 16
+        code: PhaseEnd
+        property: CardTarget
         range: FieldZone
         count_limit: (1, 0)
         on_resolve {

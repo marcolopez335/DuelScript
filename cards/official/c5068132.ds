@@ -3,7 +3,7 @@
 // Transpiled from c5068132.lua
 
 card "Dream Cicada" {
-    password: 5068132
+    id: 5068132
     type: Effect Monster
     attribute: WIND
     race: Insect
@@ -13,8 +13,8 @@ card "Dream Cicada" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         count_limit: (1, 5068132)
         on_resolve {
@@ -25,7 +25,7 @@ card "Dream Cicada" {
         effect_type: Single + Trigger
         category: DiceRoll
         code: SummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)
@@ -36,7 +36,7 @@ card "Dream Cicada" {
         effect_type: Single + Trigger
         category: DiceRoll
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)

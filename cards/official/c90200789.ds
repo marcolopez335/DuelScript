@@ -3,14 +3,14 @@
 // Transpiled from c90200789.lua
 
 card "Ninjitsu Art of Super-Transformation" {
-    password: 90200789
+    id: 90200789
     type: Continuous Trap
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: ToGrave + SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         on_resolve {
             send (1+, card, you controls, deck) to gy
             special_summon (1, monster) from gy
@@ -19,7 +19,7 @@ card "Ninjitsu Art of Super-Transformation" {
 
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
-        code: 1015
+        code: ChainNegated
         on_resolve {
             banish (1+, card, you controls, deck)
         }

@@ -3,14 +3,14 @@
 // Transpiled from c27275398.lua
 
 card "Gold Pride - Pedal to the Metal!" {
-    password: 27275398
+    id: 27275398
     type: Quick-Play Spell
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: SynchroSummon
         code: FreeChain
-        property: 16400
+        property: CardTarget + Oath
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -33,7 +33,7 @@ card "Gold Pride - Pedal to the Metal!" {
 
     raw_effect "Effect 2" {
         effect_type: Field + Trigger
-        code: 4608
+        code: PhaseEnd
         range: Graveyard
         count_limit: (1, 27275398)
         on_resolve {
@@ -51,7 +51,7 @@ card "Gold Pride - Pedal to the Metal!" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 500
         }
@@ -59,7 +59,7 @@ card "Gold Pride - Pedal to the Metal!" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -67,7 +67,7 @@ card "Gold Pride - Pedal to the Metal!" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 41
+        code: IndestructableEffect
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
@@ -76,7 +76,7 @@ card "Gold Pride - Pedal to the Metal!" {
     raw_effect "Effect 7" {
         effect_type: Single
         code: 7
-        property: 67108864
+        property: IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }

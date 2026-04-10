@@ -3,7 +3,7 @@
 // Transpiled from c79875176.lua
 
 card "Toon Cannon Soldier" {
-    password: 79875176
+    id: 79875176
     type: Effect Monster
     attribute: DARK
     race: Machine
@@ -14,7 +14,7 @@ card "Toon Cannon Soldier" {
     raw_effect "Effect 1" {
         effect_type: Single + Continuous
         code: SummonSuccess
-        property: 1024
+        property: BothSide
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -26,7 +26,7 @@ card "Toon Cannon Soldier" {
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
         code: SpecialSummonSuccess
-        property: 1024
+        property: BothSide
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -38,7 +38,7 @@ card "Toon Cannon Soldier" {
     raw_effect "Effect 3" {
         effect_type: Single + Continuous
         code: FlipSummonSuccess
-        property: 1024
+        property: BothSide
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -49,7 +49,7 @@ card "Toon Cannon Soldier" {
 
     raw_effect "Effect 4" {
         effect_type: Field + Continuous
-        code: 1015
+        code: ChainNegated
         range: MonsterZone
         on_resolve {
             destroy (1+, card, you controls)
@@ -67,7 +67,7 @@ card "Toon Cannon Soldier" {
     raw_effect "Effect 6" {
         effect_type: Ignition
         category: Damage
-        property: 2048
+        property: InitialValue
         range: MonsterZone
         cost {
             tribute self

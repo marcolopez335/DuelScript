@@ -3,7 +3,7 @@
 // Transpiled from c53303460.lua
 
 card "Impcantation Candoll" {
-    password: 53303460
+    id: 53303460
     type: Effect Monster
     attribute: LIGHT
     race: Pyro
@@ -25,7 +25,7 @@ card "Impcantation Candoll" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 53303460)
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
@@ -35,8 +35,8 @@ card "Impcantation Candoll" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 2048
+        code: CannotDisable
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }

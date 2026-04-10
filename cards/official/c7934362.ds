@@ -3,7 +3,7 @@
 // Transpiled from c7934362.lua
 
 card "Performage Fire Dancer" {
-    password: 7934362
+    id: 7934362
     type: Effect Monster | Pendulum Monster
     attribute: FIRE
     race: Spellcaster
@@ -14,7 +14,7 @@ card "Performage Fire Dancer" {
 
     raw_effect "Effect 1" {
         effect_type: Ignition
-        property: 16
+        property: CardTarget
         range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
@@ -29,7 +29,7 @@ card "Performage Fire Dancer" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 7934362)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -41,7 +41,7 @@ card "Performage Fire Dancer" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 7934362)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -53,7 +53,7 @@ card "Performage Fire Dancer" {
         effect_type: Single + Trigger
         category: SynchroSummon
         code: Destroyed
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -64,8 +64,8 @@ card "Performage Fire Dancer" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 203
-        property: 67108864
+        code: GraveRedirectCb
+        property: IgnoreRange2
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }
@@ -73,8 +73,8 @@ card "Performage Fire Dancer" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 100
-        property: 1024
+        code: UpdateAttack
+        property: BothSide
         on_resolve {
             modifier: atk - 500
         }

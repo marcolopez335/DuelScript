@@ -3,7 +3,7 @@
 // Transpiled from c18548966.lua
 
 card "Heroic Challenger - Morning Star" {
-    password: 18548966
+    id: 18548966
     type: Effect Monster
     attribute: EARTH
     race: Warrior
@@ -25,7 +25,7 @@ card "Heroic Challenger - Morning Star" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             return (1+, spell, you controls) to hand
@@ -37,7 +37,7 @@ card "Heroic Challenger - Morning Star" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             return (1+, spell, you controls) to hand
@@ -57,8 +57,8 @@ card "Heroic Challenger - Morning Star" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 2
-        property: 1024
+        code: Disable
+        property: BothSide
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
@@ -67,7 +67,7 @@ card "Heroic Challenger - Morning Star" {
     raw_effect "Effect 6" {
         effect_type: Single
         code: 8
-        property: 1024
+        property: BothSide
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }

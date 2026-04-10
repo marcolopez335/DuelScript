@@ -3,14 +3,14 @@
 // Transpiled from c13629812.lua
 
 card "Ninjitsu Art of Shadow Sealing" {
-    password: 13629812
+    id: 13629812
     type: Continuous Trap
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: Banish
         code: FreeChain
-        property: 16
+        property: CardTarget
         cost {
             tribute self
         }
@@ -21,7 +21,7 @@ card "Ninjitsu Art of Shadow Sealing" {
 
     raw_effect "Effect 2" {
         effect_type: Single + MandatoryTrigger
-        code: 1015
+        code: ChainNegated
         on_resolve {
             send (1+, monster, opponent controls) to gy
             special_summon (1, monster) from gy

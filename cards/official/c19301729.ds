@@ -3,7 +3,7 @@
 // Transpiled from c19301729.lua
 
 card "Digital Bug Registrider" {
-    password: 19301729
+    id: 19301729
     type: Effect Monster
     attribute: LIGHT
     race: Insect
@@ -14,7 +14,7 @@ card "Digital Bug Registrider" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 238
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -37,7 +37,7 @@ card "Digital Bug Registrider" {
         effect_type: Single + Trigger
         category: DiceRoll
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             change_battle_position (1, monster)
         }
@@ -45,7 +45,7 @@ card "Digital Bug Registrider" {
 
     raw_effect "Effect 4" {
         effect_type: Single + Continuous
-        code: 1108
+        code: FlipSuccess
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

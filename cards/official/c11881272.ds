@@ -3,12 +3,12 @@
 // Transpiled from c11881272.lua
 
 card "Favorite Hero" {
-    password: 11881272
+    id: 11881272
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 0
         }
@@ -16,8 +16,8 @@ card "Favorite Hero" {
 
     raw_effect "Effect 2" {
         effect_type: Equip
-        code: 71
-        property: 128
+        code: CannotDirectAttack2
+        property: SetAvailable
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
@@ -34,7 +34,7 @@ card "Favorite Hero" {
 
     raw_effect "Effect 4" {
         effect_type: Field + Trigger
-        code: 1139
+        code: BattleConfirmed
         range: SpellTrapZone
         cost {
             send self to gy

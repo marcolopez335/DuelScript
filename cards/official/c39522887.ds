@@ -3,7 +3,7 @@
 // Transpiled from c39522887.lua
 
 card "Snopios, Shade of the Ghoti" {
-    password: 39522887
+    id: 39522887
     type: Effect Monster
     attribute: WATER
     race: Fish
@@ -32,7 +32,7 @@ card "Snopios, Shade of the Ghoti" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -46,7 +46,7 @@ card "Snopios, Shade of the Ghoti" {
         effect_type: Single + Trigger
         category: ToHand
         code: TurnEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         cost {
             banish self
@@ -58,8 +58,8 @@ card "Snopios, Shade of the Ghoti" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 60
-        property: 67109888
+        code: CannotAttack
+        property: BothSide + IgnoreRange2
         on_resolve {
         }
     }

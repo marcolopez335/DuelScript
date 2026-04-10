@@ -3,7 +3,7 @@
 // Transpiled from c89019964.lua
 
 card "Unchained Soul of Disaster" {
-    password: 89019964
+    id: 89019964
     type: Effect Monster
     attribute: DARK
     race: Fiend
@@ -17,7 +17,7 @@ card "Unchained Soul of Disaster" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 0
         }
@@ -26,7 +26,7 @@ card "Unchained Soul of Disaster" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: SpecialSummon
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 89019964)
         on_resolve {
@@ -38,7 +38,7 @@ card "Unchained Soul of Disaster" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 81936
+        property: CardTarget + Oath + Delay
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

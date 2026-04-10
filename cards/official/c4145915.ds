@@ -3,7 +3,7 @@
 // Transpiled from c4145915.lua
 
 card "Gimmick Puppet Fiendish Knight" {
-    password: 4145915
+    id: 4145915
     type: Effect Monster
     attribute: DARK
     race: Machine
@@ -14,7 +14,7 @@ card "Gimmick Puppet Fiendish Knight" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: SpecialSummon
-        property: 16
+        property: CardTarget
         range: Hand
         count_limit: (1, 4145915)
         on_resolve {
@@ -27,7 +27,7 @@ card "Gimmick Puppet Fiendish Knight" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
@@ -36,8 +36,8 @@ card "Gimmick Puppet Fiendish Knight" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 67635200
+        code: CannotDisable
+        property: InitialValue + CannotDisable + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

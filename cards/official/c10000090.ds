@@ -3,7 +3,7 @@
 // Transpiled from c10000090.lua
 
 card "The Winged Dragon of Ra - Immortal Phoenix" {
-    password: 10000090
+    id: 10000090
     type: Effect Monster | Spirit
     attribute: DIVINE
     race: Divine-Beast
@@ -17,8 +17,8 @@ card "The Winged Dragon of Ra - Immortal Phoenix" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -35,8 +35,8 @@ card "The Winged Dragon of Ra - Immortal Phoenix" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 1
-        property: 131072
+        code: ImmuneEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -58,7 +58,7 @@ card "The Winged Dragon of Ra - Immortal Phoenix" {
     raw_effect "Effect 5" {
         effect_type: Field + MandatoryTrigger
         category: ToGrave + SpecialSummon
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

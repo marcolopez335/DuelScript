@@ -3,7 +3,7 @@
 // Transpiled from c13076804.lua
 
 card "Chaos Archfiend" {
-    password: 13076804
+    id: 13076804
     type: Synchro Monster
     attribute: DARK
     race: Fiend
@@ -23,8 +23,8 @@ card "Chaos Archfiend" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 2000
@@ -41,7 +41,7 @@ card "Chaos Archfiend" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 204
+        code: LeaveFieldRedirect
         on_resolve {
         }
     }
@@ -49,8 +49,8 @@ card "Chaos Archfiend" {
     raw_effect "Effect 4" {
         effect_type: Single + Trigger
         category: SpecialSummon
-        code: 1015
-        property: 65536
+        code: ChainNegated
+        property: Delay
         count_limit: (1, 13076804)
         on_resolve {
             special_summon (1, monster) from gy

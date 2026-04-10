@@ -3,7 +3,7 @@
 // Transpiled from c85747929.lua
 
 card "Galaxy Photon Dragon" {
-    password: 85747929
+    id: 85747929
     type: Xyz Monster
     attribute: LIGHT
     race: Dragon
@@ -23,7 +23,7 @@ card "Galaxy Photon Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 500
@@ -47,7 +47,7 @@ card "Galaxy Photon Dragon" {
         effect_type: Single + Trigger
         category: LevelChange
         code: 354183385
-        property: 65552
+        property: CardTarget + Delay
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -61,7 +61,7 @@ card "Galaxy Photon Dragon" {
     raw_effect "Effect 4" {
         effect_type: Field + Continuous
         code: SpecialSummonSuccess
-        property: 1024
+        property: BothSide
         range: MonsterZone
         on_resolve {
             emit_event "custom"
@@ -71,7 +71,7 @@ card "Galaxy Photon Dragon" {
     raw_effect "Effect 5" {
         effect_type: Single
         code: 131
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }

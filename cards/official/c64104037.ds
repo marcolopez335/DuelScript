@@ -3,7 +3,7 @@
 // Transpiled from c64104037.lua
 
 card "Ghost Lancer, the Underworld Spearman" {
-    password: 64104037
+    id: 64104037
     type: Effect Monster
     attribute: DARK
     race: Zombie
@@ -17,8 +17,8 @@ card "Ghost Lancer, the Underworld Spearman" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
         }
@@ -26,7 +26,7 @@ card "Ghost Lancer, the Underworld Spearman" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -34,7 +34,7 @@ card "Ghost Lancer, the Underworld Spearman" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }

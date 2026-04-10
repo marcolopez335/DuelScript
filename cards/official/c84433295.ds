@@ -3,7 +3,7 @@
 // Transpiled from c84433295.lua
 
 card "Quintet Magician" {
-    password: 84433295
+    id: 84433295
     type: Fusion Monster
     attribute: DARK
     race: Spellcaster
@@ -22,8 +22,8 @@ card "Quintet Magician" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -32,7 +32,7 @@ card "Quintet Magician" {
         effect_type: Single + Trigger
         category: Destroy
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             destroy (1+, card, either_player controls)
         }
@@ -40,15 +40,15 @@ card "Quintet Magician" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 43
-        property: 131072
+        code: CannotBeBattleTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -56,8 +56,8 @@ card "Quintet Magician" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 44
-        property: 131072
+        code: CannotRemove
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -66,7 +66,7 @@ card "Quintet Magician" {
     raw_effect "Effect 6" {
         effect_type: Single
         code: 235
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -74,8 +74,8 @@ card "Quintet Magician" {
 
     raw_effect "Effect 7" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

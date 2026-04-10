@@ -3,7 +3,7 @@
 // Transpiled from c22623509.lua
 
 card "Verre, the Maid of Endymion" {
-    password: 22623509
+    id: 22623509
     type: Effect Monster
     attribute: LIGHT
     race: Spellcaster
@@ -13,8 +13,8 @@ card "Verre, the Maid of Endymion" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 2300
@@ -35,7 +35,7 @@ card "Verre, the Maid of Endymion" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, spell, you controls) from gy

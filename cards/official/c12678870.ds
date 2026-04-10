@@ -3,7 +3,7 @@
 // Transpiled from c12678870.lua
 
 card "Ritual Beast Ulti-Pettlephin" {
-    password: 12678870
+    id: 12678870
     type: Fusion Monster
     attribute: WIND
     race: Aqua
@@ -22,8 +22,8 @@ card "Ritual Beast Ulti-Pettlephin" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -34,7 +34,7 @@ card "Ritual Beast Ulti-Pettlephin" {
         effect_type: QuickEffect
         category: SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         on_resolve {
             special_summon (1, monster) from gy

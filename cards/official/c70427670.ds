@@ -3,7 +3,7 @@
 // Transpiled from c70427670.lua
 
 card "Predaplant Bufolicula" {
-    password: 70427670
+    id: 70427670
     type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Plant
@@ -14,7 +14,7 @@ card "Predaplant Bufolicula" {
 
     raw_effect "Effect 1" {
         effect_type: Ignition
-        category: SpecialSummon
+        category: SpecialSummon + Control
         range: PendulumZone
         count_limit: (1, 70427670)
         on_resolve {
@@ -24,8 +24,8 @@ card "Predaplant Bufolicula" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: ToHand
-        code: 1108
-        property: 65536
+        code: FlipSuccess
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy

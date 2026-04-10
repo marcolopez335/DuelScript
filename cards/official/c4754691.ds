@@ -3,7 +3,7 @@
 // Transpiled from c4754691.lua
 
 card "Amphibious Bugroth MK-11" {
-    password: 4754691
+    id: 4754691
     type: Effect Monster
     attribute: WATER
     race: Machine
@@ -17,8 +17,8 @@ card "Amphibious Bugroth MK-11" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 73
-        property: 131072
+        code: CannotAttackAnnounce
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
@@ -27,8 +27,8 @@ card "Amphibious Bugroth MK-11" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 700
@@ -38,7 +38,7 @@ card "Amphibious Bugroth MK-11" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: Destroy
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 4754691)
         on_resolve {

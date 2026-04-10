@@ -3,7 +3,7 @@
 // Transpiled from c58071334.lua
 
 card "Snake-Eyes Doomed Dragon" {
-    password: 58071334
+    id: 58071334
     type: Fusion Monster
     attribute: FIRE
     race: Dragon
@@ -22,8 +22,8 @@ card "Snake-Eyes Doomed Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Deck
         on_resolve {
             send (1+, card, either_player controls) to gy
@@ -33,7 +33,7 @@ card "Snake-Eyes Doomed Dragon" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 58071334)
         on_resolve {
             send (1+, card, either_player controls) to gy

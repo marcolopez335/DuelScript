@@ -3,7 +3,7 @@
 // Transpiled from c39931513.lua
 
 card "Tenpai Dragon Paidra" {
-    password: 39931513
+    id: 39931513
     type: Effect Monster
     attribute: FIRE
     race: Dragon
@@ -15,7 +15,7 @@ card "Tenpai Dragon Paidra" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 39931513)
         on_resolve {
             add_to_hand (1, card, you controls) from gy
@@ -27,7 +27,7 @@ card "Tenpai Dragon Paidra" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 39931513)
         on_resolve {
             add_to_hand (1, card, you controls) from gy
@@ -38,7 +38,7 @@ card "Tenpai Dragon Paidra" {
     raw_effect "Effect 3" {
         effect_type: Field
         code: 201
-        property: 128
+        property: SetAvailable
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

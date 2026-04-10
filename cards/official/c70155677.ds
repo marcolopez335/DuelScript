@@ -3,7 +3,7 @@
 // Transpiled from c70155677.lua
 
 card "Dreaming Nemleria" {
-    password: 70155677
+    id: 70155677
     type: Effect Monster | Pendulum Monster | Spirit
     attribute: LIGHT
     race: Fairy
@@ -18,7 +18,7 @@ card "Dreaming Nemleria" {
 
     raw_effect "Effect 1" {
         effect_type: Ignition
-        category: 2147483648
+        category: Announce
         range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
@@ -29,16 +29,16 @@ card "Dreaming Nemleria" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Deck
         on_resolve {
         }
@@ -48,7 +48,7 @@ card "Dreaming Nemleria" {
         effect_type: Single + Trigger
         category: Banish + ToDeck
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             banish (1+, card, either_player controls)
             return (1+, card, either_player controls) to deck shuffle
@@ -57,8 +57,8 @@ card "Dreaming Nemleria" {
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 22
-        property: 67635200
+        code: CannotDisable
+        property: InitialValue + CannotDisable + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

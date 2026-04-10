@@ -3,7 +3,7 @@
 // Transpiled from c41729254.lua
 
 card "Hajun, the Winged Mayakashi" {
-    password: 41729254
+    id: 41729254
     type: Effect Monster
     attribute: WIND
     race: Zombie
@@ -15,7 +15,7 @@ card "Hajun, the Winged Mayakashi" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SummonSuccess
-        property: 81920
+        property: Oath + Delay
         count_limit: (1, 41729254)
         on_resolve {
             special_summon (1, monster) from gy
@@ -26,7 +26,7 @@ card "Hajun, the Winged Mayakashi" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 81920
+        property: Oath + Delay
         count_limit: (1, 41729254)
         on_resolve {
             special_summon (1, monster) from gy
@@ -35,8 +35,8 @@ card "Hajun, the Winged Mayakashi" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 2048
+        code: CannotDisable
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }

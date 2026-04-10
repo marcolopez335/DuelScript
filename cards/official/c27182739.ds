@@ -3,7 +3,7 @@
 // Transpiled from c27182739.lua
 
 card "Mathmech Sigma" {
-    password: 27182739
+    id: 27182739
     type: Effect Monster | Tuner
     attribute: LIGHT
     race: Cyberse
@@ -28,7 +28,7 @@ card "Mathmech Sigma" {
     raw_effect "Effect 2" {
         effect_type: Single
         code: 244
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -36,8 +36,8 @@ card "Mathmech Sigma" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
@@ -45,8 +45,8 @@ card "Mathmech Sigma" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 60
-        property: 67109888
+        code: CannotAttack
+        property: BothSide + IgnoreRange2
         on_resolve {
         }
     }

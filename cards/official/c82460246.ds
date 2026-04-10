@@ -3,7 +3,7 @@
 // Transpiled from c82460246.lua
 
 card "Peaceful Planet Calarium" {
-    password: 82460246
+    id: 82460246
     type: Field Spell
 
     raw_effect "Effect 1" {
@@ -19,7 +19,7 @@ card "Peaceful Planet Calarium" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: FieldZone
         on_resolve {
             modifier: atk + 0
@@ -30,7 +30,7 @@ card "Peaceful Planet Calarium" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: 350895702
-        property: 65552
+        property: CardTarget + Delay
         range: FieldZone
         count_limit: (1, 82460246)
         on_resolve {
@@ -41,7 +41,7 @@ card "Peaceful Planet Calarium" {
     raw_effect "Effect 4" {
         effect_type: Field + Continuous
         code: Destroyed
-        property: 1024
+        property: BothSide
         range: FieldZone
         on_resolve {
             emit_event "custom"

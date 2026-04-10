@@ -3,7 +3,7 @@
 // Transpiled from c7020743.lua
 
 card "Tantrum Toddler" {
-    password: 7020743
+    id: 7020743
     type: Xyz Monster
     attribute: FIRE
     race: Beast
@@ -24,8 +24,8 @@ card "Tantrum Toddler" {
     raw_effect "Effect 1" {
         effect_type: Field + Trigger
         category: 67108864
-        code: 1024
-        property: 65536
+        code: SentToHand
+        property: Delay
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -35,8 +35,8 @@ card "Tantrum Toddler" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -45,8 +45,8 @@ card "Tantrum Toddler" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 104
-        property: 131072
+        code: UpdateDefense
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: def + 0
@@ -55,8 +55,8 @@ card "Tantrum Toddler" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -65,8 +65,8 @@ card "Tantrum Toddler" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

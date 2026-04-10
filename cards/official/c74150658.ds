@@ -3,7 +3,7 @@
 // Transpiled from c74150658.lua
 
 card "Talons of Shurilane" {
-    password: 74150658
+    id: 74150658
     type: Effect Monster
     attribute: LIGHT
     race: Unknown
@@ -17,7 +17,7 @@ card "Talons of Shurilane" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -28,7 +28,7 @@ card "Talons of Shurilane" {
         effect_type: QuickEffect
         category: ToHand + SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: Hand
         count_limit: (1, 74150658)
         on_resolve {
@@ -41,7 +41,7 @@ card "Talons of Shurilane" {
         effect_type: QuickEffect
         category: Destroy + ToHand
         code: Chaining
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

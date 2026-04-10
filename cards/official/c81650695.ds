@@ -3,7 +3,7 @@
 // Transpiled from c81650695.lua
 
 card "Power Patron DoomZ" {
-    password: 81650695
+    id: 81650695
     type: Effect Monster
     attribute: WIND
     race: Machine
@@ -13,8 +13,8 @@ card "Power Patron DoomZ" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 22
-        property: 2048
+        code: CannotDisable
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -24,7 +24,7 @@ card "Power Patron DoomZ" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: SpecialSummon
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 81650695)
         on_resolve {
@@ -38,7 +38,7 @@ card "Power Patron DoomZ" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: Destroyed
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
@@ -48,8 +48,8 @@ card "Power Patron DoomZ" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 76
-        property: 1024
+        code: CannotAttack2
+        property: BothSide
         on_resolve {
         }
     }

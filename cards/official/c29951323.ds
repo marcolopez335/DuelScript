@@ -3,7 +3,7 @@
 // Transpiled from c29951323.lua
 
 card "Zap Mustung" {
-    password: 29951323
+    id: 29951323
     type: Effect Monster | Spirit
     attribute: LIGHT
     race: Thunder
@@ -13,8 +13,8 @@ card "Zap Mustung" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -22,7 +22,7 @@ card "Zap Mustung" {
     raw_effect "Effect 2" {
         effect_type: Single
         code: 47
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
@@ -31,8 +31,8 @@ card "Zap Mustung" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 2048
+        code: CannotDisable
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -42,7 +42,7 @@ card "Zap Mustung" {
     raw_effect "Effect 4" {
         effect_type: Field
         code: 331
-        property: 2048
+        property: InitialValue
         range: MonsterZone
         on_resolve {
         }
@@ -51,7 +51,7 @@ card "Zap Mustung" {
     raw_effect "Effect 5" {
         effect_type: Field
         code: 331
-        property: 2048
+        property: InitialValue
         range: MonsterZone
         on_resolve {
         }

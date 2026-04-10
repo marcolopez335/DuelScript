@@ -3,7 +3,7 @@
 // Transpiled from c79491903.lua
 
 card "Reptilianne Naga" {
-    password: 79491903
+    id: 79491903
     type: Effect Monster
     attribute: DARK
     race: Reptile
@@ -13,7 +13,7 @@ card "Reptilianne Naga" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -36,7 +36,7 @@ card "Reptilianne Naga" {
     raw_effect "Effect 3" {
         effect_type: Field + MandatoryTrigger
         category: DiceRoll
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

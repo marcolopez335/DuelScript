@@ -3,7 +3,7 @@
 // Transpiled from c5829717.lua
 
 card "Dark Magician the Knight of Dragon Magic" {
-    password: 5829717
+    id: 5829717
     type: Fusion Monster
     attribute: DARK
     race: Dragon
@@ -22,7 +22,7 @@ card "Dark Magician the Knight of Dragon Magic" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 203
+        code: GraveRedirectCb
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
@@ -33,7 +33,7 @@ card "Dark Magician the Knight of Dragon Magic" {
         effect_type: Field + Trigger
         category: Damage
         code: BattleDamage
-        property: 2048
+        property: InitialValue
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -45,7 +45,7 @@ card "Dark Magician the Knight of Dragon Magic" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 65536
+        property: Delay
         on_resolve {
             special_summon (1, monster) from gy
         }

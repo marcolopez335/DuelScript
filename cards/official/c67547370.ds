@@ -3,7 +3,7 @@
 // Transpiled from c67547370.lua
 
 card "Zushin the Sleeping Giant" {
-    password: 67547370
+    id: 67547370
     type: Effect Monster | Spirit
     attribute: EARTH
     race: Warrior
@@ -17,16 +17,16 @@ card "Zushin the Sleeping Giant" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             tribute (1, monster, you controls)
@@ -36,7 +36,7 @@ card "Zushin the Sleeping Giant" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: LinkSummon
-        property: 16
+        property: CardTarget
         range: Hand
         count_limit: (1, 0)
         on_resolve {
@@ -45,8 +45,8 @@ card "Zushin the Sleeping Giant" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 1
-        property: 131072
+        code: ImmuneEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }

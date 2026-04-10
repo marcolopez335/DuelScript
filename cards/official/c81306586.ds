@@ -3,7 +3,7 @@
 // Transpiled from c81306586.lua
 
 card "Nightmare Penguin" {
-    password: 81306586
+    id: 81306586
     type: Effect Monster
     attribute: WATER
     race: Aqua
@@ -15,7 +15,7 @@ card "Nightmare Penguin" {
         effect_type: Single + MandatoryTrigger
         category: ToHand
         code: 1001
-        property: 16
+        property: CardTarget
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }
@@ -23,7 +23,7 @@ card "Nightmare Penguin" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 200

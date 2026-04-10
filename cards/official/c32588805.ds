@@ -3,7 +3,7 @@
 // Transpiled from c32588805.lua
 
 card "The Despair Uranus" {
-    password: 32588805
+    id: 32588805
     type: Effect Monster
     attribute: LIGHT
     race: Rock
@@ -25,8 +25,8 @@ card "The Despair Uranus" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -35,7 +35,7 @@ card "The Despair Uranus" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 41
+        code: IndestructableEffect
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

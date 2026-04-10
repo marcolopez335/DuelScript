@@ -3,7 +3,7 @@
 // Transpiled from c43502497.lua
 
 card "Pendulum Witch" {
-    password: 43502497
+    id: 43502497
     type: Effect Monster | Pendulum Monster
     attribute: EARTH
     race: Spellcaster
@@ -14,9 +14,9 @@ card "Pendulum Witch" {
 
     raw_effect "Effect 1" {
         effect_type: Field + Trigger
-        category: 2147483648
+        category: Announce
         code: Destroyed
-        property: 65536
+        property: Delay
         range: PendulumZone
         count_limit: (1, 43502497)
         on_resolve {
@@ -28,7 +28,7 @@ card "Pendulum Witch" {
         effect_type: Single + Trigger
         category: Destroy + ToHand + Search
         code: SummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, you controls, deck)
@@ -41,7 +41,7 @@ card "Pendulum Witch" {
         effect_type: Single + Trigger
         category: Destroy + ToHand + Search
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, you controls, deck)
@@ -53,7 +53,7 @@ card "Pendulum Witch" {
     raw_effect "Effect 4" {
         effect_type: Single + Trigger
         code: Destroyed
-        property: 65536
+        property: Delay
         on_resolve {
             special_summon (1, monster) from gy
         }

@@ -3,7 +3,7 @@
 // Transpiled from c3078576.lua
 
 card "Yata-Garasu" {
-    password: 3078576
+    id: 3078576
     type: Effect Monster | Flip
     attribute: WIND
     race: Fiend
@@ -13,15 +13,15 @@ card "Yata-Garasu" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Single + MandatoryTrigger
-        code: 1143
+        code: BattleDestroyed
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -33,7 +33,7 @@ card "Yata-Garasu" {
     raw_effect "Effect 3" {
         effect_type: Field
         code: 180
-        property: 67110912
+        property: InitialValue + IgnoreRange2
         on_resolve {
         }
     }

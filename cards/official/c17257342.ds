@@ -3,7 +3,7 @@
 // Transpiled from c17257342.lua
 
 card "Diana the Light Spirit" {
-    password: 17257342
+    id: 17257342
     type: Effect Monster | Spirit
     attribute: LIGHT
     race: Thunder
@@ -17,8 +17,8 @@ card "Diana the Light Spirit" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             banish (1+, card, you controls, gy)
@@ -28,8 +28,8 @@ card "Diana the Light Spirit" {
     raw_effect "Effect 2" {
         effect_type: Field + MandatoryTrigger
         category: Recover
-        code: 4608
-        property: 2048
+        code: PhaseEnd
+        property: InitialValue
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

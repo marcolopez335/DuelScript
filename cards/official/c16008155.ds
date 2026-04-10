@@ -3,7 +3,7 @@
 // Transpiled from c16008155.lua
 
 card "Reptilianne Servant" {
-    password: 16008155
+    id: 16008155
     type: Effect Monster
     attribute: DARK
     race: Reptile
@@ -14,7 +14,7 @@ card "Reptilianne Servant" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 141
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -22,8 +22,8 @@ card "Reptilianne Servant" {
 
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
-        code: 1028
-        property: 1024
+        code: BecomeTarget
+        property: BothSide
         on_resolve {
         }
     }
@@ -49,7 +49,7 @@ card "Reptilianne Servant" {
     raw_effect "Effect 5" {
         effect_type: Field
         code: 20
-        property: 2048
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }

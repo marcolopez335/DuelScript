@@ -3,7 +3,7 @@
 // Transpiled from c92501449.lua
 
 card "Primite Roar" {
-    password: 92501449
+    id: 92501449
     type: Quick-Play Spell
 
     raw_effect "Effect 1" {
@@ -26,7 +26,7 @@ card "Primite Roar" {
         effect_type: Field + Trigger
         category: Banish
         code: SummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         range: Graveyard
         cost {
             banish self
@@ -38,7 +38,7 @@ card "Primite Roar" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

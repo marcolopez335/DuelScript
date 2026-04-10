@@ -3,7 +3,7 @@
 // Transpiled from c33545259.lua
 
 card "Ancient Warriors - Ambitious Cao De" {
-    password: 33545259
+    id: 33545259
     type: Effect Monster
     attribute: FIRE
     race: Beast-Warrior
@@ -19,7 +19,7 @@ card "Ancient Warriors - Ambitious Cao De" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 81920
+        property: Oath + Delay
         range: Hand
         count_limit: (1, 33545259)
         cost {
@@ -32,8 +32,8 @@ card "Ancient Warriors - Ambitious Cao De" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 71
-        property: 131072
+        code: CannotDirectAttack2
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -42,8 +42,8 @@ card "Ancient Warriors - Ambitious Cao De" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -53,7 +53,7 @@ card "Ancient Warriors - Ambitious Cao De" {
     raw_effect "Effect 4" {
         effect_type: Single + Trigger
         category: SpecialSummon
-        code: 1139
+        code: BattleConfirmed
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

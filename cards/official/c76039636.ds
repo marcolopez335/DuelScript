@@ -3,7 +3,7 @@
 // Transpiled from c76039636.lua
 
 card "Doom Dozer" {
-    password: 76039636
+    id: 76039636
     type: Effect Monster | Spirit
     attribute: EARTH
     race: Insect
@@ -17,16 +17,16 @@ card "Doom Dozer" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             banish (1+, monster, you controls, gy)
@@ -36,7 +36,7 @@ card "Doom Dozer" {
     raw_effect "Effect 3" {
         effect_type: Single + MandatoryTrigger
         category: AtkChange
-        code: 1143
+        code: BattleDestroyed
         on_resolve {
             mill 1
         }

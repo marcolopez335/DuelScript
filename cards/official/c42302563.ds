@@ -3,7 +3,7 @@
 // Transpiled from c42302563.lua
 
 card "Elfnote Seraphim Strelitzia" {
-    password: 42302563
+    id: 42302563
     type: Synchro Monster
     attribute: FIRE
     race: Plant
@@ -23,8 +23,8 @@ card "Elfnote Seraphim Strelitzia" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 103
-        property: 131072
+        code: SetBaseAttack
+        property: SingleRange
         range: 2048
         on_resolve {
         }
@@ -47,16 +47,16 @@ card "Elfnote Seraphim Strelitzia" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 130
-        property: 1024
+        code: ChangePosition
+        property: BothSide
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

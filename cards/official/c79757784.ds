@@ -3,7 +3,7 @@
 // Transpiled from c79757784.lua
 
 card "Tamtam the Melodious Diva" {
-    password: 79757784
+    id: 79757784
     type: Effect Monster
     attribute: LIGHT
     race: Fairy
@@ -15,7 +15,7 @@ card "Tamtam the Melodious Diva" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 81920
+        property: Oath + Delay
         on_resolve {
             return (1+, monster, you controls) to hand
             reveal (1+, card, opponent controls)
@@ -25,8 +25,8 @@ card "Tamtam the Melodious Diva" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: Damage + SynchroSummon
-        code: 1108
-        property: 81936
+        code: FlipSuccess
+        property: CardTarget + Oath + Delay
         on_resolve {
             deal_damage to opponent: 500
         }

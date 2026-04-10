@@ -3,7 +3,7 @@
 // Transpiled from c9817927.lua
 
 card "Gyaku-Gire Panda" {
-    password: 9817927
+    id: 9817927
     type: Effect Monster
     attribute: EARTH
     race: Beast
@@ -13,8 +13,8 @@ card "Gyaku-Gire Panda" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -23,7 +23,7 @@ card "Gyaku-Gire Panda" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }

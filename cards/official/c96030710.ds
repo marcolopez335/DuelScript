@@ -3,7 +3,7 @@
 // Transpiled from c96030710.lua
 
 card "Centur-Ion Atrii" {
-    password: 96030710
+    id: 96030710
     type: Effect Monster | Tuner
     attribute: DARK
     race: Dragon
@@ -14,7 +14,7 @@ card "Centur-Ion Atrii" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 244
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -24,7 +24,7 @@ card "Centur-Ion Atrii" {
         effect_type: Single + Trigger
         category: Draw
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 96030710)
         on_resolve {
             draw 1
@@ -39,7 +39,7 @@ card "Centur-Ion Atrii" {
         effect_type: Single + Trigger
         category: Draw
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 96030710)
         on_resolve {
             draw 1
@@ -63,8 +63,8 @@ card "Centur-Ion Atrii" {
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

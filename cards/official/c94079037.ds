@@ -3,7 +3,7 @@
 // Transpiled from c94079037.lua
 
 card "Mine Mole" {
-    password: 94079037
+    id: 94079037
     type: Effect Monster
     attribute: EARTH
     race: Beast
@@ -14,7 +14,7 @@ card "Mine Mole" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 47
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
@@ -24,8 +24,8 @@ card "Mine Mole" {
     raw_effect "Effect 2" {
         effect_type: Single + MandatoryTrigger
         category: Draw
-        code: 1108
-        property: 2048
+        code: FlipSuccess
+        property: InitialValue
         on_resolve {
             draw 1
         }
@@ -33,7 +33,7 @@ card "Mine Mole" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 60
+        code: CannotAttack
         on_resolve {
         }
     }

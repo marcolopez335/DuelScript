@@ -3,7 +3,7 @@
 // Transpiled from c92510265.lua
 
 card "Black Luster Soldier - Sacred Soldier" {
-    password: 92510265
+    id: 92510265
     type: Effect Monster
     attribute: LIGHT
     race: Warrior
@@ -19,7 +19,7 @@ card "Black Luster Soldier - Sacred Soldier" {
         effect_type: Single + Trigger
         category: Banish + ToGrave
         code: SummonSuccess
-        property: 16400
+        property: CardTarget + Oath
         count_limit: (1, 92510265)
         on_resolve {
             send (1+, card, either_player controls) to gy
@@ -31,7 +31,7 @@ card "Black Luster Soldier - Sacred Soldier" {
         effect_type: Single + Trigger
         category: Banish + ToGrave
         code: SpecialSummonSuccess
-        property: 16400
+        property: CardTarget + Oath
         count_limit: (1, 92510265)
         on_resolve {
             send (1+, card, either_player controls) to gy
@@ -42,8 +42,8 @@ card "Black Luster Soldier - Sacred Soldier" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         category: ToHand
-        code: 1139
-        property: 16
+        code: BattleConfirmed
+        property: CardTarget
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }

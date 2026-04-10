@@ -3,7 +3,7 @@
 // Transpiled from c17832359.lua
 
 card "Wonko, Noble Knight of the Forest" {
-    password: 17832359
+    id: 17832359
     type: Effect Monster
     attribute: LIGHT
     race: Beast
@@ -15,7 +15,7 @@ card "Wonko, Noble Knight of the Forest" {
         effect_type: Single + Trigger
         category: ToHand + Draw + Search
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 17832359)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
@@ -28,7 +28,7 @@ card "Wonko, Noble Knight of the Forest" {
         effect_type: Single + Trigger
         category: ToHand + Draw + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 17832359)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
@@ -60,8 +60,8 @@ card "Wonko, Noble Knight of the Forest" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 100
-        property: 1024
+        code: UpdateAttack
+        property: BothSide
         on_resolve {
             modifier: atk - 500
         }

@@ -3,7 +3,7 @@
 // Transpiled from c10000000.lua
 
 card "Obelisk the Tormentor" {
-    password: 10000000
+    id: 10000000
     type: Effect Monster
     attribute: DIVINE
     race: Divine-Beast
@@ -18,7 +18,7 @@ card "Obelisk the Tormentor" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 26
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -32,8 +32,8 @@ card "Obelisk the Tormentor" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 71
-        property: 131072
+        code: CannotDirectAttack2
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -43,7 +43,7 @@ card "Obelisk the Tormentor" {
     raw_effect "Effect 4" {
         effect_type: Field + MandatoryTrigger
         category: ToGrave
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

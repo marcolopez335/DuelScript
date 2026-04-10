@@ -3,7 +3,7 @@
 // Transpiled from c18843291.lua
 
 card "Minerva, the Athenian Lightsworn" {
-    password: 18843291
+    id: 18843291
     type: Synchro Monster
     attribute: LIGHT
     race: Fairy
@@ -23,8 +23,8 @@ card "Minerva, the Athenian Lightsworn" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 67
-        property: 2048
+        code: IndestructableCount
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -35,7 +35,7 @@ card "Minerva, the Athenian Lightsworn" {
         effect_type: Single + Trigger
         category: ToGrave
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 18843291)
         on_resolve {
             send (1+, monster, you controls, deck) to gy
@@ -44,7 +44,7 @@ card "Minerva, the Athenian Lightsworn" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }

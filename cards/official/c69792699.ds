@@ -3,12 +3,12 @@
 // Transpiled from c69792699.lua
 
 card "Penguin Sword" {
-    password: 69792699
+    id: 69792699
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 800
         }
@@ -17,7 +17,7 @@ card "Penguin Sword" {
     raw_effect "Effect 2" {
         effect_type: Field + Trigger
         category: ToHand
-        code: 1143
+        code: BattleDestroyed
         range: SpellTrapZone
         on_resolve {
             return (1+, card, opponent controls) to hand
@@ -27,7 +27,7 @@ card "Penguin Sword" {
     raw_effect "Effect 3" {
         effect_type: Field + MandatoryTrigger
         code: ChainSolving
-        property: 81920
+        property: Oath + Delay
         range: SpellTrapZone
         count_limit: (1, 69792699)
         on_resolve {
@@ -49,7 +49,7 @@ card "Penguin Sword" {
     raw_effect "Effect 4" {
         effect_type: Field + MandatoryTrigger
         code: TurnEnd
-        property: 81920
+        property: Oath + Delay
         range: SpellTrapZone
         count_limit: (1, 69792699)
         on_resolve {

@@ -3,7 +3,7 @@
 // Transpiled from c4779091.lua
 
 card "Yubel - Terror Incarnate" {
-    password: 4779091
+    id: 4779091
     type: Effect Monster | Spirit
     attribute: DARK
     race: Fiend
@@ -17,7 +17,7 @@ card "Yubel - Terror Incarnate" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -35,7 +35,7 @@ card "Yubel - Terror Incarnate" {
         effect_type: Single + MandatoryTrigger
         category: Damage
         code: 1133
-        property: 2048
+        property: InitialValue
         on_resolve {
             deal_damage to opponent: 1000
         }
@@ -44,7 +44,7 @@ card "Yubel - Terror Incarnate" {
     raw_effect "Effect 4" {
         effect_type: Field + MandatoryTrigger
         category: Destroy
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -55,8 +55,8 @@ card "Yubel - Terror Incarnate" {
     raw_effect "Effect 5" {
         effect_type: Single + Trigger
         category: SpecialSummon
-        code: 1015
-        property: 16384
+        code: ChainNegated
+        property: Oath
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -64,8 +64,8 @@ card "Yubel - Terror Incarnate" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }

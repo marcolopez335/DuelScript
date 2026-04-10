@@ -3,7 +3,7 @@
 // Transpiled from c11335209.lua
 
 card "Duamutef, Blessing of Horus" {
-    password: 11335209
+    id: 11335209
     type: Effect Monster
     attribute: WATER
     race: Beast
@@ -17,7 +17,7 @@ card "Duamutef, Blessing of Horus" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
+        code: CannotSummon
         range: Graveyard
         count_limit: (1, 11335209)
         on_resolve {
@@ -26,8 +26,8 @@ card "Duamutef, Blessing of Horus" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -36,8 +36,8 @@ card "Duamutef, Blessing of Horus" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 104
-        property: 131072
+        code: UpdateDefense
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: def + 0
@@ -47,7 +47,7 @@ card "Duamutef, Blessing of Horus" {
     raw_effect "Effect 4" {
         effect_type: Field + Trigger
         category: Draw
-        code: 1015
+        code: ChainNegated
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

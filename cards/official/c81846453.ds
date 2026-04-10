@@ -3,7 +3,7 @@
 // Transpiled from c81846453.lua
 
 card "Martial Metal Marcher" {
-    password: 81846453
+    id: 81846453
     type: Synchro Monster | Tuner
     attribute: WIND
     race: Machine
@@ -25,7 +25,7 @@ card "Martial Metal Marcher" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 81846453)
         on_resolve {
             special_summon (1, monster) from gy
@@ -42,7 +42,7 @@ card "Martial Metal Marcher" {
 
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
-        code: 1108
+        code: FlipSuccess
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

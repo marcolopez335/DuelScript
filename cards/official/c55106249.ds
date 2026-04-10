@@ -3,7 +3,7 @@
 // Transpiled from c55106249.lua
 
 card "Deskbot 006" {
-    password: 55106249
+    id: 55106249
     type: Effect Monster | Pendulum Monster
     attribute: EARTH
     race: Machine
@@ -18,8 +18,8 @@ card "Deskbot 006" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 22
-        property: 3584
+        code: CannotDisable
+        property: IgnoreImmune + BothSide + InitialValue
         range: PendulumZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -30,7 +30,7 @@ card "Deskbot 006" {
         effect_type: Single + Trigger
         category: DiceRoll
         code: SummonSuccess
-        property: 81936
+        property: CardTarget + Oath + Delay
         on_resolve {
             change_battle_position (1, monster)
         }
@@ -40,7 +40,7 @@ card "Deskbot 006" {
         effect_type: Single + Trigger
         category: DiceRoll
         code: SpecialSummonSuccess
-        property: 81936
+        property: CardTarget + Oath + Delay
         on_resolve {
             change_battle_position (1, monster)
         }
@@ -48,8 +48,8 @@ card "Deskbot 006" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -60,7 +60,7 @@ card "Deskbot 006" {
         effect_type: Single + Trigger
         category: ToHand
         code: Destroyed
-        property: 81936
+        property: CardTarget + Oath + Delay
         count_limit: (1, 55106249)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy

@@ -3,7 +3,7 @@
 // Transpiled from c95365081.lua
 
 card "Hecahands Ibtel" {
-    password: 95365081
+    id: 95365081
     type: Effect Monster
     attribute: LIGHT
     race: Unknown
@@ -17,7 +17,7 @@ card "Hecahands Ibtel" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -42,7 +42,7 @@ card "Hecahands Ibtel" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

@@ -3,14 +3,14 @@
 // Transpiled from c83747250.lua
 
 card "Twilight Cloth" {
-    password: 83747250
+    id: 83747250
     type: Normal Trap
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: Banish + SynchroSummon + XyzSummon
         code: FreeChain
-        property: 16400
+        property: CardTarget + Oath
         on_resolve {
             banish (1+, monster, you controls, gy)
             register_effect on self {
@@ -27,7 +27,7 @@ card "Twilight Cloth" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         code: ChainEnd
-        property: 65536
+        property: Delay
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

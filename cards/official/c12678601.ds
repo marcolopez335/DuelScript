@@ -3,7 +3,7 @@
 // Transpiled from c12678601.lua
 
 card "Tindangle Dholes" {
-    password: 12678601
+    id: 12678601
     type: Effect Monster
     attribute: DARK
     race: Fiend
@@ -19,7 +19,7 @@ card "Tindangle Dholes" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 12678601)
         on_resolve {
             special_summon (1, monster) from gy
@@ -29,7 +29,7 @@ card "Tindangle Dholes" {
     raw_effect "Effect 2" {
         effect_type: Single + Flip + Trigger
         category: ToGrave
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             send (1+, spell, you controls, deck) to gy
@@ -38,7 +38,7 @@ card "Tindangle Dholes" {
 
     raw_effect "Effect 3" {
         effect_type: Single + Continuous
-        code: 1108
+        code: FlipSuccess
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

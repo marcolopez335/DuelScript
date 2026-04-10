@@ -3,7 +3,7 @@
 // Transpiled from c53804307.lua
 
 card "Blaster, Dragon Ruler of Infernos" {
-    password: 53804307
+    id: 53804307
     type: Effect Monster
     attribute: FIRE
     race: Dragon
@@ -31,7 +31,7 @@ card "Blaster, Dragon Ruler of Infernos" {
     raw_effect "Effect 2" {
         effect_type: Field + MandatoryTrigger
         category: ToHand
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 53804307)
         on_resolve {
@@ -42,7 +42,7 @@ card "Blaster, Dragon Ruler of Infernos" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: Destroy
-        property: 16
+        property: CardTarget
         range: Hand
         count_limit: (1, 53804307)
         on_resolve {
@@ -54,7 +54,7 @@ card "Blaster, Dragon Ruler of Infernos" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: TurnEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 53804307)
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy

@@ -3,7 +3,7 @@
 // Transpiled from c11722335.lua
 
 card "Worm Xex" {
-    password: 11722335
+    id: 11722335
     type: Effect Monster
     attribute: LIGHT
     race: Reptile
@@ -15,7 +15,7 @@ card "Worm Xex" {
         effect_type: Single + Trigger
         category: ToGrave
         code: SummonSuccess
-        property: 16384
+        property: Oath
         on_resolve {
             send (1+, card, you controls, deck) to gy
         }
@@ -23,7 +23,7 @@ card "Worm Xex" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

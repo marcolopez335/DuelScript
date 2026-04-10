@@ -3,14 +3,14 @@
 // Transpiled from c73271204.lua
 
 card "Recardination" {
-    password: 73271204
+    id: 73271204
     type: Normal Spell
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: ToHand + SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand
             special_summon (1, monster) from gy
@@ -21,7 +21,7 @@ card "Recardination" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: ChainEnd
-        property: 65536
+        property: Delay
         on_resolve {
             reveal (1, card, opponent controls, deck)
             add_to_hand (1+, monster, you controls) from hand

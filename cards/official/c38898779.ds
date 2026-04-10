@@ -3,7 +3,7 @@
 // Transpiled from c38898779.lua
 
 card "Colossal Fighter/Assault Mode" {
-    password: 38898779
+    id: 38898779
     type: Effect Monster | Spirit
     attribute: DARK
     race: Warrior
@@ -17,8 +17,8 @@ card "Colossal Fighter/Assault Mode" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -34,7 +34,7 @@ card "Colossal Fighter/Assault Mode" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -45,7 +45,7 @@ card "Colossal Fighter/Assault Mode" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 16
+        property: CardTarget
         on_resolve {
             special_summon (1, monster) from gy
         }

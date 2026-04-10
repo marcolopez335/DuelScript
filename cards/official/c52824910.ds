@@ -3,7 +3,7 @@
 // Transpiled from c52824910.lua
 
 card "Kaiser Glider" {
-    password: 52824910
+    id: 52824910
     type: Effect Monster
     attribute: LIGHT
     race: Dragon
@@ -17,7 +17,7 @@ card "Kaiser Glider" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -27,7 +27,7 @@ card "Kaiser Glider" {
         effect_type: Single + MandatoryTrigger
         category: ToHand
         code: ChainEnd
-        property: 16
+        property: CardTarget
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }

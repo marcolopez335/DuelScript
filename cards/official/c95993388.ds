@@ -3,7 +3,7 @@
 // Transpiled from c95993388.lua
 
 card "Landrobe the Rock Vassal" {
-    password: 95993388
+    id: 95993388
     type: Effect Monster
     attribute: EARTH
     race: Rock
@@ -14,7 +14,7 @@ card "Landrobe the Rock Vassal" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: SpecialSummon + DiceRoll
-        property: 16
+        property: CardTarget
         range: Hand
         count_limit: (1, 95993388)
         on_resolve {
@@ -30,8 +30,8 @@ card "Landrobe the Rock Vassal" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: ToHand
-        code: Release
-        property: 65552
+        code: Released
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy

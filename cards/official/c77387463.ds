@@ -3,7 +3,7 @@
 // Transpiled from c77387463.lua
 
 card "Vulcan Dragni the Cubic King" {
-    password: 77387463
+    id: 77387463
     type: Effect Monster | Spirit
     attribute: FIRE
     race: Fairy
@@ -17,8 +17,8 @@ card "Vulcan Dragni the Cubic King" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Hand
         on_resolve {
             send (1+, monster, you controls) to gy
@@ -33,7 +33,7 @@ card "Vulcan Dragni the Cubic King" {
         effect_type: Single + MandatoryTrigger
         category: Damage
         code: SpecialSummonSuccess
-        property: 2048
+        property: InitialValue
         on_resolve {
             deal_damage to opponent: 1000
         }
@@ -43,7 +43,7 @@ card "Vulcan Dragni the Cubic King" {
         effect_type: Single + Trigger
         category: ToHand + SpecialSummon + Search
         code: 1141
-        property: 16
+        property: CardTarget
         on_resolve {
             send (1+, monster, you controls) to gy
             special_summon (1, monster) from gy

@@ -3,7 +3,7 @@
 // Transpiled from c72880377.lua
 
 card "Dark Hole Dragon" {
-    password: 72880377
+    id: 72880377
     type: Effect Monster
     attribute: DARK
     race: Dragon
@@ -17,8 +17,8 @@ card "Dark Hole Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -40,7 +40,7 @@ card "Dark Hole Dragon" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {

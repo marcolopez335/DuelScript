@@ -3,7 +3,7 @@
 // Transpiled from c92385016.lua
 
 card "Munin the Runick Wings" {
-    password: 92385016
+    id: 92385016
     type: Fusion Monster
     attribute: LIGHT
     race: Fairy
@@ -24,7 +24,7 @@ card "Munin the Runick Wings" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
             reveal (1+, card, opponent controls)
@@ -35,7 +35,7 @@ card "Munin the Runick Wings" {
         effect_type: QuickEffect
         category: Destroy + Negate
         code: Chaining
-        property: 49152
+        property: Oath + CountCodeDuel
         range: MonsterZone
         cost {
             banish self
@@ -49,8 +49,8 @@ card "Munin the Runick Wings" {
     raw_effect "Effect 3" {
         effect_type: Field + MandatoryTrigger
         category: Recover
-        code: 4608
-        property: 2048
+        code: PhaseEnd
+        property: InitialValue
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

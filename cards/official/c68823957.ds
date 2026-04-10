@@ -3,7 +3,7 @@
 // Transpiled from c68823957.lua
 
 card "Subterror Nemesis Defender" {
-    password: 68823957
+    id: 68823957
     type: Effect Monster
     attribute: EARTH
     race: Beast-Warrior
@@ -14,7 +14,7 @@ card "Subterror Nemesis Defender" {
     raw_effect "Effect 1" {
         effect_type: QuickEffect
         code: BattleTarget
-        property: 16
+        property: CardTarget
         range: Hand + MonsterZone
         cost {
             send self to gy
@@ -26,7 +26,7 @@ card "Subterror Nemesis Defender" {
     raw_effect "Effect 2" {
         effect_type: QuickEffect
         code: Chaining
-        property: 16
+        property: CardTarget
         range: Hand + MonsterZone
         cost {
             send self to gy
@@ -37,8 +37,8 @@ card "Subterror Nemesis Defender" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -47,8 +47,8 @@ card "Subterror Nemesis Defender" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

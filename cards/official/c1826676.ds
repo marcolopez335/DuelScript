@@ -3,7 +3,7 @@
 // Transpiled from c1826676.lua
 
 card "Toy Knight" {
-    password: 1826676
+    id: 1826676
     type: Effect Monster
     attribute: EARTH
     race: Machine
@@ -13,8 +13,8 @@ card "Toy Knight" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 394240
+        code: SpsummonCondition
+        property: BothSide + SingleRange + Uncopyable
         range: 1
         on_resolve {
         }
@@ -22,8 +22,8 @@ card "Toy Knight" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
         }
@@ -33,7 +33,7 @@ card "Toy Knight" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SummonSuccess
-        property: 16384
+        property: Oath
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -43,7 +43,7 @@ card "Toy Knight" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 16384
+        property: Oath
         on_resolve {
             special_summon (1, monster) from gy
         }

@@ -3,7 +3,7 @@
 // Transpiled from c46083111.lua
 
 card "Krawler Dendrite" {
-    password: 46083111
+    id: 46083111
     type: Effect Monster
     attribute: EARTH
     race: Insect
@@ -14,7 +14,7 @@ card "Krawler Dendrite" {
     raw_effect "Effect 1" {
         effect_type: Single + Flip + Trigger
         category: ToGrave
-        property: 65536
+        property: Delay
         count_limit: (1, 46083111)
         on_resolve {
             send (1+, monster, you controls, deck) to gy
@@ -24,8 +24,8 @@ card "Krawler Dendrite" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: SpecialSummon
-        code: 1015
-        property: 81920
+        code: ChainNegated
+        property: Oath + Delay
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

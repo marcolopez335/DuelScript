@@ -3,7 +3,7 @@
 // Transpiled from c12061457.lua
 
 card "Soul Scissors" {
-    password: 12061457
+    id: 12061457
     type: Effect Monster
     attribute: DARK
     race: Fiend
@@ -15,7 +15,7 @@ card "Soul Scissors" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: ChainEnd
-        property: 81920
+        property: Oath + Delay
         range: Graveyard
         count_limit: (1, 12061457)
         on_resolve {
@@ -27,7 +27,7 @@ card "Soul Scissors" {
         effect_type: Single + Trigger
         category: Destroy
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -36,8 +36,8 @@ card "Soul Scissors" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 60
-        property: 67109888
+        code: CannotAttack
+        property: BothSide + IgnoreRange2
         on_resolve {
         }
     }

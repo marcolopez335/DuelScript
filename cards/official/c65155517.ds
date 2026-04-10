@@ -3,7 +3,7 @@
 // Transpiled from c65155517.lua
 
 card "Speedroid Colonel Clackers" {
-    password: 65155517
+    id: 65155517
     type: Effect Monster | Pendulum Monster
     attribute: WIND
     race: Machine
@@ -32,7 +32,7 @@ card "Speedroid Colonel Clackers" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -60,8 +60,8 @@ card "Speedroid Colonel Clackers" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
@@ -70,15 +70,15 @@ card "Speedroid Colonel Clackers" {
     raw_effect "Effect 5" {
         effect_type: Single
         code: 115
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 100
-        property: 1024
+        code: UpdateAttack
+        property: BothSide
         on_resolve {
             modifier: atk + 700
         }

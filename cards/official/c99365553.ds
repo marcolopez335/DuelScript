@@ -3,7 +3,7 @@
 // Transpiled from c99365553.lua
 
 card "Lightpulsar Dragon" {
-    password: 99365553
+    id: 99365553
     type: Effect Monster
     attribute: LIGHT
     race: Dragon
@@ -17,8 +17,8 @@ card "Lightpulsar Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             banish (1+, monster, you controls, gy)
@@ -27,8 +27,8 @@ card "Lightpulsar Dragon" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Graveyard
         on_resolve {
             send (1+, monster, you controls, gy) to gy
@@ -39,7 +39,7 @@ card "Lightpulsar Dragon" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: ChainEnd
-        property: 16400
+        property: CardTarget + Oath
         on_resolve {
             special_summon (1, monster) from gy
         }

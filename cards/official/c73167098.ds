@@ -3,7 +3,7 @@
 // Transpiled from c73167098.lua
 
 card "Aromalilith Magnolia" {
-    password: 73167098
+    id: 73167098
     type: Fusion Monster
     attribute: DARK
     race: Plant
@@ -22,7 +22,7 @@ card "Aromalilith Magnolia" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 41
+        code: IndestructableEffect
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -46,7 +46,7 @@ card "Aromalilith Magnolia" {
         effect_type: Field + Trigger
         category: SynchroSummon
         code: 1112
-        property: 81920
+        property: Oath + Delay
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -59,8 +59,8 @@ card "Aromalilith Magnolia" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 100
-        property: 1024
+        code: UpdateAttack
+        property: BothSide
         on_resolve {
             modifier: atk + 0
         }

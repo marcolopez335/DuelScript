@@ -3,7 +3,7 @@
 // Transpiled from c78778375.lua
 
 card "Frightfur Cruel Whale" {
-    password: 78778375
+    id: 78778375
     type: Fusion Monster
     attribute: WATER
     race: Fiend
@@ -24,7 +24,7 @@ card "Frightfur Cruel Whale" {
         effect_type: Single + Trigger
         category: Destroy
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             destroy (1+, card, you controls, deck)
         }
@@ -34,7 +34,7 @@ card "Frightfur Cruel Whale" {
         effect_type: QuickEffect
         category: ToGrave + SynchroSummon
         code: FreeChain
-        property: 16400
+        property: CardTarget + Oath
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -48,8 +48,8 @@ card "Frightfur Cruel Whale" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 100
-        property: 1024
+        code: UpdateAttack
+        property: BothSide
         on_resolve {
             modifier: atk + 0
         }

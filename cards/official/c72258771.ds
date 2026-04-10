@@ -3,7 +3,7 @@
 // Transpiled from c72258771.lua
 
 card "Koa'ki Meiru Valafar" {
-    password: 72258771
+    id: 72258771
     type: Effect Monster
     attribute: FIRE
     race: Fiend
@@ -17,8 +17,8 @@ card "Koa'ki Meiru Valafar" {
 
     raw_effect "Effect 1" {
         effect_type: Field + Continuous
-        code: 4608
-        property: 263168
+        code: PhaseEnd
+        property: BothSide + Uncopyable
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -29,7 +29,7 @@ card "Koa'ki Meiru Valafar" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }
@@ -37,8 +37,8 @@ card "Koa'ki Meiru Valafar" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

@@ -3,7 +3,7 @@
 // Transpiled from c54919528.lua
 
 card "K9-ØØ 'Hound'" {
-    password: 54919528
+    id: 54919528
     type: Xyz Monster
     attribute: LIGHT
     race: Beast-Warrior
@@ -23,8 +23,8 @@ card "K9-ØØ 'Hound'" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -33,8 +33,8 @@ card "K9-ØØ 'Hound'" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -44,7 +44,7 @@ card "K9-ØØ 'Hound'" {
     raw_effect "Effect 3" {
         effect_type: Field + Continuous
         code: Chaining
-        property: 1024
+        property: BothSide
         range: MonsterZone
         on_resolve {
         }
@@ -62,7 +62,7 @@ card "K9-ØØ 'Hound'" {
         effect_type: Field + Trigger
         category: Banish
         code: 4098
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         cost {
@@ -75,7 +75,7 @@ card "K9-ØØ 'Hound'" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         property: 8192
         on_resolve {
             modifier: atk + 500

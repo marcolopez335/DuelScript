@@ -3,7 +3,7 @@
 // Transpiled from c93108839.lua
 
 card "Number 58: Burner Visor" {
-    password: 93108839
+    id: 93108839
     type: Xyz Monster
     attribute: FIRE
     race: Pyro
@@ -24,7 +24,7 @@ card "Number 58: Burner Visor" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: EquipAction
-        property: 16
+        property: CardTarget
         range: MonsterZone
         on_resolve {
             send (1+, card, you controls, hand) to gy
@@ -52,8 +52,8 @@ card "Number 58: Burner Visor" {
     raw_effect "Effect 4" {
         effect_type: Field + Trigger
         category: Damage
-        code: 1143
-        property: 2048
+        code: BattleDestroyed
+        property: InitialValue
         range: SpellTrapZone
         on_resolve {
             deal_damage to opponent: 1000
@@ -62,8 +62,8 @@ card "Number 58: Burner Visor" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 76
-        property: 1024
+        code: CannotAttack2
+        property: BothSide
         on_resolve {
         }
     }

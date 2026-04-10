@@ -3,12 +3,12 @@
 // Transpiled from c64801562.lua
 
 card "Heart of Clear Water" {
-    password: 64801562
+    id: 64801562
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -16,7 +16,7 @@ card "Heart of Clear Water" {
 
     raw_effect "Effect 2" {
         effect_type: Equip
-        code: 41
+        code: IndestructableEffect
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
@@ -25,7 +25,7 @@ card "Heart of Clear Water" {
     raw_effect "Effect 3" {
         effect_type: Single
         code: 141
-        property: 131072
+        property: SingleRange
         range: SpellTrapZone
         on_resolve {
         }

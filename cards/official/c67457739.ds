@@ -3,14 +3,14 @@
 // Transpiled from c67457739.lua
 
 card "Sinful Spoils Struggle" {
-    password: 67457739
+    id: 67457739
     type: Quick-Play Spell
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: Destroy
         code: FreeChain
-        property: 16
+        property: CardTarget
         count_limit: (1, 67457739)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -21,7 +21,7 @@ card "Sinful Spoils Struggle" {
         effect_type: Single + Trigger
         category: ToDeck
         code: Destroyed
-        property: 65536
+        property: Delay
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
         }
@@ -31,7 +31,7 @@ card "Sinful Spoils Struggle" {
         effect_type: Single + Trigger
         category: ToDeck
         code: TurnEnd
-        property: 65536
+        property: Delay
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
         }

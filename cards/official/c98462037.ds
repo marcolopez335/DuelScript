@@ -3,7 +3,7 @@
 // Transpiled from c98462037.lua
 
 card "Sky Striker Ace - Azalea" {
-    password: 98462037
+    id: 98462037
     type: Link Monster
     attribute: DARK
     race: Machine
@@ -22,8 +22,8 @@ card "Sky Striker Ace - Azalea" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -32,7 +32,7 @@ card "Sky Striker Ace - Azalea" {
         effect_type: Single + Trigger
         category: Destroy + ToGrave
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             destroy (1+, spell, you controls, gy)
             send (1+, spell, you controls, gy) to gy

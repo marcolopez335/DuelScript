@@ -3,7 +3,7 @@
 // Transpiled from c69553552.lua
 
 card "F.A. Winners" {
-    password: 69553552
+    id: 69553552
     type: Continuous Spell
 
     raw_effect "Effect 1" {
@@ -15,8 +15,8 @@ card "F.A. Winners" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -26,7 +26,7 @@ card "F.A. Winners" {
     raw_effect "Effect 3" {
         effect_type: Field + Trigger
         category: Banish
-        code: 1143
+        code: BattleDestroyed
         range: SpellTrapZone
         count_limit: (1, 69553552)
         on_resolve {

@@ -3,7 +3,7 @@
 // Transpiled from c65503206.lua
 
 card "Scrap Soldier" {
-    password: 65503206
+    id: 65503206
     type: Effect Monster | Tuner
     attribute: EARTH
     race: Warrior
@@ -18,7 +18,7 @@ card "Scrap Soldier" {
     raw_effect "Effect 1" {
         effect_type: Single + Continuous
         code: BattleTarget
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
@@ -38,7 +38,7 @@ card "Scrap Soldier" {
         effect_type: Single + Trigger
         category: ToHand
         code: Destroyed
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
             reveal (1+, card, opponent controls)
@@ -48,7 +48,7 @@ card "Scrap Soldier" {
     raw_effect "Effect 4" {
         effect_type: Single
         code: 236
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }

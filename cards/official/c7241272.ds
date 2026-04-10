@@ -3,7 +3,7 @@
 // Transpiled from c7241272.lua
 
 card "Curse of Dragonfire" {
-    password: 7241272
+    id: 7241272
     type: Effect Monster
     attribute: DARK
     race: Dragon
@@ -19,7 +19,7 @@ card "Curse of Dragonfire" {
         effect_type: Single + Trigger
         category: Destroy
         code: SummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             destroy (1+, card, either_player controls)
         }
@@ -29,7 +29,7 @@ card "Curse of Dragonfire" {
         effect_type: Single + Trigger
         category: Destroy
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             destroy (1+, card, either_player controls)
         }
@@ -37,7 +37,7 @@ card "Curse of Dragonfire" {
 
     raw_effect "Effect 3" {
         effect_type: Ignition
-        category: SpecialSummon
+        category: SpecialSummon + Control
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

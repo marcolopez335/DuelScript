@@ -3,7 +3,7 @@
 // Transpiled from c33955120.lua
 
 card "Rage Rose Witch" {
-    password: 33955120
+    id: 33955120
     type: Synchro Monster
     attribute: DARK
     race: Plant
@@ -23,7 +23,7 @@ card "Rage Rose Witch" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 41
+        code: IndestructableEffect
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -34,7 +34,7 @@ card "Rage Rose Witch" {
         effect_type: Single + Trigger
         category: ToGrave
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 33955120)
         on_resolve {
             send (1+, card, you controls, deck) to gy
@@ -58,8 +58,8 @@ card "Rage Rose Witch" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

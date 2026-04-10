@@ -3,7 +3,7 @@
 // Transpiled from c11688916.lua
 
 card "Solfachord Primoa" {
-    password: 11688916
+    id: 11688916
     type: Effect Monster | Pendulum Monster
     attribute: EARTH
     race: Fairy
@@ -16,7 +16,7 @@ card "Solfachord Primoa" {
         effect_type: Field + Trigger
         category: ToHand
         code: SpecialSummonSuccess
-        property: 16
+        property: CardTarget
         range: PendulumZone
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
@@ -25,7 +25,7 @@ card "Solfachord Primoa" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 13
+        code: CannotDisableEffect
         range: MonsterZone
         on_resolve {
         }
@@ -35,7 +35,7 @@ card "Solfachord Primoa" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 11688916)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
@@ -47,7 +47,7 @@ card "Solfachord Primoa" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 11688916)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
@@ -59,7 +59,7 @@ card "Solfachord Primoa" {
         effect_type: Field + Trigger
         category: ToHand
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

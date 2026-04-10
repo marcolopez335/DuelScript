@@ -3,7 +3,7 @@
 // Transpiled from c3233859.lua
 
 card "Psychic Wheeleder" {
-    password: 3233859
+    id: 3233859
     type: Effect Monster | Tuner
     attribute: EARTH
     race: Psychic
@@ -13,8 +13,8 @@ card "Psychic Wheeleder" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 1310720
+        code: CannotSummon
+        property: Uncopyable + PlayerTarget
         range: Hand
         count_limit: (1, 3233859)
         on_resolve {
@@ -24,8 +24,8 @@ card "Psychic Wheeleder" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: Destroy
-        code: 1108
-        property: 65552
+        code: FlipSuccess
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, you controls)

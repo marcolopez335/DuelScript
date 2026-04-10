@@ -3,7 +3,7 @@
 // Transpiled from c71921856.lua
 
 card "Number 79: Battlin' Boxer Nova Kaiser" {
-    password: 71921856
+    id: 71921856
     type: Xyz Monster
     attribute: FIRE
     race: Warrior
@@ -32,8 +32,8 @@ card "Number 79: Battlin' Boxer Nova Kaiser" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -44,7 +44,7 @@ card "Number 79: Battlin' Boxer Nova Kaiser" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: ChainEnd
-        property: 16400
+        property: CardTarget + Oath
         on_resolve {
             special_summon (1, monster) from gy
         }

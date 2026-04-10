@@ -3,7 +3,7 @@
 // Transpiled from c14541657.lua
 
 card "Twilight Ninja Shingetsu" {
-    password: 14541657
+    id: 14541657
     type: Effect Monster
     attribute: DARK
     race: Warrior
@@ -22,8 +22,8 @@ card "Twilight Ninja Shingetsu" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 71
-        property: 128
+        code: CannotDirectAttack2
+        property: SetAvailable
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -34,7 +34,7 @@ card "Twilight Ninja Shingetsu" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: ChainEnd
-        property: 81920
+        property: Oath + Delay
         count_limit: (1, 14541657)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck

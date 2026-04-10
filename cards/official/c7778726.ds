@@ -3,7 +3,7 @@
 // Transpiled from c7778726.lua
 
 card "Hip Hoshiningen" {
-    password: 7778726
+    id: 7778726
     type: Link Monster
     attribute: LIGHT
     race: Fairy
@@ -22,7 +22,7 @@ card "Hip Hoshiningen" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 500
@@ -31,7 +31,7 @@ card "Hip Hoshiningen" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 104
+        code: UpdateDefense
         range: MonsterZone
         on_resolve {
             modifier: def + 500
@@ -40,7 +40,7 @@ card "Hip Hoshiningen" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk - 400
@@ -49,7 +49,7 @@ card "Hip Hoshiningen" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 104
+        code: UpdateDefense
         range: MonsterZone
         on_resolve {
             modifier: def - 400
@@ -60,7 +60,7 @@ card "Hip Hoshiningen" {
         effect_type: Single + Trigger
         category: ToHand
         code: Destroyed
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 7778726)
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy

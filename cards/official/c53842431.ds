@@ -3,7 +3,7 @@
 // Transpiled from c53842431.lua
 
 card "Mythical Beast Master Cerberus" {
-    password: 53842431
+    id: 53842431
     type: Effect Monster | Pendulum Monster
     attribute: LIGHT
     race: Spellcaster
@@ -31,7 +31,7 @@ card "Mythical Beast Master Cerberus" {
     raw_effect "Effect 2" {
         effect_type: Field + Continuous
         code: Chaining
-        property: 1024
+        property: BothSide
         range: MonsterZone
         on_resolve {
         }
@@ -40,7 +40,7 @@ card "Mythical Beast Master Cerberus" {
     raw_effect "Effect 3" {
         effect_type: Field + Continuous
         code: 1020
-        property: 65536
+        property: Delay
         range: MonsterZone
         on_resolve {
         }
@@ -48,8 +48,8 @@ card "Mythical Beast Master Cerberus" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -59,7 +59,7 @@ card "Mythical Beast Master Cerberus" {
     raw_effect "Effect 5" {
         effect_type: Ignition
         category: Banish + SynchroSummon
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

@@ -3,7 +3,7 @@
 // Transpiled from c9822220.lua
 
 card "Lord of the Heavenly Prison" {
-    password: 9822220
+    id: 9822220
     type: Effect Monster
     attribute: DARK
     race: Rock
@@ -27,7 +27,7 @@ card "Lord of the Heavenly Prison" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: 1022
-        property: 65536
+        property: Delay
         range: Hand
         count_limit: (1, 9822220)
         on_resolve {
@@ -43,15 +43,15 @@ card "Lord of the Heavenly Prison" {
     raw_effect "Effect 3" {
         effect_type: Single
         code: 160
-        property: 67108864
+        property: IgnoreRange2
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 41
-        property: 256
+        code: IndestructableEffect
+        property: IgnoreRange
         range: Hand
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -60,8 +60,8 @@ card "Lord of the Heavenly Prison" {
 
     raw_effect "Effect 5" {
         effect_type: Field + Continuous
-        code: 4608
-        property: 128
+        code: PhaseEnd
+        property: SetAvailable
         count_limit: (1, 0)
         on_resolve {
             banish (1+, spell, you controls, deck)

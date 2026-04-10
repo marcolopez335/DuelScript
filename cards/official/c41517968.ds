@@ -3,7 +3,7 @@
 // Transpiled from c41517968.lua
 
 card "Elemental HERO Darkbright" {
-    password: 41517968
+    id: 41517968
     type: Fusion Monster
     attribute: DARK
     race: Warrior
@@ -22,15 +22,15 @@ card "Elemental HERO Darkbright" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }
@@ -48,7 +48,7 @@ card "Elemental HERO Darkbright" {
         effect_type: Single + MandatoryTrigger
         category: Destroy
         code: Destroyed
-        property: 16
+        property: CardTarget
         on_resolve {
             destroy (1+, card, either_player controls)
         }

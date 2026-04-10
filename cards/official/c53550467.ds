@@ -3,7 +3,7 @@
 // Transpiled from c53550467.lua
 
 card "Noble Knight Drystan" {
-    password: 53550467
+    id: 53550467
     type: Effect Monster
     attribute: LIGHT
     race: Warrior
@@ -22,8 +22,8 @@ card "Noble Knight Drystan" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 71
-        property: 128
+        code: CannotDirectAttack2
+        property: SetAvailable
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -34,7 +34,7 @@ card "Noble Knight Drystan" {
         effect_type: Single + MandatoryTrigger
         category: Destroy
         code: 1121
-        property: 16
+        property: CardTarget
         count_limit: (1, 53550467)
         on_resolve {
             destroy (1+, monster, you controls)

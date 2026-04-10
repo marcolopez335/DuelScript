@@ -3,7 +3,7 @@
 // Transpiled from c95291684.lua
 
 card "D.D. Unicorn Knight" {
-    password: 95291684
+    id: 95291684
     type: Effect Monster | Spirit
     attribute: LIGHT
     race: Warrior
@@ -17,8 +17,8 @@ card "D.D. Unicorn Knight" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Hand
         on_resolve {
         }
@@ -28,7 +28,7 @@ card "D.D. Unicorn Knight" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {
@@ -45,7 +45,7 @@ card "D.D. Unicorn Knight" {
     raw_effect "Effect 3" {
         effect_type: Single
         code: 92
-        property: 1024
+        property: BothSide
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -60,7 +60,7 @@ card "D.D. Unicorn Knight" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 2
+        code: Disable
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
@@ -77,7 +77,7 @@ card "D.D. Unicorn Knight" {
     raw_effect "Effect 6" {
         effect_type: Field
         code: 20
-        property: 67635200
+        property: InitialValue + CannotDisable + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
@@ -86,7 +86,7 @@ card "D.D. Unicorn Knight" {
     raw_effect "Effect 7" {
         effect_type: Field
         code: 23
-        property: 67635200
+        property: InitialValue + CannotDisable + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }
         }

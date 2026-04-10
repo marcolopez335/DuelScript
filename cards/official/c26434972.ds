@@ -3,7 +3,7 @@
 // Transpiled from c26434972.lua
 
 card "Fiendsmith Kyrie" {
-    password: 26434972
+    id: 26434972
     type: Normal Trap
 
     raw_effect "Effect 1" {
@@ -24,7 +24,7 @@ card "Fiendsmith Kyrie" {
 
     raw_effect "Effect 2" {
         effect_type: QuickEffect
-        category: SpecialSummon
+        category: SpecialSummon + Control
         code: FreeChain
         range: Graveyard
         count_limit: (1, 26434972)
@@ -37,7 +37,7 @@ card "Fiendsmith Kyrie" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -46,7 +46,7 @@ card "Fiendsmith Kyrie" {
     raw_effect "Effect 4" {
         effect_type: Field
         code: 208
-        property: 67110912
+        property: InitialValue + IgnoreRange2
         on_resolve {
         }
     }

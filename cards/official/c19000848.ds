@@ -3,7 +3,7 @@
 // Transpiled from c19000848.lua
 
 card "Buio the Dawn's Light" {
-    password: 19000848
+    id: 19000848
     type: Effect Monster
     attribute: DARK
     race: Fiend
@@ -13,8 +13,8 @@ card "Buio the Dawn's Light" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 41
-        property: 256
+        code: IndestructableEffect
+        property: IgnoreRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -24,7 +24,7 @@ card "Buio the Dawn's Light" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: SpecialSummon + Disable
-        property: 16
+        property: CardTarget
         range: Hand
         count_limit: (1, 19000848)
         on_resolve {
@@ -36,7 +36,7 @@ card "Buio the Dawn's Light" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck

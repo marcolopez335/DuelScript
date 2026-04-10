@@ -3,13 +3,13 @@
 // Transpiled from c10805153.lua
 
 card "Witchcrafter Collaboration" {
-    password: 10805153
+    id: 10805153
     type: Normal Spell
 
     raw_effect "Effect 1" {
         effect_type: Activate
         code: FreeChain
-        property: 16
+        property: CardTarget
         count_limit: (1, 10805153)
         on_resolve {
             register_effect on self {
@@ -26,7 +26,7 @@ card "Witchcrafter Collaboration" {
     raw_effect "Effect 2" {
         effect_type: Field + Trigger
         category: ToHand
-        code: 4608
+        code: PhaseEnd
         range: Graveyard
         count_limit: (1, 10805153)
         on_resolve {
@@ -37,7 +37,7 @@ card "Witchcrafter Collaboration" {
     raw_effect "Effect 3" {
         effect_type: Single
         code: 194
-        property: 67109888
+        property: BothSide + IgnoreRange2
         on_resolve {
         }
     }
@@ -45,15 +45,15 @@ card "Witchcrafter Collaboration" {
     raw_effect "Effect 4" {
         effect_type: Single + Continuous
         code: AttackAnnounce
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 6
-        property: 2048
+        code: CannotChangeControl
+        property: InitialValue
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }

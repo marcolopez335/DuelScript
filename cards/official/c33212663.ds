@@ -3,7 +3,7 @@
 // Transpiled from c33212663.lua
 
 card "Archnemeses Eschatos" {
-    password: 33212663
+    id: 33212663
     type: Effect Monster | Spirit
     attribute: LIGHT
     race: Dragon
@@ -17,8 +17,8 @@ card "Archnemeses Eschatos" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             banish (1+, monster, you controls, gy)
@@ -27,8 +27,8 @@ card "Archnemeses Eschatos" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

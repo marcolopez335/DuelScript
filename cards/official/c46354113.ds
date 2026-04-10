@@ -3,7 +3,7 @@
 // Transpiled from c46354113.lua
 
 card "Rocket Hermos Cannon" {
-    password: 46354113
+    id: 46354113
     type: Fusion Monster
     attribute: LIGHT
     race: Warrior
@@ -22,8 +22,8 @@ card "Rocket Hermos Cannon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -32,7 +32,7 @@ card "Rocket Hermos Cannon" {
         effect_type: Single + MandatoryTrigger
         category: EquipAction
         code: SpecialSummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
             send (1+, card, either_player controls) to gy
             equip (1, card) to (1, monster)

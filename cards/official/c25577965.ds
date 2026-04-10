@@ -3,7 +3,7 @@
 // Transpiled from c25577965.lua
 
 card "Flametongue the Blazing Magical Blade" {
-    password: 25577965
+    id: 25577965
     type: Link Monster
     attribute: FIRE
     race: Warrior
@@ -22,7 +22,7 @@ card "Flametongue the Blazing Magical Blade" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 41
+        code: IndestructableEffect
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -32,7 +32,7 @@ card "Flametongue the Blazing Magical Blade" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: ToHand
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 25577965)
         on_resolve {
@@ -47,8 +47,8 @@ card "Flametongue the Blazing Magical Blade" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 6
-        property: 67110912
+        code: CannotChangeControl
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }

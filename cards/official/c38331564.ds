@@ -3,7 +3,7 @@
 // Transpiled from c38331564.lua
 
 card "Star Seraph Scepter" {
-    password: 38331564
+    id: 38331564
     type: Effect Monster
     attribute: LIGHT
     race: Fairy
@@ -15,7 +15,7 @@ card "Star Seraph Scepter" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SummonSuccess
-        property: 16384
+        property: Oath
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)
@@ -26,7 +26,7 @@ card "Star Seraph Scepter" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 16384
+        property: Oath
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)
@@ -35,7 +35,7 @@ card "Star Seraph Scepter" {
 
     raw_effect "Effect 3" {
         effect_type: Single + Continuous
-        code: 1108
+        code: FlipSuccess
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

@@ -3,7 +3,7 @@
 // Transpiled from c22200403.lua
 
 card "Hypnosister" {
-    password: 22200403
+    id: 22200403
     type: Effect Monster
     attribute: WIND
     race: Psychic
@@ -13,8 +13,8 @@ card "Hypnosister" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 800
@@ -23,8 +23,8 @@ card "Hypnosister" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 104
-        property: 131072
+        code: UpdateDefense
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: def + 800
@@ -61,8 +61,8 @@ card "Hypnosister" {
     raw_effect "Effect 6" {
         effect_type: Single + MandatoryTrigger
         category: Draw
-        code: 1139
-        property: 2048
+        code: BattleConfirmed
+        property: InitialValue
         on_resolve {
             draw 1
         }
@@ -72,7 +72,7 @@ card "Hypnosister" {
         effect_type: Field + MandatoryTrigger
         category: Draw
         code: Destroyed
-        property: 2048
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             draw 1

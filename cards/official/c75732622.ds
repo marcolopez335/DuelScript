@@ -3,7 +3,7 @@
 // Transpiled from c75732622.lua
 
 card "Grinder Golem" {
-    password: 75732622
+    id: 75732622
     type: Effect Monster | Spirit
     attribute: DARK
     race: Fiend
@@ -17,8 +17,8 @@ card "Grinder Golem" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 1310720
+        code: CannotSummon
+        property: Uncopyable + PlayerTarget
         range: Hand
         on_resolve {
             create_token { atk: 0 def: 0 }
@@ -29,7 +29,7 @@ card "Grinder Golem" {
     raw_effect "Effect 2" {
         effect_type: Single
         code: 92
-        property: 1024
+        property: BothSide
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

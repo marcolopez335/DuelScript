@@ -3,7 +3,7 @@
 // Transpiled from c67045745.lua
 
 card "F.A. Sonic Meister" {
-    password: 67045745
+    id: 67045745
     type: Effect Monster
     attribute: WIND
     race: Machine
@@ -13,8 +13,8 @@ card "F.A. Sonic Meister" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -23,7 +23,7 @@ card "F.A. Sonic Meister" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -33,7 +33,7 @@ card "F.A. Sonic Meister" {
         effect_type: Field + Trigger
         category: LevelChange
         code: Chaining
-        property: 114688
+        property: Oath + CountCodeDuel + Delay
         range: MonsterZone
         on_resolve {
         }
@@ -42,7 +42,7 @@ card "F.A. Sonic Meister" {
     raw_effect "Effect 4" {
         effect_type: Single
         code: 346
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }

@@ -3,7 +3,7 @@
 // Transpiled from c42880485.lua
 
 card "Superheavy Samurai General Jade" {
-    password: 42880485
+    id: 42880485
     type: Effect Monster | Pendulum Monster
     attribute: EARTH
     race: Machine
@@ -18,8 +18,8 @@ card "Superheavy Samurai General Jade" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 22
-        property: 3072
+        code: CannotDisable
+        property: BothSide + InitialValue
         range: PendulumZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -28,7 +28,7 @@ card "Superheavy Samurai General Jade" {
 
     raw_effect "Effect 2" {
         effect_type: Ignition
-        property: 16
+        property: CardTarget
         range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
@@ -43,7 +43,7 @@ card "Superheavy Samurai General Jade" {
         effect_type: Single + Trigger
         category: DiceRoll
         code: SummonSuccess
-        property: 16384
+        property: Oath
         on_resolve {
             change_battle_position (1, monster)
         }
@@ -53,7 +53,7 @@ card "Superheavy Samurai General Jade" {
         effect_type: Single + Trigger
         category: DiceRoll
         code: SpecialSummonSuccess
-        property: 16384
+        property: Oath
         on_resolve {
             change_battle_position (1, monster)
         }

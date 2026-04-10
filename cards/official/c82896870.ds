@@ -3,7 +3,7 @@
 // Transpiled from c82896870.lua
 
 card "Fluffal Dolphin" {
-    password: 82896870
+    id: 82896870
     type: Effect Monster
     attribute: WATER
     race: Fairy
@@ -14,7 +14,7 @@ card "Fluffal Dolphin" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: ToGrave
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 82896870)
         on_resolve {
@@ -26,8 +26,8 @@ card "Fluffal Dolphin" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: ToDeck
-        code: 1108
-        property: 65536
+        code: FlipSuccess
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to deck shuffle

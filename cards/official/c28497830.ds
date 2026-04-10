@@ -3,7 +3,7 @@
 // Transpiled from c28497830.lua
 
 card "Gold Pride - Pin Baller" {
-    password: 28497830
+    id: 28497830
     type: Fusion Monster
     attribute: DARK
     race: Machine
@@ -24,7 +24,7 @@ card "Gold Pride - Pin Baller" {
         effect_type: Single + Trigger
         category: EquipAction
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 28497830)
         on_resolve {
             equip (1, card) to (1, monster)
@@ -37,8 +37,8 @@ card "Gold Pride - Pin Baller" {
 
     raw_effect "Effect 2" {
         effect_type: Field + MandatoryTrigger
-        category: SpecialSummon
-        code: 4608
+        category: SpecialSummon + Announce
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -56,14 +56,14 @@ card "Gold Pride - Pin Baller" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 13
+        code: CannotDisableEffect
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 76
+        code: CannotAttack2
         property: 16777216
         on_resolve {
         }

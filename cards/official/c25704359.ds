@@ -3,20 +3,20 @@
 // Transpiled from c25704359.lua
 
 card "Unpossessed" {
-    password: 25704359
+    id: 25704359
     type: Continuous Trap
 
     raw_effect "Effect 1" {
         effect_type: Activate
         code: FreeChain
-        property: 16384
+        property: Oath
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -25,7 +25,7 @@ card "Unpossessed" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: SpellTrapZone
         on_resolve {
             modifier: atk + 800
@@ -36,7 +36,7 @@ card "Unpossessed" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 81920
+        property: Oath + Delay
         range: SpellTrapZone
         count_limit: (1, 25704359)
         on_resolve {

@@ -3,7 +3,7 @@
 // Transpiled from c23219323.lua
 
 card "Junk Warrior/Assault Mode" {
-    password: 23219323
+    id: 23219323
     type: Effect Monster | Spirit
     attribute: DARK
     race: Warrior
@@ -17,8 +17,8 @@ card "Junk Warrior/Assault Mode" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -34,8 +34,8 @@ card "Junk Warrior/Assault Mode" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 1
-        property: 131072
+        code: ImmuneEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -44,9 +44,9 @@ card "Junk Warrior/Assault Mode" {
 
     raw_effect "Effect 4" {
         effect_type: Single + Trigger
-        category: SpecialSummon
+        category: SpecialSummon + Announce
         code: Destroyed
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             return (1+, monster, you controls) to deck shuffle
             special_summon (1, monster) from gy

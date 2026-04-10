@@ -3,12 +3,12 @@
 // Transpiled from c44133040.lua
 
 card "Evil Eye of Selene" {
-    password: 44133040
+    id: 44133040
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -16,8 +16,8 @@ card "Evil Eye of Selene" {
 
     raw_effect "Effect 2" {
         effect_type: Equip
-        code: 71
-        property: 128
+        code: CannotDirectAttack2
+        property: SetAvailable
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
@@ -25,7 +25,7 @@ card "Evil Eye of Selene" {
 
     raw_effect "Effect 3" {
         effect_type: Equip
-        code: 41
+        code: IndestructableEffect
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
@@ -35,7 +35,7 @@ card "Evil Eye of Selene" {
         effect_type: Field + MandatoryTrigger
         category: SynchroSummon
         code: Chaining
-        property: 114688
+        property: Oath + CountCodeDuel + Delay
         range: SpellTrapZone
         on_resolve {
             gain_lp: 0

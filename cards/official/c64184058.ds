@@ -3,7 +3,7 @@
 // Transpiled from c64184058.lua
 
 card "Destiny HERO - Decider" {
-    password: 64184058
+    id: 64184058
     type: Effect Monster
     attribute: DARK
     race: Warrior
@@ -14,7 +14,7 @@ card "Destiny HERO - Decider" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 70
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -25,7 +25,7 @@ card "Destiny HERO - Decider" {
         effect_type: Single + Trigger
         category: ToHand
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 64184058)
         on_resolve {
             register_effect on self {
@@ -39,7 +39,7 @@ card "Destiny HERO - Decider" {
         effect_type: Single + Trigger
         category: ToHand
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 64184058)
         on_resolve {
             register_effect on self {
@@ -53,7 +53,7 @@ card "Destiny HERO - Decider" {
         effect_type: MandatoryQuick
         category: ToHand
         code: Chaining
-        property: 49152
+        property: Oath + CountCodeDuel
         range: Graveyard
         count_limit: (1, 0)
         on_resolve {

@@ -3,14 +3,14 @@
 // Transpiled from c66947913.lua
 
 card "Rising Fire" {
-    password: 66947913
+    id: 66947913
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         count_limit: (1, 66947913)
         on_resolve {
             special_summon (1, monster) from gy
@@ -21,14 +21,14 @@ card "Rising Fire" {
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
         code: 1019
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
         effect_type: Single + Continuous
-        code: 1015
+        code: ChainNegated
         on_resolve {
             destroy (1+, monster, either_player controls)
         }
@@ -36,7 +36,7 @@ card "Rising Fire" {
 
     raw_effect "Effect 4" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 500
         }
@@ -46,7 +46,7 @@ card "Rising Fire" {
         effect_type: Single + Trigger
         category: Banish
         code: Destroyed
-        property: 81920
+        property: Oath + Delay
         count_limit: (1, 0)
         on_resolve {
             banish (1+, monster, either_player controls)

@@ -3,7 +3,7 @@
 // Transpiled from c29053656.lua
 
 card "Crimson Dragon Quetzacoatl" {
-    password: 29053656
+    id: 29053656
     type: Synchro Monster
     attribute: DARK
     race: Dragon
@@ -25,7 +25,7 @@ card "Crimson Dragon Quetzacoatl" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -38,8 +38,8 @@ card "Crimson Dragon Quetzacoatl" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -48,9 +48,9 @@ card "Crimson Dragon Quetzacoatl" {
 
     raw_effect "Effect 3" {
         effect_type: QuickEffect
-        category: Negate
+        category: Negate + Announce
         code: Chaining
-        property: 49152
+        property: Oath + CountCodeDuel
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -61,8 +61,8 @@ card "Crimson Dragon Quetzacoatl" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

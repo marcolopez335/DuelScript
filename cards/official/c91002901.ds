@@ -3,7 +3,7 @@
 // Transpiled from c91002901.lua
 
 card "Duel Evolution - Assault Zone" {
-    password: 91002901
+    id: 91002901
     type: Field Spell
 
     raw_effect "Effect 1" {
@@ -19,7 +19,7 @@ card "Duel Evolution - Assault Zone" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: FieldZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -28,7 +28,7 @@ card "Duel Evolution - Assault Zone" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 41
+        code: IndestructableEffect
         range: FieldZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -58,14 +58,14 @@ card "Duel Evolution - Assault Zone" {
     raw_effect "Effect 5" {
         effect_type: Field
         code: 158
-        property: 384
+        property: SetAvailable + IgnoreRange
         on_resolve {
         }
     }
 
     raw_effect "Effect 6" {
         effect_type: Field + Continuous
-        code: Release
+        code: Released
         on_resolve {
             set_flag "tracked" on self
         }

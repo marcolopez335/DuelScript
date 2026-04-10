@@ -3,7 +3,7 @@
 // Transpiled from c76666602.lua
 
 card "The Dragon that Devours the Dogma" {
-    password: 76666602
+    id: 76666602
     type: Fusion Monster
     attribute: DARK
     race: Beast
@@ -22,8 +22,8 @@ card "The Dragon that Devours the Dogma" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 500
@@ -32,8 +32,8 @@ card "The Dragon that Devours the Dogma" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 1
-        property: 131072
+        code: ImmuneEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -44,7 +44,7 @@ card "The Dragon that Devours the Dogma" {
         effect_type: Single + Trigger
         category: ToDeck
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 76666602)
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
@@ -54,7 +54,7 @@ card "The Dragon that Devours the Dogma" {
     raw_effect "Effect 4" {
         effect_type: Field + Trigger
         category: ToHand + Search
-        code: 4608
+        code: PhaseEnd
         range: Graveyard
         count_limit: (1, 0)
         on_resolve {

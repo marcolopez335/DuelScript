@@ -3,7 +3,7 @@
 // Transpiled from c65848811.lua
 
 card "Heroic Challenger - Assault Halberd" {
-    password: 65848811
+    id: 65848811
     type: Effect Monster
     attribute: EARTH
     race: Warrior
@@ -13,8 +13,8 @@ card "Heroic Challenger - Assault Halberd" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
         }
@@ -22,7 +22,7 @@ card "Heroic Challenger - Assault Halberd" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }
@@ -31,7 +31,7 @@ card "Heroic Challenger - Assault Halberd" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         category: ToHand + Search
-        code: 1143
+        code: BattleDestroyed
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)

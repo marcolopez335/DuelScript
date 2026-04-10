@@ -3,7 +3,7 @@
 // Transpiled from c1490690.lua
 
 card "Canopic Protector" {
-    password: 1490690
+    id: 1490690
     type: Continuous Trap
 
     raw_effect "Effect 1" {
@@ -31,7 +31,7 @@ card "Canopic Protector" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 1490690)
         on_resolve {
             set (1, card)
@@ -40,8 +40,8 @@ card "Canopic Protector" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 22
-        property: 2048
+        code: CannotDisable
+        property: InitialValue
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
@@ -49,8 +49,8 @@ card "Canopic Protector" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 60
-        property: 67109888
+        code: CannotAttack
+        property: BothSide + IgnoreRange2
         on_resolve {
         }
     }

@@ -3,13 +3,13 @@
 // Transpiled from c16278116.lua
 
 card "Dragon's Bind" {
-    password: 16278116
+    id: 16278116
     type: Continuous Trap
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 22
-        property: 2048
+        code: CannotDisable
+        property: InitialValue
         range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -18,7 +18,7 @@ card "Dragon's Bind" {
 
     raw_effect "Effect 2" {
         effect_type: Field + Continuous
-        code: 1015
+        code: ChainNegated
         range: SpellTrapZone
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -27,7 +27,7 @@ card "Dragon's Bind" {
 
     raw_effect "Effect 3" {
         effect_type: Field + MandatoryTrigger
-        code: 1015
+        code: ChainNegated
         range: MonsterZone
         on_resolve {
         }

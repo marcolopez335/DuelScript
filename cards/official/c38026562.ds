@@ -3,7 +3,7 @@
 // Transpiled from c38026562.lua
 
 card "Vola-Chemicritter Methydraco" {
-    password: 38026562
+    id: 38026562
     type: Xyz Monster
     attribute: FIRE
     race: Beast-Warrior
@@ -25,7 +25,7 @@ card "Vola-Chemicritter Methydraco" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -42,8 +42,8 @@ card "Vola-Chemicritter Methydraco" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 71
-        property: 128
+        code: CannotDirectAttack2
+        property: SetAvailable
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }

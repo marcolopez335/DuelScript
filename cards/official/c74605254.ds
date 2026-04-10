@@ -3,7 +3,7 @@
 // Transpiled from c74605254.lua
 
 card "D/D Savant Galilei" {
-    password: 74605254
+    id: 74605254
     type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
@@ -18,8 +18,8 @@ card "D/D Savant Galilei" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 22
-        property: 3584
+        code: CannotDisable
+        property: IgnoreImmune + BothSide + InitialValue
         range: PendulumZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -41,7 +41,7 @@ card "D/D Savant Galilei" {
         effect_type: QuickEffect
         category: ToHand
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: Hand
         count_limit: (1, 74605254)
         cost {

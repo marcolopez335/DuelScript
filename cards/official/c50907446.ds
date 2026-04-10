@@ -3,7 +3,7 @@
 // Transpiled from c50907446.lua
 
 card "El Shaddoll Apkallone" {
-    password: 50907446
+    id: 50907446
     type: Fusion Monster
     attribute: DARK
     race: Spellcaster
@@ -22,8 +22,8 @@ card "El Shaddoll Apkallone" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 394240
+        code: SpsummonCondition
+        property: BothSide + SingleRange + Uncopyable
         range: Deck
         on_resolve {
         }
@@ -33,7 +33,7 @@ card "El Shaddoll Apkallone" {
         effect_type: Single + Trigger
         category: Disable
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 50907446)
         on_resolve {
             register_effect on self {
@@ -53,8 +53,8 @@ card "El Shaddoll Apkallone" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -65,7 +65,7 @@ card "El Shaddoll Apkallone" {
         effect_type: Single + Trigger
         category: ToHand + DefChange
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, trap, you controls) from gy

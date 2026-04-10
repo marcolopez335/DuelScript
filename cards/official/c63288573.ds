@@ -3,7 +3,7 @@
 // Transpiled from c63288573.lua
 
 card "Sky Striker Ace - Kagari" {
-    password: 63288573
+    id: 63288573
     type: Link Monster
     attribute: FIRE
     race: Machine
@@ -22,8 +22,8 @@ card "Sky Striker Ace - Kagari" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -34,7 +34,7 @@ card "Sky Striker Ace - Kagari" {
         effect_type: Single + Trigger
         category: ToHand
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             add_to_hand (1+, spell, you controls) from gy
         }

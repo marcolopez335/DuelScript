@@ -3,7 +3,7 @@
 // Transpiled from c34323367.lua
 
 card "Performage Water Dancer" {
-    password: 34323367
+    id: 34323367
     type: Effect Monster | Pendulum Monster
     attribute: WATER
     race: Spellcaster
@@ -26,7 +26,7 @@ card "Performage Water Dancer" {
         effect_type: Field + Trigger
         category: DiceRoll
         code: AttackAnnounce
-        property: 16
+        property: CardTarget
         range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
@@ -38,7 +38,7 @@ card "Performage Water Dancer" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to hand
@@ -50,7 +50,7 @@ card "Performage Water Dancer" {
         effect_type: Single + Trigger
         category: DiceRoll
         code: Destroyed
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             change_battle_position (1, monster)
         }

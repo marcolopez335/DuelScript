@@ -3,7 +3,7 @@
 // Transpiled from c38525760.lua
 
 card "Hazy Flame Cerbereus" {
-    password: 38525760
+    id: 38525760
     type: Effect Monster
     attribute: FIRE
     race: Beast
@@ -17,8 +17,8 @@ card "Hazy Flame Cerbereus" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 71
-        property: 131072
+        code: CannotDirectAttack2
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -28,7 +28,7 @@ card "Hazy Flame Cerbereus" {
     raw_effect "Effect 2" {
         effect_type: Single
         code: 32
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -37,7 +37,7 @@ card "Hazy Flame Cerbereus" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: ChainEnd
-        property: 16384
+        property: Oath
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)

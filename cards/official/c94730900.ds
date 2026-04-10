@@ -3,7 +3,7 @@
 // Transpiled from c94730900.lua
 
 card "Infernoble Knight Maugis" {
-    password: 94730900
+    id: 94730900
     type: Effect Monster
     attribute: FIRE
     race: Warrior
@@ -15,7 +15,7 @@ card "Infernoble Knight Maugis" {
         effect_type: Single + Trigger
         category: Draw
         code: ChainEnd
-        property: 81920
+        property: Oath + Delay
         count_limit: (1, 94730900)
         on_resolve {
             draw 1
@@ -25,7 +25,7 @@ card "Infernoble Knight Maugis" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: EquipAction
-        property: 16
+        property: CardTarget
         range: Graveyard
         count_limit: (1, 0)
         on_resolve {
@@ -35,7 +35,7 @@ card "Infernoble Knight Maugis" {
 
     raw_effect "Effect 3" {
         effect_type: Equip
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

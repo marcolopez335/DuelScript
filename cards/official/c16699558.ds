@@ -3,7 +3,7 @@
 // Transpiled from c16699558.lua
 
 card "Indigo-Eyes Silver Dragon" {
-    password: 16699558
+    id: 16699558
     type: Xyz Monster
     attribute: LIGHT
     race: Dragon
@@ -23,7 +23,7 @@ card "Indigo-Eyes Silver Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 73
+        code: CannotAttackAnnounce
         on_resolve {
             register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
         }
@@ -33,7 +33,7 @@ card "Indigo-Eyes Silver Dragon" {
         effect_type: Single + Trigger
         category: Disable
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
         }
@@ -42,7 +42,7 @@ card "Indigo-Eyes Silver Dragon" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: SpecialSummon + SynchroSummon
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         cost {

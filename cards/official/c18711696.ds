@@ -3,7 +3,7 @@
 // Transpiled from c18711696.lua
 
 card "Assault Sonic Warrior" {
-    password: 18711696
+    id: 18711696
     // FIXME: card not found in CDB — type/stats are placeholders
     type: Effect Monster
     attribute: DARK
@@ -26,7 +26,7 @@ card "Assault Sonic Warrior" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to hand
@@ -38,7 +38,7 @@ card "Assault Sonic Warrior" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to hand
@@ -49,8 +49,8 @@ card "Assault Sonic Warrior" {
     raw_effect "Effect 4" {
         effect_type: Single + Trigger
         category: SynchroSummon
-        code: 1108
-        property: 65536
+        code: FlipSuccess
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -62,7 +62,7 @@ card "Assault Sonic Warrior" {
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 500
         }

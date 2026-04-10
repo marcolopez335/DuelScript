@@ -3,7 +3,7 @@
 // Transpiled from c65563871.lua
 
 card "Sunvine Healer" {
-    password: 65563871
+    id: 65563871
     type: Link Monster
     attribute: EARTH
     race: Plant
@@ -23,7 +23,7 @@ card "Sunvine Healer" {
     raw_effect "Effect 1" {
         effect_type: Field + MandatoryTrigger
         category: Destroy
-        code: 1015
+        code: ChainNegated
         range: MonsterZone
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -34,7 +34,7 @@ card "Sunvine Healer" {
         effect_type: Single + Trigger
         category: Recover
         code: SpecialSummonSuccess
-        property: 81936
+        property: CardTarget + Oath + Delay
         on_resolve {
             gain_lp: 1000
         }
@@ -43,8 +43,8 @@ card "Sunvine Healer" {
     raw_effect "Effect 3" {
         effect_type: Field + Trigger
         category: Recover
-        code: 1143
-        property: 2048
+        code: BattleDestroyed
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             gain_lp: 1000

@@ -3,7 +3,7 @@
 // Transpiled from c31178212.lua
 
 card "Majespecter Unicorn - Kirin" {
-    password: 31178212
+    id: 31178212
     type: Effect Monster | Pendulum Monster
     attribute: WIND
     race: Spellcaster
@@ -20,7 +20,7 @@ card "Majespecter Unicorn - Kirin" {
         effect_type: QuickEffect
         category: ToHand
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 31178212)
         on_resolve {
@@ -30,8 +30,8 @@ card "Majespecter Unicorn - Kirin" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 71
-        property: 131072
+        code: CannotDirectAttack2
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -40,8 +40,8 @@ card "Majespecter Unicorn - Kirin" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

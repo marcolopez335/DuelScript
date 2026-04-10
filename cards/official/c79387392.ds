@@ -3,7 +3,7 @@
 // Transpiled from c79387392.lua
 
 card "Reactor Slime" {
-    password: 79387392
+    id: 79387392
     type: Effect Monster
     attribute: WATER
     race: Aqua
@@ -50,7 +50,7 @@ card "Reactor Slime" {
     raw_effect "Effect 3" {
         effect_type: Field
         code: 20
-        property: 67110912
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
@@ -58,8 +58,8 @@ card "Reactor Slime" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
@@ -68,7 +68,7 @@ card "Reactor Slime" {
     raw_effect "Effect 5" {
         effect_type: Single
         code: 16
-        property: 256
+        property: IgnoreRange
         on_resolve {
         }
     }

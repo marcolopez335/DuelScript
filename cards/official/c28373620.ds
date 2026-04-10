@@ -3,7 +3,7 @@
 // Transpiled from c28373620.lua
 
 card "Geri the Runick Fangs" {
-    password: 28373620
+    id: 28373620
     type: Fusion Monster
     attribute: DARK
     race: Beast
@@ -24,7 +24,7 @@ card "Geri the Runick Fangs" {
         effect_type: Single + Trigger
         category: ToHand
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             add_to_hand (1+, spell, either_player controls) from gy
         }
@@ -32,8 +32,8 @@ card "Geri the Runick Fangs" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -44,7 +44,7 @@ card "Geri the Runick Fangs" {
         effect_type: Single + Trigger
         category: Destroy
         code: BattleDamage
-        property: 16
+        property: CardTarget
         on_resolve {
             destroy (1+, spell, either_player controls)
         }

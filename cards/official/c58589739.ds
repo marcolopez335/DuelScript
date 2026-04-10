@@ -3,7 +3,7 @@
 // Transpiled from c58589739.lua
 
 card "S-Force Professor DiGamma" {
-    password: 58589739
+    id: 58589739
     type: Effect Monster
     attribute: DARK
     race: Psychic
@@ -15,7 +15,7 @@ card "S-Force Professor DiGamma" {
         effect_type: Single + Trigger
         category: DiceRoll
         code: SummonSuccess
-        property: 81936
+        property: CardTarget + Oath + Delay
         count_limit: (1, 58589739)
         on_resolve {
             change_battle_position (1, monster)
@@ -26,7 +26,7 @@ card "S-Force Professor DiGamma" {
         effect_type: Single + Trigger
         category: DiceRoll
         code: SpecialSummonSuccess
-        property: 81936
+        property: CardTarget + Oath + Delay
         count_limit: (1, 58589739)
         on_resolve {
             change_battle_position (1, monster)
@@ -36,7 +36,7 @@ card "S-Force Professor DiGamma" {
     raw_effect "Effect 3" {
         effect_type: Field
         code: 14
-        property: 256
+        property: IgnoreRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }

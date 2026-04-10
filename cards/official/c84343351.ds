@@ -3,7 +3,7 @@
 // Transpiled from c84343351.lua
 
 card "Crystal Clear Wing Over Synchro Dragon" {
-    password: 84343351
+    id: 84343351
     type: Synchro Monster
     attribute: WIND
     race: Dragon
@@ -25,7 +25,7 @@ card "Crystal Clear Wing Over Synchro Dragon" {
         effect_type: QuickEffect
         category: Destroy + SynchroSummon + Negate
         code: Chaining
-        property: 49152
+        property: Oath + CountCodeDuel
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -37,8 +37,8 @@ card "Crystal Clear Wing Over Synchro Dragon" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: SpecialSummon
-        code: 1015
-        property: 65536
+        code: ChainNegated
+        property: Delay
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -46,14 +46,14 @@ card "Crystal Clear Wing Over Synchro Dragon" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 0
         }
@@ -62,7 +62,7 @@ card "Crystal Clear Wing Over Synchro Dragon" {
     raw_effect "Effect 5" {
         effect_type: Single
         code: 21142671
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }

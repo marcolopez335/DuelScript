@@ -3,7 +3,7 @@
 // Transpiled from c80040886.lua
 
 card "Navy Dragon Mech" {
-    password: 80040886
+    id: 80040886
     type: Synchro Monster
     attribute: WATER
     race: Machine
@@ -25,7 +25,7 @@ card "Navy Dragon Mech" {
         effect_type: Single + Trigger
         category: Disable
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             negate effect
             register_effect on self {
@@ -47,7 +47,7 @@ card "Navy Dragon Mech" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             add_to_hand (1+, trap, you controls) from gy
         }

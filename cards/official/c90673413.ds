@@ -3,14 +3,14 @@
 // Transpiled from c90673413.lua
 
 card "Gagagarevenge" {
-    password: 90673413
+    id: 90673413
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         on_resolve {
             special_summon (1, monster) from gy
             equip (1, card) to (1, monster)
@@ -19,7 +19,7 @@ card "Gagagarevenge" {
 
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
-        code: 1015
+        code: ChainNegated
         on_resolve {
             destroy (1+, monster, you controls)
         }

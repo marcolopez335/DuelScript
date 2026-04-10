@@ -3,7 +3,7 @@
 // Transpiled from c63845230.lua
 
 card "Eater of Millions" {
-    password: 63845230
+    id: 63845230
     type: Effect Monster | Spirit
     attribute: DARK
     race: Fiend
@@ -17,16 +17,16 @@ card "Eater of Millions" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Hand
         on_resolve {
             banish (1+, card, you controls, hand)
@@ -35,8 +35,8 @@ card "Eater of Millions" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -45,8 +45,8 @@ card "Eater of Millions" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 104
-        property: 131072
+        code: UpdateDefense
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: def + 0
@@ -55,8 +55,8 @@ card "Eater of Millions" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 43
-        property: 131072
+        code: CannotBeBattleTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -64,8 +64,8 @@ card "Eater of Millions" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 44
-        property: 131072
+        code: CannotRemove
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }

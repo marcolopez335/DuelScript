@@ -3,7 +3,7 @@
 // Transpiled from c47082621.lua
 
 card "Regenesis Overlord" {
-    password: 47082621
+    id: 47082621
     type: Effect Monster | Spirit
     attribute: DARK
     race: Unknown
@@ -17,8 +17,8 @@ card "Regenesis Overlord" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Graveyard
         count_limit: (1, 47082621)
         on_resolve {
@@ -30,7 +30,7 @@ card "Regenesis Overlord" {
         effect_type: Single + Trigger
         category: ToHand
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
         }
@@ -38,7 +38,7 @@ card "Regenesis Overlord" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk - 2500

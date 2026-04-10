@@ -3,7 +3,7 @@
 // Transpiled from c61901281.lua
 
 card "Black Dragon Collapserpent" {
-    password: 61901281
+    id: 61901281
     type: Effect Monster | Spirit
     attribute: DARK
     race: Dragon
@@ -17,16 +17,16 @@ card "Black Dragon Collapserpent" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         count_limit: (1, 61901281)
         on_resolve {
@@ -38,7 +38,7 @@ card "Black Dragon Collapserpent" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: ChainEnd
-        property: 81920
+        property: Oath + Delay
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
             reveal (1+, card, opponent controls)

@@ -3,7 +3,7 @@
 // Transpiled from c71101678.lua
 
 card "Earthbound Servant Geo Grasha" {
-    password: 71101678
+    id: 71101678
     type: Fusion Monster
     attribute: DARK
     race: Fiend
@@ -22,8 +22,8 @@ card "Earthbound Servant Geo Grasha" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -48,7 +48,7 @@ card "Earthbound Servant Geo Grasha" {
         effect_type: Field + Trigger
         category: Destroy
         code: Destroyed
-        property: 81920
+        property: Oath + Delay
         range: MonsterZone
         count_limit: (1, 71101678)
         on_resolve {
@@ -59,8 +59,8 @@ card "Earthbound Servant Geo Grasha" {
     raw_effect "Effect 4" {
         effect_type: Single + Trigger
         category: SpecialSummon
-        code: 1015
-        property: 65536
+        code: ChainNegated
+        property: Delay
         on_resolve {
             special_summon (1, monster) from gy
         }

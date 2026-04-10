@@ -3,7 +3,7 @@
 // Transpiled from c34950192.lua
 
 card "Lev Shaddoll Fusion" {
-    password: 34950192
+    id: 34950192
     type: Continuous Spell
 
     raw_effect "Effect 1" {
@@ -32,8 +32,8 @@ card "Lev Shaddoll Fusion" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 67635200
+        code: CannotDisable
+        property: InitialValue + CannotDisable + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
@@ -41,8 +41,8 @@ card "Lev Shaddoll Fusion" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 102
-        property: 1024
+        code: SetAttackFinal
+        property: BothSide
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

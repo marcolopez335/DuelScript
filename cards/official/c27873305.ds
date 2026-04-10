@@ -3,7 +3,7 @@
 // Transpiled from c27873305.lua
 
 card "D/D/D Wave Oblivion King Caesar Ragnarok" {
-    password: 27873305
+    id: 27873305
     type: Fusion Monster
     attribute: DARK
     race: Fiend
@@ -24,7 +24,7 @@ card "D/D/D Wave Oblivion King Caesar Ragnarok" {
         effect_type: Field + Trigger
         category: ToHand + EquipAction
         code: AttackAnnounce
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -35,8 +35,8 @@ card "D/D/D Wave Oblivion King Caesar Ragnarok" {
 
     raw_effect "Effect 2" {
         effect_type: Equip
-        code: 100
-        property: 16777344
+        code: UpdateAttack
+        property: SetAvailable
         on_resolve {
             modifier: atk + 0
         }
@@ -44,14 +44,14 @@ card "D/D/D Wave Oblivion King Caesar Ragnarok" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 76
+        code: CannotAttack2
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 71
+        code: CannotDirectAttack2
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
@@ -59,7 +59,7 @@ card "D/D/D Wave Oblivion King Caesar Ragnarok" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 41
+        code: IndestructableEffect
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
@@ -67,7 +67,7 @@ card "D/D/D Wave Oblivion King Caesar Ragnarok" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

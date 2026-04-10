@@ -3,7 +3,7 @@
 // Transpiled from c36346532.lua
 
 card "Paleozoic Cambroraster" {
-    password: 36346532
+    id: 36346532
     type: Link Monster
     attribute: WATER
     race: Aqua
@@ -22,8 +22,8 @@ card "Paleozoic Cambroraster" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 1
-        property: 131072
+        code: ImmuneEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -33,7 +33,7 @@ card "Paleozoic Cambroraster" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: ToGrave
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 36346532)
         on_resolve {

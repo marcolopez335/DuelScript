@@ -3,7 +3,7 @@
 // Transpiled from c99328137.lua
 
 card "Ice Knight" {
-    password: 99328137
+    id: 99328137
     type: Effect Monster
     attribute: WATER
     race: Aqua
@@ -13,8 +13,8 @@ card "Ice Knight" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -51,7 +51,7 @@ card "Ice Knight" {
     raw_effect "Effect 4" {
         effect_type: Field
         code: 20
-        property: 526336
+        property: InitialValue + CannotDisable
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
@@ -59,8 +59,8 @@ card "Ice Knight" {
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 22
-        property: 526336
+        code: CannotDisable
+        property: InitialValue + CannotDisable
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

@@ -3,7 +3,7 @@
 // Transpiled from c15982593.lua
 
 card "Centur-Ion Legatia" {
-    password: 15982593
+    id: 15982593
     type: Synchro Monster
     attribute: LIGHT
     race: Machine
@@ -23,7 +23,7 @@ card "Centur-Ion Legatia" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -34,7 +34,7 @@ card "Centur-Ion Legatia" {
         effect_type: Single + Trigger
         category: Destroy + Draw
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 15982593)
         on_resolve {
             draw 1
@@ -46,7 +46,7 @@ card "Centur-Ion Legatia" {
     raw_effect "Effect 3" {
         effect_type: Field + Trigger
         category: 67108864
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

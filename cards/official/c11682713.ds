@@ -3,7 +3,7 @@
 // Transpiled from c11682713.lua
 
 card "Sylvan Bladefender" {
-    password: 11682713
+    id: 11682713
     type: Effect Monster
     attribute: EARTH
     race: Plant
@@ -14,7 +14,7 @@ card "Sylvan Bladefender" {
     raw_effect "Effect 1" {
         effect_type: Single + Trigger
         category: AtkChange
-        code: 1139
+        code: BattleConfirmed
         on_resolve {
             reveal (1, card, opponent controls, deck)
             send (1+, card, either_player controls) to gy
@@ -24,7 +24,7 @@ card "Sylvan Bladefender" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         code: ChainEnd
-        property: 65536
+        property: Delay
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
             reveal (1+, card, opponent controls)

@@ -3,7 +3,7 @@
 // Transpiled from c97476032.lua
 
 card "Ice Doll" {
-    password: 97476032
+    id: 97476032
     type: Effect Monster
     attribute: WATER
     race: Spellcaster
@@ -28,7 +28,7 @@ card "Ice Doll" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
         }
@@ -38,7 +38,7 @@ card "Ice Doll" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
         }
@@ -48,7 +48,7 @@ card "Ice Doll" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
         }
@@ -56,8 +56,8 @@ card "Ice Doll" {
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 22
-        property: 67635200
+        code: CannotDisable
+        property: InitialValue + CannotDisable + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

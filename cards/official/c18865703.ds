@@ -3,7 +3,7 @@
 // Transpiled from c18865703.lua
 
 card "ZW - Ultimate Shield" {
-    password: 18865703
+    id: 18865703
     type: Effect Monster
     attribute: EARTH
     race: Aqua
@@ -14,7 +14,7 @@ card "ZW - Ultimate Shield" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: EquipAction
-        property: 16
+        property: CardTarget
         range: MonsterZone
         on_resolve {
             send (1+, card, either_player controls) to gy
@@ -25,7 +25,7 @@ card "ZW - Ultimate Shield" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SummonSuccess
-        property: 16400
+        property: CardTarget + Oath
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -35,7 +35,7 @@ card "ZW - Ultimate Shield" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 16400
+        property: CardTarget + Oath
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -43,7 +43,7 @@ card "ZW - Ultimate Shield" {
 
     raw_effect "Effect 4" {
         effect_type: Equip
-        code: 104
+        code: UpdateDefense
         on_resolve {
             modifier: def + 2000
         }
@@ -51,14 +51,14 @@ card "ZW - Ultimate Shield" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 76
+        code: CannotAttack2
         on_resolve {
         }
     }
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 0
         }
@@ -73,7 +73,7 @@ card "ZW - Ultimate Shield" {
 
     raw_effect "Effect 8" {
         effect_type: Single
-        code: 71
+        code: CannotDirectAttack2
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
@@ -81,7 +81,7 @@ card "ZW - Ultimate Shield" {
 
     raw_effect "Effect 9" {
         effect_type: Single
-        code: 41
+        code: IndestructableEffect
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
@@ -89,7 +89,7 @@ card "ZW - Ultimate Shield" {
 
     raw_effect "Effect 10" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

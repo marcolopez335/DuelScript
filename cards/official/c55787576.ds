@@ -3,7 +3,7 @@
 // Transpiled from c55787576.lua
 
 card "World Legacy - 'World Shield'" {
-    password: 55787576
+    id: 55787576
     type: Effect Monster
     attribute: DARK
     race: Machine
@@ -17,8 +17,8 @@ card "World Legacy - 'World Shield'" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 1
-        property: 131072
+        code: ImmuneEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -27,8 +27,8 @@ card "World Legacy - 'World Shield'" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 71
-        property: 384
+        code: CannotDirectAttack2
+        property: SetAvailable + IgnoreRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -37,8 +37,8 @@ card "World Legacy - 'World Shield'" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 41
-        property: 384
+        code: IndestructableEffect
+        property: SetAvailable + IgnoreRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

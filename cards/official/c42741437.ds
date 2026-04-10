@@ -3,7 +3,7 @@
 // Transpiled from c42741437.lua
 
 card "Exosister Mikailis" {
-    password: 42741437
+    id: 42741437
     type: Xyz Monster
     attribute: LIGHT
     race: Warrior
@@ -23,15 +23,15 @@ card "Exosister Mikailis" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -42,7 +42,7 @@ card "Exosister Mikailis" {
         effect_type: QuickEffect
         category: Banish
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 42741437)
         on_resolve {

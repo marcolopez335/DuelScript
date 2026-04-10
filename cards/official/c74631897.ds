@@ -3,7 +3,7 @@
 // Transpiled from c74631897.lua
 
 card "Artmage Non-Finito" {
-    password: 74631897
+    id: 74631897
     type: Fusion Monster
     attribute: EARTH
     race: Unknown
@@ -23,7 +23,7 @@ card "Artmage Non-Finito" {
     raw_effect "Effect 1" {
         effect_type: Single + Continuous
         code: SpecialSummonSuccess
-        property: 1024
+        property: BothSide
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -34,8 +34,8 @@ card "Artmage Non-Finito" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Deck
         on_resolve {
             send (1+, spell, you controls, hand) to gy
@@ -46,7 +46,7 @@ card "Artmage Non-Finito" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             set (1, card)
         }
@@ -54,7 +54,7 @@ card "Artmage Non-Finito" {
 
     raw_effect "Effect 4" {
         effect_type: QuickEffect
-        category: SpecialSummon
+        category: SpecialSummon + Control
         code: FreeChain
         range: MonsterZone
         count_limit: (1, 0)
@@ -64,8 +64,8 @@ card "Artmage Non-Finito" {
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 22
-        property: 2048
+        code: CannotDisable
+        property: InitialValue
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

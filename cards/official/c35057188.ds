@@ -3,7 +3,7 @@
 // Transpiled from c35057188.lua
 
 card "Battlewasp - Grand Partisan the Revolution" {
-    password: 35057188
+    id: 35057188
     type: Synchro Monster
     attribute: WIND
     race: Insect
@@ -23,8 +23,8 @@ card "Battlewasp - Grand Partisan the Revolution" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -33,7 +33,7 @@ card "Battlewasp - Grand Partisan the Revolution" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -44,7 +44,7 @@ card "Battlewasp - Grand Partisan the Revolution" {
         effect_type: Single + Trigger
         category: Destroy + SpecialSummon + Damage
         code: TurnEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 35057188)
         on_resolve {
             special_summon (1, monster) from gy

@@ -3,7 +3,7 @@
 // Transpiled from c15449853.lua
 
 card "The Sanctum of Parshath" {
-    password: 15449853
+    id: 15449853
     type: Continuous Spell
 
     raw_effect "Effect 1" {
@@ -16,7 +16,7 @@ card "The Sanctum of Parshath" {
     raw_effect "Effect 2" {
         effect_type: Single
         code: 114
-        property: 131072
+        property: SingleRange
         range: SpellTrapZone + Graveyard
         on_resolve {
         }
@@ -24,7 +24,7 @@ card "The Sanctum of Parshath" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: SpellTrapZone
         on_resolve {
             modifier: atk + 300
@@ -33,7 +33,7 @@ card "The Sanctum of Parshath" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 104
+        code: UpdateDefense
         range: SpellTrapZone
         on_resolve {
             modifier: def + 300
@@ -42,8 +42,8 @@ card "The Sanctum of Parshath" {
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 41
-        property: 256
+        code: IndestructableEffect
+        property: IgnoreRange
         range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -52,8 +52,8 @@ card "The Sanctum of Parshath" {
 
     raw_effect "Effect 6" {
         effect_type: Field
-        code: 71
-        property: 384
+        code: CannotDirectAttack2
+        property: SetAvailable + IgnoreRange
         range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -63,7 +63,7 @@ card "The Sanctum of Parshath" {
     raw_effect "Effect 7" {
         effect_type: Ignition
         category: ToDeck
-        property: 16
+        property: CardTarget
         range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {

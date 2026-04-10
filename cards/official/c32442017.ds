@@ -3,7 +3,7 @@
 // Transpiled from c32442017.lua
 
 card "DoomZ Raiders" {
-    password: 32442017
+    id: 32442017
     type: Continuous Spell
 
     raw_effect "Effect 1" {
@@ -33,7 +33,7 @@ card "DoomZ Raiders" {
         effect_type: Single + Trigger
         category: Destroy
         code: Destroyed
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 32442017)
         on_resolve {
             destroy (1+, monster, you controls, deck)
@@ -42,8 +42,8 @@ card "DoomZ Raiders" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

@@ -3,7 +3,7 @@
 // Transpiled from c4779823.lua
 
 card "Michael, the Arch-Lightsworn" {
-    password: 4779823
+    id: 4779823
     type: Synchro Monster
     attribute: LIGHT
     race: Dragon
@@ -24,7 +24,7 @@ card "Michael, the Arch-Lightsworn" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: Banish
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         cost {
@@ -39,7 +39,7 @@ card "Michael, the Arch-Lightsworn" {
         effect_type: Single + Trigger
         category: ToDeck + Recover
         code: Destroyed
-        property: 16400
+        property: CardTarget + Oath
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
             gain_lp: 1000
@@ -49,7 +49,7 @@ card "Michael, the Arch-Lightsworn" {
     raw_effect "Effect 3" {
         effect_type: Field + MandatoryTrigger
         category: AtkChange
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

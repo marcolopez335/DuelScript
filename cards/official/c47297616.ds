@@ -3,7 +3,7 @@
 // Transpiled from c47297616.lua
 
 card "Light and Darkness Dragon" {
-    password: 47297616
+    id: 47297616
     type: Effect Monster
     attribute: LIGHT
     race: Dragon
@@ -17,8 +17,8 @@ card "Light and Darkness Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 125
-        property: 131072
+        code: AddType
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -28,7 +28,7 @@ card "Light and Darkness Dragon" {
         effect_type: MandatoryQuick
         category: SynchroSummon + XyzSummon + Negate
         code: Chaining
-        property: 49152
+        property: Oath + CountCodeDuel
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -40,7 +40,7 @@ card "Light and Darkness Dragon" {
         effect_type: Single + MandatoryTrigger
         category: Destroy + SpecialSummon
         code: ChainEnd
-        property: 16
+        property: CardTarget
         on_resolve {
             destroy (1+, card, either_player controls)
             special_summon (1, monster) from gy
@@ -49,7 +49,7 @@ card "Light and Darkness Dragon" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         property: 8192
         on_resolve {
             modifier: atk - 500
@@ -58,7 +58,7 @@ card "Light and Darkness Dragon" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 104
+        code: UpdateDefense
         property: 8192
         on_resolve {
             modifier: def - 500

@@ -3,7 +3,7 @@
 // Transpiled from c62038047.lua
 
 card "Shiranui Smith" {
-    password: 62038047
+    id: 62038047
     type: Effect Monster
     attribute: FIRE
     race: Zombie
@@ -14,8 +14,8 @@ card "Shiranui Smith" {
     raw_effect "Effect 1" {
         effect_type: Single + Trigger
         category: ToHand + Search
-        code: 1108
-        property: 65536
+        code: FlipSuccess
+        property: Delay
         count_limit: (1, 62038047)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -26,7 +26,7 @@ card "Shiranui Smith" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         code: TurnEnd
-        property: 81920
+        property: Oath + Delay
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

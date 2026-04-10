@@ -3,7 +3,7 @@
 // Transpiled from c95493471.lua
 
 card "Neo Super Quantal Mech King Blaster Magna" {
-    password: 95493471
+    id: 95493471
     type: Link Monster
     attribute: LIGHT
     race: Machine
@@ -22,8 +22,8 @@ card "Neo Super Quantal Mech King Blaster Magna" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -34,7 +34,7 @@ card "Neo Super Quantal Mech King Blaster Magna" {
         effect_type: Field + MandatoryTrigger
         category: Draw
         code: SpecialSummonSuccess
-        property: 2048
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             draw 1
@@ -45,7 +45,7 @@ card "Neo Super Quantal Mech King Blaster Magna" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 81920
+        property: Oath + Delay
         range: MonsterZone
         count_limit: (1, 95493471)
         on_resolve {

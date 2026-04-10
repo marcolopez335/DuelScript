@@ -3,7 +3,7 @@
 // Transpiled from c75083197.lua
 
 card "Dragonlark Pairen" {
-    password: 75083197
+    id: 75083197
     type: Xyz Monster
     attribute: WIND
     race: Wyrm
@@ -23,8 +23,8 @@ card "Dragonlark Pairen" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -33,8 +33,8 @@ card "Dragonlark Pairen" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -45,7 +45,7 @@ card "Dragonlark Pairen" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: 4098
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 75083197)
         cost {

@@ -3,7 +3,7 @@
 // Transpiled from c8252010.lua
 
 card "X-Saber Gottoms" {
-    password: 8252010
+    id: 8252010
     type: Synchro Monster
     attribute: EARTH
     race: Warrior
@@ -23,7 +23,7 @@ card "X-Saber Gottoms" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }
@@ -32,7 +32,7 @@ card "X-Saber Gottoms" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 8252010)
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck
@@ -43,7 +43,7 @@ card "X-Saber Gottoms" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         category: DefChange
-        code: 1143
+        code: BattleDestroyed
         count_limit: (1, 0)
         on_resolve {
             send (1+, spell, you controls, deck) to gy
@@ -64,7 +64,7 @@ card "X-Saber Gottoms" {
     raw_effect "Effect 5" {
         effect_type: Single
         code: 21142671
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }

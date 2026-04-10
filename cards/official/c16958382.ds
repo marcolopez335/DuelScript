@@ -3,7 +3,7 @@
 // Transpiled from c16958382.lua
 
 card "Malefic Paradigm Dragon" {
-    password: 16958382
+    id: 16958382
     type: Effect Monster | Spirit
     attribute: DARK
     race: Dragon
@@ -17,8 +17,8 @@ card "Malefic Paradigm Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -26,7 +26,7 @@ card "Malefic Paradigm Dragon" {
     raw_effect "Effect 2" {
         effect_type: Single
         code: 141
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -34,7 +34,7 @@ card "Malefic Paradigm Dragon" {
 
     raw_effect "Effect 3" {
         effect_type: Ignition
-        category: SpecialSummon
+        category: SpecialSummon + Announce
         range: MonsterZone
         count_limit: (1, 0)
         cost {
@@ -56,7 +56,7 @@ card "Malefic Paradigm Dragon" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 34
+        code: CannotSummon
         range: Hand
         on_resolve {
             special_summon self from hand

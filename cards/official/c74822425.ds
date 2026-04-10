@@ -3,7 +3,7 @@
 // Transpiled from c74822425.lua
 
 card "El Shaddoll Shekhinaga" {
-    password: 74822425
+    id: 74822425
     type: Fusion Monster
     attribute: EARTH
     race: Machine
@@ -22,8 +22,8 @@ card "El Shaddoll Shekhinaga" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 394240
+        code: SpsummonCondition
+        property: BothSide + SingleRange + Uncopyable
         range: Deck
         on_resolve {
         }
@@ -33,7 +33,7 @@ card "El Shaddoll Shekhinaga" {
         effect_type: QuickEffect
         category: Destroy + Negate
         code: Chaining
-        property: 49152
+        property: Oath + CountCodeDuel
         range: MonsterZone
         count_limit: (1, 74822425)
         on_resolve {
@@ -46,7 +46,7 @@ card "El Shaddoll Shekhinaga" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             add_to_hand (1+, spell, you controls) from hand
         }

@@ -3,7 +3,7 @@
 // Transpiled from c13250922.lua
 
 card "Anteatereatingant" {
-    password: 13250922
+    id: 13250922
     type: Effect Monster | Spirit
     attribute: EARTH
     race: Insect
@@ -17,16 +17,16 @@ card "Anteatereatingant" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             send (1+, spell, you controls) to gy
@@ -36,7 +36,7 @@ card "Anteatereatingant" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: Destroy
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

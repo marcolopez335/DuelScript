@@ -3,7 +3,7 @@
 // Transpiled from c82661461.lua
 
 card "Performapal Odd-Eyes Valet" {
-    password: 82661461
+    id: 82661461
     type: Effect Monster | Pendulum Monster
     attribute: LIGHT
     race: Spellcaster
@@ -30,7 +30,7 @@ card "Performapal Odd-Eyes Valet" {
         effect_type: Single + Trigger
         category: ToGrave + LevelChange
         code: SummonSuccess
-        property: 81920
+        property: Oath + Delay
         count_limit: (1, 82661461)
         on_resolve {
             send (1+, monster, you controls, deck) to gy
@@ -41,7 +41,7 @@ card "Performapal Odd-Eyes Valet" {
         effect_type: Single + Trigger
         category: ToGrave + LevelChange
         code: SpecialSummonSuccess
-        property: 81920
+        property: Oath + Delay
         count_limit: (1, 82661461)
         on_resolve {
             send (1+, monster, you controls, deck) to gy
@@ -51,7 +51,7 @@ card "Performapal Odd-Eyes Valet" {
     raw_effect "Effect 4" {
         effect_type: Single + Trigger
         code: Destroyed
-        property: 65536
+        property: Delay
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -59,7 +59,7 @@ card "Performapal Odd-Eyes Valet" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 0
         }

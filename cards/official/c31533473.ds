@@ -3,7 +3,7 @@
 // Transpiled from c31533473.lua
 
 card "Clown Crew Diablo" {
-    password: 31533473
+    id: 31533473
     // FIXME: card not found in CDB — type/stats are placeholders
     type: Effect Monster
     attribute: DARK
@@ -18,7 +18,7 @@ card "Clown Crew Diablo" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 203
+        code: GraveRedirectCb
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
@@ -27,8 +27,8 @@ card "Clown Crew Diablo" {
 
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
-        code: Release
-        property: 65536
+        code: Released
+        property: Delay
         on_resolve {
             return (1+, trap, either_player controls) to deck shuffle
             set (1, card)

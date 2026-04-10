@@ -3,7 +3,7 @@
 // Transpiled from c43378076.lua
 
 card "Rasetsu" {
-    password: 43378076
+    id: 43378076
     type: Effect Monster | Flip
     attribute: FIRE
     race: Fairy
@@ -13,8 +13,8 @@ card "Rasetsu" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -23,7 +23,7 @@ card "Rasetsu" {
         effect_type: Single + Trigger
         category: ToHand
         code: SummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
         }
@@ -33,7 +33,7 @@ card "Rasetsu" {
         effect_type: Single + Trigger
         category: ToHand
         code: 1001
-        property: 16
+        property: CardTarget
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
         }

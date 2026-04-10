@@ -3,7 +3,7 @@
 // Transpiled from c21364070.lua
 
 card "Mayosenju Hitot" {
-    password: 21364070
+    id: 21364070
     type: Effect Monster | Pendulum Monster
     attribute: WIND
     race: Beast
@@ -18,7 +18,7 @@ card "Mayosenju Hitot" {
 
     raw_effect "Effect 1" {
         effect_type: Ignition
-        property: 16
+        property: CardTarget
         range: PendulumZone
         count_limit: (1, 21364070)
         on_resolve {
@@ -40,7 +40,7 @@ card "Mayosenju Hitot" {
     raw_effect "Effect 2" {
         effect_type: Field + MandatoryTrigger
         category: ToHand
-        code: 4608
+        code: PhaseEnd
         range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
@@ -50,8 +50,8 @@ card "Mayosenju Hitot" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -60,7 +60,7 @@ card "Mayosenju Hitot" {
         effect_type: Single + Trigger
         category: ToHand
         code: SummonSuccess
-        property: 81936
+        property: CardTarget + Oath + Delay
         on_resolve {
             return (1+, monster, you controls) to hand
         }
@@ -70,7 +70,7 @@ card "Mayosenju Hitot" {
         effect_type: Single + Trigger
         category: ToHand
         code: SpecialSummonSuccess
-        property: 81936
+        property: CardTarget + Oath + Delay
         on_resolve {
             return (1+, monster, you controls) to hand
         }
@@ -105,7 +105,7 @@ card "Mayosenju Hitot" {
     raw_effect "Effect 8" {
         effect_type: Field + MandatoryTrigger
         category: ToHand
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -116,15 +116,15 @@ card "Mayosenju Hitot" {
     raw_effect "Effect 9" {
         effect_type: Field + Continuous
         code: SpecialSummonSuccess
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
 
     raw_effect "Effect 10" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
@@ -146,8 +146,8 @@ card "Mayosenju Hitot" {
 
     raw_effect "Effect 13" {
         effect_type: Single
-        code: 100
-        property: 1024
+        code: UpdateAttack
+        property: BothSide
         on_resolve {
             modifier: atk + 500
         }

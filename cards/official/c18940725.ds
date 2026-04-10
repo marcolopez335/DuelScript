@@ -3,7 +3,7 @@
 // Transpiled from c18940725.lua
 
 card "Floowandereeze & Robina" {
-    password: 18940725
+    id: 18940725
     type: Effect Monster
     attribute: WATER
     race: Winged Beast
@@ -15,7 +15,7 @@ card "Floowandereeze & Robina" {
         effect_type: Single + Trigger
         category: ToHand + Counter + Search
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 18940725)
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand
@@ -27,8 +27,8 @@ card "Floowandereeze & Robina" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 60
-        property: 1024
+        code: CannotAttack
+        property: BothSide
         on_resolve {
         }
     }
@@ -37,7 +37,7 @@ card "Floowandereeze & Robina" {
         effect_type: Field + Trigger
         category: ToHand
         code: SummonSuccess
-        property: 65536
+        property: Delay
         range: Banished
         count_limit: (1, 0)
         on_resolve {
@@ -47,15 +47,15 @@ card "Floowandereeze & Robina" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 22
-        property: 526336
+        code: CannotDisable
+        property: InitialValue + CannotDisable
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
     }
 
     raw_effect "Effect 5" {
-        property: 67110912
+        property: InitialValue + IgnoreRange2
         on_resolve {
         }
     }

@@ -3,7 +3,7 @@
 // Transpiled from c14291024.lua
 
 card "Gradius' Option" {
-    password: 14291024
+    id: 14291024
     type: Effect Monster | Spirit
     attribute: LIGHT
     race: Machine
@@ -17,8 +17,8 @@ card "Gradius' Option" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Hand
         on_resolve {
         }
@@ -26,8 +26,8 @@ card "Gradius' Option" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -35,15 +35,15 @@ card "Gradius' Option" {
     raw_effect "Effect 3" {
         effect_type: Single + Continuous
         code: SpecialSummonSuccess
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 102
-        property: 131072
+        code: SetAttackFinal
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -52,8 +52,8 @@ card "Gradius' Option" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 106
-        property: 131072
+        code: SetDefenseFinal
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: def + 0
@@ -63,7 +63,7 @@ card "Gradius' Option" {
     raw_effect "Effect 6" {
         effect_type: Single
         code: 141
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }

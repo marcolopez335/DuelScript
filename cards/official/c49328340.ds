@@ -3,7 +3,7 @@
 // Transpiled from c49328340.lua
 
 card "Spiral Spear Strike" {
-    password: 49328340
+    id: 49328340
     type: Continuous Spell
 
     raw_effect "Effect 1" {
@@ -15,7 +15,7 @@ card "Spiral Spear Strike" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 203
+        code: GraveRedirectCb
         range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
@@ -25,7 +25,7 @@ card "Spiral Spear Strike" {
     raw_effect "Effect 3" {
         effect_type: Field + MandatoryTrigger
         category: DefChange + Draw
-        code: 1143
+        code: BattleDestroyed
         range: SpellTrapZone
         on_resolve {
             draw 2

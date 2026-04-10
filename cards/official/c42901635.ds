@@ -3,7 +3,7 @@
 // Transpiled from c42901635.lua
 
 card "Berserkion the Electromagna Warrior" {
-    password: 42901635
+    id: 42901635
     type: Effect Monster | Spirit
     attribute: EARTH
     race: Rock
@@ -17,8 +17,8 @@ card "Berserkion the Electromagna Warrior" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             banish (1+, monster, you controls, gy)
@@ -28,7 +28,7 @@ card "Berserkion the Electromagna Warrior" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: Destroy
-        property: 16
+        property: CardTarget
         range: MonsterZone
         cost {
             banish self
@@ -42,7 +42,7 @@ card "Berserkion the Electromagna Warrior" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 81936
+        property: CardTarget + Oath + Delay
         on_resolve {
             special_summon (1, monster) from gy
             special_summon (1, monster) from gy

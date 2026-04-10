@@ -3,7 +3,7 @@
 // Transpiled from c24087580.lua
 
 card "Amazoness Silver Sword Master" {
-    password: 24087580
+    id: 24087580
     type: Effect Monster | Pendulum Monster
     attribute: EARTH
     race: Warrior
@@ -14,7 +14,7 @@ card "Amazoness Silver Sword Master" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: PendulumZone
         on_resolve {
             modifier: atk + 0
@@ -25,7 +25,7 @@ card "Amazoness Silver Sword Master" {
         effect_type: Field + Trigger
         category: ToHand
         code: AttackAnnounce
-        property: 16
+        property: CardTarget
         range: PendulumZone
         count_limit: (1, 24087580)
         on_resolve {
@@ -36,7 +36,7 @@ card "Amazoness Silver Sword Master" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         code: Destroyed
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -46,7 +46,7 @@ card "Amazoness Silver Sword Master" {
     raw_effect "Effect 4" {
         effect_type: Field + Trigger
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         range: Graveyard
         count_limit: (1, 0)
         on_resolve {

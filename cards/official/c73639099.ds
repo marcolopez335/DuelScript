@@ -3,7 +3,7 @@
 // Transpiled from c73639099.lua
 
 card "Traptrix Sera" {
-    password: 73639099
+    id: 73639099
     type: Link Monster
     attribute: EARTH
     race: Plant
@@ -22,8 +22,8 @@ card "Traptrix Sera" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 1
-        property: 131072
+        code: ImmuneEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -34,7 +34,7 @@ card "Traptrix Sera" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: Chaining
-        property: 65536
+        property: Delay
         range: MonsterZone
         count_limit: (1, 73639099)
         on_resolve {
@@ -45,7 +45,7 @@ card "Traptrix Sera" {
     raw_effect "Effect 3" {
         effect_type: Field + Trigger
         code: Chaining
-        property: 65536
+        property: Delay
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

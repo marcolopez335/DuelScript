@@ -3,7 +3,7 @@
 // Transpiled from c89851827.lua
 
 card "Secreterion Dragon" {
-    password: 89851827
+    id: 89851827
     type: Fusion Monster
     attribute: LIGHT
     race: Dragon
@@ -22,8 +22,8 @@ card "Secreterion Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -32,8 +32,8 @@ card "Secreterion Dragon" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 6
-        property: 2048
+        code: CannotChangeControl
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -43,7 +43,7 @@ card "Secreterion Dragon" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: ToDeck + SpecialSummon
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 89851827)
         on_resolve {

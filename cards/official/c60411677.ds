@@ -3,7 +3,7 @@
 // Transpiled from c60411677.lua
 
 card "Anubis the Last Judge" {
-    password: 60411677
+    id: 60411677
     type: Effect Monster | Spirit
     attribute: EARTH
     race: Fiend
@@ -17,8 +17,8 @@ card "Anubis the Last Judge" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Hand + Graveyard
         on_resolve {
             return (1+, trap, you controls) to deck shuffle
@@ -44,7 +44,7 @@ card "Anubis the Last Judge" {
         effect_type: Field + Trigger
         category: Destroy
         code: Destroyed
-        property: 65552
+        property: CardTarget + Delay
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

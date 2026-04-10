@@ -3,7 +3,7 @@
 // Transpiled from c57985393.lua
 
 card "Broomy" {
-    password: 57985393
+    id: 57985393
     type: Effect Monster | Tuner
     attribute: LIGHT
     race: Spellcaster
@@ -14,7 +14,7 @@ card "Broomy" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 236
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -40,8 +40,8 @@ card "Broomy" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
@@ -50,7 +50,7 @@ card "Broomy" {
     raw_effect "Effect 4" {
         effect_type: Field
         code: 86
-        property: 128
+        property: SetAvailable
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }

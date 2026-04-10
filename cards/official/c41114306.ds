@@ -3,7 +3,7 @@
 // Transpiled from c41114306.lua
 
 card "Dark Garnex the Cubic Beast" {
-    password: 41114306
+    id: 41114306
     type: Effect Monster | Spirit
     attribute: EARTH
     race: Beast
@@ -17,8 +17,8 @@ card "Dark Garnex the Cubic Beast" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Hand
         on_resolve {
             send (1+, monster, you controls) to gy
@@ -32,8 +32,8 @@ card "Dark Garnex the Cubic Beast" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: ToHand + SpecialSummon + Search
-        code: 1139
-        property: 16
+        code: BattleConfirmed
+        property: CardTarget
         on_resolve {
             send (1+, monster, you controls) to gy
             special_summon (1, monster) from gy

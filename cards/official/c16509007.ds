@@ -3,7 +3,7 @@
 // Transpiled from c16509007.lua
 
 card "Kewl Tune Mix" {
-    password: 16509007
+    id: 16509007
     type: Effect Monster | Tuner
     attribute: WIND
     race: Warrior
@@ -15,7 +15,7 @@ card "Kewl Tune Mix" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 16509007)
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
@@ -27,7 +27,7 @@ card "Kewl Tune Mix" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 16509007)
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
@@ -38,8 +38,8 @@ card "Kewl Tune Mix" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         category: Destroy
-        code: 1108
-        property: 65552
+        code: FlipSuccess
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, you controls, gy)

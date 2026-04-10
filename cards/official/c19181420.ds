@@ -3,7 +3,7 @@
 // Transpiled from c19181420.lua
 
 card "Mementotlan Twin Dragon" {
-    password: 19181420
+    id: 19181420
     type: Fusion Monster
     attribute: LIGHT
     race: Thunder
@@ -22,8 +22,8 @@ card "Mementotlan Twin Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 204
-        property: 128
+        code: LeaveFieldRedirect
+        property: SetAvailable
         range: MonsterZone
         on_resolve {
         }
@@ -33,7 +33,7 @@ card "Mementotlan Twin Dragon" {
         effect_type: Single + Trigger
         category: Destroy + ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 19181420)
         on_resolve {
             destroy (1+, monster, you controls, deck)
@@ -46,7 +46,7 @@ card "Mementotlan Twin Dragon" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

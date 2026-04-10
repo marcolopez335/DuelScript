@@ -3,7 +3,7 @@
 // Transpiled from c86578200.lua
 
 card "Abyss Prop - Wild Wagon" {
-    password: 86578200
+    id: 86578200
     type: Continuous Spell
 
     raw_effect "Effect 1" {
@@ -24,7 +24,7 @@ card "Abyss Prop - Wild Wagon" {
 
     raw_effect "Effect 3" {
         effect_type: Ignition
-        property: 16
+        property: CardTarget
         range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
@@ -39,7 +39,7 @@ card "Abyss Prop - Wild Wagon" {
         effect_type: Single + Trigger
         category: ToHand
         code: Destroyed
-        property: 65536
+        property: Delay
         on_resolve {
             return (1+, card, opponent controls) to hand
         }
@@ -47,8 +47,8 @@ card "Abyss Prop - Wild Wagon" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 71
-        property: 67108864
+        code: CannotDirectAttack2
+        property: IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }

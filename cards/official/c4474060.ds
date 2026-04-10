@@ -3,7 +3,7 @@
 // Transpiled from c4474060.lua
 
 card "SPYRAL GEAR - Drone" {
-    password: 4474060
+    id: 4474060
     type: Effect Monster
     attribute: WIND
     race: Machine
@@ -14,7 +14,7 @@ card "SPYRAL GEAR - Drone" {
     raw_effect "Effect 1" {
         effect_type: Single + Trigger
         code: SummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             send_to_deck (1+, card, you controls)
         }
@@ -23,7 +23,7 @@ card "SPYRAL GEAR - Drone" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             send_to_deck (1+, card, you controls)
         }
@@ -33,7 +33,7 @@ card "SPYRAL GEAR - Drone" {
         effect_type: QuickEffect
         category: SynchroSummon
         code: FreeChain
-        property: 16400
+        property: CardTarget + Oath
         range: MonsterZone
         cost {
             tribute self
@@ -49,7 +49,7 @@ card "SPYRAL GEAR - Drone" {
     raw_effect "Effect 4" {
         effect_type: Ignition
         category: ToHand
-        property: 16
+        property: CardTarget
         range: Graveyard
         cost {
             banish self

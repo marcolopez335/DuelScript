@@ -3,7 +3,7 @@
 // Transpiled from c33206889.lua
 
 card "Performage Trapeze Witch" {
-    password: 33206889
+    id: 33206889
     type: Fusion Monster
     attribute: DARK
     race: Spellcaster
@@ -22,8 +22,8 @@ card "Performage Trapeze Witch" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 71
-        property: 128
+        code: CannotDirectAttack2
+        property: SetAvailable
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -32,7 +32,7 @@ card "Performage Trapeze Witch" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 41
+        code: IndestructableEffect
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -42,7 +42,7 @@ card "Performage Trapeze Witch" {
     raw_effect "Effect 3" {
         effect_type: Single
         code: 70
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }

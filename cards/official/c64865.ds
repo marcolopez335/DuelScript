@@ -3,7 +3,7 @@
 // Transpiled from c64865.lua
 
 card "Cyberse Code Magician" {
-    password: 64865
+    id: 64865
     type: Ritual Monster
     attribute: DARK
     race: Cyberse
@@ -23,7 +23,7 @@ card "Cyberse Code Magician" {
     raw_effect "Effect 1" {
         effect_type: Field
         code: 358
-        property: 2048
+        property: InitialValue
         range: Hand
         on_resolve {
         }
@@ -33,7 +33,7 @@ card "Cyberse Code Magician" {
         effect_type: Single + Trigger
         category: ToGrave + SpecialSummon
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 64865)
         on_resolve {
             send (1+, card, you controls, deck) to gy
@@ -47,8 +47,8 @@ card "Cyberse Code Magician" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

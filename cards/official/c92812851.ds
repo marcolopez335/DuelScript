@@ -3,7 +3,7 @@
 // Transpiled from c92812851.lua
 
 card "Exceed the Pendulum" {
-    password: 92812851
+    id: 92812851
     type: Link Monster
     attribute: LIGHT
     race: Spellcaster
@@ -22,8 +22,8 @@ card "Exceed the Pendulum" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -34,7 +34,7 @@ card "Exceed the Pendulum" {
         effect_type: Single + Trigger
         category: ToHand
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 92812851)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy

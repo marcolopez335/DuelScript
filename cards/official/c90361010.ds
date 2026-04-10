@@ -3,7 +3,7 @@
 // Transpiled from c90361010.lua
 
 card "Superheavy Samurai Soulpiercer" {
-    password: 90361010
+    id: 90361010
     type: Effect Monster
     attribute: EARTH
     race: Machine
@@ -14,7 +14,7 @@ card "Superheavy Samurai Soulpiercer" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: EquipAction
-        property: 16
+        property: CardTarget
         range: Hand + MonsterZone
         on_resolve {
             send (1+, monster, you controls, deck) to gy
@@ -26,7 +26,7 @@ card "Superheavy Samurai Soulpiercer" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: ChainEnd
-        property: 81920
+        property: Oath + Delay
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)
@@ -35,15 +35,15 @@ card "Superheavy Samurai Soulpiercer" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 76
-        property: 1024
+        code: CannotAttack2
+        property: BothSide
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
         effect_type: Equip
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }

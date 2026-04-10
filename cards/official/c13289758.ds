@@ -3,7 +3,7 @@
 // Transpiled from c13289758.lua
 
 card "Gaia Stream, the Graceful Force" {
-    password: 13289758
+    id: 13289758
     type: Xyz Monster
     attribute: WATER
     race: Aqua
@@ -24,14 +24,14 @@ card "Gaia Stream, the Graceful Force" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 238
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 73
+        code: CannotAttackAnnounce
         on_resolve {
             register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
         }
@@ -39,8 +39,8 @@ card "Gaia Stream, the Graceful Force" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0

@@ -3,7 +3,7 @@
 // Transpiled from c16261341.lua
 
 card "Sacred Arch-Airknight Parshath" {
-    password: 16261341
+    id: 16261341
     type: Effect Monster
     attribute: LIGHT
     race: Fairy
@@ -19,7 +19,7 @@ card "Sacred Arch-Airknight Parshath" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: Chaining
-        property: 65536
+        property: Delay
         range: Hand + Graveyard
         cost {
             banish self
@@ -32,8 +32,8 @@ card "Sacred Arch-Airknight Parshath" {
     raw_effect "Effect 2" {
         effect_type: Field + Trigger
         category: SpecialSummon
-        code: 1024
-        property: 65536
+        code: SentToHand
+        property: Delay
         range: Hand + Graveyard
         cost {
             banish self
@@ -45,7 +45,7 @@ card "Sacred Arch-Airknight Parshath" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }
@@ -54,7 +54,7 @@ card "Sacred Arch-Airknight Parshath" {
     raw_effect "Effect 4" {
         effect_type: Single + Trigger
         category: ToHand + Search
-        code: 1143
+        code: BattleDestroyed
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
             reveal (1+, card, opponent controls)

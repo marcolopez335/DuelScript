@@ -3,7 +3,7 @@
 // Transpiled from c10375182.lua
 
 card "Command Knight" {
-    password: 10375182
+    id: 10375182
     type: Effect Monster
     attribute: FIRE
     race: Warrior
@@ -14,7 +14,7 @@ card "Command Knight" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 70
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -23,7 +23,7 @@ card "Command Knight" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 400

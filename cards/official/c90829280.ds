@@ -3,7 +3,7 @@
 // Transpiled from c90829280.lua
 
 card "Spirit of Yubel" {
-    password: 90829280
+    id: 90829280
     type: Effect Monster
     attribute: DARK
     race: Fiend
@@ -17,7 +17,7 @@ card "Spirit of Yubel" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -35,7 +35,7 @@ card "Spirit of Yubel" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 65536
+        property: Delay
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -56,7 +56,7 @@ card "Spirit of Yubel" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1, card, you controls) from gy

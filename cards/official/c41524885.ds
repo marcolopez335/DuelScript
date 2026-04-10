@@ -3,7 +3,7 @@
 // Transpiled from c41524885.lua
 
 card "Exosister Asophiel" {
-    password: 41524885
+    id: 41524885
     type: Xyz Monster
     attribute: LIGHT
     race: Warrior
@@ -23,15 +23,15 @@ card "Exosister Asophiel" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -41,7 +41,7 @@ card "Exosister Asophiel" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 41524885)
         on_resolve {
             register_effect on self {
@@ -54,7 +54,7 @@ card "Exosister Asophiel" {
     raw_effect "Effect 4" {
         effect_type: Ignition
         category: ToHand
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         cost {

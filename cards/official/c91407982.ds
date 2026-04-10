@@ -3,7 +3,7 @@
 // Transpiled from c91407982.lua
 
 card "Fortune Vision" {
-    password: 91407982
+    id: 91407982
     type: Continuous Spell
 
     raw_effect "Effect 1" {
@@ -20,7 +20,7 @@ card "Fortune Vision" {
     raw_effect "Effect 2" {
         effect_type: Field + Trigger
         code: TurnEnd
-        property: 65536
+        property: Delay
         range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
@@ -35,7 +35,7 @@ card "Fortune Vision" {
     raw_effect "Effect 3" {
         effect_type: Field + Trigger
         code: TurnEnd
-        property: 65536
+        property: Delay
         range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
@@ -48,8 +48,8 @@ card "Fortune Vision" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 41
-        property: 256
+        code: IndestructableEffect
+        property: IgnoreRange
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
@@ -58,7 +58,7 @@ card "Fortune Vision" {
     raw_effect "Effect 5" {
         effect_type: Field
         code: 201
-        property: 67110912
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

@@ -3,7 +3,7 @@
 // Transpiled from c28115467.lua
 
 card "MiSolfachord Eliteia" {
-    password: 28115467
+    id: 28115467
     type: Effect Monster | Pendulum Monster
     attribute: WATER
     race: Fairy
@@ -15,7 +15,7 @@ card "MiSolfachord Eliteia" {
     raw_effect "Effect 1" {
         effect_type: Field
         code: 27
-        property: 288
+        property: IgnoreRange
         range: PendulumZone
         on_resolve {
         }
@@ -25,7 +25,7 @@ card "MiSolfachord Eliteia" {
         effect_type: Single + Trigger
         category: ToHand
         code: SummonSuccess
-        property: 81936
+        property: CardTarget + Oath + Delay
         count_limit: (1, 28115467)
         on_resolve {
             add_to_hand (1+, spell, either_player controls) from gy
@@ -36,7 +36,7 @@ card "MiSolfachord Eliteia" {
         effect_type: Single + Trigger
         category: ToHand
         code: SpecialSummonSuccess
-        property: 81936
+        property: CardTarget + Oath + Delay
         count_limit: (1, 28115467)
         on_resolve {
             add_to_hand (1+, spell, either_player controls) from gy
@@ -46,7 +46,7 @@ card "MiSolfachord Eliteia" {
     raw_effect "Effect 4" {
         effect_type: Field
         code: 201
-        property: 128
+        property: SetAvailable
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

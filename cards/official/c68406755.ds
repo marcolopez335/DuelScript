@@ -3,7 +3,7 @@
 // Transpiled from c68406755.lua
 
 card "Triamid Sphinx" {
-    password: 68406755
+    id: 68406755
     type: Effect Monster | Spirit
     attribute: EARTH
     race: Rock
@@ -17,8 +17,8 @@ card "Triamid Sphinx" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -27,7 +27,7 @@ card "Triamid Sphinx" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 81920
+        property: Oath + Delay
         range: Hand
         on_resolve {
             special_summon (1, monster) from gy
@@ -36,8 +36,8 @@ card "Triamid Sphinx" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -46,8 +46,8 @@ card "Triamid Sphinx" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 104
-        property: 131072
+        code: UpdateDefense
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: def + 0

@@ -3,7 +3,7 @@
 // Transpiled from c70488851.lua
 
 card "Vidrium the Power Patron of Chaos Extermination" {
-    password: 70488851
+    id: 70488851
     // FIXME: card not found in CDB — type/stats are placeholders
     type: Effect Monster
     attribute: DARK
@@ -18,8 +18,8 @@ card "Vidrium the Power Patron of Chaos Extermination" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Graveyard + Deck
         on_resolve {
             return (1+, monster, you controls) to deck shuffle
@@ -45,7 +45,7 @@ card "Vidrium the Power Patron of Chaos Extermination" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: ChainSolved
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
@@ -64,8 +64,8 @@ card "Vidrium the Power Patron of Chaos Extermination" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 1
-        property: 131072
+        code: ImmuneEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -74,7 +74,7 @@ card "Vidrium the Power Patron of Chaos Extermination" {
 
     raw_effect "Effect 6" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 5000
         }

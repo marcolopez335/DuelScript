@@ -3,14 +3,14 @@
 // Transpiled from c6556178.lua
 
 card "Borrel Regenerator" {
-    password: 6556178
+    id: 6556178
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         count_limit: (1, 6556178)
         on_resolve {
             special_summon (1, monster) from gy
@@ -20,7 +20,7 @@ card "Borrel Regenerator" {
 
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
-        code: 1015
+        code: ChainNegated
         on_resolve {
             banish (1+, card, either_player controls)
         }
@@ -30,7 +30,7 @@ card "Borrel Regenerator" {
         effect_type: Single + Trigger
         category: Draw
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             draw 1

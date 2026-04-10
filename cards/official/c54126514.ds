@@ -3,7 +3,7 @@
 // Transpiled from c54126514.lua
 
 card "Altergeist Peritrator" {
-    password: 54126514
+    id: 54126514
     type: Effect Monster
     attribute: FIRE
     race: Spellcaster
@@ -22,8 +22,8 @@ card "Altergeist Peritrator" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: Draw
-        code: 1143
-        property: 2048
+        code: BattleDestroyed
+        property: InitialValue
         count_limit: (1, 54126514)
         on_resolve {
             draw 1
@@ -34,7 +34,7 @@ card "Altergeist Peritrator" {
         effect_type: Single + Trigger
         category: ToGrave
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, you controls, hand) to gy

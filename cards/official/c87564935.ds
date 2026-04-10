@@ -3,7 +3,7 @@
 // Transpiled from c87564935.lua
 
 card "Metallizing Parasite - Soltite" {
-    password: 87564935
+    id: 87564935
     type: Effect Monster | Gemini
     attribute: WATER
     race: Aqua
@@ -17,8 +17,8 @@ card "Metallizing Parasite - Soltite" {
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 71
-        property: 128
+        code: CannotDirectAttack2
+        property: SetAvailable
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
@@ -26,7 +26,7 @@ card "Metallizing Parasite - Soltite" {
 
     raw_effect "Effect 2" {
         effect_type: Equip
-        code: 41
+        code: IndestructableEffect
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
@@ -50,7 +50,7 @@ card "Metallizing Parasite - Soltite" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 76
+        code: CannotAttack2
         on_resolve {
         }
     }

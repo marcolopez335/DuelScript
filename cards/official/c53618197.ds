@@ -3,7 +3,7 @@
 // Transpiled from c53618197.lua
 
 card "Confiras de Nouvelles" {
-    password: 53618197
+    id: 53618197
     type: Ritual Monster
     attribute: DARK
     race: Warrior
@@ -23,7 +23,7 @@ card "Confiras de Nouvelles" {
     raw_effect "Effect 1" {
         effect_type: Single + Continuous
         code: SpecialSummonSuccess
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
@@ -32,7 +32,7 @@ card "Confiras de Nouvelles" {
         effect_type: Single + Trigger
         category: Destroy
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 53618197)
         on_resolve {
             destroy (1+, spell, either_player controls)
@@ -42,7 +42,7 @@ card "Confiras de Nouvelles" {
     raw_effect "Effect 3" {
         effect_type: QuickEffect
         category: Release + SpecialSummon
-        code: 1028
+        code: BecomeTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

@@ -3,7 +3,7 @@
 // Transpiled from c91237821.lua
 
 card "Clown Crew Devils" {
-    password: 91237821
+    id: 91237821
     // FIXME: card not found in CDB — type/stats are placeholders
     type: Effect Monster
     attribute: DARK
@@ -18,7 +18,7 @@ card "Clown Crew Devils" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 1000
@@ -27,8 +27,8 @@ card "Clown Crew Devils" {
 
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
-        code: Release
-        property: 65536
+        code: Released
+        property: Delay
         on_resolve {
             return (1+, spell, either_player controls) to deck shuffle
             set (1, card)

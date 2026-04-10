@@ -3,7 +3,7 @@
 // Transpiled from c39618799.lua
 
 card "Cyber Angel Dakini" {
-    password: 39618799
+    id: 39618799
     type: Ritual Monster
     attribute: LIGHT
     race: Fairy
@@ -24,7 +24,7 @@ card "Cyber Angel Dakini" {
         effect_type: Single + Trigger
         category: ToGrave
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             send (1+, monster, you controls) to gy
         }
@@ -32,7 +32,7 @@ card "Cyber Angel Dakini" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 203
+        code: GraveRedirectCb
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
@@ -42,8 +42,8 @@ card "Cyber Angel Dakini" {
     raw_effect "Effect 3" {
         effect_type: Field + Trigger
         category: ToHand
-        code: 4608
-        property: 16
+        code: PhaseEnd
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

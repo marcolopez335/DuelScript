@@ -3,7 +3,7 @@
 // Transpiled from c60306277.lua
 
 card "Synchro Zone" {
-    password: 60306277
+    id: 60306277
     type: Continuous Trap
 
     raw_effect "Effect 1" {
@@ -16,7 +16,7 @@ card "Synchro Zone" {
     raw_effect "Effect 2" {
         effect_type: Field
         code: 86
-        property: 128
+        property: SetAvailable
         range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -27,7 +27,7 @@ card "Synchro Zone" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: 328741733
-        property: 65552
+        property: CardTarget + Delay
         range: SpellTrapZone
         count_limit: (1, 60306277)
         on_resolve {
@@ -42,7 +42,7 @@ card "Synchro Zone" {
     raw_effect "Effect 4" {
         effect_type: Field + Continuous
         code: ChainEnd
-        property: 1024
+        property: BothSide
         range: SpellTrapZone
         on_resolve {
             emit_event "custom"
@@ -65,7 +65,7 @@ card "Synchro Zone" {
     raw_effect "Effect 6" {
         effect_type: Single
         code: 115
-        property: 1152
+        property: SetAvailable + BothSide
         on_resolve {
         }
     }

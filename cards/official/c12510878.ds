@@ -3,7 +3,7 @@
 // Transpiled from c12510878.lua
 
 card "Neo-Parshath, the Sky Paladin" {
-    password: 12510878
+    id: 12510878
     type: Effect Monster
     attribute: LIGHT
     race: Fairy
@@ -17,8 +17,8 @@ card "Neo-Parshath, the Sky Paladin" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             tribute (1, monster, you controls)
@@ -28,8 +28,8 @@ card "Neo-Parshath, the Sky Paladin" {
     raw_effect "Effect 2" {
         effect_type: Single + MandatoryTrigger
         category: Draw
-        code: 1143
-        property: 2048
+        code: BattleDestroyed
+        property: InitialValue
         on_resolve {
             draw 1
         }
@@ -37,7 +37,7 @@ card "Neo-Parshath, the Sky Paladin" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }
@@ -45,8 +45,8 @@ card "Neo-Parshath, the Sky Paladin" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -55,8 +55,8 @@ card "Neo-Parshath, the Sky Paladin" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 104
-        property: 131072
+        code: UpdateDefense
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: def + 0

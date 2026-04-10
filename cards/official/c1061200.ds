@@ -3,7 +3,7 @@
 // Transpiled from c1061200.lua
 
 card "F.A. City Grand Prix" {
-    password: 1061200
+    id: 1061200
     type: Field Spell
 
     raw_effect "Effect 1" {
@@ -15,7 +15,7 @@ card "F.A. City Grand Prix" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 130
+        code: ChangePosition
         range: FieldZone
         on_resolve {
         }
@@ -23,8 +23,8 @@ card "F.A. City Grand Prix" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 71
-        property: 128
+        code: CannotDirectAttack2
+        property: SetAvailable
         range: FieldZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -35,7 +35,7 @@ card "F.A. City Grand Prix" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: Destroyed
-        property: 65536
+        property: Delay
         count_limit: (1, 1061200)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck

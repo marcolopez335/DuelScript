@@ -3,7 +3,7 @@
 // Transpiled from c95973569.lua
 
 card "T.G. Glaive Blaster" {
-    password: 95973569
+    id: 95973569
     type: Synchro Monster
     attribute: EARTH
     race: Machine
@@ -23,15 +23,15 @@ card "T.G. Glaive Blaster" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }
@@ -40,7 +40,7 @@ card "T.G. Glaive Blaster" {
         effect_type: QuickEffect
         category: Banish
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         on_resolve {
             banish (1+, monster, either_player controls)
@@ -51,7 +51,7 @@ card "T.G. Glaive Blaster" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: 364409025
-        property: 65552
+        property: CardTarget + Delay
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -62,7 +62,7 @@ card "T.G. Glaive Blaster" {
     raw_effect "Effect 5" {
         effect_type: Field + Continuous
         code: TurnEnd
-        property: 1024
+        property: BothSide
         range: MonsterZone
         on_resolve {
             emit_event "custom"

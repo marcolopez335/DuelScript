@@ -3,7 +3,7 @@
 // Transpiled from c26949946.lua
 
 card "Mecha Phantom Beast Jaculuslan" {
-    password: 26949946
+    id: 26949946
     type: Synchro Monster
     attribute: WIND
     race: Machine
@@ -35,7 +35,7 @@ card "Mecha Phantom Beast Jaculuslan" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -44,7 +44,7 @@ card "Mecha Phantom Beast Jaculuslan" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 41
+        code: IndestructableEffect
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -54,7 +54,7 @@ card "Mecha Phantom Beast Jaculuslan" {
     raw_effect "Effect 4" {
         effect_type: Single + Trigger
         code: Destroyed
-        property: 81920
+        property: Oath + Delay
         on_resolve {
             set (1, card)
         }

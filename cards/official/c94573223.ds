@@ -3,7 +3,7 @@
 // Transpiled from c94573223.lua
 
 card "Inzektor Giga-Mantis" {
-    password: 94573223
+    id: 94573223
     type: Effect Monster
     attribute: DARK
     race: Insect
@@ -18,7 +18,7 @@ card "Inzektor Giga-Mantis" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: EquipAction
-        property: 16
+        property: CardTarget
         range: Hand
         on_resolve {
             send (1+, card, either_player controls) to gy
@@ -28,7 +28,7 @@ card "Inzektor Giga-Mantis" {
 
     raw_effect "Effect 2" {
         effect_type: Equip
-        code: 103
+        code: SetBaseAttack
         on_resolve {
         }
     }
@@ -37,7 +37,7 @@ card "Inzektor Giga-Mantis" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 94573223)
         on_resolve {
             special_summon (1, monster) from gy

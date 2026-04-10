@@ -3,7 +3,7 @@
 // Transpiled from c12398280.lua
 
 card "Freya, Spirit of Victory" {
-    password: 12398280
+    id: 12398280
     type: Effect Monster
     attribute: LIGHT
     race: Fairy
@@ -13,7 +13,7 @@ card "Freya, Spirit of Victory" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 400
@@ -22,7 +22,7 @@ card "Freya, Spirit of Victory" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 104
+        code: UpdateDefense
         range: MonsterZone
         on_resolve {
             modifier: def + 400
@@ -32,7 +32,7 @@ card "Freya, Spirit of Victory" {
     raw_effect "Effect 3" {
         effect_type: Single
         code: 70
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }

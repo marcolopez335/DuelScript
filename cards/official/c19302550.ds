@@ -3,7 +3,7 @@
 // Transpiled from c19302550.lua
 
 card "D/D Savant Newton" {
-    password: 19302550
+    id: 19302550
     type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
@@ -18,8 +18,8 @@ card "D/D Savant Newton" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 22
-        property: 3584
+        code: CannotDisable
+        property: IgnoreImmune + BothSide + InitialValue
         range: PendulumZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -39,7 +39,7 @@ card "D/D Savant Newton" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: ToHand
-        property: 16
+        property: CardTarget
         range: Hand
         count_limit: (1, 19302550)
         cost {

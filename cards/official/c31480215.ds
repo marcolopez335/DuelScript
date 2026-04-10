@@ -3,7 +3,7 @@
 // Transpiled from c31480215.lua
 
 card "Mecha Phantom Beast Warbluran" {
-    password: 31480215
+    id: 31480215
     type: Effect Monster | Tuner
     attribute: WIND
     race: Machine
@@ -14,7 +14,7 @@ card "Mecha Phantom Beast Warbluran" {
     raw_effect "Effect 1" {
         effect_type: Single + MandatoryTrigger
         category: SpecialSummon + Token
-        code: 1108
+        code: FlipSuccess
         count_limit: (1, 31480215)
         on_resolve {
             register_effect on self {
@@ -28,8 +28,8 @@ card "Mecha Phantom Beast Warbluran" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -38,8 +38,8 @@ card "Mecha Phantom Beast Warbluran" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

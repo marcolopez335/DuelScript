@@ -3,7 +3,7 @@
 // Transpiled from c71525232.lua
 
 card "Gandora-X the Dragon of Demolition" {
-    password: 71525232
+    id: 71525232
     type: Effect Monster
     attribute: DARK
     race: Dragon
@@ -37,7 +37,7 @@ card "Gandora-X the Dragon of Demolition" {
 
     raw_effect "Effect 3" {
         effect_type: Field + MandatoryTrigger
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -46,7 +46,7 @@ card "Gandora-X the Dragon of Demolition" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 102
+        code: SetAttackFinal
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

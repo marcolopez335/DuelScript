@@ -3,7 +3,7 @@
 // Transpiled from c47705572.lua
 
 card "Lunalight Wolf" {
-    password: 47705572
+    id: 47705572
     type: Effect Monster | Pendulum Monster
     attribute: LIGHT
     race: Beast-Warrior
@@ -18,8 +18,8 @@ card "Lunalight Wolf" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 22
-        property: 3584
+        code: CannotDisable
+        property: IgnoreImmune + BothSide + InitialValue
         range: PendulumZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -28,7 +28,7 @@ card "Lunalight Wolf" {
 
     raw_effect "Effect 2" {
         effect_type: Ignition
-        category: SpecialSummon
+        category: SpecialSummon + Control
         range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
@@ -37,7 +37,7 @@ card "Lunalight Wolf" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 203
+        code: GraveRedirectCb
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }

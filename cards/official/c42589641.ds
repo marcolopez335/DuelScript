@@ -3,7 +3,7 @@
 // Transpiled from c42589641.lua
 
 card "Stellarknight Triverr" {
-    password: 42589641
+    id: 42589641
     type: Xyz Monster
     attribute: LIGHT
     race: Warrior
@@ -24,7 +24,7 @@ card "Stellarknight Triverr" {
     raw_effect "Effect 1" {
         effect_type: Single + Continuous
         code: SpecialSummonSuccess
-        property: 1024
+        property: BothSide
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -35,8 +35,8 @@ card "Stellarknight Triverr" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -53,7 +53,7 @@ card "Stellarknight Triverr" {
     raw_effect "Effect 4" {
         effect_type: Ignition
         category: ToGrave
-        property: 2048
+        property: InitialValue
         range: MonsterZone
         count_limit: (1, 0)
         cost {
@@ -68,7 +68,7 @@ card "Stellarknight Triverr" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: ChainEnd
-        property: 81936
+        property: CardTarget + Oath + Delay
         on_resolve {
             special_summon (1, monster) from gy
         }

@@ -3,7 +3,7 @@
 // Transpiled from c21970285.lua
 
 card "Dragon Horn Hunter" {
-    password: 21970285
+    id: 21970285
     type: Normal Monster | Pendulum Monster
     attribute: DARK
     race: Warrior
@@ -19,7 +19,7 @@ card "Dragon Horn Hunter" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: PendulumZone
         on_resolve {
             modifier: atk + 200
@@ -29,7 +29,7 @@ card "Dragon Horn Hunter" {
     raw_effect "Effect 2" {
         effect_type: Field
         code: 201
-        property: 128
+        property: SetAvailable
         range: PendulumZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

@@ -3,7 +3,7 @@
 // Transpiled from c58153103.lua
 
 card "Armed Dragon Thunder LV10" {
-    password: 58153103
+    id: 58153103
     type: Effect Monster
     attribute: WIND
     race: Dragon
@@ -18,7 +18,7 @@ card "Armed Dragon Thunder LV10" {
     raw_effect "Effect 1" {
         effect_type: Single + Continuous
         code: SpecialSummonSuccess
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
@@ -26,7 +26,7 @@ card "Armed Dragon Thunder LV10" {
     raw_effect "Effect 2" {
         effect_type: Single
         code: 114
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -34,8 +34,8 @@ card "Armed Dragon Thunder LV10" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 5
-        property: 131072
+        code: CannotTrigger
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -43,8 +43,8 @@ card "Armed Dragon Thunder LV10" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -55,7 +55,7 @@ card "Armed Dragon Thunder LV10" {
         effect_type: QuickEffect
         category: Destroy + SynchroSummon
         code: FreeChain
-        property: 16400
+        property: CardTarget + Oath
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

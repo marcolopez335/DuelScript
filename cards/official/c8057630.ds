@@ -3,14 +3,14 @@
 // Transpiled from c8057630.lua
 
 card "Core Reinforcement" {
-    password: 8057630
+    id: 8057630
     type: Continuous Trap
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -18,7 +18,7 @@ card "Core Reinforcement" {
 
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
-        code: 1015
+        code: ChainNegated
         on_resolve {
             destroy (1+, card, either_player controls)
             deal_damage to opponent: 1000
@@ -27,7 +27,7 @@ card "Core Reinforcement" {
 
     raw_effect "Effect 3" {
         effect_type: Field + Continuous
-        code: 1015
+        code: ChainNegated
         range: SpellTrapZone
         on_resolve {
             deal_damage to opponent: 1000

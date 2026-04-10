@@ -3,7 +3,7 @@
 // Transpiled from c93368494.lua
 
 card "Mayosenju Daibak" {
-    password: 93368494
+    id: 93368494
     type: Effect Monster | Pendulum Monster
     attribute: WIND
     race: Beast
@@ -31,8 +31,8 @@ card "Mayosenju Daibak" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -40,7 +40,7 @@ card "Mayosenju Daibak" {
     raw_effect "Effect 3" {
         effect_type: Single
         code: 27
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -49,7 +49,7 @@ card "Mayosenju Daibak" {
         effect_type: Single + Trigger
         category: ToHand
         code: SummonSuccess
-        property: 81936
+        property: CardTarget + Oath + Delay
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }
@@ -59,7 +59,7 @@ card "Mayosenju Daibak" {
         effect_type: Single + Trigger
         category: ToHand
         code: SpecialSummonSuccess
-        property: 81936
+        property: CardTarget + Oath + Delay
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }
@@ -68,7 +68,7 @@ card "Mayosenju Daibak" {
     raw_effect "Effect 6" {
         effect_type: Field + MandatoryTrigger
         category: ToHand
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -79,7 +79,7 @@ card "Mayosenju Daibak" {
     raw_effect "Effect 7" {
         effect_type: Field + Continuous
         code: SpecialSummonSuccess
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }

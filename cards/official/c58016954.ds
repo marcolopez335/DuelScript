@@ -3,7 +3,7 @@
 // Transpiled from c58016954.lua
 
 card "Shaddoll Zefranaga" {
-    password: 58016954
+    id: 58016954
     type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Spellcaster
@@ -14,8 +14,8 @@ card "Shaddoll Zefranaga" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 22
-        property: 3584
+        code: CannotDisable
+        property: IgnoreImmune + BothSide + InitialValue
         range: PendulumZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -26,7 +26,7 @@ card "Shaddoll Zefranaga" {
         effect_type: Single + Trigger
         category: ToHand
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 58016954)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
@@ -37,7 +37,7 @@ card "Shaddoll Zefranaga" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 58016954)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy

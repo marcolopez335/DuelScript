@@ -3,14 +3,14 @@
 // Transpiled from c3891471.lua
 
 card "Psychic Tuning" {
-    password: 3891471
+    id: 3891471
     type: Continuous Trap
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {
@@ -22,7 +22,7 @@ card "Psychic Tuning" {
 
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
-        code: 1015
+        code: ChainNegated
         on_resolve {
             destroy (1+, card, either_player controls)
         }
@@ -30,7 +30,7 @@ card "Psychic Tuning" {
 
     raw_effect "Effect 3" {
         effect_type: Field + Continuous
-        code: 1015
+        code: ChainNegated
         range: SpellTrapZone
         on_resolve {
             destroy (1+, card, either_player controls)

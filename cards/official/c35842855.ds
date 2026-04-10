@@ -3,7 +3,7 @@
 // Transpiled from c35842855.lua
 
 card "Pyrorex the Elemental Lord" {
-    password: 35842855
+    id: 35842855
     type: Effect Monster | Spirit
     attribute: FIRE
     race: Dinosaur
@@ -17,16 +17,16 @@ card "Pyrorex the Elemental Lord" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
         }
@@ -36,7 +36,7 @@ card "Pyrorex the Elemental Lord" {
         effect_type: Single + Trigger
         category: Destroy + Damage
         code: SpecialSummonSuccess
-        property: 16
+        property: CardTarget
         count_limit: (1, 35842855)
         on_resolve {
             destroy (1+, card, you controls, gy)
@@ -48,7 +48,7 @@ card "Pyrorex the Elemental Lord" {
     raw_effect "Effect 4" {
         effect_type: Single + Continuous
         code: 1019
-        property: 1536
+        property: IgnoreImmune + BothSide
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

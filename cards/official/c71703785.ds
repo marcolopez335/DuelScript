@@ -3,7 +3,7 @@
 // Transpiled from c71703785.lua
 
 card "Palladium Oracle Mahad" {
-    password: 71703785
+    id: 71703785
     type: Effect Monster
     attribute: LIGHT
     race: Spellcaster
@@ -27,8 +27,8 @@ card "Palladium Oracle Mahad" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 102
-        property: 131072
+        code: SetAttackFinal
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -39,7 +39,7 @@ card "Palladium Oracle Mahad" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 65536
+        property: Delay
         on_resolve {
             special_summon (1, monster) from gy
         }

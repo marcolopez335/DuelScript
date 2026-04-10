@@ -3,7 +3,7 @@
 // Transpiled from c86098176.lua
 
 card "Assault Lich" {
-    password: 86098176
+    id: 86098176
     type: Effect Monster | Tuner
     attribute: DARK
     race: Zombie
@@ -14,7 +14,7 @@ card "Assault Lich" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 244
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -24,7 +24,7 @@ card "Assault Lich" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 86098176)
         on_resolve {
             special_summon (1, monster) from gy
@@ -35,7 +35,7 @@ card "Assault Lich" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 86098176)
         on_resolve {
             special_summon (1, monster) from gy
@@ -45,8 +45,8 @@ card "Assault Lich" {
     raw_effect "Effect 4" {
         effect_type: Single + Trigger
         category: ToHand + Search
-        code: 1108
-        property: 65536
+        code: FlipSuccess
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from gy

@@ -3,7 +3,7 @@
 // Transpiled from c21351206.lua
 
 card "Infernoble Knight Ogier" {
-    password: 21351206
+    id: 21351206
     type: Effect Monster
     attribute: FIRE
     race: Warrior
@@ -15,7 +15,7 @@ card "Infernoble Knight Ogier" {
         effect_type: Single + Trigger
         category: ToGrave
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 21351206)
         on_resolve {
             send (1+, card, you controls, deck) to gy
@@ -26,7 +26,7 @@ card "Infernoble Knight Ogier" {
         effect_type: Single + Trigger
         category: ToGrave
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 21351206)
         on_resolve {
             send (1+, card, you controls, deck) to gy
@@ -36,7 +36,7 @@ card "Infernoble Knight Ogier" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: EquipAction
-        property: 16
+        property: CardTarget
         range: Graveyard
         count_limit: (1, 0)
         on_resolve {
@@ -46,7 +46,7 @@ card "Infernoble Knight Ogier" {
 
     raw_effect "Effect 4" {
         effect_type: Equip
-        code: 41
+        code: IndestructableEffect
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }

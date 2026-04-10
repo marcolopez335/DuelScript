@@ -3,7 +3,7 @@
 // Transpiled from c81237046.lua
 
 card "Enneacraft - Archa.TAIL" {
-    password: 81237046
+    id: 81237046
     type: Effect Monster | Pendulum Monster
     attribute: LIGHT
     race: Machine
@@ -28,7 +28,7 @@ card "Enneacraft - Archa.TAIL" {
         effect_type: Field + Trigger
         category: Destroy
         code: 4224
-        property: 16
+        property: CardTarget
         range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
@@ -51,7 +51,7 @@ card "Enneacraft - Archa.TAIL" {
     raw_effect "Effect 4" {
         effect_type: QuickEffect
         code: Chaining
-        property: 256
+        property: IgnoreRange
         range: MonsterZone
         on_resolve {
             set_flag "tracked" on self
@@ -65,7 +65,7 @@ card "Enneacraft - Archa.TAIL" {
     raw_effect "Effect 5" {
         effect_type: Single + Continuous
         code: 1001
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
@@ -97,15 +97,15 @@ card "Enneacraft - Archa.TAIL" {
     raw_effect "Effect 9" {
         effect_type: Field
         code: 427
-        property: 67635200
+        property: InitialValue + CannotDisable + IgnoreRange2
         on_resolve {
         }
     }
 
     raw_effect "Effect 10" {
         effect_type: Field
-        code: 41
-        property: 256
+        code: IndestructableEffect
+        property: IgnoreRange
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }

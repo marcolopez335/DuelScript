@@ -3,7 +3,7 @@
 // Transpiled from c87676171.lua
 
 card "Tistina, the Divinity that Defies Darkness" {
-    password: 87676171
+    id: 87676171
     type: Xyz Monster
     attribute: LIGHT
     race: Aqua
@@ -25,7 +25,7 @@ card "Tistina, the Divinity that Defies Darkness" {
         effect_type: Single + Trigger
         category: ToGrave
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 87676171)
         on_resolve {
             send (1+, card, opponent controls) to gy
@@ -48,7 +48,7 @@ card "Tistina, the Divinity that Defies Darkness" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 65536
+        property: Delay
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -57,14 +57,14 @@ card "Tistina, the Divinity that Defies Darkness" {
     raw_effect "Effect 4" {
         effect_type: Single + Continuous
         code: 1019
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 2000
         }

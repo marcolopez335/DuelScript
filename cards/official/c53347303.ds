@@ -3,7 +3,7 @@
 // Transpiled from c53347303.lua
 
 card "Blue-Eyes Shining Dragon" {
-    password: 53347303
+    id: 53347303
     type: Effect Monster | Spirit
     attribute: LIGHT
     race: Dragon
@@ -17,16 +17,16 @@ card "Blue-Eyes Shining Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             tribute (1, monster, you controls)
@@ -35,8 +35,8 @@ card "Blue-Eyes Shining Dragon" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -56,7 +56,7 @@ card "Blue-Eyes Shining Dragon" {
     raw_effect "Effect 5" {
         effect_type: Single
         code: 3682106
-        property: 394240
+        property: BothSide + SingleRange + Uncopyable
         range: MonsterZone
         on_resolve {
         }

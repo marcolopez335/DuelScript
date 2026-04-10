@@ -3,7 +3,7 @@
 // Transpiled from c22916418.lua
 
 card "Mantman the Ultrahuman" {
-    password: 22916418
+    id: 22916418
     type: Effect Monster
     attribute: LIGHT
     race: Psychic
@@ -17,8 +17,8 @@ card "Mantman the Ultrahuman" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 43
-        property: 131072
+        code: CannotBeBattleTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -26,8 +26,8 @@ card "Mantman the Ultrahuman" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 44
-        property: 131072
+        code: CannotRemove
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -35,8 +35,8 @@ card "Mantman the Ultrahuman" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -56,7 +56,7 @@ card "Mantman the Ultrahuman" {
     raw_effect "Effect 5" {
         effect_type: Field + Trigger
         category: ToHand + ToDeck
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

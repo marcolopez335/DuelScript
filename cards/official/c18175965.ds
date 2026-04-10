@@ -3,7 +3,7 @@
 // Transpiled from c18175965.lua
 
 card "Guardian Dreadscythe" {
-    password: 18175965
+    id: 18175965
     type: Effect Monster | Spirit
     attribute: DARK
     race: Fiend
@@ -17,8 +17,8 @@ card "Guardian Dreadscythe" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -43,7 +43,7 @@ card "Guardian Dreadscythe" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: ChainEnd
-        property: 81920
+        property: Oath + Delay
         range: Hand
         on_resolve {
             special_summon (1, monster) from gy
@@ -54,7 +54,7 @@ card "Guardian Dreadscythe" {
         effect_type: Single + Trigger
         category: EquipAction
         code: SpecialSummonSuccess
-        property: 16384
+        property: Oath
         on_resolve {
             equip (1, card) to (1, monster)
         }
@@ -63,7 +63,7 @@ card "Guardian Dreadscythe" {
     raw_effect "Effect 6" {
         effect_type: Field
         code: 20
-        property: 2048
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -72,8 +72,8 @@ card "Guardian Dreadscythe" {
 
     raw_effect "Effect 7" {
         effect_type: Field
-        code: 22
-        property: 2048
+        code: CannotDisable
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }

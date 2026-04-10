@@ -3,7 +3,7 @@
 // Transpiled from c50123605.lua
 
 card "Heavy Cavalry of the Indestructible Insects" {
-    password: 50123605
+    id: 50123605
     type: Fusion Monster
     attribute: EARTH
     race: Insect
@@ -22,8 +22,8 @@ card "Heavy Cavalry of the Indestructible Insects" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -34,7 +34,7 @@ card "Heavy Cavalry of the Indestructible Insects" {
         effect_type: QuickEffect
         category: Banish
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 50123605)
         on_resolve {

@@ -3,7 +3,7 @@
 // Transpiled from c84464389.lua
 
 card "Borreload Fatalflare Dragon" {
-    password: 84464389
+    id: 84464389
     type: Fusion Monster
     attribute: DARK
     race: Dragon
@@ -24,7 +24,7 @@ card "Borreload Fatalflare Dragon" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -35,7 +35,7 @@ card "Borreload Fatalflare Dragon" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: EquipAction
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -54,8 +54,8 @@ card "Borreload Fatalflare Dragon" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         category: Destroy
-        code: 1108
-        property: 65552
+        code: FlipSuccess
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, you controls, deck)
@@ -64,7 +64,7 @@ card "Borreload Fatalflare Dragon" {
 
     raw_effect "Effect 4" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 500
         }
@@ -72,8 +72,8 @@ card "Borreload Fatalflare Dragon" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 76
-        property: 1024
+        code: CannotAttack2
+        property: BothSide
         on_resolve {
         }
     }

@@ -3,7 +3,7 @@
 // Transpiled from c50042011.lua
 
 card "Mementotlan Shleepy" {
-    password: 50042011
+    id: 50042011
     type: Effect Monster
     attribute: EARTH
     race: Beast
@@ -24,9 +24,9 @@ card "Mementotlan Shleepy" {
 
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
-        category: SpecialSummon
+        category: SpecialSummon + Control
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
         }
@@ -34,9 +34,9 @@ card "Mementotlan Shleepy" {
 
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
-        category: SpecialSummon
+        category: SpecialSummon + Control
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
         }
@@ -46,7 +46,7 @@ card "Mementotlan Shleepy" {
         effect_type: Single + Trigger
         category: ToGrave
         code: Destroyed
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             send (1+, monster, you controls, deck) to gy
@@ -55,7 +55,7 @@ card "Mementotlan Shleepy" {
 
     raw_effect "Effect 5" {
         effect_type: Field + Continuous
-        code: 1010
+        code: SpecialSummonAttempt
         on_resolve {
             set_flag "tracked" on self
         }

@@ -3,7 +3,7 @@
 // Transpiled from c59509952.lua
 
 card "Archlord Kristya" {
-    password: 59509952
+    id: 59509952
     type: Effect Monster
     attribute: LIGHT
     race: Fairy
@@ -17,8 +17,8 @@ card "Archlord Kristya" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
         }
@@ -26,8 +26,8 @@ card "Archlord Kristya" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 22
-        property: 2048
+        code: CannotDisable
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -36,8 +36,8 @@ card "Archlord Kristya" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 60
-        property: 1536
+        code: CannotAttack
+        property: IgnoreImmune + BothSide
         on_resolve {
         }
     }
@@ -46,7 +46,7 @@ card "Archlord Kristya" {
         effect_type: Single + MandatoryTrigger
         category: ToHand
         code: SpecialSummonSuccess
-        property: 16
+        property: CardTarget
         range: MonsterZone
         on_resolve {
             add_to_hand (1+, card, you controls) from gy

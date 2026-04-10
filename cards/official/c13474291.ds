@@ -3,7 +3,7 @@
 // Transpiled from c13474291.lua
 
 card "Cloudian - Storm Dragon" {
-    password: 13474291
+    id: 13474291
     type: Effect Monster | Spirit
     attribute: WATER
     race: Fairy
@@ -17,7 +17,7 @@ card "Cloudian - Storm Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -26,7 +26,7 @@ card "Cloudian - Storm Dragon" {
     raw_effect "Effect 2" {
         effect_type: Single
         code: 141
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -34,8 +34,8 @@ card "Cloudian - Storm Dragon" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             banish (1+, monster, you controls, gy)
@@ -44,7 +44,7 @@ card "Cloudian - Storm Dragon" {
 
     raw_effect "Effect 4" {
         effect_type: Ignition
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

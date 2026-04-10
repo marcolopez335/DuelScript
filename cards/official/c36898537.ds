@@ -3,7 +3,7 @@
 // Transpiled from c36898537.lua
 
 card "Metaphys Horus" {
-    password: 36898537
+    id: 36898537
     type: Synchro Monster
     attribute: LIGHT
     race: Wyrm
@@ -23,7 +23,7 @@ card "Metaphys Horus" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }
@@ -31,7 +31,7 @@ card "Metaphys Horus" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
         }
     }
@@ -40,7 +40,7 @@ card "Metaphys Horus" {
         effect_type: Single + Trigger
         category: Disable
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -57,7 +57,7 @@ card "Metaphys Horus" {
         effect_type: Single + Trigger
         category: Summon
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             take_control of (1, monster, opponent controls)
             register_effect on self {

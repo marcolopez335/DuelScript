@@ -3,7 +3,7 @@
 // Transpiled from c19652159.lua
 
 card "Light and Darkness Dragonlord" {
-    password: 19652159
+    id: 19652159
     type: Fusion Monster
     attribute: LIGHT
     race: Dragon
@@ -22,8 +22,8 @@ card "Light and Darkness Dragonlord" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 125
-        property: 131072
+        code: AddType
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -33,7 +33,7 @@ card "Light and Darkness Dragonlord" {
         effect_type: MandatoryQuick
         category: SynchroSummon + XyzSummon + Negate
         code: Chaining
-        property: 49152
+        property: Oath + CountCodeDuel
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -45,7 +45,7 @@ card "Light and Darkness Dragonlord" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -53,7 +53,7 @@ card "Light and Darkness Dragonlord" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         property: 8192
         on_resolve {
             modifier: atk - 1000
@@ -62,7 +62,7 @@ card "Light and Darkness Dragonlord" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 104
+        code: UpdateDefense
         property: 8192
         on_resolve {
             modifier: def - 1000

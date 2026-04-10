@@ -3,7 +3,7 @@
 // Transpiled from c74009824.lua
 
 card "El Shaddoll Wendigo" {
-    password: 74009824
+    id: 74009824
     type: Fusion Monster
     attribute: WIND
     race: Psychic
@@ -22,8 +22,8 @@ card "El Shaddoll Wendigo" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 394240
+        code: SpsummonCondition
+        property: BothSide + SingleRange + Uncopyable
         range: Deck
         on_resolve {
         }
@@ -32,7 +32,7 @@ card "El Shaddoll Wendigo" {
     raw_effect "Effect 2" {
         effect_type: QuickEffect
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 74009824)
         on_resolve {
@@ -47,7 +47,7 @@ card "El Shaddoll Wendigo" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             add_to_hand (1+, spell, either_player controls) from gy
         }

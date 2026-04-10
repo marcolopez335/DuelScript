@@ -3,7 +3,7 @@
 // Transpiled from c72246674.lua
 
 card "Gladiator Beast Dareios" {
-    password: 72246674
+    id: 72246674
     type: Link Monster
     attribute: EARTH
     race: Beast-Warrior
@@ -24,7 +24,7 @@ card "Gladiator Beast Dareios" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 72246674)
         on_resolve {
             special_summon (1, monster) from gy
@@ -37,7 +37,7 @@ card "Gladiator Beast Dareios" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -46,7 +46,7 @@ card "Gladiator Beast Dareios" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 41
+        code: IndestructableEffect
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -56,7 +56,7 @@ card "Gladiator Beast Dareios" {
     raw_effect "Effect 4" {
         effect_type: Field
         code: 239
-        property: 384
+        property: SetAvailable + IgnoreRange
         on_resolve {
         }
     }

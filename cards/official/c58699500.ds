@@ -3,7 +3,7 @@
 // Transpiled from c58699500.lua
 
 card "Cherubini, Ebon Angel of the Burning Abyss" {
-    password: 58699500
+    id: 58699500
     type: Link Monster
     attribute: DARK
     race: Fairy
@@ -22,8 +22,8 @@ card "Cherubini, Ebon Angel of the Burning Abyss" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 41
-        property: 256
+        code: IndestructableEffect
+        property: IgnoreRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -40,7 +40,7 @@ card "Cherubini, Ebon Angel of the Burning Abyss" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: SynchroSummon + XyzSummon
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 58699500)
         on_resolve {

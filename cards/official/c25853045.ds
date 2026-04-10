@@ -3,7 +3,7 @@
 // Transpiled from c25853045.lua
 
 card "Full Armored Black Ray Lancer" {
-    password: 25853045
+    id: 25853045
     type: Xyz Monster
     attribute: WATER
     race: Beast-Warrior
@@ -23,8 +23,8 @@ card "Full Armored Black Ray Lancer" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -41,8 +41,8 @@ card "Full Armored Black Ray Lancer" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         category: Destroy
-        code: 1139
-        property: 16
+        code: BattleConfirmed
+        property: CardTarget
         on_resolve {
             destroy (1+, spell, either_player controls)
         }

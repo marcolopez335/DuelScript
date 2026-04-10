@@ -3,7 +3,7 @@
 // Transpiled from c27279764.lua
 
 card "Apoqliphort Towers" {
-    password: 27279764
+    id: 27279764
     type: Effect Monster
     attribute: EARTH
     race: Machine
@@ -17,8 +17,8 @@ card "Apoqliphort Towers" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -32,8 +32,8 @@ card "Apoqliphort Towers" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 1
-        property: 393216
+        code: ImmuneEffect
+        property: SingleRange + Uncopyable
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -42,7 +42,7 @@ card "Apoqliphort Towers" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk - 500
@@ -51,7 +51,7 @@ card "Apoqliphort Towers" {
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 104
+        code: UpdateDefense
         range: MonsterZone
         on_resolve {
             modifier: def - 500

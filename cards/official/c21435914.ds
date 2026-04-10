@@ -3,7 +3,7 @@
 // Transpiled from c21435914.lua
 
 card "Dragocytos Corrupted Nethersoul Dragon" {
-    password: 21435914
+    id: 21435914
     type: Synchro Monster
     attribute: DARK
     race: Dragon
@@ -23,7 +23,7 @@ card "Dragocytos Corrupted Nethersoul Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -31,7 +31,7 @@ card "Dragocytos Corrupted Nethersoul Dragon" {
 
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
-        code: 1139
+        code: BattleConfirmed
         on_resolve {
         }
     }
@@ -40,7 +40,7 @@ card "Dragocytos Corrupted Nethersoul Dragon" {
         effect_type: Field + Trigger
         category: Damage
         code: 4098
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

@@ -3,7 +3,7 @@
 // Transpiled from c33300669.lua
 
 card "Amorphage Envy" {
-    password: 33300669
+    id: 33300669
     type: Effect Monster | Pendulum Monster
     attribute: EARTH
     race: Dragon
@@ -15,7 +15,7 @@ card "Amorphage Envy" {
     raw_effect "Effect 1" {
         effect_type: Single + Continuous
         code: 1001
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
@@ -23,7 +23,7 @@ card "Amorphage Envy" {
     raw_effect "Effect 2" {
         effect_type: Field + Continuous
         code: 4098
-        property: 263168
+        property: BothSide + Uncopyable
         range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
@@ -34,8 +34,8 @@ card "Amorphage Envy" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 2048
+        code: CannotDisable
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }

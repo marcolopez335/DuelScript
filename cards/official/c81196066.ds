@@ -3,7 +3,7 @@
 // Transpiled from c81196066.lua
 
 card "Lunalight Perfume Dancer" {
-    password: 81196066
+    id: 81196066
     type: Fusion Monster
     attribute: DARK
     race: Beast-Warrior
@@ -24,7 +24,7 @@ card "Lunalight Perfume Dancer" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 81196066)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -35,7 +35,7 @@ card "Lunalight Perfume Dancer" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: ToHand + SpecialSummon
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -63,7 +63,7 @@ card "Lunalight Perfume Dancer" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 0
         }

@@ -3,13 +3,13 @@
 // Transpiled from c1644289.lua
 
 card "Vylon Segment" {
-    password: 1644289
+    id: 1644289
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 71
-        property: 128
+        code: CannotDirectAttack2
+        property: SetAvailable
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
@@ -19,7 +19,7 @@ card "Vylon Segment" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: ChainEnd
-        property: 81920
+        property: Oath + Delay
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck
             reveal (1+, card, opponent controls)

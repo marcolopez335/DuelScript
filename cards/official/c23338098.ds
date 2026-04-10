@@ -3,7 +3,7 @@
 // Transpiled from c23338098.lua
 
 card "Assault Blackwing - Chidori the Rain Sprinkling" {
-    password: 23338098
+    id: 23338098
     type: Synchro Monster
     attribute: DARK
     race: Winged Beast
@@ -24,22 +24,22 @@ card "Assault Blackwing - Chidori the Rain Sprinkling" {
     raw_effect "Effect 1" {
         effect_type: Single + Continuous
         code: SpecialSummonSuccess
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -50,7 +50,7 @@ card "Assault Blackwing - Chidori the Rain Sprinkling" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 16400
+        property: CardTarget + Oath
         on_resolve {
             special_summon (1, monster) from gy
         }

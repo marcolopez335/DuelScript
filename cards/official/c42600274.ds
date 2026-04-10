@@ -3,7 +3,7 @@
 // Transpiled from c42600274.lua
 
 card "Cyber Tutubon" {
-    password: 42600274
+    id: 42600274
     type: Effect Monster
     attribute: EARTH
     race: Warrior
@@ -17,8 +17,8 @@ card "Cyber Tutubon" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             tribute (1, monster, you controls)
@@ -28,8 +28,8 @@ card "Cyber Tutubon" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: ToHand
-        code: Release
-        property: 65552
+        code: Released
+        property: CardTarget + Delay
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }

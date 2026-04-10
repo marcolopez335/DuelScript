@@ -3,7 +3,7 @@
 // Transpiled from c87188910.lua
 
 card "Ravenous Crocodragon Archethys" {
-    password: 87188910
+    id: 87188910
     type: Synchro Monster
     attribute: WATER
     race: Fish
@@ -25,7 +25,7 @@ card "Ravenous Crocodragon Archethys" {
         effect_type: Single + Trigger
         category: Draw
         code: SpecialSummonSuccess
-        property: 67584
+        property: InitialValue + Delay
         count_limit: (1, 87188910)
         on_resolve {
             draw 1
@@ -34,8 +34,8 @@ card "Ravenous Crocodragon Archethys" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -44,8 +44,8 @@ card "Ravenous Crocodragon Archethys" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 104
-        property: 131072
+        code: UpdateDefense
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: def + 0
@@ -56,7 +56,7 @@ card "Ravenous Crocodragon Archethys" {
         effect_type: QuickEffect
         category: Destroy
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

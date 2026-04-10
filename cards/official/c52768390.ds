@@ -3,7 +3,7 @@
 // Transpiled from c52768390.lua
 
 card "Dark Creator" {
-    password: 52768390
+    id: 52768390
     type: Effect Monster
     attribute: DARK
     race: Fiend
@@ -17,8 +17,8 @@ card "Dark Creator" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             tribute (1, monster, you controls)
@@ -27,7 +27,7 @@ card "Dark Creator" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

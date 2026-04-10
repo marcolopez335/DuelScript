@@ -3,7 +3,7 @@
 // Transpiled from c77679716.lua
 
 card "Superheavy Samurai Soulbreaker Armor" {
-    password: 77679716
+    id: 77679716
     type: Effect Monster
     attribute: EARTH
     race: Machine
@@ -14,7 +14,7 @@ card "Superheavy Samurai Soulbreaker Armor" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: EquipAction
-        property: 16
+        property: CardTarget
         range: Hand + MonsterZone
         on_resolve {
             send (1+, card, you controls, gy) to gy
@@ -24,8 +24,8 @@ card "Superheavy Samurai Soulbreaker Armor" {
 
     raw_effect "Effect 2" {
         effect_type: Equip
-        code: 42
-        property: 128
+        code: CannotBeEffectTarget
+        property: SetAvailable
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -34,7 +34,7 @@ card "Superheavy Samurai Soulbreaker Armor" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: Damage
-        property: 16
+        property: CardTarget
         range: Graveyard
         cost {
             banish self

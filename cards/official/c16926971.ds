@@ -3,7 +3,7 @@
 // Transpiled from c16926971.lua
 
 card "Firewall Saber Dragon" {
-    password: 16926971
+    id: 16926971
     type: Synchro Monster
     attribute: DARK
     race: Cyberse
@@ -25,7 +25,7 @@ card "Firewall Saber Dragon" {
         effect_type: Single + Trigger
         category: ToHand
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck
@@ -35,7 +35,7 @@ card "Firewall Saber Dragon" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: LevelChange
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -45,8 +45,8 @@ card "Firewall Saber Dragon" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         category: ToHand + Search
-        code: 1108
-        property: 65536
+        code: FlipSuccess
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck

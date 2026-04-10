@@ -3,7 +3,7 @@
 // Transpiled from c24226942.lua
 
 card "Chaos Nephthys" {
-    password: 24226942
+    id: 24226942
     type: Effect Monster | Spirit
     attribute: DARK
     race: Winged Beast
@@ -17,8 +17,8 @@ card "Chaos Nephthys" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -27,7 +27,7 @@ card "Chaos Nephthys" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 65536
+        property: Delay
         range: Hand + Graveyard
         count_limit: (1, 24226942)
         cost {
@@ -42,7 +42,7 @@ card "Chaos Nephthys" {
         effect_type: Single + Trigger
         category: Banish
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             banish (1+, monster, you controls, gy)
         }

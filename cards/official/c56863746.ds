@@ -3,7 +3,7 @@
 // Transpiled from c56863746.lua
 
 card "Drytron Meteonis DA Draconids" {
-    password: 56863746
+    id: 56863746
     type: Ritual Monster
     attribute: LIGHT
     race: Machine
@@ -22,7 +22,7 @@ card "Drytron Meteonis DA Draconids" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 41
+        code: IndestructableEffect
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -33,7 +33,7 @@ card "Drytron Meteonis DA Draconids" {
         effect_type: QuickEffect
         category: Destroy + Negate
         code: Chaining
-        property: 49152
+        property: Oath + CountCodeDuel
         range: MonsterZone
         count_limit: (2, 0)
         cost {
@@ -49,7 +49,7 @@ card "Drytron Meteonis DA Draconids" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 65536
+        property: Delay
         on_resolve {
             special_summon (1, monster) from gy
         }

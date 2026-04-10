@@ -3,7 +3,7 @@
 // Transpiled from c7628844.lua
 
 card "Number C32: Shark Drake LeVeiss" {
-    password: 7628844
+    id: 7628844
     type: Xyz Monster
     attribute: WATER
     race: Sea Serpent
@@ -25,7 +25,7 @@ card "Number C32: Shark Drake LeVeiss" {
         effect_type: QuickEffect
         category: Disable + SynchroSummon + XyzSummon
         code: FreeChain
-        property: 16400
+        property: CardTarget + Oath
         range: MonsterZone
         count_limit: (1, 0)
         cost {
@@ -52,7 +52,7 @@ card "Number C32: Shark Drake LeVeiss" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }
@@ -60,7 +60,7 @@ card "Number C32: Shark Drake LeVeiss" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 102
+        code: SetAttackFinal
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -68,7 +68,7 @@ card "Number C32: Shark Drake LeVeiss" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 106
+        code: SetDefenseFinal
         on_resolve {
             modifier: def + 0
         }

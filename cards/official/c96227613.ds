@@ -3,7 +3,7 @@
 // Transpiled from c96227613.lua
 
 card "Supreme King Gate Zero" {
-    password: 96227613
+    id: 96227613
     type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
@@ -19,7 +19,7 @@ card "Supreme King Gate Zero" {
     raw_effect "Effect 1" {
         effect_type: Field
         code: 82
-        property: 2048
+        property: InitialValue
         range: PendulumZone
         on_resolve {
         }
@@ -40,7 +40,7 @@ card "Supreme King Gate Zero" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: Destroy + SpecialSummon
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -76,7 +76,7 @@ card "Supreme King Gate Zero" {
     raw_effect "Effect 4" {
         effect_type: Single + Trigger
         code: Destroyed
-        property: 65536
+        property: Delay
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -85,7 +85,7 @@ card "Supreme King Gate Zero" {
     raw_effect "Effect 5" {
         effect_type: Field + Continuous
         code: 1040
-        property: 16384
+        property: Oath
         range: PendulumZone
         on_resolve {
             emit_event "custom"

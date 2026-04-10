@@ -3,14 +3,14 @@
 // Transpiled from c54451023.lua
 
 card "Plant Food Chain" {
-    password: 54451023
+    id: 54451023
     type: Normal Trap
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: EquipAction
         code: FreeChain
-        property: 16400
+        property: CardTarget + Oath
         on_resolve {
             equip (1, card) to (1, monster)
         }
@@ -19,8 +19,8 @@ card "Plant Food Chain" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: SpecialSummon
-        code: 1015
-        property: 81936
+        code: ChainNegated
+        property: CardTarget + Oath + Delay
         on_resolve {
             special_summon (1, monster) from gy
         }

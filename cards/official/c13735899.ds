@@ -3,7 +3,7 @@
 // Transpiled from c13735899.lua
 
 card "Mysterion the Dragon Crown" {
-    password: 13735899
+    id: 13735899
     type: Fusion Monster
     attribute: LIGHT
     race: Spellcaster
@@ -23,15 +23,15 @@ card "Mysterion the Dragon Crown" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 235
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -41,7 +41,7 @@ card "Mysterion the Dragon Crown" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         code: 282171355
-        property: 65552
+        property: CardTarget + Delay
         range: MonsterZone
         count_limit: (1, 13735899)
         on_resolve {
@@ -52,7 +52,7 @@ card "Mysterion the Dragon Crown" {
     raw_effect "Effect 4" {
         effect_type: Field + Continuous
         code: SpecialSummonSuccess
-        property: 1024
+        property: BothSide
         range: MonsterZone
         on_resolve {
             emit_event "custom"

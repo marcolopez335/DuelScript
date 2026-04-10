@@ -3,7 +3,7 @@
 // Transpiled from c60202749.lua
 
 card "Abyss-sphere" {
-    password: 60202749
+    id: 60202749
     type: Continuous Trap
 
     raw_effect "Effect 1" {
@@ -21,8 +21,8 @@ card "Abyss-sphere" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 6
-        property: 2048
+        code: CannotChangeControl
+        property: InitialValue
         range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -31,7 +31,7 @@ card "Abyss-sphere" {
 
     raw_effect "Effect 3" {
         effect_type: Single + Continuous
-        code: 1015
+        code: ChainNegated
         on_resolve {
             destroy (1+, card, you controls, deck)
         }

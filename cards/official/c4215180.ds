@@ -3,7 +3,7 @@
 // Transpiled from c4215180.lua
 
 card "Lollipo☆Yummy" {
-    password: 4215180
+    id: 4215180
     type: Effect Monster
     attribute: LIGHT
     race: Beast
@@ -13,8 +13,8 @@ card "Lollipo☆Yummy" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         count_limit: (1, 4215180)
         on_resolve {
@@ -25,7 +25,7 @@ card "Lollipo☆Yummy" {
         effect_type: Single + Trigger
         category: ToDeck
         code: SummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to deck shuffle
@@ -37,7 +37,7 @@ card "Lollipo☆Yummy" {
         effect_type: Single + Trigger
         category: Banish + ToDeck
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to deck shuffle

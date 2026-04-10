@@ -3,12 +3,12 @@
 // Transpiled from c82270047.lua
 
 card "Kozmo Lightsword" {
-    password: 82270047
+    id: 82270047
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 500
         }
@@ -16,7 +16,7 @@ card "Kozmo Lightsword" {
 
     raw_effect "Effect 2" {
         effect_type: Equip
-        code: 104
+        code: UpdateDefense
         on_resolve {
             modifier: def + 500
         }
@@ -31,7 +31,7 @@ card "Kozmo Lightsword" {
 
     raw_effect "Effect 4" {
         effect_type: Equip
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }
@@ -41,7 +41,7 @@ card "Kozmo Lightsword" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 82270047)
         cost {
             pay_lp 800

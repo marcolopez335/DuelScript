@@ -3,7 +3,7 @@
 // Transpiled from c88935103.lua
 
 card "Nobledragon Magician" {
-    password: 88935103
+    id: 88935103
     type: Effect Monster | Pendulum Monster | Tuner
     attribute: FIRE
     race: Spellcaster
@@ -15,7 +15,7 @@ card "Nobledragon Magician" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 141
-        property: 131072
+        property: SingleRange
         range: PendulumZone
         on_resolve {
         }
@@ -24,23 +24,23 @@ card "Nobledragon Magician" {
     raw_effect "Effect 2" {
         effect_type: Single
         code: 236
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 60
-        property: 263168
+        code: CannotAttack
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 251
-        property: 1312
+        code: ChangeCode3
+        property: IgnoreRange + BothSide
         range: MonsterZone
         on_resolve {
         }
@@ -49,7 +49,7 @@ card "Nobledragon Magician" {
     raw_effect "Effect 5" {
         effect_type: Ignition
         category: SpecialSummon
-        property: 16
+        property: CardTarget
         range: Hand + Graveyard
         on_resolve {
             register_effect on self {

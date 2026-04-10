@@ -3,7 +3,7 @@
 // Transpiled from c84192580.lua
 
 card "Mulcharmy Purulia" {
-    password: 84192580
+    id: 84192580
     type: Effect Monster
     attribute: WATER
     race: Aqua
@@ -37,8 +37,8 @@ card "Mulcharmy Purulia" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 6
-        property: 67635200
+        code: CannotChangeControl
+        property: InitialValue + CannotDisable + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
@@ -78,7 +78,7 @@ card "Mulcharmy Purulia" {
 
     raw_effect "Effect 5" {
         effect_type: Field + Continuous
-        code: 4608
+        code: PhaseEnd
         count_limit: (1, 0)
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle

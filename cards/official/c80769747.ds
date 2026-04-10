@@ -3,7 +3,7 @@
 // Transpiled from c80769747.lua
 
 card "Iron Chain Snake" {
-    password: 80769747
+    id: 80769747
     type: Effect Monster
     attribute: EARTH
     race: Reptile
@@ -14,7 +14,7 @@ card "Iron Chain Snake" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: EquipAction
-        property: 16
+        property: CardTarget
         range: MonsterZone
         on_resolve {
             equip (1, card) to (1, monster)
@@ -24,7 +24,7 @@ card "Iron Chain Snake" {
     raw_effect "Effect 2" {
         effect_type: Single + MandatoryTrigger
         category: AtkChange
-        code: 1015
+        code: ChainNegated
         on_resolve {
             mill 1
         }

@@ -3,7 +3,7 @@
 // Transpiled from c33814281.lua
 
 card "Dark Contract with Patent License" {
-    password: 33814281
+    id: 33814281
     type: Field Spell
 
     raw_effect "Effect 1" {
@@ -17,7 +17,7 @@ card "Dark Contract with Patent License" {
         effect_type: Single + Trigger
         category: Damage
         code: 302249737
-        property: 67584
+        property: InitialValue + Delay
         range: FieldZone
         on_resolve {
             deal_damage to opponent: 1000
@@ -27,7 +27,7 @@ card "Dark Contract with Patent License" {
     raw_effect "Effect 3" {
         effect_type: Field + Continuous
         code: SpecialSummonSuccess
-        property: 1024
+        property: BothSide
         range: FieldZone
         on_resolve {
             emit_event "custom"
@@ -38,7 +38,7 @@ card "Dark Contract with Patent License" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 33814281)
         on_resolve {
             return (1+, monster, you controls) to hand

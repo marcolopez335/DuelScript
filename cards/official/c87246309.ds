@@ -3,7 +3,7 @@
 // Transpiled from c87246309.lua
 
 card "Fluffal Octopus" {
-    password: 87246309
+    id: 87246309
     type: Effect Monster
     attribute: WATER
     race: Fairy
@@ -15,7 +15,7 @@ card "Fluffal Octopus" {
         effect_type: Single + Trigger
         category: ToHand
         code: SummonSuccess
-        property: 16
+        property: CardTarget
         count_limit: (1, 87246309)
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
@@ -26,7 +26,7 @@ card "Fluffal Octopus" {
         effect_type: Single + Trigger
         category: ToHand
         code: SpecialSummonSuccess
-        property: 16
+        property: CardTarget
         count_limit: (1, 87246309)
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
@@ -36,8 +36,8 @@ card "Fluffal Octopus" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         category: ToGrave
-        code: 1108
-        property: 65552
+        code: FlipSuccess
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             send (1+, monster, either_player controls) to gy

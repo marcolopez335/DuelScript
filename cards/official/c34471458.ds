@@ -3,7 +3,7 @@
 // Transpiled from c34471458.lua
 
 card "Fortune Lady Light" {
-    password: 34471458
+    id: 34471458
     type: Effect Monster
     attribute: LIGHT
     race: Spellcaster
@@ -13,8 +13,8 @@ card "Fortune Lady Light" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 101
-        property: 131072
+        code: SetAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -23,8 +23,8 @@ card "Fortune Lady Light" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 105
-        property: 131072
+        code: SetDefense
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: def + 0
@@ -43,8 +43,8 @@ card "Fortune Lady Light" {
     raw_effect "Effect 4" {
         effect_type: Single + Trigger
         category: SpecialSummon
-        code: 1015
-        property: 16384
+        code: ChainNegated
+        property: Oath
         on_resolve {
             special_summon (1, monster) from gy
         }

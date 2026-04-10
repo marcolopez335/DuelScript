@@ -3,7 +3,7 @@
 // Transpiled from c31829185.lua
 
 card "Dark Necrofear" {
-    password: 31829185
+    id: 31829185
     type: Effect Monster | Spirit
     attribute: DARK
     race: Fiend
@@ -17,8 +17,8 @@ card "Dark Necrofear" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             banish (1+, monster, you controls, gy)
@@ -28,15 +28,15 @@ card "Dark Necrofear" {
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
         code: ChainEnd
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
         effect_type: Field + MandatoryTrigger
-        code: 4608
-        property: 16
+        code: PhaseEnd
+        property: CardTarget
         range: Graveyard
         count_limit: (1, 0)
         on_resolve {

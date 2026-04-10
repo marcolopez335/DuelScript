@@ -3,7 +3,7 @@
 // Transpiled from c36429703.lua
 
 card "Raidraptor - Wise Strix" {
-    password: 36429703
+    id: 36429703
     type: Link Monster
     attribute: DARK
     race: Winged Beast
@@ -24,7 +24,7 @@ card "Raidraptor - Wise Strix" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 36429703)
         on_resolve {
             special_summon (1, monster) from gy
@@ -46,7 +46,7 @@ card "Raidraptor - Wise Strix" {
     raw_effect "Effect 2" {
         effect_type: Field + MandatoryTrigger
         code: Chaining
-        property: 114688
+        property: Oath + CountCodeDuel + Delay
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -60,7 +60,7 @@ card "Raidraptor - Wise Strix" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 2
+        code: Disable
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
@@ -77,7 +77,7 @@ card "Raidraptor - Wise Strix" {
     raw_effect "Effect 5" {
         effect_type: Single
         code: 239
-        property: 67108864
+        property: IgnoreRange2
         on_resolve {
         }
     }
@@ -85,7 +85,7 @@ card "Raidraptor - Wise Strix" {
     raw_effect "Effect 6" {
         effect_type: Single
         code: 19
-        property: 256
+        property: IgnoreRange
         on_resolve {
         }
     }

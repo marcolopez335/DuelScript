@@ -3,7 +3,7 @@
 // Transpiled from c61089209.lua
 
 card "Myutant Mist" {
-    password: 61089209
+    id: 61089209
     type: Effect Monster
     attribute: WIND
     race: Spellcaster
@@ -17,16 +17,16 @@ card "Myutant Mist" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 71
-        property: 131072
+        code: CannotDirectAttack2
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -37,7 +37,7 @@ card "Myutant Mist" {
         effect_type: QuickEffect
         category: Draw
         code: Chaining
-        property: 2048
+        property: InitialValue
         range: MonsterZone
         count_limit: (1, 0)
         cost {
@@ -52,7 +52,7 @@ card "Myutant Mist" {
         effect_type: Single + Trigger
         category: ToHand
         code: Destroyed
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand

@@ -3,7 +3,7 @@
 // Transpiled from c16392422.lua
 
 card "Toon Masked Sorcerer" {
-    password: 16392422
+    id: 16392422
     type: Effect Monster
     attribute: DARK
     race: Spellcaster
@@ -14,7 +14,7 @@ card "Toon Masked Sorcerer" {
     raw_effect "Effect 1" {
         effect_type: Single + Continuous
         code: SummonSuccess
-        property: 1024
+        property: BothSide
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -26,7 +26,7 @@ card "Toon Masked Sorcerer" {
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
         code: SpecialSummonSuccess
-        property: 1024
+        property: BothSide
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -38,7 +38,7 @@ card "Toon Masked Sorcerer" {
     raw_effect "Effect 3" {
         effect_type: Single + Continuous
         code: FlipSummonSuccess
-        property: 1024
+        property: BothSide
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -49,7 +49,7 @@ card "Toon Masked Sorcerer" {
 
     raw_effect "Effect 4" {
         effect_type: Field + Continuous
-        code: 1015
+        code: ChainNegated
         range: MonsterZone
         on_resolve {
             destroy (1+, card, you controls)
@@ -67,8 +67,8 @@ card "Toon Masked Sorcerer" {
     raw_effect "Effect 6" {
         effect_type: Single + MandatoryTrigger
         category: Draw
-        code: 1143
-        property: 2048
+        code: BattleDestroyed
+        property: InitialValue
         on_resolve {
             draw 1
         }

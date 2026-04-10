@@ -3,12 +3,12 @@
 // Transpiled from c60162470.lua
 
 card "Zero Extra Link" {
-    password: 60162470
+    id: 60162470
     type: Continuous Spell
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: SpellTrapZone
         on_resolve {
             modifier: atk + 0
@@ -19,7 +19,7 @@ card "Zero Extra Link" {
         effect_type: Field + MandatoryTrigger
         category: SynchroSummon
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         range: SpellTrapZone
         on_resolve {
             register_effect on self {
@@ -32,7 +32,7 @@ card "Zero Extra Link" {
     raw_effect "Effect 3" {
         effect_type: Field + Continuous
         code: 1019
-        property: 1152
+        property: SetAvailable + BothSide
         range: SpellTrapZone
         on_resolve {
         }
@@ -42,7 +42,7 @@ card "Zero Extra Link" {
         effect_type: Field + MandatoryTrigger
         category: Destroy
         code: 1138
-        property: 65536
+        property: Delay
         range: SpellTrapZone
         on_resolve {
             destroy (1+, monster, either_player controls)
@@ -51,7 +51,7 @@ card "Zero Extra Link" {
 
     raw_effect "Effect 5" {
         effect_type: Field + MandatoryTrigger
-        code: 1015
+        code: ChainNegated
         range: MonsterZone
         on_resolve {
         }

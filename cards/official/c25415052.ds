@@ -3,7 +3,7 @@
 // Transpiled from c25415052.lua
 
 card "Shinobaroness Peacock" {
-    password: 25415052
+    id: 25415052
     type: Ritual Monster | Flip
     attribute: WIND
     race: Winged Beast
@@ -22,8 +22,8 @@ card "Shinobaroness Peacock" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -32,7 +32,7 @@ card "Shinobaroness Peacock" {
         effect_type: Single + Trigger
         category: ToDeck + SpecialSummon
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             return (1+, spell, you controls) to deck shuffle
             special_summon (1, monster) from gy

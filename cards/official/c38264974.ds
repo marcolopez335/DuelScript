@@ -3,7 +3,7 @@
 // Transpiled from c38264974.lua
 
 card "Chimera the Illusion Beast" {
-    password: 38264974
+    id: 38264974
     type: Fusion Monster
     attribute: DARK
     race: Unknown
@@ -23,7 +23,7 @@ card "Chimera the Illusion Beast" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 114
-        property: 131072
+        property: SingleRange
         range: MonsterZone + Graveyard
         on_resolve {
         }
@@ -31,14 +31,14 @@ card "Chimera the Illusion Beast" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

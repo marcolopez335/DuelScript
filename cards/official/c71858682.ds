@@ -3,7 +3,7 @@
 // Transpiled from c71858682.lua
 
 card "Centur-Ion Auxila" {
-    password: 71858682
+    id: 71858682
     type: Synchro Monster
     attribute: DARK
     race: Dragon
@@ -23,7 +23,7 @@ card "Centur-Ion Auxila" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 41
+        code: IndestructableEffect
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -34,7 +34,7 @@ card "Centur-Ion Auxila" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 71858682)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -44,7 +44,7 @@ card "Centur-Ion Auxila" {
 
     raw_effect "Effect 3" {
         effect_type: Field + Trigger
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

@@ -3,7 +3,7 @@
 // Transpiled from c86240887.lua
 
 card "Buster Blader, the Dragon Destroyer Swordsman" {
-    password: 86240887
+    id: 86240887
     type: Fusion Monster
     attribute: LIGHT
     race: Warrior
@@ -22,7 +22,7 @@ card "Buster Blader, the Dragon Destroyer Swordsman" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 73
+        code: CannotAttackAnnounce
         on_resolve {
             register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
         }
@@ -30,8 +30,8 @@ card "Buster Blader, the Dragon Destroyer Swordsman" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -40,8 +40,8 @@ card "Buster Blader, the Dragon Destroyer Swordsman" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 104
-        property: 131072
+        code: UpdateDefense
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: def + 0
@@ -50,8 +50,8 @@ card "Buster Blader, the Dragon Destroyer Swordsman" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -66,8 +66,8 @@ card "Buster Blader, the Dragon Destroyer Swordsman" {
 
     raw_effect "Effect 6" {
         effect_type: Field
-        code: 6
-        property: 2048
+        code: CannotChangeControl
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -76,7 +76,7 @@ card "Buster Blader, the Dragon Destroyer Swordsman" {
 
     raw_effect "Effect 7" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }

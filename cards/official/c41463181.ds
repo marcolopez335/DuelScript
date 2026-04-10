@@ -3,7 +3,7 @@
 // Transpiled from c41463181.lua
 
 card "Salamangreat Heatleo" {
-    password: 41463181
+    id: 41463181
     type: Link Monster
     attribute: FIRE
     race: Cyberse
@@ -24,7 +24,7 @@ card "Salamangreat Heatleo" {
         effect_type: Single + Trigger
         category: ToDeck
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
         }
@@ -33,7 +33,7 @@ card "Salamangreat Heatleo" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: SynchroSummon
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -46,8 +46,8 @@ card "Salamangreat Heatleo" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 102
-        property: 1024
+        code: SetAttackFinal
+        property: BothSide
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

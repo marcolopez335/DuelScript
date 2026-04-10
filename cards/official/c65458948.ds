@@ -3,7 +3,7 @@
 // Transpiled from c65458948.lua
 
 card "Toon Mermaid" {
-    password: 65458948
+    id: 65458948
     type: Effect Monster | Spirit
     attribute: WATER
     race: Aqua
@@ -17,8 +17,8 @@ card "Toon Mermaid" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
         }
@@ -26,7 +26,7 @@ card "Toon Mermaid" {
 
     raw_effect "Effect 2" {
         effect_type: Field + Continuous
-        code: 1015
+        code: ChainNegated
         range: MonsterZone
         on_resolve {
             destroy (1+, card, you controls)
@@ -51,7 +51,7 @@ card "Toon Mermaid" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 73
+        code: CannotAttackAnnounce
         on_resolve {
             register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
         }

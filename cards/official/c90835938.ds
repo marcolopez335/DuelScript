@@ -3,7 +3,7 @@
 // Transpiled from c90835938.lua
 
 card "Starry Night, Starry Dragon" {
-    password: 90835938
+    id: 90835938
     type: Effect Monster
     attribute: LIGHT
     race: Dragon
@@ -19,7 +19,7 @@ card "Starry Night, Starry Dragon" {
         effect_type: Single + Trigger
         category: Destroy
         code: SummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             destroy (1+, card, either_player controls)
         }
@@ -29,7 +29,7 @@ card "Starry Night, Starry Dragon" {
         effect_type: Single + Trigger
         category: Destroy
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             destroy (1+, card, either_player controls)
         }
@@ -37,7 +37,7 @@ card "Starry Night, Starry Dragon" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -45,7 +45,7 @@ card "Starry Night, Starry Dragon" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 41
+        code: IndestructableEffect
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
@@ -68,7 +68,7 @@ card "Starry Night, Starry Dragon" {
 
     raw_effect "Effect 6" {
         effect_type: Field + Continuous
-        code: 4608
+        code: PhaseEnd
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

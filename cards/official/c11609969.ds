@@ -3,7 +3,7 @@
 // Transpiled from c11609969.lua
 
 card "D/D Savant Kepler" {
-    password: 11609969
+    id: 11609969
     type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
@@ -14,8 +14,8 @@ card "D/D Savant Kepler" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 22
-        property: 3584
+        code: CannotDisable
+        property: IgnoreImmune + BothSide + InitialValue
         range: PendulumZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -36,7 +36,7 @@ card "D/D Savant Kepler" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 11609969)
         on_resolve {
             return (1+, monster, you controls) to hand
@@ -49,7 +49,7 @@ card "D/D Savant Kepler" {
     raw_effect "Effect 4" {
         effect_type: Single + Trigger
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 11609969)
         on_resolve {
             return (1+, monster, you controls) to hand

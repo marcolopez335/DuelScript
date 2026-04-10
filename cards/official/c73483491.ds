@@ -3,7 +3,7 @@
 // Transpiled from c73483491.lua
 
 card "Vindikite R-Genex" {
-    password: 73483491
+    id: 73483491
     type: Synchro Monster
     attribute: WIND
     race: Machine
@@ -24,7 +24,7 @@ card "Vindikite R-Genex" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 70
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -34,7 +34,7 @@ card "Vindikite R-Genex" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: ToHand + Search
-        code: 1139
+        code: BattleConfirmed
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)

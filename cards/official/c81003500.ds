@@ -3,7 +3,7 @@
 // Transpiled from c81003500.lua
 
 card "Elemental HERO Necroid Shaman" {
-    password: 81003500
+    id: 81003500
     type: Fusion Monster
     attribute: DARK
     race: Warrior
@@ -22,8 +22,8 @@ card "Elemental HERO Necroid Shaman" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -32,7 +32,7 @@ card "Elemental HERO Necroid Shaman" {
         effect_type: Single + MandatoryTrigger
         category: Destroy + SpecialSummon
         code: SpecialSummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
             destroy (1+, card, either_player controls)
             special_summon (1, monster) from gy

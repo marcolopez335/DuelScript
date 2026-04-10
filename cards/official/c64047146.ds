@@ -3,12 +3,12 @@
 // Transpiled from c64047146.lua
 
 card "Horn of the Unicorn" {
-    password: 64047146
+    id: 64047146
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 700
         }
@@ -16,7 +16,7 @@ card "Horn of the Unicorn" {
 
     raw_effect "Effect 2" {
         effect_type: Equip
-        code: 104
+        code: UpdateDefense
         on_resolve {
             modifier: def + 700
         }
@@ -26,7 +26,7 @@ card "Horn of the Unicorn" {
         effect_type: Single + MandatoryTrigger
         category: ToDeck
         code: ChainEnd
-        property: 16384
+        property: Oath
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
         }

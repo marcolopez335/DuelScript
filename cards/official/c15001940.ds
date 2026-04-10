@@ -3,7 +3,7 @@
 // Transpiled from c15001940.lua
 
 card "Foie Glasya de Nouvelles" {
-    password: 15001940
+    id: 15001940
     type: Ritual Monster
     attribute: DARK
     race: Warrior
@@ -23,7 +23,7 @@ card "Foie Glasya de Nouvelles" {
     raw_effect "Effect 1" {
         effect_type: Single + Continuous
         code: SpecialSummonSuccess
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
@@ -32,7 +32,7 @@ card "Foie Glasya de Nouvelles" {
         effect_type: Single + Trigger
         category: ToDeck
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 15001940)
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
@@ -54,7 +54,7 @@ card "Foie Glasya de Nouvelles" {
     raw_effect "Effect 4" {
         effect_type: QuickEffect
         category: Release + SpecialSummon
-        code: 1028
+        code: BecomeTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

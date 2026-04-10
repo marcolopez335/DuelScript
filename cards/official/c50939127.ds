@@ -3,7 +3,7 @@
 // Transpiled from c50939127.lua
 
 card "Different Dimension Dragon" {
-    password: 50939127
+    id: 50939127
     type: Effect Monster
     attribute: LIGHT
     race: Dragon
@@ -17,8 +17,8 @@ card "Different Dimension Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -27,7 +27,7 @@ card "Different Dimension Dragon" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

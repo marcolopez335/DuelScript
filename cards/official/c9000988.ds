@@ -3,7 +3,7 @@
 // Transpiled from c9000988.lua
 
 card "Performapal Coin Dragon" {
-    password: 9000988
+    id: 9000988
     type: Effect Monster | Pendulum Monster
     attribute: WATER
     race: Dragon
@@ -14,7 +14,7 @@ card "Performapal Coin Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Ignition
-        property: 16
+        property: CardTarget
         range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
@@ -27,7 +27,7 @@ card "Performapal Coin Dragon" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 500
@@ -36,7 +36,7 @@ card "Performapal Coin Dragon" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 41
+        code: IndestructableEffect
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

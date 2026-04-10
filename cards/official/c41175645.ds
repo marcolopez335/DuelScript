@@ -3,7 +3,7 @@
 // Transpiled from c41175645.lua
 
 card "Silent Magician" {
-    password: 41175645
+    id: 41175645
     type: Effect Monster | Spirit
     attribute: LIGHT
     race: Spellcaster
@@ -17,16 +17,16 @@ card "Silent Magician" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Hand
         on_resolve {
             tribute (1, monster, you controls)
@@ -35,8 +35,8 @@ card "Silent Magician" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -47,7 +47,7 @@ card "Silent Magician" {
         effect_type: QuickEffect
         category: Negate
         code: Chaining
-        property: 49152
+        property: Oath + CountCodeDuel
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -60,7 +60,7 @@ card "Silent Magician" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 65536
+        property: Delay
         on_resolve {
             special_summon (1, monster) from gy
         }

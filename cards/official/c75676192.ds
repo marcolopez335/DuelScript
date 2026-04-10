@@ -3,7 +3,7 @@
 // Transpiled from c75676192.lua
 
 card "F.A. Motorhome Transport" {
-    password: 75676192
+    id: 75676192
     type: Synchro Monster
     attribute: LIGHT
     race: Machine
@@ -23,8 +23,8 @@ card "F.A. Motorhome Transport" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -35,7 +35,7 @@ card "F.A. Motorhome Transport" {
         effect_type: Field + Trigger
         category: LevelChange
         code: Chaining
-        property: 114688
+        property: Oath + CountCodeDuel + Delay
         range: MonsterZone
         on_resolve {
         }
@@ -43,8 +43,8 @@ card "F.A. Motorhome Transport" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -53,8 +53,8 @@ card "F.A. Motorhome Transport" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -64,7 +64,7 @@ card "F.A. Motorhome Transport" {
     raw_effect "Effect 5" {
         effect_type: Ignition
         category: SpecialSummon
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

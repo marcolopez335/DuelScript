@@ -3,7 +3,7 @@
 // Transpiled from c65711558.lua
 
 card "Ancient Warriors Oath - Double Dragon Lords" {
-    password: 65711558
+    id: 65711558
     type: Link Monster
     attribute: WIND
     race: Beast-Warrior
@@ -24,7 +24,7 @@ card "Ancient Warriors Oath - Double Dragon Lords" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 114688
+        property: Oath + CountCodeDuel + Delay
         count_limit: (1, 65711558)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -34,7 +34,7 @@ card "Ancient Warriors Oath - Double Dragon Lords" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 500
@@ -43,7 +43,7 @@ card "Ancient Warriors Oath - Double Dragon Lords" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 104
+        code: UpdateDefense
         range: MonsterZone
         on_resolve {
             modifier: def + 500
@@ -54,7 +54,7 @@ card "Ancient Warriors Oath - Double Dragon Lords" {
         effect_type: QuickEffect
         category: ToHand
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         cost {

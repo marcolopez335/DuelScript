@@ -3,7 +3,7 @@
 // Transpiled from c85684223.lua
 
 card "Reaper on the Nightmare" {
-    password: 85684223
+    id: 85684223
     type: Fusion Monster
     attribute: DARK
     race: Zombie
@@ -22,7 +22,7 @@ card "Reaper on the Nightmare" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -31,7 +31,7 @@ card "Reaper on the Nightmare" {
     raw_effect "Effect 2" {
         effect_type: Single + MandatoryTrigger
         category: DefChange
-        code: 1143
+        code: BattleDestroyed
         on_resolve {
             send (1+, card, either_player controls) to gy
         }
@@ -40,7 +40,7 @@ card "Reaper on the Nightmare" {
     raw_effect "Effect 3" {
         effect_type: Single
         code: 141
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -66,8 +66,8 @@ card "Reaper on the Nightmare" {
 
     raw_effect "Effect 6" {
         effect_type: Field + Continuous
-        code: 1028
-        property: 1024
+        code: BecomeTarget
+        property: BothSide
         range: MonsterZone
         on_resolve {
         }

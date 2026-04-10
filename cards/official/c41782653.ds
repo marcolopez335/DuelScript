@@ -3,7 +3,7 @@
 // Transpiled from c41782653.lua
 
 card "Overtex Qoatlus" {
-    password: 41782653
+    id: 41782653
     type: Effect Monster | Spirit
     attribute: DARK
     race: Dinosaur
@@ -17,16 +17,16 @@ card "Overtex Qoatlus" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
@@ -37,7 +37,7 @@ card "Overtex Qoatlus" {
         effect_type: QuickEffect
         category: Destroy + Negate
         code: Chaining
-        property: 49152
+        property: Oath + CountCodeDuel
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -51,7 +51,7 @@ card "Overtex Qoatlus" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 41782653)
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy

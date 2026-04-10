@@ -3,7 +3,7 @@
 // Transpiled from c13893596.lua
 
 card "Exodius the Ultimate Forbidden Lord" {
-    password: 13893596
+    id: 13893596
     type: Effect Monster | Spirit
     attribute: DARK
     race: Spellcaster
@@ -17,16 +17,16 @@ card "Exodius the Ultimate Forbidden Lord" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Hand
         on_resolve {
             return (1+, monster, you controls) to deck shuffle
@@ -44,8 +44,8 @@ card "Exodius the Ultimate Forbidden Lord" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -54,8 +54,8 @@ card "Exodius the Ultimate Forbidden Lord" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 60
-        property: 1024
+        code: CannotAttack
+        property: BothSide
         on_resolve {
         }
     }

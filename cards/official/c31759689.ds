@@ -3,7 +3,7 @@
 // Transpiled from c31759689.lua
 
 card "Tindangle Hound" {
-    password: 31759689
+    id: 31759689
     type: Effect Monster
     attribute: DARK
     race: Fiend
@@ -18,7 +18,7 @@ card "Tindangle Hound" {
     raw_effect "Effect 1" {
         effect_type: Single + Flip + Trigger
         category: DiceRoll + SynchroSummon
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             change_battle_position (1, monster)
         }
@@ -26,7 +26,7 @@ card "Tindangle Hound" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -37,7 +37,7 @@ card "Tindangle Hound" {
         effect_type: Single + Trigger
         category: DiceRoll
         code: ChainEnd
-        property: 16
+        property: CardTarget
         on_resolve {
             change_battle_position (1, monster)
         }

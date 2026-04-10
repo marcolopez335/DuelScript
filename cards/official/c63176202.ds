@@ -3,7 +3,7 @@
 // Transpiled from c63176202.lua
 
 card "Great Shogun Shien" {
-    password: 63176202
+    id: 63176202
     type: Effect Monster
     attribute: FIRE
     race: Warrior
@@ -17,8 +17,8 @@ card "Great Shogun Shien" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
         }
@@ -41,7 +41,7 @@ card "Great Shogun Shien" {
 
     raw_effect "Effect 4" {
         effect_type: Field + Continuous
-        code: 1024
+        code: SentToHand
         range: MonsterZone
         on_resolve {
         }
@@ -49,8 +49,8 @@ card "Great Shogun Shien" {
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 6
-        property: 2048
+        code: CannotChangeControl
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }

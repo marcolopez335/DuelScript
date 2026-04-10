@@ -3,7 +3,7 @@
 // Transpiled from c65844845.lua
 
 card "Inzektor Giga-Cricket" {
-    password: 65844845
+    id: 65844845
     type: Effect Monster
     attribute: DARK
     race: Insect
@@ -18,7 +18,7 @@ card "Inzektor Giga-Cricket" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: EquipAction
-        property: 16
+        property: CardTarget
         range: Graveyard
         count_limit: (1, 65844845)
         cost {
@@ -31,14 +31,14 @@ card "Inzektor Giga-Cricket" {
 
     raw_effect "Effect 2" {
         effect_type: Equip
-        code: 103
+        code: SetBaseAttack
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
         effect_type: Equip
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }

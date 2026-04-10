@@ -3,7 +3,7 @@
 // Transpiled from c75771170.lua
 
 card "Arahime the Manifested Mikanko" {
-    password: 75771170
+    id: 75771170
     type: Ritual Monster
     attribute: LIGHT
     race: Fairy
@@ -22,7 +22,7 @@ card "Arahime the Manifested Mikanko" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -38,7 +38,7 @@ card "Arahime the Manifested Mikanko" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: EquipAction
-        property: 16
+        property: CardTarget
         range: Hand + Graveyard
         count_limit: (1, 75771170)
         on_resolve {
@@ -49,7 +49,7 @@ card "Arahime the Manifested Mikanko" {
     raw_effect "Effect 4" {
         effect_type: Field + Trigger
         category: ToHand
-        code: 4608
+        code: PhaseEnd
         range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
@@ -59,7 +59,7 @@ card "Arahime the Manifested Mikanko" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 76
+        code: CannotAttack2
         on_resolve {
         }
     }

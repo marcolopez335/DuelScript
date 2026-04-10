@@ -3,7 +3,7 @@
 // Transpiled from c96223501.lua
 
 card "Satellarknight Zefrathuban" {
-    password: 96223501
+    id: 96223501
     type: Effect Monster | Pendulum Monster
     attribute: LIGHT
     race: Warrior
@@ -14,8 +14,8 @@ card "Satellarknight Zefrathuban" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 22
-        property: 3584
+        code: CannotDisable
+        property: IgnoreImmune + BothSide + InitialValue
         range: PendulumZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -26,7 +26,7 @@ card "Satellarknight Zefrathuban" {
         effect_type: Single + Trigger
         category: Destroy
         code: SummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 96223501)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -37,7 +37,7 @@ card "Satellarknight Zefrathuban" {
         effect_type: Single + Trigger
         category: Destroy
         code: FlipSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 96223501)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -48,7 +48,7 @@ card "Satellarknight Zefrathuban" {
         effect_type: Single + Trigger
         category: Destroy
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 96223501)
         on_resolve {
             destroy (1+, card, either_player controls)

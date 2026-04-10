@@ -3,7 +3,7 @@
 // Transpiled from c1225009.lua
 
 card "Arianna the Labrynth Servant" {
-    password: 1225009
+    id: 1225009
     type: Effect Monster
     attribute: DARK
     race: Fiend
@@ -15,7 +15,7 @@ card "Arianna the Labrynth Servant" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 1225009)
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck
@@ -27,7 +27,7 @@ card "Arianna the Labrynth Servant" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 1225009)
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck
@@ -38,8 +38,8 @@ card "Arianna the Labrynth Servant" {
     raw_effect "Effect 3" {
         effect_type: Field + Trigger
         category: SpecialSummon + Draw
-        code: 1015
-        property: 67584
+        code: ChainNegated
+        property: InitialValue + Delay
         range: MonsterZone
         count_limit: (1, 1225009)
         on_resolve {

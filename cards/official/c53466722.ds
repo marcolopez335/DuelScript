@@ -3,7 +3,7 @@
 // Transpiled from c53466722.lua
 
 card "First of the Dragonlords" {
-    password: 53466722
+    id: 53466722
     type: Fusion Monster
     attribute: DARK
     race: Dragon
@@ -22,7 +22,7 @@ card "First of the Dragonlords" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -30,8 +30,8 @@ card "First of the Dragonlords" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 1
-        property: 131072
+        code: ImmuneEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }

@@ -3,7 +3,7 @@
 // Transpiled from c90590303.lua
 
 card "Number 41: Bagooska the Terribly Tired Tapir" {
-    password: 90590303
+    id: 90590303
     type: Xyz Monster
     attribute: EARTH
     race: Fiend
@@ -24,7 +24,7 @@ card "Number 41: Bagooska the Terribly Tired Tapir" {
     raw_effect "Effect 1" {
         effect_type: Field + Continuous
         code: 4098
-        property: 263168
+        property: BothSide + Uncopyable
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -34,8 +34,8 @@ card "Number 41: Bagooska the Terribly Tired Tapir" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 71
-        property: 131072
+        code: CannotDirectAttack2
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -44,8 +44,8 @@ card "Number 41: Bagooska the Terribly Tired Tapir" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

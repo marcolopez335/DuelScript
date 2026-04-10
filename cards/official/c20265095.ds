@@ -3,7 +3,7 @@
 // Transpiled from c20265095.lua
 
 card "Brotherhood of the Fire Fist - Peacock" {
-    password: 20265095
+    id: 20265095
     type: Link Monster
     attribute: FIRE
     race: Beast-Warrior
@@ -23,7 +23,7 @@ card "Brotherhood of the Fire Fist - Peacock" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 70
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -34,7 +34,7 @@ card "Brotherhood of the Fire Fist - Peacock" {
         effect_type: Single + Trigger
         category: Summon
         code: AttackAnnounce
-        property: 16
+        property: CardTarget
         count_limit: (1, 20265095)
         on_resolve {
             take_control of (1, monster, opponent controls)

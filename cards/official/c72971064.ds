@@ -3,7 +3,7 @@
 // Transpiled from c72971064.lua
 
 card "Lyrilusc - Ensemblue Robin" {
-    password: 72971064
+    id: 72971064
     type: Xyz Monster
     attribute: WIND
     race: Winged Beast
@@ -23,8 +23,8 @@ card "Lyrilusc - Ensemblue Robin" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -35,7 +35,7 @@ card "Lyrilusc - Ensemblue Robin" {
         effect_type: Field + Trigger
         category: ToHand
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         range: MonsterZone
         cost {
             detach 1 overlay_unit from self
@@ -49,7 +49,7 @@ card "Lyrilusc - Ensemblue Robin" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 81936
+        property: CardTarget + Oath + Delay
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
             reveal (1+, card, opponent controls)

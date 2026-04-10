@@ -3,14 +3,14 @@
 // Transpiled from c47819246.lua
 
 card "Super Quantal Mech Sword - Magnaslayer" {
-    password: 47819246
+    id: 47819246
     type: Normal Trap
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: EquipAction
         code: FreeChain
-        property: 16400
+        property: CardTarget + Oath
         on_resolve {
             equip (1, card) to (1, monster)
         }
@@ -18,7 +18,7 @@ card "Super Quantal Mech Sword - Magnaslayer" {
 
     raw_effect "Effect 2" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 0
         }
@@ -26,7 +26,7 @@ card "Super Quantal Mech Sword - Magnaslayer" {
 
     raw_effect "Effect 3" {
         effect_type: Equip
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }

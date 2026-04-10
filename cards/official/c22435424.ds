@@ -3,7 +3,7 @@
 // Transpiled from c22435424.lua
 
 card "Drytron Nu II" {
-    password: 22435424
+    id: 22435424
     type: Effect Monster | Spirit
     attribute: LIGHT
     race: Machine
@@ -25,7 +25,7 @@ card "Drytron Nu II" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, either_player controls) to hand
@@ -35,8 +35,8 @@ card "Drytron Nu II" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 67635200
+        code: CannotDisable
+        property: InitialValue + CannotDisable + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
@@ -44,8 +44,8 @@ card "Drytron Nu II" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 60
-        property: 67109888
+        code: CannotAttack
+        property: BothSide + IgnoreRange2
         on_resolve {
         }
     }

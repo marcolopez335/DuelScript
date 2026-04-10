@@ -3,7 +3,7 @@
 // Transpiled from c28016193.lua
 
 card "Metalfoes Orichalc" {
-    password: 28016193
+    id: 28016193
     type: Fusion Monster
     attribute: FIRE
     race: Psychic
@@ -22,7 +22,7 @@ card "Metalfoes Orichalc" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 203
+        code: GraveRedirectCb
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
@@ -33,7 +33,7 @@ card "Metalfoes Orichalc" {
         effect_type: Single + Trigger
         category: Destroy
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             destroy (1+, card, either_player controls)
         }

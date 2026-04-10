@@ -3,7 +3,7 @@
 // Transpiled from c59369430.lua
 
 card "Golgoil the Steel Seismic Smasher" {
-    password: 59369430
+    id: 59369430
     type: Effect Monster
     attribute: EARTH
     race: Unknown
@@ -17,7 +17,7 @@ card "Golgoil the Steel Seismic Smasher" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -28,7 +28,7 @@ card "Golgoil the Steel Seismic Smasher" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: 1138
-        property: 65552
+        property: CardTarget + Delay
         range: MonsterZone
         count_limit: (1, 59369430)
         on_resolve {
@@ -40,7 +40,7 @@ card "Golgoil the Steel Seismic Smasher" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: TurnEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

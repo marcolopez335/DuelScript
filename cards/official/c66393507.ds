@@ -3,7 +3,7 @@
 // Transpiled from c66393507.lua
 
 card "X-Krawler Neurogos" {
-    password: 66393507
+    id: 66393507
     type: Link Monster
     attribute: EARTH
     race: Insect
@@ -22,7 +22,7 @@ card "X-Krawler Neurogos" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -31,7 +31,7 @@ card "X-Krawler Neurogos" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 300
@@ -40,7 +40,7 @@ card "X-Krawler Neurogos" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 104
+        code: UpdateDefense
         range: MonsterZone
         on_resolve {
             modifier: def + 300
@@ -50,7 +50,7 @@ card "X-Krawler Neurogos" {
     raw_effect "Effect 4" {
         effect_type: Field
         code: 208
-        property: 128
+        property: SetAvailable
         range: MonsterZone
         on_resolve {
         }
@@ -59,8 +59,8 @@ card "X-Krawler Neurogos" {
     raw_effect "Effect 5" {
         effect_type: Single + Trigger
         category: SpecialSummon
-        code: 1015
-        property: 65552
+        code: ChainNegated
+        property: CardTarget + Delay
         on_resolve {
             special_summon (1, monster) from gy
             reveal (1+, card, opponent controls)

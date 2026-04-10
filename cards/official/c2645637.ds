@@ -3,7 +3,7 @@
 // Transpiled from c2645637.lua
 
 card "Yuki-Onna, the Absolute Zero Mayakashi" {
-    password: 2645637
+    id: 2645637
     type: Link Monster
     attribute: WATER
     race: Zombie
@@ -33,7 +33,7 @@ card "Yuki-Onna, the Absolute Zero Mayakashi" {
         effect_type: Field + Trigger
         category: Disable + SynchroSummon
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         range: MonsterZone
         count_limit: (2, 2645637)
         on_resolve {
@@ -48,7 +48,7 @@ card "Yuki-Onna, the Absolute Zero Mayakashi" {
         effect_type: Field + Trigger
         category: Disable + SynchroSummon
         code: Chaining
-        property: 65552
+        property: CardTarget + Delay
         range: MonsterZone
         count_limit: (2, 2645637)
         on_resolve {
@@ -61,7 +61,7 @@ card "Yuki-Onna, the Absolute Zero Mayakashi" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 102
+        code: SetAttackFinal
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

@@ -3,7 +3,7 @@
 // Transpiled from c88619463.lua
 
 card "Sorcerer of Dark Magic" {
-    password: 88619463
+    id: 88619463
     type: Effect Monster | Spirit
     attribute: DARK
     race: Spellcaster
@@ -17,16 +17,16 @@ card "Sorcerer of Dark Magic" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 262144
+        code: SpsummonCondition
+        property: Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             tribute (1, monster, you controls)
@@ -37,7 +37,7 @@ card "Sorcerer of Dark Magic" {
         effect_type: QuickEffect
         category: Negate
         code: Chaining
-        property: 49152
+        property: Oath + CountCodeDuel
         range: MonsterZone
         on_resolve {
             negate activation

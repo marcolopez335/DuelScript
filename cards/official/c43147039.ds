@@ -3,7 +3,7 @@
 // Transpiled from c43147039.lua
 
 card "Photon Vanisher" {
-    password: 43147039
+    id: 43147039
     type: Effect Monster | Spirit
     attribute: LIGHT
     race: Warrior
@@ -17,8 +17,8 @@ card "Photon Vanisher" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
         }
@@ -28,7 +28,7 @@ card "Photon Vanisher" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 81920
+        property: Oath + Delay
         on_resolve {
             return (1+, monster, you controls) to hand
             reveal (1+, card, opponent controls)
@@ -48,7 +48,7 @@ card "Photon Vanisher" {
 
     raw_effect "Effect 4" {
         effect_type: Single + Continuous
-        code: 1108
+        code: FlipSuccess
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

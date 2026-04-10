@@ -3,7 +3,7 @@
 // Transpiled from c40702028.lua
 
 card "DPH Gendamoore" {
-    password: 40702028
+    id: 40702028
     type: Synchro Monster | Tuner
     attribute: FIRE
     race: Cyberse
@@ -25,7 +25,7 @@ card "DPH Gendamoore" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 40702028)
         on_resolve {
             special_summon (1, monster) from gy
@@ -39,7 +39,7 @@ card "DPH Gendamoore" {
     raw_effect "Effect 2" {
         effect_type: Field + Trigger
         category: Damage
-        code: 1143
+        code: BattleDestroyed
         range: Graveyard
         count_limit: (1, 0)
         cost {
@@ -52,8 +52,8 @@ card "DPH Gendamoore" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

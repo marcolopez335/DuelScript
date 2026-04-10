@@ -3,7 +3,7 @@
 // Transpiled from c45005708.lua
 
 card "The Bystial Aluber" {
-    password: 45005708
+    id: 45005708
     type: Effect Monster | Tuner
     attribute: DARK
     race: Dragon
@@ -14,7 +14,7 @@ card "The Bystial Aluber" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 114
-        property: 131072
+        property: SingleRange
         range: MonsterZone + Graveyard
         on_resolve {
         }
@@ -23,7 +23,7 @@ card "The Bystial Aluber" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         code: SummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 45005708)
         on_resolve {
             send (1+, card, you controls, hand) to gy
@@ -35,7 +35,7 @@ card "The Bystial Aluber" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 45005708)
         on_resolve {
             send (1+, card, you controls, hand) to gy

@@ -3,7 +3,7 @@
 // Transpiled from c23116808.lua
 
 card "Goka, the Pyre of Malice" {
-    password: 23116808
+    id: 23116808
     type: Effect Monster
     attribute: FIRE
     race: Zombie
@@ -17,8 +17,8 @@ card "Goka, the Pyre of Malice" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
         }
@@ -28,7 +28,7 @@ card "Goka, the Pyre of Malice" {
         effect_type: Single + MandatoryTrigger
         category: Destroy
         code: SpecialSummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
             destroy (1+, monster, you controls)
         }
@@ -59,7 +59,7 @@ card "Goka, the Pyre of Malice" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 500
         }

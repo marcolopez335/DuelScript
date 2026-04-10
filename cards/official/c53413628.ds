@@ -3,7 +3,7 @@
 // Transpiled from c53413628.lua
 
 card "Code Talker" {
-    password: 53413628
+    id: 53413628
     type: Link Monster
     attribute: DARK
     race: Cyberse
@@ -22,8 +22,8 @@ card "Code Talker" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -32,8 +32,8 @@ card "Code Talker" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -42,8 +42,8 @@ card "Code Talker" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

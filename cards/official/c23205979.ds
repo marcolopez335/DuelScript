@@ -3,7 +3,7 @@
 // Transpiled from c23205979.lua
 
 card "Spirit Reaper" {
-    password: 23205979
+    id: 23205979
     type: Effect Monster
     attribute: DARK
     race: Zombie
@@ -13,7 +13,7 @@ card "Spirit Reaper" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -22,7 +22,7 @@ card "Spirit Reaper" {
     raw_effect "Effect 2" {
         effect_type: Single + MandatoryTrigger
         category: DefChange
-        code: 1143
+        code: BattleDestroyed
         on_resolve {
             send (1+, card, either_player controls) to gy
         }
@@ -31,7 +31,7 @@ card "Spirit Reaper" {
     raw_effect "Effect 3" {
         effect_type: Single
         code: 141
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -57,8 +57,8 @@ card "Spirit Reaper" {
 
     raw_effect "Effect 6" {
         effect_type: Field + Continuous
-        code: 1028
-        property: 1024
+        code: BecomeTarget
+        property: BothSide
         range: MonsterZone
         on_resolve {
         }

@@ -3,7 +3,7 @@
 // Transpiled from c50793215.lua
 
 card "Deep Sea Prima Donna" {
-    password: 50793215
+    id: 50793215
     type: Synchro Monster | Tuner
     attribute: WATER
     race: Sea Serpent
@@ -23,8 +23,8 @@ card "Deep Sea Prima Donna" {
 
     raw_effect "Effect 1" {
         effect_type: Single + Continuous
-        code: 1108
-        property: 128
+        code: FlipSuccess
+        property: SetAvailable
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -36,7 +36,7 @@ card "Deep Sea Prima Donna" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: ToHand + SpecialSummon + Search
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 50793215)
         on_resolve {
@@ -50,7 +50,7 @@ card "Deep Sea Prima Donna" {
         effect_type: Single + Trigger
         category: ToDeck
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             return (1+, card, you controls) to deck shuffle
@@ -59,8 +59,8 @@ card "Deep Sea Prima Donna" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 71
-        property: 67108864
+        code: CannotDirectAttack2
+        property: IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }

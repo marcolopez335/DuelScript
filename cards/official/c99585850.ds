@@ -3,7 +3,7 @@
 // Transpiled from c99585850.lua
 
 card "Red Supernova Dragon" {
-    password: 99585850
+    id: 99585850
     type: Synchro Monster
     attribute: DARK
     race: Dragon
@@ -23,8 +23,8 @@ card "Red Supernova Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 394240
+        code: SpsummonCondition
+        property: BothSide + SingleRange + Uncopyable
         range: Deck
         on_resolve {
         }
@@ -32,8 +32,8 @@ card "Red Supernova Dragon" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -42,8 +42,8 @@ card "Red Supernova Dragon" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -75,7 +75,7 @@ card "Red Supernova Dragon" {
     raw_effect "Effect 6" {
         effect_type: Field + MandatoryTrigger
         category: SpecialSummon
-        code: 4608
+        code: PhaseEnd
         range: Banished
         count_limit: (1, 0)
         on_resolve {
@@ -86,7 +86,7 @@ card "Red Supernova Dragon" {
     raw_effect "Effect 7" {
         effect_type: Single
         code: 21142671
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }

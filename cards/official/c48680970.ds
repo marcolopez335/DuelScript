@@ -3,7 +3,7 @@
 // Transpiled from c48680970.lua
 
 card "Eternal Soul" {
-    password: 48680970
+    id: 48680970
     type: Continuous Trap
 
     raw_effect "Effect 1" {
@@ -15,7 +15,7 @@ card "Eternal Soul" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 1
+        code: ImmuneEffect
         range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -25,7 +25,7 @@ card "Eternal Soul" {
     raw_effect "Effect 3" {
         effect_type: Single + MandatoryTrigger
         category: Destroy
-        code: 1015
+        code: ChainNegated
         on_resolve {
             destroy (1+, monster, you controls)
         }

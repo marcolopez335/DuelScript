@@ -3,7 +3,7 @@
 // Transpiled from c13959634.lua
 
 card "Moulinglacia the Elemental Lord" {
-    password: 13959634
+    id: 13959634
     type: Effect Monster | Spirit
     attribute: WATER
     race: Sea Serpent
@@ -17,16 +17,16 @@ card "Moulinglacia the Elemental Lord" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
         }
@@ -45,7 +45,7 @@ card "Moulinglacia the Elemental Lord" {
     raw_effect "Effect 4" {
         effect_type: Single + Continuous
         code: 1019
-        property: 1536
+        property: IgnoreImmune + BothSide
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

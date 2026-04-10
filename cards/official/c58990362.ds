@@ -3,7 +3,7 @@
 // Transpiled from c58990362.lua
 
 card "Zefraniu, Secret of the Yang Zing" {
-    password: 58990362
+    id: 58990362
     type: Effect Monster | Pendulum Monster
     attribute: EARTH
     race: Wyrm
@@ -18,8 +18,8 @@ card "Zefraniu, Secret of the Yang Zing" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 22
-        property: 3584
+        code: CannotDisable
+        property: IgnoreImmune + BothSide + InitialValue
         range: PendulumZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -41,7 +41,7 @@ card "Zefraniu, Secret of the Yang Zing" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: Destroyed
-        property: 16384
+        property: Oath
         count_limit: (1, 58990362)
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck

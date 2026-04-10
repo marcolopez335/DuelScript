@@ -3,7 +3,7 @@
 // Transpiled from c47172959.lua
 
 card "Yubel - The Loving Defender Forever" {
-    password: 47172959
+    id: 47172959
     type: Fusion Monster
     attribute: DARK
     race: Fiend
@@ -24,7 +24,7 @@ card "Yubel - The Loving Defender Forever" {
         effect_type: Single + Trigger
         category: Damage
         code: SpecialSummonSuccess
-        property: 67584
+        property: InitialValue + Delay
         on_resolve {
             deal_damage to opponent: 1000
         }
@@ -32,8 +32,8 @@ card "Yubel - The Loving Defender Forever" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -42,8 +42,8 @@ card "Yubel - The Loving Defender Forever" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -53,7 +53,7 @@ card "Yubel - The Loving Defender Forever" {
     raw_effect "Effect 4" {
         effect_type: Single
         code: 201
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

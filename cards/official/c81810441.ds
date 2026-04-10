@@ -3,12 +3,12 @@
 // Transpiled from c81810441.lua
 
 card "Stellarknight Alpha" {
-    password: 81810441
+    id: 81810441
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 500
         }
@@ -16,7 +16,7 @@ card "Stellarknight Alpha" {
 
     raw_effect "Effect 2" {
         effect_type: Equip
-        code: 104
+        code: UpdateDefense
         on_resolve {
             modifier: def + 500
         }
@@ -24,7 +24,7 @@ card "Stellarknight Alpha" {
 
     raw_effect "Effect 3" {
         effect_type: Equip
-        code: 1
+        code: ImmuneEffect
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
         }
@@ -33,7 +33,7 @@ card "Stellarknight Alpha" {
     raw_effect "Effect 4" {
         effect_type: Single
         code: 141
-        property: 131072
+        property: SingleRange
         range: SpellTrapZone
         on_resolve {
         }

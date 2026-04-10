@@ -3,7 +3,7 @@
 // Transpiled from c4591250.lua
 
 card "Amazoness Empress" {
-    password: 4591250
+    id: 4591250
     type: Fusion Monster
     attribute: EARTH
     race: Warrior
@@ -22,7 +22,7 @@ card "Amazoness Empress" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -31,7 +31,7 @@ card "Amazoness Empress" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 41
+        code: IndestructableEffect
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -40,7 +40,7 @@ card "Amazoness Empress" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 203
+        code: GraveRedirectCb
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
@@ -50,8 +50,8 @@ card "Amazoness Empress" {
     raw_effect "Effect 4" {
         effect_type: Single + Trigger
         category: SpecialSummon
-        code: 1015
-        property: 81920
+        code: ChainNegated
+        property: Oath + Delay
         on_resolve {
             special_summon (1, monster) from gy
         }

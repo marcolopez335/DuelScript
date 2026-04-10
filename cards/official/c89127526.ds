@@ -3,7 +3,7 @@
 // Transpiled from c89127526.lua
 
 card "Barrier Resonator" {
-    password: 89127526
+    id: 89127526
     type: Effect Monster | Tuner
     attribute: LIGHT
     race: Fiend
@@ -14,7 +14,7 @@ card "Barrier Resonator" {
     raw_effect "Effect 1" {
         effect_type: QuickEffect
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: Hand
         cost {
             send self to gy
@@ -33,8 +33,8 @@ card "Barrier Resonator" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 42
-        property: 67108864
+        code: CannotBeEffectTarget
+        property: IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -43,7 +43,7 @@ card "Barrier Resonator" {
     raw_effect "Effect 3" {
         effect_type: Single
         code: 201
-        property: 67108864
+        property: IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

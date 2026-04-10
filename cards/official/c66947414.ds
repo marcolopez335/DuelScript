@@ -3,7 +3,7 @@
 // Transpiled from c66947414.lua
 
 card "Boss Rush" {
-    password: 66947414
+    id: 66947414
     type: Continuous Spell
 
     raw_effect "Effect 1" {
@@ -16,7 +16,7 @@ card "Boss Rush" {
     raw_effect "Effect 2" {
         effect_type: Field
         code: 20
-        property: 2048
+        property: InitialValue
         range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -26,7 +26,7 @@ card "Boss Rush" {
     raw_effect "Effect 3" {
         effect_type: Field
         code: 23
-        property: 2048
+        property: InitialValue
         range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }
@@ -44,7 +44,7 @@ card "Boss Rush" {
     raw_effect "Effect 5" {
         effect_type: Field + Trigger
         category: SpecialSummon
-        code: 4608
+        code: PhaseEnd
         range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {

@@ -3,7 +3,7 @@
 // Transpiled from c27480536.lua
 
 card "Armored Shark" {
-    password: 27480536
+    id: 27480536
     type: Effect Monster
     attribute: WATER
     race: Fish
@@ -14,7 +14,7 @@ card "Armored Shark" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: SpecialSummon
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 27480536)
         cost {
@@ -29,7 +29,7 @@ card "Armored Shark" {
         effect_type: QuickEffect
         category: EquipAction
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: Graveyard
         count_limit: (1, 0)
         on_resolve {
@@ -39,15 +39,15 @@ card "Armored Shark" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 76
-        property: 1024
+        code: CannotAttack2
+        property: BothSide
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 500
         }

@@ -3,7 +3,7 @@
 // Transpiled from c8794055.lua
 
 card "The Most Distant, Deepest Depths" {
-    password: 8794055
+    id: 8794055
     type: Field Spell
 
     raw_effect "Effect 1" {
@@ -15,8 +15,8 @@ card "The Most Distant, Deepest Depths" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: FieldZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -25,8 +25,8 @@ card "The Most Distant, Deepest Depths" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 67
-        property: 2048
+        code: IndestructableCount
+        property: InitialValue
         range: FieldZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -51,7 +51,7 @@ card "The Most Distant, Deepest Depths" {
         effect_type: Field + Trigger
         category: Banish + ToHand
         code: SummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         range: Graveyard
         count_limit: (1, 0)
         on_resolve {
@@ -65,7 +65,7 @@ card "The Most Distant, Deepest Depths" {
         effect_type: Field + Trigger
         category: Banish + ToHand
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         range: Graveyard
         count_limit: (1, 0)
         on_resolve {

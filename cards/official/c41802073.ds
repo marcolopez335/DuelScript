@@ -3,7 +3,7 @@
 // Transpiled from c41802073.lua
 
 card "Vaylantz Voltage Viscount" {
-    password: 41802073
+    id: 41802073
     type: Effect Monster | Pendulum Monster
     attribute: FIRE
     race: Machine
@@ -42,7 +42,7 @@ card "Vaylantz Voltage Viscount" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         code: LeaveField
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -51,8 +51,8 @@ card "Vaylantz Voltage Viscount" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
@@ -61,7 +61,7 @@ card "Vaylantz Voltage Viscount" {
     raw_effect "Effect 5" {
         effect_type: Single
         code: 117
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }

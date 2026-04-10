@@ -3,7 +3,7 @@
 // Transpiled from c96163807.lua
 
 card "Tristan, Knight of the Underworld" {
-    password: 96163807
+    id: 96163807
     type: Effect Monster
     attribute: DARK
     race: Zombie
@@ -15,7 +15,7 @@ card "Tristan, Knight of the Underworld" {
         effect_type: Single + Trigger
         category: ToHand
         code: SummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
             return (1+, monster, you controls) to hand
         }
@@ -23,8 +23,8 @@ card "Tristan, Knight of the Underworld" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 300

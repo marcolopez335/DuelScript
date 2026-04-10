@@ -3,7 +3,7 @@
 // Transpiled from c65330383.lua
 
 card "Knightmare Gryphon" {
-    password: 65330383
+    id: 65330383
     type: Link Monster
     attribute: LIGHT
     race: Fiend
@@ -23,7 +23,7 @@ card "Knightmare Gryphon" {
     raw_effect "Effect 1" {
         effect_type: Single + Trigger
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 65330383)
         cost {
             discard (1, card, you controls)
@@ -40,8 +40,8 @@ card "Knightmare Gryphon" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 6
-        property: 2048
+        code: CannotChangeControl
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -51,7 +51,7 @@ card "Knightmare Gryphon" {
     raw_effect "Effect 3" {
         effect_type: Single
         code: 7
-        property: 67109888
+        property: BothSide + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }

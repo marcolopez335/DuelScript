@@ -3,7 +3,7 @@
 // Transpiled from c68810435.lua
 
 card "Cooky☆Yummy" {
-    password: 68810435
+    id: 68810435
     type: Effect Monster
     attribute: LIGHT
     race: Beast
@@ -13,8 +13,8 @@ card "Cooky☆Yummy" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         count_limit: (1, 68810435)
         on_resolve {
@@ -25,7 +25,7 @@ card "Cooky☆Yummy" {
         effect_type: Single + Trigger
         category: SynchroSummon
         code: SummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, you controls)
@@ -36,7 +36,7 @@ card "Cooky☆Yummy" {
         effect_type: Single + Trigger
         category: Destroy + SynchroSummon
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, you controls)

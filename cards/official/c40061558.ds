@@ -3,7 +3,7 @@
 // Transpiled from c40061558.lua
 
 card "Apoqliphort Skybase" {
-    password: 40061558
+    id: 40061558
     type: Effect Monster
     attribute: EARTH
     race: Machine
@@ -17,8 +17,8 @@ card "Apoqliphort Skybase" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -32,8 +32,8 @@ card "Apoqliphort Skybase" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 1
-        property: 393216
+        code: ImmuneEffect
+        property: SingleRange + Uncopyable
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -43,7 +43,7 @@ card "Apoqliphort Skybase" {
     raw_effect "Effect 4" {
         effect_type: Ignition
         category: Summon
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

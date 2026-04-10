@@ -3,14 +3,14 @@
 // Transpiled from c70284332.lua
 
 card "Tuner's Scheme" {
-    password: 70284332
+    id: 70284332
     type: Continuous Trap
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: Summon
         code: SpecialSummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -25,7 +25,7 @@ card "Tuner's Scheme" {
 
     raw_effect "Effect 2" {
         effect_type: Field + Continuous
-        code: 1015
+        code: ChainNegated
         range: SpellTrapZone
         on_resolve {
             destroy (1+, card, either_player controls)

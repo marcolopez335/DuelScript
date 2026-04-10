@@ -3,7 +3,7 @@
 // Transpiled from c97453744.lua
 
 card "Heroic Champion - Claivesolish" {
-    password: 97453744
+    id: 97453744
     type: Xyz Monster
     attribute: LIGHT
     race: Warrior
@@ -50,7 +50,7 @@ card "Heroic Champion - Claivesolish" {
         effect_type: Field + Trigger
         category: SynchroSummon
         code: AttackAnnounce
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         cost {
@@ -74,8 +74,8 @@ card "Heroic Champion - Claivesolish" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 102
-        property: 1024
+        code: SetAttackFinal
+        property: BothSide
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -83,7 +83,7 @@ card "Heroic Champion - Claivesolish" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 0
         }

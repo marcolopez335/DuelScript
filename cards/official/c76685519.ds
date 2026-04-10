@@ -3,7 +3,7 @@
 // Transpiled from c76685519.lua
 
 card "Altergeist Kidolga" {
-    password: 76685519
+    id: 76685519
     type: Link Monster
     attribute: DARK
     race: Spellcaster
@@ -23,8 +23,8 @@ card "Altergeist Kidolga" {
     raw_effect "Effect 1" {
         effect_type: Field + Trigger
         category: SpecialSummon
-        code: 1143
-        property: 16
+        code: BattleDestroyed
+        property: CardTarget
         range: MonsterZone
         on_resolve {
             special_summon (1, monster) from gy
@@ -39,7 +39,7 @@ card "Altergeist Kidolga" {
         effect_type: Single + Trigger
         category: ToHand
         code: BattleDamage
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }

@@ -3,7 +3,7 @@
 // Transpiled from c76375976.lua
 
 card "Mystic Mine" {
-    password: 76375976
+    id: 76375976
     type: Field Spell
 
     raw_effect "Effect 1" {
@@ -15,8 +15,8 @@ card "Mystic Mine" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 6
-        property: 67110912
+        code: CannotChangeControl
+        property: InitialValue + IgnoreRange2
         range: FieldZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -25,8 +25,8 @@ card "Mystic Mine" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 6
-        property: 67110912
+        code: CannotChangeControl
+        property: InitialValue + IgnoreRange2
         range: FieldZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -36,7 +36,7 @@ card "Mystic Mine" {
     raw_effect "Effect 4" {
         effect_type: Field
         code: 86
-        property: 2048
+        property: InitialValue
         range: FieldZone
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -46,7 +46,7 @@ card "Mystic Mine" {
     raw_effect "Effect 5" {
         effect_type: Field
         code: 86
-        property: 2048
+        property: InitialValue
         range: FieldZone
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -56,7 +56,7 @@ card "Mystic Mine" {
     raw_effect "Effect 6" {
         effect_type: Field + MandatoryTrigger
         category: Destroy
-        code: 4608
+        code: PhaseEnd
         range: FieldZone
         count_limit: (1, 0)
         on_resolve {

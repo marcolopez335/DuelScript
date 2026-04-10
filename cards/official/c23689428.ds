@@ -3,7 +3,7 @@
 // Transpiled from c23689428.lua
 
 card "Infinitrack Goliath" {
-    password: 23689428
+    id: 23689428
     type: Link Monster
     attribute: EARTH
     race: Machine
@@ -23,7 +23,7 @@ card "Infinitrack Goliath" {
     raw_effect "Effect 1" {
         effect_type: Single + Trigger
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 23689428)
         on_resolve {
             attach (1, card) to self as_material
@@ -31,9 +31,9 @@ card "Infinitrack Goliath" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 4096
-        code: 41
-        property: 131072
+        effect_type: XyzMaterial
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

@@ -3,7 +3,7 @@
 // Transpiled from c40352445.lua
 
 card "White Knight of Dogmatika" {
-    password: 40352445
+    id: 40352445
     type: Ritual Monster
     attribute: LIGHT
     race: Spellcaster
@@ -22,8 +22,8 @@ card "White Knight of Dogmatika" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 22
-        property: 2048
+        code: CannotDisable
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -34,7 +34,7 @@ card "White Knight of Dogmatika" {
         effect_type: Field + Trigger
         category: ToGrave + SynchroSummon
         code: Chaining
-        property: 65536
+        property: Delay
         range: MonsterZone
         count_limit: (1, 40352445)
         on_resolve {
@@ -47,7 +47,7 @@ card "White Knight of Dogmatika" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 0
         }

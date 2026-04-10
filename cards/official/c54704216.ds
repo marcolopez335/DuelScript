@@ -3,7 +3,7 @@
 // Transpiled from c54704216.lua
 
 card "Nightmare Wheel" {
-    password: 54704216
+    id: 54704216
     type: Continuous Trap
 
     raw_effect "Effect 1" {
@@ -18,7 +18,7 @@ card "Nightmare Wheel" {
     raw_effect "Effect 2" {
         effect_type: Field
         code: 14
-        property: 256
+        property: IgnoreRange
         range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }
@@ -38,7 +38,7 @@ card "Nightmare Wheel" {
 
     raw_effect "Effect 4" {
         effect_type: Field + Continuous
-        code: 1015
+        code: ChainNegated
         range: SpellTrapZone
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -47,7 +47,7 @@ card "Nightmare Wheel" {
 
     raw_effect "Effect 5" {
         effect_type: Field + MandatoryTrigger
-        code: 1015
+        code: ChainNegated
         range: MonsterZone
         on_resolve {
         }

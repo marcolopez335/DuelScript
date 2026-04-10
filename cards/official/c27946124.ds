@@ -3,7 +3,7 @@
 // Transpiled from c27946124.lua
 
 card "Sunvine Shrine" {
-    password: 27946124
+    id: 27946124
     type: Continuous Spell
 
     raw_effect "Effect 1" {
@@ -15,8 +15,8 @@ card "Sunvine Shrine" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -35,8 +35,8 @@ card "Sunvine Shrine" {
 
     raw_effect "Effect 4" {
         effect_type: Field + Trigger
-        code: 4608
-        property: 16
+        code: PhaseEnd
+        property: CardTarget
         range: SpellTrapZone
         count_limit: (1, 0)
         cost {

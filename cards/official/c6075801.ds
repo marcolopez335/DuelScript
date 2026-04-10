@@ -3,7 +3,7 @@
 // Transpiled from c6075801.lua
 
 card "Paladin of Felgrand" {
-    password: 6075801
+    id: 6075801
     type: Effect Monster
     attribute: LIGHT
     race: Warrior
@@ -15,7 +15,7 @@ card "Paladin of Felgrand" {
         effect_type: Single + Trigger
         category: EquipAction
         code: SummonSuccess
-        property: 81920
+        property: Oath + Delay
         on_resolve {
         }
     }
@@ -24,15 +24,15 @@ card "Paladin of Felgrand" {
         effect_type: Single + Trigger
         category: EquipAction
         code: SpecialSummonSuccess
-        property: 81920
+        property: Oath + Delay
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 1
-        property: 131072
+        code: ImmuneEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -42,7 +42,7 @@ card "Paladin of Felgrand" {
     raw_effect "Effect 4" {
         effect_type: Ignition
         category: SpecialSummon
-        property: 16
+        property: CardTarget
         range: MonsterZone
         cost {
             tribute self
@@ -54,14 +54,14 @@ card "Paladin of Felgrand" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 76
+        code: CannotAttack2
         on_resolve {
         }
     }
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 71
+        code: CannotDirectAttack2
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
@@ -69,7 +69,7 @@ card "Paladin of Felgrand" {
 
     raw_effect "Effect 7" {
         effect_type: Single
-        code: 41
+        code: IndestructableEffect
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
@@ -77,7 +77,7 @@ card "Paladin of Felgrand" {
 
     raw_effect "Effect 8" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -85,14 +85,14 @@ card "Paladin of Felgrand" {
 
     raw_effect "Effect 9" {
         effect_type: Single
-        code: 76
+        code: CannotAttack2
         on_resolve {
         }
     }
 
     raw_effect "Effect 10" {
         effect_type: Single
-        code: 71
+        code: CannotDirectAttack2
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
@@ -100,7 +100,7 @@ card "Paladin of Felgrand" {
 
     raw_effect "Effect 11" {
         effect_type: Single
-        code: 41
+        code: IndestructableEffect
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
@@ -108,7 +108,7 @@ card "Paladin of Felgrand" {
 
     raw_effect "Effect 12" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

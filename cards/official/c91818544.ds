@@ -3,7 +3,7 @@
 // Transpiled from c91818544.lua
 
 card "WAKE CUP! Mocha" {
-    password: 91818544
+    id: 91818544
     type: Effect Monster
     attribute: WIND
     race: Aqua
@@ -15,7 +15,7 @@ card "WAKE CUP! Mocha" {
         effect_type: Single + Trigger
         category: ToGrave + SynchroSummon
         code: 1001
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 91818544)
         on_resolve {
             register_effect on self {
@@ -30,7 +30,7 @@ card "WAKE CUP! Mocha" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: SpecialSummon + DiceRoll
-        property: 16
+        property: CardTarget
         range: Hand
         count_limit: (1, 0)
         on_resolve {
@@ -42,7 +42,7 @@ card "WAKE CUP! Mocha" {
     raw_effect "Effect 3" {
         effect_type: Field + Trigger
         category: DiceRoll
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -52,8 +52,8 @@ card "WAKE CUP! Mocha" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 100
-        property: 1024
+        code: UpdateAttack
+        property: BothSide
         on_resolve {
             modifier: atk + 1000
         }

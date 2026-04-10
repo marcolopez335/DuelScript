@@ -3,7 +3,7 @@
 // Transpiled from c19093698.lua
 
 card "Moissa Wight" {
-    password: 19093698
+    id: 19093698
     type: Effect Monster
     attribute: DARK
     race: Zombie
@@ -14,7 +14,7 @@ card "Moissa Wight" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 114
-        property: 131072
+        property: SingleRange
         range: Graveyard
         on_resolve {
         }
@@ -24,7 +24,7 @@ card "Moissa Wight" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 19093698)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -40,7 +40,7 @@ card "Moissa Wight" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 19093698)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -62,8 +62,8 @@ card "Moissa Wight" {
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

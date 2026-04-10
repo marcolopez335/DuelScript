@@ -3,7 +3,7 @@
 // Transpiled from c46985799.lua
 
 card "Black Rose Dragon/Assault Mode" {
-    password: 46985799
+    id: 46985799
     type: Effect Monster | Spirit
     attribute: FIRE
     race: Dragon
@@ -19,7 +19,7 @@ card "Black Rose Dragon/Assault Mode" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 65536
+        property: Delay
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -46,7 +46,7 @@ card "Black Rose Dragon/Assault Mode" {
         effect_type: Single + Trigger
         category: Destroy
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, you controls, gy)
@@ -66,8 +66,8 @@ card "Black Rose Dragon/Assault Mode" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 102
-        property: 1024
+        code: SetAttackFinal
+        property: BothSide
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

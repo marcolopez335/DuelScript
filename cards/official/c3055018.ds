@@ -3,7 +3,7 @@
 // Transpiled from c3055018.lua
 
 card "Obsidim, the Ashened City" {
-    password: 3055018
+    id: 3055018
     type: Field Spell
 
     raw_effect "Effect 1" {
@@ -15,7 +15,7 @@ card "Obsidim, the Ashened City" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 122
+        code: ChangeCode
         range: FieldZone
         on_resolve {
         }
@@ -24,8 +24,8 @@ card "Obsidim, the Ashened City" {
     raw_effect "Effect 3" {
         effect_type: Field + Trigger
         category: ToDeck + Draw
-        code: 4608
-        property: 16
+        code: PhaseEnd
+        property: CardTarget
         range: FieldZone
         count_limit: (1, 3055018)
         on_resolve {
@@ -38,7 +38,7 @@ card "Obsidim, the Ashened City" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -49,7 +49,7 @@ card "Obsidim, the Ashened City" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: TurnEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

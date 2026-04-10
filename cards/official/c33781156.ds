@@ -3,7 +3,7 @@
 // Transpiled from c33781156.lua
 
 card "Tri-Brigade Arms Mouser" {
-    password: 33781156
+    id: 33781156
     type: Link Monster
     attribute: EARTH
     race: Beast
@@ -24,7 +24,7 @@ card "Tri-Brigade Arms Mouser" {
         effect_type: Single + Trigger
         category: ToGrave
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 33781156)
         on_resolve {
             send (1+, monster, you controls, deck) to gy
@@ -39,7 +39,7 @@ card "Tri-Brigade Arms Mouser" {
         effect_type: Single + Trigger
         category: DiceRoll
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)
@@ -48,8 +48,8 @@ card "Tri-Brigade Arms Mouser" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

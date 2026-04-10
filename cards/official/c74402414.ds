@@ -3,7 +3,7 @@
 // Transpiled from c74402414.lua
 
 card "Spell Chronicle" {
-    password: 74402414
+    id: 74402414
     type: Continuous Spell
 
     raw_effect "Effect 1" {
@@ -20,7 +20,7 @@ card "Spell Chronicle" {
     raw_effect "Effect 2" {
         effect_type: Field + Continuous
         code: Chaining
-        property: 1024
+        property: BothSide
         range: SpellTrapZone
         on_resolve {
         }
@@ -37,7 +37,7 @@ card "Spell Chronicle" {
     raw_effect "Effect 4" {
         effect_type: Ignition
         category: ToHand
-        property: 16
+        property: CardTarget
         range: SpellTrapZone
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck
@@ -48,14 +48,14 @@ card "Spell Chronicle" {
     raw_effect "Effect 5" {
         effect_type: Single + Continuous
         code: 1019
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
 
     raw_effect "Effect 6" {
         effect_type: Single + Continuous
-        code: 1015
+        code: ChainNegated
         on_resolve {
             deal_damage to opponent: 1000
         }

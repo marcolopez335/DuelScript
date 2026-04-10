@@ -3,7 +3,7 @@
 // Transpiled from c16387555.lua
 
 card "Kewl Tune Cue" {
-    password: 16387555
+    id: 16387555
     type: Effect Monster | Tuner
     attribute: LIGHT
     race: Fairy
@@ -15,7 +15,7 @@ card "Kewl Tune Cue" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 16387555)
         on_resolve {
             special_summon (1, monster) from gy
@@ -29,8 +29,8 @@ card "Kewl Tune Cue" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: Banish
-        code: 1108
-        property: 65536
+        code: FlipSuccess
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             reveal (1, card, opponent controls, deck)
@@ -41,8 +41,8 @@ card "Kewl Tune Cue" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

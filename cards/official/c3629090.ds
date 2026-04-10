@@ -3,7 +3,7 @@
 // Transpiled from c3629090.lua
 
 card "Cyber Angel Idaten" {
-    password: 3629090
+    id: 3629090
     type: Ritual Monster
     attribute: LIGHT
     race: Fairy
@@ -24,7 +24,7 @@ card "Cyber Angel Idaten" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             return (1+, monster, you controls) to hand
             reveal (1+, card, opponent controls)
@@ -34,8 +34,8 @@ card "Cyber Angel Idaten" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: SynchroSummon + XyzSummon
-        code: Release
-        property: 81920
+        code: Released
+        property: Oath + Delay
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

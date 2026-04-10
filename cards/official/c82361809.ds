@@ -3,7 +3,7 @@
 // Transpiled from c82361809.lua
 
 card "Scareclaw Reichheart" {
-    password: 82361809
+    id: 82361809
     type: Effect Monster
     attribute: DARK
     race: Warrior
@@ -13,8 +13,8 @@ card "Scareclaw Reichheart" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         count_limit: (1, 82361809)
         on_resolve {
@@ -25,7 +25,7 @@ card "Scareclaw Reichheart" {
         effect_type: Single + Trigger
         category: ToHand + Draw + Search
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             return (1+, spell, you controls) to hand
@@ -39,7 +39,7 @@ card "Scareclaw Reichheart" {
         effect_type: Single + Trigger
         category: ToHand + Draw + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             return (1+, spell, you controls) to hand

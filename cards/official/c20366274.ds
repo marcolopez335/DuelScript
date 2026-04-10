@@ -3,7 +3,7 @@
 // Transpiled from c20366274.lua
 
 card "El Shaddoll Construct" {
-    password: 20366274
+    id: 20366274
     type: Fusion Monster
     attribute: LIGHT
     race: Fairy
@@ -22,8 +22,8 @@ card "El Shaddoll Construct" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 394240
+        code: SpsummonCondition
+        property: BothSide + SingleRange + Uncopyable
         range: Deck
         on_resolve {
         }
@@ -33,7 +33,7 @@ card "El Shaddoll Construct" {
         effect_type: Single + Trigger
         category: ToGrave
         code: SpecialSummonSuccess
-        property: 81920
+        property: Oath + Delay
         on_resolve {
             send (1+, spell, you controls, deck) to gy
         }
@@ -52,7 +52,7 @@ card "El Shaddoll Construct" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck
         }

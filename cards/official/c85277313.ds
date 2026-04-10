@@ -3,14 +3,14 @@
 // Transpiled from c85277313.lua
 
 card "Signs of the Tistina" {
-    password: 85277313
+    id: 85277313
     type: Continuous Trap
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -18,7 +18,7 @@ card "Signs of the Tistina" {
 
     raw_effect "Effect 2" {
         effect_type: Field + Continuous
-        code: 1015
+        code: ChainNegated
         range: MonsterZone
         on_resolve {
             destroy (1, card)
@@ -27,7 +27,7 @@ card "Signs of the Tistina" {
 
     raw_effect "Effect 3" {
         effect_type: Single + Continuous
-        code: 1015
+        code: ChainNegated
         on_resolve {
             destroy (1+, card, either_player controls)
         }

@@ -3,7 +3,7 @@
 // Transpiled from c9989792.lua
 
 card "Triamid Fortress" {
-    password: 9989792
+    id: 9989792
     type: Field Spell
 
     raw_effect "Effect 1" {
@@ -15,7 +15,7 @@ card "Triamid Fortress" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 104
+        code: UpdateDefense
         range: FieldZone
         on_resolve {
             modifier: def + 500
@@ -24,7 +24,7 @@ card "Triamid Fortress" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 41
+        code: IndestructableEffect
         range: FieldZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -35,7 +35,7 @@ card "Triamid Fortress" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 9989792)
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy

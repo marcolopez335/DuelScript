@@ -3,7 +3,7 @@
 // Transpiled from c78888899.lua
 
 card "Centur-Ion Emeth VI" {
-    password: 78888899
+    id: 78888899
     type: Effect Monster
     attribute: EARTH
     race: Machine
@@ -19,7 +19,7 @@ card "Centur-Ion Emeth VI" {
         effect_type: QuickEffect
         category: SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: Hand + Graveyard
         count_limit: (1, 78888899)
         on_resolve {
@@ -51,15 +51,15 @@ card "Centur-Ion Emeth VI" {
     raw_effect "Effect 3" {
         effect_type: Single
         code: 117
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

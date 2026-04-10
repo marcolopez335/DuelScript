@@ -3,7 +3,7 @@
 // Transpiled from c40669071.lua
 
 card "Excode Talker" {
-    password: 40669071
+    id: 40669071
     type: Link Monster
     attribute: WIND
     race: Cyberse
@@ -34,8 +34,8 @@ card "Excode Talker" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 41
-        property: 256
+        code: IndestructableEffect
+        property: IgnoreRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -44,7 +44,7 @@ card "Excode Talker" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 500

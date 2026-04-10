@@ -3,7 +3,7 @@
 // Transpiled from c22093873.lua
 
 card "Masked HERO Divine Wind" {
-    password: 22093873
+    id: 22093873
     type: Fusion Monster
     attribute: WIND
     race: Warrior
@@ -22,15 +22,15 @@ card "Masked HERO Divine Wind" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -39,7 +39,7 @@ card "Masked HERO Divine Wind" {
     raw_effect "Effect 3" {
         effect_type: Field
         code: 86
-        property: 128
+        property: SetAvailable
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
@@ -49,7 +49,7 @@ card "Masked HERO Divine Wind" {
     raw_effect "Effect 4" {
         effect_type: Field + Continuous
         code: AttackAnnounce
-        property: 1024
+        property: BothSide
         range: MonsterZone
         on_resolve {
         }
@@ -58,8 +58,8 @@ card "Masked HERO Divine Wind" {
     raw_effect "Effect 5" {
         effect_type: Single + Trigger
         category: Draw
-        code: 1139
-        property: 2048
+        code: BattleConfirmed
+        property: InitialValue
         on_resolve {
             draw 1
         }

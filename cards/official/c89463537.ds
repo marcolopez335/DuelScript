@@ -3,7 +3,7 @@
 // Transpiled from c89463537.lua
 
 card "Nekroz of Unicore" {
-    password: 89463537
+    id: 89463537
     type: Ritual Monster
     attribute: WATER
     race: Spellcaster
@@ -22,8 +22,8 @@ card "Nekroz of Unicore" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -31,7 +31,7 @@ card "Nekroz of Unicore" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: ToHand
-        property: 16
+        property: CardTarget
         range: Hand
         count_limit: (1, 89463537)
         cost {
@@ -44,7 +44,7 @@ card "Nekroz of Unicore" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 2
+        code: Disable
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }

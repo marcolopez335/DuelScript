@@ -3,7 +3,7 @@
 // Transpiled from c38904695.lua
 
 card "Infernity Doom Archfiend" {
-    password: 38904695
+    id: 38904695
     type: Synchro Monster
     attribute: DARK
     race: Fiend
@@ -24,7 +24,7 @@ card "Infernity Doom Archfiend" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: Destroy + Disable
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -49,8 +49,8 @@ card "Infernity Doom Archfiend" {
 
     raw_effect "Effect 3" {
         effect_type: Single + Continuous
-        code: 1108
-        property: 128
+        code: FlipSuccess
+        property: SetAvailable
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

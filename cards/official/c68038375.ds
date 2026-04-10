@@ -3,14 +3,14 @@
 // Transpiled from c68038375.lua
 
 card "Ninjitsu Art of Dancing Leaves" {
-    password: 68038375
+    id: 68038375
     type: Continuous Trap
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: Release + SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         count_limit: (1, 68038375)
         on_resolve {
             tribute (1, monster, you controls)
@@ -20,7 +20,7 @@ card "Ninjitsu Art of Dancing Leaves" {
 
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
-        code: 1015
+        code: ChainNegated
         on_resolve {
             send (1+, spell, you controls, deck) to gy
         }
@@ -30,7 +30,7 @@ card "Ninjitsu Art of Dancing Leaves" {
         effect_type: QuickEffect
         category: ToHand
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: SpellTrapZone
         count_limit: (1, 68038375)
         on_resolve {

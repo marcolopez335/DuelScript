@@ -3,7 +3,7 @@
 // Transpiled from c52495649.lua
 
 card "Balameuniere de Nouvelles" {
-    password: 52495649
+    id: 52495649
     type: Ritual Monster
     attribute: DARK
     race: Beast-Warrior
@@ -23,7 +23,7 @@ card "Balameuniere de Nouvelles" {
     raw_effect "Effect 1" {
         effect_type: Single + Continuous
         code: SpecialSummonSuccess
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
@@ -32,7 +32,7 @@ card "Balameuniere de Nouvelles" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 52495649)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -43,7 +43,7 @@ card "Balameuniere de Nouvelles" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: Release + SpecialSummon
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -56,7 +56,7 @@ card "Balameuniere de Nouvelles" {
         effect_type: QuickEffect
         category: Release + SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

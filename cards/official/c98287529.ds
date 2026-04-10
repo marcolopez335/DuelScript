@@ -3,7 +3,7 @@
 // Transpiled from c98287529.lua
 
 card "Amorphactor Pain, the Imagination Dracoverlord" {
-    password: 98287529
+    id: 98287529
     type: Ritual Monster
     attribute: EARTH
     race: Dragon
@@ -33,7 +33,7 @@ card "Amorphactor Pain, the Imagination Dracoverlord" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 2
+        code: Disable
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -44,7 +44,7 @@ card "Amorphactor Pain, the Imagination Dracoverlord" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: ChainEnd
-        property: 65536
+        property: Delay
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)

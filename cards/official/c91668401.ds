@@ -3,7 +3,7 @@
 // Transpiled from c91668401.lua
 
 card "Cyber Angel Izana" {
-    password: 91668401
+    id: 91668401
     type: Ritual Monster
     attribute: LIGHT
     race: Fairy
@@ -24,7 +24,7 @@ card "Cyber Angel Izana" {
         effect_type: Single + Trigger
         category: ToGrave
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             send (1+, monster, you controls) to gy
         }
@@ -32,7 +32,7 @@ card "Cyber Angel Izana" {
 
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
-        code: 1139
+        code: BattleConfirmed
         on_resolve {
         }
     }
@@ -51,8 +51,8 @@ card "Cyber Angel Izana" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 73
-        property: 1024
+        code: CannotAttackAnnounce
+        property: BothSide
         on_resolve {
             register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
         }

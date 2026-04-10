@@ -3,7 +3,7 @@
 // Transpiled from c59400890.lua
 
 card "Dark Magician of Destruction" {
-    password: 59400890
+    id: 59400890
     type: Fusion Monster
     attribute: DARK
     race: Spellcaster
@@ -23,7 +23,7 @@ card "Dark Magician of Destruction" {
     raw_effect "Effect 1" {
         effect_type: Single + Continuous
         code: SpecialSummonSuccess
-        property: 1024
+        property: BothSide
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -34,8 +34,8 @@ card "Dark Magician of Destruction" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Deck
         on_resolve {
             banish (1+, monster, you controls)
@@ -46,7 +46,7 @@ card "Dark Magician of Destruction" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             return (1+, monster, you controls) to hand
             reveal (1+, card, opponent controls)
@@ -56,7 +56,7 @@ card "Dark Magician of Destruction" {
     raw_effect "Effect 4" {
         effect_type: Single
         code: 114
-        property: 131072
+        property: SingleRange
         range: MonsterZone + Graveyard
         on_resolve {
         }
@@ -64,8 +64,8 @@ card "Dark Magician of Destruction" {
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 22
-        property: 2048
+        code: CannotDisable
+        property: InitialValue
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

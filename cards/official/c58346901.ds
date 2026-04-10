@@ -3,7 +3,7 @@
 // Transpiled from c58346901.lua
 
 card "Infernoble Knight Oliver" {
-    password: 58346901
+    id: 58346901
     type: Effect Monster | Tuner
     attribute: FIRE
     race: Warrior
@@ -13,8 +13,8 @@ card "Infernoble Knight Oliver" {
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 71
-        property: 128
+        code: CannotDirectAttack2
+        property: SetAvailable
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
@@ -36,7 +36,7 @@ card "Infernoble Knight Oliver" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: EquipAction
-        property: 16
+        property: CardTarget
         range: Graveyard
         count_limit: (1, 0)
         on_resolve {

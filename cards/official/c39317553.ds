@@ -3,7 +3,7 @@
 // Transpiled from c39317553.lua
 
 card "Drill Driver Vespenato" {
-    password: 39317553
+    id: 39317553
     type: Xyz Monster
     attribute: EARTH
     race: Machine
@@ -24,14 +24,14 @@ card "Drill Driver Vespenato" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 238
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }
@@ -41,7 +41,7 @@ card "Drill Driver Vespenato" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 39317553)
         on_resolve {
             special_summon (1, monster) from gy

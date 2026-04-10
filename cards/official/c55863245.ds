@@ -3,7 +3,7 @@
 // Transpiled from c55863245.lua
 
 card "Tatsunoko" {
-    password: 55863245
+    id: 55863245
     type: Synchro Monster | Tuner
     attribute: WATER
     race: Wyrm
@@ -23,8 +23,8 @@ card "Tatsunoko" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 1
-        property: 131072
+        code: ImmuneEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -34,7 +34,7 @@ card "Tatsunoko" {
     raw_effect "Effect 2" {
         effect_type: Single
         code: 339
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }

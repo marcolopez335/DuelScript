@@ -3,7 +3,7 @@
 // Transpiled from c69120785.lua
 
 card "The Bystial Alba Los" {
-    password: 69120785
+    id: 69120785
     type: Effect Monster | Spirit
     attribute: LIGHT
     race: Dragon
@@ -17,16 +17,16 @@ card "The Bystial Alba Los" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Hand + Graveyard
         on_resolve {
             tribute (1, monster, you controls)
@@ -35,7 +35,7 @@ card "The Bystial Alba Los" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 2
+        code: Disable
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -45,8 +45,8 @@ card "The Bystial Alba Los" {
     raw_effect "Effect 4" {
         effect_type: Single + Trigger
         category: Banish
-        code: 1015
-        property: 65536
+        code: ChainNegated
+        property: Delay
         on_resolve {
             banish (1+, monster, you controls)
             register_effect on self {
@@ -58,8 +58,8 @@ card "The Bystial Alba Los" {
 
     raw_effect "Effect 5" {
         effect_type: Field + Continuous
-        code: 4608
-        property: 128
+        code: PhaseEnd
+        property: SetAvailable
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to deck shuffle

@@ -3,7 +3,7 @@
 // Transpiled from c42382265.lua
 
 card "D/D Scale Surveyor" {
-    password: 42382265
+    id: 42382265
     type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
@@ -15,7 +15,7 @@ card "D/D Scale Surveyor" {
     raw_effect "Effect 1" {
         effect_type: Field + Trigger
         code: 4098
-        property: 16
+        property: CardTarget
         range: PendulumZone
         count_limit: (1, 42382265)
         on_resolve {
@@ -44,7 +44,7 @@ card "D/D Scale Surveyor" {
         effect_type: Single + Trigger
         category: LevelChange
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
         }
@@ -54,7 +54,7 @@ card "D/D Scale Surveyor" {
         effect_type: Single + Trigger
         category: LevelChange
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
         }
@@ -64,7 +64,7 @@ card "D/D Scale Surveyor" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             return (1+, card, you controls) to hand
@@ -75,7 +75,7 @@ card "D/D Scale Surveyor" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainSolved
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             return (1+, card, you controls) to hand

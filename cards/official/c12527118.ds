@@ -3,7 +3,7 @@
 // Transpiled from c12527118.lua
 
 card "Cassimolar" {
-    password: 12527118
+    id: 12527118
     type: Effect Monster
     attribute: DARK
     race: Fiend
@@ -15,7 +15,7 @@ card "Cassimolar" {
         effect_type: Single + Trigger
         category: Destroy + Damage + SynchroSummon
         code: SummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -46,7 +46,7 @@ card "Cassimolar" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 0
         }
@@ -54,8 +54,8 @@ card "Cassimolar" {
 
     raw_effect "Effect 4" {
         effect_type: Field + Continuous
-        code: 4608
-        property: 128
+        code: PhaseEnd
+        property: SetAvailable
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -65,7 +65,7 @@ card "Cassimolar" {
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 73
+        code: CannotAttackAnnounce
         on_resolve {
             register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
         }

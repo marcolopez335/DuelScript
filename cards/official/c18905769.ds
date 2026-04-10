@@ -3,7 +3,7 @@
 // Transpiled from c18905769.lua
 
 card "Guivre" {
-    password: 18905769
+    id: 18905769
     type: Effect Monster
     attribute: DARK
     race: Dragon
@@ -13,8 +13,8 @@ card "Guivre" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -24,7 +24,7 @@ card "Guivre" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: SpecialSummon + Token
-        code: 1139
+        code: BattleConfirmed
         on_resolve {
             create_token { atk: 0 def: 0 }
             special_summon (1, monster) from gy

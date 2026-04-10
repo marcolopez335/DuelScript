@@ -3,7 +3,7 @@
 // Transpiled from c12338068.lua
 
 card "Legendary Maju Garzett" {
-    password: 12338068
+    id: 12338068
     type: Effect Monster | Spirit
     attribute: DARK
     race: Fiend
@@ -17,16 +17,16 @@ card "Legendary Maju Garzett" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             tribute (1, monster, you controls)
@@ -35,7 +35,7 @@ card "Legendary Maju Garzett" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }

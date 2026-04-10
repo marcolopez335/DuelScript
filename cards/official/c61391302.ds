@@ -3,7 +3,7 @@
 // Transpiled from c61391302.lua
 
 card "Odd-Eyes Advance Dragon" {
-    password: 61391302
+    id: 61391302
     type: Effect Monster
     attribute: DARK
     race: Dragon
@@ -19,7 +19,7 @@ card "Odd-Eyes Advance Dragon" {
         effect_type: Single + Trigger
         category: Destroy + Damage
         code: SummonSuccess
-        property: 67584
+        property: InitialValue + Delay
         on_resolve {
             destroy (1+, card, you controls, gy)
             deal_damage to opponent: 1000
@@ -29,7 +29,7 @@ card "Odd-Eyes Advance Dragon" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: SpecialSummon
-        code: 1139
+        code: BattleConfirmed
         count_limit: (1, 61391302)
         on_resolve {
             special_summon (1, monster) from gy

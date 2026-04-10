@@ -3,14 +3,14 @@
 // Transpiled from c53276089.lua
 
 card "Ryzeal Mass Driver" {
-    password: 53276089
+    id: 53276089
     type: Normal Trap
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: SynchroSummon
         code: FreeChain
-        property: 16384
+        property: Oath
         count_limit: (1, 53276089)
         on_resolve {
             register_effect on self {
@@ -25,7 +25,7 @@ card "Ryzeal Mass Driver" {
         effect_type: Single + Trigger
         category: Banish
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             banish (1+, monster, you controls)
@@ -34,7 +34,7 @@ card "Ryzeal Mass Driver" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 1000
         }

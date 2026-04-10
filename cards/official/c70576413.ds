@@ -3,7 +3,7 @@
 // Transpiled from c70576413.lua
 
 card "D/D/D First King Clovis" {
-    password: 70576413
+    id: 70576413
     type: Synchro Monster
     attribute: DARK
     race: Fiend
@@ -25,7 +25,7 @@ card "D/D/D First King Clovis" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 70576413)
         on_resolve {
             special_summon (1, monster) from gy
@@ -35,7 +35,7 @@ card "D/D/D First King Clovis" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         code: TurnEnd
-        property: 65536
+        property: Delay
         on_resolve {
             set_flag "tracked" on self
             register_effect on self {
@@ -47,7 +47,7 @@ card "D/D/D First King Clovis" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }

@@ -3,7 +3,7 @@
 // Transpiled from c40542825.lua
 
 card "Familiar-Possessed - Lyna" {
-    password: 40542825
+    id: 40542825
     type: Effect Monster
     attribute: LIGHT
     race: Spellcaster
@@ -13,8 +13,8 @@ card "Familiar-Possessed - Lyna" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             send (1+, monster, you controls) to gy
@@ -34,7 +34,7 @@ card "Familiar-Possessed - Lyna" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }

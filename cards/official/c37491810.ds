@@ -3,7 +3,7 @@
 // Transpiled from c37491810.lua
 
 card "Parametalfoes Azortless" {
-    password: 37491810
+    id: 37491810
     type: Fusion Monster | Pendulum Monster
     attribute: FIRE
     race: Psychic
@@ -25,7 +25,7 @@ card "Parametalfoes Azortless" {
         effect_type: Field + Trigger
         category: Destroy
         code: Destroyed
-        property: 65552
+        property: CardTarget + Delay
         range: PendulumZone
         count_limit: (1, 37491810)
         on_resolve {
@@ -37,7 +37,7 @@ card "Parametalfoes Azortless" {
         effect_type: Single + Trigger
         category: Destroy + ToDeck
         code: SpecialSummonSuccess
-        property: 81936
+        property: CardTarget + Oath + Delay
         count_limit: (1, 0)
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
@@ -48,7 +48,7 @@ card "Parametalfoes Azortless" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         code: Destroyed
-        property: 65536
+        property: Delay
         on_resolve {
             special_summon (1, monster) from gy
         }

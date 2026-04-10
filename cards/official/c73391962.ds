@@ -3,7 +3,7 @@
 // Transpiled from c73391962.lua
 
 card "Azamina Mu Rcielago" {
-    password: 73391962
+    id: 73391962
     type: Fusion Monster
     attribute: DARK
     race: Unknown
@@ -22,7 +22,7 @@ card "Azamina Mu Rcielago" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -31,7 +31,7 @@ card "Azamina Mu Rcielago" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 104
+        code: UpdateDefense
         range: MonsterZone
         on_resolve {
             modifier: def + 0
@@ -42,7 +42,7 @@ card "Azamina Mu Rcielago" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 73391962)
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck
@@ -54,7 +54,7 @@ card "Azamina Mu Rcielago" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: Destroyed
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck

@@ -3,12 +3,12 @@
 // Transpiled from c37517035.lua
 
 card "Artmage Masterwork -Succession-" {
-    password: 37517035
+    id: 37517035
     type: Quick-Play Spell
 
     raw_effect "Effect 1" {
         effect_type: Activate
-        category: SpecialSummon
+        category: SpecialSummon + Control
         code: FreeChain
         count_limit: (1, 37517035)
         on_resolve {
@@ -19,7 +19,7 @@ card "Artmage Masterwork -Succession-" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: ToDeck
-        property: 16
+        property: CardTarget
         range: Graveyard
         count_limit: (1, 0)
         cost {
@@ -32,8 +32,8 @@ card "Artmage Masterwork -Succession-" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 100
-        property: 1024
+        code: UpdateAttack
+        property: BothSide
         on_resolve {
             modifier: atk + 500
         }

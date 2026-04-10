@@ -3,7 +3,7 @@
 // Transpiled from c19434243.lua
 
 card "Power Vice Dragon" {
-    password: 19434243
+    id: 19434243
     // FIXME: card not found in CDB — type/stats are placeholders
     type: Effect Monster
     attribute: DARK
@@ -14,8 +14,8 @@ card "Power Vice Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Single + Continuous
-        code: 1108
-        property: 128
+        code: FlipSuccess
+        property: SetAvailable
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -38,7 +38,7 @@ card "Power Vice Dragon" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to hand
@@ -52,8 +52,8 @@ card "Power Vice Dragon" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 42
-        property: 67108864
+        code: CannotBeEffectTarget
+        property: IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -61,8 +61,8 @@ card "Power Vice Dragon" {
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

@@ -3,7 +3,7 @@
 // Transpiled from c35283277.lua
 
 card "Eka the Flame Buddy" {
-    password: 35283277
+    id: 35283277
     type: Effect Monster
     attribute: FIRE
     race: Warrior
@@ -15,7 +15,7 @@ card "Eka the Flame Buddy" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 35283277)
         on_resolve {
             special_summon (1, monster) from gy
@@ -26,7 +26,7 @@ card "Eka the Flame Buddy" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 35283277)
         on_resolve {
             special_summon (1, monster) from gy
@@ -36,7 +36,7 @@ card "Eka the Flame Buddy" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: EquipAction
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -45,14 +45,14 @@ card "Eka the Flame Buddy" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 76
+        code: CannotAttack2
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 71
+        code: CannotDirectAttack2
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
@@ -60,7 +60,7 @@ card "Eka the Flame Buddy" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 41
+        code: IndestructableEffect
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
@@ -68,7 +68,7 @@ card "Eka the Flame Buddy" {
 
     raw_effect "Effect 7" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

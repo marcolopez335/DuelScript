@@ -3,7 +3,7 @@
 // Transpiled from c25865565.lua
 
 card "Crystron Sulfador" {
-    password: 25865565
+    id: 25865565
     type: Effect Monster
     attribute: WATER
     race: Machine
@@ -18,7 +18,7 @@ card "Crystron Sulfador" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: Destroy + SpecialSummon
-        property: 16
+        property: CardTarget
         range: Hand + Graveyard
         count_limit: (1, 25865565)
         on_resolve {
@@ -35,7 +35,7 @@ card "Crystron Sulfador" {
         effect_type: Single + Trigger
         category: ToGrave
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, you controls, deck) to gy
@@ -46,7 +46,7 @@ card "Crystron Sulfador" {
         effect_type: Single + Trigger
         category: ToGrave
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, you controls, deck) to gy

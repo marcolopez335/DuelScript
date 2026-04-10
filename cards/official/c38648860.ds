@@ -3,7 +3,7 @@
 // Transpiled from c38648860.lua
 
 card "Elzette, Azamina of the White Forest" {
-    password: 38648860
+    id: 38648860
     type: Effect Monster
     attribute: LIGHT
     race: Unknown
@@ -26,7 +26,7 @@ card "Elzette, Azamina of the White Forest" {
 
     raw_effect "Effect 2" {
         effect_type: Ignition
-        category: SpecialSummon
+        category: SpecialSummon + Control
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -36,8 +36,8 @@ card "Elzette, Azamina of the White Forest" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         category: ToHand + Search
-        code: 1108
-        property: 65536
+        code: FlipSuccess
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from hand

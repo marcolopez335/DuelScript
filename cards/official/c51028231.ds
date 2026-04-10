@@ -3,7 +3,7 @@
 // Transpiled from c51028231.lua
 
 card "Abyss Actor - Sassy Rookie" {
-    password: 51028231
+    id: 51028231
     type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
@@ -22,7 +22,7 @@ card "Abyss Actor - Sassy Rookie" {
     raw_effect "Effect 2" {
         effect_type: Single
         code: 47
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
@@ -33,7 +33,7 @@ card "Abyss Actor - Sassy Rookie" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 65536
+        property: Delay
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -43,7 +43,7 @@ card "Abyss Actor - Sassy Rookie" {
         effect_type: Single + Trigger
         category: Destroy
         code: Destroyed
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             destroy (1+, card, you controls, deck)
         }

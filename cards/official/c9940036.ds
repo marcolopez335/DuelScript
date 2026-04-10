@@ -3,7 +3,7 @@
 // Transpiled from c9940036.lua
 
 card "Mereologic Aggregator" {
-    password: 9940036
+    id: 9940036
     type: Xyz Monster
     attribute: DARK
     race: Cyberse
@@ -25,7 +25,7 @@ card "Mereologic Aggregator" {
         effect_type: Single + Trigger
         category: ToGrave
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 9940036)
         on_resolve {
             send (1+, monster, either_player controls) to gy
@@ -34,7 +34,7 @@ card "Mereologic Aggregator" {
 
     raw_effect "Effect 2" {
         effect_type: Ignition
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -46,7 +46,7 @@ card "Mereologic Aggregator" {
         effect_type: Single + Trigger
         category: Disable
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             negate effect

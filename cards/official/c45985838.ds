@@ -3,7 +3,7 @@
 // Transpiled from c45985838.lua
 
 card "Solar Flare Dragon" {
-    password: 45985838
+    id: 45985838
     type: Effect Monster
     attribute: FIRE
     race: Pyro
@@ -14,7 +14,7 @@ card "Solar Flare Dragon" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 70
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -24,8 +24,8 @@ card "Solar Flare Dragon" {
     raw_effect "Effect 2" {
         effect_type: Field + MandatoryTrigger
         category: Damage
-        code: 4608
-        property: 2048
+        code: PhaseEnd
+        property: InitialValue
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

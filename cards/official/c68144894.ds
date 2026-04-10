@@ -3,7 +3,7 @@
 // Transpiled from c68144894.lua
 
 card "Hecahands Godos" {
-    password: 68144894
+    id: 68144894
     type: Effect Monster
     attribute: DARK
     race: Unknown
@@ -17,7 +17,7 @@ card "Hecahands Godos" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -28,7 +28,7 @@ card "Hecahands Godos" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: ChainSolving
-        property: 65536
+        property: Delay
         range: Hand
         count_limit: (1, 68144894)
         on_resolve {
@@ -40,7 +40,7 @@ card "Hecahands Godos" {
         effect_type: QuickEffect
         category: SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -54,8 +54,8 @@ card "Hecahands Godos" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 60
-        property: 67109888
+        code: CannotAttack
+        property: BothSide + IgnoreRange2
         on_resolve {
         }
     }

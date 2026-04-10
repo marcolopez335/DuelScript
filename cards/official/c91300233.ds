@@ -3,7 +3,7 @@
 // Transpiled from c91300233.lua
 
 card "Beetrooper Cruel Saturnas" {
-    password: 91300233
+    id: 91300233
     type: Fusion Monster
     attribute: DARK
     race: Insect
@@ -22,8 +22,8 @@ card "Beetrooper Cruel Saturnas" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 22
-        property: 2048
+        code: CannotDisable
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -34,7 +34,7 @@ card "Beetrooper Cruel Saturnas" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 91300233)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -46,7 +46,7 @@ card "Beetrooper Cruel Saturnas" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: TurnEnd
-        property: 65552
+        property: CardTarget + Delay
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

@@ -3,14 +3,14 @@
 // Transpiled from c17719582.lua
 
 card "Artmage Peripeteia -Turmoil-" {
-    password: 17719582
+    id: 17719582
     type: Normal Trap
 
     raw_effect "Effect 1" {
         effect_type: Activate
-        category: ToHand + SpecialSummon
+        category: ToHand + SpecialSummon + Announce
         code: FreeChain
-        property: 16
+        property: CardTarget
         count_limit: (1, 17719582)
         on_resolve {
             return (1+, spell, you controls) to hand
@@ -22,7 +22,7 @@ card "Artmage Peripeteia -Turmoil-" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             return (1+, spell, you controls) to hand
@@ -31,8 +31,8 @@ card "Artmage Peripeteia -Turmoil-" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 67635200
+        code: CannotDisable
+        property: InitialValue + CannotDisable + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

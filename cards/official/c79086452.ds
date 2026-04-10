@@ -3,7 +3,7 @@
 // Transpiled from c79086452.lua
 
 card "Gimmick Puppet Bisque Doll" {
-    password: 79086452
+    id: 79086452
     type: Effect Monster
     attribute: DARK
     race: Machine
@@ -17,8 +17,8 @@ card "Gimmick Puppet Bisque Doll" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             send (1+, monster, you controls, hand) to gy
@@ -42,8 +42,8 @@ card "Gimmick Puppet Bisque Doll" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 71
-        property: 128
+        code: CannotDirectAttack2
+        property: SetAvailable
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }

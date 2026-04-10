@@ -3,7 +3,7 @@
 // Transpiled from c14513273.lua
 
 card "Supreme King Gate Magician" {
-    password: 14513273
+    id: 14513273
     type: Effect Monster | Pendulum Monster
     attribute: LIGHT
     race: Spellcaster
@@ -18,8 +18,8 @@ card "Supreme King Gate Magician" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 67
-        property: 2048
+        code: IndestructableCount
+        property: InitialValue
         range: PendulumZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -60,7 +60,7 @@ card "Supreme King Gate Magician" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from hand

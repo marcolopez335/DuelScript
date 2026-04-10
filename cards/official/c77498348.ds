@@ -3,7 +3,7 @@
 // Transpiled from c77498348.lua
 
 card "Black Luster Soldier - Envoy of the Evening Twilight" {
-    password: 77498348
+    id: 77498348
     type: Effect Monster | Spirit
     attribute: DARK
     race: Warrior
@@ -17,16 +17,16 @@ card "Black Luster Soldier - Envoy of the Evening Twilight" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 125
-        property: 131072
+        code: AddType
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -34,8 +34,8 @@ card "Black Luster Soldier - Envoy of the Evening Twilight" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             banish (1+, monster, you controls, gy)
@@ -44,8 +44,8 @@ card "Black Luster Soldier - Envoy of the Evening Twilight" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             banish (1+, monster, you controls, gy)
@@ -69,14 +69,14 @@ card "Black Luster Soldier - Envoy of the Evening Twilight" {
     raw_effect "Effect 6" {
         effect_type: Field
         code: 185
-        property: 526336
+        property: InitialValue + CannotDisable
         on_resolve {
         }
     }
 
     raw_effect "Effect 7" {
         effect_type: Field + Continuous
-        code: 4608
+        code: PhaseEnd
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy

@@ -3,7 +3,7 @@
 // Transpiled from c82085295.lua
 
 card "Impcantation Penciplume" {
-    password: 82085295
+    id: 82085295
     type: Effect Monster
     attribute: LIGHT
     race: Psychic
@@ -25,7 +25,7 @@ card "Impcantation Penciplume" {
         effect_type: Single + Trigger
         category: ToHand
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 82085295)
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
@@ -34,8 +34,8 @@ card "Impcantation Penciplume" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 2048
+        code: CannotDisable
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }

@@ -3,14 +3,14 @@
 // Transpiled from c60621361.lua
 
 card "Monster Rebone" {
-    password: 60621361
+    id: 60621361
     type: Continuous Trap
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -19,14 +19,14 @@ card "Monster Rebone" {
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
         code: 1019
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
         effect_type: Single + Continuous
-        code: 1015
+        code: ChainNegated
         on_resolve {
             banish (1+, card, either_player controls)
         }
@@ -34,7 +34,7 @@ card "Monster Rebone" {
 
     raw_effect "Effect 4" {
         effect_type: Field + Continuous
-        code: 1015
+        code: ChainNegated
         range: SpellTrapZone
         on_resolve {
             destroy (1+, card, either_player controls)

@@ -3,7 +3,7 @@
 // Transpiled from c56518311.lua
 
 card "Metalfoes Vanisher" {
-    password: 56518311
+    id: 56518311
     type: Effect Monster | Pendulum Monster
     attribute: FIRE
     race: Psychic
@@ -20,7 +20,7 @@ card "Metalfoes Vanisher" {
         effect_type: Field + Trigger
         category: ToHand
         code: Destroyed
-        property: 65536
+        property: Delay
         range: PendulumZone
         count_limit: (1, 56518311)
         on_resolve {
@@ -32,7 +32,7 @@ card "Metalfoes Vanisher" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: Destroy + SpecialSummon
-        property: 16
+        property: CardTarget
         range: Hand
         count_limit: (1, 0)
         on_resolve {
@@ -45,7 +45,7 @@ card "Metalfoes Vanisher" {
         effect_type: Single + Trigger
         category: Banish
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             banish (1+, monster, you controls)

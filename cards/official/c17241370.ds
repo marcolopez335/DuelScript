@@ -3,7 +3,7 @@
 // Transpiled from c17241370.lua
 
 card "Gishki Natalia" {
-    password: 17241370
+    id: 17241370
     type: Effect Monster | Flip
     attribute: WATER
     race: Spellcaster
@@ -13,8 +13,8 @@ card "Gishki Natalia" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -23,7 +23,7 @@ card "Gishki Natalia" {
         effect_type: Single + Trigger
         category: ToDeck
         code: SummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
         }
@@ -33,7 +33,7 @@ card "Gishki Natalia" {
         effect_type: Single + Trigger
         category: ToDeck
         code: 1001
-        property: 16
+        property: CardTarget
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
         }

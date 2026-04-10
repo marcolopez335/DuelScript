@@ -3,7 +3,7 @@
 // Transpiled from c81019803.lua
 
 card "Merry Melffys" {
-    password: 81019803
+    id: 81019803
     type: Synchro Monster
     attribute: EARTH
     race: Beast
@@ -25,7 +25,7 @@ card "Merry Melffys" {
         effect_type: Single + Trigger
         category: ToHand
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 81019803)
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
@@ -34,9 +34,9 @@ card "Merry Melffys" {
 
     raw_effect "Effect 2" {
         effect_type: Field + Trigger
-        category: SpecialSummon
+        category: SpecialSummon + Announce
         code: SummonSuccess
-        property: 65536
+        property: Delay
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -47,9 +47,9 @@ card "Merry Melffys" {
 
     raw_effect "Effect 3" {
         effect_type: Field + Trigger
-        category: SpecialSummon
+        category: SpecialSummon + Announce
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -60,9 +60,9 @@ card "Merry Melffys" {
 
     raw_effect "Effect 4" {
         effect_type: Single + Trigger
-        category: SpecialSummon
+        category: SpecialSummon + Announce
         code: BattleTarget
-        property: 65536
+        property: Delay
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

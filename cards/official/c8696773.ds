@@ -3,7 +3,7 @@
 // Transpiled from c8696773.lua
 
 card "Hazy Flame Hydra" {
-    password: 8696773
+    id: 8696773
     type: Effect Monster
     attribute: FIRE
     race: Dinosaur
@@ -17,8 +17,8 @@ card "Hazy Flame Hydra" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 71
-        property: 131072
+        code: CannotDirectAttack2
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -27,8 +27,8 @@ card "Hazy Flame Hydra" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 22
-        property: 2048
+        code: CannotDisable
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -37,7 +37,7 @@ card "Hazy Flame Hydra" {
 
     raw_effect "Effect 3" {
         effect_type: Single + Continuous
-        code: 1108
+        code: FlipSuccess
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

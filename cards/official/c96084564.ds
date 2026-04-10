@@ -3,7 +3,7 @@
 // Transpiled from c96084564.lua
 
 card "Aileron" {
-    password: 96084564
+    id: 96084564
     type: Effect Monster
     attribute: WIND
     race: Machine
@@ -13,7 +13,7 @@ card "Aileron" {
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 400
         }
@@ -23,7 +23,7 @@ card "Aileron" {
         effect_type: QuickEffect
         category: EquipAction
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: Hand + MonsterZone
         count_limit: (1, 96084564)
         on_resolve {
@@ -36,7 +36,7 @@ card "Aileron" {
         effect_type: Single + Trigger
         category: ToGrave
         code: Destroyed
-        property: 65536
+        property: Delay
         count_limit: (1, 96084564)
         on_resolve {
             send (1+, spell, you controls, deck) to gy
@@ -45,7 +45,7 @@ card "Aileron" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 76
+        code: CannotAttack2
         on_resolve {
         }
     }

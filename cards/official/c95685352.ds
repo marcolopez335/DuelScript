@@ -3,7 +3,7 @@
 // Transpiled from c95685352.lua
 
 card "Dark Anthelion Dragon" {
-    password: 95685352
+    id: 95685352
     type: Xyz Monster | Pendulum Monster
     attribute: DARK
     race: Dragon
@@ -24,7 +24,7 @@ card "Dark Anthelion Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Ignition
-        property: 16
+        property: CardTarget
         range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
@@ -38,7 +38,7 @@ card "Dark Anthelion Dragon" {
     raw_effect "Effect 2" {
         effect_type: QuickEffect
         code: FreeChain
-        property: 16400
+        property: CardTarget + Oath
         range: MonsterZone
         count_limit: (1, 0)
         cost {
@@ -55,7 +55,7 @@ card "Dark Anthelion Dragon" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         code: Destroyed
-        property: 65536
+        property: Delay
         on_resolve {
             special_summon (1, monster) from gy
         }

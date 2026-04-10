@@ -3,7 +3,7 @@
 // Transpiled from c90243945.lua
 
 card "Wightprincess" {
-    password: 90243945
+    id: 90243945
     type: Effect Monster
     attribute: LIGHT
     race: Zombie
@@ -14,7 +14,7 @@ card "Wightprincess" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 114
-        property: 131072
+        property: SingleRange
         range: Graveyard
         on_resolve {
         }
@@ -24,7 +24,7 @@ card "Wightprincess" {
         effect_type: Single + Trigger
         category: ToGrave
         code: SummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             send (1+, monster, either_player controls) to gy
         }
@@ -34,7 +34,7 @@ card "Wightprincess" {
         effect_type: Single + Trigger
         category: ToGrave
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             send (1+, monster, either_player controls) to gy
         }
@@ -44,7 +44,7 @@ card "Wightprincess" {
         effect_type: QuickEffect
         category: SynchroSummon + XyzSummon
         code: FreeChain
-        property: 16384
+        property: Oath
         range: Hand + MonsterZone
         cost {
             send self to gy

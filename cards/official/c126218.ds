@@ -3,14 +3,14 @@
 // Transpiled from c126218.lua
 
 card "Skull Dice" {
-    password: 126218
+    id: 126218
     type: Normal Trap
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: SynchroSummon + XyzSummon
         code: FreeChain
-        property: 16384
+        property: Oath
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
             register_effect on self {
@@ -26,7 +26,7 @@ card "Skull Dice" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 0
         }
@@ -34,7 +34,7 @@ card "Skull Dice" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 104
+        code: UpdateDefense
         on_resolve {
             modifier: def + 0
         }

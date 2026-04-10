@@ -3,7 +3,7 @@
 // Transpiled from c70634245.lua
 
 card "Legendary Lord Six Samurai - Enishi" {
-    password: 70634245
+    id: 70634245
     type: Synchro Monster
     attribute: LIGHT
     race: Warrior
@@ -23,7 +23,7 @@ card "Legendary Lord Six Samurai - Enishi" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 500
@@ -34,7 +34,7 @@ card "Legendary Lord Six Samurai - Enishi" {
         effect_type: Single + Trigger
         category: ToHand
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 70634245)
         cost {
             banish self
@@ -48,7 +48,7 @@ card "Legendary Lord Six Samurai - Enishi" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

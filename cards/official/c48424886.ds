@@ -3,7 +3,7 @@
 // Transpiled from c48424886.lua
 
 card "El Shaddoll Grysta" {
-    password: 48424886
+    id: 48424886
     type: Fusion Monster
     attribute: FIRE
     race: Rock
@@ -22,8 +22,8 @@ card "El Shaddoll Grysta" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 394240
+        code: SpsummonCondition
+        property: BothSide + SingleRange + Uncopyable
         range: Deck
         on_resolve {
         }
@@ -46,7 +46,7 @@ card "El Shaddoll Grysta" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             add_to_hand (1+, spell, you controls) from hand
         }

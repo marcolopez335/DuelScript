@@ -3,7 +3,7 @@
 // Transpiled from c24094258.lua
 
 card "Heavymetalfoes Electrumite" {
-    password: 24094258
+    id: 24094258
     type: Link Monster
     attribute: FIRE
     race: Psychic
@@ -23,7 +23,7 @@ card "Heavymetalfoes Electrumite" {
     raw_effect "Effect 1" {
         effect_type: Single + Trigger
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             send (1+, card, you controls) to extra_deck
         }
@@ -32,7 +32,7 @@ card "Heavymetalfoes Electrumite" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: Destroy + ToHand
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -45,8 +45,8 @@ card "Heavymetalfoes Electrumite" {
     raw_effect "Effect 3" {
         effect_type: Field + MandatoryTrigger
         category: Draw
-        code: 1015
-        property: 2048
+        code: ChainNegated
+        property: InitialValue
         range: MonsterZone
         count_limit: (1, 24094258)
         on_resolve {

@@ -3,7 +3,7 @@
 // Transpiled from c2992467.lua
 
 card "Click & Echo" {
-    password: 2992467
+    id: 2992467
     type: Effect Monster
     attribute: WATER
     race: Sea Serpent
@@ -14,15 +14,15 @@ card "Click & Echo" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 248
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 43
-        property: 131072
+        code: CannotBeBattleTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -30,8 +30,8 @@ card "Click & Echo" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 44
-        property: 131072
+        code: CannotRemove
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -40,7 +40,7 @@ card "Click & Echo" {
     raw_effect "Effect 4" {
         effect_type: Single + MandatoryTrigger
         category: SpecialSummon
-        code: 1108
+        code: FlipSuccess
         count_limit: (2, 2992467)
         on_resolve {
             special_summon (1, monster) from gy

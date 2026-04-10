@@ -3,7 +3,7 @@
 // Transpiled from c48654323.lua
 
 card "White Relic of Dogmatika" {
-    password: 48654323
+    id: 48654323
     type: Ritual Monster
     attribute: LIGHT
     race: Spellcaster
@@ -24,7 +24,7 @@ card "White Relic of Dogmatika" {
         effect_type: Single + Trigger
         category: SynchroSummon
         code: SpecialSummonSuccess
-        property: 81936
+        property: CardTarget + Oath + Delay
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -35,7 +35,7 @@ card "White Relic of Dogmatika" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -46,7 +46,7 @@ card "White Relic of Dogmatika" {
         effect_type: Field + Trigger
         category: ToGrave
         code: SpecialSummonSuccess
-        property: 81920
+        property: Oath + Delay
         range: MonsterZone
         count_limit: (1, 48654323)
         on_resolve {
@@ -58,8 +58,8 @@ card "White Relic of Dogmatika" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 100
-        property: 1024
+        code: UpdateAttack
+        property: BothSide
         on_resolve {
             modifier: atk + 0
         }

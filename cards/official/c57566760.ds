@@ -3,7 +3,7 @@
 // Transpiled from c57566760.lua
 
 card "Uzuhime the Manifested Mikanko" {
-    password: 57566760
+    id: 57566760
     type: Xyz Monster
     attribute: LIGHT
     race: Fairy
@@ -25,7 +25,7 @@ card "Uzuhime the Manifested Mikanko" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 57566760)
         on_resolve {
             add_to_hand (1+, card, you controls) from gy
@@ -35,7 +35,7 @@ card "Uzuhime the Manifested Mikanko" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

@@ -3,7 +3,7 @@
 // Transpiled from c65815684.lua
 
 card "Vicious Astraloud" {
-    password: 65815684
+    id: 65815684
     type: Fusion Monster
     attribute: DARK
     race: Fairy
@@ -24,7 +24,7 @@ card "Vicious Astraloud" {
         effect_type: Single + Trigger
         category: Destroy + SynchroSummon
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             destroy (1+, monster, either_player controls)
         }
@@ -32,7 +32,7 @@ card "Vicious Astraloud" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

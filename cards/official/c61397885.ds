@@ -3,14 +3,14 @@
 // Transpiled from c61397885.lua
 
 card "Phantasm Spiral Power" {
-    password: 61397885
+    id: 61397885
     type: Normal Trap
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: Disable + SynchroSummon + XyzSummon
         code: FreeChain
-        property: 16400
+        property: CardTarget + Oath
         on_resolve {
             negate effect
             register_effect on self {
@@ -43,7 +43,7 @@ card "Phantasm Spiral Power" {
         effect_type: QuickEffect
         category: EquipAction
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: Graveyard
         cost {
             banish self
@@ -55,7 +55,7 @@ card "Phantasm Spiral Power" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk - 1000
         }
@@ -63,7 +63,7 @@ card "Phantasm Spiral Power" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 104
+        code: UpdateDefense
         on_resolve {
             modifier: def - 1000
         }
@@ -71,7 +71,7 @@ card "Phantasm Spiral Power" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 2
+        code: Disable
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }

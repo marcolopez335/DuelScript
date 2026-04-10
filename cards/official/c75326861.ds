@@ -3,7 +3,7 @@
 // Transpiled from c75326861.lua
 
 card "Dark Highlander" {
-    password: 75326861
+    id: 75326861
     type: Synchro Monster
     attribute: DARK
     race: Fiend
@@ -23,8 +23,8 @@ card "Dark Highlander" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 22
-        property: 2048
+        code: CannotDisable
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -34,7 +34,7 @@ card "Dark Highlander" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: Destroy + Damage
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

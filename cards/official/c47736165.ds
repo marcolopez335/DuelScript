@@ -3,7 +3,7 @@
 // Transpiled from c47736165.lua
 
 card "Crystron Eleskeletus" {
-    password: 47736165
+    id: 47736165
     type: Synchro Monster
     attribute: WATER
     race: Machine
@@ -23,7 +23,7 @@ card "Crystron Eleskeletus" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk - 500
@@ -32,7 +32,7 @@ card "Crystron Eleskeletus" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 104
+        code: UpdateDefense
         range: MonsterZone
         on_resolve {
             modifier: def - 500
@@ -43,7 +43,7 @@ card "Crystron Eleskeletus" {
         effect_type: Single + Trigger
         category: ToHand
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 47736165)
         on_resolve {
             add_to_hand (1+, card, you controls) from gy
@@ -55,7 +55,7 @@ card "Crystron Eleskeletus" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

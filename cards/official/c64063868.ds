@@ -3,7 +3,7 @@
 // Transpiled from c64063868.lua
 
 card "Kozmo Dark Eclipser" {
-    password: 64063868
+    id: 64063868
     type: Effect Monster
     attribute: DARK
     race: Machine
@@ -17,8 +17,8 @@ card "Kozmo Dark Eclipser" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 71
-        property: 131072
+        code: CannotDirectAttack2
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -29,7 +29,7 @@ card "Kozmo Dark Eclipser" {
         effect_type: QuickEffect
         category: Destroy + Negate
         code: Chaining
-        property: 49152
+        property: Oath + CountCodeDuel
         range: MonsterZone
         cost {
             banish self
@@ -44,7 +44,7 @@ card "Kozmo Dark Eclipser" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: ChainEnd
-        property: 81920
+        property: Oath + Delay
         cost {
             banish self
         }

@@ -3,7 +3,7 @@
 // Transpiled from c37261776.lua
 
 card "Salamangreat Violet Chimera" {
-    password: 37261776
+    id: 37261776
     type: Fusion Monster
     attribute: FIRE
     race: Cyberse
@@ -24,14 +24,14 @@ card "Salamangreat Violet Chimera" {
         effect_type: Single + Trigger
         category: SynchroSummon
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }
@@ -47,7 +47,7 @@ card "Salamangreat Violet Chimera" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 101
+        code: SetAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -56,8 +56,8 @@ card "Salamangreat Violet Chimera" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -66,8 +66,8 @@ card "Salamangreat Violet Chimera" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 102
-        property: 131072
+        code: SetAttackFinal
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

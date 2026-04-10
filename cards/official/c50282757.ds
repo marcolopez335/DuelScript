@@ -3,7 +3,7 @@
 // Transpiled from c50282757.lua
 
 card "Evil HERO Infernal Sniper" {
-    password: 50282757
+    id: 50282757
     type: Fusion Monster
     attribute: FIRE
     race: Fiend
@@ -22,15 +22,15 @@ card "Evil HERO Infernal Sniper" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -39,7 +39,7 @@ card "Evil HERO Infernal Sniper" {
         effect_type: Field + MandatoryTrigger
         category: Damage
         code: 4098
-        property: 2048
+        property: InitialValue
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -49,8 +49,8 @@ card "Evil HERO Infernal Sniper" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

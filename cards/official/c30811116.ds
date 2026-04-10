@@ -3,7 +3,7 @@
 // Transpiled from c30811116.lua
 
 card "Mecha Phantom Beast Stealthray" {
-    password: 30811116
+    id: 30811116
     type: Effect Monster
     attribute: WIND
     race: Machine
@@ -13,8 +13,8 @@ card "Mecha Phantom Beast Stealthray" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 130
-        property: 131072
+        code: ChangePosition
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -22,8 +22,8 @@ card "Mecha Phantom Beast Stealthray" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -32,8 +32,8 @@ card "Mecha Phantom Beast Stealthray" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -43,7 +43,7 @@ card "Mecha Phantom Beast Stealthray" {
     raw_effect "Effect 4" {
         effect_type: Single + MandatoryTrigger
         category: SpecialSummon + Token
-        code: 1143
+        code: BattleDestroyed
         on_resolve {
             create_token { atk: 0 def: 0 }
             special_summon (1, monster) from gy
@@ -53,7 +53,7 @@ card "Mecha Phantom Beast Stealthray" {
     raw_effect "Effect 5" {
         effect_type: Ignition
         category: Destroy
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         cost {

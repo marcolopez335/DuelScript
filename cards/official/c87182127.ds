@@ -3,7 +3,7 @@
 // Transpiled from c87182127.lua
 
 card "Ancient Gear Howitzer" {
-    password: 87182127
+    id: 87182127
     type: Fusion Monster
     attribute: EARTH
     race: Machine
@@ -22,8 +22,8 @@ card "Ancient Gear Howitzer" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 1
-        property: 131072
+        code: ImmuneEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -33,7 +33,7 @@ card "Ancient Gear Howitzer" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: Damage
-        property: 2048
+        property: InitialValue
         range: MonsterZone
         count_limit: (1, 87182127)
         on_resolve {

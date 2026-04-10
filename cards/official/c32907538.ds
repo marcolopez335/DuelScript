@@ -3,7 +3,7 @@
 // Transpiled from c32907538.lua
 
 card "Grapple Blocker" {
-    password: 32907538
+    id: 32907538
     type: Effect Monster
     attribute: EARTH
     race: Psychic
@@ -14,7 +14,7 @@ card "Grapple Blocker" {
     raw_effect "Effect 1" {
         effect_type: Single + Trigger
         code: SummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -33,8 +33,8 @@ card "Grapple Blocker" {
 
     raw_effect "Effect 2" {
         effect_type: Field + Continuous
-        code: 4608
-        property: 263168
+        code: PhaseEnd
+        property: BothSide + Uncopyable
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

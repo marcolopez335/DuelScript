@@ -3,20 +3,20 @@
 // Transpiled from c28645123.lua
 
 card "A.I. Challenge You" {
-    password: 28645123
+    id: 28645123
     type: Continuous Trap
 
     raw_effect "Effect 1" {
         effect_type: Activate
         code: FreeChain
-        property: 16384
+        property: Oath
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: SpellTrapZone
         on_resolve {
             modifier: atk + 0
@@ -25,8 +25,8 @@ card "A.I. Challenge You" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 6
-        property: 2048
+        code: CannotChangeControl
+        property: InitialValue
         range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -37,7 +37,7 @@ card "A.I. Challenge You" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 81936
+        property: CardTarget + Oath + Delay
         range: SpellTrapZone
         count_limit: (1, 28645123)
         on_resolve {

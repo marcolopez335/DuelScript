@@ -3,7 +3,7 @@
 // Transpiled from c31241087.lua
 
 card "Transcendosaurus Meteorus" {
-    password: 31241087
+    id: 31241087
     type: Effect Monster | Spirit
     attribute: FIRE
     race: Dinosaur
@@ -17,8 +17,8 @@ card "Transcendosaurus Meteorus" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -39,7 +39,7 @@ card "Transcendosaurus Meteorus" {
         effect_type: Single + Trigger
         category: ToGrave
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             send (1+, monster, you controls, hand) to gy
@@ -50,7 +50,7 @@ card "Transcendosaurus Meteorus" {
         effect_type: Single + Trigger
         category: ToDeck + SpecialSummon
         code: Destroyed
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to deck shuffle

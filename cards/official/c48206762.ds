@@ -3,14 +3,14 @@
 // Transpiled from c48206762.lua
 
 card "Fulfillment of the Contract" {
-    password: 48206762
+    id: 48206762
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         cost {
             pay_lp your_lp / 2
         }
@@ -22,7 +22,7 @@ card "Fulfillment of the Contract" {
 
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
-        code: 1015
+        code: ChainNegated
         on_resolve {
             banish (1+, card, either_player controls)
         }

@@ -3,7 +3,7 @@
 // Transpiled from c93684009.lua
 
 card "Gladiator Rejection" {
-    password: 93684009
+    id: 93684009
     type: Continuous Spell
 
     raw_effect "Effect 1" {
@@ -15,8 +15,8 @@ card "Gladiator Rejection" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 71
-        property: 128
+        code: CannotDirectAttack2
+        property: SetAvailable
         range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -27,7 +27,7 @@ card "Gladiator Rejection" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         range: SpellTrapZone
         count_limit: (1, 93684009)
         on_resolve {

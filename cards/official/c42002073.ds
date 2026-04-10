@@ -3,7 +3,7 @@
 // Transpiled from c42002073.lua
 
 card "Performapal Trump Girl" {
-    password: 42002073
+    id: 42002073
     type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Spellcaster
@@ -14,7 +14,7 @@ card "Performapal Trump Girl" {
 
     raw_effect "Effect 1" {
         effect_type: Ignition
-        category: SpecialSummon
+        category: SpecialSummon + Control
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -25,7 +25,7 @@ card "Performapal Trump Girl" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 81936
+        property: CardTarget + Oath + Delay
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {

@@ -3,7 +3,7 @@
 // Transpiled from c54578613.lua
 
 card "Dragunity Legionnaire" {
-    password: 54578613
+    id: 54578613
     type: Effect Monster
     attribute: WIND
     race: Winged Beast
@@ -15,7 +15,7 @@ card "Dragunity Legionnaire" {
         effect_type: Single + Trigger
         category: EquipAction
         code: SummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
         }
     }
@@ -23,7 +23,7 @@ card "Dragunity Legionnaire" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: Destroy
-        property: 16
+        property: CardTarget
         range: MonsterZone
         cost {
             send self to gy
@@ -35,14 +35,14 @@ card "Dragunity Legionnaire" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 76
+        code: CannotAttack2
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 71
+        code: CannotDirectAttack2
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
@@ -50,7 +50,7 @@ card "Dragunity Legionnaire" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 41
+        code: IndestructableEffect
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
@@ -58,7 +58,7 @@ card "Dragunity Legionnaire" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

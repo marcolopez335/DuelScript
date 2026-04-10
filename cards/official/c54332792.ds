@@ -3,7 +3,7 @@
 // Transpiled from c54332792.lua
 
 card "Neo Kaiser Sea Horse" {
-    password: 54332792
+    id: 54332792
     type: Effect Monster | Tuner
     attribute: LIGHT
     race: Dragon
@@ -24,7 +24,7 @@ card "Neo Kaiser Sea Horse" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: LevelChange
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -39,7 +39,7 @@ card "Neo Kaiser Sea Horse" {
         effect_type: Single + Trigger
         category: ToGrave
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             send (1+, monster, you controls) to gy
@@ -48,8 +48,8 @@ card "Neo Kaiser Sea Horse" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 130
-        property: 1024
+        code: ChangePosition
+        property: BothSide
         on_resolve {
         }
     }

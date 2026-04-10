@@ -3,12 +3,12 @@
 // Transpiled from c61936647.lua
 
 card "Phantom Knights' Sword" {
-    password: 61936647
+    id: 61936647
     type: Continuous Trap
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: SpellTrapZone
         on_resolve {
             modifier: atk + 800
@@ -24,7 +24,7 @@ card "Phantom Knights' Sword" {
 
     raw_effect "Effect 3" {
         effect_type: Field + Continuous
-        code: 1015
+        code: ChainNegated
         range: SpellTrapZone
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -35,7 +35,7 @@ card "Phantom Knights' Sword" {
         effect_type: QuickEffect
         category: SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: Graveyard
         count_limit: (1, 61936647)
         cost {
@@ -52,7 +52,7 @@ card "Phantom Knights' Sword" {
 
     raw_effect "Effect 5" {
         effect_type: Field + MandatoryTrigger
-        code: 1015
+        code: ChainNegated
         range: MonsterZone
         on_resolve {
         }

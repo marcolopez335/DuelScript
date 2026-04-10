@@ -3,7 +3,7 @@
 // Transpiled from c9453320.lua
 
 card "Abysstrite, the Atlantean Spirit" {
-    password: 9453320
+    id: 9453320
     type: Xyz Monster
     attribute: WATER
     race: Sea Serpent
@@ -23,7 +23,7 @@ card "Abysstrite, the Atlantean Spirit" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -32,7 +32,7 @@ card "Abysstrite, the Atlantean Spirit" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 104
+        code: UpdateDefense
         range: MonsterZone
         on_resolve {
             modifier: def + 0
@@ -43,7 +43,7 @@ card "Abysstrite, the Atlantean Spirit" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 9453320)
         on_resolve {
             special_summon (1, monster) from gy

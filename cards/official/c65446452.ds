@@ -3,7 +3,7 @@
 // Transpiled from c65446452.lua
 
 card "Aquarium Set" {
-    password: 65446452
+    id: 65446452
     type: Continuous Spell
 
     raw_effect "Effect 1" {
@@ -15,7 +15,7 @@ card "Aquarium Set" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: SpellTrapZone
         on_resolve {
             modifier: atk + 300
@@ -24,7 +24,7 @@ card "Aquarium Set" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 104
+        code: UpdateDefense
         range: SpellTrapZone
         on_resolve {
             modifier: def + 300
@@ -33,7 +33,7 @@ card "Aquarium Set" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: SpellTrapZone
         on_resolve {
             modifier: atk + 300
@@ -42,7 +42,7 @@ card "Aquarium Set" {
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 104
+        code: UpdateDefense
         range: SpellTrapZone
         on_resolve {
             modifier: def + 300
@@ -53,7 +53,7 @@ card "Aquarium Set" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: ChainEnd
-        property: 81936
+        property: CardTarget + Oath + Delay
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {

@@ -3,12 +3,12 @@
 // Transpiled from c7394770.lua
 
 card "Brilliant Fusion" {
-    password: 7394770
+    id: 7394770
     type: Continuous Spell
 
     raw_effect "Effect 1" {
         effect_type: Activate
-        category: SpecialSummon
+        category: SpecialSummon + Control
         code: FreeChain
         count_limit: (1, 7394770)
         on_resolve {
@@ -18,8 +18,8 @@ card "Brilliant Fusion" {
 
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
-        code: 1015
-        property: 128
+        code: ChainNegated
+        property: SetAvailable
         on_resolve {
             destroy (1+, spell, you controls, deck)
         }

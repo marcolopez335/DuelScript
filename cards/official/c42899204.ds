@@ -3,13 +3,13 @@
 // Transpiled from c42899204.lua
 
 card "Evil Eye Mesmerism" {
-    password: 42899204
+    id: 42899204
     type: Continuous Trap
 
     raw_effect "Effect 1" {
         effect_type: Activate
         code: SpecialSummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
         }
     }
@@ -17,7 +17,7 @@ card "Evil Eye Mesmerism" {
     raw_effect "Effect 2" {
         effect_type: Field + Continuous
         code: 1022
-        property: 1024
+        property: BothSide
         range: SpellTrapZone
         on_resolve {
             register_effect on self {
@@ -29,8 +29,8 @@ card "Evil Eye Mesmerism" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 4
-        property: 256
+        code: CannotActivate
+        property: IgnoreRange
         range: SpellTrapZone
         on_resolve {
         }
@@ -46,7 +46,7 @@ card "Evil Eye Mesmerism" {
 
     raw_effect "Effect 5" {
         effect_type: Field + Continuous
-        code: 1015
+        code: ChainNegated
         range: SpellTrapZone
         on_resolve {
             destroy (1+, monster, you controls)

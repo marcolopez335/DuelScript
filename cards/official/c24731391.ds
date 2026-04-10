@@ -3,7 +3,7 @@
 // Transpiled from c24731391.lua
 
 card "Cyberse Magician" {
-    password: 24731391
+    id: 24731391
     type: Ritual Monster
     attribute: DARK
     race: Cyberse
@@ -23,7 +23,7 @@ card "Cyberse Magician" {
     raw_effect "Effect 1" {
         effect_type: Field
         code: 82
-        property: 2048
+        property: InitialValue
         range: MonsterZone
         on_resolve {
         }
@@ -40,8 +40,8 @@ card "Cyberse Magician" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 71
-        property: 384
+        code: CannotDirectAttack2
+        property: SetAvailable + IgnoreRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -50,7 +50,7 @@ card "Cyberse Magician" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 1000
         }
@@ -60,7 +60,7 @@ card "Cyberse Magician" {
         effect_type: Single + Trigger
         category: ToHand
         code: Destroyed
-        property: 81920
+        property: Oath + Delay
         on_resolve {
             return (1+, monster, you controls) to hand
             reveal (1+, card, opponent controls)

@@ -3,7 +3,7 @@
 // Transpiled from c12948099.lua
 
 card "Old Entity Cthugua" {
-    password: 12948099
+    id: 12948099
     type: Synchro Monster
     attribute: FIRE
     race: Pyro
@@ -25,7 +25,7 @@ card "Old Entity Cthugua" {
         effect_type: Single + Trigger
         category: ToDeck
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
         }
@@ -34,8 +34,8 @@ card "Old Entity Cthugua" {
     raw_effect "Effect 2" {
         effect_type: Single + MandatoryTrigger
         category: Draw
-        code: 1108
-        property: 2048
+        code: FlipSuccess
+        property: InitialValue
         on_resolve {
             draw 1
         }
@@ -43,7 +43,7 @@ card "Old Entity Cthugua" {
 
     raw_effect "Effect 3" {
         effect_type: Single + Continuous
-        code: 1108
+        code: FlipSuccess
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

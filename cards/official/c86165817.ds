@@ -3,7 +3,7 @@
 // Transpiled from c86165817.lua
 
 card "Evil HERO Malicious Bane" {
-    password: 86165817
+    id: 86165817
     type: Fusion Monster
     attribute: DARK
     race: Fiend
@@ -22,23 +22,23 @@ card "Evil HERO Malicious Bane" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -47,8 +47,8 @@ card "Evil HERO Malicious Bane" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -72,7 +72,7 @@ card "Evil HERO Malicious Bane" {
     raw_effect "Effect 6" {
         effect_type: Field
         code: 86
-        property: 128
+        property: SetAvailable
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
@@ -80,7 +80,7 @@ card "Evil HERO Malicious Bane" {
 
     raw_effect "Effect 7" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 0
         }

@@ -3,7 +3,7 @@
 // Transpiled from c15130912.lua
 
 card "Saion the Vaylantz Archer" {
-    password: 15130912
+    id: 15130912
     type: Effect Monster | Pendulum Monster
     attribute: WATER
     race: Spellcaster
@@ -29,7 +29,7 @@ card "Saion the Vaylantz Archer" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: Disable + SynchroSummon + RitualSummon
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -53,7 +53,7 @@ card "Saion the Vaylantz Archer" {
         effect_type: Single + Trigger
         category: Destroy + ToHand + RitualSummon
         code: LeaveField
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
@@ -64,8 +64,8 @@ card "Saion the Vaylantz Archer" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
@@ -73,8 +73,8 @@ card "Saion the Vaylantz Archer" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 2
-        property: 1024
+        code: Disable
+        property: BothSide
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
@@ -83,7 +83,7 @@ card "Saion the Vaylantz Archer" {
     raw_effect "Effect 6" {
         effect_type: Single
         code: 8
-        property: 1024
+        property: BothSide
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
@@ -91,8 +91,8 @@ card "Saion the Vaylantz Archer" {
 
     raw_effect "Effect 7" {
         effect_type: Single
-        code: 102
-        property: 1024
+        code: SetAttackFinal
+        property: BothSide
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

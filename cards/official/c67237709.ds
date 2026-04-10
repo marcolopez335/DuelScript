@@ -3,7 +3,7 @@
 // Transpiled from c67237709.lua
 
 card "Kozmotown" {
-    password: 67237709
+    id: 67237709
     type: Field Spell
 
     raw_effect "Effect 1" {
@@ -16,7 +16,7 @@ card "Kozmotown" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: ToHand
-        property: 16
+        property: CardTarget
         range: FieldZone
         count_limit: (1, 0)
         on_resolve {
@@ -29,7 +29,7 @@ card "Kozmotown" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: ToDeck + Draw
-        property: 2048
+        property: InitialValue
         range: FieldZone
         count_limit: (1, 0)
         on_resolve {
@@ -44,7 +44,7 @@ card "Kozmotown" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: Destroyed
-        property: 81920
+        property: Oath + Delay
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand
             reveal (1+, card, opponent controls)

@@ -3,7 +3,7 @@
 // Transpiled from c77313225.lua
 
 card "Rciela, Sinister Soul of the White Forest" {
-    password: 77313225
+    id: 77313225
     type: Synchro Monster | Tuner
     attribute: LIGHT
     race: Spellcaster
@@ -25,7 +25,7 @@ card "Rciela, Sinister Soul of the White Forest" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 77313225)
         cost {
             send self to gy
@@ -38,7 +38,7 @@ card "Rciela, Sinister Soul of the White Forest" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 500
@@ -47,7 +47,7 @@ card "Rciela, Sinister Soul of the White Forest" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 41
+        code: IndestructableEffect
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

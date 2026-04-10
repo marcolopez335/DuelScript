@@ -3,7 +3,7 @@
 // Transpiled from c13518809.lua
 
 card "Ruin, Supreme Queen of Oblivion" {
-    password: 13518809
+    id: 13518809
     type: Ritual Monster
     attribute: LIGHT
     race: Fairy
@@ -23,7 +23,7 @@ card "Ruin, Supreme Queen of Oblivion" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 114
-        property: 131072
+        property: SingleRange
         range: Hand + MonsterZone
         on_resolve {
         }
@@ -31,7 +31,7 @@ card "Ruin, Supreme Queen of Oblivion" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 41
+        code: IndestructableEffect
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -48,8 +48,8 @@ card "Ruin, Supreme Queen of Oblivion" {
     raw_effect "Effect 4" {
         effect_type: Single + Trigger
         category: Damage
-        code: 1139
-        property: 2048
+        code: BattleConfirmed
+        property: InitialValue
         on_resolve {
             deal_damage to opponent: 1000
         }

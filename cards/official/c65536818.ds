@@ -3,7 +3,7 @@
 // Transpiled from c65536818.lua
 
 card "Denglong, First of the Yang Zing" {
-    password: 65536818
+    id: 65536818
     type: Synchro Monster | Tuner
     attribute: LIGHT
     race: Wyrm
@@ -25,7 +25,7 @@ card "Denglong, First of the Yang Zing" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)
@@ -46,8 +46,8 @@ card "Denglong, First of the Yang Zing" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         category: SpecialSummon
-        code: 1015
-        property: 114688
+        code: ChainNegated
+        property: Oath + CountCodeDuel + Delay
         on_resolve {
             special_summon (1, monster) from gy
         }

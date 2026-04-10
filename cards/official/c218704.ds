@@ -3,7 +3,7 @@
 // Transpiled from c218704.lua
 
 card "Fenrir" {
-    password: 218704
+    id: 218704
     type: Effect Monster | Spirit
     attribute: WATER
     race: Beast
@@ -17,8 +17,8 @@ card "Fenrir" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             banish (1+, monster, you controls, gy)
@@ -27,7 +27,7 @@ card "Fenrir" {
 
     raw_effect "Effect 2" {
         effect_type: Single + MandatoryTrigger
-        code: 1139
+        code: BattleConfirmed
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

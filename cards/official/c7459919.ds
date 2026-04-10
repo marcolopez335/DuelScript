@@ -3,7 +3,7 @@
 // Transpiled from c7459919.lua
 
 card "Blackwing - Zonda the Dusk" {
-    password: 7459919
+    id: 7459919
     type: Effect Monster
     attribute: DARK
     race: Winged Beast
@@ -17,8 +17,8 @@ card "Blackwing - Zonda the Dusk" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 22
-        property: 2048
+        code: CannotDisable
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -29,7 +29,7 @@ card "Blackwing - Zonda the Dusk" {
         effect_type: Single + Trigger
         category: ToHand
         code: SummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 7459919)
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
@@ -40,7 +40,7 @@ card "Blackwing - Zonda the Dusk" {
         effect_type: Single + Trigger
         category: ToHand
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 7459919)
         on_resolve {
             add_to_hand (1+, card, you controls) from hand

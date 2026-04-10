@@ -3,7 +3,7 @@
 // Transpiled from c96228804.lua
 
 card "Regulus, the Prince of Endymion" {
-    password: 96228804
+    id: 96228804
     type: Effect Monster
     attribute: LIGHT
     race: Spellcaster
@@ -14,7 +14,7 @@ card "Regulus, the Prince of Endymion" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 47
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
@@ -36,7 +36,7 @@ card "Regulus, the Prince of Endymion" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck

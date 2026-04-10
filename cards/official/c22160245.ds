@@ -3,7 +3,7 @@
 // Transpiled from c22160245.lua
 
 card "Evil HERO Inferno Wing" {
-    password: 22160245
+    id: 22160245
     type: Fusion Monster
     attribute: FIRE
     race: Fiend
@@ -22,15 +22,15 @@ card "Evil HERO Inferno Wing" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -38,8 +38,8 @@ card "Evil HERO Inferno Wing" {
     raw_effect "Effect 3" {
         effect_type: Single + MandatoryTrigger
         category: Damage
-        code: 1139
-        property: 2048
+        code: BattleConfirmed
+        property: InitialValue
         on_resolve {
             deal_damage to opponent: 1000
         }
@@ -47,7 +47,7 @@ card "Evil HERO Inferno Wing" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }

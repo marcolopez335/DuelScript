@@ -3,7 +3,7 @@
 // Transpiled from c85800949.lua
 
 card "Legendary Knight Critias" {
-    password: 85800949
+    id: 85800949
     type: Effect Monster | Spirit
     attribute: LIGHT
     race: Warrior
@@ -17,8 +17,8 @@ card "Legendary Knight Critias" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -27,7 +27,7 @@ card "Legendary Knight Critias" {
         effect_type: Single + Trigger
         category: Banish
         code: SpecialSummonSuccess
-        property: 16400
+        property: CardTarget + Oath
         on_resolve {
             banish (1+, trap, either_player controls)
         }
@@ -36,7 +36,7 @@ card "Legendary Knight Critias" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         code: BattleTarget
-        property: 16
+        property: CardTarget
         on_resolve {
             set (1, card)
             register_effect on self {

@@ -3,7 +3,7 @@
 // Transpiled from c59368956.lua
 
 card "Deskbot 002" {
-    password: 59368956
+    id: 59368956
     type: Effect Monster
     attribute: EARTH
     race: Machine
@@ -15,7 +15,7 @@ card "Deskbot 002" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 81920
+        property: Oath + Delay
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)
@@ -24,7 +24,7 @@ card "Deskbot 002" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 500
@@ -33,7 +33,7 @@ card "Deskbot 002" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 104
+        code: UpdateDefense
         range: MonsterZone
         on_resolve {
             modifier: def + 500

@@ -3,7 +3,7 @@
 // Transpiled from c94215860.lua
 
 card "Yaksha" {
-    password: 94215860
+    id: 94215860
     type: Effect Monster | Flip
     attribute: WATER
     race: Fairy
@@ -13,8 +13,8 @@ card "Yaksha" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -23,7 +23,7 @@ card "Yaksha" {
         effect_type: Single + Trigger
         category: ToHand
         code: SummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
             add_to_hand (1+, spell, either_player controls) from gy
         }
@@ -33,7 +33,7 @@ card "Yaksha" {
         effect_type: Single + Trigger
         category: ToHand
         code: 1001
-        property: 16
+        property: CardTarget
         on_resolve {
             add_to_hand (1+, spell, either_player controls) from gy
         }

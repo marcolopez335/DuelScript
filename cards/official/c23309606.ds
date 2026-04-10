@@ -3,7 +3,7 @@
 // Transpiled from c23309606.lua
 
 card "Infernal Incinerator" {
-    password: 23309606
+    id: 23309606
     type: Effect Monster
     attribute: FIRE
     race: Fiend
@@ -18,7 +18,7 @@ card "Infernal Incinerator" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 33
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
             send (1+, monster, either_player controls) to gy
             tribute (1, monster, you controls)
@@ -27,8 +27,8 @@ card "Infernal Incinerator" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 37
-        property: 263168
+        code: CannotMset
+        property: BothSide + Uncopyable
         on_resolve {
             send (1+, monster, either_player controls) to gy
             tribute (1, monster, you controls)
@@ -37,8 +37,8 @@ card "Infernal Incinerator" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0

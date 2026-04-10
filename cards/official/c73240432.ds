@@ -3,7 +3,7 @@
 // Transpiled from c73240432.lua
 
 card "Edge Imp Cotton Eater" {
-    password: 73240432
+    id: 73240432
     type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
@@ -18,7 +18,7 @@ card "Edge Imp Cotton Eater" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: PendulumZone
         on_resolve {
             modifier: atk + 300
@@ -29,7 +29,7 @@ card "Edge Imp Cotton Eater" {
         effect_type: Field + Trigger
         category: Draw
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
@@ -41,7 +41,7 @@ card "Edge Imp Cotton Eater" {
         effect_type: Single + Trigger
         category: Damage
         code: SpecialSummonSuccess
-        property: 67584
+        property: InitialValue + Delay
         count_limit: (1, 73240432)
         on_resolve {
             deal_damage to opponent: 1000

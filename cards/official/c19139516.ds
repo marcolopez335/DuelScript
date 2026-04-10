@@ -3,7 +3,7 @@
 // Transpiled from c19139516.lua
 
 card "Scrap Beast" {
-    password: 19139516
+    id: 19139516
     type: Effect Monster | Tuner
     attribute: EARTH
     race: Beast
@@ -14,7 +14,7 @@ card "Scrap Beast" {
     raw_effect "Effect 1" {
         effect_type: Single + Continuous
         code: BattleTarget
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
@@ -34,7 +34,7 @@ card "Scrap Beast" {
         effect_type: Single + Trigger
         category: ToHand
         code: Destroyed
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
             reveal (1+, card, opponent controls)

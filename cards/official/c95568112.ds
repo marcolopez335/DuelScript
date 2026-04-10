@@ -3,7 +3,7 @@
 // Transpiled from c95568112.lua
 
 card "Rain Bozu" {
-    password: 95568112
+    id: 95568112
     type: Effect Monster | Pendulum Monster
     attribute: LIGHT
     race: Fairy
@@ -19,7 +19,7 @@ card "Rain Bozu" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: SynchroSummon
-        property: 16
+        property: CardTarget
         range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
@@ -32,8 +32,8 @@ card "Rain Bozu" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -42,8 +42,8 @@ card "Rain Bozu" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 104
-        property: 131072
+        code: UpdateDefense
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: def + 0
@@ -63,7 +63,7 @@ card "Rain Bozu" {
     raw_effect "Effect 5" {
         effect_type: Single + Trigger
         code: Destroyed
-        property: 65536
+        property: Delay
         on_resolve {
             special_summon (1, monster) from gy
         }

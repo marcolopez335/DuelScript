@@ -3,7 +3,7 @@
 // Transpiled from c83743222.lua
 
 card "Goddess Bow" {
-    password: 83743222
+    id: 83743222
     type: Fusion Monster
     attribute: LIGHT
     race: Warrior
@@ -22,8 +22,8 @@ card "Goddess Bow" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -32,7 +32,7 @@ card "Goddess Bow" {
         effect_type: Single + MandatoryTrigger
         category: EquipAction
         code: SpecialSummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
             send (1+, card, either_player controls) to gy
             equip (1, card) to (1, monster)

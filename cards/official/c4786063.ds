@@ -3,7 +3,7 @@
 // Transpiled from c4786063.lua
 
 card "Superheavy Samurai Soulfire Suit" {
-    password: 4786063
+    id: 4786063
     type: Effect Monster
     attribute: FIRE
     race: Machine
@@ -14,7 +14,7 @@ card "Superheavy Samurai Soulfire Suit" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: EquipAction
-        property: 16
+        property: CardTarget
         range: Hand + MonsterZone
         on_resolve {
             equip (1, card) to (1, monster)
@@ -26,7 +26,7 @@ card "Superheavy Samurai Soulfire Suit" {
         effect_type: QuickEffect
         category: XyzSummon
         code: FreeChain
-        property: 16400
+        property: CardTarget + Oath
         range: Hand
         cost {
             discard (1, card, you controls)
@@ -49,8 +49,8 @@ card "Superheavy Samurai Soulfire Suit" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 76
-        property: 1024
+        code: CannotAttack2
+        property: BothSide
         on_resolve {
         }
     }
@@ -64,7 +64,7 @@ card "Superheavy Samurai Soulfire Suit" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 104
+        code: UpdateDefense
         on_resolve {
             modifier: def - 800
         }
@@ -72,8 +72,8 @@ card "Superheavy Samurai Soulfire Suit" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 42
-        property: 67108864
+        code: CannotBeEffectTarget
+        property: IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -81,8 +81,8 @@ card "Superheavy Samurai Soulfire Suit" {
 
     raw_effect "Effect 7" {
         effect_type: Single
-        code: 41
-        property: 67108864
+        code: IndestructableEffect
+        property: IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }

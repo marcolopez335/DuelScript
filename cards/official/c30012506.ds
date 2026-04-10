@@ -3,7 +3,7 @@
 // Transpiled from c30012506.lua
 
 card "A-Assault Core" {
-    password: 30012506
+    id: 30012506
     type: Effect Monster | Gemini
     attribute: LIGHT
     race: Machine
@@ -13,7 +13,7 @@ card "A-Assault Core" {
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 1
+        code: ImmuneEffect
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
         }
@@ -23,7 +23,7 @@ card "A-Assault Core" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 65536
+        property: Delay
         on_resolve {
             add_to_hand (1+, card, you controls) from gy
             reveal (1+, card, opponent controls)
@@ -48,7 +48,7 @@ card "A-Assault Core" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 76
+        code: CannotAttack2
         on_resolve {
         }
     }

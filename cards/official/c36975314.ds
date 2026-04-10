@@ -3,14 +3,14 @@
 // Transpiled from c36975314.lua
 
 card "Crackdown" {
-    password: 36975314
+    id: 36975314
     type: Continuous Trap
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: Summon
         code: FreeChain
-        property: 16
+        property: CardTarget
         on_resolve {
         }
     }
@@ -18,7 +18,7 @@ card "Crackdown" {
     raw_effect "Effect 2" {
         effect_type: Field + Continuous
         code: 1022
-        property: 1024
+        property: BothSide
         range: SpellTrapZone
         on_resolve {
             register_effect on self {
@@ -30,8 +30,8 @@ card "Crackdown" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 4
-        property: 256
+        code: CannotActivate
+        property: IgnoreRange
         range: SpellTrapZone
         on_resolve {
         }
@@ -57,7 +57,7 @@ card "Crackdown" {
 
     raw_effect "Effect 6" {
         effect_type: Field + Continuous
-        code: 1015
+        code: ChainNegated
         range: SpellTrapZone
         on_resolve {
             destroy (1+, card, either_player controls)

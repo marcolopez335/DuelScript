@@ -3,7 +3,7 @@
 // Transpiled from c45014450.lua
 
 card "Odd-Eyes Venom Dragon" {
-    password: 45014450
+    id: 45014450
     type: Fusion Monster | Pendulum Monster
     attribute: DARK
     race: Dragon
@@ -23,8 +23,8 @@ card "Odd-Eyes Venom Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -32,7 +32,7 @@ card "Odd-Eyes Venom Dragon" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: SynchroSummon
-        property: 16
+        property: CardTarget
         range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
@@ -45,7 +45,7 @@ card "Odd-Eyes Venom Dragon" {
 
     raw_effect "Effect 3" {
         effect_type: Ignition
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -56,7 +56,7 @@ card "Odd-Eyes Venom Dragon" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 65536
+        property: Delay
         on_resolve {
             special_summon (1, monster) from gy
             special_summon (1, monster) from gy

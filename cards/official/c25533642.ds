@@ -3,7 +3,7 @@
 // Transpiled from c25533642.lua
 
 card "Altergeist Meluseek" {
-    password: 25533642
+    id: 25533642
     type: Effect Monster
     attribute: WATER
     race: Spellcaster
@@ -22,8 +22,8 @@ card "Altergeist Meluseek" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: ToGrave
-        code: 1143
-        property: 16
+        code: BattleDestroyed
+        property: CardTarget
         on_resolve {
             send (1+, monster, you controls, deck) to gy
         }
@@ -33,7 +33,7 @@ card "Altergeist Meluseek" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 25533642)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck

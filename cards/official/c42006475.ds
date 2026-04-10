@@ -3,7 +3,7 @@
 // Transpiled from c42006475.lua
 
 card "Palladium Oracle Mana" {
-    password: 42006475
+    id: 42006475
     type: Effect Monster
     attribute: LIGHT
     race: Spellcaster
@@ -28,7 +28,7 @@ card "Palladium Oracle Mana" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 41
+        code: IndestructableEffect
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -39,7 +39,7 @@ card "Palladium Oracle Mana" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 65536
+        property: Delay
         on_resolve {
             special_summon (1, monster) from gy
         }

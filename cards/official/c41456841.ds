@@ -3,7 +3,7 @@
 // Transpiled from c41456841.lua
 
 card "Metamorphosed Insect Queen" {
-    password: 41456841
+    id: 41456841
     type: Effect Monster | Spirit
     attribute: EARTH
     race: Insect
@@ -17,15 +17,15 @@ card "Metamorphosed Insect Queen" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 41
+        code: IndestructableEffect
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -34,8 +34,8 @@ card "Metamorphosed Insect Queen" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 71
-        property: 128
+        code: CannotDirectAttack2
+        property: SetAvailable
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -55,7 +55,7 @@ card "Metamorphosed Insect Queen" {
     raw_effect "Effect 5" {
         effect_type: Field + Trigger
         category: SpecialSummon + Token
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

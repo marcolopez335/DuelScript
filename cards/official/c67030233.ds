@@ -3,7 +3,7 @@
 // Transpiled from c67030233.lua
 
 card "Majestic Red Dragon" {
-    password: 67030233
+    id: 67030233
     type: Synchro Monster
     attribute: DARK
     race: Dragon
@@ -33,7 +33,7 @@ card "Majestic Red Dragon" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: Disable + SynchroSummon
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -51,8 +51,8 @@ card "Majestic Red Dragon" {
     raw_effect "Effect 3" {
         effect_type: Field + MandatoryTrigger
         category: ToDeck + SpecialSummon
-        code: 4608
-        property: 16
+        code: PhaseEnd
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -63,8 +63,8 @@ card "Majestic Red Dragon" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -73,7 +73,7 @@ card "Majestic Red Dragon" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }

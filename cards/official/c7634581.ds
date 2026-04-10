@@ -3,7 +3,7 @@
 // Transpiled from c7634581.lua
 
 card "Orichalcos Shunoros" {
-    password: 7634581
+    id: 7634581
     type: Effect Monster | Spirit
     attribute: DARK
     race: Machine
@@ -27,8 +27,8 @@ card "Orichalcos Shunoros" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -37,7 +37,7 @@ card "Orichalcos Shunoros" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 41
+        code: IndestructableEffect
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

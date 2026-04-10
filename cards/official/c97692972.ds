@@ -3,7 +3,7 @@
 // Transpiled from c97692972.lua
 
 card "Amazoness Golden Whip Master" {
-    password: 97692972
+    id: 97692972
     type: Effect Monster | Pendulum Monster
     attribute: EARTH
     race: Warrior
@@ -18,7 +18,7 @@ card "Amazoness Golden Whip Master" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: PendulumZone
         on_resolve {
             modifier: atk + 0
@@ -29,7 +29,7 @@ card "Amazoness Golden Whip Master" {
         effect_type: Field + Trigger
         category: Destroy
         code: AttackAnnounce
-        property: 16
+        property: CardTarget
         range: PendulumZone
         count_limit: (1, 97692972)
         on_resolve {
@@ -40,7 +40,7 @@ card "Amazoness Golden Whip Master" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         code: Destroyed
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -50,7 +50,7 @@ card "Amazoness Golden Whip Master" {
     raw_effect "Effect 4" {
         effect_type: Field + Trigger
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         range: Graveyard
         count_limit: (1, 0)
         on_resolve {

@@ -3,7 +3,7 @@
 // Transpiled from c17679043.lua
 
 card "Penguin Torpedo" {
-    password: 17679043
+    id: 17679043
     type: Effect Monster
     attribute: WATER
     race: Aqua
@@ -22,8 +22,8 @@ card "Penguin Torpedo" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: Summon
-        code: 1143
-        property: 16
+        code: BattleDestroyed
+        property: CardTarget
         count_limit: (1, 17679043)
         on_resolve {
             take_control of (1, monster, opponent controls)
@@ -46,7 +46,7 @@ card "Penguin Torpedo" {
     raw_effect "Effect 4" {
         effect_type: Single
         code: 85
-        property: 67109888
+        property: BothSide + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }

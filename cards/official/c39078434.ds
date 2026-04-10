@@ -3,7 +3,7 @@
 // Transpiled from c39078434.lua
 
 card "Infinite Antlion" {
-    password: 39078434
+    id: 39078434
     type: Effect Monster
     attribute: EARTH
     race: Insect
@@ -15,7 +15,7 @@ card "Infinite Antlion" {
         effect_type: Field + Trigger
         category: Destroy
         code: DamageCalculation
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -38,7 +38,7 @@ card "Infinite Antlion" {
         effect_type: Single + Trigger
         category: EquipAction
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
         }
@@ -48,7 +48,7 @@ card "Infinite Antlion" {
         effect_type: Single + Trigger
         category: EquipAction
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
         }
@@ -56,7 +56,7 @@ card "Infinite Antlion" {
 
     raw_effect "Effect 5" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 500
         }
@@ -64,7 +64,7 @@ card "Infinite Antlion" {
 
     raw_effect "Effect 6" {
         effect_type: Equip
-        code: 104
+        code: UpdateDefense
         on_resolve {
             modifier: def + 500
         }
@@ -72,8 +72,8 @@ card "Infinite Antlion" {
 
     raw_effect "Effect 7" {
         effect_type: Single
-        code: 76
-        property: 1024
+        code: CannotAttack2
+        property: BothSide
         on_resolve {
         }
     }

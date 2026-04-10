@@ -3,7 +3,7 @@
 // Transpiled from c37006702.lua
 
 card "Krishnerd Witch" {
-    password: 37006702
+    id: 37006702
     type: Effect Monster
     attribute: LIGHT
     race: Spellcaster
@@ -13,8 +13,8 @@ card "Krishnerd Witch" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -24,8 +24,8 @@ card "Krishnerd Witch" {
     raw_effect "Effect 2" {
         effect_type: Field + Trigger
         category: SpecialSummon
-        code: 1015
-        property: 65536
+        code: ChainNegated
+        property: Delay
         range: Hand
         count_limit: (1, 37006702)
         on_resolve {

@@ -3,7 +3,7 @@
 // Transpiled from c50281477.lua
 
 card "Tainted of the Tistina" {
-    password: 50281477
+    id: 50281477
     type: Effect Monster
     attribute: DARK
     race: Aqua
@@ -18,7 +18,7 @@ card "Tainted of the Tistina" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 32
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
             tribute (1, monster, you controls)
         }
@@ -27,7 +27,7 @@ card "Tainted of the Tistina" {
     raw_effect "Effect 2" {
         effect_type: Single
         code: 131
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -36,7 +36,7 @@ card "Tainted of the Tistina" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -56,7 +56,7 @@ card "Tainted of the Tistina" {
     raw_effect "Effect 4" {
         effect_type: Single
         code: 194
-        property: 67109888
+        property: BothSide + IgnoreRange2
         on_resolve {
         }
     }
@@ -64,7 +64,7 @@ card "Tainted of the Tistina" {
     raw_effect "Effect 5" {
         effect_type: Field
         code: 86
-        property: 128
+        property: SetAvailable
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
@@ -73,7 +73,7 @@ card "Tainted of the Tistina" {
     raw_effect "Effect 6" {
         effect_type: Field + Continuous
         code: AttackAnnounce
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }

@@ -3,7 +3,7 @@
 // Transpiled from c83445539.lua
 
 card "Darkness Resonator" {
-    password: 83445539
+    id: 83445539
     // FIXME: card not found in CDB — type/stats are placeholders
     type: Effect Monster
     attribute: DARK
@@ -29,7 +29,7 @@ card "Darkness Resonator" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -42,7 +42,7 @@ card "Darkness Resonator" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: LevelChange
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -55,8 +55,8 @@ card "Darkness Resonator" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

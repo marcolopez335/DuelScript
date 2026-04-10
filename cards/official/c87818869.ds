@@ -3,14 +3,14 @@
 // Transpiled from c87818869.lua
 
 card "Hyper-Rank-Up-Magic Ultimate Force" {
-    password: 87818869
+    id: 87818869
     type: Normal Spell
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         on_resolve {
             attach (1, card) to self as_material
             special_summon (1, monster) from gy
@@ -19,10 +19,10 @@ card "Hyper-Rank-Up-Magic Ultimate Force" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: MandatoryQuick
+        effect_type: MandatoryQuick + XyzMaterial
         category: Destroy
         code: Chaining
-        property: 49152
+        property: Oath + CountCodeDuel
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

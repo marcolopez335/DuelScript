@@ -3,7 +3,7 @@
 // Transpiled from c84565800.lua
 
 card "Legendary Knight Hermos" {
-    password: 84565800
+    id: 84565800
     type: Effect Monster | Spirit
     attribute: LIGHT
     race: Warrior
@@ -17,8 +17,8 @@ card "Legendary Knight Hermos" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -27,7 +27,7 @@ card "Legendary Knight Hermos" {
         effect_type: Single + Trigger
         category: Banish
         code: SpecialSummonSuccess
-        property: 16400
+        property: CardTarget + Oath
         on_resolve {
             banish (1+, spell, either_player controls)
         }
@@ -36,7 +36,7 @@ card "Legendary Knight Hermos" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         code: BattleTarget
-        property: 16
+        property: CardTarget
         count_limit: (1, 0)
         on_resolve {
         }

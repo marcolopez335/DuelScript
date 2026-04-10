@@ -3,7 +3,7 @@
 // Transpiled from c87758525.lua
 
 card "Favorite HERO Shining Flare Wingman" {
-    password: 87758525
+    id: 87758525
     type: Fusion Monster
     attribute: LIGHT
     race: Warrior
@@ -24,7 +24,7 @@ card "Favorite HERO Shining Flare Wingman" {
         effect_type: Single + Trigger
         category: ToDeck + Draw + SynchroSummon
         code: SpecialSummonSuccess
-        property: 67584
+        property: InitialValue + Delay
         count_limit: (1, 87758525)
         on_resolve {
             return (1+, monster, you controls) to deck shuffle
@@ -35,8 +35,8 @@ card "Favorite HERO Shining Flare Wingman" {
     raw_effect "Effect 2" {
         effect_type: Single + MandatoryTrigger
         category: Damage
-        code: 1139
-        property: 2048
+        code: BattleConfirmed
+        property: InitialValue
         on_resolve {
             deal_damage to opponent: 1000
         }

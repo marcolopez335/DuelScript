@@ -3,7 +3,7 @@
 // Transpiled from c47017574.lua
 
 card "Number C92: Heart-eartH Chaos Dragon" {
-    password: 47017574
+    id: 47017574
     type: Xyz Monster
     attribute: DARK
     race: Dragon
@@ -23,7 +23,7 @@ card "Number C92: Heart-eartH Chaos Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -32,8 +32,8 @@ card "Number C92: Heart-eartH Chaos Dragon" {
     raw_effect "Effect 2" {
         effect_type: Field + MandatoryTrigger
         category: Recover
-        code: 1143
-        property: 2048
+        code: BattleDestroyed
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             gain_lp: 1000
@@ -43,7 +43,7 @@ card "Number C92: Heart-eartH Chaos Dragon" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: Disable
-        property: 33555968
+        property: IgnoreImmune + BothSide
         range: MonsterZone
         count_limit: (1, 0)
         cost {

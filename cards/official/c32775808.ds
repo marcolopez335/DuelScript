@@ -3,7 +3,7 @@
 // Transpiled from c32775808.lua
 
 card "Archfiend's Manifestation" {
-    password: 32775808
+    id: 32775808
     type: Fusion Monster
     attribute: DARK
     race: Fiend
@@ -23,7 +23,7 @@ card "Archfiend's Manifestation" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 114
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -31,7 +31,7 @@ card "Archfiend's Manifestation" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 500
@@ -42,7 +42,7 @@ card "Archfiend's Manifestation" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: ChainEnd
-        property: 81920
+        property: Oath + Delay
         on_resolve {
             special_summon (1, monster) from gy
         }

@@ -3,7 +3,7 @@
 // Transpiled from c13708888.lua
 
 card "Evil HERO Neos Lord" {
-    password: 13708888
+    id: 13708888
     type: Fusion Monster
     attribute: DARK
     race: Fiend
@@ -24,7 +24,7 @@ card "Evil HERO Neos Lord" {
         effect_type: Single + Trigger
         category: Summon
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 13708888)
         on_resolve {
             take_control of (1, monster, opponent controls)
@@ -35,7 +35,7 @@ card "Evil HERO Neos Lord" {
         effect_type: Field + Trigger
         category: Summon
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         range: MonsterZone
         count_limit: (1, 13708888)
         on_resolve {
@@ -45,8 +45,8 @@ card "Evil HERO Neos Lord" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -55,8 +55,8 @@ card "Evil HERO Neos Lord" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

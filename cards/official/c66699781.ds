@@ -3,7 +3,7 @@
 // Transpiled from c66699781.lua
 
 card "Chaos Mirage Dragon" {
-    password: 66699781
+    id: 66699781
     type: Effect Monster | Tuner
     attribute: LIGHT
     race: Wyrm
@@ -14,7 +14,7 @@ card "Chaos Mirage Dragon" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: SpecialSummon
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 66699781)
         on_resolve {
@@ -37,8 +37,8 @@ card "Chaos Mirage Dragon" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: Banish
-        code: 1108
-        property: 65552
+        code: FlipSuccess
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             banish (1+, card, either_player controls)

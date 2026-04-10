@@ -3,7 +3,7 @@
 // Transpiled from c77797992.lua
 
 card "Alpacaribou, Mystical Beast of the Forest" {
-    password: 77797992
+    id: 77797992
     type: Effect Monster
     attribute: EARTH
     race: Beast
@@ -17,7 +17,7 @@ card "Alpacaribou, Mystical Beast of the Forest" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -26,7 +26,7 @@ card "Alpacaribou, Mystical Beast of the Forest" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 41
+        code: IndestructableEffect
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -35,8 +35,8 @@ card "Alpacaribou, Mystical Beast of the Forest" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 71
-        property: 128
+        code: CannotDirectAttack2
+        property: SetAvailable
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }

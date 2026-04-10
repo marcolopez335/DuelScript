@@ -3,7 +3,7 @@
 // Transpiled from c88926295.lua
 
 card "Evigishki Neremanas" {
-    password: 88926295
+    id: 88926295
     type: Ritual Monster
     attribute: WATER
     race: Spellcaster
@@ -24,7 +24,7 @@ card "Evigishki Neremanas" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -32,7 +32,7 @@ card "Evigishki Neremanas" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -42,7 +42,7 @@ card "Evigishki Neremanas" {
         effect_type: QuickEffect
         category: ToHand + ToDeck + Negate
         code: Chaining
-        property: 49152
+        property: Oath + CountCodeDuel
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

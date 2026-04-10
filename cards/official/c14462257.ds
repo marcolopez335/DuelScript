@@ -3,7 +3,7 @@
 // Transpiled from c14462257.lua
 
 card "Ice Queen" {
-    password: 14462257
+    id: 14462257
     type: Effect Monster
     attribute: WATER
     race: Spellcaster
@@ -17,8 +17,8 @@ card "Ice Queen" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 394240
+        code: SpsummonCondition
+        property: BothSide + SingleRange + Uncopyable
         range: Graveyard
         on_resolve {
         }
@@ -28,7 +28,7 @@ card "Ice Queen" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 16400
+        property: CardTarget + Oath
         on_resolve {
             add_to_hand (1+, spell, you controls) from gy
             reveal (1+, card, opponent controls)

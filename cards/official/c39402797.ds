@@ -3,7 +3,7 @@
 // Transpiled from c39402797.lua
 
 card "Trident Dragion" {
-    password: 39402797
+    id: 39402797
     type: Synchro Monster
     attribute: FIRE
     race: Dragon
@@ -23,8 +23,8 @@ card "Trident Dragion" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -33,7 +33,7 @@ card "Trident Dragion" {
         effect_type: Single + Trigger
         category: Destroy
         code: SpecialSummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
             destroy (1+, card, either_player controls)
         }

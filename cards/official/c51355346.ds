@@ -3,7 +3,7 @@
 // Transpiled from c51355346.lua
 
 card "Gaia Soul the Combustible Collective" {
-    password: 51355346
+    id: 51355346
     type: Effect Monster
     attribute: FIRE
     race: Pyro
@@ -24,7 +24,7 @@ card "Gaia Soul the Combustible Collective" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }
@@ -33,7 +33,7 @@ card "Gaia Soul the Combustible Collective" {
     raw_effect "Effect 3" {
         effect_type: Field + MandatoryTrigger
         category: Destroy
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

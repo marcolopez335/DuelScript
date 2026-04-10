@@ -3,7 +3,7 @@
 // Transpiled from c85066822.lua
 
 card "Water Dragon" {
-    password: 85066822
+    id: 85066822
     type: Effect Monster | Spirit
     attribute: WATER
     race: Sea Serpent
@@ -17,15 +17,15 @@ card "Water Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 101
+        code: SetAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -36,7 +36,7 @@ card "Water Dragon" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: ChainEnd
-        property: 16400
+        property: CardTarget + Oath
         on_resolve {
             special_summon (1, monster) from gy
         }

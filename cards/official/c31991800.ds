@@ -3,7 +3,7 @@
 // Transpiled from c31991800.lua
 
 card "Majespecter Raccoon - Bunbuku" {
-    password: 31991800
+    id: 31991800
     type: Effect Monster | Pendulum Monster
     attribute: WIND
     race: Spellcaster
@@ -16,7 +16,7 @@ card "Majespecter Raccoon - Bunbuku" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SummonSuccess
-        property: 16384
+        property: Oath
         count_limit: (1, 31991800)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -28,7 +28,7 @@ card "Majespecter Raccoon - Bunbuku" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 16384
+        property: Oath
         count_limit: (1, 31991800)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -38,8 +38,8 @@ card "Majespecter Raccoon - Bunbuku" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 71
-        property: 131072
+        code: CannotDirectAttack2
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -48,8 +48,8 @@ card "Majespecter Raccoon - Bunbuku" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

@@ -3,7 +3,7 @@
 // Transpiled from c30802207.lua
 
 card "Exosister Carpedivem" {
-    password: 30802207
+    id: 30802207
     type: Continuous Spell
 
     raw_effect "Effect 1" {
@@ -15,8 +15,8 @@ card "Exosister Carpedivem" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 71
-        property: 128
+        code: CannotDirectAttack2
+        property: SetAvailable
         range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -26,7 +26,7 @@ card "Exosister Carpedivem" {
     raw_effect "Effect 3" {
         effect_type: Field + Trigger
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         range: SpellTrapZone
         count_limit: (1, 30802207)
         on_resolve {
@@ -45,7 +45,7 @@ card "Exosister Carpedivem" {
         effect_type: Field + Trigger
         category: Destroy
         code: AttackAnnounce
-        property: 16
+        property: CardTarget
         range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {

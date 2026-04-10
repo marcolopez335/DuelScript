@@ -3,7 +3,7 @@
 // Transpiled from c16327715.lua
 
 card "Junk Warrior Extreme" {
-    password: 16327715
+    id: 16327715
     type: Synchro Monster
     attribute: DARK
     race: Warrior
@@ -25,7 +25,7 @@ card "Junk Warrior Extreme" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 16327715)
         on_resolve {
             special_summon (1, monster) from gy
@@ -47,7 +47,7 @@ card "Junk Warrior Extreme" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: SpecialSummon
-        code: 1139
+        code: BattleConfirmed
         count_limit: (1, 0)
         cost {
             banish self
@@ -60,7 +60,7 @@ card "Junk Warrior Extreme" {
     raw_effect "Effect 3" {
         effect_type: Single
         code: 7
-        property: 67108864
+        property: IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
@@ -68,8 +68,8 @@ card "Junk Warrior Extreme" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
@@ -78,7 +78,7 @@ card "Junk Warrior Extreme" {
     raw_effect "Effect 5" {
         effect_type: Field
         code: 331
-        property: 67110912
+        property: InitialValue + IgnoreRange2
         on_resolve {
         }
     }

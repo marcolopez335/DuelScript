@@ -3,7 +3,7 @@
 // Transpiled from c91135480.lua
 
 card "Time Thief Double Barrel" {
-    password: 91135480
+    id: 91135480
     type: Xyz Monster
     attribute: DARK
     race: Psychic
@@ -52,7 +52,7 @@ card "Time Thief Double Barrel" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         property: 8192
         on_resolve {
             modifier: atk + 400
@@ -62,7 +62,7 @@ card "Time Thief Double Barrel" {
     raw_effect "Effect 3" {
         effect_type: Single
         code: 85
-        property: 67108864
+        property: IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
@@ -71,7 +71,7 @@ card "Time Thief Double Barrel" {
     raw_effect "Effect 4" {
         effect_type: Single
         code: 7
-        property: 67108864
+        property: IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
@@ -79,8 +79,8 @@ card "Time Thief Double Barrel" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 2
-        property: 1024
+        code: Disable
+        property: BothSide
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
@@ -89,7 +89,7 @@ card "Time Thief Double Barrel" {
     raw_effect "Effect 6" {
         effect_type: Single
         code: 8
-        property: 1024
+        property: BothSide
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }

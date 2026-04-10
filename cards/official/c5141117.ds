@@ -3,7 +3,7 @@
 // Transpiled from c5141117.lua
 
 card "The Abyss Dragon Swordsoul" {
-    password: 5141117
+    id: 5141117
     type: Effect Monster | Spirit
     attribute: FIRE
     race: Wyrm
@@ -17,8 +17,8 @@ card "The Abyss Dragon Swordsoul" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -38,7 +38,7 @@ card "The Abyss Dragon Swordsoul" {
         effect_type: Single + Trigger
         category: Banish
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             banish (1+, monster, opponent controls, gy)

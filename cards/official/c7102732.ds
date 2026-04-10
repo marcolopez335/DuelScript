@@ -3,7 +3,7 @@
 // Transpiled from c7102732.lua
 
 card "Clear Rage Golem" {
-    password: 7102732
+    id: 7102732
     type: Effect Monster
     attribute: DARK
     race: Rock
@@ -14,7 +14,7 @@ card "Clear Rage Golem" {
     raw_effect "Effect 1" {
         effect_type: Single + Trigger
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 7102732)
         on_resolve {
             set_flag "tracked" on self
@@ -28,7 +28,7 @@ card "Clear Rage Golem" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 7102732)
         on_resolve {
             set_flag "tracked" on self
@@ -42,7 +42,7 @@ card "Clear Rage Golem" {
     raw_effect "Effect 3" {
         effect_type: Field
         code: 97811903
-        property: 2048
+        property: InitialValue
         range: MonsterZone
         on_resolve {
         }
@@ -51,8 +51,8 @@ card "Clear Rage Golem" {
     raw_effect "Effect 4" {
         effect_type: Single + Trigger
         category: Damage
-        code: 1143
-        property: 2048
+        code: BattleDestroyed
+        property: InitialValue
         on_resolve {
             deal_damage to opponent: 1000
         }

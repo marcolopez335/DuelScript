@@ -3,7 +3,7 @@
 // Transpiled from c82570174.lua
 
 card "Sangenpai Bident Dragion" {
-    password: 82570174
+    id: 82570174
     type: Synchro Monster | Tuner
     attribute: FIRE
     race: Dragon
@@ -25,7 +25,7 @@ card "Sangenpai Bident Dragion" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 82570174)
         on_resolve {
             special_summon (1, monster) from gy
@@ -58,8 +58,8 @@ card "Sangenpai Bident Dragion" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

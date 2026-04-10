@@ -3,7 +3,7 @@
 // Transpiled from c71817640.lua
 
 card "Dragonic Pendulum" {
-    password: 71817640
+    id: 71817640
     type: Field Spell
 
     raw_effect "Effect 1" {
@@ -15,7 +15,7 @@ card "Dragonic Pendulum" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: FieldZone
         on_resolve {
             modifier: atk + 300
@@ -24,7 +24,7 @@ card "Dragonic Pendulum" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 104
+        code: UpdateDefense
         range: FieldZone
         on_resolve {
             modifier: def + 300
@@ -35,7 +35,7 @@ card "Dragonic Pendulum" {
         effect_type: Field + Trigger
         category: Destroy
         code: Chaining
-        property: 65552
+        property: CardTarget + Delay
         range: FieldZone
         count_limit: (1, 0)
         on_resolve {
@@ -47,7 +47,7 @@ card "Dragonic Pendulum" {
         effect_type: Single + Trigger
         category: ToHand + SpecialSummon + Search
         code: Destroyed
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1, card, you controls) from gy

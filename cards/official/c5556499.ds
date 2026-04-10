@@ -3,7 +3,7 @@
 // Transpiled from c5556499.lua
 
 card "Machina Fortress" {
-    password: 5556499
+    id: 5556499
     type: Effect Monster
     attribute: EARTH
     race: Machine
@@ -17,8 +17,8 @@ card "Machina Fortress" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand + Graveyard
         on_resolve {
             send (1+, card, you controls, hand) to gy
@@ -29,7 +29,7 @@ card "Machina Fortress" {
         effect_type: Single + MandatoryTrigger
         category: Destroy
         code: BattleDamage
-        property: 16
+        property: CardTarget
         on_resolve {
             destroy (1+, card, you controls, hand)
         }

@@ -3,7 +3,7 @@
 // Transpiled from c67508932.lua
 
 card "Timelord Progenitor Vorpgate" {
-    password: 67508932
+    id: 67508932
     type: Synchro Monster
     attribute: DARK
     race: Fairy
@@ -23,8 +23,8 @@ card "Timelord Progenitor Vorpgate" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -33,8 +33,8 @@ card "Timelord Progenitor Vorpgate" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -44,7 +44,7 @@ card "Timelord Progenitor Vorpgate" {
     raw_effect "Effect 3" {
         effect_type: Single
         code: 201
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -67,7 +67,7 @@ card "Timelord Progenitor Vorpgate" {
     raw_effect "Effect 5" {
         effect_type: Field + MandatoryTrigger
         category: SpecialSummon
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -78,7 +78,7 @@ card "Timelord Progenitor Vorpgate" {
     raw_effect "Effect 6" {
         effect_type: Field
         code: 208
-        property: 2048
+        property: InitialValue
         on_resolve {
         }
     }

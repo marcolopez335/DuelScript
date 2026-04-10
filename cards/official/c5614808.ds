@@ -3,7 +3,7 @@
 // Transpiled from c5614808.lua
 
 card "White Aura Whale" {
-    password: 5614808
+    id: 5614808
     type: Synchro Monster
     attribute: WATER
     race: Fish
@@ -33,7 +33,7 @@ card "White Aura Whale" {
     raw_effect "Effect 2" {
         effect_type: Single
         code: 346
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -41,7 +41,7 @@ card "White Aura Whale" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }
@@ -51,7 +51,7 @@ card "White Aura Whale" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 65536
+        property: Delay
         cost {
             banish self
         }
@@ -63,7 +63,7 @@ card "White Aura Whale" {
     raw_effect "Effect 5" {
         effect_type: Single
         code: 115
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }

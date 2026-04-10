@@ -3,7 +3,7 @@
 // Transpiled from c72272462.lua
 
 card "Despian Quaeritis" {
-    password: 72272462
+    id: 72272462
     type: Fusion Monster
     attribute: LIGHT
     race: Fiend
@@ -37,8 +37,8 @@ card "Despian Quaeritis" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: ToHand + SpecialSummon + Search
-        code: 1015
-        property: 65536
+        code: ChainNegated
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1, card, you controls) from gy
@@ -48,8 +48,8 @@ card "Despian Quaeritis" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 102
-        property: 1024
+        code: SetAttackFinal
+        property: BothSide
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

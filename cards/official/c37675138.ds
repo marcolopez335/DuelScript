@@ -3,7 +3,7 @@
 // Transpiled from c37675138.lua
 
 card "Bone Crusher" {
-    password: 37675138
+    id: 37675138
     type: Effect Monster
     attribute: EARTH
     race: Zombie
@@ -15,7 +15,7 @@ card "Bone Crusher" {
         effect_type: Single + Trigger
         category: Destroy
         code: SpecialSummonSuccess
-        property: 16400
+        property: CardTarget + Oath
         on_resolve {
             destroy (1+, spell, either_player controls)
         }
@@ -24,7 +24,7 @@ card "Bone Crusher" {
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
         code: SpecialSummonSuccess
-        property: 1024
+        property: BothSide
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

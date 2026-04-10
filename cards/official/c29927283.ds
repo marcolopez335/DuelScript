@@ -3,7 +3,7 @@
 // Transpiled from c29927283.lua
 
 card "Returned Dino Daneen" {
-    password: 29927283
+    id: 29927283
     type: Effect Monster
     attribute: WATER
     race: Dinosaur
@@ -15,7 +15,7 @@ card "Returned Dino Daneen" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to hand
@@ -25,7 +25,7 @@ card "Returned Dino Daneen" {
 
     raw_effect "Effect 2" {
         effect_type: Ignition
-        category: SpecialSummon
+        category: SpecialSummon + Control
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -36,7 +36,7 @@ card "Returned Dino Daneen" {
         effect_type: Single + Trigger
         category: SynchroSummon
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -48,8 +48,8 @@ card "Returned Dino Daneen" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 100
-        property: 1024
+        code: UpdateAttack
+        property: BothSide
         on_resolve {
             modifier: atk + 400
         }

@@ -3,7 +3,7 @@
 // Transpiled from c34853266.lua
 
 card "Tsukuyomi" {
-    password: 34853266
+    id: 34853266
     type: Effect Monster | Flip
     attribute: DARK
     race: Spellcaster
@@ -13,8 +13,8 @@ card "Tsukuyomi" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -23,7 +23,7 @@ card "Tsukuyomi" {
         effect_type: Single + MandatoryTrigger
         category: DiceRoll
         code: SummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
             change_battle_position (1, monster)
         }
@@ -33,7 +33,7 @@ card "Tsukuyomi" {
         effect_type: Single + MandatoryTrigger
         category: DiceRoll
         code: 1001
-        property: 16
+        property: CardTarget
         on_resolve {
             change_battle_position (1, monster)
         }

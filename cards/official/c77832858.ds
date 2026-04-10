@@ -3,7 +3,7 @@
 // Transpiled from c77832858.lua
 
 card "Thestalos the Shadowfire Monarch" {
-    password: 77832858
+    id: 77832858
     type: Effect Monster
     attribute: FIRE
     race: Pyro
@@ -18,7 +18,7 @@ card "Thestalos the Shadowfire Monarch" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 32
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
             tribute (1, monster, you controls)
         }
@@ -26,8 +26,8 @@ card "Thestalos the Shadowfire Monarch" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 36
-        property: 263168
+        code: CannotSpecialSummon
+        property: BothSide + Uncopyable
         on_resolve {
             tribute (1, monster, you controls)
         }
@@ -37,7 +37,7 @@ card "Thestalos the Shadowfire Monarch" {
         effect_type: Single + Trigger
         category: Banish + Damage
         code: SummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             banish (1+, monster, either_player controls)
             banish (1+, monster, either_player controls)
@@ -47,7 +47,7 @@ card "Thestalos the Shadowfire Monarch" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }

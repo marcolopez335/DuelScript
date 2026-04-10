@@ -3,7 +3,7 @@
 // Transpiled from c83135907.lua
 
 card "Scrap Goblin" {
-    password: 83135907
+    id: 83135907
     type: Effect Monster | Tuner
     attribute: EARTH
     race: Beast-Warrior
@@ -13,7 +13,7 @@ card "Scrap Goblin" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -33,7 +33,7 @@ card "Scrap Goblin" {
     raw_effect "Effect 3" {
         effect_type: Single + Continuous
         code: BattleTarget
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
@@ -42,7 +42,7 @@ card "Scrap Goblin" {
         effect_type: Single + Trigger
         category: ToHand
         code: Destroyed
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
         }

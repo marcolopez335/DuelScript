@@ -3,7 +3,7 @@
 // Transpiled from c4587638.lua
 
 card "Roaring Earth" {
-    password: 4587638
+    id: 4587638
     type: Continuous Trap
 
     raw_effect "Effect 1" {
@@ -15,7 +15,7 @@ card "Roaring Earth" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 203
+        code: GraveRedirectCb
         range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
@@ -24,8 +24,8 @@ card "Roaring Earth" {
 
     raw_effect "Effect 3" {
         effect_type: Field + MandatoryTrigger
-        code: 1143
-        property: 16
+        code: BattleDestroyed
+        property: CardTarget
         range: SpellTrapZone
         on_resolve {
             register_effect on self {

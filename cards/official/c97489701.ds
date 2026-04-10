@@ -3,7 +3,7 @@
 // Transpiled from c97489701.lua
 
 card "Red Nova Dragon" {
-    password: 97489701
+    id: 97489701
     type: Synchro Monster
     attribute: DARK
     race: Dragon
@@ -23,8 +23,8 @@ card "Red Nova Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -33,8 +33,8 @@ card "Red Nova Dragon" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -45,7 +45,7 @@ card "Red Nova Dragon" {
         effect_type: Field + Trigger
         category: Banish
         code: AttackAnnounce
-        property: 16
+        property: CardTarget
         range: MonsterZone
         on_resolve {
             negate attack
@@ -56,7 +56,7 @@ card "Red Nova Dragon" {
     raw_effect "Effect 4" {
         effect_type: Field + MandatoryTrigger
         category: SpecialSummon
-        code: 4608
+        code: PhaseEnd
         range: Banished
         count_limit: (1, 0)
         on_resolve {
@@ -67,7 +67,7 @@ card "Red Nova Dragon" {
     raw_effect "Effect 5" {
         effect_type: Single
         code: 21142671
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }

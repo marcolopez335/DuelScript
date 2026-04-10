@@ -3,7 +3,7 @@
 // Transpiled from c14301396.lua
 
 card "Heroic Champion - Magnum Excalibur" {
-    password: 14301396
+    id: 14301396
     type: Xyz Monster
     attribute: LIGHT
     race: Warrior
@@ -38,7 +38,7 @@ card "Heroic Champion - Magnum Excalibur" {
         effect_type: QuickEffect
         category: EquipAction
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -61,7 +61,7 @@ card "Heroic Champion - Magnum Excalibur" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 102
+        code: SetAttackFinal
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -69,15 +69,15 @@ card "Heroic Champion - Magnum Excalibur" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 76
-        property: 1024
+        code: CannotAttack2
+        property: BothSide
         on_resolve {
         }
     }
 
     raw_effect "Effect 6" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 2000
         }
@@ -85,7 +85,7 @@ card "Heroic Champion - Magnum Excalibur" {
 
     raw_effect "Effect 7" {
         effect_type: Equip
-        code: 104
+        code: UpdateDefense
         on_resolve {
             modifier: def + 2000
         }

@@ -3,12 +3,12 @@
 // Transpiled from c23249029.lua
 
 card "Cursed Copycat Noble Arms" {
-    password: 23249029
+    id: 23249029
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 0
         }
@@ -16,7 +16,7 @@ card "Cursed Copycat Noble Arms" {
 
     raw_effect "Effect 2" {
         effect_type: Equip
-        code: 104
+        code: UpdateDefense
         on_resolve {
             modifier: def + 0
         }
@@ -40,8 +40,8 @@ card "Cursed Copycat Noble Arms" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

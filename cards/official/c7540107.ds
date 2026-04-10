@@ -3,7 +3,7 @@
 // Transpiled from c7540107.lua
 
 card "Gouki Guts" {
-    password: 7540107
+    id: 7540107
     type: Effect Monster
     attribute: EARTH
     race: Warrior
@@ -13,8 +13,8 @@ card "Gouki Guts" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -38,7 +38,7 @@ card "Gouki Guts" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to hand

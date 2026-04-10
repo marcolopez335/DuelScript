@@ -3,7 +3,7 @@
 // Transpiled from c42021064.lua
 
 card "Dogurad, the Stonetrooper" {
-    password: 42021064
+    id: 42021064
     type: Link Monster
     attribute: EARTH
     race: Rock
@@ -24,7 +24,7 @@ card "Dogurad, the Stonetrooper" {
         effect_type: Single + Trigger
         category: SynchroSummon
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         range: MonsterZone
         count_limit: (1, 42021064)
         on_resolve {
@@ -35,7 +35,7 @@ card "Dogurad, the Stonetrooper" {
         effect_type: QuickEffect
         category: Destroy + SynchroSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -45,7 +45,7 @@ card "Dogurad, the Stonetrooper" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 0
         }

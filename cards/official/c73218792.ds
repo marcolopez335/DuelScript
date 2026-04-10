@@ -3,7 +3,7 @@
 // Transpiled from c73218792.lua
 
 card "Junk Meister" {
-    password: 73218792
+    id: 73218792
     type: Effect Monster
     attribute: EARTH
     race: Warrior
@@ -29,7 +29,7 @@ card "Junk Meister" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -41,7 +41,7 @@ card "Junk Meister" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -52,7 +52,7 @@ card "Junk Meister" {
     raw_effect "Effect 4" {
         effect_type: Ignition
         category: LevelChange
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -65,8 +65,8 @@ card "Junk Meister" {
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
@@ -74,8 +74,8 @@ card "Junk Meister" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 130
-        property: 1024
+        code: ChangePosition
+        property: BothSide
         on_resolve {
         }
     }

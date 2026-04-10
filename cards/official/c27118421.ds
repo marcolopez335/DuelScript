@@ -3,7 +3,7 @@
 // Transpiled from c27118421.lua
 
 card "Starving Venom Fusion Dragon of the Four Heavenly Dragons" {
-    password: 27118421
+    id: 27118421
     type: Fusion Monster
     attribute: DARK
     race: Dragon
@@ -24,7 +24,7 @@ card "Starving Venom Fusion Dragon of the Four Heavenly Dragons" {
         effect_type: Single + Trigger
         category: Disable + SynchroSummon
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -40,7 +40,7 @@ card "Starving Venom Fusion Dragon of the Four Heavenly Dragons" {
 
     raw_effect "Effect 2" {
         effect_type: QuickEffect
-        category: SpecialSummon
+        category: SpecialSummon + Control
         code: Chaining
         range: MonsterZone
         count_limit: (1, 0)
@@ -50,8 +50,8 @@ card "Starving Venom Fusion Dragon of the Four Heavenly Dragons" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 102
-        property: 1024
+        code: SetAttackFinal
+        property: BothSide
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -60,7 +60,7 @@ card "Starving Venom Fusion Dragon of the Four Heavenly Dragons" {
     raw_effect "Effect 4" {
         effect_type: Single
         code: 127
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }

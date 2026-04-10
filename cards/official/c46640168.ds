@@ -3,7 +3,7 @@
 // Transpiled from c46640168.lua
 
 card "Fiendsmith's Lacrima" {
-    password: 46640168
+    id: 46640168
     type: Fusion Monster
     attribute: LIGHT
     race: Fiend
@@ -22,7 +22,7 @@ card "Fiendsmith's Lacrima" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk - 600
@@ -33,7 +33,7 @@ card "Fiendsmith's Lacrima" {
         effect_type: Single + Trigger
         category: ToHand + SpecialSummon
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 46640168)
         on_resolve {
             add_to_hand (1, card, you controls) from gy
@@ -45,7 +45,7 @@ card "Fiendsmith's Lacrima" {
         effect_type: Single + Trigger
         category: Damage
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             deal_damage to opponent: 1000

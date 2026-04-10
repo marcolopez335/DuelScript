@@ -3,7 +3,7 @@
 // Transpiled from c19747827.lua
 
 card "Red-Eyes Black Dragon Sword" {
-    password: 19747827
+    id: 19747827
     type: Fusion Monster
     attribute: DARK
     race: Dragon
@@ -22,8 +22,8 @@ card "Red-Eyes Black Dragon Sword" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -32,7 +32,7 @@ card "Red-Eyes Black Dragon Sword" {
         effect_type: Single + MandatoryTrigger
         category: EquipAction
         code: SpecialSummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
             send (1+, monster, either_player controls, gy) to gy
             equip (1, card) to (1, monster)

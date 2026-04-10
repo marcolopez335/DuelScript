@@ -3,7 +3,7 @@
 // Transpiled from c22812963.lua
 
 card "Regenesis Lord" {
-    password: 22812963
+    id: 22812963
     type: Effect Monster | Spirit
     attribute: LIGHT
     race: Unknown
@@ -17,8 +17,8 @@ card "Regenesis Lord" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Hand
         count_limit: (1, 22812963)
         on_resolve {
@@ -29,7 +29,7 @@ card "Regenesis Lord" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             set (1, card)
         }
@@ -37,8 +37,8 @@ card "Regenesis Lord" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 2500
@@ -47,7 +47,7 @@ card "Regenesis Lord" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }

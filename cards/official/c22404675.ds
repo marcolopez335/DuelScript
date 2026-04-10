@@ -3,7 +3,7 @@
 // Transpiled from c22404675.lua
 
 card "Mithra the Thunder Vassal" {
-    password: 22404675
+    id: 22404675
     type: Effect Monster
     attribute: LIGHT
     race: Thunder
@@ -29,8 +29,8 @@ card "Mithra the Thunder Vassal" {
 
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
-        code: Release
-        property: 65536
+        code: Released
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -46,8 +46,8 @@ card "Mithra the Thunder Vassal" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
@@ -62,7 +62,7 @@ card "Mithra the Thunder Vassal" {
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 35
+        code: CannotFlipSummon
         on_resolve {
         }
     }

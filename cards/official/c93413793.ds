@@ -3,7 +3,7 @@
 // Transpiled from c93413793.lua
 
 card "Ukanomitsune-no-Tamayura" {
-    password: 93413793
+    id: 93413793
     type: Effect Monster | Tuner
     attribute: LIGHT
     race: Beast
@@ -23,8 +23,8 @@ card "Ukanomitsune-no-Tamayura" {
 
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
-        code: 1108
-        property: 128
+        code: FlipSuccess
+        property: SetAvailable
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -51,8 +51,8 @@ card "Ukanomitsune-no-Tamayura" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 104
-        property: 67239936
+        code: UpdateDefense
+        property: SingleRange + IgnoreRange2
         range: MonsterZone
         on_resolve {
             modifier: def + 500
@@ -61,8 +61,8 @@ card "Ukanomitsune-no-Tamayura" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 71
-        property: 67239936
+        code: CannotDirectAttack2
+        property: SingleRange + IgnoreRange2
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }

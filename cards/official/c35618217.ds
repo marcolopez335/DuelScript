@@ -3,7 +3,7 @@
 // Transpiled from c35618217.lua
 
 card "Lunalight Kaleido Chick" {
-    password: 35618217
+    id: 35618217
     type: Effect Monster
     attribute: DARK
     race: Beast-Warrior
@@ -26,7 +26,7 @@ card "Lunalight Kaleido Chick" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 35618217)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -36,7 +36,7 @@ card "Lunalight Kaleido Chick" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         code: TurnEnd
-        property: 65536
+        property: Delay
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

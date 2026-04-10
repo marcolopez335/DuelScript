@@ -3,7 +3,7 @@
 // Transpiled from c71398055.lua
 
 card "D/D/D/D Dimensional King Arc Crisis" {
-    password: 71398055
+    id: 71398055
     type: Fusion Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
@@ -24,7 +24,7 @@ card "D/D/D/D Dimensional King Arc Crisis" {
     raw_effect "Effect 1" {
         effect_type: Single + Continuous
         code: SpecialSummonSuccess
-        property: 1024
+        property: BothSide
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -36,7 +36,7 @@ card "D/D/D/D Dimensional King Arc Crisis" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: Destroy + SpecialSummon
-        property: 16
+        property: CardTarget
         range: PendulumZone
         count_limit: (1, 71398055)
         on_resolve {
@@ -51,7 +51,7 @@ card "D/D/D/D Dimensional King Arc Crisis" {
         effect_type: Single + Trigger
         category: Disable
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
         }
@@ -68,7 +68,7 @@ card "D/D/D/D Dimensional King Arc Crisis" {
     raw_effect "Effect 5" {
         effect_type: Single + Trigger
         code: Destroyed
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -77,8 +77,8 @@ card "D/D/D/D Dimensional King Arc Crisis" {
 
     raw_effect "Effect 6" {
         effect_type: Field
-        code: 22
-        property: 2048
+        code: CannotDisable
+        property: InitialValue
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

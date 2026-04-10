@@ -3,7 +3,7 @@
 // Transpiled from c27923575.lua
 
 card "Boo-Boo Game" {
-    password: 27923575
+    id: 27923575
     type: Normal Trap
 
     raw_effect "Effect 1" {
@@ -20,7 +20,7 @@ card "Boo-Boo Game" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 27923575)
         on_resolve {
             set (1, card)
@@ -34,7 +34,7 @@ card "Boo-Boo Game" {
     raw_effect "Effect 3" {
         effect_type: Field
         code: 201
-        property: 2048
+        property: InitialValue
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -43,7 +43,7 @@ card "Boo-Boo Game" {
     raw_effect "Effect 4" {
         effect_type: Single
         code: 16
-        property: 256
+        property: IgnoreRange
         on_resolve {
         }
     }

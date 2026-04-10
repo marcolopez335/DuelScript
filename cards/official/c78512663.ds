@@ -3,7 +3,7 @@
 // Transpiled from c78512663.lua
 
 card "Elemental HERO Magma Neos" {
-    password: 78512663
+    id: 78512663
     type: Fusion Monster
     attribute: FIRE
     race: Warrior
@@ -22,8 +22,8 @@ card "Elemental HERO Magma Neos" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -42,7 +42,7 @@ card "Elemental HERO Magma Neos" {
     raw_effect "Effect 3" {
         effect_type: Field + MandatoryTrigger
         category: ToDeck
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         on_resolve {
             return self to deck shuffle
@@ -52,7 +52,7 @@ card "Elemental HERO Magma Neos" {
     raw_effect "Effect 4" {
         effect_type: Field + Trigger
         category: ToDeck
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         on_resolve {
             return self to deck shuffle

@@ -3,7 +3,7 @@
 // Transpiled from c1035143.lua
 
 card "Darkuriboh" {
-    password: 1035143
+    id: 1035143
     type: Effect Monster
     attribute: DARK
     race: Fiend
@@ -13,8 +13,8 @@ card "Darkuriboh" {
 
     raw_effect "Effect 1" {
         effect_type: QuickEffect
-        code: 1028
-        property: 16
+        code: BecomeTarget
+        property: CardTarget
         range: Hand
         count_limit: (1, 1035143)
         cost {
@@ -35,7 +35,7 @@ card "Darkuriboh" {
     raw_effect "Effect 2" {
         effect_type: QuickEffect
         code: BattleTarget
-        property: 16
+        property: CardTarget
         range: Hand
         count_limit: (1, 1035143)
         cost {
@@ -57,7 +57,7 @@ card "Darkuriboh" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy

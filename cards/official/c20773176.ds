@@ -3,7 +3,7 @@
 // Transpiled from c20773176.lua
 
 card "Zefraxa, Flame Beast of the Nekroz" {
-    password: 20773176
+    id: 20773176
     type: Effect Monster | Pendulum Monster
     attribute: FIRE
     race: Dragon
@@ -18,8 +18,8 @@ card "Zefraxa, Flame Beast of the Nekroz" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 22
-        property: 3584
+        code: CannotDisable
+        property: IgnoreImmune + BothSide + InitialValue
         range: PendulumZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -30,7 +30,7 @@ card "Zefraxa, Flame Beast of the Nekroz" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 81920
+        property: Oath + Delay
         range: Hand + Graveyard
         count_limit: (1, 20773176)
         on_resolve {

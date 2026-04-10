@@ -3,7 +3,7 @@
 // Transpiled from c12307878.lua
 
 card "Invoked Purgatrio" {
-    password: 12307878
+    id: 12307878
     type: Fusion Monster
     attribute: FIRE
     race: Fiend
@@ -22,8 +22,8 @@ card "Invoked Purgatrio" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -40,7 +40,7 @@ card "Invoked Purgatrio" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }

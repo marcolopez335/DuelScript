@@ -3,7 +3,7 @@
 // Transpiled from c53008933.lua
 
 card "Archfiend's Advent" {
-    password: 53008933
+    id: 53008933
     type: Effect Monster
     attribute: DARK
     race: Fiend
@@ -27,7 +27,7 @@ card "Archfiend's Advent" {
         effect_type: Single + Trigger
         category: Summon
         code: SummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 53008933)
         on_resolve {
             take_control of (1, monster, opponent controls)
@@ -42,7 +42,7 @@ card "Archfiend's Advent" {
         effect_type: Single + Trigger
         category: Summon
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 53008933)
         on_resolve {
             take_control of (1, monster, opponent controls)
@@ -55,7 +55,7 @@ card "Archfiend's Advent" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 500
@@ -65,7 +65,7 @@ card "Archfiend's Advent" {
     raw_effect "Effect 5" {
         effect_type: Single
         code: 85
-        property: 67108864
+        property: IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }

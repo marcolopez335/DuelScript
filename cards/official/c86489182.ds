@@ -3,7 +3,7 @@
 // Transpiled from c86489182.lua
 
 card "Simorgh, Bird of Ancestry" {
-    password: 86489182
+    id: 86489182
     type: Effect Monster
     attribute: WIND
     race: Winged Beast
@@ -18,7 +18,7 @@ card "Simorgh, Bird of Ancestry" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 115
-        property: 131072
+        property: SingleRange
         range: Hand
         on_resolve {
         }
@@ -27,7 +27,7 @@ card "Simorgh, Bird of Ancestry" {
     raw_effect "Effect 2" {
         effect_type: Single
         code: 116
-        property: 131072
+        property: SingleRange
         range: Hand
         on_resolve {
         }
@@ -43,7 +43,7 @@ card "Simorgh, Bird of Ancestry" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 152
+        code: SelfDestroy
         range: MonsterZone
         on_resolve {
         }
@@ -53,7 +53,7 @@ card "Simorgh, Bird of Ancestry" {
         effect_type: Single + MandatoryTrigger
         category: ToHand
         code: SummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }
@@ -61,7 +61,7 @@ card "Simorgh, Bird of Ancestry" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }

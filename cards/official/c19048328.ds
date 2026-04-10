@@ -3,7 +3,7 @@
 // Transpiled from c19048328.lua
 
 card "Chaofeng, Phantom of the Yang Zing" {
-    password: 19048328
+    id: 19048328
     type: Synchro Monster
     attribute: LIGHT
     race: Wyrm
@@ -23,7 +23,7 @@ card "Chaofeng, Phantom of the Yang Zing" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }
@@ -31,7 +31,7 @@ card "Chaofeng, Phantom of the Yang Zing" {
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
         code: SpecialSummonSuccess
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
@@ -40,7 +40,7 @@ card "Chaofeng, Phantom of the Yang Zing" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: ChainEnd
-        property: 16384
+        property: Oath
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)
@@ -51,7 +51,7 @@ card "Chaofeng, Phantom of the Yang Zing" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 16384
+        property: Oath
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

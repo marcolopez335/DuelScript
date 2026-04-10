@@ -3,7 +3,7 @@
 // Transpiled from c92595825.lua
 
 card "Twilight Rose Black Knight" {
-    password: 92595825
+    id: 92595825
     type: Effect Monster | Tuner
     attribute: DARK
     race: Plant
@@ -13,7 +13,7 @@ card "Twilight Rose Black Knight" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 1000
@@ -24,7 +24,7 @@ card "Twilight Rose Black Knight" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 92595825)
         on_resolve {
             special_summon (1, monster) from gy
@@ -35,7 +35,7 @@ card "Twilight Rose Black Knight" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 92595825)
         on_resolve {
             special_summon (1, monster) from gy
@@ -45,7 +45,7 @@ card "Twilight Rose Black Knight" {
     raw_effect "Effect 4" {
         effect_type: Ignition
         category: LevelChange
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -58,8 +58,8 @@ card "Twilight Rose Black Knight" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 130
-        property: 1024
+        code: ChangePosition
+        property: BothSide
         on_resolve {
         }
     }

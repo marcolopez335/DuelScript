@@ -3,7 +3,7 @@
 // Transpiled from c19261966.lua
 
 card "El Shaddoll Anoyatyllis" {
-    password: 19261966
+    id: 19261966
     type: Fusion Monster
     attribute: WATER
     race: Fiend
@@ -22,8 +22,8 @@ card "El Shaddoll Anoyatyllis" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 394240
+        code: SpsummonCondition
+        property: BothSide + SingleRange + Uncopyable
         range: Deck
         on_resolve {
         }
@@ -31,8 +31,8 @@ card "El Shaddoll Anoyatyllis" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 22
-        property: 2048
+        code: CannotDisable
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -43,7 +43,7 @@ card "El Shaddoll Anoyatyllis" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 81936
+        property: CardTarget + Oath + Delay
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
         }

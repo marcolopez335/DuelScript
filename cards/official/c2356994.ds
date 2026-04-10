@@ -3,7 +3,7 @@
 // Transpiled from c2356994.lua
 
 card "Great Long Nose" {
-    password: 2356994
+    id: 2356994
     type: Effect Monster | Flip
     attribute: DARK
     race: Beast-Warrior
@@ -17,15 +17,15 @@ card "Great Long Nose" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Single + MandatoryTrigger
-        code: 1143
+        code: BattleDestroyed
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -37,7 +37,7 @@ card "Great Long Nose" {
     raw_effect "Effect 3" {
         effect_type: Field
         code: 183
-        property: 67110912
+        property: InitialValue + IgnoreRange2
         on_resolve {
         }
     }

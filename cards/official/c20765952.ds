@@ -3,13 +3,13 @@
 // Transpiled from c20765952.lua
 
 card "Mask of Dispel" {
-    password: 20765952
+    id: 20765952
     type: Continuous Spell
 
     raw_effect "Effect 1" {
         effect_type: Activate
         code: FreeChain
-        property: 16
+        property: CardTarget
         on_resolve {
         }
     }
@@ -18,7 +18,7 @@ card "Mask of Dispel" {
         effect_type: Field + MandatoryTrigger
         category: Damage
         code: 4098
-        property: 2048
+        property: InitialValue
         range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
@@ -28,7 +28,7 @@ card "Mask of Dispel" {
 
     raw_effect "Effect 3" {
         effect_type: Field + Continuous
-        code: 1015
+        code: ChainNegated
         range: SpellTrapZone
         on_resolve {
             destroy (1, card)

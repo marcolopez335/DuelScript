@@ -3,7 +3,7 @@
 // Transpiled from c16110708.lua
 
 card "Number S38: Titanic Galaxy" {
-    password: 16110708
+    id: 16110708
     type: Xyz Monster
     attribute: LIGHT
     race: Dragon
@@ -23,8 +23,8 @@ card "Number S38: Titanic Galaxy" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -33,7 +33,7 @@ card "Number S38: Titanic Galaxy" {
 
     raw_effect "Effect 2" {
         effect_type: Ignition
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -54,7 +54,7 @@ card "Number S38: Titanic Galaxy" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 103
+        code: SetBaseAttack
         on_resolve {
         }
     }
@@ -62,7 +62,7 @@ card "Number S38: Titanic Galaxy" {
     raw_effect "Effect 5" {
         effect_type: Single
         code: 74
-        property: 67109888
+        property: BothSide + IgnoreRange2
         on_resolve {
             register_effect on self { grant: direct_attack duration: until_end_of_turn }
         }

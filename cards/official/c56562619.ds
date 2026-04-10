@@ -3,7 +3,7 @@
 // Transpiled from c56562619.lua
 
 card "Black Dragon Ninja" {
-    password: 56562619
+    id: 56562619
     type: Effect Monster
     attribute: DARK
     race: Beast
@@ -17,8 +17,8 @@ card "Black Dragon Ninja" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -27,7 +27,7 @@ card "Black Dragon Ninja" {
         effect_type: QuickEffect
         category: Banish
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         cost {
@@ -41,7 +41,7 @@ card "Black Dragon Ninja" {
     raw_effect "Effect 3" {
         effect_type: Single + MandatoryTrigger
         category: SpecialSummon
-        code: 1015
+        code: ChainNegated
         on_resolve {
             special_summon (1, monster) from gy
             special_summon (1, monster) from gy
@@ -52,7 +52,7 @@ card "Black Dragon Ninja" {
     raw_effect "Effect 4" {
         effect_type: Single + Continuous
         code: SummonSuccess
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
@@ -60,7 +60,7 @@ card "Black Dragon Ninja" {
     raw_effect "Effect 5" {
         effect_type: Single + Continuous
         code: SpecialSummonSuccess
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }

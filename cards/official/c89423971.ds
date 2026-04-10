@@ -3,7 +3,7 @@
 // Transpiled from c89423971.lua
 
 card "Infernoid Patrulea" {
-    password: 89423971
+    id: 89423971
     type: Effect Monster | Spirit
     attribute: FIRE
     race: Fiend
@@ -18,7 +18,7 @@ card "Infernoid Patrulea" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: Destroy
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -30,7 +30,7 @@ card "Infernoid Patrulea" {
         effect_type: QuickEffect
         category: Banish
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         cost {
@@ -44,7 +44,7 @@ card "Infernoid Patrulea" {
     raw_effect "Effect 3" {
         effect_type: Single
         code: 85
-        property: 67634176
+        property: BothSide + CannotDisable + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }

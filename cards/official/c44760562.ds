@@ -3,7 +3,7 @@
 // Transpiled from c44760562.lua
 
 card "Mannadium Meek" {
-    password: 44760562
+    id: 44760562
     type: Effect Monster | Tuner
     attribute: WATER
     race: Fairy
@@ -13,8 +13,8 @@ card "Mannadium Meek" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         count_limit: (1, 44760562)
         on_resolve {
@@ -25,7 +25,7 @@ card "Mannadium Meek" {
         effect_type: Single + Trigger
         category: SpecialSummon + LevelChange
         code: Destroyed
-        property: 65536
+        property: Delay
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {
@@ -37,8 +37,8 @@ card "Mannadium Meek" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 130
-        property: 1024
+        code: ChangePosition
+        property: BothSide
         on_resolve {
         }
     }

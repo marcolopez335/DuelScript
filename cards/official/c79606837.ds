@@ -3,7 +3,7 @@
 // Transpiled from c79606837.lua
 
 card "Herald of the Arc Light" {
-    password: 79606837
+    id: 79606837
     type: Synchro Monster
     attribute: LIGHT
     race: Fairy
@@ -23,8 +23,8 @@ card "Herald of the Arc Light" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 63
-        property: 256
+        code: CannotBeTributed
+        property: IgnoreRange
         range: MonsterZone
         on_resolve {
         }
@@ -34,7 +34,7 @@ card "Herald of the Arc Light" {
         effect_type: QuickEffect
         category: Destroy + Negate
         code: Chaining
-        property: 49152
+        property: Oath + CountCodeDuel
         range: MonsterZone
         cost {
             tribute self
@@ -49,7 +49,7 @@ card "Herald of the Arc Light" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: ChainEnd
-        property: 81920
+        property: Oath + Delay
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)

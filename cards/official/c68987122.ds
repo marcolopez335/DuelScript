@@ -3,7 +3,7 @@
 // Transpiled from c68987122.lua
 
 card "Borrelguard Dragon" {
-    password: 68987122
+    id: 68987122
     type: Link Monster
     attribute: DARK
     race: Dragon
@@ -22,8 +22,8 @@ card "Borrelguard Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -55,7 +55,7 @@ card "Borrelguard Dragon" {
         effect_type: QuickEffect
         category: DiceRoll
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

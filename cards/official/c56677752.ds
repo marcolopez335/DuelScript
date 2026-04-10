@@ -3,7 +3,7 @@
 // Transpiled from c56677752.lua
 
 card "Performapal Odd-Eyes Butler" {
-    password: 56677752
+    id: 56677752
     type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Spellcaster
@@ -18,7 +18,7 @@ card "Performapal Odd-Eyes Butler" {
 
     raw_effect "Effect 1" {
         effect_type: Field + Trigger
-        category: Recover
+        category: Recover + Announce
         code: AttackAnnounce
         range: PendulumZone
         count_limit: (1, 0)
@@ -31,7 +31,7 @@ card "Performapal Odd-Eyes Butler" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: Destroy + SpecialSummon
-        property: 16
+        property: CardTarget
         range: Hand + Graveyard
         count_limit: (1, 56677752)
         on_resolve {
@@ -43,7 +43,7 @@ card "Performapal Odd-Eyes Butler" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         code: Destroyed
-        property: 65536
+        property: Delay
         on_resolve {
             special_summon (1, monster) from gy
         }

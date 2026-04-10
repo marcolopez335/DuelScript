@@ -3,7 +3,7 @@
 // Transpiled from c64182380.lua
 
 card "Garunix Eternity, Hyang of the Fire Kings" {
-    password: 64182380
+    id: 64182380
     type: Xyz Monster
     attribute: FIRE
     race: Pyro
@@ -25,7 +25,7 @@ card "Garunix Eternity, Hyang of the Fire Kings" {
         effect_type: Single + Trigger
         category: Destroy
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 64182380)
         on_resolve {
             destroy (1+, spell, either_player controls)
@@ -35,7 +35,7 @@ card "Garunix Eternity, Hyang of the Fire Kings" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: Destroy + SynchroSummon
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         cost {
@@ -50,7 +50,7 @@ card "Garunix Eternity, Hyang of the Fire Kings" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -60,7 +60,7 @@ card "Garunix Eternity, Hyang of the Fire Kings" {
     raw_effect "Effect 4" {
         effect_type: Single + Continuous
         code: 1019
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }

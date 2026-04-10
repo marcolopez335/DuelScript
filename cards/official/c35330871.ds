@@ -3,7 +3,7 @@
 // Transpiled from c35330871.lua
 
 card "Malacoda, Netherlord of the Burning Abyss" {
-    password: 35330871
+    id: 35330871
     type: Ritual Monster
     attribute: DARK
     race: Fiend
@@ -22,8 +22,8 @@ card "Malacoda, Netherlord of the Burning Abyss" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -32,7 +32,7 @@ card "Malacoda, Netherlord of the Burning Abyss" {
         effect_type: QuickEffect
         category: SynchroSummon + XyzSummon
         code: FreeChain
-        property: 16400
+        property: CardTarget + Oath
         range: MonsterZone
         count_limit: (1, 0)
         cost {
@@ -54,7 +54,7 @@ card "Malacoda, Netherlord of the Burning Abyss" {
         effect_type: Single + Trigger
         category: ToGrave
         code: ChainEnd
-        property: 81936
+        property: CardTarget + Oath + Delay
         on_resolve {
             send (1+, monster, you controls, hand) to gy
         }

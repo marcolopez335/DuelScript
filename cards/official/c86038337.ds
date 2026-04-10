@@ -3,7 +3,7 @@
 // Transpiled from c86038337.lua
 
 card "Faisan, Hunting Scout of the Deep Forest" {
-    password: 86038337
+    id: 86038337
     type: Fusion Monster
     attribute: EARTH
     race: Warrior
@@ -22,8 +22,8 @@ card "Faisan, Hunting Scout of the Deep Forest" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 1
-        property: 131072
+        code: ImmuneEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -50,7 +50,7 @@ card "Faisan, Hunting Scout of the Deep Forest" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

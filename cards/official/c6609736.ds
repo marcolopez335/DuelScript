@@ -3,7 +3,7 @@
 // Transpiled from c6609736.lua
 
 card "Noh-P.U.N.K. Deer Note" {
-    password: 6609736
+    id: 6609736
     type: Effect Monster
     attribute: EARTH
     race: Warrior
@@ -30,7 +30,7 @@ card "Noh-P.U.N.K. Deer Note" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -43,8 +43,8 @@ card "Noh-P.U.N.K. Deer Note" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

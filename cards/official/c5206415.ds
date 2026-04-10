@@ -3,7 +3,7 @@
 // Transpiled from c5206415.lua
 
 card "Thunder Dragonlord" {
-    password: 5206415
+    id: 5206415
     type: Effect Monster | Spirit
     attribute: LIGHT
     race: Thunder
@@ -17,8 +17,8 @@ card "Thunder Dragonlord" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             banish (1+, card, you controls, gy)
@@ -28,7 +28,7 @@ card "Thunder Dragonlord" {
     raw_effect "Effect 2" {
         effect_type: QuickEffect
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         cost {
@@ -44,7 +44,7 @@ card "Thunder Dragonlord" {
 
     raw_effect "Effect 3" {
         effect_type: Field + Trigger
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

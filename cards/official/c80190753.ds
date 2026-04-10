@@ -3,7 +3,7 @@
 // Transpiled from c80190753.lua
 
 card "Talaya, Princess of Cherry Blossoms" {
-    password: 80190753
+    id: 80190753
     type: Effect Monster
     attribute: WATER
     race: Plant
@@ -17,8 +17,8 @@ card "Talaya, Princess of Cherry Blossoms" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -27,7 +27,7 @@ card "Talaya, Princess of Cherry Blossoms" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 41
+        code: IndestructableEffect
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

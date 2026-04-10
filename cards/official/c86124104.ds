@@ -3,7 +3,7 @@
 // Transpiled from c86124104.lua
 
 card "Demise, Agent of Armageddon" {
-    password: 86124104
+    id: 86124104
     type: Ritual Monster
     attribute: DARK
     race: Fiend
@@ -23,7 +23,7 @@ card "Demise, Agent of Armageddon" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 114
-        property: 131072
+        property: SingleRange
         range: Hand + MonsterZone
         on_resolve {
         }
@@ -33,7 +33,7 @@ card "Demise, Agent of Armageddon" {
         effect_type: Single + MandatoryTrigger
         category: Destroy
         code: SpecialSummonSuccess
-        property: 81920
+        property: Oath + Delay
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, either_player controls)
@@ -43,7 +43,7 @@ card "Demise, Agent of Armageddon" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         code: ChainEnd
-        property: 81936
+        property: CardTarget + Oath + Delay
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

@@ -3,7 +3,7 @@
 // Transpiled from c40732515.lua
 
 card "Endymion, the Master Magician" {
-    password: 40732515
+    id: 40732515
     type: Effect Monster
     attribute: DARK
     race: Spellcaster
@@ -17,8 +17,8 @@ card "Endymion, the Master Magician" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand + Graveyard
         on_resolve {
         }
@@ -28,7 +28,7 @@ card "Endymion, the Master Magician" {
         effect_type: Single + MandatoryTrigger
         category: ToHand
         code: SpecialSummonSuccess
-        property: 16
+        property: CardTarget
         range: MonsterZone
         on_resolve {
             return (1+, spell, you controls) to hand
@@ -39,7 +39,7 @@ card "Endymion, the Master Magician" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: Destroy
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

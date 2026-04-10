@@ -3,7 +3,7 @@
 // Transpiled from c56337500.lua
 
 card "Cyberse Reminder" {
-    password: 56337500
+    id: 56337500
     type: Xyz Monster
     attribute: LIGHT
     race: Cyberse
@@ -24,7 +24,7 @@ card "Cyberse Reminder" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: ToHand
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 56337500)
         cost {
@@ -39,7 +39,7 @@ card "Cyberse Reminder" {
         effect_type: Single + Trigger
         category: SpecialSummon + Disable
         code: Destroyed
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -48,8 +48,8 @@ card "Cyberse Reminder" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 67635200
+        code: CannotDisable
+        property: InitialValue + CannotDisable + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

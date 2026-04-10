@@ -3,7 +3,7 @@
 // Transpiled from c41165831.lua
 
 card "Unchained Soul of Sharvara" {
-    password: 41165831
+    id: 41165831
     type: Effect Monster
     attribute: FIRE
     race: Fiend
@@ -19,7 +19,7 @@ card "Unchained Soul of Sharvara" {
         effect_type: QuickEffect
         category: Destroy + SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: Hand
         count_limit: (1, 41165831)
         on_resolve {
@@ -31,7 +31,7 @@ card "Unchained Soul of Sharvara" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             set (1, card)
@@ -40,8 +40,8 @@ card "Unchained Soul of Sharvara" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 3072
+        code: CannotDisable
+        property: BothSide + InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }

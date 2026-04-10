@@ -3,7 +3,7 @@
 // Transpiled from c78744660.lua
 
 card "Doom Regina Archfiend" {
-    password: 78744660
+    id: 78744660
     // FIXME: card not found in CDB — type/stats are placeholders
     type: Effect Monster
     attribute: DARK
@@ -19,7 +19,7 @@ card "Doom Regina Archfiend" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: Destroy + ToHand
-        property: 16
+        property: CardTarget
         range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
@@ -32,7 +32,7 @@ card "Doom Regina Archfiend" {
         effect_type: Single + Trigger
         category: Destroy + Banish
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, spell, opponent controls)
@@ -42,8 +42,8 @@ card "Doom Regina Archfiend" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 1
-        property: 131072
+        code: ImmuneEffect
+        property: SingleRange
         range: 4096
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }

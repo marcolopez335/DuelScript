@@ -3,7 +3,7 @@
 // Transpiled from c25415161.lua
 
 card "Springans Interluder" {
-    password: 25415161
+    id: 25415161
     type: Continuous Trap
 
     raw_effect "Effect 1" {
@@ -15,7 +15,7 @@ card "Springans Interluder" {
 
     raw_effect "Effect 2" {
         effect_type: QuickEffect
-        category: SpecialSummon + Disable
+        category: SpecialSummon + Disable + Announce
         code: Chaining
         range: SpellTrapZone
         count_limit: (1, 25415161)
@@ -29,8 +29,8 @@ card "Springans Interluder" {
     raw_effect "Effect 3" {
         effect_type: Field + Trigger
         category: SynchroSummon
-        code: 1015
-        property: 65536
+        code: ChainNegated
+        property: Delay
         range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
@@ -43,7 +43,7 @@ card "Springans Interluder" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk - 1000
         }

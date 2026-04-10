@@ -3,7 +3,7 @@
 // Transpiled from c18036057.lua
 
 card "Airknight Parshath" {
-    password: 18036057
+    id: 18036057
     type: Effect Monster
     attribute: LIGHT
     race: Fairy
@@ -18,8 +18,8 @@ card "Airknight Parshath" {
     raw_effect "Effect 1" {
         effect_type: Single + MandatoryTrigger
         category: Draw
-        code: 1143
-        property: 2048
+        code: BattleDestroyed
+        property: InitialValue
         on_resolve {
             draw 1
         }
@@ -27,7 +27,7 @@ card "Airknight Parshath" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }

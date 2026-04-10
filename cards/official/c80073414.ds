@@ -3,7 +3,7 @@
 // Transpiled from c80073414.lua
 
 card "Absolute Axon Kicker" {
-    password: 80073414
+    id: 80073414
     type: Fusion Monster
     attribute: LIGHT
     race: Psychic
@@ -24,7 +24,7 @@ card "Absolute Axon Kicker" {
         effect_type: Single + Trigger
         category: Banish
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         cost {
             pay_lp 2000
         }
@@ -35,8 +35,8 @@ card "Absolute Axon Kicker" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -45,7 +45,7 @@ card "Absolute Axon Kicker" {
 
     raw_effect "Effect 3" {
         effect_type: Ignition
-        category: SpecialSummon
+        category: SpecialSummon + Control
         range: Graveyard
         count_limit: (1, 80073414)
         cost {

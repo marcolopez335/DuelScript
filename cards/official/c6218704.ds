@@ -3,7 +3,7 @@
 // Transpiled from c6218704.lua
 
 card "Odd-Eyes Arcray Dragon" {
-    password: 6218704
+    id: 6218704
     type: Fusion Monster | Pendulum Monster
     attribute: LIGHT
     race: Dragon
@@ -23,16 +23,16 @@ card "Odd-Eyes Arcray Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Deck
         on_resolve {
             tribute (1, monster, you controls)
@@ -54,7 +54,7 @@ card "Odd-Eyes Arcray Dragon" {
     raw_effect "Effect 4" {
         effect_type: Single + Trigger
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -63,7 +63,7 @@ card "Odd-Eyes Arcray Dragon" {
     raw_effect "Effect 5" {
         effect_type: Single + Trigger
         code: Destroyed
-        property: 65536
+        property: Delay
         on_resolve {
             special_summon (1, monster) from gy
         }

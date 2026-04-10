@@ -3,7 +3,7 @@
 // Transpiled from c34230233.lua
 
 card "Grapha, Dragon Lord of Dark World" {
-    password: 34230233
+    id: 34230233
     type: Effect Monster
     attribute: DARK
     race: Fiend
@@ -17,8 +17,8 @@ card "Grapha, Dragon Lord of Dark World" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Graveyard
         on_resolve {
             return (1+, monster, you controls) to hand
@@ -28,7 +28,7 @@ card "Grapha, Dragon Lord of Dark World" {
     raw_effect "Effect 2" {
         effect_type: Single + MandatoryTrigger
         code: ChainEnd
-        property: 16
+        property: CardTarget
         on_resolve {
             destroy (1+, monster, you controls)
             reveal (1+, card, opponent controls)

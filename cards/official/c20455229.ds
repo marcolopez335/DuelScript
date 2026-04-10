@@ -3,7 +3,7 @@
 // Transpiled from c20455229.lua
 
 card "Firewall Defenser" {
-    password: 20455229
+    id: 20455229
     type: Effect Monster
     attribute: DARK
     race: Cyberse
@@ -14,8 +14,8 @@ card "Firewall Defenser" {
     raw_effect "Effect 1" {
         effect_type: Single + Trigger
         category: SpecialSummon
-        code: 1108
-        property: 65536
+        code: FlipSuccess
+        property: Delay
         count_limit: (1, 20455229)
         on_resolve {
             special_summon (1, monster) from gy
@@ -31,8 +31,8 @@ card "Firewall Defenser" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 67635200
+        code: CannotDisable
+        property: InitialValue + CannotDisable + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

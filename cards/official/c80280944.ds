@@ -3,7 +3,7 @@
 // Transpiled from c80280944.lua
 
 card "Giant Rex" {
-    password: 80280944
+    id: 80280944
     type: Effect Monster
     attribute: EARTH
     race: Dinosaur
@@ -13,7 +13,7 @@ card "Giant Rex" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 73
+        code: CannotAttackAnnounce
         on_resolve {
             register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
         }
@@ -23,7 +23,7 @@ card "Giant Rex" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: TurnEnd
-        property: 81920
+        property: Oath + Delay
         count_limit: (1, 80280944)
         on_resolve {
             special_summon (1, monster) from gy

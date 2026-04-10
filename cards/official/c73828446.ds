@@ -3,12 +3,12 @@
 // Transpiled from c73828446.lua
 
 card "SPYRAL GEAR - Fully Armed" {
-    password: 73828446
+    id: 73828446
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 1000
         }
@@ -17,8 +17,8 @@ card "SPYRAL GEAR - Fully Armed" {
     raw_effect "Effect 2" {
         effect_type: Field + Trigger
         category: Banish
-        code: 1139
-        property: 2048
+        code: BattleConfirmed
+        property: InitialValue
         range: SpellTrapZone
         on_resolve {
             banish (1+, monster, opponent controls)
@@ -29,7 +29,7 @@ card "SPYRAL GEAR - Fully Armed" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: ChainEnd
-        property: 16400
+        property: CardTarget + Oath
         on_resolve {
             special_summon (1, monster) from gy
         }

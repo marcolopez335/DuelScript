@@ -3,7 +3,7 @@
 // Transpiled from c83531441.lua
 
 card "Dante, Traveler of the Burning Abyss" {
-    password: 83531441
+    id: 83531441
     type: Xyz Monster
     attribute: LIGHT
     race: Warrior
@@ -46,7 +46,7 @@ card "Dante, Traveler of the Burning Abyss" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }
@@ -54,7 +54,7 @@ card "Dante, Traveler of the Burning Abyss" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 0
         }

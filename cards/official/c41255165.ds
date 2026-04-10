@@ -3,7 +3,7 @@
 // Transpiled from c41255165.lua
 
 card "Penguin Ninja" {
-    password: 41255165
+    id: 41255165
     type: Effect Monster
     attribute: WATER
     race: Aqua
@@ -14,7 +14,7 @@ card "Penguin Ninja" {
     raw_effect "Effect 1" {
         effect_type: Single + Flip + Trigger
         category: ToHand
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }
@@ -23,7 +23,7 @@ card "Penguin Ninja" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: DiceRoll
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 41255165)
         on_resolve {

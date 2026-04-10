@@ -3,12 +3,12 @@
 // Transpiled from c47274077.lua
 
 card "Neos Force" {
-    password: 47274077
+    id: 47274077
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 800
         }
@@ -17,8 +17,8 @@ card "Neos Force" {
     raw_effect "Effect 2" {
         effect_type: Field + MandatoryTrigger
         category: Damage
-        code: 1139
-        property: 2048
+        code: BattleConfirmed
+        property: InitialValue
         range: SpellTrapZone
         on_resolve {
             deal_damage to opponent: 1000
@@ -28,7 +28,7 @@ card "Neos Force" {
     raw_effect "Effect 3" {
         effect_type: Field + MandatoryTrigger
         category: ToDeck
-        code: 4608
+        code: PhaseEnd
         range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {

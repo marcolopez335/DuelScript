@@ -3,14 +3,14 @@
 // Transpiled from c14816688.lua
 
 card "Shuffle Reborn" {
-    password: 14816688
+    id: 14816688
     type: Normal Spell
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: Banish + SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         on_resolve {
             special_summon (1, monster) from gy
             banish (1+, card, opponent controls, hand)
@@ -21,7 +21,7 @@ card "Shuffle Reborn" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: Banish + ToDeck + Draw
-        property: 16
+        property: CardTarget
         range: Graveyard
         count_limit: (1, 14816688)
         cost {
@@ -40,7 +40,7 @@ card "Shuffle Reborn" {
 
     raw_effect "Effect 3" {
         effect_type: Field + Continuous
-        code: 4608
+        code: PhaseEnd
         count_limit: (1, 0)
         on_resolve {
             banish (1+, card, opponent controls, hand)

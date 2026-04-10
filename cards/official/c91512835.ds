@@ -3,7 +3,7 @@
 // Transpiled from c91512835.lua
 
 card "Insect Queen" {
-    password: 91512835
+    id: 91512835
     type: Effect Monster
     attribute: EARTH
     race: Insect
@@ -25,8 +25,8 @@ card "Insect Queen" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -35,8 +35,8 @@ card "Insect Queen" {
 
     raw_effect "Effect 3" {
         effect_type: Single + Continuous
-        code: 1139
-        property: 1024
+        code: BattleConfirmed
+        property: BothSide
         on_resolve {
         }
     }
@@ -44,7 +44,7 @@ card "Insect Queen" {
     raw_effect "Effect 4" {
         effect_type: Field + MandatoryTrigger
         category: SpecialSummon + Token
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

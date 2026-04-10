@@ -3,7 +3,7 @@
 // Transpiled from c54702678.lua
 
 card "Barbaroid, the Ultimate Battle Machine" {
-    password: 54702678
+    id: 54702678
     type: Fusion Monster
     attribute: EARTH
     race: Machine
@@ -45,8 +45,8 @@ card "Barbaroid, the Ultimate Battle Machine" {
     raw_effect "Effect 3" {
         effect_type: Single + MandatoryTrigger
         category: Damage
-        code: 1139
-        property: 2048
+        code: BattleConfirmed
+        property: InitialValue
         on_resolve {
             deal_damage to opponent: 1000
         }
@@ -54,7 +54,7 @@ card "Barbaroid, the Ultimate Battle Machine" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 73
+        code: CannotAttackAnnounce
         on_resolve {
             register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
         }

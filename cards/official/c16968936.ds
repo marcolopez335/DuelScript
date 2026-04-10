@@ -3,7 +3,7 @@
 // Transpiled from c16968936.lua
 
 card "Tactical Trainer of the Six Samurai" {
-    password: 16968936
+    id: 16968936
     type: Effect Monster | Tuner
     attribute: EARTH
     race: Warrior
@@ -13,8 +13,8 @@ card "Tactical Trainer of the Six Samurai" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         count_limit: (1, 16968936)
         on_resolve {
@@ -25,7 +25,7 @@ card "Tactical Trainer of the Six Samurai" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to hand
@@ -35,8 +35,8 @@ card "Tactical Trainer of the Six Samurai" {
 
     raw_effect "Effect 3" {
         effect_type: Single + Continuous
-        code: 1108
-        property: 128
+        code: FlipSuccess
+        property: SetAvailable
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -52,7 +52,7 @@ card "Tactical Trainer of the Six Samurai" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk - 500

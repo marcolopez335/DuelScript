@@ -3,7 +3,7 @@
 // Transpiled from c4632019.lua
 
 card "Yamatako Orochi" {
-    password: 4632019
+    id: 4632019
     type: Effect Monster | Tuner
     attribute: WATER
     race: Sea Serpent
@@ -14,7 +14,7 @@ card "Yamatako Orochi" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 240
-        property: 131072
+        property: SingleRange
         range: MonsterZone + SpellTrapZone
         on_resolve {
         }
@@ -22,8 +22,8 @@ card "Yamatako Orochi" {
 
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
-        code: 1108
-        property: 128
+        code: FlipSuccess
+        property: SetAvailable
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -46,7 +46,7 @@ card "Yamatako Orochi" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 800
         }
@@ -54,7 +54,7 @@ card "Yamatako Orochi" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 104
+        code: UpdateDefense
         on_resolve {
             modifier: def + 800
         }
@@ -62,7 +62,7 @@ card "Yamatako Orochi" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }

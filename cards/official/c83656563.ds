@@ -3,7 +3,7 @@
 // Transpiled from c83656563.lua
 
 card "Fossil Machine Skull Wagon" {
-    password: 83656563
+    id: 83656563
     type: Fusion Monster
     attribute: EARTH
     race: Rock
@@ -22,8 +22,8 @@ card "Fossil Machine Skull Wagon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 394240
+        code: SpsummonCondition
+        property: BothSide + SingleRange + Uncopyable
         range: Deck
         on_resolve {
         }
@@ -32,7 +32,7 @@ card "Fossil Machine Skull Wagon" {
     raw_effect "Effect 2" {
         effect_type: Single
         code: 346
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -41,8 +41,8 @@ card "Fossil Machine Skull Wagon" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         category: Damage
-        code: 1139
-        property: 2048
+        code: BattleConfirmed
+        property: InitialValue
         on_resolve {
             deal_damage to opponent: 1000
         }
@@ -51,7 +51,7 @@ card "Fossil Machine Skull Wagon" {
     raw_effect "Effect 4" {
         effect_type: Ignition
         category: Destroy
-        property: 16
+        property: CardTarget
         range: Graveyard
         count_limit: (1, 83656563)
         cost {

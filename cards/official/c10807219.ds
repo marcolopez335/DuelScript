@@ -3,7 +3,7 @@
 // Transpiled from c10807219.lua
 
 card "Newbee!" {
-    password: 10807219
+    id: 10807219
     type: Effect Monster
     attribute: LIGHT
     race: Insect
@@ -13,8 +13,8 @@ card "Newbee!" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         count_limit: (1, 10807219)
         on_resolve {
@@ -25,7 +25,7 @@ card "Newbee!" {
         effect_type: Single + Trigger
         category: ToHand + ToDeck
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, trap, you controls) from gy

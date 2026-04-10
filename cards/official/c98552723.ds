@@ -3,14 +3,14 @@
 // Transpiled from c98552723.lua
 
 card "Restoration of the Monarchs" {
-    password: 98552723
+    id: 98552723
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         count_limit: (1, 98552723)
         on_resolve {
             special_summon (1, monster) from gy
@@ -29,14 +29,14 @@ card "Restoration of the Monarchs" {
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
         code: 1019
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
         effect_type: Single + Continuous
-        code: 1015
+        code: ChainNegated
         on_resolve {
             destroy (1+, monster, either_player controls)
         }
@@ -44,7 +44,7 @@ card "Restoration of the Monarchs" {
 
     raw_effect "Effect 4" {
         effect_type: Equip
-        code: 150
+        code: EquipLimit
         on_resolve {
         }
     }

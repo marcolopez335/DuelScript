@@ -3,7 +3,7 @@
 // Transpiled from c31286915.lua
 
 card "K9-X 'Ripper/M'" {
-    password: 31286915
+    id: 31286915
     type: Xyz Monster
     attribute: WIND
     race: Beast
@@ -23,7 +23,7 @@ card "K9-X 'Ripper/M'" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }
@@ -33,7 +33,7 @@ card "K9-X 'Ripper/M'" {
         effect_type: Single + Trigger
         category: ToDeck
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 31286915)
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle

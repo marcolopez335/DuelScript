@@ -3,7 +3,7 @@
 // Transpiled from c25857977.lua
 
 card "D/D/D Vice King Requiem" {
-    password: 25857977
+    id: 25857977
     type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
@@ -19,7 +19,7 @@ card "D/D/D Vice King Requiem" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: Destroy + SpecialSummon
-        property: 16
+        property: CardTarget
         range: PendulumZone
         count_limit: (1, 25857977)
         on_resolve {
@@ -30,8 +30,8 @@ card "D/D/D Vice King Requiem" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 22
-        property: 2048
+        code: CannotDisable
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -40,7 +40,7 @@ card "D/D/D Vice King Requiem" {
 
     raw_effect "Effect 3" {
         effect_type: Single + Continuous
-        code: 1108
+        code: FlipSuccess
         property: 8388608
         count_limit: (1, 0)
         on_resolve {

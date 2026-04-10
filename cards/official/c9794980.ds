@@ -3,7 +3,7 @@
 // Transpiled from c9794980.lua
 
 card "Knightmare Incarnation Idlee" {
-    password: 9794980
+    id: 9794980
     type: Effect Monster
     attribute: DARK
     race: Fairy
@@ -30,7 +30,7 @@ card "Knightmare Incarnation Idlee" {
         effect_type: Single + Trigger
         category: ToGrave
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             send (1+, monster, either_player controls) to gy
@@ -39,7 +39,7 @@ card "Knightmare Incarnation Idlee" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 41
+        code: IndestructableEffect
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

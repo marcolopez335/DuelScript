@@ -3,7 +3,7 @@
 // Transpiled from c12381100.lua
 
 card "Dragon Master Magia" {
-    password: 12381100
+    id: 12381100
     type: Fusion Monster
     attribute: LIGHT
     race: Dragon
@@ -22,8 +22,8 @@ card "Dragon Master Magia" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -32,7 +32,7 @@ card "Dragon Master Magia" {
         effect_type: QuickEffect
         category: Destroy + Negate
         code: Chaining
-        property: 49152
+        property: Oath + CountCodeDuel
         range: MonsterZone
         on_resolve {
             negate activation
@@ -43,8 +43,8 @@ card "Dragon Master Magia" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         category: SpecialSummon
-        code: 1015
-        property: 65536
+        code: ChainNegated
+        property: Delay
         on_resolve {
             special_summon (1, monster) from gy
         }

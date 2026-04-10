@@ -3,7 +3,7 @@
 // Transpiled from c55584558.lua
 
 card "Purrely Delicious Memory" {
-    password: 55584558
+    id: 55584558
     type: Quick-Play Spell
 
     raw_effect "Effect 1" {
@@ -21,9 +21,9 @@ card "Purrely Delicious Memory" {
     }
 
     raw_effect "Effect 2" {
-        effect_type: 4096
-        code: 100
-        property: 131072
+        effect_type: XyzMaterial
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -31,9 +31,9 @@ card "Purrely Delicious Memory" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 4096
-        code: 104
-        property: 131072
+        effect_type: XyzMaterial
+        code: UpdateDefense
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: def + 0
@@ -42,8 +42,8 @@ card "Purrely Delicious Memory" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 42
-        property: 67108864
+        code: CannotBeEffectTarget
+        property: IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

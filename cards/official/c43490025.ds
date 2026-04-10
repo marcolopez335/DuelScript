@@ -3,7 +3,7 @@
 // Transpiled from c43490025.lua
 
 card "Number F0: Utopic Future Slash" {
-    password: 43490025
+    id: 43490025
     type: Xyz Monster
     attribute: LIGHT
     race: Warrior
@@ -23,8 +23,8 @@ card "Number F0: Utopic Future Slash" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -33,7 +33,7 @@ card "Number F0: Utopic Future Slash" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -53,7 +53,7 @@ card "Number F0: Utopic Future Slash" {
     raw_effect "Effect 4" {
         effect_type: Single
         code: 194
-        property: 67109888
+        property: BothSide + IgnoreRange2
         on_resolve {
         }
     }

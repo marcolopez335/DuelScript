@@ -3,7 +3,7 @@
 // Transpiled from c63804806.lua
 
 card "Supersonic Skull Flame" {
-    password: 63804806
+    id: 63804806
     type: Effect Monster | Spirit
     attribute: WIND
     race: Zombie
@@ -17,8 +17,8 @@ card "Supersonic Skull Flame" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             banish (1+, monster, you controls, gy)
@@ -28,7 +28,7 @@ card "Supersonic Skull Flame" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: Damage
-        property: 2048
+        property: InitialValue
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -40,7 +40,7 @@ card "Supersonic Skull Flame" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: ChainEnd
-        property: 16400
+        property: CardTarget + Oath
         on_resolve {
             special_summon (1, monster) from gy
         }

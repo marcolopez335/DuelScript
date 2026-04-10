@@ -3,7 +3,7 @@
 // Transpiled from c18377261.lua
 
 card "Ha-Re the Sword Mikanko" {
-    password: 18377261
+    id: 18377261
     type: Effect Monster
     attribute: FIRE
     race: Warrior
@@ -21,7 +21,7 @@ card "Ha-Re the Sword Mikanko" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -38,7 +38,7 @@ card "Ha-Re the Sword Mikanko" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: 1121
-        property: 65536
+        property: Delay
         count_limit: (1, 18377261)
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck

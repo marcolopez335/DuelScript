@@ -3,7 +3,7 @@
 // Transpiled from c9275482.lua
 
 card "UFOLight" {
-    password: 9275482
+    id: 9275482
     type: Effect Monster
     attribute: FIRE
     race: Unknown
@@ -17,8 +17,8 @@ card "UFOLight" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 71
-        property: 131072
+        code: CannotDirectAttack2
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -27,7 +27,7 @@ card "UFOLight" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -37,7 +37,7 @@ card "UFOLight" {
     raw_effect "Effect 3" {
         effect_type: Field + Trigger
         category: Banish + Draw + SynchroSummon
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 9275482)
         on_resolve {
@@ -49,7 +49,7 @@ card "UFOLight" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 0
         }

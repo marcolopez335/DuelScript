@@ -3,7 +3,7 @@
 // Transpiled from c32761286.lua
 
 card "Scrap Worm" {
-    password: 32761286
+    id: 32761286
     type: Effect Monster | Tuner
     attribute: EARTH
     race: Insect
@@ -14,7 +14,7 @@ card "Scrap Worm" {
     raw_effect "Effect 1" {
         effect_type: Single + Continuous
         code: AttackAnnounce
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
@@ -34,7 +34,7 @@ card "Scrap Worm" {
         effect_type: Single + Trigger
         category: ToHand
         code: Destroyed
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
             reveal (1+, card, opponent controls)

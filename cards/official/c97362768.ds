@@ -3,13 +3,13 @@
 // Transpiled from c97362768.lua
 
 card "Spark Blaster" {
-    password: 97362768
+    id: 97362768
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: DiceRoll
-        property: 16
+        property: CardTarget
         range: SpellTrapZone
         on_resolve {
             change_battle_position (1, monster)
@@ -19,7 +19,7 @@ card "Spark Blaster" {
     raw_effect "Effect 2" {
         effect_type: Field + Continuous
         code: 1121
-        property: 1024
+        property: BothSide
         range: SpellTrapZone
         on_resolve {
         }
@@ -28,7 +28,7 @@ card "Spark Blaster" {
     raw_effect "Effect 3" {
         effect_type: Field + Continuous
         code: 1022
-        property: 1152
+        property: SetAvailable + BothSide
         range: SpellTrapZone
         on_resolve {
             destroy (1+, card, either_player controls)

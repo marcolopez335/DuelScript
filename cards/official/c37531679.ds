@@ -3,7 +3,7 @@
 // Transpiled from c37531679.lua
 
 card "Salamandra, the Flying Flame Dragon" {
-    password: 37531679
+    id: 37531679
     type: Effect Monster
     attribute: FIRE
     race: Dragon
@@ -13,7 +13,7 @@ card "Salamandra, the Flying Flame Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 700
         }
@@ -22,7 +22,7 @@ card "Salamandra, the Flying Flame Dragon" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: EquipAction
-        property: 16
+        property: CardTarget
         range: Hand + Graveyard
         count_limit: (1, 37531679)
         on_resolve {
@@ -35,7 +35,7 @@ card "Salamandra, the Flying Flame Dragon" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck

@@ -3,7 +3,7 @@
 // Transpiled from c31259606.lua
 
 card "Supreme Sea Mare" {
-    password: 31259606
+    id: 31259606
     type: Effect Monster
     attribute: WATER
     race: Aqua
@@ -15,7 +15,7 @@ card "Supreme Sea Mare" {
         effect_type: Single + Trigger
         category: ToGrave
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 31259606)
         on_resolve {
             send (1+, monster, you controls, deck) to gy
@@ -26,7 +26,7 @@ card "Supreme Sea Mare" {
         effect_type: Single + Trigger
         category: ToGrave
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 31259606)
         on_resolve {
             send (1+, monster, you controls, deck) to gy
@@ -36,8 +36,8 @@ card "Supreme Sea Mare" {
     raw_effect "Effect 3" {
         effect_type: Field + Trigger
         category: ToHand
-        code: 4608
-        property: 16
+        code: PhaseEnd
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         cost {

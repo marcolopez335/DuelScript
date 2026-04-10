@@ -3,7 +3,7 @@
 // Transpiled from c21720439.lua
 
 card "Artmage Movement -Pedigree-" {
-    password: 21720439
+    id: 21720439
     type: Normal Spell
 
     raw_effect "Effect 1" {
@@ -20,7 +20,7 @@ card "Artmage Movement -Pedigree-" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             return (1+, trap, you controls) to hand
@@ -29,8 +29,8 @@ card "Artmage Movement -Pedigree-" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 67635200
+        code: CannotDisable
+        property: InitialValue + CannotDisable + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

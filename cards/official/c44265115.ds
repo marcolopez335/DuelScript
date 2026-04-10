@@ -3,7 +3,7 @@
 // Transpiled from c44265115.lua
 
 card "Brain Controller" {
-    password: 44265115
+    id: 44265115
     type: Effect Monster | Tuner
     attribute: DARK
     race: Psychic
@@ -15,7 +15,7 @@ card "Brain Controller" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 44265115)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -27,7 +27,7 @@ card "Brain Controller" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 44265115)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -39,7 +39,7 @@ card "Brain Controller" {
         effect_type: Field + Trigger
         category: LevelChange
         code: 1201
-        property: 65552
+        property: CardTarget + Delay
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -53,8 +53,8 @@ card "Brain Controller" {
     raw_effect "Effect 4" {
         effect_type: Single + Trigger
         category: SpecialSummon
-        code: 1108
-        property: 65536
+        code: FlipSuccess
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -64,7 +64,7 @@ card "Brain Controller" {
     raw_effect "Effect 5" {
         effect_type: Single
         code: 131
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }

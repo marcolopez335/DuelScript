@@ -3,7 +3,7 @@
 // Transpiled from c46895036.lua
 
 card "Ghostrick Dullahan" {
-    password: 46895036
+    id: 46895036
     type: Xyz Monster
     attribute: DARK
     race: Fiend
@@ -23,8 +23,8 @@ card "Ghostrick Dullahan" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -35,7 +35,7 @@ card "Ghostrick Dullahan" {
         effect_type: QuickEffect
         category: SynchroSummon
         code: FreeChain
-        property: 16400
+        property: CardTarget + Oath
         range: MonsterZone
         count_limit: (1, 0)
         cost {
@@ -53,7 +53,7 @@ card "Ghostrick Dullahan" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             return (1+, card, you controls) to hand
             reveal (1+, card, opponent controls)

@@ -3,7 +3,7 @@
 // Transpiled from c94212438.lua
 
 card "Destiny Board" {
-    password: 94212438
+    id: 94212438
     type: Continuous Trap
 
     raw_effect "Effect 1" {
@@ -15,7 +15,7 @@ card "Destiny Board" {
 
     raw_effect "Effect 2" {
         effect_type: Field + MandatoryTrigger
-        code: 4608
+        code: PhaseEnd
         range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
@@ -25,7 +25,7 @@ card "Destiny Board" {
 
     raw_effect "Effect 3" {
         effect_type: Field + Continuous
-        code: 1015
+        code: ChainNegated
         range: SpellTrapZone
         on_resolve {
             send (1+, card, you controls) to gy
@@ -34,7 +34,7 @@ card "Destiny Board" {
 
     raw_effect "Effect 4" {
         effect_type: Single + Continuous
-        code: 1015
+        code: ChainNegated
         on_resolve {
             send (1+, card, you controls) to gy
         }
@@ -43,7 +43,7 @@ card "Destiny Board" {
     raw_effect "Effect 5" {
         effect_type: Field + Continuous
         code: 1040
-        property: 263168
+        property: BothSide + Uncopyable
         range: SpellTrapZone
         on_resolve {
         }

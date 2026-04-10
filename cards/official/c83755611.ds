@@ -3,7 +3,7 @@
 // Transpiled from c83755611.lua
 
 card "Baxia, Brightness of the Yang Zing" {
-    password: 83755611
+    id: 83755611
     type: Synchro Monster
     attribute: LIGHT
     race: Wyrm
@@ -23,7 +23,7 @@ card "Baxia, Brightness of the Yang Zing" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }
@@ -32,7 +32,7 @@ card "Baxia, Brightness of the Yang Zing" {
         effect_type: Single + Trigger
         category: ToDeck
         code: SpecialSummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
         }
@@ -41,7 +41,7 @@ card "Baxia, Brightness of the Yang Zing" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: Destroy + SpecialSummon
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

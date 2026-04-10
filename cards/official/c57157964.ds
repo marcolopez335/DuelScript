@@ -3,7 +3,7 @@
 // Transpiled from c57157964.lua
 
 card "Fossil Machine Skull Convoy" {
-    password: 57157964
+    id: 57157964
     type: Fusion Monster
     attribute: EARTH
     race: Rock
@@ -22,8 +22,8 @@ card "Fossil Machine Skull Convoy" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 394240
+        code: SpsummonCondition
+        property: BothSide + SingleRange + Uncopyable
         range: Deck
         on_resolve {
         }
@@ -31,7 +31,7 @@ card "Fossil Machine Skull Convoy" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -41,7 +41,7 @@ card "Fossil Machine Skull Convoy" {
     raw_effect "Effect 3" {
         effect_type: Single
         code: 346
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -50,8 +50,8 @@ card "Fossil Machine Skull Convoy" {
     raw_effect "Effect 4" {
         effect_type: Single + Trigger
         category: Damage
-        code: 1139
-        property: 2048
+        code: BattleConfirmed
+        property: InitialValue
         on_resolve {
             deal_damage to opponent: 1000
         }

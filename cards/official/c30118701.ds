@@ -3,7 +3,7 @@
 // Transpiled from c30118701.lua
 
 card "Todoroki the Earthbolt Star" {
-    password: 30118701
+    id: 30118701
     type: Effect Monster
     attribute: EARTH
     race: Warrior
@@ -17,8 +17,8 @@ card "Todoroki the Earthbolt Star" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         count_limit: (1, 30118701)
         on_resolve {
@@ -28,7 +28,7 @@ card "Todoroki the Earthbolt Star" {
 
     raw_effect "Effect 2" {
         effect_type: QuickEffect
-        category: SpecialSummon
+        category: SpecialSummon + Control
         code: FreeChain
         range: MonsterZone
         count_limit: (1, 0)
@@ -41,7 +41,7 @@ card "Todoroki the Earthbolt Star" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk - 500
         }

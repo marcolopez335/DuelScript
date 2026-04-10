@@ -3,7 +3,7 @@
 // Transpiled from c38694052.lua
 
 card "Voloferniges, the Darkest Dragon Doomrider" {
-    password: 38694052
+    id: 38694052
     type: Xyz Monster
     attribute: DARK
     race: Dragon
@@ -24,7 +24,7 @@ card "Voloferniges, the Darkest Dragon Doomrider" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: Destroy + SynchroSummon
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         cost {
@@ -43,7 +43,7 @@ card "Voloferniges, the Darkest Dragon Doomrider" {
         effect_type: QuickEffect
         category: Destroy + SynchroSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         cost {
@@ -61,7 +61,7 @@ card "Voloferniges, the Darkest Dragon Doomrider" {
     raw_effect "Effect 3" {
         effect_type: Single
         code: 85
-        property: 67634176
+        property: BothSide + CannotDisable + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
@@ -69,8 +69,8 @@ card "Voloferniges, the Darkest Dragon Doomrider" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 100
-        property: 1024
+        code: UpdateAttack
+        property: BothSide
         on_resolve {
             modifier: atk + 0
         }

@@ -3,7 +3,7 @@
 // Transpiled from c77625948.lua
 
 card "Cyberdark Edge" {
-    password: 77625948
+    id: 77625948
     type: Effect Monster
     attribute: DARK
     race: Machine
@@ -15,7 +15,7 @@ card "Cyberdark Edge" {
         effect_type: Single + MandatoryTrigger
         category: EquipAction
         code: SummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
         }
     }
@@ -31,7 +31,7 @@ card "Cyberdark Edge" {
     raw_effect "Effect 3" {
         effect_type: Single + Continuous
         code: 1134
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -39,14 +39,14 @@ card "Cyberdark Edge" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 76
+        code: CannotAttack2
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 71
+        code: CannotDirectAttack2
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
@@ -54,7 +54,7 @@ card "Cyberdark Edge" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 41
+        code: IndestructableEffect
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
@@ -62,7 +62,7 @@ card "Cyberdark Edge" {
 
     raw_effect "Effect 7" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

@@ -3,14 +3,14 @@
 // Transpiled from c44553392.lua
 
 card "A Shattered, Colorless Realm" {
-    password: 44553392
+    id: 44553392
     type: Normal Trap
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: Destroy + SpecialSummon + SynchroSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         on_resolve {
             destroy (1+, card, either_player controls)
             special_summon (1, monster) from gy
@@ -23,7 +23,7 @@ card "A Shattered, Colorless Realm" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 1500
         }

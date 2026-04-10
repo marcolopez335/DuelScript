@@ -3,7 +3,7 @@
 // Transpiled from c77150143.lua
 
 card "Zoodiac Thoroughblade" {
-    password: 77150143
+    id: 77150143
     type: Effect Monster
     attribute: EARTH
     race: Beast-Warrior
@@ -15,7 +15,7 @@ card "Zoodiac Thoroughblade" {
         effect_type: Single + Trigger
         category: Draw
         code: SummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             discard (1, card)
             draw 1
@@ -26,7 +26,7 @@ card "Zoodiac Thoroughblade" {
         effect_type: Single + Trigger
         category: Draw
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             discard (1, card)
             draw 1
@@ -34,8 +34,8 @@ card "Zoodiac Thoroughblade" {
     }
 
     raw_effect "Effect 3" {
-        effect_type: 4096
-        code: 203
+        effect_type: XyzMaterial
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }

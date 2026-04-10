@@ -3,7 +3,7 @@
 // Transpiled from c55241609.lua
 
 card "Crusadia Reclusia" {
-    password: 55241609
+    id: 55241609
     type: Effect Monster
     attribute: FIRE
     race: Spellcaster
@@ -13,8 +13,8 @@ card "Crusadia Reclusia" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 1310720
+        code: CannotSummon
+        property: Uncopyable + PlayerTarget
         range: Hand
         count_limit: (1, 55241609)
         on_resolve {
@@ -25,7 +25,7 @@ card "Crusadia Reclusia" {
         effect_type: Single + Trigger
         category: Destroy
         code: SummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -36,7 +36,7 @@ card "Crusadia Reclusia" {
         effect_type: Single + Trigger
         category: Destroy
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)

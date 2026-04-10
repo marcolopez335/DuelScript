@@ -3,12 +3,12 @@
 // Transpiled from c35884610.lua
 
 card "U.A. Powered Jersey" {
-    password: 35884610
+    id: 35884610
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 1000
         }
@@ -16,7 +16,7 @@ card "U.A. Powered Jersey" {
 
     raw_effect "Effect 2" {
         effect_type: Equip
-        code: 104
+        code: UpdateDefense
         on_resolve {
             modifier: def + 1000
         }
@@ -25,7 +25,7 @@ card "U.A. Powered Jersey" {
     raw_effect "Effect 3" {
         effect_type: Equip
         code: 208
-        property: 128
+        property: SetAvailable
         on_resolve {
         }
     }
@@ -57,7 +57,7 @@ card "U.A. Powered Jersey" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 65536
+        property: Delay
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }
@@ -66,7 +66,7 @@ card "U.A. Powered Jersey" {
     raw_effect "Effect 7" {
         effect_type: Single
         code: 194
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }

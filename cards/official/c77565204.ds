@@ -3,7 +3,7 @@
 // Transpiled from c77565204.lua
 
 card "Future Fusion" {
-    password: 77565204
+    id: 77565204
     type: Continuous Spell
 
     raw_effect "Effect 1" {
@@ -27,7 +27,7 @@ card "Future Fusion" {
 
     raw_effect "Effect 3" {
         effect_type: Field + MandatoryTrigger
-        category: SpecialSummon
+        category: SpecialSummon + Control
         code: 4098
         range: SpellTrapZone
         count_limit: (1, 0)
@@ -38,7 +38,7 @@ card "Future Fusion" {
 
     raw_effect "Effect 4" {
         effect_type: Single + Continuous
-        code: 1015
+        code: ChainNegated
         on_resolve {
             destroy (1+, monster, you controls, deck)
         }
@@ -46,7 +46,7 @@ card "Future Fusion" {
 
     raw_effect "Effect 5" {
         effect_type: Field + Continuous
-        code: 1015
+        code: ChainNegated
         range: SpellTrapZone
         on_resolve {
             destroy (1+, monster, you controls, deck)

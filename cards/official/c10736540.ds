@@ -3,7 +3,7 @@
 // Transpiled from c10736540.lua
 
 card "Lady of the Lake" {
-    password: 10736540
+    id: 10736540
     type: Effect Monster | Tuner
     attribute: LIGHT
     race: Aqua
@@ -14,15 +14,15 @@ card "Lady of the Lake" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 236
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 63
-        property: 263168
+        code: CannotBeTributed
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -31,7 +31,7 @@ card "Lady of the Lake" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -40,7 +40,7 @@ card "Lady of the Lake" {
     raw_effect "Effect 4" {
         effect_type: Ignition
         category: SpecialSummon + LevelChange
-        property: 16
+        property: CardTarget
         range: Graveyard
         on_resolve {
             register_effect on self {
@@ -53,8 +53,8 @@ card "Lady of the Lake" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 130
-        property: 1024
+        code: ChangePosition
+        property: BothSide
         on_resolve {
         }
     }

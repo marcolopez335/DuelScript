@@ -3,7 +3,7 @@
 // Transpiled from c2501624.lua
 
 card "Dark Magician Girl the Magician's Apprentice" {
-    password: 2501624
+    id: 2501624
     type: Effect Monster
     attribute: DARK
     race: Spellcaster
@@ -17,8 +17,8 @@ card "Dark Magician Girl the Magician's Apprentice" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         count_limit: (1, 2501624)
         on_resolve {
@@ -30,7 +30,7 @@ card "Dark Magician Girl the Magician's Apprentice" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand
@@ -42,7 +42,7 @@ card "Dark Magician Girl the Magician's Apprentice" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand
@@ -52,8 +52,8 @@ card "Dark Magician Girl the Magician's Apprentice" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0

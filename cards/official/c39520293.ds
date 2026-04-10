@@ -3,7 +3,7 @@
 // Transpiled from c39520293.lua
 
 card "Junk Mail" {
-    password: 39520293
+    id: 39520293
     type: Effect Monster | Tuner
     attribute: EARTH
     race: Warrior
@@ -13,8 +13,8 @@ card "Junk Mail" {
 
     raw_effect "Effect 1" {
         effect_type: Single + Continuous
-        code: 1108
-        property: 128
+        code: FlipSuccess
+        property: SetAvailable
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -35,8 +35,8 @@ card "Junk Mail" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 42
-        property: 67108864
+        code: CannotBeEffectTarget
+        property: IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -44,8 +44,8 @@ card "Junk Mail" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 60
-        property: 67109888
+        code: CannotAttack
+        property: BothSide + IgnoreRange2
         on_resolve {
         }
     }

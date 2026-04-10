@@ -3,7 +3,7 @@
 // Transpiled from c21686473.lua
 
 card "D/D/D Destiny King Zero Laplace" {
-    password: 21686473
+    id: 21686473
     type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
@@ -29,8 +29,8 @@ card "D/D/D Destiny King Zero Laplace" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             tribute (1, monster, you controls)
@@ -47,7 +47,7 @@ card "D/D/D Destiny King Zero Laplace" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }
@@ -56,7 +56,7 @@ card "D/D/D Destiny King Zero Laplace" {
     raw_effect "Effect 5" {
         effect_type: Single
         code: 47
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }

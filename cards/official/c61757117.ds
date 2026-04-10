@@ -3,7 +3,7 @@
 // Transpiled from c61757117.lua
 
 card "Divine Grace - Northwemko" {
-    password: 61757117
+    id: 61757117
     type: Ritual Monster
     attribute: LIGHT
     race: Spellcaster
@@ -23,15 +23,15 @@ card "Divine Grace - Northwemko" {
     raw_effect "Effect 1" {
         effect_type: Single + MandatoryTrigger
         code: SpecialSummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

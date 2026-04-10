@@ -3,7 +3,7 @@
 // Transpiled from c86926989.lua
 
 card "Shiranui Skillsaga Supremacy" {
-    password: 86926989
+    id: 86926989
     type: Link Monster
     attribute: FIRE
     race: Zombie
@@ -22,7 +22,7 @@ card "Shiranui Skillsaga Supremacy" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 41
+        code: IndestructableEffect
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -31,7 +31,7 @@ card "Shiranui Skillsaga Supremacy" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -42,7 +42,7 @@ card "Shiranui Skillsaga Supremacy" {
         effect_type: QuickEffect
         category: SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 86926989)
         on_resolve {

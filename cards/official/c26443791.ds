@@ -3,7 +3,7 @@
 // Transpiled from c26443791.lua
 
 card "Battlewasp - Ballista the Armageddon" {
-    password: 26443791
+    id: 26443791
     type: Synchro Monster
     attribute: WIND
     race: Insect
@@ -23,7 +23,7 @@ card "Battlewasp - Ballista the Armageddon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }
@@ -33,7 +33,7 @@ card "Battlewasp - Ballista the Armageddon" {
         effect_type: Single + Trigger
         category: SynchroSummon
         code: SpecialSummonSuccess
-        property: 81920
+        property: Oath + Delay
         cost {
             banish self
         }
@@ -45,7 +45,7 @@ card "Battlewasp - Ballista the Armageddon" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 65536
+        property: Delay
         on_resolve {
             special_summon (1, monster) from gy
         }

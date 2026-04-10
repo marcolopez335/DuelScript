@@ -3,7 +3,7 @@
 // Transpiled from c91557476.lua
 
 card "Sunvine Thrasher" {
-    password: 91557476
+    id: 91557476
     type: Link Monster
     attribute: EARTH
     race: Plant
@@ -23,8 +23,8 @@ card "Sunvine Thrasher" {
     raw_effect "Effect 1" {
         effect_type: Field + MandatoryTrigger
         category: Destroy
-        code: 1015
-        property: 16384
+        code: ChainNegated
+        property: Oath
         range: MonsterZone
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -35,7 +35,7 @@ card "Sunvine Thrasher" {
         effect_type: Single + Trigger
         category: SynchroSummon
         code: SpecialSummonSuccess
-        property: 81936
+        property: CardTarget + Oath + Delay
         on_resolve {
         }
     }
@@ -43,7 +43,7 @@ card "Sunvine Thrasher" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         category: SpecialSummon
-        code: 1139
+        code: BattleConfirmed
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {

@@ -3,7 +3,7 @@
 // Transpiled from c32349062.lua
 
 card "D/D Dog" {
-    password: 32349062
+    id: 32349062
     type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
@@ -19,7 +19,7 @@ card "D/D Dog" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: Destroy + Disable
-        property: 16
+        property: CardTarget
         range: PendulumZone
         count_limit: (1, 32349062)
         on_resolve {
@@ -44,7 +44,7 @@ card "D/D Dog" {
         effect_type: Single + Trigger
         category: Disable
         code: 300784518
-        property: 65552
+        property: CardTarget + Delay
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -66,7 +66,7 @@ card "D/D Dog" {
     raw_effect "Effect 3" {
         effect_type: Field + Continuous
         code: SpecialSummonSuccess
-        property: 1024
+        property: BothSide
         range: MonsterZone
         on_resolve {
             set_flag "tracked" on self

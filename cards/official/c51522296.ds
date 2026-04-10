@@ -3,7 +3,7 @@
 // Transpiled from c51522296.lua
 
 card "Dogmatika Alba Zoa" {
-    password: 51522296
+    id: 51522296
     type: Ritual Monster
     attribute: LIGHT
     race: Spellcaster
@@ -22,15 +22,15 @@ card "Dogmatika Alba Zoa" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 1
+        code: ImmuneEffect
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -39,7 +39,7 @@ card "Dogmatika Alba Zoa" {
 
     raw_effect "Effect 3" {
         effect_type: Ignition
-        category: ToGrave
+        category: ToGrave + Announce
         range: MonsterZone
         count_limit: (1, 51522296)
         on_resolve {

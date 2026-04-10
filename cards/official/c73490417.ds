@@ -3,7 +3,7 @@
 // Transpiled from c73490417.lua
 
 card "Jungle Dweller" {
-    password: 73490417
+    id: 73490417
     type: Effect Monster | Spirit
     attribute: DARK
     race: Fiend
@@ -17,8 +17,8 @@ card "Jungle Dweller" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 71
-        property: 131072
+        code: CannotDirectAttack2
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -42,7 +42,7 @@ card "Jungle Dweller" {
         effect_type: Single + Trigger
         category: Destroy + ToDeck
         code: Destroyed
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, you controls) to deck shuffle

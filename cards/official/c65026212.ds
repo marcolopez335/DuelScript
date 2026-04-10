@@ -3,7 +3,7 @@
 // Transpiled from c65026212.lua
 
 card "Koa'ki Meiru Maximus" {
-    password: 65026212
+    id: 65026212
     type: Effect Monster | Spirit
     attribute: WIND
     race: Dragon
@@ -17,8 +17,8 @@ card "Koa'ki Meiru Maximus" {
 
     raw_effect "Effect 1" {
         effect_type: Field + Continuous
-        code: 4608
-        property: 263168
+        code: PhaseEnd
+        property: BothSide + Uncopyable
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -30,8 +30,8 @@ card "Koa'ki Meiru Maximus" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             banish (1+, monster, you controls, hand)
@@ -41,7 +41,7 @@ card "Koa'ki Meiru Maximus" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: Destroy
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

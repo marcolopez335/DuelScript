@@ -3,7 +3,7 @@
 // Transpiled from c15335853.lua
 
 card "Mecha Phantom Beast Sabre Hawk" {
-    password: 15335853
+    id: 15335853
     type: Effect Monster
     attribute: WIND
     race: Machine
@@ -13,8 +13,8 @@ card "Mecha Phantom Beast Sabre Hawk" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 130
-        property: 131072
+        code: ChangePosition
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -22,8 +22,8 @@ card "Mecha Phantom Beast Sabre Hawk" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -32,8 +32,8 @@ card "Mecha Phantom Beast Sabre Hawk" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -43,7 +43,7 @@ card "Mecha Phantom Beast Sabre Hawk" {
     raw_effect "Effect 4" {
         effect_type: Ignition
         category: Banish
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         cost {
@@ -56,7 +56,7 @@ card "Mecha Phantom Beast Sabre Hawk" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 73
+        code: CannotAttackAnnounce
         on_resolve {
             register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
         }

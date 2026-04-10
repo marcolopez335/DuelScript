@@ -3,7 +3,7 @@
 // Transpiled from c45409943.lua
 
 card "Luce the Dusk's Dark" {
-    password: 45409943
+    id: 45409943
     type: Fusion Monster
     attribute: DARK
     race: Fiend
@@ -22,8 +22,8 @@ card "Luce the Dusk's Dark" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 41
-        property: 256
+        code: IndestructableEffect
+        property: IgnoreRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -33,7 +33,7 @@ card "Luce the Dusk's Dark" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: Destroy + ToGrave
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 45409943)
         on_resolve {
@@ -46,7 +46,7 @@ card "Luce the Dusk's Dark" {
         effect_type: Field + Trigger
         category: Destroy
         code: Destroyed
-        property: 65552
+        property: CardTarget + Delay
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

@@ -3,7 +3,7 @@
 // Transpiled from c26211048.lua
 
 card "Inzektor Exa-Stag" {
-    password: 26211048
+    id: 26211048
     type: Xyz Monster
     attribute: DARK
     race: Insect
@@ -24,7 +24,7 @@ card "Inzektor Exa-Stag" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: EquipAction
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         cost {
@@ -36,7 +36,7 @@ card "Inzektor Exa-Stag" {
 
     raw_effect "Effect 2" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 0
         }
@@ -44,7 +44,7 @@ card "Inzektor Exa-Stag" {
 
     raw_effect "Effect 3" {
         effect_type: Equip
-        code: 104
+        code: UpdateDefense
         on_resolve {
             modifier: def + 0
         }
@@ -52,14 +52,14 @@ card "Inzektor Exa-Stag" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 76
+        code: CannotAttack2
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 71
+        code: CannotDirectAttack2
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
@@ -67,7 +67,7 @@ card "Inzektor Exa-Stag" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 41
+        code: IndestructableEffect
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
@@ -75,7 +75,7 @@ card "Inzektor Exa-Stag" {
 
     raw_effect "Effect 7" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

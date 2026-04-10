@@ -3,7 +3,7 @@
 // Transpiled from c29719112.lua
 
 card "Cyber Pharos" {
-    password: 29719112
+    id: 29719112
     type: Effect Monster
     attribute: LIGHT
     race: Machine
@@ -13,8 +13,8 @@ card "Cyber Pharos" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             tribute (1, monster, you controls)
@@ -23,7 +23,7 @@ card "Cyber Pharos" {
 
     raw_effect "Effect 2" {
         effect_type: Ignition
-        category: SpecialSummon
+        category: SpecialSummon + Control
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -34,7 +34,7 @@ card "Cyber Pharos" {
         effect_type: Field + Trigger
         category: ToHand + Search
         code: Destroyed
-        property: 16384
+        property: Oath
         range: Graveyard
         count_limit: (1, 29719112)
         cost {

@@ -3,7 +3,7 @@
 // Transpiled from c55735315.lua
 
 card "Soul Drain Dragon" {
-    password: 55735315
+    id: 55735315
     type: Effect Monster | Spirit
     attribute: LIGHT
     race: Dragon
@@ -17,8 +17,8 @@ card "Soul Drain Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -40,7 +40,7 @@ card "Soul Drain Dragon" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 73
+        code: CannotAttackAnnounce
         on_resolve {
             register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
         }

@@ -3,7 +3,7 @@
 // Transpiled from c93871599.lua
 
 card "The Flute of Guiding Dragon" {
-    password: 93871599
+    id: 93871599
     type: Normal Spell
 
     raw_effect "Effect 1" {
@@ -24,7 +24,7 @@ card "The Flute of Guiding Dragon" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: Draw
-        property: 2048
+        property: InitialValue
         range: Graveyard
         count_limit: (1, 0)
         cost {
@@ -37,8 +37,8 @@ card "The Flute of Guiding Dragon" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

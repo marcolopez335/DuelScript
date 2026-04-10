@@ -3,7 +3,7 @@
 // Transpiled from c39114494.lua
 
 card "Blessing of the Voiceless Voice" {
-    password: 39114494
+    id: 39114494
     type: Continuous Spell
 
     raw_effect "Effect 1" {
@@ -16,7 +16,7 @@ card "Blessing of the Voiceless Voice" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: ToHand
-        property: 16
+        property: CardTarget
         range: SpellTrapZone
         count_limit: (1, 39114494)
         on_resolve {
@@ -28,7 +28,7 @@ card "Blessing of the Voiceless Voice" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
@@ -40,7 +40,7 @@ card "Blessing of the Voiceless Voice" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: SummonSuccess
-        property: 65536
+        property: Delay
         range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
@@ -50,8 +50,8 @@ card "Blessing of the Voiceless Voice" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 42
-        property: 67108864
+        code: CannotBeEffectTarget
+        property: IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

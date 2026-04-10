@@ -3,7 +3,7 @@
 // Transpiled from c60237530.lua
 
 card "Dual Avatar Fists - Armored Ah-Gyo" {
-    password: 60237530
+    id: 60237530
     type: Fusion Monster
     attribute: LIGHT
     race: Warrior
@@ -23,7 +23,7 @@ card "Dual Avatar Fists - Armored Ah-Gyo" {
     raw_effect "Effect 1" {
         effect_type: Single + Trigger
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 60237530)
         on_resolve {
             destroy (1+, monster, you controls)
@@ -32,7 +32,7 @@ card "Dual Avatar Fists - Armored Ah-Gyo" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 300
@@ -41,7 +41,7 @@ card "Dual Avatar Fists - Armored Ah-Gyo" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 104
+        code: UpdateDefense
         range: MonsterZone
         on_resolve {
             modifier: def + 300

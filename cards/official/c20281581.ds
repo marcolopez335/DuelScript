@@ -3,7 +3,7 @@
 // Transpiled from c20281581.lua
 
 card "Performapal Momoncarpet" {
-    password: 20281581
+    id: 20281581
     type: Effect Monster | Pendulum Monster
     attribute: EARTH
     race: Beast
@@ -15,7 +15,7 @@ card "Performapal Momoncarpet" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 141
-        property: 131072
+        property: SingleRange
         range: PendulumZone
         on_resolve {
         }
@@ -24,7 +24,7 @@ card "Performapal Momoncarpet" {
     raw_effect "Effect 2" {
         effect_type: Field
         code: 208
-        property: 2048
+        property: InitialValue
         range: PendulumZone
         on_resolve {
         }
@@ -33,7 +33,7 @@ card "Performapal Momoncarpet" {
     raw_effect "Effect 3" {
         effect_type: Single + Flip + Trigger
         category: Destroy
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             destroy (1+, card, either_player controls)
         }
@@ -43,7 +43,7 @@ card "Performapal Momoncarpet" {
         effect_type: Single + Trigger
         category: DiceRoll
         code: SpecialSummonSuccess
-        property: 81920
+        property: Oath + Delay
         on_resolve {
             change_battle_position (1, monster)
         }

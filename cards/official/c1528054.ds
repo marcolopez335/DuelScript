@@ -3,7 +3,7 @@
 // Transpiled from c1528054.lua
 
 card "Silhouhatte Rabbit" {
-    password: 1528054
+    id: 1528054
     type: Link Monster
     attribute: LIGHT
     race: Unknown
@@ -22,7 +22,7 @@ card "Silhouhatte Rabbit" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -32,7 +32,7 @@ card "Silhouhatte Rabbit" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 1528054)
         on_resolve {
             set (1, card)
@@ -43,7 +43,7 @@ card "Silhouhatte Rabbit" {
         effect_type: Field + Trigger
         category: Destroy
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -54,7 +54,7 @@ card "Silhouhatte Rabbit" {
     raw_effect "Effect 4" {
         effect_type: Single
         code: 239
-        property: 67109888
+        property: BothSide + IgnoreRange2
         on_resolve {
         }
     }

@@ -3,7 +3,7 @@
 // Transpiled from c29169993.lua
 
 card "Performapal Teeter Totter Hopper" {
-    password: 29169993
+    id: 29169993
     type: Effect Monster
     attribute: EARTH
     race: Insect
@@ -14,7 +14,7 @@ card "Performapal Teeter Totter Hopper" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 47
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
@@ -24,8 +24,8 @@ card "Performapal Teeter Totter Hopper" {
     raw_effect "Effect 2" {
         effect_type: Field + Trigger
         category: ToHand + ToGrave
-        code: 4608
-        property: 16
+        code: PhaseEnd
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -38,7 +38,7 @@ card "Performapal Teeter Totter Hopper" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: ChainEnd
-        property: 65536
+        property: Delay
         range: Graveyard
         count_limit: (1, 29169993)
         on_resolve {

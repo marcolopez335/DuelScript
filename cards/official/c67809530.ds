@@ -3,7 +3,7 @@
 // Transpiled from c67809530.lua
 
 card "The Crimson King" {
-    password: 67809530
+    id: 67809530
     // FIXME: card not found in CDB — type/stats are placeholders
     type: Effect Monster
     attribute: DARK
@@ -20,7 +20,7 @@ card "The Crimson King" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -52,8 +52,8 @@ card "The Crimson King" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 101
-        property: 1024
+        code: SetAttack
+        property: BothSide
         on_resolve {
             modifier: atk + 0
         }
@@ -61,8 +61,8 @@ card "The Crimson King" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 41
-        property: 67108864
+        code: IndestructableEffect
+        property: IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }

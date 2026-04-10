@@ -3,7 +3,7 @@
 // Transpiled from c53039326.lua
 
 card "Iron Core Specimen Lab" {
-    password: 53039326
+    id: 53039326
     type: Field Spell
 
     raw_effect "Effect 1" {
@@ -15,8 +15,8 @@ card "Iron Core Specimen Lab" {
 
     raw_effect "Effect 2" {
         effect_type: Field + Continuous
-        code: 4608
-        property: 263168
+        code: PhaseEnd
+        property: BothSide + Uncopyable
         range: FieldZone
         count_limit: (1, 0)
         on_resolve {
@@ -30,7 +30,7 @@ card "Iron Core Specimen Lab" {
         effect_type: Field + Trigger
         category: ToHand + Search
         code: 321474782
-        property: 8404992
+        property: Oath
         range: FieldZone
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand
@@ -40,7 +40,7 @@ card "Iron Core Specimen Lab" {
 
     raw_effect "Effect 4" {
         effect_type: Field + Continuous
-        code: 1010
+        code: SpecialSummonAttempt
         on_resolve {
             emit_event "custom"
             emit_event "custom"

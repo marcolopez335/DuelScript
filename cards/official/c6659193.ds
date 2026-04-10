@@ -3,7 +3,7 @@
 // Transpiled from c6659193.lua
 
 card "Performage Trapeze High Magician" {
-    password: 6659193
+    id: 6659193
     type: Xyz Monster
     attribute: LIGHT
     race: Spellcaster
@@ -23,8 +23,8 @@ card "Performage Trapeze High Magician" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -33,8 +33,8 @@ card "Performage Trapeze High Magician" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -44,7 +44,7 @@ card "Performage Trapeze High Magician" {
     raw_effect "Effect 3" {
         effect_type: Field
         code: 83
-        property: 2048
+        property: InitialValue
         range: MonsterZone
         on_resolve {
         }
@@ -63,7 +63,7 @@ card "Performage Trapeze High Magician" {
     raw_effect "Effect 5" {
         effect_type: Single
         code: 194
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }

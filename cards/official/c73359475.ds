@@ -3,7 +3,7 @@
 // Transpiled from c73359475.lua
 
 card "Noble Knight Peredur" {
-    password: 73359475
+    id: 73359475
     type: Effect Monster
     attribute: LIGHT
     race: Warrior
@@ -14,7 +14,7 @@ card "Noble Knight Peredur" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 127
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -22,8 +22,8 @@ card "Noble Knight Peredur" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 130
-        property: 131072
+        code: ChangePosition
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -32,8 +32,8 @@ card "Noble Knight Peredur" {
     raw_effect "Effect 3" {
         effect_type: Single + MandatoryTrigger
         category: ToHand
-        code: 1015
-        property: 16
+        code: ChainNegated
+        property: CardTarget
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }

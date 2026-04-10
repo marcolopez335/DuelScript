@@ -3,7 +3,7 @@
 // Transpiled from c34137269.lua
 
 card "Hailon, the Timelord" {
-    password: 34137269
+    id: 34137269
     type: Effect Monster
     attribute: EARTH
     race: Fairy
@@ -17,8 +17,8 @@ card "Hailon, the Timelord" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 394240
+        code: SpsummonCondition
+        property: BothSide + SingleRange + Uncopyable
         range: 1
         on_resolve {
         }
@@ -27,7 +27,7 @@ card "Hailon, the Timelord" {
     raw_effect "Effect 2" {
         effect_type: Single
         code: 32
-        property: 263168
+        property: BothSide + Uncopyable
         range: Hand
         on_resolve {
         }
@@ -35,8 +35,8 @@ card "Hailon, the Timelord" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -45,8 +45,8 @@ card "Hailon, the Timelord" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -56,7 +56,7 @@ card "Hailon, the Timelord" {
     raw_effect "Effect 5" {
         effect_type: Single
         code: 201
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -67,7 +67,7 @@ card "Hailon, the Timelord" {
         effect_type: Field + MandatoryTrigger
         category: Damage
         code: 4224
-        property: 2048
+        property: InitialValue
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -79,7 +79,7 @@ card "Hailon, the Timelord" {
         effect_type: Field + MandatoryTrigger
         category: ToDeck
         code: 4098
-        property: 2097152
+        property: ClientHint
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

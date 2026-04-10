@@ -3,7 +3,7 @@
 // Transpiled from c93657021.lua
 
 card "Destiny HERO - Dusktopia" {
-    password: 93657021
+    id: 93657021
     type: Fusion Monster
     attribute: DARK
     race: Warrior
@@ -22,9 +22,9 @@ card "Destiny HERO - Dusktopia" {
 
     raw_effect "Effect 1" {
         effect_type: Single + Trigger
-        category: SpecialSummon
+        category: SpecialSummon + Control
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
         }
     }
@@ -32,7 +32,7 @@ card "Destiny HERO - Dusktopia" {
     raw_effect "Effect 2" {
         effect_type: QuickEffect
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -57,8 +57,8 @@ card "Destiny HERO - Dusktopia" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 42
-        property: 1024
+        code: CannotBeEffectTarget
+        property: BothSide
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -66,8 +66,8 @@ card "Destiny HERO - Dusktopia" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 41
-        property: 1024
+        code: IndestructableEffect
+        property: BothSide
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
@@ -75,8 +75,8 @@ card "Destiny HERO - Dusktopia" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 200
-        property: 1024
+        code: LpcostChange
+        property: BothSide
         on_resolve {
         }
     }
@@ -84,7 +84,7 @@ card "Destiny HERO - Dusktopia" {
     raw_effect "Effect 6" {
         effect_type: Single
         code: 201
-        property: 1024
+        property: BothSide
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

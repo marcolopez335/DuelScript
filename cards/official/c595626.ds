@@ -3,7 +3,7 @@
 // Transpiled from c595626.lua
 
 card "Ankuriboh" {
-    password: 595626
+    id: 595626
     type: Effect Monster
     attribute: DARK
     race: Fiend
@@ -15,7 +15,7 @@ card "Ankuriboh" {
         effect_type: Field + Trigger
         category: ToGrave + SpecialSummon
         code: AttackAnnounce
-        property: 16
+        property: CardTarget
         range: Hand
         count_limit: (1, 595626)
         cost {
@@ -34,7 +34,7 @@ card "Ankuriboh" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: Destroyed
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -46,8 +46,8 @@ card "Ankuriboh" {
 
     raw_effect "Effect 3" {
         effect_type: Field + Continuous
-        code: 4608
-        property: 128
+        code: PhaseEnd
+        property: SetAvailable
         count_limit: (1, 0)
         on_resolve {
             send (1+, card, you controls, gy) to gy
@@ -56,7 +56,7 @@ card "Ankuriboh" {
 
     raw_effect "Effect 4" {
         effect_type: Field + Continuous
-        code: 4608
+        code: PhaseEnd
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from gy

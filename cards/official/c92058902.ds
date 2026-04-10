@@ -3,12 +3,12 @@
 // Transpiled from c92058902.lua
 
 card "Future Fusion Nova" {
-    password: 92058902
+    id: 92058902
     type: Continuous Spell
 
     raw_effect "Effect 1" {
         effect_type: Activate
-        category: SpecialSummon
+        category: SpecialSummon + Control
         code: FreeChain
         count_limit: (1, 92058902)
         on_resolve {
@@ -19,14 +19,14 @@ card "Future Fusion Nova" {
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
         code: 1019
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
         effect_type: Single + Continuous
-        code: 1015
+        code: ChainNegated
         on_resolve {
             destroy (1+, card, you controls, deck)
         }
@@ -34,7 +34,7 @@ card "Future Fusion Nova" {
 
     raw_effect "Effect 4" {
         effect_type: Field + Continuous
-        code: 1015
+        code: ChainNegated
         range: SpellTrapZone
         on_resolve {
             destroy (1, card)
@@ -43,8 +43,8 @@ card "Future Fusion Nova" {
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

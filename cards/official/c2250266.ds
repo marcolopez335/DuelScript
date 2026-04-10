@@ -3,7 +3,7 @@
 // Transpiled from c2250266.lua
 
 card "Morphtronic Staplen" {
-    password: 2250266
+    id: 2250266
     type: Effect Monster
     attribute: EARTH
     race: Machine
@@ -14,7 +14,7 @@ card "Morphtronic Staplen" {
     raw_effect "Effect 1" {
         effect_type: Single + Continuous
         code: 1019
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
@@ -42,7 +42,7 @@ card "Morphtronic Staplen" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -52,7 +52,7 @@ card "Morphtronic Staplen" {
         effect_type: Single + MandatoryTrigger
         category: DiceRoll
         code: 1138
-        property: 16
+        property: CardTarget
         on_resolve {
             change_battle_position (1, monster)
             change_battle_position (1, monster)

@@ -3,7 +3,7 @@
 // Transpiled from c19462747.lua
 
 card "Blackwing - Decay the Ill Wind" {
-    password: 19462747
+    id: 19462747
     type: Effect Monster | Tuner
     attribute: DARK
     race: Winged Beast
@@ -14,7 +14,7 @@ card "Blackwing - Decay the Ill Wind" {
     raw_effect "Effect 1" {
         effect_type: Single + Trigger
         code: SummonSuccess
-        property: 16
+        property: CardTarget
         count_limit: (1, 19462747)
         on_resolve {
             register_effect on self {
@@ -27,7 +27,7 @@ card "Blackwing - Decay the Ill Wind" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         code: SpecialSummonSuccess
-        property: 16
+        property: CardTarget
         count_limit: (1, 19462747)
         on_resolve {
             register_effect on self {
@@ -40,7 +40,7 @@ card "Blackwing - Decay the Ill Wind" {
     raw_effect "Effect 3" {
         effect_type: Single + Continuous
         code: ChainEnd
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
@@ -48,7 +48,7 @@ card "Blackwing - Decay the Ill Wind" {
     raw_effect "Effect 4" {
         effect_type: Field + MandatoryTrigger
         category: Damage
-        code: 4608
+        code: PhaseEnd
         range: Graveyard
         count_limit: (1, 0)
         on_resolve {

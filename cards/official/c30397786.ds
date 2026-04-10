@@ -3,7 +3,7 @@
 // Transpiled from c30397786.lua
 
 card "Blue-Eyes White Dragon, the White Phantom Beast" {
-    password: 30397786
+    id: 30397786
     type: Effect Monster
     attribute: LIGHT
     race: Dragon
@@ -32,7 +32,7 @@ card "Blue-Eyes White Dragon, the White Phantom Beast" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: ChainSolving
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         cost {
             reveal self
@@ -46,7 +46,7 @@ card "Blue-Eyes White Dragon, the White Phantom Beast" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: BattleDamage
-        property: 65536
+        property: Delay
         range: Hand
         count_limit: (1, 0)
         cost {
@@ -61,7 +61,7 @@ card "Blue-Eyes White Dragon, the White Phantom Beast" {
         effect_type: Single + Trigger
         category: Destroy
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, opponent controls)
@@ -74,8 +74,8 @@ card "Blue-Eyes White Dragon, the White Phantom Beast" {
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 73
-        property: 128
+        code: CannotAttackAnnounce
+        property: SetAvailable
         on_resolve {
             register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
         }

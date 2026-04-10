@@ -3,7 +3,7 @@
 // Transpiled from c28406301.lua
 
 card "D/D Gryphon" {
-    password: 28406301
+    id: 28406301
     type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
@@ -15,7 +15,7 @@ card "D/D Gryphon" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: Destroy + SynchroSummon
-        property: 16
+        property: CardTarget
         range: PendulumZone
         count_limit: (1, 28406301)
         on_resolve {
@@ -41,7 +41,7 @@ card "D/D Gryphon" {
         effect_type: Single + Trigger
         category: Draw
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         cost {
             discard (1, card, you controls)
@@ -55,7 +55,7 @@ card "D/D Gryphon" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, spell, you controls) from gy
@@ -65,8 +65,8 @@ card "D/D Gryphon" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 100
-        property: 1024
+        code: UpdateAttack
+        property: BothSide
         on_resolve {
             modifier: atk + 0
         }

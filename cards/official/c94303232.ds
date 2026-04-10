@@ -3,14 +3,14 @@
 // Transpiled from c94303232.lua
 
 card "Prevention Star" {
-    password: 94303232
+    id: 94303232
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: EquipAction
         code: FreeChain
-        property: 16
+        property: CardTarget
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -25,8 +25,8 @@ card "Prevention Star" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 76
-        property: 1024
+        code: CannotAttack2
+        property: BothSide
         on_resolve {
         }
     }
@@ -34,7 +34,7 @@ card "Prevention Star" {
     raw_effect "Effect 3" {
         effect_type: Single + MandatoryTrigger
         category: Banish
-        code: 1015
+        code: ChainNegated
         on_resolve {
             banish (1+, card, either_player controls)
         }

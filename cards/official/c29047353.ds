@@ -3,7 +3,7 @@
 // Transpiled from c29047353.lua
 
 card "Aquarium Stage" {
-    password: 29047353
+    id: 29047353
     type: Continuous Spell
 
     raw_effect "Effect 1" {
@@ -15,7 +15,7 @@ card "Aquarium Stage" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -24,7 +24,7 @@ card "Aquarium Stage" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 1
+        code: ImmuneEffect
         range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -35,7 +35,7 @@ card "Aquarium Stage" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {
@@ -47,8 +47,8 @@ card "Aquarium Stage" {
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

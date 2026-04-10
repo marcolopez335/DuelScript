@@ -3,7 +3,7 @@
 // Transpiled from c75452921.lua
 
 card "Knightmare Cerberus" {
-    password: 75452921
+    id: 75452921
     type: Link Monster
     attribute: EARTH
     race: Fiend
@@ -23,7 +23,7 @@ card "Knightmare Cerberus" {
     raw_effect "Effect 1" {
         effect_type: Single + Trigger
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 75452921)
         on_resolve {
             destroy (1+, card, you controls, hand)
@@ -33,7 +33,7 @@ card "Knightmare Cerberus" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 41
+        code: IndestructableEffect
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

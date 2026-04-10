@@ -3,7 +3,7 @@
 // Transpiled from c85672957.lua
 
 card "Masked HERO Atomic" {
-    password: 85672957
+    id: 85672957
     type: Fusion Monster
     attribute: FIRE
     race: Warrior
@@ -23,7 +23,7 @@ card "Masked HERO Atomic" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 47
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
@@ -34,7 +34,7 @@ card "Masked HERO Atomic" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 85672957)
         on_resolve {
             special_summon (1, monster) from gy
@@ -44,8 +44,8 @@ card "Masked HERO Atomic" {
     raw_effect "Effect 3" {
         effect_type: Field + Trigger
         category: 67108864
-        code: 4608
-        property: 16
+        code: PhaseEnd
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

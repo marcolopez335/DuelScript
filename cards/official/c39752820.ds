@@ -3,7 +3,7 @@
 // Transpiled from c39752820.lua
 
 card "Lib the World Key Blademaster" {
-    password: 39752820
+    id: 39752820
     type: Link Monster
     attribute: LIGHT
     race: Cyberse
@@ -22,8 +22,8 @@ card "Lib the World Key Blademaster" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -44,8 +44,8 @@ card "Lib the World Key Blademaster" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         category: ToDeck
-        code: 1108
-        property: 65536
+        code: FlipSuccess
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle

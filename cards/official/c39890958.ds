@@ -3,7 +3,7 @@
 // Transpiled from c39890958.lua
 
 card "Heavy Mech Support Armor" {
-    password: 39890958
+    id: 39890958
     type: Effect Monster | Gemini
     attribute: LIGHT
     race: Machine
@@ -13,8 +13,8 @@ card "Heavy Mech Support Armor" {
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 71
-        property: 128
+        code: CannotDirectAttack2
+        property: SetAvailable
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
@@ -24,7 +24,7 @@ card "Heavy Mech Support Armor" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -48,7 +48,7 @@ card "Heavy Mech Support Armor" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 76
+        code: CannotAttack2
         on_resolve {
         }
     }

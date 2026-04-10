@@ -3,7 +3,7 @@
 // Transpiled from c5530780.lua
 
 card "Exosister Gibrine" {
-    password: 5530780
+    id: 5530780
     type: Xyz Monster
     attribute: LIGHT
     race: Warrior
@@ -23,15 +23,15 @@ card "Exosister Gibrine" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -42,7 +42,7 @@ card "Exosister Gibrine" {
         effect_type: QuickEffect
         category: Disable
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 5530780)
         on_resolve {
@@ -67,7 +67,7 @@ card "Exosister Gibrine" {
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 800
         }

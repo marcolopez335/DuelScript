@@ -3,7 +3,7 @@
 // Transpiled from c18426196.lua
 
 card "Noble Knight Joan" {
-    password: 18426196
+    id: 18426196
     type: Effect Monster
     attribute: LIGHT
     race: Warrior
@@ -13,7 +13,7 @@ card "Noble Knight Joan" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk - 300
         }
@@ -23,7 +23,7 @@ card "Noble Knight Joan" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 81936
+        property: CardTarget + Oath + Delay
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
             reveal (1+, card, opponent controls)

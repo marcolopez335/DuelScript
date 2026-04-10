@@ -3,7 +3,7 @@
 // Transpiled from c51194046.lua
 
 card "Qliphort Monolith" {
-    password: 51194046
+    id: 51194046
     type: Normal Monster | Pendulum Monster
     attribute: EARTH
     race: Machine
@@ -19,8 +19,8 @@ card "Qliphort Monolith" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 22
-        property: 3584
+        code: CannotDisable
+        property: IgnoreImmune + BothSide + InitialValue
         range: PendulumZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -30,8 +30,8 @@ card "Qliphort Monolith" {
     raw_effect "Effect 2" {
         effect_type: Field + Trigger
         category: Draw
-        code: 4608
-        property: 2048
+        code: PhaseEnd
+        property: InitialValue
         range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
@@ -55,7 +55,7 @@ card "Qliphort Monolith" {
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }

@@ -3,7 +3,7 @@
 // Transpiled from c73082255.lua
 
 card "The Zombie Vampire" {
-    password: 73082255
+    id: 73082255
     type: Xyz Monster
     attribute: DARK
     race: Zombie
@@ -24,7 +24,7 @@ card "The Zombie Vampire" {
     raw_effect "Effect 1" {
         effect_type: Field
         code: 242
-        property: 384
+        property: SetAvailable + IgnoreRange
         range: Deck
         on_resolve {
         }
@@ -32,8 +32,8 @@ card "The Zombie Vampire" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 71
-        property: 131072
+        code: CannotDirectAttack2
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }

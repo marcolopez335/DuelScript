@@ -3,7 +3,7 @@
 // Transpiled from c8102334.lua
 
 card "Gate Blocker" {
-    password: 8102334
+    id: 8102334
     type: Effect Monster
     attribute: EARTH
     race: Rock
@@ -13,7 +13,7 @@ card "Gate Blocker" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 2
+        code: Disable
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -32,7 +32,7 @@ card "Gate Blocker" {
     raw_effect "Effect 3" {
         effect_type: Field
         code: 58
-        property: 2048
+        property: InitialValue
         range: MonsterZone
         on_resolve {
         }
@@ -40,8 +40,8 @@ card "Gate Blocker" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 71
-        property: 384
+        code: CannotDirectAttack2
+        property: SetAvailable + IgnoreRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }

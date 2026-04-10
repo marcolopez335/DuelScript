@@ -3,7 +3,7 @@
 // Transpiled from c34093683.lua
 
 card "Revendread Executor" {
-    password: 34093683
+    id: 34093683
     type: Ritual Monster
     attribute: DARK
     race: Zombie
@@ -23,7 +23,7 @@ card "Revendread Executor" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 114
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -31,8 +31,8 @@ card "Revendread Executor" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 71
-        property: 384
+        code: CannotDirectAttack2
+        property: SetAvailable + IgnoreRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -43,7 +43,7 @@ card "Revendread Executor" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 65536
+        property: Delay
         count_limit: (1, 34093683)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck

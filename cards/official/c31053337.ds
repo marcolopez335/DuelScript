@@ -3,7 +3,7 @@
 // Transpiled from c31053337.lua
 
 card "Blackwing - Abrolhos the Megaquake" {
-    password: 31053337
+    id: 31053337
     type: Effect Monster
     attribute: DARK
     race: Winged Beast
@@ -17,8 +17,8 @@ card "Blackwing - Abrolhos the Megaquake" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -35,7 +35,7 @@ card "Blackwing - Abrolhos the Megaquake" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

@@ -3,14 +3,14 @@
 // Transpiled from c90239723.lua
 
 card "Morphtronic Repair Unit" {
-    password: 90239723
+    id: 90239723
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         cost {
             send self to gy
         }
@@ -22,7 +22,7 @@ card "Morphtronic Repair Unit" {
 
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
-        code: 1015
+        code: ChainNegated
         on_resolve {
             destroy (1+, monster, you controls, hand)
         }

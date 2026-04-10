@@ -3,7 +3,7 @@
 // Transpiled from c57477163.lua
 
 card "Frightfur Sheep" {
-    password: 57477163
+    id: 57477163
     type: Fusion Monster
     attribute: DARK
     race: Fiend
@@ -22,8 +22,8 @@ card "Frightfur Sheep" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 6
-        property: 2048
+        code: CannotChangeControl
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -34,7 +34,7 @@ card "Frightfur Sheep" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: ChainEnd
-        property: 81920
+        property: Oath + Delay
         count_limit: (1, 57477163)
         on_resolve {
             special_summon (1, monster) from gy

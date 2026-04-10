@@ -3,7 +3,7 @@
 // Transpiled from c44860890.lua
 
 card "Brotherhood of the Fire Fist - Raven" {
-    password: 44860890
+    id: 44860890
     type: Effect Monster
     attribute: FIRE
     race: Beast-Warrior
@@ -14,7 +14,7 @@ card "Brotherhood of the Fire Fist - Raven" {
     raw_effect "Effect 1" {
         effect_type: Single + Trigger
         code: ChainEnd
-        property: 81920
+        property: Oath + Delay
         on_resolve {
             set (1, card)
         }
@@ -22,7 +22,7 @@ card "Brotherhood of the Fire Fist - Raven" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 41
+        code: IndestructableEffect
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

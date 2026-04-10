@@ -3,7 +3,7 @@
 // Transpiled from c78371393.lua
 
 card "Yubel" {
-    password: 78371393
+    id: 78371393
     type: Effect Monster
     attribute: DARK
     race: Fiend
@@ -17,7 +17,7 @@ card "Yubel" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -42,7 +42,7 @@ card "Yubel" {
         effect_type: Single + MandatoryTrigger
         category: Damage
         code: 1133
-        property: 2048
+        property: InitialValue
         on_resolve {
             deal_damage to opponent: 1000
         }
@@ -51,7 +51,7 @@ card "Yubel" {
     raw_effect "Effect 5" {
         effect_type: Field + MandatoryTrigger
         category: Destroy + Release
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

@@ -3,7 +3,7 @@
 // Transpiled from c30576089.lua
 
 card "Blue-Eyes Jet Dragon" {
-    password: 30576089
+    id: 30576089
     type: Effect Monster
     attribute: LIGHT
     race: Dragon
@@ -19,7 +19,7 @@ card "Blue-Eyes Jet Dragon" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 81920
+        property: Oath + Delay
         range: Hand + Graveyard
         count_limit: (1, 30576089)
         on_resolve {
@@ -29,8 +29,8 @@ card "Blue-Eyes Jet Dragon" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 41
-        property: 256
+        code: IndestructableEffect
+        property: IgnoreRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -41,7 +41,7 @@ card "Blue-Eyes Jet Dragon" {
         effect_type: Single + Trigger
         category: ToHand
         code: DamageCalculation
-        property: 16
+        property: CardTarget
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from gy

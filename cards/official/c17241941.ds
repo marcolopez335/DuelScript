@@ -3,7 +3,7 @@
 // Transpiled from c17241941.lua
 
 card "Gigathunder Giclops" {
-    password: 17241941
+    id: 17241941
     type: Effect Monster | Pendulum Monster | Tuner
     attribute: WIND
     race: Thunder
@@ -15,7 +15,7 @@ card "Gigathunder Giclops" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: DiceRoll
-        property: 16
+        property: CardTarget
         range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
@@ -25,8 +25,8 @@ card "Gigathunder Giclops" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 60
-        property: 263168
+        code: CannotAttack
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -35,7 +35,7 @@ card "Gigathunder Giclops" {
         effect_type: Single + Trigger
         category: DiceRoll
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             change_battle_position (1, monster)
@@ -46,7 +46,7 @@ card "Gigathunder Giclops" {
         effect_type: Single + Trigger
         category: Destroy
         code: 1016
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, spell, either_player controls)
@@ -57,7 +57,7 @@ card "Gigathunder Giclops" {
         effect_type: Single + Trigger
         category: ToHand
         code: Destroyed
-        property: 81920
+        property: Oath + Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, spell, either_player controls) from gy

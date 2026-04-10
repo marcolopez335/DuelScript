@@ -3,7 +3,7 @@
 // Transpiled from c49919798.lua
 
 card "Symphonic Warrior Synthess" {
-    password: 49919798
+    id: 49919798
     type: Effect Monster
     attribute: WIND
     race: Machine
@@ -14,7 +14,7 @@ card "Symphonic Warrior Synthess" {
     raw_effect "Effect 1" {
         effect_type: Single + Flip + Trigger
         category: ToHand + Search
-        property: 65536
+        property: Delay
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)
@@ -23,7 +23,7 @@ card "Symphonic Warrior Synthess" {
 
     raw_effect "Effect 2" {
         effect_type: Ignition
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -33,7 +33,7 @@ card "Symphonic Warrior Synthess" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: SpecialSummon
-        property: 16
+        property: CardTarget
         range: Graveyard
         cost {
             banish self

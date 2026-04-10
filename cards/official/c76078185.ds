@@ -3,7 +3,7 @@
 // Transpiled from c76078185.lua
 
 card "Heretical Phobos Covos" {
-    password: 76078185
+    id: 76078185
     type: Xyz Monster
     attribute: DARK
     race: Unknown
@@ -24,7 +24,7 @@ card "Heretical Phobos Covos" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: Summon + Disable
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 76078185)
         on_resolve {
@@ -36,7 +36,7 @@ card "Heretical Phobos Covos" {
         effect_type: QuickEffect
         category: Summon + Disable
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 76078185)
         on_resolve {
@@ -46,7 +46,7 @@ card "Heretical Phobos Covos" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

@@ -3,7 +3,7 @@
 // Transpiled from c60033398.lua
 
 card "Ancient Warriors - Fearsome Zhang Yuan" {
-    password: 60033398
+    id: 60033398
     type: Effect Monster
     attribute: FIRE
     race: Beast-Warrior
@@ -32,7 +32,7 @@ card "Ancient Warriors - Fearsome Zhang Yuan" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -43,7 +43,7 @@ card "Ancient Warriors - Fearsome Zhang Yuan" {
         effect_type: Field + Trigger
         category: Destroy
         code: Destroyed
-        property: 81936
+        property: CardTarget + Oath + Delay
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

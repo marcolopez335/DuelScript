@@ -3,7 +3,7 @@
 // Transpiled from c61272280.lua
 
 card "Vahram, the Magistus Divinity Dragon" {
-    password: 61272280
+    id: 61272280
     type: Synchro Monster
     attribute: FIRE
     race: Dragon
@@ -23,7 +23,7 @@ card "Vahram, the Magistus Divinity Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 41
+        code: IndestructableEffect
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
@@ -33,7 +33,7 @@ card "Vahram, the Magistus Divinity Dragon" {
         effect_type: Single + Trigger
         category: Destroy
         code: Destroyed
-        property: 65536
+        property: Delay
         count_limit: (1, 61272280)
         on_resolve {
             destroy (1+, card, opponent controls)

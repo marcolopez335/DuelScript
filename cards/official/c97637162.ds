@@ -3,7 +3,7 @@
 // Transpiled from c97637162.lua
 
 card "Handigallop" {
-    password: 97637162
+    id: 97637162
     type: Effect Monster
     attribute: EARTH
     race: Beast
@@ -13,7 +13,7 @@ card "Handigallop" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 73
+        code: CannotAttackAnnounce
         on_resolve {
             register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
         }
@@ -21,8 +21,8 @@ card "Handigallop" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -32,7 +32,7 @@ card "Handigallop" {
     raw_effect "Effect 3" {
         effect_type: Field
         code: 202
-        property: 2048
+        property: InitialValue
         range: MonsterZone
         on_resolve {
         }

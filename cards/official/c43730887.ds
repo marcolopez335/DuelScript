@@ -3,7 +3,7 @@
 // Transpiled from c43730887.lua
 
 card "Holding Arms" {
-    password: 43730887
+    id: 43730887
     type: Effect Monster
     attribute: DARK
     race: Fiend
@@ -15,7 +15,7 @@ card "Holding Arms" {
         effect_type: Single + MandatoryTrigger
         category: Disable
         code: SummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -32,7 +32,7 @@ card "Holding Arms" {
         effect_type: Single + MandatoryTrigger
         category: Disable
         code: SpecialSummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -47,8 +47,8 @@ card "Holding Arms" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -57,8 +57,8 @@ card "Holding Arms" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

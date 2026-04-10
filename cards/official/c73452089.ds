@@ -3,7 +3,7 @@
 // Transpiled from c73452089.lua
 
 card "Dark Cavalry" {
-    password: 73452089
+    id: 73452089
     type: Fusion Monster
     attribute: DARK
     race: Spellcaster
@@ -22,8 +22,8 @@ card "Dark Cavalry" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -32,7 +32,7 @@ card "Dark Cavalry" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }
@@ -42,7 +42,7 @@ card "Dark Cavalry" {
         effect_type: QuickEffect
         category: Destroy + Negate
         code: Chaining
-        property: 49152
+        property: Oath + CountCodeDuel
         range: MonsterZone
         on_resolve {
             negate activation

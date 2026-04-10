@@ -3,7 +3,7 @@
 // Transpiled from c24550676.lua
 
 card "Lunalight Leo Dancer" {
-    password: 24550676
+    id: 24550676
     type: Fusion Monster
     attribute: DARK
     race: Beast-Warrior
@@ -22,16 +22,16 @@ card "Lunalight Leo Dancer" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 71
-        property: 131072
+        code: CannotDirectAttack2
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -40,8 +40,8 @@ card "Lunalight Leo Dancer" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

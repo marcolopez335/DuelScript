@@ -3,7 +3,7 @@
 // Transpiled from c49131917.lua
 
 card "Shinonome the Vaylantz Priestess" {
-    password: 49131917
+    id: 49131917
     type: Effect Monster | Pendulum Monster
     attribute: WATER
     race: Spellcaster
@@ -41,7 +41,7 @@ card "Shinonome the Vaylantz Priestess" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: LeaveField
-        property: 65536
+        property: Delay
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -52,8 +52,8 @@ card "Shinonome the Vaylantz Priestess" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

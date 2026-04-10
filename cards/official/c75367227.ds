@@ -3,7 +3,7 @@
 // Transpiled from c75367227.lua
 
 card "Ghostrick Alucard" {
-    password: 75367227
+    id: 75367227
     type: Xyz Monster
     attribute: DARK
     race: Zombie
@@ -33,7 +33,7 @@ card "Ghostrick Alucard" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: Destroy
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 75367227)
         cost {
@@ -48,7 +48,7 @@ card "Ghostrick Alucard" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
             reveal (1+, card, opponent controls)

@@ -3,7 +3,7 @@
 // Transpiled from c35058857.lua
 
 card "Magical King Moonstar" {
-    password: 35058857
+    id: 35058857
     type: Effect Monster
     attribute: DARK
     race: Fiend
@@ -14,15 +14,15 @@ card "Magical King Moonstar" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 236
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
         }
@@ -31,7 +31,7 @@ card "Magical King Moonstar" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         code: SummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -43,7 +43,7 @@ card "Magical King Moonstar" {
     raw_effect "Effect 4" {
         effect_type: Single + Trigger
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

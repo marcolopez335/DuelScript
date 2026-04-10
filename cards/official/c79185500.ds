@@ -3,7 +3,7 @@
 // Transpiled from c79185500.lua
 
 card "Ironhammer the Giant" {
-    password: 79185500
+    id: 79185500
     type: Effect Monster
     attribute: EARTH
     race: Rock
@@ -17,8 +17,8 @@ card "Ironhammer the Giant" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
         }
@@ -27,7 +27,7 @@ card "Ironhammer the Giant" {
     raw_effect "Effect 2" {
         effect_type: Single
         code: 14
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }
@@ -36,7 +36,7 @@ card "Ironhammer the Giant" {
 
     raw_effect "Effect 3" {
         effect_type: Ignition
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

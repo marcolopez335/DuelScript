@@ -3,7 +3,7 @@
 // Transpiled from c86469231.lua
 
 card "Black Mamba" {
-    password: 86469231
+    id: 86469231
     type: Effect Monster
     attribute: DARK
     race: Reptile
@@ -13,8 +13,8 @@ card "Black Mamba" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         count_limit: (1, 0)
         on_resolve {
@@ -25,7 +25,7 @@ card "Black Mamba" {
         effect_type: Single + Trigger
         category: ToGrave + DiceRoll
         code: SummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             send (1+, monster, you controls) to gy
@@ -37,7 +37,7 @@ card "Black Mamba" {
         effect_type: Single + Trigger
         category: ToGrave + DiceRoll
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             send (1+, monster, you controls) to gy

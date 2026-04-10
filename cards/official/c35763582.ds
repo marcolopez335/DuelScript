@@ -3,7 +3,7 @@
 // Transpiled from c35763582.lua
 
 card "Lunalight Silver Hound" {
-    password: 35763582
+    id: 35763582
     type: Effect Monster
     attribute: DARK
     race: Beast-Warrior
@@ -15,7 +15,7 @@ card "Lunalight Silver Hound" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 35763582)
         on_resolve {
             special_summon (1, monster) from gy
@@ -30,7 +30,7 @@ card "Lunalight Silver Hound" {
         effect_type: QuickEffect
         category: Negate
         code: Chaining
-        property: 16384
+        property: Oath
         range: Graveyard
         count_limit: (1, 0)
         cost {
@@ -43,8 +43,8 @@ card "Lunalight Silver Hound" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 3072
+        code: CannotDisable
+        property: BothSide + InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }

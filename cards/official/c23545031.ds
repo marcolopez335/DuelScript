@@ -3,7 +3,7 @@
 // Transpiled from c23545031.lua
 
 card "Mermail Abyssalacia" {
-    password: 23545031
+    id: 23545031
     type: Link Monster
     attribute: WATER
     race: Sea Serpent
@@ -22,7 +22,7 @@ card "Mermail Abyssalacia" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 500
@@ -31,7 +31,7 @@ card "Mermail Abyssalacia" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 104
+        code: UpdateDefense
         range: MonsterZone
         on_resolve {
             modifier: def + 500
@@ -57,7 +57,7 @@ card "Mermail Abyssalacia" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         cost {
             send self to gy

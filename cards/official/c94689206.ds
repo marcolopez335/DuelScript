@@ -3,7 +3,7 @@
 // Transpiled from c94689206.lua
 
 card "Block Dragon" {
-    password: 94689206
+    id: 94689206
     type: Effect Monster | Spirit
     attribute: EARTH
     race: Rock
@@ -17,16 +17,16 @@ card "Block Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Hand + Graveyard
         on_resolve {
             banish (1+, monster, you controls, gy)
@@ -45,7 +45,7 @@ card "Block Dragon" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 94689206)
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy

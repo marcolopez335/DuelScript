@@ -3,7 +3,7 @@
 // Transpiled from c26973555.lua
 
 card "Number F0: Utopic Draco Future" {
-    password: 26973555
+    id: 26973555
     type: Xyz Monster
     attribute: LIGHT
     race: Warrior
@@ -23,8 +23,8 @@ card "Number F0: Utopic Draco Future" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -33,8 +33,8 @@ card "Number F0: Utopic Draco Future" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -45,7 +45,7 @@ card "Number F0: Utopic Draco Future" {
         effect_type: QuickEffect
         category: Summon + Negate
         code: Chaining
-        property: 49152
+        property: Oath + CountCodeDuel
         range: MonsterZone
         count_limit: (1, 0)
         cost {

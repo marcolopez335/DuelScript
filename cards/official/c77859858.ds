@@ -3,7 +3,7 @@
 // Transpiled from c77859858.lua
 
 card "Destructive Draw" {
-    password: 77859858
+    id: 77859858
     type: Continuous Trap
 
     raw_effect "Effect 1" {
@@ -16,7 +16,7 @@ card "Destructive Draw" {
     raw_effect "Effect 2" {
         effect_type: Field + Continuous
         code: 1113
-        property: 1024
+        property: BothSide
         range: SpellTrapZone
         on_resolve {
         }
@@ -26,7 +26,7 @@ card "Destructive Draw" {
         effect_type: Field + Trigger
         category: Draw
         code: 1110
-        property: 2048
+        property: InitialValue
         range: SpellTrapZone
         on_resolve {
             draw 1
@@ -35,8 +35,8 @@ card "Destructive Draw" {
 
     raw_effect "Effect 4" {
         effect_type: Field + Continuous
-        code: 4608
-        property: 263168
+        code: PhaseEnd
+        property: BothSide + Uncopyable
         range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
@@ -47,14 +47,14 @@ card "Destructive Draw" {
     raw_effect "Effect 5" {
         effect_type: Single + Continuous
         code: 1019
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
 
     raw_effect "Effect 6" {
         effect_type: Single + Continuous
-        code: 1015
+        code: ChainNegated
         on_resolve {
             deal_damage to opponent: 3000
         }

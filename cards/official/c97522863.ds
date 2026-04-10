@@ -3,7 +3,7 @@
 // Transpiled from c97522863.lua
 
 card "The Man with the Mark" {
-    password: 97522863
+    id: 97522863
     type: Effect Monster
     attribute: EARTH
     race: Spellcaster
@@ -15,7 +15,7 @@ card "The Man with the Mark" {
         effect_type: Single + Trigger
         category: ToHand + ToGrave + Search
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 97522863)
         on_resolve {
             add_to_hand (1, card, you controls) from gy
@@ -26,7 +26,7 @@ card "The Man with the Mark" {
         effect_type: Single + Trigger
         category: ToHand + ToGrave + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 97522863)
         on_resolve {
             add_to_hand (1, card, you controls) from gy
@@ -35,7 +35,7 @@ card "The Man with the Mark" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -44,7 +44,7 @@ card "The Man with the Mark" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 41
+        code: IndestructableEffect
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

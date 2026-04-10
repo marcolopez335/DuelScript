@@ -3,7 +3,7 @@
 // Transpiled from c4167084.lua
 
 card "The First Darklord" {
-    password: 4167084
+    id: 4167084
     type: Fusion Monster
     attribute: DARK
     race: Fairy
@@ -24,7 +24,7 @@ card "The First Darklord" {
         effect_type: Single + Trigger
         category: Destroy
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 4167084)
         on_resolve {
             destroy (1+, card, you controls, gy)
@@ -33,15 +33,15 @@ card "The First Darklord" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 71
-        property: 128
+        code: CannotDirectAttack2
+        property: SetAvailable
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }

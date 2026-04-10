@@ -3,7 +3,7 @@
 // Transpiled from c60303688.lua
 
 card "Dogmatika Ecclesia, the Virtuous" {
-    password: 60303688
+    id: 60303688
     type: Effect Monster
     attribute: LIGHT
     race: Spellcaster
@@ -23,7 +23,7 @@ card "Dogmatika Ecclesia, the Virtuous" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -33,7 +33,7 @@ card "Dogmatika Ecclesia, the Virtuous" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SummonSuccess
-        property: 114688
+        property: Oath + CountCodeDuel + Delay
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, either_player controls) to hand
@@ -49,7 +49,7 @@ card "Dogmatika Ecclesia, the Virtuous" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 114688
+        property: Oath + CountCodeDuel + Delay
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, either_player controls) to hand

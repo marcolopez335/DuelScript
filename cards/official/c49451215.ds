@@ -3,7 +3,7 @@
 // Transpiled from c49451215.lua
 
 card "Ukanomitsune-no-Onari" {
-    password: 49451215
+    id: 49451215
     type: Link Monster
     attribute: LIGHT
     race: Beast
@@ -22,8 +22,8 @@ card "Ukanomitsune-no-Onari" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 71
-        property: 384
+        code: CannotDirectAttack2
+        property: SetAvailable + IgnoreRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -34,7 +34,7 @@ card "Ukanomitsune-no-Onari" {
         effect_type: Single + Trigger
         category: 67108864
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 49451215)
         on_resolve {
             set (1, card)
@@ -45,7 +45,7 @@ card "Ukanomitsune-no-Onari" {
         effect_type: Single + Trigger
         category: Destroy + Damage
         code: Destroyed
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)

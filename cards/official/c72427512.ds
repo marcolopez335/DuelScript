@@ -3,7 +3,7 @@
 // Transpiled from c72427512.lua
 
 card "Mimicking Man-Eater Bug" {
-    password: 72427512
+    id: 72427512
     type: Effect Monster
     attribute: EARTH
     race: Insect
@@ -14,7 +14,7 @@ card "Mimicking Man-Eater Bug" {
     raw_effect "Effect 1" {
         effect_type: Single + Flip
         category: Destroy + SynchroSummon
-        property: 16
+        property: CardTarget
         on_resolve {
             destroy (1+, card, either_player controls)
         }
@@ -22,8 +22,8 @@ card "Mimicking Man-Eater Bug" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -32,8 +32,8 @@ card "Mimicking Man-Eater Bug" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

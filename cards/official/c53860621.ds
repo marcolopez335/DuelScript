@@ -3,14 +3,14 @@
 // Transpiled from c53860621.lua
 
 card "Glowing Crossbow" {
-    password: 53860621
+    id: 53860621
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: EquipAction
         code: FreeChain
-        property: 16
+        property: CardTarget
         on_resolve {
             equip (1, card) to (1, monster)
         }
@@ -18,15 +18,15 @@ card "Glowing Crossbow" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 76
-        property: 1024
+        code: CannotAttack2
+        property: BothSide
         on_resolve {
         }
     }
 
     raw_effect "Effect 3" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 500
         }
@@ -34,7 +34,7 @@ card "Glowing Crossbow" {
 
     raw_effect "Effect 4" {
         effect_type: Equip
-        code: 104
+        code: UpdateDefense
         on_resolve {
             modifier: def + 500
         }
@@ -43,7 +43,7 @@ card "Glowing Crossbow" {
     raw_effect "Effect 5" {
         effect_type: Field + Trigger
         category: DefChange
-        code: 1139
+        code: BattleConfirmed
         range: SpellTrapZone
         count_limit: (1, 53860621)
         on_resolve {
@@ -55,7 +55,7 @@ card "Glowing Crossbow" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from hand

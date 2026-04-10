@@ -3,12 +3,12 @@
 // Transpiled from c16550875.lua
 
 card "Inzektor Sword - Zektkaliber" {
-    password: 16550875
+    id: 16550875
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 800
         }
@@ -16,7 +16,7 @@ card "Inzektor Sword - Zektkaliber" {
 
     raw_effect "Effect 2" {
         effect_type: Equip
-        code: 104
+        code: UpdateDefense
         on_resolve {
             modifier: def + 800
         }
@@ -26,7 +26,7 @@ card "Inzektor Sword - Zektkaliber" {
         effect_type: Single + MandatoryTrigger
         category: ToHand
         code: ChainEnd
-        property: 16
+        property: CardTarget
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
             reveal (1+, card, opponent controls)

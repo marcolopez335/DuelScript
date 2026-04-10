@@ -3,7 +3,7 @@
 // Transpiled from c85065943.lua
 
 card "Saint Azamina" {
-    password: 85065943
+    id: 85065943
     type: Fusion Monster
     attribute: DARK
     race: Unknown
@@ -22,8 +22,8 @@ card "Saint Azamina" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 71
-        property: 384
+        code: CannotDirectAttack2
+        property: SetAvailable + IgnoreRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -33,7 +33,7 @@ card "Saint Azamina" {
     raw_effect "Effect 2" {
         effect_type: Field
         code: 202
-        property: 2048
+        property: InitialValue
         range: MonsterZone
         on_resolve {
         }
@@ -53,7 +53,7 @@ card "Saint Azamina" {
     raw_effect "Effect 4" {
         effect_type: Single + Continuous
         code: SpecialSummonSuccess
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }

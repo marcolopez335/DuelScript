@@ -3,7 +3,7 @@
 // Transpiled from c18621798.lua
 
 card "Fire King Avatar Arvata" {
-    password: 18621798
+    id: 18621798
     type: Effect Monster
     attribute: FIRE
     race: Beast-Warrior
@@ -15,7 +15,7 @@ card "Fire King Avatar Arvata" {
         effect_type: QuickEffect
         category: Destroy + Negate
         code: Chaining
-        property: 49152
+        property: Oath + CountCodeDuel
         range: MonsterZone
         count_limit: (1, 18621798)
         on_resolve {
@@ -28,7 +28,7 @@ card "Fire King Avatar Arvata" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
@@ -49,8 +49,8 @@ card "Fire King Avatar Arvata" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 2
-        property: 128
+        code: Disable
+        property: SetAvailable
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
@@ -59,7 +59,7 @@ card "Fire King Avatar Arvata" {
     raw_effect "Effect 4" {
         effect_type: Single
         code: 8
-        property: 128
+        property: SetAvailable
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
@@ -67,8 +67,8 @@ card "Fire King Avatar Arvata" {
 
     raw_effect "Effect 5" {
         effect_type: Field + Continuous
-        code: 4608
-        property: 128
+        code: PhaseEnd
+        property: SetAvailable
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, you controls, hand)

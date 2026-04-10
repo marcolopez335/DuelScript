@@ -3,7 +3,7 @@
 // Transpiled from c42592719.lua
 
 card "Gladiator Beast Alexander" {
-    password: 42592719
+    id: 42592719
     type: Effect Monster
     attribute: LIGHT
     race: Beast
@@ -17,8 +17,8 @@ card "Gladiator Beast Alexander" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 1
-        property: 131072
+        code: ImmuneEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -40,8 +40,8 @@ card "Gladiator Beast Alexander" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }

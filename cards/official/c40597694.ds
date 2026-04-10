@@ -3,7 +3,7 @@
 // Transpiled from c40597694.lua
 
 card "Scatter Fusion" {
-    password: 40597694
+    id: 40597694
     type: Continuous Spell
 
     raw_effect "Effect 1" {
@@ -15,7 +15,7 @@ card "Scatter Fusion" {
 
     raw_effect "Effect 2" {
         effect_type: Ignition
-        category: SpecialSummon
+        category: SpecialSummon + Control
         range: SpellTrapZone
         count_limit: (1, 40597694)
         on_resolve {
@@ -24,8 +24,8 @@ card "Scatter Fusion" {
 
     raw_effect "Effect 3" {
         effect_type: Single + Continuous
-        code: 1015
-        property: 128
+        code: ChainNegated
+        property: SetAvailable
         on_resolve {
             destroy (1+, card, you controls, deck)
         }
@@ -33,8 +33,8 @@ card "Scatter Fusion" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

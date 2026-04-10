@@ -3,14 +3,14 @@
 // Transpiled from c94933468.lua
 
 card "Vain Betrayer" {
-    password: 94933468
+    id: 94933468
     type: Continuous Trap
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: Disable
         code: AttackAnnounce
-        property: 16
+        property: CardTarget
         on_resolve {
         }
     }
@@ -18,7 +18,7 @@ card "Vain Betrayer" {
     raw_effect "Effect 2" {
         effect_type: Field + Continuous
         code: 1022
-        property: 1024
+        property: BothSide
         range: SpellTrapZone
         on_resolve {
         }
@@ -26,7 +26,7 @@ card "Vain Betrayer" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 2
+        code: Disable
         range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -44,7 +44,7 @@ card "Vain Betrayer" {
 
     raw_effect "Effect 5" {
         effect_type: Field + Continuous
-        code: 1015
+        code: ChainNegated
         range: SpellTrapZone
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -54,7 +54,7 @@ card "Vain Betrayer" {
     raw_effect "Effect 6" {
         effect_type: Field + MandatoryTrigger
         category: AtkChange
-        code: 4608
+        code: PhaseEnd
         range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {

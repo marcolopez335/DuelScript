@@ -3,7 +3,7 @@
 // Transpiled from c72305034.lua
 
 card "Geminize Lord Golknight" {
-    password: 72305034
+    id: 72305034
     type: Effect Monster | Union
     attribute: EARTH
     race: Warrior
@@ -15,7 +15,7 @@ card "Geminize Lord Golknight" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SummonSuccess
-        property: 81920
+        property: Oath + Delay
         count_limit: (1, 72305034)
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck
@@ -27,7 +27,7 @@ card "Geminize Lord Golknight" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 81920
+        property: Oath + Delay
         count_limit: (1, 72305034)
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck
@@ -37,8 +37,8 @@ card "Geminize Lord Golknight" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 122
-        property: 131072
+        code: ChangeCode
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -46,8 +46,8 @@ card "Geminize Lord Golknight" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 500

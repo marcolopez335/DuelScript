@@ -3,7 +3,7 @@
 // Transpiled from c39838559.lua
 
 card "F.A. Circuit Grand Prix" {
-    password: 39838559
+    id: 39838559
     type: Field Spell
 
     raw_effect "Effect 1" {
@@ -15,7 +15,7 @@ card "F.A. Circuit Grand Prix" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 130
+        code: ChangePosition
         range: FieldZone
         on_resolve {
         }
@@ -24,8 +24,8 @@ card "F.A. Circuit Grand Prix" {
     raw_effect "Effect 3" {
         effect_type: Field + Trigger
         category: Draw
-        code: 1139
-        property: 2048
+        code: BattleConfirmed
+        property: InitialValue
         range: FieldZone
         count_limit: (1, 0)
         on_resolve {
@@ -37,7 +37,7 @@ card "F.A. Circuit Grand Prix" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: Destroyed
-        property: 65536
+        property: Delay
         count_limit: (1, 39838559)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck

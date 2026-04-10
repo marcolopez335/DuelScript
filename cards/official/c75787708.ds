@@ -3,7 +3,7 @@
 // Transpiled from c75787708.lua
 
 card "Odd-Eyes Pendulum Dragon of the Four Heavenly Dragons" {
-    password: 75787708
+    id: 75787708
     type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Dragon
@@ -38,8 +38,8 @@ card "Odd-Eyes Pendulum Dragon of the Four Heavenly Dragons" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -57,7 +57,7 @@ card "Odd-Eyes Pendulum Dragon of the Four Heavenly Dragons" {
         effect_type: Single + Trigger
         category: ToHand + SpecialSummon
         code: Destroyed
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -68,8 +68,8 @@ card "Odd-Eyes Pendulum Dragon of the Four Heavenly Dragons" {
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 6
-        property: 67110912
+        code: CannotChangeControl
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }

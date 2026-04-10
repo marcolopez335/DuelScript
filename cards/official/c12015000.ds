@@ -3,7 +3,7 @@
 // Transpiled from c12015000.lua
 
 card "Fossil Dragon Skullgar" {
-    password: 12015000
+    id: 12015000
     type: Fusion Monster
     attribute: EARTH
     race: Rock
@@ -22,8 +22,8 @@ card "Fossil Dragon Skullgar" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 394240
+        code: SpsummonCondition
+        property: BothSide + SingleRange + Uncopyable
         range: Deck
         on_resolve {
         }
@@ -31,7 +31,7 @@ card "Fossil Dragon Skullgar" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }

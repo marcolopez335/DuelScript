@@ -3,7 +3,7 @@
 // Transpiled from c27918365.lua
 
 card "World Legacy - 'World Crown'" {
-    password: 27918365
+    id: 27918365
     type: Effect Monster
     attribute: DARK
     race: Machine
@@ -17,8 +17,8 @@ card "World Legacy - 'World Crown'" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 1310720
+        code: CannotSummon
+        property: Uncopyable + PlayerTarget
         range: Hand
         count_limit: (1, 27918365)
         on_resolve {
@@ -29,7 +29,7 @@ card "World Legacy - 'World Crown'" {
         effect_type: QuickEffect
         category: Destroy + Negate
         code: Chaining
-        property: 49152
+        property: Oath + CountCodeDuel
         range: MonsterZone
         cost {
             tribute self
@@ -43,8 +43,8 @@ card "World Legacy - 'World Crown'" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         category: ToHand + Search
-        code: Release
-        property: 65536
+        code: Released
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck

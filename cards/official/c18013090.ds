@@ -3,7 +3,7 @@
 // Transpiled from c18013090.lua
 
 card "Nitro Warrior" {
-    password: 18013090
+    id: 18013090
     type: Synchro Monster
     attribute: FIRE
     race: Warrior
@@ -24,7 +24,7 @@ card "Nitro Warrior" {
     raw_effect "Effect 1" {
         effect_type: Field + Continuous
         code: Chaining
-        property: 1024
+        property: BothSide
         range: MonsterZone
         on_resolve {
         }
@@ -40,8 +40,8 @@ card "Nitro Warrior" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 1000
@@ -51,7 +51,7 @@ card "Nitro Warrior" {
     raw_effect "Effect 4" {
         effect_type: Single + Continuous
         code: 1138
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
@@ -60,7 +60,7 @@ card "Nitro Warrior" {
         effect_type: Single + Trigger
         category: DiceRoll
         code: 1138
-        property: 16
+        property: CardTarget
         on_resolve {
             change_battle_position (1, monster)
         }

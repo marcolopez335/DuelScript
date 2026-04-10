@@ -3,7 +3,7 @@
 // Transpiled from c67021206.lua
 
 card "Hecahands Jauzah" {
-    password: 67021206
+    id: 67021206
     type: Fusion Monster
     attribute: LIGHT
     race: Unknown
@@ -22,8 +22,8 @@ card "Hecahands Jauzah" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Deck
         on_resolve {
             tribute (1, monster, you controls)
@@ -43,7 +43,7 @@ card "Hecahands Jauzah" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

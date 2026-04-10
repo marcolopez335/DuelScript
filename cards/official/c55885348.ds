@@ -3,7 +3,7 @@
 // Transpiled from c55885348.lua
 
 card "Kozmo Dark Destroyer" {
-    password: 55885348
+    id: 55885348
     type: Effect Monster
     attribute: DARK
     race: Machine
@@ -19,7 +19,7 @@ card "Kozmo Dark Destroyer" {
         effect_type: Single + Trigger
         category: Destroy
         code: SummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             destroy (1+, card, you controls, deck)
         }
@@ -29,7 +29,7 @@ card "Kozmo Dark Destroyer" {
         effect_type: Single + Trigger
         category: Destroy
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             destroy (1+, card, you controls, deck)
         }
@@ -37,8 +37,8 @@ card "Kozmo Dark Destroyer" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 71
-        property: 131072
+        code: CannotDirectAttack2
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -49,7 +49,7 @@ card "Kozmo Dark Destroyer" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: ChainEnd
-        property: 65536
+        property: Delay
         cost {
             banish self
         }

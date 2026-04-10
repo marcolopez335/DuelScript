@@ -3,7 +3,7 @@
 // Transpiled from c62098216.lua
 
 card "Evil★Twins Ki-sikil & Lil-la" {
-    password: 62098216
+    id: 62098216
     type: Effect Monster | Spirit
     attribute: DARK
     race: Fiend
@@ -17,16 +17,16 @@ card "Evil★Twins Ki-sikil & Lil-la" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Hand
         on_resolve {
             tribute (1, monster, you controls)
@@ -35,8 +35,8 @@ card "Evil★Twins Ki-sikil & Lil-la" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Graveyard
         on_resolve {
             tribute (1, monster, you controls)
@@ -47,7 +47,7 @@ card "Evil★Twins Ki-sikil & Lil-la" {
         effect_type: Single + Trigger
         category: ToGrave
         code: SpecialSummonSuccess
-        property: 81920
+        property: Oath + Delay
         count_limit: (1, 62098216)
         on_resolve {
             send (1+, card, either_player controls) to gy
@@ -56,8 +56,8 @@ card "Evil★Twins Ki-sikil & Lil-la" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 2200
@@ -66,8 +66,8 @@ card "Evil★Twins Ki-sikil & Lil-la" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 104
-        property: 131072
+        code: UpdateDefense
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: def + 2200

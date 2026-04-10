@@ -3,14 +3,14 @@
 // Transpiled from c68721020.lua
 
 card "Malefic Force" {
-    password: 68721020
+    id: 68721020
     type: Normal Trap
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: EquipAction
         code: FreeChain
-        property: 16
+        property: CardTarget
         count_limit: (1, 0)
         on_resolve {
             equip (1, card) to (1, monster)
@@ -33,15 +33,15 @@ card "Malefic Force" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 76
-        property: 1024
+        code: CannotAttack2
+        property: BothSide
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
         effect_type: Equip
-        code: 1
+        code: ImmuneEffect
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
         }

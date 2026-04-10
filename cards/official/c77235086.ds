@@ -3,7 +3,7 @@
 // Transpiled from c77235086.lua
 
 card "Cyber Angel Benten" {
-    password: 77235086
+    id: 77235086
     type: Ritual Monster
     attribute: LIGHT
     race: Fairy
@@ -23,8 +23,8 @@ card "Cyber Angel Benten" {
     raw_effect "Effect 1" {
         effect_type: Single + MandatoryTrigger
         category: Damage
-        code: 1139
-        property: 2048
+        code: BattleConfirmed
+        property: InitialValue
         on_resolve {
             deal_damage to opponent: 1000
         }
@@ -33,8 +33,8 @@ card "Cyber Angel Benten" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: ToHand + Search
-        code: Release
-        property: 81920
+        code: Released
+        property: Oath + Delay
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)

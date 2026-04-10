@@ -3,7 +3,7 @@
 // Transpiled from c15710054.lua
 
 card "Krawler Axon" {
-    password: 15710054
+    id: 15710054
     type: Effect Monster
     attribute: EARTH
     race: Insect
@@ -14,7 +14,7 @@ card "Krawler Axon" {
     raw_effect "Effect 1" {
         effect_type: Single + Flip + Trigger
         category: Destroy
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 15710054)
         on_resolve {
             destroy (1+, spell, you controls, deck)
@@ -24,8 +24,8 @@ card "Krawler Axon" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: SpecialSummon
-        code: 1015
-        property: 81920
+        code: ChainNegated
+        property: Oath + Delay
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

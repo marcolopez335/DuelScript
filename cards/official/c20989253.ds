@@ -3,14 +3,14 @@
 // Transpiled from c20989253.lua
 
 card "Amazement Family Faces" {
-    password: 20989253
+    id: 20989253
     type: Normal Trap
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: Summon + EquipAction
         code: FreeChain
-        property: 16
+        property: CardTarget
         count_limit: (1, 20989253)
         on_resolve {
             equip (1, card) to (1, monster)
@@ -19,7 +19,7 @@ card "Amazement Family Faces" {
 
     raw_effect "Effect 2" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 500
         }
@@ -42,15 +42,15 @@ card "Amazement Family Faces" {
 
     raw_effect "Effect 5" {
         effect_type: Equip
-        code: 4
+        code: CannotActivate
         on_resolve {
         }
     }
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 76
-        property: 1024
+        code: CannotAttack2
+        property: BothSide
         on_resolve {
         }
     }

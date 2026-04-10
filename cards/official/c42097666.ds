@@ -3,7 +3,7 @@
 // Transpiled from c42097666.lua
 
 card "Spirit with Eyes of Blue" {
-    password: 42097666
+    id: 42097666
     type: Link Monster
     attribute: LIGHT
     race: Dragon
@@ -22,8 +22,8 @@ card "Spirit with Eyes of Blue" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 22
-        property: 2048
+        code: CannotDisable
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -34,7 +34,7 @@ card "Spirit with Eyes of Blue" {
         effect_type: Single + Trigger
         category: ToHand + ToGrave + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 42097666)
         on_resolve {
             add_to_hand (1, card, you controls) from gy
@@ -61,7 +61,7 @@ card "Spirit with Eyes of Blue" {
     raw_effect "Effect 4" {
         effect_type: Single
         code: 85
-        property: 67109888
+        property: BothSide + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }

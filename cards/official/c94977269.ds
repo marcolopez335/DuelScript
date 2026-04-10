@@ -3,7 +3,7 @@
 // Transpiled from c94977269.lua
 
 card "El Shaddoll Winda" {
-    password: 94977269
+    id: 94977269
     type: Fusion Monster
     attribute: DARK
     race: Spellcaster
@@ -22,8 +22,8 @@ card "El Shaddoll Winda" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 394240
+        code: SpsummonCondition
+        property: BothSide + SingleRange + Uncopyable
         range: Deck
         on_resolve {
         }
@@ -31,8 +31,8 @@ card "El Shaddoll Winda" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -42,7 +42,7 @@ card "El Shaddoll Winda" {
     raw_effect "Effect 3" {
         effect_type: Field
         code: 330
-        property: 2048
+        property: InitialValue
         range: MonsterZone
         on_resolve {
         }
@@ -52,7 +52,7 @@ card "El Shaddoll Winda" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             add_to_hand (1+, spell, either_player controls) from gy
         }

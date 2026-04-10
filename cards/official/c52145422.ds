@@ -3,7 +3,7 @@
 // Transpiled from c52145422.lua
 
 card "Graydle Dragon" {
-    password: 52145422
+    id: 52145422
     type: Synchro Monster
     attribute: WATER
     race: Aqua
@@ -25,7 +25,7 @@ card "Graydle Dragon" {
         effect_type: Single + Trigger
         category: Destroy
         code: SpecialSummonSuccess
-        property: 16
+        property: CardTarget
         count_limit: (1, 52145422)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -34,7 +34,7 @@ card "Graydle Dragon" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }
@@ -43,7 +43,7 @@ card "Graydle Dragon" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: ChainEnd
-        property: 81936
+        property: CardTarget + Oath + Delay
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

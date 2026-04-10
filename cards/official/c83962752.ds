@@ -3,14 +3,14 @@
 // Transpiled from c83962752.lua
 
 card "Synchro Panic" {
-    password: 83962752
+    id: 83962752
     type: Continuous Trap
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: SpecialSummon
         code: 352398208
-        property: 81936
+        property: CardTarget + Oath + Delay
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {
@@ -34,8 +34,8 @@ card "Synchro Panic" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 2048
+        code: CannotDisable
+        property: InitialValue
         range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -45,7 +45,7 @@ card "Synchro Panic" {
     raw_effect "Effect 4" {
         effect_type: Field + Continuous
         code: 4098
-        property: 1152
+        property: SetAvailable + BothSide
         range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
@@ -55,8 +55,8 @@ card "Synchro Panic" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 42
-        property: 67108864
+        code: CannotBeEffectTarget
+        property: IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -64,8 +64,8 @@ card "Synchro Panic" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 41
-        property: 67108864
+        code: IndestructableEffect
+        property: IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }

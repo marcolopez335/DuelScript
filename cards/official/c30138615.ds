@@ -3,7 +3,7 @@
 // Transpiled from c30138615.lua
 
 card "Nightmare-Eyes Restrict" {
-    password: 30138615
+    id: 30138615
     type: Fusion Monster
     attribute: DARK
     race: Unknown
@@ -24,7 +24,7 @@ card "Nightmare-Eyes Restrict" {
         effect_type: Single + Trigger
         category: EquipAction
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 30138615)
         on_resolve {
         }
@@ -34,7 +34,7 @@ card "Nightmare-Eyes Restrict" {
         effect_type: Field + Trigger
         category: EquipAction
         code: 4224
-        property: 65536
+        property: Delay
         range: MonsterZone
         count_limit: (1, 30138615)
         on_resolve {
@@ -43,8 +43,8 @@ card "Nightmare-Eyes Restrict" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -53,7 +53,7 @@ card "Nightmare-Eyes Restrict" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -71,14 +71,14 @@ card "Nightmare-Eyes Restrict" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 76
+        code: CannotAttack2
         on_resolve {
         }
     }
 
     raw_effect "Effect 7" {
         effect_type: Single
-        code: 71
+        code: CannotDirectAttack2
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
@@ -86,7 +86,7 @@ card "Nightmare-Eyes Restrict" {
 
     raw_effect "Effect 8" {
         effect_type: Single
-        code: 41
+        code: IndestructableEffect
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
@@ -94,7 +94,7 @@ card "Nightmare-Eyes Restrict" {
 
     raw_effect "Effect 9" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -102,14 +102,14 @@ card "Nightmare-Eyes Restrict" {
 
     raw_effect "Effect 10" {
         effect_type: Single
-        code: 76
+        code: CannotAttack2
         on_resolve {
         }
     }
 
     raw_effect "Effect 11" {
         effect_type: Single
-        code: 71
+        code: CannotDirectAttack2
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
@@ -117,7 +117,7 @@ card "Nightmare-Eyes Restrict" {
 
     raw_effect "Effect 12" {
         effect_type: Single
-        code: 41
+        code: IndestructableEffect
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
@@ -125,7 +125,7 @@ card "Nightmare-Eyes Restrict" {
 
     raw_effect "Effect 13" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

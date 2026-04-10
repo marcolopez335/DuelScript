@@ -3,7 +3,7 @@
 // Transpiled from c64373401.lua
 
 card "Superheavy Samurai Trumpeter" {
-    password: 64373401
+    id: 64373401
     type: Effect Monster | Tuner
     attribute: EARTH
     race: Machine
@@ -13,8 +13,8 @@ card "Superheavy Samurai Trumpeter" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
         }
@@ -23,7 +23,7 @@ card "Superheavy Samurai Trumpeter" {
     raw_effect "Effect 2" {
         effect_type: Single + Continuous
         code: SpecialSummonSuccess
-        property: 262144
+        property: Uncopyable
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -35,7 +35,7 @@ card "Superheavy Samurai Trumpeter" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         category: SpecialSummon
-        code: 1108
+        code: FlipSuccess
         on_resolve {
             special_summon (1, monster) from gy
         }

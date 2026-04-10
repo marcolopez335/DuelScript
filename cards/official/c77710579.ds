@@ -3,7 +3,7 @@
 // Transpiled from c77710579.lua
 
 card "Meklord Nucleus Infinity Core" {
-    password: 77710579
+    id: 77710579
     type: Effect Monster
     attribute: DARK
     race: Machine
@@ -14,7 +14,7 @@ card "Meklord Nucleus Infinity Core" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 47
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
@@ -25,7 +25,7 @@ card "Meklord Nucleus Infinity Core" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SummonSuccess
-        property: 81920
+        property: Oath + Delay
         count_limit: (1, 77710579)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -37,7 +37,7 @@ card "Meklord Nucleus Infinity Core" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 81920
+        property: Oath + Delay
         count_limit: (1, 77710579)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -49,7 +49,7 @@ card "Meklord Nucleus Infinity Core" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

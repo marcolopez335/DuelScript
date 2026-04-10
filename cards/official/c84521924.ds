@@ -3,7 +3,7 @@
 // Transpiled from c84521924.lua
 
 card "GranSolfachord Coolia" {
-    password: 84521924
+    id: 84521924
     type: Link Monster
     attribute: LIGHT
     race: Fairy
@@ -22,8 +22,8 @@ card "GranSolfachord Coolia" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -32,7 +32,7 @@ card "GranSolfachord Coolia" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 13
+        code: CannotDisableEffect
         range: MonsterZone
         on_resolve {
         }
@@ -41,7 +41,7 @@ card "GranSolfachord Coolia" {
     raw_effect "Effect 3" {
         effect_type: Field + Continuous
         code: Chaining
-        property: 1024
+        property: BothSide
         range: MonsterZone
         on_resolve {
         }
@@ -49,9 +49,9 @@ card "GranSolfachord Coolia" {
 
     raw_effect "Effect 4" {
         effect_type: QuickEffect
-        category: SpecialSummon + Negate
+        category: SpecialSummon + Negate + Announce
         code: Chaining
-        property: 49152
+        property: Oath + CountCodeDuel
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

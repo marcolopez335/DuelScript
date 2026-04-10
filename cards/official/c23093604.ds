@@ -3,7 +3,7 @@
 // Transpiled from c23093604.lua
 
 card "X-Saber Pashuul" {
-    password: 23093604
+    id: 23093604
     type: Effect Monster | Tuner
     attribute: EARTH
     race: Warrior
@@ -15,7 +15,7 @@ card "X-Saber Pashuul" {
         effect_type: Field + MandatoryTrigger
         category: Damage
         code: 4098
-        property: 2048
+        property: InitialValue
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -25,7 +25,7 @@ card "X-Saber Pashuul" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }

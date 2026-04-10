@@ -3,14 +3,14 @@
 // Transpiled from c45869829.lua
 
 card "Quick Booster" {
-    password: 45869829
+    id: 45869829
     type: Quick-Play Spell
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: ToDeck
         code: FreeChain
-        property: 16
+        property: CardTarget
         on_resolve {
             return (1+, card, you controls) to deck shuffle
         }
@@ -20,7 +20,7 @@ card "Quick Booster" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: ChainEnd
-        property: 81920
+        property: Oath + Delay
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)

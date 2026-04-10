@@ -3,7 +3,7 @@
 // Transpiled from c23657016.lua
 
 card "Tenpai Dragon Genroku" {
-    password: 23657016
+    id: 23657016
     type: Effect Monster
     attribute: FIRE
     race: Dragon
@@ -15,7 +15,7 @@ card "Tenpai Dragon Genroku" {
         effect_type: Single + Trigger
         category: SpecialSummon + LevelChange
         code: ChainSolving
-        property: 65536
+        property: Delay
         count_limit: (1, 23657016)
         on_resolve {
             special_summon (1, monster) from gy
@@ -43,22 +43,22 @@ card "Tenpai Dragon Genroku" {
     raw_effect "Effect 3" {
         effect_type: Single
         code: 115
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 130
+        code: ChangePosition
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

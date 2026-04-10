@@ -3,7 +3,7 @@
 // Transpiled from c6247535.lua
 
 card "Borreload eXcharge Dragon" {
-    password: 6247535
+    id: 6247535
     type: Xyz Monster
     attribute: DARK
     race: Dragon
@@ -23,8 +23,8 @@ card "Borreload eXcharge Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 71
-        property: 131072
+        code: CannotDirectAttack2
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -34,7 +34,7 @@ card "Borreload eXcharge Dragon" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: SpecialSummon + SynchroSummon + XyzSummon
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         cost {

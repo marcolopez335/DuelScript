@@ -3,7 +3,7 @@
 // Transpiled from c47693640.lua
 
 card "Zombie Tiger" {
-    password: 47693640
+    id: 47693640
     type: Effect Monster | Gemini
     attribute: EARTH
     race: Zombie
@@ -13,7 +13,7 @@ card "Zombie Tiger" {
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 500
         }
@@ -21,7 +21,7 @@ card "Zombie Tiger" {
 
     raw_effect "Effect 2" {
         effect_type: Equip
-        code: 104
+        code: UpdateDefense
         on_resolve {
             modifier: def + 500
         }
@@ -30,7 +30,7 @@ card "Zombie Tiger" {
     raw_effect "Effect 3" {
         effect_type: Field + MandatoryTrigger
         category: DefChange
-        code: 1139
+        code: BattleConfirmed
         range: SpellTrapZone
         on_resolve {
             send (1+, card, either_player controls) to gy
@@ -55,7 +55,7 @@ card "Zombie Tiger" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 76
+        code: CannotAttack2
         on_resolve {
         }
     }

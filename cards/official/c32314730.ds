@@ -3,7 +3,7 @@
 // Transpiled from c32314730.lua
 
 card "Koa'ki Meiru Crusader" {
-    password: 32314730
+    id: 32314730
     type: Effect Monster
     attribute: EARTH
     race: Beast-Warrior
@@ -13,8 +13,8 @@ card "Koa'ki Meiru Crusader" {
 
     raw_effect "Effect 1" {
         effect_type: Field + Continuous
-        code: 4608
-        property: 263168
+        code: PhaseEnd
+        property: BothSide + Uncopyable
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -28,8 +28,8 @@ card "Koa'ki Meiru Crusader" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: ToHand
-        code: 1139
-        property: 16
+        code: BattleConfirmed
+        property: CardTarget
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand
             reveal (1+, card, opponent controls)

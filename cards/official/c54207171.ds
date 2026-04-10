@@ -3,7 +3,7 @@
 // Transpiled from c54207171.lua
 
 card "Mementotlan Akihiron" {
-    password: 54207171
+    id: 54207171
     type: Effect Monster
     attribute: WATER
     race: Aqua
@@ -18,7 +18,7 @@ card "Mementotlan Akihiron" {
     raw_effect "Effect 1" {
         effect_type: Single + Trigger
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 54207171)
         on_resolve {
             set_flag "tracked" on self
@@ -32,7 +32,7 @@ card "Mementotlan Akihiron" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 54207171)
         on_resolve {
             set_flag "tracked" on self
@@ -47,7 +47,7 @@ card "Mementotlan Akihiron" {
         effect_type: Single + Trigger
         category: ToHand
         code: Destroyed
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
@@ -59,7 +59,7 @@ card "Mementotlan Akihiron" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 16384
+        property: Oath
         range: Graveyard
         count_limit: (1, 0)
         on_resolve {

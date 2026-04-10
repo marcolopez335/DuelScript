@@ -3,7 +3,7 @@
 // Transpiled from c20537097.lua
 
 card "Mekk-Knight Blue Sky" {
-    password: 20537097
+    id: 20537097
     type: Effect Monster
     attribute: LIGHT
     race: Psychic
@@ -17,8 +17,8 @@ card "Mekk-Knight Blue Sky" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         count_limit: (1, 20537097)
         on_resolve {
@@ -29,7 +29,7 @@ card "Mekk-Knight Blue Sky" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, either_player controls) to hand
@@ -41,7 +41,7 @@ card "Mekk-Knight Blue Sky" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, either_player controls) to hand

@@ -3,7 +3,7 @@
 // Transpiled from c67120578.lua
 
 card "Gagaga Head" {
-    password: 67120578
+    id: 67120578
     type: Effect Monster
     attribute: DARK
     race: Spellcaster
@@ -18,7 +18,7 @@ card "Gagaga Head" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 32
-        property: 262144
+        property: Uncopyable
         on_resolve {
         }
     }
@@ -27,7 +27,7 @@ card "Gagaga Head" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
             special_summon (1, monster) from gy
             special_summon (1, monster) from gy
@@ -48,7 +48,7 @@ card "Gagaga Head" {
 
     raw_effect "Effect 3" {
         effect_type: Single + Continuous
-        code: 1108
+        code: FlipSuccess
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -77,8 +77,8 @@ card "Gagaga Head" {
 
     raw_effect "Effect 6" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
@@ -86,7 +86,7 @@ card "Gagaga Head" {
 
     raw_effect "Effect 7" {
         effect_type: Field
-        property: 2048
+        property: InitialValue
         on_resolve {
         }
     }
@@ -95,7 +95,7 @@ card "Gagaga Head" {
         effect_type: Single + MandatoryTrigger
         category: Draw
         code: SpecialSummonSuccess
-        property: 2048
+        property: InitialValue
         on_resolve {
             draw 1
         }

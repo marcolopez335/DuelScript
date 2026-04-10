@@ -3,7 +3,7 @@
 // Transpiled from c61116514.lua
 
 card "Palm Ryzeal" {
-    password: 61116514
+    id: 61116514
     type: Effect Monster | Spirit
     attribute: FIRE
     race: Thunder
@@ -17,8 +17,8 @@ card "Palm Ryzeal" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Hand
         on_resolve {
             reveal (1+, card, opponent controls)
@@ -28,8 +28,8 @@ card "Palm Ryzeal" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 22
-        property: 2048
+        code: CannotDisable
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -49,7 +49,7 @@ card "Palm Ryzeal" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 0
         }

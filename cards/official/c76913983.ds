@@ -3,7 +3,7 @@
 // Transpiled from c76913983.lua
 
 card "Blackwing Armed Wing" {
-    password: 76913983
+    id: 76913983
     type: Synchro Monster
     attribute: DARK
     race: Winged Beast
@@ -23,8 +23,8 @@ card "Blackwing Armed Wing" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 500
@@ -33,7 +33,7 @@ card "Blackwing Armed Wing" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }

@@ -3,7 +3,7 @@
 // Transpiled from c37115575.lua
 
 card "Malefic Truth Dragon" {
-    password: 37115575
+    id: 37115575
     type: Effect Monster | Spirit
     attribute: DARK
     race: Dragon
@@ -17,8 +17,8 @@ card "Malefic Truth Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -27,7 +27,7 @@ card "Malefic Truth Dragon" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: Destroyed
-        property: 81920
+        property: Oath + Delay
         range: Hand + Graveyard
         cost {
             pay_lp your_lp / 2
@@ -40,7 +40,7 @@ card "Malefic Truth Dragon" {
     raw_effect "Effect 3" {
         effect_type: Single
         code: 141
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -49,7 +49,7 @@ card "Malefic Truth Dragon" {
     raw_effect "Effect 4" {
         effect_type: Single + MandatoryTrigger
         category: Destroy
-        code: 1139
+        code: BattleConfirmed
         on_resolve {
             destroy (1+, monster, opponent controls)
         }

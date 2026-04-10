@@ -3,7 +3,7 @@
 // Transpiled from c15013468.lua
 
 card "Andro Sphinx" {
-    password: 15013468
+    id: 15013468
     type: Effect Monster
     attribute: LIGHT
     race: Beast
@@ -17,8 +17,8 @@ card "Andro Sphinx" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 394240
+        code: SpsummonCondition
+        property: BothSide + SingleRange + Uncopyable
         range: Graveyard
         on_resolve {
         }
@@ -26,8 +26,8 @@ card "Andro Sphinx" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
         }
@@ -36,8 +36,8 @@ card "Andro Sphinx" {
     raw_effect "Effect 3" {
         effect_type: Single + MandatoryTrigger
         category: Damage
-        code: 1139
-        property: 2048
+        code: BattleConfirmed
+        property: InitialValue
         on_resolve {
             deal_damage to opponent: 1000
         }

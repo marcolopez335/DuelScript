@@ -3,7 +3,7 @@
 // Transpiled from c57777714.lua
 
 card "Ritual Beast Tamer Zeframpilica" {
-    password: 57777714
+    id: 57777714
     type: Effect Monster | Pendulum Monster
     attribute: WIND
     race: Psychic
@@ -14,8 +14,8 @@ card "Ritual Beast Tamer Zeframpilica" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 22
-        property: 3584
+        code: CannotDisable
+        property: IgnoreImmune + BothSide + InitialValue
         range: PendulumZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -26,7 +26,7 @@ card "Ritual Beast Tamer Zeframpilica" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {
@@ -40,7 +40,7 @@ card "Ritual Beast Tamer Zeframpilica" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 16
+        property: CardTarget
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {

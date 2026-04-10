@@ -3,7 +3,7 @@
 // Transpiled from c74889525.lua
 
 card "Eldlich the Mad Golden Lord" {
-    password: 74889525
+    id: 74889525
     type: Fusion Monster
     attribute: LIGHT
     race: Zombie
@@ -23,7 +23,7 @@ card "Eldlich the Mad Golden Lord" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 114
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -31,8 +31,8 @@ card "Eldlich the Mad Golden Lord" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 42
-        property: 131072
+        code: CannotBeEffectTarget
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -41,8 +41,8 @@ card "Eldlich the Mad Golden Lord" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -52,7 +52,7 @@ card "Eldlich the Mad Golden Lord" {
     raw_effect "Effect 4" {
         effect_type: Ignition
         category: Summon
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 74889525)
         cost {

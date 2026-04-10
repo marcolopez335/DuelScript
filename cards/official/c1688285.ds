@@ -3,7 +3,7 @@
 // Transpiled from c1688285.lua
 
 card "Traptrix Pinguicula" {
-    password: 1688285
+    id: 1688285
     type: Xyz Monster
     attribute: EARTH
     race: Plant
@@ -23,8 +23,8 @@ card "Traptrix Pinguicula" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 1
-        property: 131072
+        code: ImmuneEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -48,7 +48,7 @@ card "Traptrix Pinguicula" {
     raw_effect "Effect 3" {
         effect_type: Field + Trigger
         code: TurnEnd
-        property: 65536
+        property: Delay
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -60,7 +60,7 @@ card "Traptrix Pinguicula" {
         effect_type: Field + Trigger
         category: 67108864
         code: ChainEnd
-        property: 65536
+        property: Delay
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

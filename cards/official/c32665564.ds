@@ -3,7 +3,7 @@
 // Transpiled from c32665564.lua
 
 card "Dark Contract with the Zero King" {
-    password: 32665564
+    id: 32665564
     type: Continuous Spell
 
     raw_effect "Effect 1" {
@@ -16,7 +16,7 @@ card "Dark Contract with the Zero King" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: Destroy + SpecialSummon
-        property: 16
+        property: CardTarget
         range: SpellTrapZone
         count_limit: (1, 32665564)
         on_resolve {
@@ -42,8 +42,8 @@ card "Dark Contract with the Zero King" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

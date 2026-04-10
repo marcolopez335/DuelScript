@@ -3,7 +3,7 @@
 // Transpiled from c70551291.lua
 
 card "Black Luster Soldier - Legendary Swordsman" {
-    password: 70551291
+    id: 70551291
     type: Ritual Monster
     attribute: EARTH
     race: Warrior
@@ -22,8 +22,8 @@ card "Black Luster Soldier - Legendary Swordsman" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -45,8 +45,8 @@ card "Black Luster Soldier - Legendary Swordsman" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 6
-        property: 2048
+        code: CannotChangeControl
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -55,7 +55,7 @@ card "Black Luster Soldier - Legendary Swordsman" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }
@@ -63,7 +63,7 @@ card "Black Luster Soldier - Legendary Swordsman" {
     raw_effect "Effect 5" {
         effect_type: Single + Trigger
         category: ToDeck
-        code: 1139
+        code: BattleConfirmed
         on_resolve {
             return (1+, card, opponent controls) to deck shuffle
         }
@@ -72,7 +72,7 @@ card "Black Luster Soldier - Legendary Swordsman" {
     raw_effect "Effect 6" {
         effect_type: Field
         code: 271
-        property: 2048
+        property: InitialValue
         on_resolve {
         }
     }

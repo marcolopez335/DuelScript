@@ -3,7 +3,7 @@
 // Transpiled from c65037172.lua
 
 card "Cyberse Sage" {
-    password: 65037172
+    id: 65037172
     type: Ritual Monster | Tuner
     attribute: DARK
     race: Cyberse
@@ -22,7 +22,7 @@ card "Cyberse Sage" {
 
     raw_effect "Effect 1" {
         effect_type: Ignition
-        category: SpecialSummon
+        category: SpecialSummon + Control
         range: MonsterZone
         count_limit: (1, 65037172)
         on_resolve {
@@ -32,8 +32,8 @@ card "Cyberse Sage" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: ToHand
-        code: 1108
-        property: 65552
+        code: FlipSuccess
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from gy

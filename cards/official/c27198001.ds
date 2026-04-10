@@ -3,7 +3,7 @@
 // Transpiled from c27198001.lua
 
 card "Nine-Tailed Fox" {
-    password: 27198001
+    id: 27198001
     type: Effect Monster
     attribute: FIRE
     race: Zombie
@@ -30,7 +30,7 @@ card "Nine-Tailed Fox" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }
@@ -40,7 +40,7 @@ card "Nine-Tailed Fox" {
         effect_type: Single + Trigger
         category: SpecialSummon + Token
         code: ChainEnd
-        property: 81920
+        property: Oath + Delay
         on_resolve {
             create_token { atk: 0 def: 0 }
             special_summon (1, monster) from gy

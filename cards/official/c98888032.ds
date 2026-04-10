@@ -3,7 +3,7 @@
 // Transpiled from c98888032.lua
 
 card "Spore the Fairy Seed" {
-    password: 98888032
+    id: 98888032
     type: Effect Monster | Tuner
     attribute: LIGHT
     race: Plant
@@ -15,7 +15,7 @@ card "Spore the Fairy Seed" {
         effect_type: Single + Trigger
         category: LevelChange
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
         }
     }
@@ -36,15 +36,15 @@ card "Spore the Fairy Seed" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 130
+        code: ChangePosition
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

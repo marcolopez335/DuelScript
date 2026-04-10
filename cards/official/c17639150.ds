@@ -3,12 +3,12 @@
 // Transpiled from c17639150.lua
 
 card "Saqlifice" {
-    password: 17639150
+    id: 17639150
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 300
         }
@@ -16,7 +16,7 @@ card "Saqlifice" {
 
     raw_effect "Effect 2" {
         effect_type: Equip
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -24,7 +24,7 @@ card "Saqlifice" {
 
     raw_effect "Effect 3" {
         effect_type: Equip
-        code: 150
+        code: EquipLimit
         on_resolve {
         }
     }
@@ -33,7 +33,7 @@ card "Saqlifice" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: ChainEnd
-        property: 81920
+        property: Oath + Delay
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)

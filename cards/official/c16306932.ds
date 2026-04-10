@@ -3,7 +3,7 @@
 // Transpiled from c16306932.lua
 
 card "Odd-Eyes Revolution Dragon" {
-    password: 16306932
+    id: 16306932
     type: Effect Monster | Pendulum Monster | Spirit
     attribute: LIGHT
     race: Dragon
@@ -18,16 +18,16 @@ card "Odd-Eyes Revolution Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 31
-        property: 263168
+        code: ReviveLimit
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 22
-        property: 3584
+        code: CannotDisable
+        property: IgnoreImmune + BothSide + InitialValue
         range: PendulumZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -37,7 +37,7 @@ card "Odd-Eyes Revolution Dragon" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: SpecialSummon
-        property: 16
+        property: CardTarget
         range: PendulumZone
         on_resolve {
             destroy (1+, card, either_player controls, gy)
@@ -47,16 +47,16 @@ card "Odd-Eyes Revolution Dragon" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             tribute (1, monster, you controls)
@@ -79,8 +79,8 @@ card "Odd-Eyes Revolution Dragon" {
 
     raw_effect "Effect 7" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -89,8 +89,8 @@ card "Odd-Eyes Revolution Dragon" {
 
     raw_effect "Effect 8" {
         effect_type: Single
-        code: 104
-        property: 131072
+        code: UpdateDefense
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: def + 0

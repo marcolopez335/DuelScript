@@ -3,7 +3,7 @@
 // Transpiled from c40725446.lua
 
 card "Arequus the Shining Mars Saint" {
-    password: 40725446
+    id: 40725446
     type: Effect Monster
     attribute: LIGHT
     race: Pyro
@@ -17,8 +17,8 @@ card "Arequus the Shining Mars Saint" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         count_limit: (1, 40725446)
         on_resolve {
@@ -28,7 +28,7 @@ card "Arequus the Shining Mars Saint" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: Destroy + Draw
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -40,7 +40,7 @@ card "Arequus the Shining Mars Saint" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         code: Destroyed
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             attach (1, card) to self as_material

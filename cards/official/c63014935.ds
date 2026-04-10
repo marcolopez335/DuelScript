@@ -3,7 +3,7 @@
 // Transpiled from c63014935.lua
 
 card "Volcanic Queen" {
-    password: 63014935
+    id: 63014935
     type: Effect Monster | Spirit
     attribute: FIRE
     race: Pyro
@@ -18,7 +18,7 @@ card "Volcanic Queen" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: Damage
-        property: 2048
+        property: InitialValue
         range: MonsterZone
         count_limit: (1, 0)
         cost {
@@ -32,7 +32,7 @@ card "Volcanic Queen" {
     raw_effect "Effect 2" {
         effect_type: Field + MandatoryTrigger
         category: Release + Damage
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -44,7 +44,7 @@ card "Volcanic Queen" {
     raw_effect "Effect 3" {
         effect_type: Single
         code: 92
-        property: 1024
+        property: BothSide
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

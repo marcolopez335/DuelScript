@@ -3,12 +3,12 @@
 // Transpiled from c97616504.lua
 
 card "Sky Striker Mecharmory - Hercules Base" {
-    password: 97616504
+    id: 97616504
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 73
+        code: CannotAttackAnnounce
         on_resolve {
             register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
         }
@@ -24,8 +24,8 @@ card "Sky Striker Mecharmory - Hercules Base" {
     raw_effect "Effect 3" {
         effect_type: Field + MandatoryTrigger
         category: Draw
-        code: 1139
-        property: 2048
+        code: BattleConfirmed
+        property: InitialValue
         range: SpellTrapZone
         on_resolve {
             draw 1
@@ -36,7 +36,7 @@ card "Sky Striker Mecharmory - Hercules Base" {
         effect_type: Single + Trigger
         category: ToDeck
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             return (1+, monster, you controls) to deck shuffle
         }

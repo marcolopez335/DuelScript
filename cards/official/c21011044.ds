@@ -3,7 +3,7 @@
 // Transpiled from c21011044.lua
 
 card "Shaddoll Schism" {
-    password: 21011044
+    id: 21011044
     type: Continuous Trap
 
     raw_effect "Effect 1" {
@@ -15,7 +15,7 @@ card "Shaddoll Schism" {
 
     raw_effect "Effect 2" {
         effect_type: QuickEffect
-        category: ToGrave + SpecialSummon
+        category: ToGrave + SpecialSummon + Control
         code: FreeChain
         range: SpellTrapZone
         count_limit: (1, 21011044)
@@ -26,8 +26,8 @@ card "Shaddoll Schism" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 73
-        property: 67109888
+        code: CannotAttackAnnounce
+        property: BothSide + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
         }

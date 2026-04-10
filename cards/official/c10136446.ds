@@ -3,7 +3,7 @@
 // Transpiled from c10136446.lua
 
 card "Darklord Eveningstar" {
-    password: 10136446
+    id: 10136446
     type: Fusion Monster
     attribute: DARK
     race: Fairy
@@ -22,8 +22,8 @@ card "Darklord Eveningstar" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 71
-        property: 131072
+        code: CannotDirectAttack2
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -33,7 +33,7 @@ card "Darklord Eveningstar" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 10136446)
         on_resolve {
             set (1, card)
@@ -44,7 +44,7 @@ card "Darklord Eveningstar" {
         effect_type: QuickEffect
         category: ToDeck
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         cost {

@@ -3,7 +3,7 @@
 // Transpiled from c94503794.lua
 
 card "Kerzebs, the Gaoled Glutton" {
-    password: 94503794
+    id: 94503794
     type: Xyz Monster
     attribute: DARK
     race: Beast
@@ -23,8 +23,8 @@ card "Kerzebs, the Gaoled Glutton" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -43,7 +43,7 @@ card "Kerzebs, the Gaoled Glutton" {
 
     raw_effect "Effect 3" {
         effect_type: Field + Trigger
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 94503794)
         on_resolve {
@@ -53,8 +53,8 @@ card "Kerzebs, the Gaoled Glutton" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 1
-        property: 1024
+        code: ImmuneEffect
+        property: BothSide
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
         }

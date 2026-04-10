@@ -3,7 +3,7 @@
 // Transpiled from c71279983.lua
 
 card "U.A. Dreadnought Dunker" {
-    password: 71279983
+    id: 71279983
     type: Effect Monster
     attribute: EARTH
     race: Warrior
@@ -17,8 +17,8 @@ card "U.A. Dreadnought Dunker" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         count_limit: (1, 71279983)
         on_resolve {
@@ -28,7 +28,7 @@ card "U.A. Dreadnought Dunker" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }
@@ -37,8 +37,8 @@ card "U.A. Dreadnought Dunker" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         category: Destroy
-        code: 1143
-        property: 16
+        code: BattleDestroyed
+        property: CardTarget
         on_resolve {
             destroy (1+, monster, you controls)
         }

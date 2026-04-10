@@ -3,7 +3,7 @@
 // Transpiled from c68831625.lua
 
 card "DoomZ Command 'D.O.O.M.D.U.R.G.'" {
-    password: 68831625
+    id: 68831625
     type: Equip Spell
 
     raw_effect "Effect 1" {
@@ -32,9 +32,9 @@ card "DoomZ Command 'D.O.O.M.D.U.R.G.'" {
     }
 
     raw_effect "Effect 4" {
-        effect_type: 4096
-        code: 71
-        property: 131072
+        effect_type: XyzMaterial
+        code: CannotDirectAttack2
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -42,10 +42,10 @@ card "DoomZ Command 'D.O.O.M.D.U.R.G.'" {
     }
 
     raw_effect "Effect 5" {
-        effect_type: QuickEffect
+        effect_type: QuickEffect + XyzMaterial
         category: Destroy + SynchroSummon
         code: FreeChain
-        property: 16384
+        property: Oath
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -55,7 +55,7 @@ card "DoomZ Command 'D.O.O.M.D.U.R.G.'" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 0
         }
@@ -64,7 +64,7 @@ card "DoomZ Command 'D.O.O.M.D.U.R.G.'" {
     raw_effect "Effect 7" {
         effect_type: Single
         code: 74
-        property: 67108864
+        property: IgnoreRange2
         on_resolve {
             register_effect on self { grant: direct_attack duration: until_end_of_turn }
         }

@@ -3,7 +3,7 @@
 // Transpiled from c37405032.lua
 
 card "Trickstar Aqua Angel" {
-    password: 37405032
+    id: 37405032
     type: Effect Monster
     attribute: WATER
     race: Fairy
@@ -13,7 +13,7 @@ card "Trickstar Aqua Angel" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -32,8 +32,8 @@ card "Trickstar Aqua Angel" {
 
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
-        code: 1108
-        property: 65536
+        code: FlipSuccess
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             reveal (1+, card, opponent controls)

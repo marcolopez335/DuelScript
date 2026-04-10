@@ -3,14 +3,14 @@
 // Transpiled from c97520701.lua
 
 card "Special Schedule" {
-    password: 97520701
+    id: 97520701
     type: Normal Spell
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: SpecialSummon
         code: FreeChain
-        property: 16
+        property: CardTarget
         count_limit: (1, 97520701)
         on_resolve {
             special_summon (1, monster) from gy
@@ -21,7 +21,7 @@ card "Special Schedule" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 81936
+        property: CardTarget + Oath + Delay
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
             reveal (1+, card, opponent controls)

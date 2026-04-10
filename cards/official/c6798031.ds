@@ -3,7 +3,7 @@
 // Transpiled from c6798031.lua
 
 card "Ryzeal Cross" {
-    password: 6798031
+    id: 6798031
     type: Field Spell
 
     raw_effect "Effect 1" {
@@ -15,8 +15,8 @@ card "Ryzeal Cross" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 22
-        property: 2048
+        code: CannotDisable
+        property: InitialValue
         range: FieldZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
@@ -26,7 +26,7 @@ card "Ryzeal Cross" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: ToDeck + Draw
-        property: 16
+        property: CardTarget
         range: FieldZone
         count_limit: (1, 6798031)
         on_resolve {

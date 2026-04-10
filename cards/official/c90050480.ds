@@ -3,7 +3,7 @@
 // Transpiled from c90050480.lua
 
 card "Elemental HERO Cosmo Neos" {
-    password: 90050480
+    id: 90050480
     type: Fusion Monster
     attribute: LIGHT
     race: Warrior
@@ -23,7 +23,7 @@ card "Elemental HERO Cosmo Neos" {
     raw_effect "Effect 1" {
         effect_type: Single + Trigger
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -35,7 +35,7 @@ card "Elemental HERO Cosmo Neos" {
     raw_effect "Effect 2" {
         effect_type: Field + MandatoryTrigger
         category: ToDeck
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         on_resolve {
             return self to deck shuffle
@@ -45,7 +45,7 @@ card "Elemental HERO Cosmo Neos" {
     raw_effect "Effect 3" {
         effect_type: Field + Trigger
         category: ToDeck
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         on_resolve {
             return self to deck shuffle

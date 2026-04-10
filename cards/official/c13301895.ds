@@ -3,7 +3,7 @@
 // Transpiled from c13301895.lua
 
 card "Fallen Paradise" {
-    password: 13301895
+    id: 13301895
     type: Field Spell
 
     raw_effect "Effect 1" {
@@ -15,8 +15,8 @@ card "Fallen Paradise" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 71
-        property: 128
+        code: CannotDirectAttack2
+        property: SetAvailable
         range: FieldZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -25,8 +25,8 @@ card "Fallen Paradise" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 41
-        property: 128
+        code: IndestructableEffect
+        property: SetAvailable
         range: FieldZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -36,7 +36,7 @@ card "Fallen Paradise" {
     raw_effect "Effect 4" {
         effect_type: Ignition
         category: Draw
-        property: 2048
+        property: InitialValue
         range: FieldZone
         count_limit: (1, 13301895)
         on_resolve {

@@ -3,7 +3,7 @@
 // Transpiled from c19441018.lua
 
 card "Batteryman Industrial Strength" {
-    password: 19441018
+    id: 19441018
     type: Effect Monster | Spirit
     attribute: LIGHT
     race: Thunder
@@ -17,8 +17,8 @@ card "Batteryman Industrial Strength" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             banish (1+, spell, you controls, gy)
@@ -27,8 +27,8 @@ card "Batteryman Industrial Strength" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -36,7 +36,7 @@ card "Batteryman Industrial Strength" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: Destroy
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         cost {

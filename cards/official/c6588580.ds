@@ -3,7 +3,7 @@
 // Transpiled from c6588580.lua
 
 card "Thermal Genex" {
-    password: 6588580
+    id: 6588580
     type: Synchro Monster
     attribute: FIRE
     race: Machine
@@ -23,8 +23,8 @@ card "Thermal Genex" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -34,8 +34,8 @@ card "Thermal Genex" {
     raw_effect "Effect 2" {
         effect_type: Single + MandatoryTrigger
         category: Damage
-        code: 1139
-        property: 2048
+        code: BattleConfirmed
+        property: InitialValue
         on_resolve {
             deal_damage to opponent: 1000
         }

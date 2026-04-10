@@ -3,7 +3,7 @@
 // Transpiled from c13836592.lua
 
 card "Behemoth the King of a Hundred Battles" {
-    password: 13836592
+    id: 13836592
     type: Effect Monster
     attribute: EARTH
     race: Beast
@@ -19,7 +19,7 @@ card "Behemoth the King of a Hundred Battles" {
         effect_type: Single + Trigger
         category: ToHand + SynchroSummon
         code: SummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
             reveal (1+, card, opponent controls)
@@ -30,7 +30,7 @@ card "Behemoth the King of a Hundred Battles" {
         effect_type: Single + Trigger
         category: ToHand + SynchroSummon
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
             reveal (1+, card, opponent controls)
@@ -39,8 +39,8 @@ card "Behemoth the King of a Hundred Battles" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 1
-        property: 131072
+        code: ImmuneEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -50,7 +50,7 @@ card "Behemoth the King of a Hundred Battles" {
     raw_effect "Effect 4" {
         effect_type: Field + Trigger
         category: SynchroSummon
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

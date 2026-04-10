@@ -3,7 +3,7 @@
 // Transpiled from c13247801.lua
 
 card "Machina Defense Perimeter" {
-    password: 13247801
+    id: 13247801
     type: Continuous Spell
 
     raw_effect "Effect 1" {
@@ -15,8 +15,8 @@ card "Machina Defense Perimeter" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 71
-        property: 128
+        code: CannotDirectAttack2
+        property: SetAvailable
         range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -36,7 +36,7 @@ card "Machina Defense Perimeter" {
         effect_type: Field + Trigger
         category: ToHand
         code: Destroyed
-        property: 81936
+        property: CardTarget + Oath + Delay
         range: SpellTrapZone
         count_limit: (1, 13247801)
         on_resolve {

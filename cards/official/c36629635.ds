@@ -3,7 +3,7 @@
 // Transpiled from c36629635.lua
 
 card "Dandy Whitelion" {
-    password: 36629635
+    id: 36629635
     type: Effect Monster
     attribute: EARTH
     race: Plant
@@ -15,7 +15,7 @@ card "Dandy Whitelion" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 36629635)
         on_resolve {
             create_token { atk: 0 def: 0 }
@@ -25,8 +25,8 @@ card "Dandy Whitelion" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 22
-        property: 67635200
+        code: CannotDisable
+        property: InitialValue + CannotDisable + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

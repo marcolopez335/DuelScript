@@ -3,7 +3,7 @@
 // Transpiled from c32175429.lua
 
 card "Heroic Call" {
-    password: 32175429
+    id: 32175429
     type: Normal Spell
 
     raw_effect "Effect 1" {
@@ -27,7 +27,7 @@ card "Heroic Call" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: SynchroSummon
-        property: 16
+        property: CardTarget
         range: Graveyard
         cost {
             banish self
@@ -42,8 +42,8 @@ card "Heroic Call" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 2
-        property: 128
+        code: Disable
+        property: SetAvailable
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
@@ -52,7 +52,7 @@ card "Heroic Call" {
     raw_effect "Effect 4" {
         effect_type: Single
         code: 8
-        property: 128
+        property: SetAvailable
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
@@ -61,7 +61,7 @@ card "Heroic Call" {
     raw_effect "Effect 5" {
         effect_type: Single
         code: 85
-        property: 67108992
+        property: SetAvailable + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
@@ -69,7 +69,7 @@ card "Heroic Call" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 0
         }

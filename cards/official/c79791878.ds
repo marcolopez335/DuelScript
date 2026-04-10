@@ -3,7 +3,7 @@
 // Transpiled from c79791878.lua
 
 card "Shining Sarcophagus" {
-    password: 79791878
+    id: 79791878
     type: Continuous Spell
 
     raw_effect "Effect 1" {
@@ -15,8 +15,8 @@ card "Shining Sarcophagus" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: SpellTrapZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -38,7 +38,7 @@ card "Shining Sarcophagus" {
         effect_type: Single + Trigger
         category: ToGrave
         code: 348227334
-        property: 65552
+        property: CardTarget + Delay
         range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
@@ -49,7 +49,7 @@ card "Shining Sarcophagus" {
     raw_effect "Effect 5" {
         effect_type: Field + Continuous
         code: SpecialSummonSuccess
-        property: 1024
+        property: BothSide
         range: SpellTrapZone
         on_resolve {
             emit_event "custom"

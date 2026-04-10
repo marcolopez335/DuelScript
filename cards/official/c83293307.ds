@@ -3,7 +3,7 @@
 // Transpiled from c83293307.lua
 
 card "Krawler Receptor" {
-    password: 83293307
+    id: 83293307
     type: Effect Monster
     attribute: EARTH
     race: Insect
@@ -14,7 +14,7 @@ card "Krawler Receptor" {
     raw_effect "Effect 1" {
         effect_type: Single + Flip + Trigger
         category: ToHand + Search
-        property: 65536
+        property: Delay
         count_limit: (1, 83293307)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
@@ -25,8 +25,8 @@ card "Krawler Receptor" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: SpecialSummon
-        code: 1015
-        property: 81920
+        code: ChainNegated
+        property: Oath + Delay
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

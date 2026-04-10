@@ -3,7 +3,7 @@
 // Transpiled from c55349196.lua
 
 card "Double-Headed Dino King Rex" {
-    password: 55349196
+    id: 55349196
     type: Effect Monster
     attribute: EARTH
     race: Dinosaur
@@ -17,8 +17,8 @@ card "Double-Headed Dino King Rex" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         count_limit: (1, 55349196)
         on_resolve {
@@ -29,7 +29,7 @@ card "Double-Headed Dino King Rex" {
         effect_type: Single + Trigger
         category: Destroy
         code: SummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, you controls)
@@ -40,7 +40,7 @@ card "Double-Headed Dino King Rex" {
         effect_type: Single + Trigger
         category: Destroy
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             destroy (1+, monster, you controls)

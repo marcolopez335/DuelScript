@@ -3,7 +3,7 @@
 // Transpiled from c74823665.lua
 
 card "Inferno" {
-    password: 74823665
+    id: 74823665
     type: Effect Monster | Spirit
     attribute: FIRE
     race: Pyro
@@ -17,8 +17,8 @@ card "Inferno" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             banish (1+, monster, you controls, gy)
@@ -28,7 +28,7 @@ card "Inferno" {
     raw_effect "Effect 2" {
         effect_type: Single + MandatoryTrigger
         category: Damage
-        code: 1139
+        code: BattleConfirmed
         on_resolve {
             deal_damage to opponent: 1000
         }

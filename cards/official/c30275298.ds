@@ -3,7 +3,7 @@
 // Transpiled from c30275298.lua
 
 card "Cyber End Dragon the Decisive Strike Dragon" {
-    password: 30275298
+    id: 30275298
     type: Fusion Monster
     attribute: LIGHT
     race: Machine
@@ -22,8 +22,8 @@ card "Cyber End Dragon the Decisive Strike Dragon" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 251
-        property: 1024
+        code: ChangeCode3
+        property: BothSide
         on_resolve {
         }
     }
@@ -32,7 +32,7 @@ card "Cyber End Dragon the Decisive Strike Dragon" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 30275298)
         cost {
             pay_lp 4000
@@ -45,7 +45,7 @@ card "Cyber End Dragon the Decisive Strike Dragon" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 203
+        code: GraveRedirectCb
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }
         }

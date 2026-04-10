@@ -3,14 +3,14 @@
 // Transpiled from c71442223.lua
 
 card "Cubic Rebirth" {
-    password: 71442223
+    id: 71442223
     type: Normal Trap
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: SpecialSummon + SynchroSummon + LinkSummon
         code: AttackAnnounce
-        property: 16
+        property: CardTarget
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {
@@ -31,7 +31,7 @@ card "Cubic Rebirth" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 102
+        code: SetAttackFinal
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -47,7 +47,7 @@ card "Cubic Rebirth" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 2
+        code: Disable
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }

@@ -3,7 +3,7 @@
 // Transpiled from c80887952.lua
 
 card "Helios Duo Megistus" {
-    password: 80887952
+    id: 80887952
     type: Effect Monster
     attribute: LIGHT
     race: Pyro
@@ -17,8 +17,8 @@ card "Helios Duo Megistus" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
             tribute (1, monster, you controls)
@@ -27,8 +27,8 @@ card "Helios Duo Megistus" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 101
-        property: 131072
+        code: SetAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -37,8 +37,8 @@ card "Helios Duo Megistus" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 105
-        property: 131072
+        code: SetDefense
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: def + 0
@@ -48,7 +48,7 @@ card "Helios Duo Megistus" {
     raw_effect "Effect 4" {
         effect_type: Field + MandatoryTrigger
         category: SpecialSummon
-        code: 4608
+        code: PhaseEnd
         range: Graveyard
         count_limit: (1, 0)
         on_resolve {

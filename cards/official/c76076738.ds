@@ -3,12 +3,12 @@
 // Transpiled from c76076738.lua
 
 card "Dragon Nails" {
-    password: 76076738
+    id: 76076738
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 600
         }
@@ -16,7 +16,7 @@ card "Dragon Nails" {
 
     raw_effect "Effect 2" {
         effect_type: Equip
-        code: 41
+        code: IndestructableEffect
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
@@ -26,7 +26,7 @@ card "Dragon Nails" {
         effect_type: Single + Trigger
         category: SpecialSummon + EquipAction
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 76076738)
         on_resolve {
             equip (1, card) to (1, monster)

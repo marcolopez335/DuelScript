@@ -3,7 +3,7 @@
 // Transpiled from c40991587.lua
 
 card "The Lady in Wight" {
-    password: 40991587
+    id: 40991587
     type: Effect Monster
     attribute: DARK
     race: Zombie
@@ -14,7 +14,7 @@ card "The Lady in Wight" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 114
-        property: 131072
+        property: SingleRange
         range: Graveyard
         on_resolve {
         }
@@ -22,7 +22,7 @@ card "The Lady in Wight" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -31,7 +31,7 @@ card "The Lady in Wight" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 1
+        code: ImmuneEffect
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }

@@ -3,7 +3,7 @@
 // Transpiled from c80086070.lua
 
 card "Ursarctic Grand Chariot" {
-    password: 80086070
+    id: 80086070
     type: Synchro Monster
     attribute: WATER
     race: Beast-Warrior
@@ -23,16 +23,16 @@ card "Ursarctic Grand Chariot" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Deck
         on_resolve {
             send (1+, monster, you controls) to gy
@@ -43,7 +43,7 @@ card "Ursarctic Grand Chariot" {
         effect_type: Single + Trigger
         category: Destroy
         code: SpecialSummonSuccess
-        property: 81936
+        property: CardTarget + Oath + Delay
         on_resolve {
             destroy (1+, monster, you controls)
         }
@@ -53,7 +53,7 @@ card "Ursarctic Grand Chariot" {
         effect_type: QuickEffect
         category: Negate
         code: Chaining
-        property: 49152
+        property: Oath + CountCodeDuel
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

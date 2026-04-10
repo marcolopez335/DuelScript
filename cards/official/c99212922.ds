@@ -3,7 +3,7 @@
 // Transpiled from c99212922.lua
 
 card "White Dragon Ninja" {
-    password: 99212922
+    id: 99212922
     type: Effect Monster
     attribute: LIGHT
     race: Dragon
@@ -17,16 +17,16 @@ card "White Dragon Ninja" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 41
-        property: 256
+        code: IndestructableEffect
+        property: IgnoreRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

@@ -3,7 +3,7 @@
 // Transpiled from c51073802.lua
 
 card "Majespecter Porcupine - Yamarashi" {
-    password: 51073802
+    id: 51073802
     type: Effect Monster | Pendulum Monster
     attribute: WIND
     race: Spellcaster
@@ -14,8 +14,8 @@ card "Majespecter Porcupine - Yamarashi" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -24,8 +24,8 @@ card "Majespecter Porcupine - Yamarashi" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 71
-        property: 131072
+        code: CannotDirectAttack2
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -47,7 +47,7 @@ card "Majespecter Porcupine - Yamarashi" {
         effect_type: Single + Trigger
         category: 67108864
         code: SummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             set (1, card)
@@ -58,7 +58,7 @@ card "Majespecter Porcupine - Yamarashi" {
         effect_type: Single + Trigger
         category: 67108864
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             set (1, card)

@@ -3,12 +3,12 @@
 // Transpiled from c29612557.lua
 
 card "Cyclone Boomerang" {
-    password: 29612557
+    id: 29612557
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 500
         }
@@ -17,7 +17,7 @@ card "Cyclone Boomerang" {
     raw_effect "Effect 2" {
         effect_type: Single + MandatoryTrigger
         category: Destroy + Damage
-        code: 1015
+        code: ChainNegated
         on_resolve {
             destroy (1+, spell, either_player controls)
             deal_damage to opponent: 1000

@@ -3,14 +3,14 @@
 // Transpiled from c80320877.lua
 
 card "DoomZ Destruction" {
-    password: 80320877
+    id: 80320877
     type: Normal Trap
 
     raw_effect "Effect 1" {
         effect_type: Activate
         category: EquipAction
         code: FreeChain
-        property: 16
+        property: CardTarget
         count_limit: (1, 80320877)
         on_resolve {
             equip (1, card) to (1, monster)
@@ -21,7 +21,7 @@ card "DoomZ Destruction" {
         effect_type: Single + Trigger
         category: EquipAction
         code: Destroyed
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             equip (1, card) to (1, monster)
@@ -34,7 +34,7 @@ card "DoomZ Destruction" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 65
+        code: Indestructable
         range: SpellTrapZone
         on_resolve {
         }
@@ -42,16 +42,16 @@ card "DoomZ Destruction" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 76
-        property: 1024
+        code: CannotAttack2
+        property: BothSide
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 76
-        property: 1024
+        code: CannotAttack2
+        property: BothSide
         on_resolve {
         }
     }

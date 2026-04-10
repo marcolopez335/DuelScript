@@ -3,7 +3,7 @@
 // Transpiled from c7161742.lua
 
 card "Predaplant Cordyceps" {
-    password: 7161742
+    id: 7161742
     type: Effect Monster
     attribute: DARK
     race: Plant
@@ -15,7 +15,7 @@ card "Predaplant Cordyceps" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: 4098
-        property: 16
+        property: CardTarget
         range: Graveyard
         cost {
             banish self
@@ -43,8 +43,8 @@ card "Predaplant Cordyceps" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
@@ -53,7 +53,7 @@ card "Predaplant Cordyceps" {
     raw_effect "Effect 3" {
         effect_type: Field
         code: 20
-        property: 67110912
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
@@ -62,7 +62,7 @@ card "Predaplant Cordyceps" {
     raw_effect "Effect 4" {
         effect_type: Field
         code: 23
-        property: 67110912
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }
         }
@@ -70,7 +70,7 @@ card "Predaplant Cordyceps" {
 
     raw_effect "Effect 5" {
         effect_type: Field
-        property: 2048
+        property: InitialValue
         on_resolve {
         }
     }

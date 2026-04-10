@@ -3,7 +3,7 @@
 // Transpiled from c20938824.lua
 
 card "Maliss <P> March Hare" {
-    password: 20938824
+    id: 20938824
     type: Effect Monster
     attribute: DARK
     race: Cyberse
@@ -13,8 +13,8 @@ card "Maliss <P> March Hare" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 71
-        property: 128
+        code: CannotDirectAttack2
+        property: SetAvailable
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -37,7 +37,7 @@ card "Maliss <P> March Hare" {
         effect_type: Single + Trigger
         category: ToHand
         code: TurnEnd
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         cost {
             pay_lp 300

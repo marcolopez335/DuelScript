@@ -3,7 +3,7 @@
 // Transpiled from c11738489.lua
 
 card "The Arrival Cyberse @Ignister" {
-    password: 11738489
+    id: 11738489
     type: Link Monster
     attribute: DARK
     race: Cyberse
@@ -29,8 +29,8 @@ card "The Arrival Cyberse @Ignister" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 1
-        property: 131072
+        code: ImmuneEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
@@ -40,7 +40,7 @@ card "The Arrival Cyberse @Ignister" {
     raw_effect "Effect 3" {
         effect_type: Ignition
         category: Destroy + SpecialSummon + Token
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {

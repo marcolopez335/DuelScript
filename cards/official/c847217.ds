@@ -3,12 +3,12 @@
 // Transpiled from c847217.lua
 
 card "Orichalcos Sword of Sealing" {
-    password: 847217
+    id: 847217
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 2
+        code: Disable
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }
@@ -16,7 +16,7 @@ card "Orichalcos Sword of Sealing" {
 
     raw_effect "Effect 2" {
         effect_type: Ignition
-        property: 16
+        property: CardTarget
         range: SpellTrapZone
         count_limit: (1, 847217)
         on_resolve {
@@ -31,7 +31,7 @@ card "Orichalcos Sword of Sealing" {
         effect_type: QuickEffect
         category: Destroy
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         cost {

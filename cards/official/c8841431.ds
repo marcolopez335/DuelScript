@@ -3,7 +3,7 @@
 // Transpiled from c8841431.lua
 
 card "Centur-Ion Primera Primus" {
-    password: 8841431
+    id: 8841431
     type: Synchro Monster | Tuner
     attribute: LIGHT
     race: Spellcaster
@@ -23,7 +23,7 @@ card "Centur-Ion Primera Primus" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -33,7 +33,7 @@ card "Centur-Ion Primera Primus" {
         effect_type: Single + Trigger
         category: Destroy + ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 8841431)
         on_resolve {
             add_to_hand (1+, card, you controls) from gy
@@ -46,8 +46,8 @@ card "Centur-Ion Primera Primus" {
     raw_effect "Effect 3" {
         effect_type: Field + Trigger
         category: SpecialSummon
-        code: 1015
-        property: 65536
+        code: ChainNegated
+        property: Delay
         range: Graveyard
         count_limit: (1, 0)
         on_resolve {

@@ -3,7 +3,7 @@
 // Transpiled from c88962829.lua
 
 card "Beetrooper Light Flapper" {
-    password: 88962829
+    id: 88962829
     type: Effect Monster
     attribute: WATER
     race: Insect
@@ -19,7 +19,7 @@ card "Beetrooper Light Flapper" {
         effect_type: Single + Trigger
         category: ToHand
         code: SummonSuccess
-        property: 81936
+        property: CardTarget + Oath + Delay
         count_limit: (1, 88962829)
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
@@ -39,7 +39,7 @@ card "Beetrooper Light Flapper" {
         effect_type: Single + Trigger
         category: ToHand
         code: SpecialSummonSuccess
-        property: 81936
+        property: CardTarget + Oath + Delay
         count_limit: (1, 88962829)
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
@@ -77,8 +77,8 @@ card "Beetrooper Light Flapper" {
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 6
-        property: 2048
+        code: CannotChangeControl
+        property: InitialValue
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
         }

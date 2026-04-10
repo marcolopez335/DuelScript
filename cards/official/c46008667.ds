@@ -3,13 +3,13 @@
 // Transpiled from c46008667.lua
 
 card "Noble Arms - Excaliburn" {
-    password: 46008667
+    id: 46008667
     type: Equip Spell
 
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: SpecialSummon
-        property: 16
+        property: CardTarget
         range: Graveyard
         count_limit: (1, 46008667)
         cost {
@@ -23,8 +23,8 @@ card "Noble Arms - Excaliburn" {
 
     raw_effect "Effect 2" {
         effect_type: Equip
-        code: 71
-        property: 128
+        code: CannotDirectAttack2
+        property: SetAvailable
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }

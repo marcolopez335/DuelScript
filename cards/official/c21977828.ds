@@ -3,7 +3,7 @@
 // Transpiled from c21977828.lua
 
 card "Inzektor Giga-Weevil" {
-    password: 21977828
+    id: 21977828
     type: Effect Monster
     attribute: DARK
     race: Insect
@@ -18,7 +18,7 @@ card "Inzektor Giga-Weevil" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: EquipAction
-        property: 16
+        property: CardTarget
         range: Hand
         on_resolve {
             send (1+, card, either_player controls) to gy
@@ -28,7 +28,7 @@ card "Inzektor Giga-Weevil" {
 
     raw_effect "Effect 2" {
         effect_type: Equip
-        code: 107
+        code: SetBaseDefense
         on_resolve {
         }
     }
@@ -37,7 +37,7 @@ card "Inzektor Giga-Weevil" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 21977828)
         on_resolve {
             special_summon (1, monster) from gy

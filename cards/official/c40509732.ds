@@ -3,7 +3,7 @@
 // Transpiled from c40509732.lua
 
 card "Samurai Destroyer" {
-    password: 40509732
+    id: 40509732
     type: Synchro Monster
     attribute: EARTH
     race: Machine
@@ -23,8 +23,8 @@ card "Samurai Destroyer" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 6
-        property: 2048
+        code: CannotChangeControl
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -65,7 +65,7 @@ card "Samurai Destroyer" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 2
+        code: Disable
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -75,8 +75,8 @@ card "Samurai Destroyer" {
     raw_effect "Effect 5" {
         effect_type: Single + Trigger
         category: SpecialSummon
-        code: 1015
-        property: 81936
+        code: ChainNegated
+        property: CardTarget + Oath + Delay
         on_resolve {
             special_summon (1, monster) from gy
         }

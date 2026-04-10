@@ -3,7 +3,7 @@
 // Transpiled from c82359538.lua
 
 card "Enneacraft - Aiza.LEON" {
-    password: 82359538
+    id: 82359538
     type: Effect Monster | Pendulum Monster
     attribute: LIGHT
     race: Machine
@@ -28,7 +28,7 @@ card "Enneacraft - Aiza.LEON" {
         effect_type: Field + Trigger
         category: Destroy
         code: 4224
-        property: 16
+        property: CardTarget
         range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
@@ -52,7 +52,7 @@ card "Enneacraft - Aiza.LEON" {
         effect_type: QuickEffect
         category: ToHand
         code: Chaining
-        property: 256
+        property: IgnoreRange
         range: MonsterZone
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
@@ -62,7 +62,7 @@ card "Enneacraft - Aiza.LEON" {
     raw_effect "Effect 5" {
         effect_type: Single + Continuous
         code: 1001
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
@@ -79,7 +79,7 @@ card "Enneacraft - Aiza.LEON" {
     raw_effect "Effect 7" {
         effect_type: Field + Continuous
         code: 1022
-        property: 65536
+        property: Delay
         range: MonsterZone
         on_resolve {
             deal_damage to opponent: 1000
@@ -104,7 +104,7 @@ card "Enneacraft - Aiza.LEON" {
     raw_effect "Effect 10" {
         effect_type: Field
         code: 427
-        property: 67635200
+        property: InitialValue + CannotDisable + IgnoreRange2
         on_resolve {
         }
     }

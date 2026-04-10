@@ -3,7 +3,7 @@
 // Transpiled from c2857636.lua
 
 card "Knightmare Phoenix" {
-    password: 2857636
+    id: 2857636
     type: Link Monster
     attribute: FIRE
     race: Fiend
@@ -23,7 +23,7 @@ card "Knightmare Phoenix" {
     raw_effect "Effect 1" {
         effect_type: Single + Trigger
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 2857636)
         on_resolve {
             destroy (1+, spell, you controls, hand)
@@ -33,7 +33,7 @@ card "Knightmare Phoenix" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }

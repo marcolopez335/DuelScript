@@ -3,7 +3,7 @@
 // Transpiled from c12975671.lua
 
 card "First Penguin" {
-    password: 12975671
+    id: 12975671
     type: Effect Monster
     attribute: WATER
     race: Winged Beast
@@ -13,8 +13,8 @@ card "First Penguin" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Hand
         on_resolve {
         }
@@ -43,15 +43,15 @@ card "First Penguin" {
     raw_effect "Effect 3" {
         effect_type: Single
         code: 115
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

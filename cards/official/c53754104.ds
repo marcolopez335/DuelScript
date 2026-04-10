@@ -3,7 +3,7 @@
 // Transpiled from c53754104.lua
 
 card "Guard Mantis" {
-    password: 53754104
+    id: 53754104
     type: Effect Monster
     attribute: WIND
     race: Insect
@@ -28,7 +28,7 @@ card "Guard Mantis" {
         effect_type: QuickEffect
         category: DiceRoll
         code: FreeChain
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -38,8 +38,8 @@ card "Guard Mantis" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 3072
+        code: CannotDisable
+        property: BothSide + InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }

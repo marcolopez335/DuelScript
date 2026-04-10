@@ -3,7 +3,7 @@
 // Transpiled from c4998619.lua
 
 card "Buster Gundil the Cubic Behemoth" {
-    password: 4998619
+    id: 4998619
     type: Effect Monster | Spirit
     attribute: LIGHT
     race: Beast
@@ -17,16 +17,16 @@ card "Buster Gundil the Cubic Behemoth" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 263168
+        code: CannotSummon
+        property: BothSide + Uncopyable
         range: Hand
         on_resolve {
             send (1+, monster, you controls) to gy
@@ -48,7 +48,7 @@ card "Buster Gundil the Cubic Behemoth" {
         effect_type: Single + Trigger
         category: ToHand + SpecialSummon + Search
         code: ChainEnd
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             special_summon (1, monster) from gy
             return (1+, monster, you controls) to hand

@@ -3,7 +3,7 @@
 // Transpiled from c85032782.lua
 
 card "Sauge de Fleur" {
-    password: 85032782
+    id: 85032782
     type: Effect Monster
     attribute: DARK
     race: Spellcaster
@@ -18,7 +18,7 @@ card "Sauge de Fleur" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: Destroy + SpecialSummon
-        property: 16
+        property: CardTarget
         range: Hand
         count_limit: (1, 85032782)
         on_resolve {
@@ -31,7 +31,7 @@ card "Sauge de Fleur" {
         effect_type: Single + Trigger
         category: ToHand + ToDeck + Search
         code: ChainEnd
-        property: 81936
+        property: CardTarget + Oath + Delay
         count_limit: (1, 0)
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle

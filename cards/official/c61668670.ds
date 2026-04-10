@@ -3,7 +3,7 @@
 // Transpiled from c61668670.lua
 
 card "G Golem Crystal Heart" {
-    password: 61668670
+    id: 61668670
     type: Link Monster
     attribute: WATER
     race: Cyberse
@@ -23,7 +23,7 @@ card "G Golem Crystal Heart" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: SpecialSummon + LinkSummon
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 61668670)
         on_resolve {
@@ -33,7 +33,7 @@ card "G Golem Crystal Heart" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -50,7 +50,7 @@ card "G Golem Crystal Heart" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 203
+        code: GraveRedirectCb
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: piercing duration: until_end_of_turn }

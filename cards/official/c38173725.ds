@@ -3,7 +3,7 @@
 // Transpiled from c38173725.lua
 
 card "Arcjet Lightcraft" {
-    password: 38173725
+    id: 38173725
     type: Effect Monster
     attribute: LIGHT
     race: Machine
@@ -18,7 +18,7 @@ card "Arcjet Lightcraft" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 32
-        property: 262144
+        property: Uncopyable
         on_resolve {
         }
     }
@@ -27,7 +27,7 @@ card "Arcjet Lightcraft" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SummonSuccess
-        property: 81936
+        property: CardTarget + Oath + Delay
         count_limit: (1, 38173725)
         on_resolve {
             special_summon (1, monster) from gy
@@ -50,7 +50,7 @@ card "Arcjet Lightcraft" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 81936
+        property: CardTarget + Oath + Delay
         count_limit: (1, 38173725)
         on_resolve {
             special_summon (1, monster) from gy
@@ -71,8 +71,8 @@ card "Arcjet Lightcraft" {
 
     raw_effect "Effect 4" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }

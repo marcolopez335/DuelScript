@@ -3,7 +3,7 @@
 // Transpiled from c47198668.lua
 
 card "D/D/D Doom King Armageddon" {
-    password: 47198668
+    id: 47198668
     type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
@@ -18,7 +18,7 @@ card "D/D/D Doom King Armageddon" {
 
     raw_effect "Effect 1" {
         effect_type: Ignition
-        property: 16
+        property: CardTarget
         range: PendulumZone
         count_limit: (1, 0)
         on_resolve {
@@ -33,7 +33,7 @@ card "D/D/D Doom King Armageddon" {
         effect_type: Field + Trigger
         category: SynchroSummon
         code: Destroyed
-        property: 16400
+        property: CardTarget + Oath
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -42,8 +42,8 @@ card "D/D/D Doom King Armageddon" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

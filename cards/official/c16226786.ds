@@ -3,7 +3,7 @@
 // Transpiled from c16226786.lua
 
 card "Night Assailant" {
-    password: 16226786
+    id: 16226786
     type: Effect Monster
     attribute: DARK
     race: Fiend
@@ -14,7 +14,7 @@ card "Night Assailant" {
     raw_effect "Effect 1" {
         effect_type: Single + Flip
         category: Destroy
-        property: 16
+        property: CardTarget
         on_resolve {
             destroy (1+, monster, either_player controls)
         }
@@ -24,7 +24,7 @@ card "Night Assailant" {
         effect_type: Single + MandatoryTrigger
         category: ToHand
         code: ChainEnd
-        property: 16
+        property: CardTarget
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
             reveal (1+, card, opponent controls)

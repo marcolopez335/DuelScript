@@ -3,7 +3,7 @@
 // Transpiled from c22061412.lua
 
 card "Elemental HERO The Shining" {
-    password: 22061412
+    id: 22061412
     type: Fusion Monster
     attribute: LIGHT
     race: Warrior
@@ -24,7 +24,7 @@ card "Elemental HERO The Shining" {
         effect_type: Single + Trigger
         category: ToHand
         code: ChainEnd
-        property: 16400
+        property: CardTarget + Oath
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
         }
@@ -32,8 +32,8 @@ card "Elemental HERO The Shining" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -42,8 +42,8 @@ card "Elemental HERO The Shining" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }

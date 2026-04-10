@@ -3,7 +3,7 @@
 // Transpiled from c19316241.lua
 
 card "Galaxy War Drake" {
-    password: 19316241
+    id: 19316241
     type: Effect Monster
     attribute: LIGHT
     race: Dragon
@@ -15,7 +15,7 @@ card "Galaxy War Drake" {
         effect_type: Field + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         range: Hand + Graveyard
         count_limit: (1, 19316241)
         on_resolve {
@@ -26,7 +26,7 @@ card "Galaxy War Drake" {
     raw_effect "Effect 2" {
         effect_type: Ignition
         category: LevelChange
-        property: 16
+        property: CardTarget
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -39,8 +39,8 @@ card "Galaxy War Drake" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 67635200
+        code: CannotDisable
+        property: InitialValue + CannotDisable + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
@@ -48,8 +48,8 @@ card "Galaxy War Drake" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 60
-        property: 67109888
+        code: CannotAttack
+        property: BothSide + IgnoreRange2
         on_resolve {
         }
     }
@@ -57,7 +57,7 @@ card "Galaxy War Drake" {
     raw_effect "Effect 5" {
         effect_type: Single
         code: 131
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }
@@ -65,7 +65,7 @@ card "Galaxy War Drake" {
     raw_effect "Effect 6" {
         effect_type: Single
         code: 131
-        property: 1024
+        property: BothSide
         on_resolve {
         }
     }

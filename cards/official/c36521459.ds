@@ -3,7 +3,7 @@
 // Transpiled from c36521459.lua
 
 card "Malefic Stardust Dragon" {
-    password: 36521459
+    id: 36521459
     type: Effect Monster | Spirit
     attribute: DARK
     race: Dragon
@@ -18,7 +18,7 @@ card "Malefic Stardust Dragon" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 141
-        property: 131072
+        property: SingleRange
         range: MonsterZone
         on_resolve {
         }
@@ -35,7 +35,7 @@ card "Malefic Stardust Dragon" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 41
+        code: IndestructableEffect
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -44,15 +44,15 @@ card "Malefic Stardust Dragon" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 5" {
         effect_type: Field
-        code: 34
+        code: CannotSummon
         range: Hand
         on_resolve {
             special_summon self from hand

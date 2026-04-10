@@ -3,7 +3,7 @@
 // Transpiled from c87837090.lua
 
 card "Kuibelt the Blade Dragon" {
-    password: 87837090
+    id: 87837090
     type: Synchro Monster
     attribute: DARK
     race: Dragon
@@ -25,7 +25,7 @@ card "Kuibelt the Blade Dragon" {
         effect_type: Single + Trigger
         category: Destroy
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 87837090)
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -35,7 +35,7 @@ card "Kuibelt the Blade Dragon" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         code: Destroyed
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {
@@ -48,7 +48,7 @@ card "Kuibelt the Blade Dragon" {
     raw_effect "Effect 3" {
         effect_type: Single
         code: 85
-        property: 67108864
+        property: IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }

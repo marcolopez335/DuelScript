@@ -3,7 +3,7 @@
 // Transpiled from c80696379.lua
 
 card "Odd-Eyes Meteorburst Dragon" {
-    password: 80696379
+    id: 80696379
     type: Synchro Monster
     attribute: FIRE
     race: Dragon
@@ -25,7 +25,7 @@ card "Odd-Eyes Meteorburst Dragon" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: SpecialSummonSuccess
-        property: 16400
+        property: CardTarget + Oath
         count_limit: (1, 80696379)
         on_resolve {
             special_summon (1, monster) from gy
@@ -34,8 +34,8 @@ card "Odd-Eyes Meteorburst Dragon" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 6
-        property: 2048
+        code: CannotChangeControl
+        property: InitialValue
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }

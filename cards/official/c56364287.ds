@@ -3,7 +3,7 @@
 // Transpiled from c56364287.lua
 
 card "Cyber Dragon Herz" {
-    password: 56364287
+    id: 56364287
     type: Effect Monster
     attribute: LIGHT
     race: Machine
@@ -14,7 +14,7 @@ card "Cyber Dragon Herz" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 114
-        property: 131072
+        property: SingleRange
         range: MonsterZone + Graveyard
         on_resolve {
         }
@@ -23,7 +23,7 @@ card "Cyber Dragon Herz" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 56364287)
         on_resolve {
             register_effect on self {
@@ -37,7 +37,7 @@ card "Cyber Dragon Herz" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 56364287)
         on_resolve {
             add_to_hand (1+, card, you controls) from gy

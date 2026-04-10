@@ -3,7 +3,7 @@
 // Transpiled from c35183584.lua
 
 card "World Legacy Guardragon Mardark" {
-    password: 35183584
+    id: 35183584
     type: Effect Monster
     attribute: WIND
     race: Dragon
@@ -30,7 +30,7 @@ card "World Legacy Guardragon Mardark" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 100
+        code: UpdateAttack
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -39,7 +39,7 @@ card "World Legacy Guardragon Mardark" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 104
+        code: UpdateDefense
         range: MonsterZone
         on_resolve {
             modifier: def + 0
@@ -50,7 +50,7 @@ card "World Legacy Guardragon Mardark" {
         effect_type: Single + Trigger
         category: ToHand
         code: Destroyed
-        property: 81920
+        property: Oath + Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy

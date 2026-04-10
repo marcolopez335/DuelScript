@@ -3,7 +3,7 @@
 // Transpiled from c60292055.lua
 
 card "Elphase" {
-    password: 60292055
+    id: 60292055
     type: Link Monster
     attribute: WIND
     race: Cyberse
@@ -22,8 +22,8 @@ card "Elphase" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 100
-        property: 131072
+        code: UpdateAttack
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             modifier: atk + 0
@@ -33,8 +33,8 @@ card "Elphase" {
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
         category: SpecialSummon
-        code: 1015
-        property: 81936
+        code: ChainNegated
+        property: CardTarget + Oath + Delay
         count_limit: (1, 60292055)
         on_resolve {
             special_summon (1, monster) from gy

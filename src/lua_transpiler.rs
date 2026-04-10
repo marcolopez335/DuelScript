@@ -306,7 +306,9 @@ fn friendly_effect_type(val: u32) -> String {
     if val & 0x0200 != 0 { parts.push("MandatoryTrigger"); }
     if val & 0x0400 != 0 { parts.push("MandatoryQuick"); }
     if val & 0x0800 != 0 { parts.push("Continuous"); }
+    if val & 0x1000 != 0 { parts.push("XyzMaterial"); }
     if val & 0x2000 != 0 { parts.push("Grant"); }
+    if val & 0x4000 != 0 { parts.push("Actions"); }
     if parts.is_empty() { return val.to_string(); }
     parts.join(" + ")
 }
@@ -342,34 +344,156 @@ fn friendly_category(val: u32) -> String {
     if val & 0x0200_0000 != 0 { parts.push("FusionSummon"); }
     if val & 0x0800_0000 != 0 { parts.push("LevelChange"); }
     if val & 0x1000_0000 != 0 { parts.push("Negate"); }
+    if val & 0x2000_0000 != 0 { parts.push("Destroy2"); }
+    if val & 0x4000_0000 != 0 { parts.push("Control"); }
+    if val & 0x8000_0000 != 0 { parts.push("Announce"); }
     if parts.is_empty() { return val.to_string(); }
     parts.join(" + ")
 }
 
-/// Sprint 56: Convert a numeric event code to a friendly name.
+/// Sprint 56: Convert a numeric code to a friendly name.
+/// Handles both EFFECT_* codes (1–999) and EVENT_* codes (1000+).
 fn friendly_code(val: u32) -> String {
     match val {
+        // ── Effect codes (what the effect does) ─────────────
+        1   => "ImmuneEffect".to_string(),
+        2   => "Disable".to_string(),
+        3   => "CannotChangeControl".to_string(),
+        4   => "CannotActivate".to_string(),
+        5   => "CannotTrigger".to_string(),
+        6   => "CannotChangeControl".to_string(),
+        13  => "CannotDisableEffect".to_string(),
+        22  => "CannotDisable".to_string(),
+        30  => "SpsummonCondition".to_string(),
+        31  => "ReviveLimit".to_string(),
+        34  => "CannotSummon".to_string(),
+        35  => "CannotFlipSummon".to_string(),
+        36  => "CannotSpecialSummon".to_string(),
+        37  => "CannotMset".to_string(),
+        38  => "CannotSset".to_string(),
+        41  => "IndestructableEffect".to_string(),
+        42  => "CannotBeEffectTarget".to_string(),
+        43  => "CannotBeBattleTarget".to_string(),
+        44  => "CannotRemove".to_string(),
+        50  => "Pierce".to_string(),
+        51  => "DirectAttack".to_string(),
+        52  => "AttackAll".to_string(),
+        53  => "CannotDirectAttack".to_string(),
+        54  => "DualAttack".to_string(),
+        55  => "ExtraAttack".to_string(),
+        56  => "TripleAttack".to_string(),
+        60  => "CannotAttack".to_string(),
+        61  => "MustAttack".to_string(),
+        63  => "CannotBeTributed".to_string(),
+        65  => "Indestructable".to_string(),
+        66  => "IndestructableBattle".to_string(),
+        67  => "IndestructableCount".to_string(),
+        71  => "CannotDirectAttack2".to_string(),
+        73  => "CannotAttackAnnounce".to_string(),
+        76  => "CannotAttack2".to_string(),
+        100 => "UpdateAttack".to_string(),
+        101 => "SetAttack".to_string(),
+        102 => "SetAttackFinal".to_string(),
+        103 => "SetBaseAttack".to_string(),
+        104 => "UpdateDefense".to_string(),
+        105 => "SetDefense".to_string(),
+        106 => "SetDefenseFinal".to_string(),
+        107 => "SetBaseDefense".to_string(),
+        110 => "ChangeLevel".to_string(),
+        112 => "SetLevel".to_string(),
+        118 => "ChangeRank".to_string(),
+        120 => "ChangeAttribute".to_string(),
+        121 => "ChangeRace".to_string(),
+        122 => "ChangeCode".to_string(),
+        125 => "AddType".to_string(),
+        126 => "RemoveType".to_string(),
+        130 => "ChangePosition".to_string(),
+        150 => "EquipLimit".to_string(),
+        152 => "SelfDestroy".to_string(),
+        200 => "LpcostChange".to_string(),
+        203 => "GraveRedirectCb".to_string(),
+        204 => "LeaveFieldRedirect".to_string(),
+        205 => "ToGraveRedirect".to_string(),
+        206 => "ToGraveRedirect2".to_string(),
+        210 => "DestroyReplace".to_string(),
+        211 => "BattleDestroyReplace".to_string(),
+        213 => "SendReplace".to_string(),
+        214 => "RemoveReplace".to_string(),
+        220 => "AvoidBattleDamage".to_string(),
+        221 => "ReflectBattleDamage".to_string(),
+        222 => "ChangeBattleDamage".to_string(),
+        250 => "ChangeCode2".to_string(),
+        251 => "ChangeCode3".to_string(),
+        // ── Event codes (when the effect triggers) ──────────
         1002 => "FreeChain".to_string(),
+        1005 => "Adjust".to_string(),
         1006 => "PhaseStart".to_string(),
         1007 => "PhaseEnd".to_string(),
+        1008 => "SummonAttempt".to_string(),
+        1009 => "FlipSummonAttempt".to_string(),
+        1010 => "SpecialSummonAttempt".to_string(),
         1011 => "TurnEnd".to_string(),
         1012 => "ChainSolving".to_string(),
         1013 => "ChainSolved".to_string(),
         1014 => "ChainEnd".to_string(),
-        1017 => "Release".to_string(),
+        1015 => "ChainNegated".to_string(),
+        1017 => "Released".to_string(),
+        1018 => "MovedToField".to_string(),
+        1024 => "SentToHand".to_string(),
+        1025 => "SentToDeck".to_string(),
+        1026 => "SentToGrave".to_string(),
         1027 => "Chaining".to_string(),
+        1028 => "BecomeTarget".to_string(),
         1029 => "Destroyed".to_string(),
         1030 => "LeaveField".to_string(),
+        1031 => "ChangePosition".to_string(),
+        1035 => "Banished".to_string(),
+        1036 => "LpChanged".to_string(),
         1100 => "SummonSuccess".to_string(),
         1101 => "FlipSummonSuccess".to_string(),
         1102 => "SpecialSummonSuccess".to_string(),
+        1108 => "FlipSuccess".to_string(),
         1109 => "FlipResult".to_string(),
         1130 => "AttackAnnounce".to_string(),
         1131 => "BattleTarget".to_string(),
         1132 => "DamageCalculation".to_string(),
+        1139 => "BattleConfirmed".to_string(),
         1140 => "BattleDamage".to_string(),
+        1143 => "BattleDestroyed".to_string(),
+        // Phase combo codes (PHASE_X | 0x1000)
+        0x1200 => "PhaseEnd".to_string(),
+        0x1202 => "PhaseStandby".to_string(),
+        0x1204 => "PhaseMain1".to_string(),
+        0x1208 => "PhaseBattle".to_string(),
+        0x1210 => "PhaseMain2".to_string(),
+        0x1220 => "PhaseEnd2".to_string(),
         _ => val.to_string(),
     }
+}
+
+/// Sprint 56: Convert a numeric property to friendly flag names.
+fn friendly_property(val: u32) -> String {
+    if val == 0 { return "0".to_string(); }
+    let mut parts = Vec::new();
+    if val & 0x0010      != 0 { parts.push("CardTarget"); }
+    if val & 0x0080      != 0 { parts.push("SetAvailable"); }
+    if val & 0x0100      != 0 { parts.push("IgnoreRange"); }
+    if val & 0x0200      != 0 { parts.push("IgnoreImmune"); }
+    if val & 0x0400      != 0 { parts.push("BothSide"); }
+    if val & 0x0800      != 0 { parts.push("InitialValue"); }
+    if val & 0x4000      != 0 { parts.push("Oath"); }
+    if val & 0x8000      != 0 { parts.push("CountCodeDuel"); }
+    if val & 0x0001_0000 != 0 { parts.push("Delay"); }
+    if val & 0x0002_0000 != 0 { parts.push("SingleRange"); }
+    if val & 0x0004_0000 != 0 { parts.push("Uncopyable"); }
+    if val & 0x0008_0000 != 0 { parts.push("CannotDisable"); }
+    if val & 0x0010_0000 != 0 { parts.push("PlayerTarget"); }
+    if val & 0x0020_0000 != 0 { parts.push("ClientHint"); }
+    if val & 0x0400_0000 != 0 { parts.push("IgnoreRange2"); }
+    if val & 0x0800_0000 != 0 { parts.push("NoTurnReset"); }
+    if val & 0x4000_0000 != 0 { parts.push("Flag2_Simultaneous"); }
+    if parts.is_empty() { return val.to_string(); }
+    parts.join(" + ")
 }
 
 /// Sprint 56: Convert a numeric range to friendly location names.
@@ -1143,7 +1267,7 @@ pub fn transpile_lua_to_ds(
     ds.push_str(&format!("// {}\n", safe_name));
     ds.push_str(&format!("// Transpiled from c{}.lua\n\n", passcode));
     ds.push_str(&format!("card \"{}\" {{\n", safe_name));
-    ds.push_str(&format!("    password: {}\n", passcode));
+    ds.push_str(&format!("    id: {}\n", passcode));
 
     // CDB stats
     if let Some(cdb) = cdb_card {
@@ -1408,7 +1532,7 @@ pub fn transpile_lua_to_ds(
             if effect_type != 0 { ds.push_str(&format!("        effect_type: {}\n", et_str)); }
             if category != 0    { ds.push_str(&format!("        category: {}\n", cat_str)); }
             if code != 0        { ds.push_str(&format!("        code: {}\n", code_str_friendly)); }
-            if property != 0    { ds.push_str(&format!("        property: {}\n", property)); }
+            if property != 0    { ds.push_str(&format!("        property: {}\n", friendly_property(property))); }
             if range != 0       { ds.push_str(&format!("        range: {}\n", range_str)); }
             ds.push_str("        on_resolve {\n");
             ds.push_str(&format!(
@@ -1449,7 +1573,7 @@ pub fn transpile_lua_to_ds(
                 if effect_type != 0 { ds.push_str(&format!("        effect_type: {}\n", et_str)); }
                 if category != 0    { ds.push_str(&format!("        category: {}\n", cat_str)); }
                 if code != 0        { ds.push_str(&format!("        code: {}\n", code_str_friendly)); }
-                if property != 0    { ds.push_str(&format!("        property: {}\n", property)); }
+                if property != 0    { ds.push_str(&format!("        property: {}\n", friendly_property(property))); }
                 if range != 0       { ds.push_str(&format!("        range: {}\n", range_str)); }
                 ds.push_str("        on_resolve {\n");
                 ds.push_str(&format!("            modifier: {} {} {}\n", stat, sign, mag));
@@ -1465,7 +1589,7 @@ pub fn transpile_lua_to_ds(
         if effect_type != 0 { ds.push_str(&format!("        effect_type: {}\n", et_str)); }
         if category != 0    { ds.push_str(&format!("        category: {}\n", cat_str)); }
         if code != 0        { ds.push_str(&format!("        code: {}\n", code_str_friendly)); }
-        if property != 0    { ds.push_str(&format!("        property: {}\n", property)); }
+        if property != 0    { ds.push_str(&format!("        property: {}\n", friendly_property(property))); }
         if range != 0       { ds.push_str(&format!("        range: {}\n", range_str)); }
 
         if let Some(ref cl) = effect.count_limit {

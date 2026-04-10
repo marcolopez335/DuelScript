@@ -3,7 +3,7 @@
 // Transpiled from c52900000.lua
 
 card "Shinobaron Peacock" {
-    password: 52900000
+    id: 52900000
     type: Ritual Monster | Flip
     attribute: WIND
     race: Winged Beast
@@ -22,8 +22,8 @@ card "Shinobaron Peacock" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
@@ -32,7 +32,7 @@ card "Shinobaron Peacock" {
         effect_type: Single + Trigger
         category: ToHand + SpecialSummon
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
             special_summon (1, monster) from gy

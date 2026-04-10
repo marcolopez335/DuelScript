@@ -3,7 +3,7 @@
 // Transpiled from c84900597.lua
 
 card "Lamia" {
-    password: 84900597
+    id: 84900597
     type: Effect Monster
     attribute: DARK
     race: Reptile
@@ -15,7 +15,7 @@ card "Lamia" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 84900597)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -27,7 +27,7 @@ card "Lamia" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 84900597)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
@@ -38,7 +38,7 @@ card "Lamia" {
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
         code: TurnEnd
-        property: 65552
+        property: CardTarget + Delay
         count_limit: (1, 0)
         on_resolve {
             register_effect on self {

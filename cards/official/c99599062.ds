@@ -3,12 +3,12 @@
 // Transpiled from c99599062.lua
 
 card "Earthbound Fusion" {
-    password: 99599062
+    id: 99599062
     type: Quick-Play Spell
 
     raw_effect "Effect 1" {
         effect_type: Activate
-        category: SpecialSummon
+        category: SpecialSummon + Control
         code: FreeChain
         on_resolve {
             fusion_summon (1, fusion monster) using (1+, monster, you controls)
@@ -34,8 +34,8 @@ card "Earthbound Fusion" {
 
     raw_effect "Effect 3" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }

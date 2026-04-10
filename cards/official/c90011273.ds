@@ -3,7 +3,7 @@
 // Transpiled from c90011273.lua
 
 card "Breechborrel Dragon" {
-    password: 90011273
+    id: 90011273
     // FIXME: card not found in CDB — type/stats are placeholders
     type: Effect Monster
     attribute: DARK
@@ -20,7 +20,7 @@ card "Breechborrel Dragon" {
         effect_type: Single + Trigger
         category: ToHand + Search
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck
@@ -32,7 +32,7 @@ card "Breechborrel Dragon" {
         effect_type: QuickEffect
         category: SpecialSummon + SynchroSummon
         code: FreeChain
-        property: 16400
+        property: CardTarget + Oath
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -46,8 +46,8 @@ card "Breechborrel Dragon" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 100
-        property: 1024
+        code: UpdateAttack
+        property: BothSide
         on_resolve {
             modifier: atk + 500
         }

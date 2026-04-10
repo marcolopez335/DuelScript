@@ -3,7 +3,7 @@
 // Transpiled from c33744268.lua
 
 card "Z-Zillion Tank" {
-    password: 33744268
+    id: 33744268
     type: Effect Monster | Gemini
     attribute: LIGHT
     race: Machine
@@ -15,7 +15,7 @@ card "Z-Zillion Tank" {
         effect_type: Single + Trigger
         category: EquipAction
         code: SpecialSummonSuccess
-        property: 65536
+        property: Delay
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -26,8 +26,8 @@ card "Z-Zillion Tank" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 22
-        property: 67110912
+        code: CannotDisable
+        property: InitialValue + IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
         }
@@ -35,14 +35,14 @@ card "Z-Zillion Tank" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 76
+        code: CannotAttack2
         on_resolve {
         }
     }
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 71
+        code: CannotDirectAttack2
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
         }
@@ -50,7 +50,7 @@ card "Z-Zillion Tank" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 41
+        code: IndestructableEffect
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
         }
@@ -58,7 +58,7 @@ card "Z-Zillion Tank" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -82,7 +82,7 @@ card "Z-Zillion Tank" {
 
     raw_effect "Effect 9" {
         effect_type: Single
-        code: 76
+        code: CannotAttack2
         on_resolve {
         }
     }

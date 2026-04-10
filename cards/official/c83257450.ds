@@ -3,7 +3,7 @@
 // Transpiled from c83257450.lua
 
 card "The Unstoppable Exodia Incarnate" {
-    password: 83257450
+    id: 83257450
     type: Fusion Monster
     attribute: DARK
     race: Spellcaster
@@ -22,8 +22,8 @@ card "The Unstoppable Exodia Incarnate" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -43,7 +43,7 @@ card "The Unstoppable Exodia Incarnate" {
         effect_type: QuickEffect
         category: Negate
         code: Chaining
-        property: 49152
+        property: Oath + CountCodeDuel
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -53,7 +53,7 @@ card "The Unstoppable Exodia Incarnate" {
 
     raw_effect "Effect 4" {
         effect_type: Field + Trigger
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -64,7 +64,7 @@ card "The Unstoppable Exodia Incarnate" {
     raw_effect "Effect 5" {
         effect_type: Field + MandatoryTrigger
         code: 4098
-        property: 2048
+        property: InitialValue
         range: MonsterZone
         count_limit: (1, 0)
         on_resolve {
@@ -73,7 +73,7 @@ card "The Unstoppable Exodia Incarnate" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk + 0
         }

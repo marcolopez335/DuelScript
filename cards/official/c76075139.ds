@@ -3,7 +3,7 @@
 // Transpiled from c76075139.lua
 
 card "Vaylantz Genesis Grand Duke" {
-    password: 76075139
+    id: 76075139
     type: Fusion Monster | Pendulum Monster
     attribute: FIRE
     race: Machine
@@ -23,16 +23,16 @@ card "Vaylantz Genesis Grand Duke" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 30
-        property: 263168
+        code: SpsummonCondition
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 34
-        property: 262144
+        code: CannotSummon
+        property: Uncopyable
         range: Deck
         on_resolve {
             tribute (1, monster, you controls)
@@ -51,7 +51,7 @@ card "Vaylantz Genesis Grand Duke" {
         effect_type: Single + Trigger
         category: ToHand + Damage + SynchroSummon
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             return (1+, monster, opponent controls) to hand
             deal_damage to opponent: 1000

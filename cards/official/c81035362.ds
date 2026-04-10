@@ -3,7 +3,7 @@
 // Transpiled from c81035362.lua
 
 card "Fiendish Rhino Warrior" {
-    password: 81035362
+    id: 81035362
     type: Effect Monster
     attribute: EARTH
     race: Fiend
@@ -13,7 +13,7 @@ card "Fiendish Rhino Warrior" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 42
+        code: CannotBeEffectTarget
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
@@ -22,7 +22,7 @@ card "Fiendish Rhino Warrior" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 41
+        code: IndestructableEffect
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
@@ -33,7 +33,7 @@ card "Fiendish Rhino Warrior" {
         effect_type: Single + Trigger
         category: ToGrave
         code: ChainEnd
-        property: 65536
+        property: Delay
         count_limit: (1, 81035362)
         on_resolve {
             send (1+, card, you controls, deck) to gy

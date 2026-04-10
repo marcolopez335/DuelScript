@@ -3,7 +3,7 @@
 // Transpiled from c63676256.lua
 
 card "Buster Blaster" {
-    password: 63676256
+    id: 63676256
     type: Effect Monster | Gemini
     attribute: EARTH
     race: Machine
@@ -13,7 +13,7 @@ card "Buster Blaster" {
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 100
+        code: UpdateAttack
         on_resolve {
             modifier: atk - 500
         }
@@ -21,7 +21,7 @@ card "Buster Blaster" {
 
     raw_effect "Effect 2" {
         effect_type: Equip
-        code: 104
+        code: UpdateDefense
         on_resolve {
             modifier: def - 500
         }
@@ -30,7 +30,7 @@ card "Buster Blaster" {
     raw_effect "Effect 3" {
         effect_type: Field + MandatoryTrigger
         category: Destroy
-        code: 1139
+        code: BattleConfirmed
         range: SpellTrapZone
         on_resolve {
             destroy (1+, monster, either_player controls)
@@ -55,7 +55,7 @@ card "Buster Blaster" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 76
+        code: CannotAttack2
         on_resolve {
         }
     }

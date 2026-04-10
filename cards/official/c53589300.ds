@@ -3,7 +3,7 @@
 // Transpiled from c53589300.lua
 
 card "Nerva the Power Patron of Creation" {
-    password: 53589300
+    id: 53589300
     type: Fusion Monster
     attribute: EARTH
     race: Unknown
@@ -22,8 +22,8 @@ card "Nerva the Power Patron of Creation" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 34
-        property: 1311744
+        code: CannotSummon
+        property: BothSide + Uncopyable + PlayerTarget
         range: Deck
         on_resolve {
             tribute (1, monster, you controls)
@@ -32,8 +32,8 @@ card "Nerva the Power Patron of Creation" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 41
-        property: 131072
+        code: IndestructableEffect
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }

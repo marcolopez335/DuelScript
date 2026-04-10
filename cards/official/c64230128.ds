@@ -3,7 +3,7 @@
 // Transpiled from c64230128.lua
 
 card "Zaralaam the Dark Palace" {
-    password: 64230128
+    id: 64230128
     type: Field Spell
 
     raw_effect "Effect 1" {
@@ -15,8 +15,8 @@ card "Zaralaam the Dark Palace" {
 
     raw_effect "Effect 2" {
         effect_type: Field
-        code: 6
-        property: 2048
+        code: CannotChangeControl
+        property: InitialValue
         range: FieldZone
         on_resolve {
             register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
@@ -26,7 +26,7 @@ card "Zaralaam the Dark Palace" {
     raw_effect "Effect 3" {
         effect_type: Field + Trigger
         category: Damage
-        code: 1139
+        code: BattleConfirmed
         range: FieldZone
         count_limit: (1, 0)
         on_resolve {

@@ -3,7 +3,7 @@
 // Transpiled from c91215724.lua
 
 card "Junk Armor" {
-    password: 91215724
+    id: 91215724
     type: Effect Monster
     attribute: EARTH
     race: Warrior
@@ -13,8 +13,8 @@ card "Junk Armor" {
 
     raw_effect "Effect 1" {
         effect_type: Field
-        code: 71
-        property: 128
+        code: CannotDirectAttack2
+        property: SetAvailable
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -25,7 +25,7 @@ card "Junk Armor" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: ChainSolving
-        property: 65536
+        property: Delay
         count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy

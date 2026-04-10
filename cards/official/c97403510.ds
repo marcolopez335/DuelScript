@@ -3,7 +3,7 @@
 // Transpiled from c97403510.lua
 
 card "Number 92: Heart-eartH Dragon" {
-    password: 97403510
+    id: 97403510
     type: Xyz Monster
     attribute: DARK
     race: Dragon
@@ -30,7 +30,7 @@ card "Number 92: Heart-eartH Dragon" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 42
+        code: CannotBeEffectTarget
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
         }
@@ -39,7 +39,7 @@ card "Number 92: Heart-eartH Dragon" {
     raw_effect "Effect 3" {
         effect_type: Field + Trigger
         category: Banish
-        code: 4608
+        code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 0)
         cost {
@@ -54,7 +54,7 @@ card "Number 92: Heart-eartH Dragon" {
         effect_type: Single + Trigger
         category: SpecialSummon
         code: ChainEnd
-        property: 81920
+        property: Oath + Delay
         on_resolve {
             special_summon (1, monster) from gy
         }

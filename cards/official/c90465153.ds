@@ -3,7 +3,7 @@
 // Transpiled from c90465153.lua
 
 card "Mannadium Prime-Heart" {
-    password: 90465153
+    id: 90465153
     type: Synchro Monster
     attribute: LIGHT
     race: Fairy
@@ -23,7 +23,7 @@ card "Mannadium Prime-Heart" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 251
+        code: ChangeCode3
         on_resolve {
         }
     }
@@ -37,8 +37,8 @@ card "Mannadium Prime-Heart" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 71
-        property: 131072
+        code: CannotDirectAttack2
+        property: SingleRange
         range: MonsterZone
         on_resolve {
             register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
@@ -48,8 +48,8 @@ card "Mannadium Prime-Heart" {
     raw_effect "Effect 4" {
         effect_type: Single + Trigger
         category: SpecialSummon
-        code: 1015
-        property: 65536
+        code: ChainNegated
+        property: Delay
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -58,7 +58,7 @@ card "Mannadium Prime-Heart" {
     raw_effect "Effect 5" {
         effect_type: Single
         code: 21142671
-        property: 263168
+        property: BothSide + Uncopyable
         on_resolve {
         }
     }

@@ -3,7 +3,7 @@
 // Transpiled from c52240819.lua
 
 card "Abyss Actor - Evil Heel" {
-    password: 52240819
+    id: 52240819
     type: Effect Monster | Pendulum Monster
     attribute: DARK
     race: Fiend
@@ -19,7 +19,7 @@ card "Abyss Actor - Evil Heel" {
     raw_effect "Effect 1" {
         effect_type: Ignition
         category: SynchroSummon
-        property: 16
+        property: CardTarget
         range: PendulumZone
         count_limit: (1, 0)
         cost {
@@ -37,7 +37,7 @@ card "Abyss Actor - Evil Heel" {
         effect_type: Single + Trigger
         category: SynchroSummon
         code: SummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -50,7 +50,7 @@ card "Abyss Actor - Evil Heel" {
         effect_type: Single + Trigger
         category: SynchroSummon
         code: SpecialSummonSuccess
-        property: 65552
+        property: CardTarget + Delay
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -61,8 +61,8 @@ card "Abyss Actor - Evil Heel" {
 
     raw_effect "Effect 4" {
         effect_type: Single + Trigger
-        code: 1139
-        property: 16
+        code: BattleConfirmed
+        property: CardTarget
         on_resolve {
             set (1, card)
         }
