@@ -8,7 +8,7 @@ card "Amazoness Heirloom" {
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 47
+        code: CannotHandReturn
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
         }
@@ -17,7 +17,7 @@ card "Amazoness Heirloom" {
     raw_effect "Effect 2" {
         effect_type: Field + MandatoryTrigger
         category: Destroy
-        code: 1138
+        code: BattleEnd
         range: SpellTrapZone
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -26,7 +26,7 @@ card "Amazoness Heirloom" {
 
     raw_effect "Effect 3" {
         effect_type: Activate
-        category: EquipAction
+        category: Equip
         code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)

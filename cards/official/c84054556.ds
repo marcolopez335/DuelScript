@@ -14,7 +14,7 @@ card "DoomZ Command 'A.D.R.A.S.T.E.I.A.'" {
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 47
+        code: CannotHandReturn
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
         }
@@ -33,7 +33,7 @@ card "DoomZ Command 'A.D.R.A.S.T.E.I.A.'" {
 
     raw_effect "Effect 3" {
         effect_type: Ignition
-        category: EquipAction + Damage
+        category: Equip + Damage
         property: CardTarget
         range: Graveyard
         count_limit: (1, 0)
@@ -45,7 +45,7 @@ card "DoomZ Command 'A.D.R.A.S.T.E.I.A.'" {
 
     raw_effect "Effect 4" {
         effect_type: Activate
-        category: EquipAction
+        category: Equip
         code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)

@@ -13,7 +13,7 @@ card "Ghostrick Nekomusume" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 20
+        code: CannotChangePosition
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
@@ -21,7 +21,7 @@ card "Ghostrick Nekomusume" {
 
     raw_effect "Effect 2" {
         effect_type: Ignition
-        category: DiceRoll
+        category: PositionChange
         range: MonsterZone
         on_resolve {
             change_battle_position (1, monster)
@@ -30,7 +30,7 @@ card "Ghostrick Nekomusume" {
 
     raw_effect "Effect 3" {
         effect_type: Field + MandatoryTrigger
-        category: DiceRoll
+        category: PositionChange
         code: SpecialSummonSuccess
         range: MonsterZone
         on_resolve {
@@ -40,7 +40,7 @@ card "Ghostrick Nekomusume" {
 
     raw_effect "Effect 4" {
         effect_type: Field + MandatoryTrigger
-        category: DiceRoll
+        category: PositionChange
         code: SummonSuccess
         range: MonsterZone
         on_resolve {

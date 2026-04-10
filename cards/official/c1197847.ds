@@ -8,7 +8,7 @@ card "Phantasm Spiral Wave" {
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 47
+        code: CannotHandReturn
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
         }
@@ -16,8 +16,8 @@ card "Phantasm Spiral Wave" {
 
     raw_effect "Effect 2" {
         effect_type: Field + Trigger
-        category: DefChange + SpecialSummon
-        code: 4224
+        category: HandDestroy + SpecialSummon
+        code: PhaseBattleStep
         range: SpellTrapZone
         count_limit: (1, 1197847)
         on_resolve {
@@ -29,7 +29,7 @@ card "Phantasm Spiral Wave" {
 
     raw_effect "Effect 3" {
         effect_type: Activate
-        category: EquipAction
+        category: Equip
         code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)

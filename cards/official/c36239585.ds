@@ -13,7 +13,7 @@ card "Ghostrick Fairy" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 20
+        code: CannotChangePosition
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
@@ -21,7 +21,7 @@ card "Ghostrick Fairy" {
 
     raw_effect "Effect 2" {
         effect_type: Ignition
-        category: DiceRoll
+        category: PositionChange
         range: MonsterZone
         on_resolve {
             change_battle_position (1, monster)
@@ -30,7 +30,7 @@ card "Ghostrick Fairy" {
 
     raw_effect "Effect 3" {
         effect_type: Single + Trigger
-        code: 1001
+        code: ChainActive
         property: CardTarget + Oath
         on_resolve {
             send (1+, monster, you controls) to gy

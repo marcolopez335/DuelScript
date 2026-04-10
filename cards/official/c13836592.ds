@@ -17,7 +17,7 @@ card "Behemoth the King of a Hundred Battles" {
 
     raw_effect "Effect 1" {
         effect_type: Single + Trigger
-        category: ToHand + SynchroSummon
+        category: ToHand + AtkChange
         code: SummonSuccess
         property: CardTarget + Delay
         on_resolve {
@@ -28,7 +28,7 @@ card "Behemoth the King of a Hundred Battles" {
 
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
-        category: ToHand + SynchroSummon
+        category: ToHand + AtkChange
         code: SpecialSummonSuccess
         property: CardTarget + Delay
         on_resolve {
@@ -49,7 +49,7 @@ card "Behemoth the King of a Hundred Battles" {
 
     raw_effect "Effect 4" {
         effect_type: Field + Trigger
-        category: SynchroSummon
+        category: AtkChange
         code: PhaseEnd
         range: MonsterZone
         count_limit: (1, 0)
@@ -59,7 +59,7 @@ card "Behemoth the King of a Hundred Battles" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 20
+        code: CannotChangePosition
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
@@ -67,7 +67,7 @@ card "Behemoth the King of a Hundred Battles" {
 
     raw_effect "Effect 6" {
         effect_type: Single
-        code: 23
+        code: Unreleasable
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }
         }

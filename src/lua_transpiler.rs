@@ -314,6 +314,7 @@ fn friendly_effect_type(val: u32) -> String {
 }
 
 /// Sprint 56: Convert a numeric category to friendly names.
+/// Values from EDOPro's CATEGORY_* constants.
 fn friendly_category(val: u32) -> String {
     if val == 0 { return "0".to_string(); }
     let mut parts = Vec::new();
@@ -323,30 +324,32 @@ fn friendly_category(val: u32) -> String {
     if val & 0x0000_0008 != 0 { parts.push("ToHand"); }
     if val & 0x0000_0010 != 0 { parts.push("ToDeck"); }
     if val & 0x0000_0020 != 0 { parts.push("ToGrave"); }
-    if val & 0x0000_0040 != 0 { parts.push("AtkChange"); }
-    if val & 0x0000_0080 != 0 { parts.push("DefChange"); }
-    if val & 0x0000_0100 != 0 { parts.push("Counter"); }
+    if val & 0x0000_0040 != 0 { parts.push("DeckDestroy"); }
+    if val & 0x0000_0080 != 0 { parts.push("HandDestroy"); }
+    if val & 0x0000_0100 != 0 { parts.push("Summon"); }
     if val & 0x0000_0200 != 0 { parts.push("SpecialSummon"); }
     if val & 0x0000_0400 != 0 { parts.push("Token"); }
-    if val & 0x0000_0800 != 0 { parts.push("PositionChange"); }
-    if val & 0x0000_1000 != 0 { parts.push("DiceRoll"); }
-    if val & 0x0000_2000 != 0 { parts.push("Summon"); }
+    if val & 0x0000_0800 != 0 { parts.push("Flip"); }
+    if val & 0x0000_1000 != 0 { parts.push("PositionChange"); }
+    if val & 0x0000_2000 != 0 { parts.push("Control"); }
     if val & 0x0000_4000 != 0 { parts.push("Disable"); }
+    if val & 0x0000_8000 != 0 { parts.push("DisableSummon"); }
     if val & 0x0001_0000 != 0 { parts.push("Draw"); }
     if val & 0x0002_0000 != 0 { parts.push("Search"); }
-    if val & 0x0004_0000 != 0 { parts.push("EquipAction"); }
+    if val & 0x0004_0000 != 0 { parts.push("Equip"); }
     if val & 0x0008_0000 != 0 { parts.push("Damage"); }
     if val & 0x0010_0000 != 0 { parts.push("Recover"); }
-    if val & 0x0020_0000 != 0 { parts.push("SynchroSummon"); }
-    if val & 0x0040_0000 != 0 { parts.push("XyzSummon"); }
-    if val & 0x0080_0000 != 0 { parts.push("LinkSummon"); }
-    if val & 0x0100_0000 != 0 { parts.push("RitualSummon"); }
-    if val & 0x0200_0000 != 0 { parts.push("FusionSummon"); }
+    if val & 0x0020_0000 != 0 { parts.push("AtkChange"); }
+    if val & 0x0040_0000 != 0 { parts.push("DefChange"); }
+    if val & 0x0080_0000 != 0 { parts.push("Counter"); }
+    if val & 0x0100_0000 != 0 { parts.push("CoinToss"); }
+    if val & 0x0200_0000 != 0 { parts.push("DiceRoll"); }
+    if val & 0x0400_0000 != 0 { parts.push("LeaveGrave"); }
     if val & 0x0800_0000 != 0 { parts.push("LevelChange"); }
     if val & 0x1000_0000 != 0 { parts.push("Negate"); }
-    if val & 0x2000_0000 != 0 { parts.push("Destroy2"); }
-    if val & 0x4000_0000 != 0 { parts.push("Control"); }
-    if val & 0x8000_0000 != 0 { parts.push("Announce"); }
+    if val & 0x2000_0000 != 0 { parts.push("Announce"); }
+    if val & 0x4000_0000 != 0 { parts.push("FusionSummon"); }
+    if val & 0x8000_0000 != 0 { parts.push("ToExtra"); }
     if parts.is_empty() { return val.to_string(); }
     parts.join(" + ")
 }
@@ -460,13 +463,60 @@ fn friendly_code(val: u32) -> String {
         1139 => "BattleConfirmed".to_string(),
         1140 => "BattleDamage".to_string(),
         1143 => "BattleDestroyed".to_string(),
-        // Phase combo codes (PHASE_X | 0x1000)
+        // Phase combo codes (EVENT_PHASE + PHASE_X)
+        0x1001 => "PhaseDraw".to_string(),
+        0x1002 => "PhaseStandby".to_string(),
+        0x1004 => "PhaseMain1".to_string(),
+        0x1008 => "PhaseBattleStart".to_string(),
+        0x1010 => "PhaseBattle".to_string(),
+        0x1020 => "PhaseDamage".to_string(),
+        0x1040 => "PhaseDamageCalc".to_string(),
+        0x1080 => "PhaseBattleStep".to_string(),
+        0x1100 => "PhaseMain2".to_string(),
         0x1200 => "PhaseEnd".to_string(),
-        0x1202 => "PhaseStandby".to_string(),
-        0x1204 => "PhaseMain1".to_string(),
-        0x1208 => "PhaseBattle".to_string(),
-        0x1210 => "PhaseMain2".to_string(),
-        0x1220 => "PhaseEnd2".to_string(),
+        // Older constant table variants
+        0x0202 => "PhaseStandby".to_string(),
+        0x0204 => "PhaseMain1".to_string(),
+        0x0208 => "PhaseBattle".to_string(),
+        0x0210 => "PhaseMain2".to_string(),
+        0x0220 => "PhaseEnd2".to_string(),
+        // More effect codes
+        14  => "CannotBeSynchroMaterial".to_string(),
+        15  => "CannotBeXyzMaterial".to_string(),
+        16  => "CannotBeLinkMaterial".to_string(),
+        17  => "CannotBeFusionMaterial".to_string(),
+        20  => "CannotChangePosition".to_string(),
+        23  => "Unreleasable".to_string(),
+        24  => "UnreleasableByEffect".to_string(),
+        25  => "ChangeDamageCalc".to_string(),
+        40  => "IndestructableByCard".to_string(),
+        46  => "CannotRemoveByEffect".to_string(),
+        47  => "CannotHandReturn".to_string(),
+        48  => "CannotDeckReturn".to_string(),
+        70  => "AttackDisabled".to_string(),
+        74  => "DefenseDisabled".to_string(),
+        80  => "CannotChangeForm".to_string(),
+        108 => "SetBaseLevel".to_string(),
+        113 => "UpdateLevel".to_string(),
+        123 => "AddSetcode".to_string(),
+        124 => "LoseSetcode".to_string(),
+        131 => "CannotAttackAnnounce2".to_string(),
+        140 => "Damagechange".to_string(),
+        151 => "ForbiddenByEffect".to_string(),
+        160 => "SpsummonProc".to_string(),
+        170 => "ForceActivate".to_string(),
+        // More event codes
+        1001 => "ChainActive".to_string(),
+        1003 => "Predraw".to_string(),
+        1016 => "DisableEffect".to_string(),
+        1022 => "MoveCard".to_string(),
+        1033 => "Equip".to_string(),
+        1034 => "Unequip".to_string(),
+        1036 => "LpChanged".to_string(),
+        1134 => "AttackEnd".to_string(),
+        1138 => "BattleEnd".to_string(),
+        1139 => "BattleConfirmed".to_string(),
+        1141 => "BattleDestroyed".to_string(),
         _ => val.to_string(),
     }
 }
@@ -490,7 +540,11 @@ fn friendly_property(val: u32) -> String {
     if val & 0x0010_0000 != 0 { parts.push("PlayerTarget"); }
     if val & 0x0020_0000 != 0 { parts.push("ClientHint"); }
     if val & 0x0400_0000 != 0 { parts.push("IgnoreRange2"); }
+    if val & 0x0040_0000 != 0 { parts.push("IgnoreRange2"); }
+    if val & 0x0080_0000 != 0 { parts.push("IgnoreImmune2"); }
     if val & 0x0800_0000 != 0 { parts.push("NoTurnReset"); }
+    if val & 0x0100_0000 != 0 { parts.push("CountCodeOath"); }
+    if val & 0x1000_0000 != 0 { parts.push("Flag2Check"); }
     if val & 0x4000_0000 != 0 { parts.push("Flag2_Simultaneous"); }
     if parts.is_empty() { return val.to_string(); }
     parts.join(" + ")

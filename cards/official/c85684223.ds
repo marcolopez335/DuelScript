@@ -30,7 +30,7 @@ card "Reaper on the Nightmare" {
 
     raw_effect "Effect 2" {
         effect_type: Single + MandatoryTrigger
-        category: DefChange
+        category: HandDestroy
         code: BattleDestroyed
         on_resolve {
             send (1+, card, either_player controls) to gy
@@ -48,7 +48,7 @@ card "Reaper on the Nightmare" {
 
     raw_effect "Effect 4" {
         effect_type: Field + Continuous
-        code: 1022
+        code: MoveCard
         range: MonsterZone
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -57,7 +57,7 @@ card "Reaper on the Nightmare" {
 
     raw_effect "Effect 5" {
         effect_type: Field + Continuous
-        code: 1138
+        code: BattleEnd
         range: MonsterZone
         on_resolve {
             destroy (1+, card, either_player controls)
@@ -75,7 +75,7 @@ card "Reaper on the Nightmare" {
 
     raw_effect "Effect 7" {
         effect_type: Single
-        code: 74
+        code: DefenseDisabled
         on_resolve {
             register_effect on self { grant: direct_attack duration: until_end_of_turn }
         }

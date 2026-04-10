@@ -13,7 +13,7 @@ card "Penguin Torpedo" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 74
+        code: DefenseDisabled
         on_resolve {
             register_effect on self { grant: direct_attack duration: until_end_of_turn }
         }
@@ -21,7 +21,7 @@ card "Penguin Torpedo" {
 
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
-        category: Summon
+        category: Control
         code: BattleDestroyed
         property: CardTarget
         count_limit: (1, 17679043)
@@ -37,7 +37,7 @@ card "Penguin Torpedo" {
     raw_effect "Effect 3" {
         effect_type: Single + MandatoryTrigger
         category: Destroy
-        code: 1141
+        code: BattleDestroyed
         on_resolve {
             destroy (1+, card, either_player controls)
         }

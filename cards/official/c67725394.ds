@@ -17,7 +17,7 @@ card "Doodle Beast - Tyranno" {
 
     raw_effect "Effect 1" {
         effect_type: QuickEffect
-        category: Counter
+        category: Summon
         code: FreeChain
         range: Hand
         count_limit: (1, 67725394)
@@ -28,7 +28,7 @@ card "Doodle Beast - Tyranno" {
 
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
-        category: Destroy + SynchroSummon
+        category: Destroy + AtkChange
         code: SummonSuccess
         property: Delay
         on_resolve {
@@ -45,7 +45,7 @@ card "Doodle Beast - Tyranno" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 20
+        code: CannotChangePosition
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
@@ -53,7 +53,7 @@ card "Doodle Beast - Tyranno" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 23
+        code: Unreleasable
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }
         }

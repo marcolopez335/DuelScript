@@ -9,7 +9,7 @@ card "DoomZ Command 'D.O.O.M.D.U.R.G.'" {
     raw_effect "Effect 1" {
         effect_type: Field + MandatoryTrigger
         category: Damage
-        code: 4098
+        code: PhaseStandby
         range: SpellTrapZone
         count_limit: (1, 0)
         on_resolve {
@@ -43,7 +43,7 @@ card "DoomZ Command 'D.O.O.M.D.U.R.G.'" {
 
     raw_effect "Effect 5" {
         effect_type: QuickEffect + XyzMaterial
-        category: Destroy + SynchroSummon
+        category: Destroy + AtkChange
         code: FreeChain
         property: Oath
         range: MonsterZone
@@ -63,7 +63,7 @@ card "DoomZ Command 'D.O.O.M.D.U.R.G.'" {
 
     raw_effect "Effect 7" {
         effect_type: Single
-        code: 74
+        code: DefenseDisabled
         property: IgnoreRange2
         on_resolve {
             register_effect on self { grant: direct_attack duration: until_end_of_turn }
@@ -72,7 +72,7 @@ card "DoomZ Command 'D.O.O.M.D.U.R.G.'" {
 
     raw_effect "Effect 8" {
         effect_type: Single + Continuous
-        code: 1141
+        code: BattleDestroyed
         on_resolve {
             destroy (1, card)
         }
@@ -80,7 +80,7 @@ card "DoomZ Command 'D.O.O.M.D.U.R.G.'" {
 
     raw_effect "Effect 9" {
         effect_type: Activate
-        category: EquipAction
+        category: Equip
         code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)

@@ -41,7 +41,7 @@ card "Tsumuha-Kutsunagi the Lord of Swords" {
     raw_effect "Effect 3" {
         effect_type: Single + MandatoryTrigger
         category: ToDeck + ToGrave + Draw
-        code: 1001
+        code: ChainActive
         on_resolve {
             send (1+, card, opponent controls) to gy
             draw 1
@@ -55,7 +55,7 @@ card "Tsumuha-Kutsunagi the Lord of Swords" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 20
+        code: CannotChangePosition
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
@@ -63,7 +63,7 @@ card "Tsumuha-Kutsunagi the Lord of Swords" {
 
     raw_effect "Effect 5" {
         effect_type: Single
-        code: 23
+        code: Unreleasable
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }
         }

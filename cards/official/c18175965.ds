@@ -25,7 +25,7 @@ card "Guardian Dreadscythe" {
 
     raw_effect "Effect 2" {
         effect_type: Single
-        code: 20
+        code: CannotChangePosition
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
@@ -33,7 +33,7 @@ card "Guardian Dreadscythe" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 23
+        code: Unreleasable
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }
         }
@@ -52,7 +52,7 @@ card "Guardian Dreadscythe" {
 
     raw_effect "Effect 5" {
         effect_type: Single + Trigger
-        category: EquipAction
+        category: Equip
         code: SpecialSummonSuccess
         property: Oath
         on_resolve {
@@ -62,7 +62,7 @@ card "Guardian Dreadscythe" {
 
     raw_effect "Effect 6" {
         effect_type: Field
-        code: 20
+        code: CannotChangePosition
         property: InitialValue
         range: MonsterZone
         on_resolve {
@@ -82,7 +82,7 @@ card "Guardian Dreadscythe" {
 
     raw_effect "Effect 8" {
         effect_type: Single + MandatoryTrigger
-        category: DefChange + SpecialSummon
+        category: HandDestroy + SpecialSummon
         code: ChainEnd
         on_resolve {
             discard (1, card)

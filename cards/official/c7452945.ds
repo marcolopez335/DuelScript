@@ -8,7 +8,7 @@ card "Noble Arms of Destiny" {
 
     raw_effect "Effect 1" {
         effect_type: Equip
-        code: 47
+        code: CannotHandReturn
         on_resolve {
             register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
         }
@@ -16,7 +16,7 @@ card "Noble Arms of Destiny" {
 
     raw_effect "Effect 2" {
         effect_type: Single + Trigger
-        category: EquipAction
+        category: Equip
         code: ChainEnd
         property: CardTarget + Oath + Delay
         count_limit: (1, 7452945)
@@ -27,7 +27,7 @@ card "Noble Arms of Destiny" {
 
     raw_effect "Effect 3" {
         effect_type: Activate
-        category: EquipAction
+        category: Equip
         code: FreeChain
         on_resolve {
             equip self to (1, monster, you controls)

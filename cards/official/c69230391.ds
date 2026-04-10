@@ -17,7 +17,7 @@ card "Thestalos the Mega Monarch" {
 
     raw_effect "Effect 1" {
         effect_type: Single + MandatoryTrigger
-        category: DefChange + Damage
+        category: HandDestroy + Damage
         code: SummonSuccess
         on_resolve {
             reveal (1+, card, opponent controls)
@@ -37,7 +37,7 @@ card "Thestalos the Mega Monarch" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 20
+        code: CannotChangePosition
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
@@ -45,7 +45,7 @@ card "Thestalos the Mega Monarch" {
 
     raw_effect "Effect 4" {
         effect_type: Single
-        code: 23
+        code: Unreleasable
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }
         }

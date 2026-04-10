@@ -13,7 +13,7 @@ card "Ghostrick Siren" {
 
     raw_effect "Effect 1" {
         effect_type: Single
-        code: 20
+        code: CannotChangePosition
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
@@ -21,7 +21,7 @@ card "Ghostrick Siren" {
 
     raw_effect "Effect 2" {
         effect_type: Ignition
-        category: DiceRoll
+        category: PositionChange
         range: MonsterZone
         on_resolve {
             change_battle_position (1, monster)
@@ -30,7 +30,7 @@ card "Ghostrick Siren" {
 
     raw_effect "Effect 3" {
         effect_type: Single + MandatoryTrigger
-        category: ToHand + ToGrave + AtkChange + DiceRoll + Search
+        category: ToHand + ToGrave + DeckDestroy + PositionChange + Search
         code: SummonSuccess
         on_resolve {
             mill 2
@@ -42,8 +42,8 @@ card "Ghostrick Siren" {
 
     raw_effect "Effect 4" {
         effect_type: Single + MandatoryTrigger
-        category: ToHand + ToGrave + AtkChange + DiceRoll + Search
-        code: 1001
+        category: ToHand + ToGrave + DeckDestroy + PositionChange + Search
+        code: ChainActive
         on_resolve {
             mill 2
             add_to_hand (1+, spell, you controls) from deck

@@ -63,7 +63,7 @@ card "Slifer the Sky Dragon" {
 
     raw_effect "Effect 6" {
         effect_type: Field + MandatoryTrigger
-        category: Destroy + SynchroSummon
+        category: Destroy + AtkChange
         code: SummonSuccess
         range: MonsterZone
         on_resolve {
@@ -77,7 +77,7 @@ card "Slifer the Sky Dragon" {
 
     raw_effect "Effect 7" {
         effect_type: Field + MandatoryTrigger
-        category: Destroy + SynchroSummon
+        category: Destroy + AtkChange
         code: SpecialSummonSuccess
         range: MonsterZone
         on_resolve {
@@ -91,7 +91,7 @@ card "Slifer the Sky Dragon" {
 
     raw_effect "Effect 8" {
         effect_type: Single
-        code: 20
+        code: CannotChangePosition
         on_resolve {
             register_effect on self { grant: cannot_attack duration: until_end_of_turn }
         }
@@ -99,7 +99,7 @@ card "Slifer the Sky Dragon" {
 
     raw_effect "Effect 9" {
         effect_type: Single
-        code: 23
+        code: Unreleasable
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }
         }

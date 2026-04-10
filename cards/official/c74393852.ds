@@ -43,7 +43,7 @@ card "Zoodiac Boarbow" {
 
     raw_effect "Effect 3" {
         effect_type: Single
-        code: 74
+        code: DefenseDisabled
         on_resolve {
             register_effect on self { grant: direct_attack duration: until_end_of_turn }
         }
@@ -51,7 +51,7 @@ card "Zoodiac Boarbow" {
 
     raw_effect "Effect 4" {
         effect_type: Single + Trigger
-        category: ToGrave + DiceRoll
+        category: ToGrave + PositionChange
         code: BattleDestroyed
         on_resolve {
             send (1+, card, either_player controls) to gy

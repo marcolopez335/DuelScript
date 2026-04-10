@@ -18,7 +18,7 @@ card "Enneacraft - Atori.MAR" {
 
     raw_effect "Effect 1" {
         effect_type: Field + Continuous
-        code: 1001
+        code: ChainActive
         range: PendulumZone
         on_resolve {
         }
@@ -27,7 +27,7 @@ card "Enneacraft - Atori.MAR" {
     raw_effect "Effect 2" {
         effect_type: Field + Trigger
         category: Destroy
-        code: 4224
+        code: PhaseBattleStep
         property: CardTarget
         range: PendulumZone
         count_limit: (1, 0)
@@ -62,8 +62,8 @@ card "Enneacraft - Atori.MAR" {
 
     raw_effect "Effect 5" {
         effect_type: Single + MandatoryTrigger
-        category: DiceRoll
-        code: 1001
+        category: PositionChange
+        code: ChainActive
         on_resolve {
             change_battle_position (1, monster)
             register_effect on self {
@@ -75,7 +75,7 @@ card "Enneacraft - Atori.MAR" {
 
     raw_effect "Effect 6" {
         effect_type: Field + Continuous
-        code: 1022
+        code: MoveCard
         range: PendulumZone
         on_resolve {
         }
@@ -83,7 +83,7 @@ card "Enneacraft - Atori.MAR" {
 
     raw_effect "Effect 7" {
         effect_type: Field + Continuous
-        code: 1022
+        code: MoveCard
         on_resolve {
         }
     }
@@ -98,7 +98,7 @@ card "Enneacraft - Atori.MAR" {
 
     raw_effect "Effect 9" {
         effect_type: Single
-        code: 14
+        code: CannotBeSynchroMaterial
         property: IgnoreRange2
         on_resolve {
             register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }
