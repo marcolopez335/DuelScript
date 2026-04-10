@@ -37,6 +37,8 @@ pub struct Card {
     pub continuous_effects:  Vec<ContinuousEffect>,
     pub replacement_effects: Vec<ReplacementEffect>,
     pub equip_effects:       Vec<EquipEffect>,
+    /// Sprint 58: Redirect effects (Dimensional Fissure, Macro Cosmos)
+    pub redirect_effects:    Vec<RedirectEffect>,
     pub win_condition:       Option<WinCondition>,
     /// v0.6: Raw effect blocks with explicit bitfields (transpiler output)
     pub raw_effects:         Vec<RawEffect>,
@@ -473,6 +475,24 @@ pub enum GrantedAbility {
     CannotBeTributed,
     CannotBeUsedAsMaterial,
     CannotChangeBattlePosition,
+
+    // Sprint 58: LP cost + summon restriction grants
+    LpCostZero,
+    LpCostHalved,
+    CannotBeNormalSummoned,
+    CannotBeSpecialSummoned,
+    CannotBeFlipSummoned,
+}
+
+// ── Redirect Effect (Sprint 58) ──────────────────────────────
+
+#[derive(Debug, Clone)]
+pub struct RedirectEffect {
+    pub name: Option<String>,
+    pub when_going_to: Zone,
+    pub redirect_to: Zone,
+    pub apply_to: Option<TargetExpr>,
+    pub condition: Option<ConditionExpr>,
 }
 
 // ── Replacement Effect ────────────────────────────────────────
@@ -601,6 +621,10 @@ pub enum Duration {
     UntilNextTurn,
     Permanently,
     ThisTurn,
+    /// Sprint 58: lasts as long as this card is on the field
+    WhileOnField,
+    /// Sprint 58: lasts as long as this card is face-up
+    WhileFaceUp,
 }
 
 // ── Condition ─────────────────────────────────────────────────

@@ -60,11 +60,24 @@ card_body_item = {
   | continuous_effect_block
   | replacement_effect_block
   | equip_effect_block
+  | redirect_effect_block
   | win_condition_block
   | global_handler_block
   | global_state_block
   | card_field
 }
+
+// Sprint 58: redirect effects — "cards going to zone X go to zone Y instead."
+// Dimensional Fissure, Macro Cosmos, Dark Law, etc.
+redirect_effect_block = { "redirect_effect" ~ string? ~ "{" ~ redirect_body ~ "}" }
+redirect_body = {
+    redirect_when_clause
+  ~ redirect_to_clause
+  ~ apply_to_clause?
+  ~ condition_clause?
+}
+redirect_when_clause = { "when_going_to" ~ ":" ~ zone }
+redirect_to_clause   = { "redirect_to"   ~ ":" ~ zone }
 
 // Phase 2: class-level event handler, registered once per duel regardless
 // of how many copies of the card exist. Used for tracking groups that
@@ -419,6 +432,13 @@ granted_ability = {
   | "pierces_defense"
   | "cannot_be_negated"
   | "unaffected_by_opponent_effects"
+  // Sprint 58: LP cost modification grants
+  | "lp_cost_zero"
+  | "lp_cost_halved"
+  // Sprint 58: additional battle/summon grants
+  | "cannot_be_normal_summoned"
+  | "cannot_be_special_summoned"
+  | "cannot_be_flip_summoned"
 }
 
 // ── Replacement Effect Block ──────────────────────────────────
@@ -616,8 +636,12 @@ phase = {
 }
 
 // ── Duration ──────────────────────────────────────────────────
+// Sprint 58: added while_on_field / while_face_up for cards that
+// grant effects "as long as this card remains face-up."
 duration = {
-    "until_end_of_turn"
+    "while_on_field"
+  | "while_face_up"
+  | "until_end_of_turn"
   | "until_end_phase"
   | "until_end_of_damage_step"
   | "until_next_turn"
@@ -869,7 +893,17 @@ attach_action                 = { "attach" ~ target_expr ~ "to" ~ ("self" | targ
 fusion_summon_action          = { "fusion_summon"  ~ target_expr ~ "using" ~ material_list }
 synchro_summon_action         = { "synchro_summon" ~ target_expr ~ "using" ~ material_list }
 xyz_summon_action             = { "xyz_summon"     ~ target_expr ~ "using" ~ material_list }
-ritual_summon_action          = { "ritual_summon"  ~ target_expr ~ "using" ~ material_list }
+// Sprint 57: ritual_summon now supports level constraints. The
+// ritual SPELL defines whether the tribute total must be >=, ==,
+// or exactly match the monster's level. Without a constraint the
+// engine defaults to "total_level >= monster level".
+ritual_summon_action          = {
+    "ritual_summon"  ~ target_expr ~ "using" ~ material_list
+    ~ ritual_level_constraint?
+}
+ritual_level_constraint = {
+    "where" ~ ("total_level" | "exact_level") ~ compare_op ~ expr
+}
 material_list                 = { target_expr ~ ("+" ~ target_expr)* }
 
 // NEW: Pendulum summon

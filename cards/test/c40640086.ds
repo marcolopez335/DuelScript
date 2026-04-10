@@ -1,0 +1,18 @@
+// Ritual spell reference: demonstrates the Sprint 57 ritual model
+// where the SPELL defines the summoning conditions (level >= 8),
+// not the monster.
+
+card "Dark Ritual Art" {
+    type: Ritual Spell
+    id: 40640086
+
+    effect "Ritual Summon" {
+        speed: spell_speed_1
+
+        on_resolve {
+            ritual_summon (1, ritual monster)
+                using (1+, monster, you controls)
+                where total_level >= 8
+        }
+    }
+}

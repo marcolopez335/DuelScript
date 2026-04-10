@@ -91,6 +91,7 @@ fn parse_card(pair: Pair<Rule>) -> Result<Card, ParseError> {
         continuous_effects: vec![],
         replacement_effects: vec![],
         equip_effects: vec![],
+        redirect_effects: vec![],
         win_condition: None,
         raw_effects: vec![],
         flip_effects: vec![],
@@ -125,6 +126,7 @@ fn parse_card(pair: Pair<Rule>) -> Result<Card, ParseError> {
             Rule::continuous_effect_block => card.continuous_effects.push(parse_continuous_effect(field)?),
             Rule::replacement_effect_block => card.replacement_effects.push(parse_replacement_effect(field)?),
             Rule::equip_effect_block     => card.equip_effects.push(parse_equip_effect(field)?),
+            Rule::redirect_effect_block  => card.redirect_effects.push(parse_redirect_effect(field)?),
             Rule::win_condition_block    => card.win_condition = Some(parse_win_condition(field)?),
             _ => {}
         }
@@ -1063,6 +1065,13 @@ fn parse_granted_ability(pair: Pair<Rule>) -> Result<GrantedAbility, ParseError>
         "cannot_be_used_as_material"        => Ok(GrantedAbility::CannotBeUsedAsMaterial),
         "cannot_change_battle_position"     => Ok(GrantedAbility::CannotChangeBattlePosition),
 
+        // Sprint 58: LP cost + summon restriction grants
+        "lp_cost_zero"                      => Ok(GrantedAbility::LpCostZero),
+        "lp_cost_halved"                    => Ok(GrantedAbility::LpCostHalved),
+        "cannot_be_normal_summoned"         => Ok(GrantedAbility::CannotBeNormalSummoned),
+        "cannot_be_special_summoned"        => Ok(GrantedAbility::CannotBeSpecialSummoned),
+        "cannot_be_flip_summoned"           => Ok(GrantedAbility::CannotBeFlipSummoned),
+
         other => Err(ParseError::UnknownRule(other.to_string())),
     }
 }
@@ -1118,6 +1127,51 @@ fn parse_replaceable_event(pair: Pair<Rule>) -> Result<ReplaceableEvent, ParseEr
 }
 
 // ── Equip Effect ──────────────────────────────────────────────
+
+/// Sprint 58: parse redirect_effect_block.
+fn parse_redirect_effect(pair: Pair<Rule>) -> Result<RedirectEffect, ParseError> {
+    let mut name = None;
+    let mut when_going_to = Zone::Graveyard;
+    let mut redirect_to = Zone::Banished;
+    let mut apply_to = None;
+    let mut condition = None;
+
+    for child in pair.into_inner() {
+        match child.as_rule() {
+            Rule::string => name = Some(parse_string(child)),
+            Rule::redirect_body => {
+                for item in child.into_inner() {
+                    match item.as_rule() {
+                        Rule::redirect_when_clause => {
+                            if let Some(z) = item.into_inner().find(|p| p.as_rule() == Rule::zone) {
+                                when_going_to = parse_zone(z)?;
+                            }
+                        }
+                        Rule::redirect_to_clause => {
+                            if let Some(z) = item.into_inner().find(|p| p.as_rule() == Rule::zone) {
+                                redirect_to = parse_zone(z)?;
+                            }
+                        }
+                        Rule::apply_to_clause => {
+                            if let Some(t) = item.into_inner().find(|p| p.as_rule() == Rule::target_expr) {
+                                apply_to = Some(parse_target_expr(t)?);
+                            }
+                        }
+                        Rule::condition_clause => {
+                            if let Some(c) = item.into_inner().find(|p| p.as_rule() == Rule::condition_expr) {
+                                condition = Some(parse_condition_expr(c)?);
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+
+    Ok(RedirectEffect { name, when_going_to, redirect_to, apply_to, condition })
+}
 
 fn parse_equip_effect(pair: Pair<Rule>) -> Result<EquipEffect, ParseError> {
     let mut target = TargetExpr::SelfCard;
@@ -2693,6 +2747,8 @@ fn parse_duration(pair: Pair<Rule>) -> Result<Duration, ParseError> {
         "until_next_turn"         => Ok(Duration::UntilNextTurn),
         "permanently"             => Ok(Duration::Permanently),
         "this_turn"               => Ok(Duration::ThisTurn),
+        "while_on_field"          => Ok(Duration::WhileOnField),
+        "while_face_up"           => Ok(Duration::WhileFaceUp),
         other => Err(ParseError::UnknownRule(other.to_string())),
     }
 }

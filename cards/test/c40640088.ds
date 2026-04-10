@@ -1,0 +1,24 @@
+// LP cost + while_on_field reference: Spell Economics style.
+// "You don't pay LP to activate Spell Cards."
+
+card "Mana Efficiency" {
+    type: Continuous Spell
+    id: 40640088
+
+    continuous_effect "Free Spells" {
+        scope: field
+        apply_to: (1+, spell, you controls)
+        grant: lp_cost_zero
+    }
+
+    effect "Protect Ally" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        on_resolve {
+            register_effect on (1, monster, you controls) {
+                grant: cannot_be_destroyed_by_effect
+                duration: while_on_field
+            }
+        }
+    }
+}

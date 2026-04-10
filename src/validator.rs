@@ -395,12 +395,15 @@ fn check_link_arrows(ctx: &CardCtx, errors: &mut Vec<ValidationError>) {
 }
 
 fn check_materials(ctx: &CardCtx, errors: &mut Vec<ValidationError>) {
-    // Extra deck monsters should declare materials
+    // Extra deck monsters (Fusion/Synchro/Xyz/Link) should declare materials.
+    // Sprint 57: ritual monsters no longer need materials — the ritual
+    // SPELL defines the summoning conditions. Materials on a ritual
+    // monster is still accepted for backwards compat but not required.
     if ctx.is_extra_deck && ctx.card.materials.is_none() {
         errors.push(warn(ctx.name(), "Extra deck monster should declare a 'materials' block"));
     }
 
-    // Main deck monsters should NOT have materials (ritual handled separately)
+    // Main deck non-ritual monsters should NOT have materials
     if !ctx.is_extra_deck
         && !ctx.card.card_types.contains(&CardType::RitualMonster)
         && ctx.card.materials.is_some()
