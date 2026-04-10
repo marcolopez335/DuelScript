@@ -17,6 +17,8 @@ pub mod test_harness;
 pub mod python;
 #[cfg(feature = "lua_transpiler")]
 pub mod lua_transpiler;
+#[cfg(feature = "llm")]
+pub mod llm;
 
 pub use parser::{parse, ParseError};
 pub use validator::{validate, validate_card, ValidationError, ValidationReport, Severity};
