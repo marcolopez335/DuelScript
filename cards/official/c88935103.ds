@@ -15,9 +15,8 @@ card "Nobledragon Magician" {
     raw_effect "Effect 1" {
         effect_type: Single
         code: 141
-        property: SingleRange
-        range: PendulumZone
         on_resolve {
+            destroy self
         }
     }
 
@@ -29,12 +28,9 @@ card "Nobledragon Magician" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single
-        code: CannotAttack
-        property: BothSide + Uncopyable
-        on_resolve {
-        }
+    redirect_effect "Effect 3" {
+        when_going_to: field
+        redirect_to: banished
     }
 
     raw_effect "Effect 4" {

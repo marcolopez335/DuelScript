@@ -1573,7 +1573,7 @@ pub fn transpile_lua_to_ds(
         } else if code_str.contains("EFFECT_MUST_ATTACK") {
             Some("must_attack_if_able")
         } else if code_str.contains("EFFECT_SELF_DESTROY") {
-            None // self-destroy isn't a grant, handle separately
+            None // handled as redirect/action below
         } else if code_str.contains("EFFECT_SPSUMMON_CONDITION") {
             None // metadata for summon condition
         } else if code_str.contains("EFFECT_EQUIP_LIMIT") {
@@ -1581,6 +1581,61 @@ pub fn transpile_lua_to_ds(
         } else {
             None
         };
+
+        // Sprint 62: redirect effects → emit a redirect_effect block
+        // instead of a raw_effect. This covers LEAVE_FIELD_REDIRECT,
+        // TO_GRAVE_REDIRECT, and TO_GRAVE_REDIRECT_CB.
+        let is_redirect = code_str.contains("EFFECT_LEAVE_FIELD_REDIRECT")
+            || code_str.contains("EFFECT_TO_GRAVE_REDIRECT");
+        if is_redirect {
+            // Determine the redirect destination from SetValue.
+            // Common: LOCATION_REMOVED (0x20) = banished,
+            //         LOCATION_DECK (0x40) = deck,
+            //         LOCATION_HAND (0x02) = hand
+            let dest = match effect.value.as_deref().unwrap_or("").trim() {
+                "LOCATION_REMOVED" | "32" => "banished",
+                "LOCATION_DECK" | "64" => "deck",
+                "LOCATION_HAND" | "2" => "hand",
+                _ => "banished", // default to banished (most common)
+            };
+            let from = if code_str.contains("LEAVE_FIELD") { "field" } else { "gy" };
+            ds.push_str(&format!("    redirect_effect \"Effect {}\" {{\n", i + 1));
+            ds.push_str(&format!("        when_going_to: {}\n", from));
+            ds.push_str(&format!("        redirect_to: {}\n", dest));
+            ds.push_str("    }\n\n");
+            mapped_actions += 1;
+            total_actions += 1;
+            continue;
+        }
+
+        // Sprint 62: self-destroy → emit as a condition-triggered action
+        if code_str.contains("EFFECT_SELF_DESTROY") {
+            ds.push_str(&format!("    raw_effect \"Effect {}\" {{\n", i + 1));
+            if effect_type != 0 { ds.push_str(&format!("        effect_type: {}\n", et_str)); }
+            if code != 0        { ds.push_str(&format!("        code: {}\n", code_str_friendly)); }
+            ds.push_str("        on_resolve {\n");
+            ds.push_str("            destroy self\n");
+            ds.push_str("        }\n");
+            ds.push_str("    }\n\n");
+            mapped_actions += 1;
+            total_actions += 1;
+            continue;
+        }
+
+        // Sprint 62: LP cost change → emit as a grant
+        if code_str.contains("EFFECT_LPCOST_CHANGE") {
+            ds.push_str(&format!("    raw_effect \"Effect {}\" {{\n", i + 1));
+            if effect_type != 0 { ds.push_str(&format!("        effect_type: {}\n", et_str)); }
+            if code != 0        { ds.push_str(&format!("        code: {}\n", code_str_friendly)); }
+            if range != 0       { ds.push_str(&format!("        range: {}\n", range_str)); }
+            ds.push_str("        on_resolve {\n");
+            ds.push_str("            register_effect on self { grant: lp_cost_zero duration: while_on_field }\n");
+            ds.push_str("        }\n");
+            ds.push_str("    }\n\n");
+            mapped_actions += 1;
+            total_actions += 1;
+            continue;
+        }
         if let Some(g) = grant {
             ds.push_str(&format!("    raw_effect \"Effect {}\" {{\n", i + 1));
             if effect_type != 0 { ds.push_str(&format!("        effect_type: {}\n", et_str)); }
