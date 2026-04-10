@@ -19,6 +19,7 @@
     { "include": "#trigger-keywords" },
     { "include": "#condition-keywords" },
     { "include": "#modifier-keywords" },
+    { "include": "#raw-effect-fields" },
     { "include": "#constants" },
     { "include": "#operators" }
   ],
@@ -68,7 +69,7 @@
       "patterns": [
         {
           "name": "keyword.control.block.duelscript",
-          "match": "\\b(effect|continuous_effect|replacement_effect|equip_effect|pendulum_effect|materials|summon_condition|counter_system|win_condition|restriction|on_activate|on_resolve|on_equipped_destroyed|on_unequipped|while_equipped|cost|alternative|choose|option|delayed|register_effect)\\b"
+          "match": "\\b(effect|continuous_effect|replacement_effect|equip_effect|pendulum_effect|flip_effect|raw_effect|global_state|global_handler|materials|summon_condition|counter_system|win_condition|restriction|on_activate|on_resolve|on_event|on_equipped_destroyed|on_unequipped|while_equipped|cost|alternative|choose|option|delayed|register_effect|and_if_you_do|then|also|for_each|apply|if_player_chooses|store|recall)\\b"
         }
       ]
     },
@@ -76,7 +77,7 @@
       "patterns": [
         {
           "name": "support.type.field.duelscript",
-          "match": "\\b(type|attribute|race|level|rank|link|scale|atk|def|password|flavor|archetype|link_arrows|method|require|same_level|same_attribute|same_race|must_include|cannot_use|name|max|placed_when|result|instead_of|target|while|apply_to|modifier|grant|duration|count|speed|optional|timing|condition|trigger|once_per_turn|once_per_duel|twice_per_turn|each_turn)\\b"
+          "match": "\\b(type|attribute|race|level|rank|link|scale|atk|def|password|flavor|archetype|link_arrows|method|require|same_level|same_attribute|same_race|must_include|cannot_use|name|max|placed_when|result|instead_of|target|while|apply_to|modifier|grant|duration|count|speed|optional|timing|condition|trigger|scope|activate_from|damage_step|frequency|tracks|resets_on|survives|value|tributes_required|cannot_normal_summon|cannot_special_summon|special_summon_only|must_be_summoned_by|summon_once_per_turn|tribute_material|special_summon_from|once_per_turn|once_per_duel|twice_per_turn|each_turn|position|filter)\\b"
         }
       ]
     },
@@ -84,7 +85,7 @@
       "patterns": [
         {
           "name": "entity.name.function.action.duelscript",
-          "match": "\\b(draw|special_summon|destroy|negate|search|add_to_hand|send|banish|return|set|flip_face_down|change_battle_position|take_control|place_counter|remove_counter|look_at|reveal|copy_effect|equip|detach|attach|fusion_summon|synchro_summon|xyz_summon|ritual_summon|pendulum_summon|create_token|deal_damage|gain_lp|shuffle|mill|discard|tribute|set_scale|double_atk|halve_atk|set_atk|set_def|for_each|apply|store|recall)\\b"
+          "match": "\\b(draw|special_summon|destroy|negate|search|add_to_hand|send|banish|return|set|flip_face_down|change_battle_position|take_control|place_counter|remove_counter|look_at|reveal|copy_effect|equip|detach|attach|fusion_summon|synchro_summon|xyz_summon|ritual_summon|pendulum_summon|create_token|deal_damage|gain_lp|shuffle|mill|discard|tribute|set_scale|double_atk|halve_atk|set_atk|set_def|select|emit_event|set_flag|clear_flag|change_level|change_attribute|change_race|change_name|change_code|normal_summon|negate_effects|excavate|confirm|send_to_deck|release|discard_all|shuffle_hand|shuffle_deck|change_position|set_spell_trap|equip_to|overlay|move_to_field|flip_coin|pay_lp)\\b"
         }
       ]
     },
@@ -108,7 +109,7 @@
       "patterns": [
         {
           "name": "constant.language.race.duelscript",
-          "match": "\\b(Dragon|Spellcaster|Zombie|Warrior|Beast-Warrior|Beast|Winged Beast|Fiend|Fairy|Insect|Dinosaur|Reptile|Fish|Sea Serpent|Aqua|Pyro|Thunder|Rock|Plant|Machine|Psychic|Divine-Beast|Wyrm|Cyberse)\\b"
+          "match": "\\b(Dragon|Spellcaster|Zombie|Warrior|Beast-Warrior|Beast|Winged Beast|Fiend|Fairy|Insect|Dinosaur|Reptile|Fish|Sea Serpent|Aqua|Pyro|Thunder|Rock|Plant|Machine|Psychic|Divine-Beast|Creator-God|Wyrm|Cyberse|Illusion|Cyborg|Magical Knight|High Dragon|Omega Psychic)\\b"
         }
       ]
     },
@@ -124,7 +125,7 @@
       "patterns": [
         {
           "name": "keyword.other.effect.duelscript",
-          "match": "\\b(spell_speed_1|spell_speed_2|spell_speed_3|soft|hard|attack_position|defense_position|face_down_defense|until_end_of_turn|until_end_phase|until_end_of_damage_step|until_next_turn|permanently|this_turn|face_up|face_down|face_down|in_attack_position|in_defense_position|other_than_self|as_material)\\b"
+          "match": "\\b(spell_speed_1|spell_speed_2|spell_speed_3|soft|hard|attack_position|defense_position|face_down_defense|until_end_of_turn|until_end_phase|until_end_of_damage_step|until_next_turn|permanently|this_turn|as_material)\\b"
         }
       ]
     },
@@ -132,7 +133,7 @@
       "patterns": [
         {
           "name": "keyword.operator.cost.duelscript",
-          "match": "\\b(pay_lp|overlay_unit|none)\\b"
+          "match": "\\b(pay_lp|overlay_unit|none|announce|must_be)\\b"
         }
       ]
     },
@@ -140,7 +141,7 @@
       "patterns": [
         {
           "name": "keyword.control.trigger.duelscript",
-          "match": "\\b(when_summoned|when_destroyed|when_sent_to|when_flipped|when_attacked|when_tributed|when_tribute_summoned|during_standby_phase|during_end_phase|during|opponent_activates|on_nth_summon|attack_declared|by_normal_summon|by_special_summon|by_flip_summon|by_ritual_summon|by_fusion_summon|by_synchro_summon|by_xyz_summon|by_link_summon)\\b"
+          "match": "\\b(when_summoned|when_destroyed|when_battle_destroyed|when_destroys_by_battle|when_leaves_field|when_used_as_material|when_battle_damage|when_banished|when_sent_to|when_flipped|when_attacked|when_tributed|when_tribute_summoned|during_standby_phase|during_end_phase|during|opponent_activates|on_nth_summon|on_custom_event|when_action|attack_declared|by_normal_summon|by_special_summon|by_flip_summon|by_ritual_summon|by_fusion_summon|by_synchro_summon|by_xyz_summon|by_link_summon)\\b"
         }
       ]
     },
@@ -148,7 +149,7 @@
       "patterns": [
         {
           "name": "keyword.control.condition.duelscript",
-          "match": "\\b(chain_link_includes|you_control_no_monsters|opponent_controls_no_monsters|field_is_empty|you_control|opponent_controls|you_control_count|your_lp|opponent_lp|hand_size|cards_in_gy|banished_count|on_field|in_hand|in_gy|in_banished)\\b"
+          "match": "\\b(chain_link_includes|has_flag|you_control_no_monsters|opponent_controls_no_monsters|field_is_empty|you_control|opponent_controls|you_control_count|your_lp|opponent_lp|hand_size|cards_in_gy|banished_count|on_field|previous_location|previous_position|sent_by_reason|this_effect_activated_this_turn|this_card_was_flipped_this_turn)\\b"
         }
       ]
     },
@@ -156,7 +157,15 @@
       "patterns": [
         {
           "name": "support.function.modifier.duelscript",
-          "match": "\\b(piercing|double_attack|direct_attack|cannot_be_destroyed_by_battle|cannot_be_destroyed_by_effect|unaffected_by_spell_effects|unaffected_by_trap_effects|unaffected_by_monster_effects|unaffected_by_card_effects|immune_to_targeting|cannot_activate_effects|cannot|must|limit|be_targeted|be_destroyed|be_negated|be_banished|be_returned|be_tributed|attack_if_able|attack_all_monsters|attacks_per_turn|special_summons_per_turn)\\b"
+          "match": "\\b(piercing|double_attack|triple_attack|direct_attack|cannot_be_destroyed_by_battle|cannot_be_destroyed_by_effect|cannot_be_destroyed|cannot_be_targeted_by_spell_effects|cannot_be_targeted_by_trap_effects|cannot_be_targeted_by_monster_effects|cannot_be_targeted_by_card_effects|cannot_be_targeted_by_opponent|unaffected_by_spell_effects|unaffected_by_trap_effects|unaffected_by_monster_effects|unaffected_by_card_effects|unaffected_by_opponent_effects|immune_to_targeting|cannot_activate_effects|cannot_attack_directly|cannot_attack|must_attack_if_able|cannot_be_tributed|cannot_be_used_as_material|cannot_change_battle_position|attack_all_opponent_monsters|attack_twice|second_attack_this_turn|ignores_battle_position|pierces_defense|cannot_be_negated|cannot|must|limit)\\b"
+        }
+      ]
+    },
+    "raw-effect-fields": {
+      "patterns": [
+        {
+          "name": "support.type.raw.duelscript",
+          "match": "\\b(effect_type|category|code|property|range|count_limit)\\b"
         }
       ]
     },
@@ -164,7 +173,7 @@
       "patterns": [
         {
           "name": "constant.language.duelscript",
-          "match": "\\b(true|false|self|from|to|in|of|by|on|and|or|if|else|using|controls|when|until|selected_targets)\\b"
+          "match": "\\b(true|false|self|from|to|in|of|by|on|and|or|not|if|else|using|controls|when|until|as|for|either_player|opponent|you|both|both_players|face_up|face_down|random|at_random|top|bottom|shuffle|heads|tails|yours|opponents|either|any|battle|card_effect|your_effect|opponent_effect|selected_targets|where|with_level|own_effect|ritual_spell|fusion_spell|specific_card|your_deck|opponent_deck|your_hand|opponent_hand)\\b"
         }
       ]
     },
