@@ -1,0 +1,45 @@
+// Template + implicit inference reference.
+//
+// Demonstrates two Sprint 60 features:
+// 1. The `template` system — define reusable effect patterns
+//    once, use them in multiple cards via `use <name>`.
+// 2. Implicit condition inference — the "Negate" effect has
+//    `cost { tribute self }` but NO explicit `condition: on_field`.
+//    The compiler automatically infers it.
+
+template spirit_return {
+    effect "Return to Hand" {
+        speed: spell_speed_1
+        trigger: during_end_phase
+        on_resolve {
+            return self to hand
+        }
+    }
+}
+
+card "Spirit Sentinel" {
+    type: Effect Monster | Spirit
+    id: 40640089
+    attribute: WIND
+    race: Winged Beast
+    level: 4
+    atk: 1500
+    def: 1200
+
+    use spirit_return
+
+    effect "Negate on Tribute" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap]
+
+        cost {
+            tribute self
+        }
+
+        on_resolve {
+            negate activation and destroy
+        }
+    }
+}

@@ -522,23 +522,9 @@ fn check_cost_validity(ctx: &CardCtx, errors: &mut Vec<ValidationError>) {
                         "'detach overlay_unit' cost is only valid on Xyz monsters",
                     ));
                 }
-                // Tribute self as cost — card must be on the field
-                CostAction::Tribute(SelfOrTarget::Self_) => {
-                    if let Some(cond) = &effect.body.condition {
-                        let is_on_field = condition_implies_on_field(cond);
-                        if !is_on_field {
-                            errors.push(warn(
-                                ctx.name(),
-                                "'tribute self' cost requires the card to be on the field — add 'condition: on_field'",
-                            ));
-                        }
-                    } else {
-                        errors.push(warn(
-                            ctx.name(),
-                            "'tribute self' cost requires the card to be on the field — add 'condition: on_field'",
-                        ));
-                    }
-                }
+                // Sprint 60: tribute self → compiler auto-injects on_field
+                // condition, so no warning needed. The compiler handles it.
+                CostAction::Tribute(SelfOrTarget::Self_) => {}
                 // Pay LP must be > 0
                 CostAction::PayLp(expr) => {
                     if let Expr::Literal(0) = expr {

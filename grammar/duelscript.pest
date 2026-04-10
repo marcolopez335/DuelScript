@@ -41,14 +41,27 @@ target_stat_expr = @{ "target." ~ ("base_atk" | "base_def" | "original_atk" | "o
 player_lp_expr = { "your_lp" | "opponent_lp" }
 
 // ── Entry Point ───────────────────────────────────────────────
-file = { SOI ~ card+ ~ EOI }
+file = { SOI ~ (template_def | card)+ ~ EOI }
+
+// ── Sprint 60: Templates ─────────────────────────────────────
+// Reusable card patterns. Defined once, used by many cards.
+// template spirit {
+//     effect "Return to Hand" {
+//         trigger: during_end_phase
+//         on_resolve { return self to hand }
+//     }
+// }
+// card "Tsukuyomi" { use spirit ... }
+template_def     = { "template" ~ ident ~ "{" ~ card_body_item* ~ "}" }
+use_template     = { "use" ~ ident }
 
 // ── Top-Level Card Definition ─────────────────────────────────
 card      = { "card" ~ string ~ "{" ~ card_body ~ "}" }
 // Card body allows blocks in any order for authoring flexibility
 card_body = { card_body_item* }
 card_body_item = {
-    link_arrows_decl
+    use_template
+  | link_arrows_decl
   | archetype_decl
   | summon_condition_block
   | materials_block

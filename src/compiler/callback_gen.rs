@@ -181,12 +181,31 @@ pub struct GeneratedCallbacks {
 
 /// Generate all four callbacks from an effect body.
 pub fn generate_callbacks(body: &EffectBody, _card: &Card) -> GeneratedCallbacks {
+    // Sprint 60: implicit condition inference. If the cost includes
+    // "tribute self" or "send self to gy" and no explicit condition
+    // is declared, inject an on_field condition so the engine doesn't
+    // try to activate the effect from the GY/hand/banished.
+    let condition = if body.condition.is_none() && cost_implies_on_field(&body.cost) {
+        Some(ConditionExpr::Simple(SimpleCondition::OnField))
+    } else {
+        body.condition.clone()
+    };
+
     GeneratedCallbacks {
-        condition: generate_condition(&body.condition, &body.trigger),
+        condition: generate_condition(&condition, &body.trigger),
         cost:      generate_cost(&body.cost),
         target:    generate_target(&body.on_activate),
         operation: generate_operation(&body.on_resolve),
     }
+}
+
+/// Check if the cost implies the card must be on the field.
+fn cost_implies_on_field(cost: &[CostAction]) -> bool {
+    cost.iter().any(|c| matches!(
+        c,
+        CostAction::Tribute(SelfOrTarget::Self_)
+        | CostAction::Send { target: SelfOrTarget::Self_, .. }
+    ))
 }
 
 // ── Condition Callback ────────────────────────────────────────
