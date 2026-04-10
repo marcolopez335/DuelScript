@@ -1,0 +1,41 @@
+// Fusion contact summon reference.
+// "Send materials from your field to the GY; Special Summon this
+//  card from your Extra Deck." (No Polymerization needed.)
+
+card "Elemental Fusion Beast" {
+    type: Fusion Monster | Effect Monster
+    id: 40640099
+    attribute: EARTH
+    race: Beast
+    level: 6
+    atk: 2400
+    def: 1500
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
+    effect "Contact Fuse" {
+        speed: spell_speed_1
+        trigger: when_summoned by_fusion_summon
+        once_per_turn: hard
+
+        on_resolve {
+            draw 1
+        }
+    }
+
+    effect "Return on Leave" {
+        speed: spell_speed_1
+        trigger: when_leaves_field
+
+        on_resolve {
+            return self to extra_deck
+        }
+    }
+}

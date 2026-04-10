@@ -1,0 +1,18 @@
+// Delayed effect reference: "Destroy this card during the End Phase."
+
+card "Temporal Grenade" {
+    type: Normal Trap
+    id: 40640092
+
+    effect "Delayed Destruction" {
+        speed: spell_speed_2
+        trigger: when attack_declared
+
+        on_resolve {
+            negate attack
+            delayed until end_phase {
+                destroy self
+            }
+        }
+    }
+}

@@ -1,0 +1,49 @@
+// Synchro monster reference: tuner + non-tuner materials.
+
+card "Stardust Sentinel" {
+    type: Synchro Monster | Effect Monster
+    id: 40640094
+    attribute: WIND
+    race: Dragon
+    level: 8
+    atk: 2500
+    def: 2000
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    materials {
+        require: 1 tuner monster
+        require: 1+ non-tuner monster
+        method: synchro
+    }
+
+    effect "Negate Destruction" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        condition: on_field
+
+        cost {
+            tribute self
+        }
+
+        on_resolve {
+            negate activation and destroy
+        }
+    }
+
+    effect "Revive Self" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: during_end_phase
+        condition: in_gy
+
+        on_resolve {
+            special_summon self from gy in attack_position
+        }
+    }
+}

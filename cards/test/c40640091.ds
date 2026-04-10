@@ -1,0 +1,22 @@
+// Coin flip reference: "Flip a coin. Heads: draw 2. Tails: discard 1."
+
+card "Gambler's Edge" {
+    type: Normal Spell
+    id: 40640091
+
+    effect "Flip for Fortune" {
+        speed: spell_speed_1
+        once_per_turn: hard
+
+        on_resolve {
+            flip_coin {
+                heads {
+                    draw 2
+                }
+                tails {
+                    discard (1, card)
+                }
+            }
+        }
+    }
+}
