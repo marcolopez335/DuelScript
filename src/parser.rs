@@ -51,16 +51,68 @@ pub fn parse(source: &str) -> Result<DuelScriptFile, ParseError> {
     let pairs = DuelScriptParser::parse(Rule::file, source)
         .map_err(|e| ParseError::PestError(e.to_string()))?;
 
-    let mut cards = Vec::new();
+    // Sprint 61: two-pass parsing.
+    // Pass 1: collect template definitions (template name → raw source span).
+    // Pass 2: parse cards, expanding `use <name>` by re-parsing the
+    //         template's body items into the card.
+    use std::collections::HashMap;
+    let mut templates: HashMap<String, String> = HashMap::new();
+    let mut card_pairs = Vec::new();
+
     for pair in pairs {
-        // The top-level `file` rule contains card+ — iterate into it
         for inner in pair.into_inner() {
-            if inner.as_rule() == Rule::card {
-                cards.push(parse_card(inner)?);
+            match inner.as_rule() {
+                Rule::template_def => {
+                    // Extract template name and body source text
+                    let full_text = inner.as_str();
+                    let mut it = inner.into_inner();
+                    if let Some(name_pair) = it.next() {
+                        let name = name_pair.as_str().to_string();
+                        // Store the body items source (everything between { })
+                        if let Some(open) = full_text.find('{') {
+                            if let Some(close) = full_text.rfind('}') {
+                                let body_src = full_text[open+1..close].trim().to_string();
+                                templates.insert(name, body_src);
+                            }
+                        }
+                    }
+                }
+                Rule::card => {
+                    card_pairs.push(inner.as_str().to_string());
+                }
+                _ => {}
             }
         }
     }
+
+    // Pass 2: parse cards with template expansion
+    let mut cards = Vec::new();
+    for card_src in &card_pairs {
+        // Check if the card uses any templates — inject template body
+        let expanded = expand_templates(card_src, &templates);
+        let re_parsed = DuelScriptParser::parse(Rule::card, &expanded)
+            .map_err(|e| ParseError::PestError(e.to_string()))?;
+        for pair in re_parsed {
+            cards.push(parse_card(pair)?);
+        }
+    }
+
     Ok(DuelScriptFile { cards })
+}
+
+/// Replace `use <template_name>` directives with the template's body.
+fn expand_templates(
+    card_src: &str,
+    templates: &std::collections::HashMap<String, String>,
+) -> String {
+    let mut result = card_src.to_string();
+    for (name, body) in templates {
+        let use_directive = format!("use {}", name);
+        if result.contains(&use_directive) {
+            result = result.replace(&use_directive, body);
+        }
+    }
+    result
 }
 
 // ── Card ──────────────────────────────────────────────────────
