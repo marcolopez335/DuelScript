@@ -33,14 +33,9 @@ card "Dark Guardian" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single
-        code: CannotBeEffectTarget
-        property: SingleRange
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed_by_battle
     }
 
     raw_effect "Effect 4" {
@@ -51,14 +46,9 @@ card "Dark Guardian" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single
-        code: ImmuneEffect
-        property: SingleRange
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 5" {
+        scope: self
+        grant: unaffected_by_card_effects
     }
 
 }

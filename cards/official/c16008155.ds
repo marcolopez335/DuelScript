@@ -45,14 +45,9 @@ card "Reptilianne Servant" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Field
-        code: CannotChangePosition
-        property: InitialValue
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 5" {
+        scope: field
+        grant: cannot_attack
     }
 
 }

@@ -37,41 +37,24 @@ card "Divine Serpent Geh" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single
-        code: CannotDirectAttack2
-        property: SingleRange
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 3" {
+        scope: self
+        grant: cannot_be_targeted_by_card_effects
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field
-        code: Disable
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 4" {
+        scope: field
+        grant: cannot_activate_effects
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Field
-        code: 8
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 5" {
+        scope: field
+        grant: cannot_activate_effects
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Field
-        code: SetAttackFinal
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 6" {
+        scope: field
+        grant: cannot_be_destroyed_by_battle
     }
 
     raw_effect "Effect 7" {

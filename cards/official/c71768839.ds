@@ -11,24 +11,14 @@ card "I.A.S. -Invasive Alien Species-" {
     atk: 1600
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Single
-        code: CannotBeEffectTarget
-        property: SingleRange
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed_by_battle
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single
-        code: IndestructableEffect
-        property: SingleRange
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed_by_effect
     }
 
     effect "Effect 3" {

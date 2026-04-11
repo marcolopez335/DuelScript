@@ -29,13 +29,9 @@ card "Demise, Supreme King of Armageddon" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field
-        code: CannotBeEffectTarget
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 2" {
+        scope: field
+        grant: cannot_be_destroyed_by_battle
     }
 
     effect "Effect 3" {

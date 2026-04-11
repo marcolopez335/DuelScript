@@ -26,13 +26,9 @@ card "Maliss <C> GWC-06" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single
-        code: ImmuneEffect
-        property: SetAvailable + IgnoreRange + BothSide + Uncopyable
-        on_resolve {
-            register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 3" {
+        scope: self
+        grant: unaffected_by_card_effects
     }
 
 }

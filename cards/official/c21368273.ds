@@ -49,13 +49,9 @@ card "Mannadium Trisukta" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field
-        code: CannotDisable
-        property: InitialValue + IgnoreRange2
-        on_resolve {
-            register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 3" {
+        scope: field
+        grant: cannot_be_used_as_material
     }
 
     raw_effect "Effect 4" {

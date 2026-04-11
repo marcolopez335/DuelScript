@@ -20,13 +20,9 @@ card "Traptrip Garden" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field
-        code: CannotHandReturn
-        range: FieldZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 3" {
+        scope: field
+        grant: cannot_be_destroyed
     }
 
     effect "Effect 4" {

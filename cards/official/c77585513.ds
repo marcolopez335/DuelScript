@@ -15,32 +15,19 @@ card "Jinzo" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field
-        code: 7
-        property: IgnoreRange
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 1" {
+        scope: field
+        grant: cannot_activate_effects
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field
-        code: CannotChangeControl
-        property: InitialValue
-        on_resolve {
-            register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 2" {
+        scope: field
+        grant: cannot_activate_effects
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field
-        code: Disable
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 3" {
+        scope: field
+        grant: cannot_activate_effects
     }
 
     raw_effect "Effect 4" {
@@ -52,13 +39,9 @@ card "Jinzo" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Field
-        code: 10
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 5" {
+        scope: field
+        grant: cannot_activate_effects
     }
 
 }

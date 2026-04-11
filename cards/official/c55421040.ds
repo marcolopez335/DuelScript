@@ -14,22 +14,14 @@ card "Hunting Horn" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field
-        code: 86
-        property: SetAvailable + CannotDisable
-        on_resolve {
-            register_effect on self { grant: cannot_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 2" {
+        scope: field
+        grant: cannot_attack
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single
-        code: SetAttackFinal
-        property: BothSide
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed_by_battle
     }
 
 }

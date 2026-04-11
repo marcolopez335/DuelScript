@@ -11,12 +11,9 @@ card "Amphibious Bugroth MK-3" {
     atk: 1500
     def: 1300
 
-    raw_effect "Effect 1" {
-        effect_type: Single
-        code: DefenseDisabled
-        on_resolve {
-            register_effect on self { grant: direct_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 1" {
+        scope: self
+        grant: direct_attack
     }
 
 }

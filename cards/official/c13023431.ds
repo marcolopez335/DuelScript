@@ -20,32 +20,19 @@ card "Chevreuil, Hunting Scout of the Deep Forest" {
         method: fusion
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single
-        code: ImmuneEffect
-        property: SingleRange
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 1" {
+        scope: self
+        grant: unaffected_by_card_effects
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field
-        code: 191
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: must_attack_if_able duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 2" {
+        scope: field
+        grant: must_attack_if_able
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field
-        code: 344
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: must_attack_if_able duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 3" {
+        scope: field
+        grant: must_attack_if_able
     }
 
     raw_effect "Effect 4" {

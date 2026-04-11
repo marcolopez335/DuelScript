@@ -11,24 +11,14 @@ card "Revealer of the Ice Barrier" {
     atk: 1700
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: Field
-        code: CannotChangePosition
-        property: InitialValue
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 1" {
+        scope: field
+        grant: cannot_attack
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field
-        code: Unreleasable
-        property: InitialValue
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 2" {
+        scope: field
+        grant: cannot_change_battle_position
     }
 
     effect "Effect 3" {

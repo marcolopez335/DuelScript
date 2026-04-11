@@ -6,12 +6,9 @@ card "Gladiator Beast's Battle Manica" {
     id: 52496105
     type: Equip Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Equip
-        code: CannotBeEffectTarget
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed_by_battle
     }
 
     effect "Effect 2" {

@@ -11,24 +11,14 @@ card "Miracle Jurassic Egg" {
     atk: 0
     def: 2000
 
-    raw_effect "Effect 1" {
-        effect_type: Single
-        code: IndestructableCount
-        property: SingleRange
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 1" {
+        scope: self
+        grant: cannot_be_used_as_material
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field
-        code: IndestructableCount
-        property: InitialValue
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 2" {
+        scope: field
+        grant: cannot_be_used_as_material
     }
 
     raw_effect "Effect 3" {

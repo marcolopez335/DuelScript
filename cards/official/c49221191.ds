@@ -40,13 +40,9 @@ card "Number C32: Shark Drake Veiss" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single
-        code: SetAttackFinal
-        property: BothSide
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed_by_battle
     }
 
     raw_effect "Effect 3" {

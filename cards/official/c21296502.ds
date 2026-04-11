@@ -15,20 +15,14 @@ card "Toon Dark Magician" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single
-        code: 85
-        on_resolve {
-            register_effect on self { grant: cannot_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 1" {
+        scope: self
+        grant: cannot_attack
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single
-        code: DefenseDisabled
-        on_resolve {
-            register_effect on self { grant: direct_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 2" {
+        scope: self
+        grant: direct_attack
     }
 
     effect "Effect 3" {

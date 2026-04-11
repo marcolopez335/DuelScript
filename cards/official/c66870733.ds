@@ -20,14 +20,9 @@ card "Yuki-Onna, the Ice Mayakashi" {
         method: link
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single
-        code: AttackDisabled
-        property: SingleRange
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 1" {
+        scope: self
+        grant: cannot_be_targeted_by_card_effects
     }
 
     effect "Effect 2" {

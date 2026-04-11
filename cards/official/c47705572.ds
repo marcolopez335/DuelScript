@@ -16,14 +16,9 @@ card "Lunalight Wolf" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field
-        code: CannotDisable
-        property: IgnoreImmune + BothSide + InitialValue
-        range: PendulumZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 1" {
+        scope: field
+        grant: cannot_be_used_as_material
     }
 
     effect "Effect 2" {
@@ -33,13 +28,9 @@ card "Lunalight Wolf" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field
-        code: GraveRedirectCb
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: piercing duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 3" {
+        scope: field
+        grant: piercing
     }
 
 }

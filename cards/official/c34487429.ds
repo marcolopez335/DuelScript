@@ -12,14 +12,9 @@ card "Ancient City - Rainbow Ruins" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single
-        code: IndestructableEffect
-        property: SingleRange
-        range: FieldZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed_by_effect
     }
 
     raw_effect "Effect 3" {

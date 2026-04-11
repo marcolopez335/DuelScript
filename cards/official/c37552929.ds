@@ -11,13 +11,9 @@ card "Maiden of the Millennium Moon" {
     atk: 1500
     def: 1300
 
-    raw_effect "Effect 1" {
-        effect_type: Field
-        code: CannotBeEffectTarget
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 1" {
+        scope: field
+        grant: cannot_be_destroyed_by_battle
     }
 
     effect "Effect 2" {
@@ -53,13 +49,9 @@ card "Maiden of the Millennium Moon" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Field
-        code: CannotDirectAttack2
-        property: SetAvailable
-        on_resolve {
-            register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 5" {
+        scope: field
+        grant: cannot_be_targeted_by_card_effects
     }
 
 }

@@ -6,12 +6,9 @@ card "Silver Wing" {
     id: 25231813
     type: Equip Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Equip
-        code: CannotHandReturn
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed
     }
 
     replacement_effect "Effect 2" {

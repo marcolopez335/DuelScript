@@ -11,13 +11,9 @@ card "Atlantean Dragoons" {
     atk: 1800
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Field
-        code: DefenseDisabled
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: direct_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 1" {
+        scope: field
+        grant: direct_attack
     }
 
     effect "Effect 2" {

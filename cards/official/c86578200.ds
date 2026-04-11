@@ -12,13 +12,9 @@ card "Abyss Prop - Wild Wagon" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field
-        code: CannotHandReturn
-        range: SpellTrapZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 2" {
+        scope: field
+        grant: cannot_be_destroyed
     }
 
     effect "Effect 3" {
@@ -44,13 +40,9 @@ card "Abyss Prop - Wild Wagon" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single
-        code: CannotDirectAttack2
-        property: IgnoreRange2
-        on_resolve {
-            register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 5" {
+        scope: self
+        grant: cannot_be_targeted_by_card_effects
     }
 
 }

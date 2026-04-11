@@ -16,14 +16,9 @@ card "Qliphort Stealth" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field
-        code: CannotDisable
-        property: BothSide + InitialValue
-        range: PendulumZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 1" {
+        scope: field
+        grant: cannot_be_used_as_material
     }
 
     raw_effect "Effect 2" {
@@ -56,14 +51,9 @@ card "Qliphort Stealth" {
         }
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Single
-        code: ImmuneEffect
-        property: SingleRange + Uncopyable
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 6" {
+        scope: self
+        grant: unaffected_by_card_effects
     }
 
     effect "Effect 7" {

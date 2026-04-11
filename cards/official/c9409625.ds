@@ -19,14 +19,9 @@ card "Empty Machine" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single
-        code: CannotHandReturn
-        property: SingleRange + IgnoreRange2
-        range: SpellTrapZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed
     }
 
     effect "Effect 4" {

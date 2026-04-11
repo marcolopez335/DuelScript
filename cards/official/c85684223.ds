@@ -20,12 +20,9 @@ card "Reaper on the Nightmare" {
         method: fusion
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single
-        code: CannotBeEffectTarget
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed_by_battle
     }
 
     effect "Effect 2" {
@@ -71,12 +68,9 @@ card "Reaper on the Nightmare" {
         }
     }
 
-    raw_effect "Effect 7" {
-        effect_type: Single
-        code: DefenseDisabled
-        on_resolve {
-            register_effect on self { grant: direct_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 7" {
+        scope: self
+        grant: direct_attack
     }
 
 }

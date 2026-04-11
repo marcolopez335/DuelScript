@@ -28,40 +28,24 @@ card "Chaos Ancient Gear Giant" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single
-        code: ImmuneEffect
-        property: SingleRange
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 2" {
+        scope: self
+        grant: unaffected_by_card_effects
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field
-        code: CannotChangeControl
-        property: InitialValue
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 3" {
+        scope: field
+        grant: cannot_activate_effects
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single
-        code: 193
-        on_resolve {
-            register_effect on self { grant: attack_all_opponent_monsters duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 4" {
+        scope: self
+        grant: attack_all_opponent_monsters
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single
-        code: GraveRedirectCb
-        on_resolve {
-            register_effect on self { grant: piercing duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 5" {
+        scope: self
+        grant: piercing
     }
 
 }

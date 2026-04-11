@@ -62,13 +62,9 @@ card "Antidote Nurse" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single
-        code: SetAttackFinal
-        property: BothSide
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed_by_battle
     }
 
     raw_effect "Effect 4" {
@@ -80,22 +76,14 @@ card "Antidote Nurse" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single
-        code: IndestructableEffect
-        property: BothSide + IgnoreRange2
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 5" {
+        scope: self
+        grant: cannot_be_destroyed_by_effect
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Single
-        code: CannotBeEffectTarget
-        property: BothSide + IgnoreRange2
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 6" {
+        scope: self
+        grant: cannot_be_destroyed_by_battle
     }
 
     raw_effect "Effect 7" {

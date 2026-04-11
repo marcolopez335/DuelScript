@@ -60,13 +60,9 @@ card "DoomZ Command 'D.O.O.M.D.U.R.G.'" {
         }
     }
 
-    raw_effect "Effect 7" {
-        effect_type: Single
-        code: DefenseDisabled
-        property: IgnoreRange2
-        on_resolve {
-            register_effect on self { grant: direct_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 7" {
+        scope: self
+        grant: direct_attack
     }
 
     raw_effect "Effect 8" {

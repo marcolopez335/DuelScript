@@ -21,14 +21,9 @@ card "N.As.H. Knight" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single
-        code: CannotBeEffectTarget
-        property: SingleRange
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed_by_battle
     }
 
     effect "Effect 2" {

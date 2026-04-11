@@ -11,12 +11,9 @@ card "Penguin Torpedo" {
     atk: 550
     def: 300
 
-    raw_effect "Effect 1" {
-        effect_type: Single
-        code: DefenseDisabled
-        on_resolve {
-            register_effect on self { grant: direct_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 1" {
+        scope: self
+        grant: direct_attack
     }
 
     effect "Effect 2" {
@@ -44,13 +41,9 @@ card "Penguin Torpedo" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single
-        code: 85
-        property: BothSide + IgnoreRange2
-        on_resolve {
-            register_effect on self { grant: cannot_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 4" {
+        scope: self
+        grant: cannot_attack
     }
 
 }

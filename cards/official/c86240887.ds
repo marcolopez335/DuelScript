@@ -20,12 +20,9 @@ card "Buster Blader, the Dragon Destroyer Swordsman" {
         method: fusion
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single
-        code: CannotAttackAnnounce
-        on_resolve {
-            register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 1" {
+        scope: self
+        grant: cannot_attack_directly
     }
 
     raw_effect "Effect 2" {
@@ -64,22 +61,14 @@ card "Buster Blader, the Dragon Destroyer Swordsman" {
         }
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Field
-        code: CannotChangeControl
-        property: InitialValue
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 6" {
+        scope: field
+        grant: cannot_activate_effects
     }
 
-    raw_effect "Effect 7" {
-        effect_type: Single
-        code: GraveRedirectCb
-        on_resolve {
-            register_effect on self { grant: piercing duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 7" {
+        scope: self
+        grant: piercing
     }
 
 }

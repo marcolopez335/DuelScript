@@ -11,13 +11,9 @@ card "Lady of D." {
     atk: 1500
     def: 1100
 
-    raw_effect "Effect 1" {
-        effect_type: Field
-        code: 332
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 1" {
+        scope: field
+        grant: cannot_be_targeted_by_card_effects
     }
 
     replacement_effect "Effect 2" {

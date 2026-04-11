@@ -12,22 +12,14 @@ card "Aquarium Stage" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field
-        code: CannotBeEffectTarget
-        range: SpellTrapZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 2" {
+        scope: field
+        grant: cannot_be_destroyed_by_battle
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field
-        code: ImmuneEffect
-        range: SpellTrapZone
-        on_resolve {
-            register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 3" {
+        scope: field
+        grant: unaffected_by_card_effects
     }
 
     effect "Effect 4" {
@@ -45,13 +37,9 @@ card "Aquarium Stage" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Field
-        code: CannotDisable
-        property: InitialValue + IgnoreRange2
-        on_resolve {
-            register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 5" {
+        scope: field
+        grant: cannot_be_used_as_material
     }
 
 }

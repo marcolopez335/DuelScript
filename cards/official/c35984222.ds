@@ -33,14 +33,9 @@ card "Ido the Supreme Magical Force" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field
-        code: CannotDisable
-        property: InitialValue
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 3" {
+        scope: field
+        grant: cannot_be_used_as_material
     }
 
     raw_effect "Effect 4" {
@@ -52,24 +47,14 @@ card "Ido the Supreme Magical Force" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Field
-        code: CannotChangePosition
-        property: InitialValue
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 5" {
+        scope: field
+        grant: cannot_attack
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Field
-        code: Unreleasable
-        property: InitialValue
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 6" {
+        scope: field
+        grant: cannot_change_battle_position
     }
 
 }

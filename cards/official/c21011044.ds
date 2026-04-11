@@ -22,13 +22,9 @@ card "Shaddoll Schism" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single
-        code: CannotAttackAnnounce
-        property: BothSide + IgnoreRange2
-        on_resolve {
-            register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 3" {
+        scope: self
+        grant: cannot_attack_directly
     }
 
 }

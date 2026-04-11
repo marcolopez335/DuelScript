@@ -55,31 +55,19 @@ card "Number 99: Utopia Dragonar" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field
-        code: CannotAttackAnnounce
-        property: SetAvailable + CannotDisable
-        on_resolve {
-            register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 4" {
+        scope: field
+        grant: cannot_attack_directly
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Field
-        code: CannotDisable
-        property: InitialValue + CannotDisable + IgnoreRange2
-        on_resolve {
-            register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 5" {
+        scope: field
+        grant: cannot_be_used_as_material
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Single
-        code: SetAttackFinal
-        property: BothSide
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 6" {
+        scope: self
+        grant: cannot_be_destroyed_by_battle
     }
 
 }

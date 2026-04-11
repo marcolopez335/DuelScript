@@ -41,20 +41,14 @@ card "Steelswarm Hercules" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single
-        code: CannotChangePosition
-        on_resolve {
-            register_effect on self { grant: cannot_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 4" {
+        scope: self
+        grant: cannot_attack
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single
-        code: Unreleasable
-        on_resolve {
-            register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 5" {
+        scope: self
+        grant: cannot_change_battle_position
     }
 
 }

@@ -38,14 +38,9 @@ card "Ancient Gear Beast" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field
-        code: CannotChangeControl
-        property: InitialValue
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 3" {
+        scope: field
+        grant: cannot_activate_effects
     }
 
 }

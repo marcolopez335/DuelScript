@@ -16,13 +16,9 @@ card "Twilight Ninja Jogen" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field
-        code: GraveRedirectCb
-        range: PendulumZone
-        on_resolve {
-            register_effect on self { grant: piercing duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 1" {
+        scope: field
+        grant: piercing
     }
 
     effect "Effect 2" {
@@ -33,12 +29,9 @@ card "Twilight Ninja Jogen" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single
-        code: GraveRedirectCb
-        on_resolve {
-            register_effect on self { grant: piercing duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 3" {
+        scope: self
+        grant: piercing
     }
 
 }

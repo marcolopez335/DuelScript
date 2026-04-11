@@ -32,20 +32,14 @@ card "Matador Archfiend" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single
-        code: CannotBeEffectTarget
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed_by_battle
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single
-        code: 201
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed_by_battle
     }
 
     raw_effect "Effect 4" {
@@ -58,13 +52,9 @@ card "Matador Archfiend" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single
-        code: 85
-        property: BothSide + IgnoreRange2
-        on_resolve {
-            register_effect on self { grant: cannot_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 5" {
+        scope: self
+        grant: cannot_attack
     }
 
 }

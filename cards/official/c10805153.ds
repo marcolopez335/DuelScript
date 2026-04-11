@@ -50,13 +50,9 @@ card "Witchcrafter Collaboration" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Field
-        code: CannotChangeControl
-        property: InitialValue
-        on_resolve {
-            register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 5" {
+        scope: field
+        grant: cannot_activate_effects
     }
 
 }

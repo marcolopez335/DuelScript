@@ -101,13 +101,9 @@ card "Enneacraft - Archa.TAIL" {
         }
     }
 
-    raw_effect "Effect 10" {
-        effect_type: Field
-        code: IndestructableEffect
-        property: IgnoreRange
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 10" {
+        scope: field
+        grant: cannot_be_destroyed_by_effect
     }
 
 }

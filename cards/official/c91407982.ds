@@ -44,22 +44,14 @@ card "Fortune Vision" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field
-        code: IndestructableEffect
-        property: IgnoreRange
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 4" {
+        scope: field
+        grant: cannot_be_destroyed_by_effect
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Field
-        code: 201
-        property: InitialValue + IgnoreRange2
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 5" {
+        scope: field
+        grant: cannot_be_destroyed_by_battle
     }
 
 }

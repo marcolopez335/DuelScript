@@ -14,12 +14,9 @@ card "Bashing Shield" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Equip
-        code: 201
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed_by_battle
     }
 
     effect "Effect 3" {

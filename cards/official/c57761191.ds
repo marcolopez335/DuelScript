@@ -48,20 +48,14 @@ card "Metaltron XII, the True Dracombatant" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single
-        code: CannotChangePosition
-        on_resolve {
-            register_effect on self { grant: cannot_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 5" {
+        scope: self
+        grant: cannot_attack
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Single
-        code: Unreleasable
-        on_resolve {
-            register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 6" {
+        scope: self
+        grant: cannot_change_battle_position
     }
 
 }

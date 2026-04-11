@@ -12,22 +12,14 @@ card "Ghostrick Mansion" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field
-        code: 332
-        range: FieldZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 2" {
+        scope: field
+        grant: cannot_be_targeted_by_card_effects
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field
-        code: DefenseDisabled
-        range: FieldZone
-        on_resolve {
-            register_effect on self { grant: direct_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 3" {
+        scope: field
+        grant: direct_attack
     }
 
     raw_effect "Effect 4" {

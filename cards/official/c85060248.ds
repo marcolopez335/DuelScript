@@ -11,13 +11,9 @@ card "Mind Protector" {
     atk: 0
     def: 2200
 
-    raw_effect "Effect 1" {
-        effect_type: Field
-        code: 85
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 1" {
+        scope: field
+        grant: cannot_attack
     }
 
     raw_effect "Effect 2" {

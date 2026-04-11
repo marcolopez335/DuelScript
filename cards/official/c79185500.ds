@@ -24,14 +24,9 @@ card "Ironhammer the Giant" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single
-        code: CannotBeSynchroMaterial
-        property: SingleRange
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 2" {
+        scope: self
+        grant: cannot_change_battle_position
     }
 
     effect "Effect 3" {

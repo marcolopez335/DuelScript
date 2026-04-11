@@ -64,13 +64,9 @@ card "Archfiend's Advent" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single
-        code: 85
-        property: IgnoreRange2
-        on_resolve {
-            register_effect on self { grant: cannot_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 5" {
+        scope: self
+        grant: cannot_attack
     }
 
 }

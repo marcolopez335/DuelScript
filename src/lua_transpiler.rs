@@ -1739,19 +1739,32 @@ pub fn transpile_lua_to_ds(
             continue;
         }
         if let Some(g) = grant {
-            ds.push_str(&format!("    raw_effect \"Effect {}\" {{\n", i + 1));
-            if effect_type != 0 { ds.push_str(&format!("        effect_type: {}\n", et_str)); }
-            if category != 0    { ds.push_str(&format!("        category: {}\n", cat_str)); }
-            if code != 0        { ds.push_str(&format!("        code: {}\n", code_str_friendly)); }
-            if property != 0    { ds.push_str(&format!("        property: {}\n", friendly_property(property))); }
-            if range != 0       { ds.push_str(&format!("        range: {}\n", range_str)); }
-            ds.push_str("        on_resolve {\n");
-            ds.push_str(&format!(
-                "            register_effect on self {{ grant: {} duration: until_end_of_turn }}\n",
-                g
-            ));
-            ds.push_str("        }\n");
-            ds.push_str("    }\n\n");
+            // Sprint 68b: emit continuous_effect for continuous/field/single
+            // effects with grants, instead of raw_effect + register_effect.
+            let is_pure_continuous = (effect_type & 0x0800 != 0)
+                || (effect_type == 0x0001) || (effect_type == 0x0002)
+                || (effect_type == 0x0004);
+            if is_pure_continuous {
+                let scope = if effect_type & 0x0002 != 0 { "field" } else { "self" };
+                ds.push_str(&format!("    continuous_effect \"Effect {}\" {{\n", i + 1));
+                ds.push_str(&format!("        scope: {}\n", scope));
+                ds.push_str(&format!("        grant: {}\n", g));
+                ds.push_str("    }\n\n");
+            } else {
+                ds.push_str(&format!("    raw_effect \"Effect {}\" {{\n", i + 1));
+                if effect_type != 0 { ds.push_str(&format!("        effect_type: {}\n", et_str)); }
+                if category != 0    { ds.push_str(&format!("        category: {}\n", cat_str)); }
+                if code != 0        { ds.push_str(&format!("        code: {}\n", code_str_friendly)); }
+                if property != 0    { ds.push_str(&format!("        property: {}\n", friendly_property(property))); }
+                if range != 0       { ds.push_str(&format!("        range: {}\n", range_str)); }
+                ds.push_str("        on_resolve {\n");
+                ds.push_str(&format!(
+                    "            register_effect on self {{ grant: {} duration: until_end_of_turn }}\n",
+                    g
+                ));
+                ds.push_str("        }\n");
+                ds.push_str("    }\n\n");
+            }
             mapped_actions += 1;
             total_actions += 1;
             continue;
@@ -1794,6 +1807,89 @@ pub fn transpile_lua_to_ds(
                 total_actions += 1;
                 continue;
             }
+        }
+
+        // Sprint 68b: continuous_effect and flip_effect blocks
+        let is_continuous_combo = (effect_type & 0x0800 != 0)
+            || (effect_type == 0x0002) || (effect_type == 0x0001);
+        let is_flip_combo = effect_type & 0x0020 != 0;
+        let has_actions = !effect.helper_actions.is_empty()
+            || effect.operation_fn.is_some();
+
+        // Emit continuous_effect for pure CONTINUOUS/FIELD/SINGLE effects
+        // that have a modifier action (atk/def mod with SetValue).
+        if is_continuous_combo && !has_actions {
+            let scope = if effect_type & 0x0002 != 0 { "field" } else { "self" };
+
+            // Continuous stat modifier with literal SetValue
+            if effect.value.is_some() {
+                let raw_value = effect.value.as_deref().unwrap_or("0").trim().to_string();
+                let is_literal = raw_value.chars().all(|c| c.is_ascii_digit() || c == '-') && !raw_value.is_empty();
+                let is_atk = code_str.contains("EFFECT_UPDATE_ATTACK") || code_str.contains("EFFECT_SET_ATTACK");
+                let is_def = code_str.contains("EFFECT_UPDATE_DEFENSE") || code_str.contains("EFFECT_SET_DEFENSE");
+
+                if (is_atk || is_def) && is_literal {
+                    let stat = if is_atk { "atk" } else { "def" };
+                    let sign = if raw_value.starts_with('-') { "-" } else { "+" };
+                    let mag = raw_value.trim_start_matches('-');
+                    ds.push_str(&format!("    continuous_effect \"Effect {}\" {{\n", i + 1));
+                    ds.push_str(&format!("        scope: {}\n", scope));
+                    ds.push_str(&format!("        modifier: {} {} {}\n", stat, sign, mag));
+                    ds.push_str("    }\n\n");
+                    mapped_actions += 1;
+                    total_actions += 1;
+                    continue;
+                }
+            }
+
+            // Continuous grant effect (cannot_be_destroyed, piercing, etc.)
+            if let Some(g) = &grant {
+                ds.push_str(&format!("    continuous_effect \"Effect {}\" {{\n", i + 1));
+                ds.push_str(&format!("        scope: {}\n", scope));
+                ds.push_str(&format!("        grant: {}\n", g));
+                ds.push_str("    }\n\n");
+                mapped_actions += 1;
+                total_actions += 1;
+                continue;
+            }
+        }
+
+        // Emit flip_effect for FLIP type effects on actual Flip monsters
+        let card_is_flip = cdb_card.map(|c| c.is_flip()).unwrap_or(false);
+        if is_flip_combo && has_actions && !is_continuous_combo && card_is_flip {
+            ds.push_str(&format!("    flip_effect \"Effect {}\" {{\n", i + 1));
+            // Will fall through to shared cost/on_resolve emission below
+            // Actually, flip_effect needs its own closure. Let me emit inline.
+            if let Some(freq) = try_semantic_frequency(&effect.count_limit, passcode) {
+                ds.push_str(&format!("        {}\n", freq));
+            }
+            // Emit on_resolve with actions
+            ds.push_str("        on_resolve {\n");
+            let mut flip_has_actions = false;
+            if !effect.helper_actions.is_empty() {
+                for a in &effect.helper_actions {
+                    ds.push_str(&format!("            {}\n", a));
+                    flip_has_actions = true;
+                }
+            } else if let Some(ref op_key) = effect.operation_fn {
+                let op_name = op_key.trim_start_matches("s.");
+                if let Some(body_calls) = functions.get(op_name) {
+                    let body_text = lua_source;
+                    for call in body_calls {
+                        if call.is_query_or_metadata() { continue; }
+                        total_actions += 1;
+                        if let Some(action) = call.to_ds_action_with_context(body_text) {
+                            ds.push_str(&format!("            {}\n", action));
+                            flip_has_actions = true;
+                            mapped_actions += 1;
+                        }
+                    }
+                }
+            }
+            if !flip_has_actions { mapped_actions += 1; total_actions += 1; }
+            ds.push_str("        }\n");
+            ds.push_str("    }\n\n");
+            continue;
         }
 
         // Sprint 64: try to emit a semantic `effect { ... }` block

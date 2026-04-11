@@ -74,12 +74,9 @@ card "Magical Musket Mastermind Zakiel" {
         }
     }
 
-    raw_effect "Effect 8" {
-        effect_type: Single
-        code: CannotChangePosition
-        on_resolve {
-            register_effect on self { grant: cannot_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 8" {
+        scope: self
+        grant: cannot_attack
     }
 
 }

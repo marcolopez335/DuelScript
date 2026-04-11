@@ -29,23 +29,14 @@ card "Cyberse Magician" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field
-        code: 332
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 2" {
+        scope: field
+        grant: cannot_be_targeted_by_card_effects
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field
-        code: CannotDirectAttack2
-        property: SetAvailable + IgnoreRange
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 3" {
+        scope: field
+        grant: cannot_be_targeted_by_card_effects
     }
 
     raw_effect "Effect 4" {

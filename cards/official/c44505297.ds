@@ -50,28 +50,19 @@ card "Inzektor Exa-Beetle" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single
-        code: CannotDirectAttack2
-        on_resolve {
-            register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 4" {
+        scope: self
+        grant: cannot_be_targeted_by_card_effects
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single
-        code: IndestructableEffect
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 5" {
+        scope: self
+        grant: cannot_be_destroyed_by_effect
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Single
-        code: CannotBeEffectTarget
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 6" {
+        scope: self
+        grant: cannot_be_destroyed_by_battle
     }
 
 }

@@ -46,13 +46,9 @@ card "Blessing of the Voiceless Voice" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single
-        code: CannotBeEffectTarget
-        property: IgnoreRange2
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 5" {
+        scope: self
+        grant: cannot_be_destroyed_by_battle
     }
 
     effect "Effect 6" {

@@ -94,13 +94,9 @@ card "Enneacraft - Atori.MAR" {
         }
     }
 
-    raw_effect "Effect 9" {
-        effect_type: Single
-        code: CannotBeSynchroMaterial
-        property: IgnoreRange2
-        on_resolve {
-            register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 9" {
+        scope: self
+        grant: cannot_change_battle_position
     }
 
 }

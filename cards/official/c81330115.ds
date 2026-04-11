@@ -30,22 +30,14 @@ card "Number 30: Acid Golem of Destruction" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single
-        code: 85
-        on_resolve {
-            register_effect on self { grant: cannot_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 2" {
+        scope: self
+        grant: cannot_attack
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field
-        code: CannotDisable
-        property: InitialValue
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 3" {
+        scope: field
+        grant: cannot_be_used_as_material
     }
 
 }

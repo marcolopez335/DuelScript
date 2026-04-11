@@ -44,21 +44,14 @@ card "Neo Galaxy-Eyes Cipher Dragon" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field
-        code: CannotAttackAnnounce
-        on_resolve {
-            register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 2" {
+        scope: field
+        grant: cannot_attack_directly
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single
-        code: SetAttackFinal
-        property: BothSide
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed_by_battle
     }
 
     raw_effect "Effect 4" {

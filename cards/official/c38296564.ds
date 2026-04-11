@@ -6,40 +6,24 @@ card "Safe Zone" {
     id: 38296564
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Field
-        code: CannotBeEffectTarget
-        range: SpellTrapZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 1" {
+        scope: field
+        grant: cannot_be_destroyed_by_battle
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field
-        code: IndestructableEffect
-        range: SpellTrapZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 2" {
+        scope: field
+        grant: cannot_be_destroyed_by_effect
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field
-        code: CannotDirectAttack2
-        range: SpellTrapZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 3" {
+        scope: field
+        grant: cannot_be_targeted_by_card_effects
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field
-        code: CannotAttackAnnounce
-        range: SpellTrapZone
-        on_resolve {
-            register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 4" {
+        scope: field
+        grant: cannot_attack_directly
     }
 
     raw_effect "Effect 5" {

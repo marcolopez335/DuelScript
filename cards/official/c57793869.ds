@@ -58,20 +58,14 @@ card "The Wicked Eraser" {
         }
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Single
-        code: CannotChangePosition
-        on_resolve {
-            register_effect on self { grant: cannot_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 6" {
+        scope: self
+        grant: cannot_attack
     }
 
-    raw_effect "Effect 7" {
-        effect_type: Single
-        code: Unreleasable
-        on_resolve {
-            register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 7" {
+        scope: self
+        grant: cannot_change_battle_position
     }
 
 }

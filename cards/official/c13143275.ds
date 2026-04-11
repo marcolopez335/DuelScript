@@ -20,14 +20,9 @@ card "Guardragon Pisty" {
         method: link
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field
-        code: CannotDisable
-        property: InitialValue
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 1" {
+        scope: field
+        grant: cannot_be_used_as_material
     }
 
     effect "Effect 2" {

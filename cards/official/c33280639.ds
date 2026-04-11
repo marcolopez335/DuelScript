@@ -39,20 +39,14 @@ card "Prologue of the Destruction Swordsman" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field
-        code: IndestructableEffect
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 3" {
+        scope: field
+        grant: cannot_be_destroyed_by_effect
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field
-        code: CannotBeEffectTarget
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 4" {
+        scope: field
+        grant: cannot_be_destroyed_by_battle
     }
 
 }

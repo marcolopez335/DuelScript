@@ -11,13 +11,9 @@ card "Cornfield Coatl" {
     atk: 500
     def: 1700
 
-    raw_effect "Effect 1" {
-        effect_type: Field
-        code: CannotBeEffectTarget
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 1" {
+        scope: field
+        grant: cannot_be_destroyed_by_battle
     }
 
     effect "Effect 2" {

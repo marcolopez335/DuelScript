@@ -18,12 +18,9 @@ card "Skystarray" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single
-        code: DefenseDisabled
-        on_resolve {
-            register_effect on self { grant: direct_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 2" {
+        scope: self
+        grant: direct_attack
     }
 
     raw_effect "Effect 3" {

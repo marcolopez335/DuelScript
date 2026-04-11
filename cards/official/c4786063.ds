@@ -68,22 +68,14 @@ card "Superheavy Samurai Soulfire Suit" {
         }
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Single
-        code: CannotBeEffectTarget
-        property: IgnoreRange2
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 6" {
+        scope: self
+        grant: cannot_be_destroyed_by_battle
     }
 
-    raw_effect "Effect 7" {
-        effect_type: Single
-        code: IndestructableEffect
-        property: IgnoreRange2
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 7" {
+        scope: self
+        grant: cannot_be_destroyed_by_effect
     }
 
 }

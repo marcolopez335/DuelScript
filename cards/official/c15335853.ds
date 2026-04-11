@@ -20,24 +20,14 @@ card "Mecha Phantom Beast Sabre Hawk" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single
-        code: CannotBeEffectTarget
-        property: SingleRange
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed_by_battle
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single
-        code: IndestructableEffect
-        property: SingleRange
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed_by_effect
     }
 
     effect "Effect 4" {
@@ -52,20 +42,14 @@ card "Mecha Phantom Beast Sabre Hawk" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single
-        code: CannotAttackAnnounce
-        on_resolve {
-            register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 5" {
+        scope: self
+        grant: cannot_attack_directly
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Single
-        code: 85
-        on_resolve {
-            register_effect on self { grant: cannot_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 6" {
+        scope: self
+        grant: cannot_attack
     }
 
 }

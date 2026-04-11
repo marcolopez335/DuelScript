@@ -39,21 +39,14 @@ card "Future Fusion Nova" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Field
-        code: CannotDisable
-        property: InitialValue + IgnoreRange2
-        on_resolve {
-            register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 5" {
+        scope: field
+        grant: cannot_be_used_as_material
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Field
-        code: 86
-        on_resolve {
-            register_effect on self { grant: cannot_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 6" {
+        scope: field
+        grant: cannot_attack
     }
 
 }

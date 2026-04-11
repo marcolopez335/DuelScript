@@ -28,14 +28,9 @@ card "World Gears of Theurlogical Demiurgy" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single
-        code: ImmuneEffect
-        property: SingleRange
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 2" {
+        scope: self
+        grant: unaffected_by_card_effects
     }
 
     raw_effect "Effect 3" {

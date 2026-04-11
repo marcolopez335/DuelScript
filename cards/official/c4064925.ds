@@ -63,22 +63,14 @@ card "Ancient Gear Advance" {
         }
     }
 
-    raw_effect "Effect 7" {
-        effect_type: Field
-        code: Unreleasable
-        property: InitialValue + CannotDisable + IgnoreRange2
-        on_resolve {
-            register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 7" {
+        scope: field
+        grant: cannot_change_battle_position
     }
 
-    raw_effect "Effect 8" {
-        effect_type: Field
-        code: UnreleasableByEffect
-        property: InitialValue + CannotDisable + IgnoreRange2
-        on_resolve {
-            register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 8" {
+        scope: field
+        grant: cannot_change_battle_position
     }
 
     raw_effect "Effect 9" {
@@ -89,13 +81,9 @@ card "Ancient Gear Advance" {
         }
     }
 
-    raw_effect "Effect 10" {
-        effect_type: Field
-        code: CannotDisable
-        property: InitialValue + CannotDisable + IgnoreRange2
-        on_resolve {
-            register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 10" {
+        scope: field
+        grant: cannot_be_used_as_material
     }
 
     raw_effect "Effect 11" {

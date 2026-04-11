@@ -11,13 +11,9 @@ card "Guardian Elma" {
     atk: 1300
     def: 1200
 
-    raw_effect "Effect 1" {
-        effect_type: Single
-        code: CannotChangePosition
-        property: BothSide + Uncopyable
-        on_resolve {
-            register_effect on self { grant: cannot_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 1" {
+        scope: self
+        grant: cannot_attack
     }
 
     raw_effect "Effect 2" {

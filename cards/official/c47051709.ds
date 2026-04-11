@@ -25,23 +25,14 @@ card "Photon Delta Wing" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field
-        code: 86
-        property: InitialValue
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 2" {
+        scope: field
+        grant: cannot_attack
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field
-        code: CannotDisable
-        property: InitialValue + IgnoreRange2
-        on_resolve {
-            register_effect on self { grant: cannot_be_used_as_material duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 3" {
+        scope: field
+        grant: cannot_be_used_as_material
     }
 
 }

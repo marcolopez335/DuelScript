@@ -6,13 +6,9 @@ card "Battle Royal Mode - Joining" {
     id: 65433790
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Field
-        code: CannotHandReturn
-        range: SpellTrapZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 1" {
+        scope: field
+        grant: cannot_be_destroyed
     }
 
     raw_effect "Effect 2" {

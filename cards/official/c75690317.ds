@@ -11,12 +11,9 @@ card "Karakuri Gama mdl 4624 'Shirokunishi'" {
     atk: 200
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: Single
-        code: 191
-        on_resolve {
-            register_effect on self { grant: must_attack_if_able duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 1" {
+        scope: self
+        grant: must_attack_if_able
     }
 
     effect "Effect 2" {

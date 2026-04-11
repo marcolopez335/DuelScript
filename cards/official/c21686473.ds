@@ -43,30 +43,19 @@ card "D/D/D Destiny King Zero Laplace" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single
-        code: GraveRedirectCb
-        on_resolve {
-            register_effect on self { grant: piercing duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 4" {
+        scope: self
+        grant: piercing
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single
-        code: CannotHandReturn
-        property: SingleRange
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 5" {
+        scope: self
+        grant: cannot_be_destroyed
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Single
-        code: 201
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 6" {
+        scope: self
+        grant: cannot_be_destroyed_by_battle
     }
 
 }

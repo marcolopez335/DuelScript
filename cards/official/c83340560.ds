@@ -34,12 +34,9 @@ card "The Great Double Casted Caster" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single
-        code: DefenseDisabled
-        on_resolve {
-            register_effect on self { grant: direct_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 3" {
+        scope: self
+        grant: direct_attack
     }
 
     effect "Effect 4" {

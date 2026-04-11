@@ -6,12 +6,9 @@ card "Rising Sun Slash" {
     id: 94807487
     type: Equip Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Equip
-        code: IndestructableEffect
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_effect duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed_by_effect
     }
 
     raw_effect "Effect 2" {

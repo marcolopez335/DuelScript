@@ -44,32 +44,19 @@ card "The Winged Dragon of Ra - Sphere Mode" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single
-        code: 85
-        on_resolve {
-            register_effect on self { grant: cannot_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 4" {
+        scope: self
+        grant: cannot_attack
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single
-        code: AttackDisabled
-        property: SingleRange
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 5" {
+        scope: self
+        grant: cannot_be_targeted_by_card_effects
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Single
-        code: CannotDirectAttack2
-        property: SingleRange
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 6" {
+        scope: self
+        grant: cannot_be_targeted_by_card_effects
     }
 
     effect "Effect 7" {
@@ -90,20 +77,14 @@ card "The Winged Dragon of Ra - Sphere Mode" {
         }
     }
 
-    raw_effect "Effect 8" {
-        effect_type: Single
-        code: CannotChangePosition
-        on_resolve {
-            register_effect on self { grant: cannot_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 8" {
+        scope: self
+        grant: cannot_attack
     }
 
-    raw_effect "Effect 9" {
-        effect_type: Single
-        code: Unreleasable
-        on_resolve {
-            register_effect on self { grant: cannot_change_battle_position duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 9" {
+        scope: self
+        grant: cannot_change_battle_position
     }
 
 }

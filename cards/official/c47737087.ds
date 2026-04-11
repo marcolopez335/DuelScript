@@ -28,12 +28,9 @@ card "Elemental HERO Rampart Blaster" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single
-        code: DefenseDisabled
-        on_resolve {
-            register_effect on self { grant: direct_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 2" {
+        scope: self
+        grant: direct_attack
     }
 
     raw_effect "Effect 3" {
@@ -43,22 +40,14 @@ card "Elemental HERO Rampart Blaster" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single
-        code: 332
-        on_resolve {
-            register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 4" {
+        scope: self
+        grant: cannot_be_targeted_by_card_effects
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single
-        code: SetAttackFinal
-        property: SingleRange
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_destroyed_by_battle duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 5" {
+        scope: self
+        grant: cannot_be_destroyed_by_battle
     }
 
 }

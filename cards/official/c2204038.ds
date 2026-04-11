@@ -15,14 +15,9 @@ card "Valkyrie Brunhilde" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single
-        code: ImmuneEffect
-        property: SingleRange
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: unaffected_by_card_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 1" {
+        scope: self
+        grant: unaffected_by_card_effects
     }
 
     raw_effect "Effect 2" {

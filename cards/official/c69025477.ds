@@ -11,12 +11,9 @@ card "The Six Samurai - Yariza" {
     atk: 1000
     def: 500
 
-    raw_effect "Effect 1" {
-        effect_type: Single
-        code: DefenseDisabled
-        on_resolve {
-            register_effect on self { grant: direct_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 1" {
+        scope: self
+        grant: direct_attack
     }
 
     replacement_effect "Effect 2" {

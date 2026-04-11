@@ -11,13 +11,9 @@ card "Inspector Boarder" {
     atk: 2000
     def: 2000
 
-    raw_effect "Effect 1" {
-        effect_type: Single
-        code: CannotChangePosition
-        property: BothSide + Uncopyable
-        on_resolve {
-            register_effect on self { grant: cannot_attack duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 1" {
+        scope: self
+        grant: cannot_attack
     }
 
     raw_effect "Effect 2" {
@@ -44,14 +40,9 @@ card "Inspector Boarder" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Field
-        code: CannotChangeControl
-        property: InitialValue
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 5" {
+        scope: field
+        grant: cannot_activate_effects
     }
 
     raw_effect "Effect 6" {
@@ -70,14 +61,9 @@ card "Inspector Boarder" {
         }
     }
 
-    raw_effect "Effect 8" {
-        effect_type: Field
-        code: CannotChangeControl
-        property: InitialValue
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_activate_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 8" {
+        scope: field
+        grant: cannot_activate_effects
     }
 
 }

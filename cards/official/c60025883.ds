@@ -50,24 +50,14 @@ card "Duel Link Dragon, the Duel Dragon" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single
-        code: AttackDisabled
-        property: SingleRange
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 2" {
+        scope: self
+        grant: cannot_be_targeted_by_card_effects
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single
-        code: CannotDirectAttack2
-        property: SingleRange
-        range: MonsterZone
-        on_resolve {
-            register_effect on self { grant: cannot_be_targeted_by_card_effects duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 3" {
+        scope: self
+        grant: cannot_be_targeted_by_card_effects
     }
 
     raw_effect "Effect 4" {

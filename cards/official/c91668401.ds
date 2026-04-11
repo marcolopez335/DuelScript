@@ -49,13 +49,9 @@ card "Cyber Angel Izana" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single
-        code: CannotAttackAnnounce
-        property: BothSide
-        on_resolve {
-            register_effect on self { grant: cannot_attack_directly duration: until_end_of_turn }
-        }
+    continuous_effect "Effect 4" {
+        scope: self
+        grant: cannot_attack_directly
     }
 
 }
