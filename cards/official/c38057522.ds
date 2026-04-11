@@ -6,9 +6,8 @@ card "Grand Spiritual Art - Ichirin" {
     id: 38057522
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -23,11 +22,10 @@ card "Grand Spiritual Art - Ichirin" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: ToHand + ToDeck + Search
-        range: FieldZone
-        count_limit: (1, 38057522)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [field_zone]
         on_resolve {
             reveal (1+, card, opponent controls)
             return (1+, monster, you controls) to hand

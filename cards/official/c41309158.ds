@@ -21,19 +21,22 @@ card "CXyz Mechquipped Djinn Angeneral" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        code: SpecialSummonSuccess
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: Damage
-        code: BattleDestroyed
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_destroyed
         cost {
             detach 1 overlay_unit from self
         }

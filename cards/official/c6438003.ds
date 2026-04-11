@@ -11,12 +11,10 @@ card "Ancient Warriors - Deceptive Jia Wen" {
     atk: 1100
     def: 1800
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: ToGrave + AtkChange
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 6438003)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             send (1+, spell, either_player controls) to gy
             register_effect on self {
@@ -26,13 +24,13 @@ card "Ancient Warriors - Deceptive Jia Wen" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: ToHand
-        code: Destroyed
-        property: CardTarget + Oath + Delay
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_destroyed
         on_resolve {
             return (1+, spell, either_player controls) to hand
         }

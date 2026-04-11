@@ -6,11 +6,9 @@ card "Ledger of Legerdemain" {
     id: 56256517
     type: Normal Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Banish + ToHand
-        code: FreeChain
-        count_limit: (1, 56256517)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             banish (1+, card, either_player controls)
             register_effect on self {

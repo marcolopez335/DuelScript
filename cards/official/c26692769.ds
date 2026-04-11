@@ -20,24 +20,22 @@ card "The Phantom Knights of Rusty Bardiche" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: ToGrave
-        range: MonsterZone
-        count_limit: (1, 26692769)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             send (1+, monster, you controls, deck) to gy
             set (1, card)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: Destroy
-        code: SpecialSummonSuccess
-        property: CardTarget + Delay
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             destroy (1+, monster, you controls, deck)
         }

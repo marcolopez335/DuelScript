@@ -23,11 +23,10 @@ card "The Winged Dragon of Ra - Immortal Phoenix" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        category: SpecialSummon
-        code: ChainEnd
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_end"
+        activate_from: [gy]
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -43,10 +42,8 @@ card "The Winged Dragon of Ra - Immortal Phoenix" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: ToGrave
-        range: MonsterZone
+    effect "Effect 4" {
+        speed: spell_speed_1
         cost {
             pay_lp 1000
         }
@@ -55,12 +52,10 @@ card "The Winged Dragon of Ra - Immortal Phoenix" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Field + MandatoryTrigger
-        category: ToGrave + SpecialSummon
-        code: PhaseEnd
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
         on_resolve {
             send (1+, monster, either_player controls) to gy
             special_summon (1, monster) from gy

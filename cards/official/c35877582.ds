@@ -20,13 +20,11 @@ card "Aiwass, the Magistus Spell Spirit" {
         method: fusion
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: Equip
-        code: FreeChain
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 35877582)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
         on_resolve {
             send (1+, card, either_player controls) to gy
             equip (1, card) to (1, monster)

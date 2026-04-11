@@ -11,10 +11,11 @@ card "Brotherhood of the Fire Fist - Raven" {
     atk: 200
     def: 1800
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        code: ChainEnd
-        property: Oath + Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             set (1, card)
         }

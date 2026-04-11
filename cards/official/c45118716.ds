@@ -11,12 +11,13 @@ card "Spell Recycler" {
     atk: 0
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: ToDeck + DeckDestroy
-        code: AttackAnnounce
-        property: CardTarget
-        range: Graveyard
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when attack_declared
+        activate_from: [gy]
         cost {
             banish self
         }

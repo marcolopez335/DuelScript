@@ -6,9 +6,8 @@ card "Deskbot Base" {
     id: 12215894
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -31,12 +30,10 @@ card "Deskbot Base" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: ToDeck + Draw
-        property: InitialValue
-        range: FieldZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [field_zone]
         on_resolve {
             reveal (1+, card, opponent controls)
             return (1+, card, you controls) to deck shuffle
@@ -46,10 +43,9 @@ card "Deskbot Base" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Ignition
-        category: ToDeck
-        range: FieldZone
+    effect "Effect 5" {
+        speed: spell_speed_1
+        activate_from: [field_zone]
         cost {
             banish self
         }

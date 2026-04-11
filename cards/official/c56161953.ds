@@ -15,11 +15,10 @@ card "Scrypton" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Hand
-        count_limit: (1, 56161953)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand]
         cost {
             banish self
         }
@@ -28,12 +27,13 @@ card "Scrypton" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToDeck
-        code: FlipSuccess
-        property: CardTarget + Delay
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_flipped
         on_resolve {
             return (1+, monster, you controls) to deck shuffle
         }

@@ -15,12 +15,11 @@ card "Kochobo's Hinamatsuri" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon + AtkChange + LevelChange
-        property: CardTarget
-        range: Hand + Graveyard
-        count_limit: (1, 55359571)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
+        activate_from: [hand, gy]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

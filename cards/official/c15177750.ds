@@ -6,20 +6,17 @@ card "Blessed Winds" {
     id: 15177750
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Recover
-        code: FreeChain
-        property: InitialValue
-        range: SpellTrapZone
-        count_limit: (1, 15177750)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [spell_trap_zone]
         cost {
             send self to gy
         }
@@ -28,26 +25,23 @@ card "Blessed Winds" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: ToDeck + Recover
-        code: FreeChain
-        property: CardTarget
-        range: SpellTrapZone
-        count_limit: (1, 15177750)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
+        activate_from: [spell_trap_zone]
         on_resolve {
             return (1+, monster, you controls) to deck shuffle
             gain_lp: 500
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        property: InitialValue
-        range: SpellTrapZone
-        count_limit: (1, 15177750)
+    effect "Effect 4" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [spell_trap_zone]
         cost {
             pay_lp your_lp / 2
         }

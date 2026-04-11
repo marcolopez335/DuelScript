@@ -37,31 +37,25 @@ card "Bonze Alone" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + MandatoryTrigger
-        category: Destroy
-        code: SummonSuccess
-        range: MonsterZone
+    effect "Effect 4" {
+        speed: spell_speed_1
+        trigger: when_summoned
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Field + MandatoryTrigger
-        category: Destroy
-        code: FlipSummonSuccess
-        range: MonsterZone
+    effect "Effect 5" {
+        speed: spell_speed_1
+        trigger: when_summoned by_flip_summon
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Field + MandatoryTrigger
-        category: Destroy
-        code: SpecialSummonSuccess
-        range: MonsterZone
+    effect "Effect 6" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
         on_resolve {
             destroy (1+, card, either_player controls)
         }

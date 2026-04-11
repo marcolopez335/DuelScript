@@ -15,11 +15,11 @@ card "Gouki Tagpartner" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: AtkChange
-        code: FlipSuccess
-        property: Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_flipped
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -28,10 +28,9 @@ card "Gouki Tagpartner" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToDeck
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_1
+        activate_from: [gy]
         cost {
             banish self
         }

@@ -21,11 +21,11 @@ card "Mannadium Fearless" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: Destroyed
-        property: Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

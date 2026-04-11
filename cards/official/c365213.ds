@@ -6,10 +6,8 @@ card "Arrive in Light" {
     id: 365213
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToDeck
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
             return (1+, card, you controls) to deck shuffle
             shuffle_deck
@@ -25,12 +23,12 @@ card "Arrive in Light" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: SpecialSummon + Draw
-        code: SpecialSummonSuccess
-        property: Delay
-        range: SpellTrapZone
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
+        activate_from: [spell_trap_zone]
         on_resolve {
         }
     }

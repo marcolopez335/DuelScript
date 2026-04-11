@@ -29,12 +29,11 @@ card "Aleister the Invoker of Madness" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: ToHand + Search
-        code: SpecialSummonSuccess
-        property: Delay
-        range: MonsterZone
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             discard (1, card)
             add_to_hand (1+, card, you controls) from hand

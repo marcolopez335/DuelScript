@@ -6,19 +6,17 @@ card "Necklace of Command" {
     id: 48576971
     type: Equip Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        code: ChainEnd
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_end"
         on_resolve {
             draw 1
             send (1+, card, either_player controls) to gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Activate
-        category: Equip
-        code: FreeChain
+    effect "Effect 2" {
+        speed: spell_speed_1
         on_resolve {
             equip self to (1, monster, you controls)
         }

@@ -23,11 +23,10 @@ card "Full Active Duplex" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Hand
-        count_limit: (1, 4483598)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand]
         cost {
             banish self
         }
@@ -36,12 +35,13 @@ card "Full Active Duplex" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: AtkChange
-        code: ChainEnd
-        property: CardTarget + Delay
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
         }
     }

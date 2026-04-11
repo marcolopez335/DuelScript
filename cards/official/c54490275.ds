@@ -19,19 +19,18 @@ card "Ghostrick Yuki-onna" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: PositionChange
-        range: MonsterZone
+    effect "Effect 2" {
+        speed: spell_speed_1
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: PositionChange
-        code: BattleDamage
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_damage
         on_resolve {
             change_battle_position (1, monster)
             register_effect on self {

@@ -15,13 +15,13 @@ card "Brotherhood of the Fire Fist - Panda" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: Chaining
-        property: Delay
-        range: Hand
-        count_limit: (1, 35488287)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        activate_from: [hand]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

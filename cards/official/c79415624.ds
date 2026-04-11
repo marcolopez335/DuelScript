@@ -21,12 +21,11 @@ card "Snake-Eyes Vengeance Dragon" {
         method: synchro
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        code: FreeChain
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 79415624)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
         on_resolve {
             send (1+, monster, either_player controls) to gy
             special_summon (1, monster) from gy
@@ -37,13 +36,11 @@ card "Snake-Eyes Vengeance Dragon" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Destroy
-        code: FreeChain
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        damage_step: false
         on_resolve {
             destroy (1+, monster, either_player controls)
         }

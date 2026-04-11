@@ -11,12 +11,12 @@ card "Earthbound Prisoner Ground Keeper" {
     atk: 300
     def: 300
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: SummonSuccess
-        property: Delay
-        count_limit: (1, 46939151)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -26,12 +26,12 @@ card "Earthbound Prisoner Ground Keeper" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: SpecialSummonSuccess
-        property: Delay
-        count_limit: (1, 46939151)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

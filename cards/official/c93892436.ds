@@ -12,12 +12,12 @@ card "Performapal Swincobra" {
     atk: 300
     def: 1800
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: DeckDestroy
-        code: BattleDestroyed
-        range: PendulumZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: when_battle_destroyed
         on_resolve {
             mill 1
         }

@@ -20,11 +20,9 @@ card "Ukiyoe-P.U.N.K. Rising Carp" {
         method: fusion
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: MonsterZone
-        count_limit: (1, 18313046)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         cost {
             tribute self
         }
@@ -33,11 +31,13 @@ card "Ukiyoe-P.U.N.K. Rising Carp" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        code: FlipSuccess
-        property: CardTarget + Delay
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_flipped
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

@@ -21,10 +21,9 @@ card "Sun Dragon Inti" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: Destroy + Damage
-        code: BattleDamage
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_battle_damage
         on_resolve {
             destroy (1+, card, either_player controls)
             deal_damage to opponent: 1000

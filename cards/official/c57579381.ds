@@ -15,13 +15,11 @@ card "Darklord Marie" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + MandatoryTrigger
-        category: Recover
-        code: PhaseStandby
-        property: InitialValue
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
+        activate_from: [gy]
         on_resolve {
             gain_lp: 1000
         }

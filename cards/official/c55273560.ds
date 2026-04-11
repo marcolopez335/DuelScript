@@ -21,12 +21,10 @@ card "Incredible Ecclesia, the Virtuous" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
         cost {
             tribute self
         }
@@ -35,12 +33,13 @@ card "Incredible Ecclesia, the Virtuous" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: ToHand
-        code: PhaseEnd
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: during_end_phase
+        activate_from: [gy]
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
         }

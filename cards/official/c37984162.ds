@@ -11,10 +11,9 @@ card "Gorgonic Golem" {
     atk: 1200
     def: 600
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: AtkChange
-        code: BattleDamage
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_battle_damage
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -23,10 +22,10 @@ card "Gorgonic Golem" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        property: CardTarget
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_1
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }

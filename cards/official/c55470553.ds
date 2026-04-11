@@ -21,11 +21,11 @@ card "Number 98: Antitopian" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: PositionChange
-        code: AttackAnnounce
-        range: MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when attack_declared
         cost {
             detach 1 overlay_unit from self
         }
@@ -34,13 +34,12 @@ card "Number 98: Antitopian" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 55470553)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
+        activate_from: [gy]
         on_resolve {
             special_summon (1, monster) from gy
             attach (1, card) to self as_material

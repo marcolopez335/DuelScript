@@ -11,10 +11,10 @@ card "Cartorhyn the Hidden Gem of the Seafront" {
     atk: 500
     def: 1600
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        range: Hand
-        count_limit: (1, 94076521)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand]
         cost {
             discard (1, card, you controls)
         }
@@ -26,11 +26,10 @@ card "Cartorhyn the Hidden Gem of the Seafront" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [gy]
         on_resolve {
             special_summon (1, monster) from gy
         }

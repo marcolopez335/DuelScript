@@ -6,9 +6,8 @@ card "Meklord Fortress" {
     id: 67328336
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -23,11 +22,11 @@ card "Meklord Fortress" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: ChainEnd
-        property: Oath
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: on_custom_event "chain_end"
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)

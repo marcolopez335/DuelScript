@@ -48,11 +48,11 @@ card "Mekk-Knight Crusadia Avramax" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: ToDeck
-        code: ChainEnd
-        property: Delay
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
         }

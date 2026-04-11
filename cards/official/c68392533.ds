@@ -15,11 +15,11 @@ card "Telekinetic Charging Cell" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: ChainEnd
-        property: Oath
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: on_custom_event "chain_end"
         cost {
             pay_lp 1000
         }
@@ -29,10 +29,8 @@ card "Telekinetic Charging Cell" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Activate
-        category: Equip
-        code: FreeChain
+    effect "Effect 3" {
+        speed: spell_speed_1
         on_resolve {
             equip self to (1, monster, you controls)
         }

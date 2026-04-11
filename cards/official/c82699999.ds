@@ -11,12 +11,13 @@ card "Live☆Twin Lil-la Sweet" {
     atk: 500
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: Disable
-        code: Chaining
-        range: Hand
-        count_limit: (1, 82699999)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        activate_from: [hand]
         cost {
             discard (1, card, you controls)
         }
@@ -25,11 +26,10 @@ card "Live☆Twin Lil-la Sweet" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [gy]
         on_resolve {
             special_summon (1, monster) from gy
         }

@@ -11,12 +11,10 @@ card "Sanaki the Mikanko Devotee" {
     atk: 0
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: ToHand
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 11161666)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
         }
@@ -37,12 +35,13 @@ card "Sanaki the Mikanko Devotee" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: Equip
-        code: ChainEnd
-        property: CardTarget + Delay
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             equip (1, card) to (1, monster)
         }

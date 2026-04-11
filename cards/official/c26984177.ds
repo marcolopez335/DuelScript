@@ -6,9 +6,8 @@ card "Walls of the Imperial Tomb" {
     id: 26984177
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -22,11 +21,10 @@ card "Walls of the Imperial Tomb" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: ToHand + ToDeck + Search
-        range: FieldZone
-        count_limit: (1, 26984177)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [field_zone]
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)
@@ -36,12 +34,12 @@ card "Walls of the Imperial Tomb" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + Trigger
-        category: Draw
-        code: Chaining
-        property: Delay
-        range: FieldZone
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        activate_from: [field_zone]
         on_resolve {
             draw 1
         }

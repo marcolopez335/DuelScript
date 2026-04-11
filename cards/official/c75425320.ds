@@ -6,19 +6,17 @@ card "Disciples of the True Dracophoenix" {
     id: 75425320
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToDeck + Draw
-        property: CardTarget
-        range: SpellTrapZone
-        count_limit: (1, 75425320)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
+        activate_from: [spell_trap_zone]
         on_resolve {
             return (1+, spell, you controls) to deck shuffle
             shuffle_deck
@@ -26,22 +24,22 @@ card "Disciples of the True Dracophoenix" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: Summon
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [spell_trap_zone]
         on_resolve {
             normal_summon (1, monster, you controls)
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: Destroy
-        code: ChainEnd
-        property: CardTarget + Delay
-        count_limit: (1, 75425322)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             destroy (1+, spell, you controls, hand)
         }

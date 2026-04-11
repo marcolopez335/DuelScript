@@ -19,12 +19,12 @@ card "PSY-Framegear Delta" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Destroy + SpecialSummon + Negate
-        code: Chaining
-        property: Oath + CountCodeDuel
-        range: Hand
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
             special_summon (1, monster) from gy

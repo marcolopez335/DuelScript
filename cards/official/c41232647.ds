@@ -20,13 +20,13 @@ card "House Dragonmaid" {
         method: fusion
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: PhaseStandby
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: during_standby_phase
         on_resolve {
             special_summon (1, monster) from gy
         }

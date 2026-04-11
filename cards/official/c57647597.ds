@@ -11,12 +11,11 @@ card "Reptilianne Lamia" {
     atk: 0
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon + Damage + AtkChange
-        property: CardTarget
-        range: Hand
-        count_limit: (1, 57647597)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
+        activate_from: [hand]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -27,12 +26,13 @@ card "Reptilianne Lamia" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: AtkChange
-        code: FlipSuccess
-        property: CardTarget + Delay
-        count_limit: (1, 57647597)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_flipped
         on_resolve {
         }
     }

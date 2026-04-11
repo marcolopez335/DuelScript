@@ -6,9 +6,8 @@ card "Subterror Behemoth Burrowing" {
     id: 28369508
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         cost {
             banish self
         }
@@ -24,23 +23,22 @@ card "Subterror Behemoth Burrowing" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: Destroyed
-        property: Oath + Delay
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
             reveal (1+, card, opponent controls)
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: PositionChange
-        code: FreeChain
-        property: CardTarget
-        range: Graveyard
+    effect "Effect 3" {
+        speed: spell_speed_2
+        optional: true
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }

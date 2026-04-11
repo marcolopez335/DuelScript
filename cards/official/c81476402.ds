@@ -15,11 +15,10 @@ card "Wicked Serpent Night Dragon" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Hand
-        count_limit: (1, 81476402)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand]
         cost {
             tribute self
         }
@@ -28,11 +27,12 @@ card "Wicked Serpent Night Dragon" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToGrave + SpecialSummon
-        code: BattleDamage
-        property: CardTarget
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_battle_damage
         on_resolve {
             send (1+, card, either_player controls) to gy
             special_summon (1, monster) from gy

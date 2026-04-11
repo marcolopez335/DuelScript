@@ -6,9 +6,8 @@ card "Adamancipator Laputite" {
     id: 46552140
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -31,11 +30,10 @@ card "Adamancipator Laputite" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: ToDeck
-        range: FieldZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [field_zone]
         on_resolve {
             reveal (1+, card, opponent controls)
             shuffle_deck

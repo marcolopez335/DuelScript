@@ -11,13 +11,14 @@ card "Penguin Cleric" {
     atk: 600
     def: 1700
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: HandDestroy + SpecialSummon
-        code: ChainEnd
-        property: CardTarget + Oath + Delay
-        range: Hand
-        count_limit: (1, 73640163)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
+        activate_from: [hand]
         on_resolve {
             send (1+, card, either_player controls) to gy
             special_summon (1, monster) from gy
@@ -25,12 +26,10 @@ card "Penguin Cleric" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Recover + AtkChange
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

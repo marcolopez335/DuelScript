@@ -15,11 +15,12 @@ card "Behemoth the King of All Animals" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: SummonSuccess
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }

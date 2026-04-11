@@ -25,11 +25,12 @@ card "Cyber Tutubon" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: Released
-        property: CardTarget + Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_tributed
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }

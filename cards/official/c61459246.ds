@@ -6,22 +6,19 @@ card "Dream Mirror Oneiromancy" {
     id: 61459246
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Destroy + Negate
-        code: Chaining
-        count_limit: (1, 61459246)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate activation
             destroy (1+, card, either_player controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Activate
-        category: Destroy + DisableSummon
-        code: 1105
-        count_limit: (1, 61459246)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
         on_resolve {
             negate summon
             destroy (1+, card, either_player controls)

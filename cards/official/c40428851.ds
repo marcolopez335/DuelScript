@@ -21,11 +21,9 @@ card "Ancient Warriors - Virtuous Liu Xuan" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: MonsterZone
-        count_limit: (1, 40428851)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
         cost {
             send self to gy
         }
@@ -34,12 +32,12 @@ card "Ancient Warriors - Virtuous Liu Xuan" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: Draw
-        code: AttackAnnounce
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: when attack_declared
         on_resolve {
             draw 1
         }

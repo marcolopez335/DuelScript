@@ -15,13 +15,12 @@ card "Motor Frenzy" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: AtkChange
-        code: SummonSuccess
-        property: Oath + Delay
-        range: MonsterZone
-        count_limit: (1, 77672444)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -34,13 +33,12 @@ card "Motor Frenzy" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: AtkChange
-        code: SpecialSummonSuccess
-        property: Oath + Delay
-        range: MonsterZone
-        count_limit: (1, 77672444)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -53,12 +51,12 @@ card "Motor Frenzy" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: SpecialSummon + Token
-        code: ChainEnd
-        property: Delay
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             create_token { atk: 0 def: 0 }
             special_summon (1, monster) from gy

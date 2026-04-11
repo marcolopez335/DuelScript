@@ -6,9 +6,8 @@ card "The Sanctum of Parshath" {
     id: 15449853
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -60,12 +59,11 @@ card "The Sanctum of Parshath" {
         }
     }
 
-    raw_effect "Effect 7" {
-        effect_type: Ignition
-        category: ToDeck
-        property: CardTarget
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 7" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
+        activate_from: [spell_trap_zone]
         on_resolve {
             return (1+, card, you controls) to deck shuffle
             send_to_deck (1+, card, you controls)

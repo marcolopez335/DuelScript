@@ -21,47 +21,45 @@ card "Shooting Star Dragon" {
         method: synchro
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
         on_resolve {
             reveal (1, card, opponent controls, deck)
             shuffle_deck
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Destroy + Disable
-        code: Chaining
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate effect
             destroy (1+, card, either_player controls)
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: Banish
-        code: AttackAnnounce
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when attack_declared
         on_resolve {
             banish (1+, card, either_player controls)
             negate attack
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + MandatoryTrigger
-        category: SpecialSummon
-        code: PhaseEnd
-        range: Banished
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        activate_from: [banished]
         on_resolve {
             special_summon (1, monster) from gy
         }

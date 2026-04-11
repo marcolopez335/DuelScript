@@ -6,9 +6,8 @@ card "Dinomists Howling" {
     id: 60675348
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {
@@ -18,13 +17,12 @@ card "Dinomists Howling" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: ToHand
-        code: FreeChain
-        property: CardTarget
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        damage_step: false
+        activate_from: [spell_trap_zone]
         cost {
             tribute self
         }

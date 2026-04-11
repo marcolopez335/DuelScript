@@ -11,13 +11,13 @@ card "Genex Ally Crusher" {
     atk: 1000
     def: 2000
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: Destroy
-        code: SummonSuccess
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             destroy (1+, card, either_player controls)
         }

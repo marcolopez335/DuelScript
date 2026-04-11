@@ -6,11 +6,9 @@ card "Xyz Entrust" {
     id: 81978611
     type: Normal Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + Search + LevelChange
-        code: FreeChain
-        count_limit: (1, 81978611)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             return (1+, monster, you controls) to hand
             reveal (1+, card, opponent controls)
@@ -21,11 +19,10 @@ card "Xyz Entrust" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: SpecialSummon
-        property: CardTarget
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_1
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }

@@ -12,11 +12,9 @@ card "Fairy Tail Long Long Ago" {
     atk: 0
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon
-        code: FreeChain
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {
@@ -36,11 +34,12 @@ card "Fairy Tail Long Long Ago" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        code: ChainEnd
-        property: Delay
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             set (1, card)
         }

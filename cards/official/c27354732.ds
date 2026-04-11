@@ -16,11 +16,9 @@ card "Mythical Beast Jackal King" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Destroy + SpecialSummon
-        range: PendulumZone
-        count_limit: (1, 27354732)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             destroy (1+, card, either_player controls)
             special_summon (1, monster) from gy
@@ -45,13 +43,12 @@ card "Mythical Beast Jackal King" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: QuickEffect
-        category: Destroy + Negate
-        code: Chaining
-        property: Oath + CountCodeDuel
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate activation
             destroy (1+, card, either_player controls)

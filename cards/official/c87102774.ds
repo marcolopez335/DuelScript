@@ -11,13 +11,13 @@ card "Golden Ladybug" {
     atk: 0
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: Recover
-        code: PhaseStandby
-        property: InitialValue
-        range: Hand
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: during_standby_phase
+        activate_from: [hand]
         on_resolve {
             gain_lp: 1000
         }

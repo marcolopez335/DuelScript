@@ -11,10 +11,9 @@ card "Flowerbot" {
     atk: 1500
     def: 800
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: ToDeck + Draw
-        code: ChainEnd
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_end"
         on_resolve {
             draw 1
             shuffle_hand

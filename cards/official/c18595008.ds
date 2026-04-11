@@ -12,11 +12,10 @@ card "Predaplant Lilizard" {
     atk: 0
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: ToHand + SpecialSummon + Search
-        range: Hand
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
             add_to_hand (1+, card, you controls) from deck
@@ -24,11 +23,10 @@ card "Predaplant Lilizard" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -37,12 +35,12 @@ card "Predaplant Lilizard" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: Draw
-        code: SpecialSummonSuccess
-        property: Delay
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             draw 1
         }

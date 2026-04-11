@@ -47,21 +47,20 @@ card "Starving Venemy Dragon" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: Disable + Damage + AtkChange + DefChange
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 93729065)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             deal_damage to opponent: 500
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single + Trigger
-        code: Destroyed
-        property: Oath + Delay
+    effect "Effect 5" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             special_summon (1, monster) from gy
         }

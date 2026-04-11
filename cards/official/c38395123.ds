@@ -6,10 +6,8 @@ card "Ojamatch" {
     id: 38395123
     type: Quick-Play Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + Summon + Search
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
             reveal (1+, card, opponent controls)
@@ -17,11 +15,10 @@ card "Ojamatch" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToDeck + Draw
-        property: CardTarget
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_1
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }

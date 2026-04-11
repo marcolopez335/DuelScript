@@ -12,10 +12,9 @@ card "Yosenju Shinchu R" {
     atk: 0
     def: 2100
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        range: PendulumZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -24,10 +23,9 @@ card "Yosenju Shinchu R" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: PositionChange
-        code: SummonSuccess
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_summoned
         on_resolve {
             change_battle_position (1, monster)
         }

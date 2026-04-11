@@ -20,11 +20,10 @@ card "A Bao A Qu, the Lightless Shadow" {
         method: link
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        code: FreeChain
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
         on_resolve {
             destroy (1+, card, you controls, gy)
             banish (1+, monster, opponent controls)
@@ -32,12 +31,12 @@ card "A Bao A Qu, the Lightless Shadow" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: ToDeck + Draw
-        code: PhaseStandby
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: during_standby_phase
         on_resolve {
             draw 1
             shuffle_hand

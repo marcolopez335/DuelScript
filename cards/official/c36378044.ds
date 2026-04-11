@@ -6,19 +6,19 @@ card "Lucky Punch" {
     id: 36378044
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: Destroy + Draw + CoinToss
-        code: AttackAnnounce
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: when attack_declared
+        activate_from: [spell_trap_zone]
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
             draw 3
@@ -26,9 +26,9 @@ card "Lucky Punch" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + MandatoryTrigger
-        code: Destroyed
+    effect "Effect 3" {
+        speed: spell_speed_2
+        trigger: when_destroyed
         on_resolve {
             gain_lp: 0
         }

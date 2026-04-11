@@ -15,11 +15,11 @@ card "Ehther the Heavenly Monarch" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToGrave + SpecialSummon
-        code: SummonSuccess
-        property: Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_summoned
         on_resolve {
             send (1+, spell, you controls, hand) to gy
             special_summon (1, monster) from gy
@@ -28,11 +28,10 @@ card "Ehther the Heavenly Monarch" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Summon
-        code: FreeChain
-        range: Hand
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        activate_from: [hand]
         on_resolve {
             normal_summon (1, monster, you controls)
         }

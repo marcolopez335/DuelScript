@@ -15,10 +15,11 @@ card "Dark Alligator" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: SpecialSummon + Token
-        code: SummonSuccess
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_summoned
         on_resolve {
             create_token { atk: 0 def: 0 }
             special_summon (1, monster) from gy
@@ -32,11 +33,11 @@ card "Dark Alligator" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: Destroyed
-        property: Delay
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)

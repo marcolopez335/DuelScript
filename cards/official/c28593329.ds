@@ -15,12 +15,13 @@ card "Dark Angel" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: AtkChange
-        code: BattleTarget
-        property: CardTarget
-        range: Hand
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_attacked
+        activate_from: [hand]
         cost {
             tribute self
             send self to gy

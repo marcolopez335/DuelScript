@@ -6,11 +6,9 @@ card "Evil Eye Reemergence" {
     id: 7610394
     type: Normal Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon + Token
-        code: FreeChain
-        count_limit: (1, 7610394)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             create_token { atk: 0 def: 0 }
             create_token { atk: 0 def: 0 }
@@ -22,10 +20,10 @@ card "Evil Eye Reemergence" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [gy]
         cost {
             banish self
         }

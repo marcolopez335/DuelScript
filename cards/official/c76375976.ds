@@ -6,9 +6,8 @@ card "Mystic Mine" {
     id: 76375976
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -53,12 +52,11 @@ card "Mystic Mine" {
         }
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Field + MandatoryTrigger
-        category: Destroy
-        code: PhaseEnd
-        range: FieldZone
-        count_limit: (1, 0)
+    effect "Effect 6" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        activate_from: [field_zone]
         on_resolve {
             destroy (1+, card, either_player controls)
         }

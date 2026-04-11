@@ -37,12 +37,12 @@ card "Zalen the Shackled Dragon" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: Destroy + Disable
-        code: Chaining
-        range: MonsterZone
-        count_limit: (1, 4891376)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate effect
             destroy (1+, card, either_player controls)

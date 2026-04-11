@@ -24,23 +24,19 @@ card "Light and Darkness Dragon" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: MandatoryQuick
-        category: AtkChange + DefChange + Negate
-        code: Chaining
-        property: Oath + CountCodeDuel
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate activation
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + MandatoryTrigger
-        category: Destroy + SpecialSummon
-        code: ChainEnd
-        property: CardTarget
+    effect "Effect 3" {
+        speed: spell_speed_1
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             destroy (1+, card, either_player controls)
             special_summon (1, monster) from gy

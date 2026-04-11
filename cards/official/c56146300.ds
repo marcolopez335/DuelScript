@@ -15,11 +15,10 @@ card "Battlewasp - Rapier the Onslaught" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Hand
-        count_limit: (1, 56146300)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
             special_summon (1, monster) from gy
@@ -30,11 +29,10 @@ card "Battlewasp - Rapier the Onslaught" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: LevelChange
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [gy]
         cost {
             banish self
         }

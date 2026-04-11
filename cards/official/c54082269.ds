@@ -48,23 +48,21 @@ card "Blackwing Full Armor Master" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: Control
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             take_control of (1, monster, opponent controls)
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Field + Trigger
-        category: Destroy
-        code: PhaseEnd
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: during_end_phase
         on_resolve {
             destroy (1+, monster, either_player controls)
         }

@@ -11,23 +11,22 @@ card "Crystron Tristaros" {
     atk: 800
     def: 2000
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: Chaining
-        range: MonsterZone
-        count_limit: (1, 99471856)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             special_summon (1, monster) from gy
             synchro_summon (1, synchro monster) using (1+, monster, you controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Destroy + SpecialSummon
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [gy]
         cost {
             banish self
         }

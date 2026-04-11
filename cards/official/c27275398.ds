@@ -6,11 +6,9 @@ card "Gold Pride - Pedal to the Metal!" {
     id: 27275398
     type: Quick-Play Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: AtkChange
-        code: FreeChain
-        property: CardTarget + Oath
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: false
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -31,11 +29,13 @@ card "Gold Pride - Pedal to the Metal!" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        code: PhaseEnd
-        range: Graveyard
-        count_limit: (1, 27275398)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: during_end_phase
+        activate_from: [gy]
         on_resolve {
             set (1, card)
         }

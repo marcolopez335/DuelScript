@@ -12,23 +12,19 @@ card "Archfiend Eccentrick" {
     atk: 800
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Destroy
-        property: CardTarget
-        range: PendulumZone
-        count_limit: (1, 57624336)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             destroy (1+, monster, either_player controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Destroy
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         cost {
             tribute self
         }

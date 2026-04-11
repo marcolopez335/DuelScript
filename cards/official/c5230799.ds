@@ -27,13 +27,12 @@ card "Magical Musketeer Kidbrave" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: Draw
-        code: Chaining
-        property: InitialValue + Delay
-        range: MonsterZone
-        count_limit: (1, 5230799)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             draw 1
         }

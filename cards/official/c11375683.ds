@@ -37,12 +37,12 @@ card "Tindangle Trinity" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: ToHand + ToGrave + Search
-        code: FlipSuccess
-        property: Delay
-        count_limit: (1, 11375683)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_flipped
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck
             reveal (1+, card, opponent controls)

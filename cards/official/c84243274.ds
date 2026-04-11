@@ -20,22 +20,21 @@ card "VWXYZ-Dragon Catapult Cannon" {
         method: fusion
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Banish
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             banish (1+, card, you controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: PositionChange
-        code: AttackAnnounce
-        property: CardTarget
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when attack_declared
         on_resolve {
             change_battle_position (1, monster)
         }

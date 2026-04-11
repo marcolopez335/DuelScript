@@ -14,31 +14,29 @@ card "Noble Arms - Caliburn" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Recover
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [spell_trap_zone]
         on_resolve {
             gain_lp: 1000
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: Equip
-        code: ChainEnd
-        property: CardTarget + Oath + Delay
-        count_limit: (1, 23562407)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             equip (1, card) to (1, monster)
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Activate
-        category: Equip
-        code: FreeChain
+    effect "Effect 4" {
+        speed: spell_speed_1
         on_resolve {
             equip self to (1, monster, you controls)
         }

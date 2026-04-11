@@ -23,35 +23,34 @@ card "Transcendosaurus Meteorus" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Destroy + SpecialSummon
-        code: FreeChain
-        range: Hand
-        count_limit: (1, 31241087)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [hand]
         on_resolve {
             destroy (1+, monster, you controls, hand)
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: ToGrave
-        code: SpecialSummonSuccess
-        property: Delay
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             send (1+, monster, you controls, hand) to gy
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: ToDeck + SpecialSummon
-        code: Destroyed
-        property: Delay
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             return (1+, monster, you controls) to deck shuffle
             special_summon (1, monster) from gy

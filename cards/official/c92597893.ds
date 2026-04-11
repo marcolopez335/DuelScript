@@ -11,11 +11,13 @@ card "Feedran, the Winds of Mischief" {
     atk: 1700
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        code: SummonSuccess
-        property: CardTarget + Oath + Delay
-        count_limit: (1, 92597893)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -24,11 +26,13 @@ card "Feedran, the Winds of Mischief" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        code: SpecialSummonSuccess
-        property: CardTarget + Oath + Delay
-        count_limit: (1, 92597893)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -37,13 +41,11 @@ card "Feedran, the Winds of Mischief" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: ToHand + PositionChange
-        code: FreeChain
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        damage_step: false
         on_resolve {
             change_battle_position (1, monster)
             add_to_hand (1+, card, either_player controls) from gy

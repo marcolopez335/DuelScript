@@ -6,10 +6,9 @@ card "Duston Roller" {
     id: 25700114
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_2
+        damage_step: false
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -34,11 +33,11 @@ card "Duston Roller" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: ChainEnd
-        property: Oath + Delay
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)

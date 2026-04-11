@@ -30,21 +30,19 @@ card "Elemental HERO Flare Neos" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        category: ToDeck
-        code: PhaseEnd
-        range: MonsterZone
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: during_end_phase
         on_resolve {
             return self to deck shuffle
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: ToDeck
-        code: PhaseEnd
-        range: MonsterZone
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: during_end_phase
         on_resolve {
             return self to deck shuffle
         }

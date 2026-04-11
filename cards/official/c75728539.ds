@@ -6,12 +6,10 @@ card "Sharv Sarga" {
     id: 75728539
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + ToDeck + Search
-        code: FreeChain
-        property: CardTarget
-        count_limit: (1, 75728539)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
             register_effect on self {
@@ -21,12 +19,13 @@ card "Sharv Sarga" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: ToHand
-        code: SpecialSummonSuccess
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: when_summoned by_special_summon
+        activate_from: [gy]
         on_resolve {
             return (1+, monster, either_player controls) to hand
             reveal (1+, card, opponent controls)

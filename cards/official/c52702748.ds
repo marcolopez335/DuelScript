@@ -11,22 +11,19 @@ card "D.D. Guide" {
     atk: 1400
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: Control
-        code: SummonSuccess
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_summoned
         on_resolve {
             take_control of (1, monster, opponent controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        category: Banish
-        code: PhaseEnd
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
+        trigger: during_end_phase
         on_resolve {
             banish (1+, card, either_player controls)
         }

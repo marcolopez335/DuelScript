@@ -11,12 +11,10 @@ card "Chronicler of Nephthys" {
     atk: 300
     def: 1200
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Destroy + ToHand
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 25397880)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             destroy (1+, card, you controls, hand)
             add_to_hand (1+, card, you controls) from hand
@@ -31,12 +29,13 @@ card "Chronicler of Nephthys" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: ToHand
-        code: PhaseStandby
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: during_standby_phase
+        activate_from: [gy]
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
             reveal (1+, card, opponent controls)

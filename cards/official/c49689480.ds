@@ -21,13 +21,11 @@ card "Madolche Queen Tiarafraise" {
         method: xyz
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: ToDeck
-        code: FreeChain
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        damage_step: false
         cost {
             detach 1 overlay_unit from self
         }
@@ -37,10 +35,9 @@ card "Madolche Queen Tiarafraise" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: ToExtra
-        code: Destroyed
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_destroyed
         on_resolve {
             return (1+, card, opponent controls) to deck shuffle
         }

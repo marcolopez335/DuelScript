@@ -20,12 +20,10 @@ card "Enlightenment Dragon" {
         method: fusion
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: Banish
-        code: FreeChain
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
         cost {
             pay_lp 2000
         }
@@ -34,21 +32,19 @@ card "Enlightenment Dragon" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        category: DeckDestroy
-        code: PhaseEnd
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
         on_resolve {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: ToHand + SpecialSummon
-        code: Destroyed
-        property: Delay
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             add_to_hand (1+, card, you controls) from gy
             reveal (1+, card, opponent controls)

@@ -31,12 +31,12 @@ card "Bujin Arasuda" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: HandDestroy + Draw
-        code: PhaseEnd
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: during_end_phase
         on_resolve {
             draw 1
             shuffle_hand

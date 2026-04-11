@@ -30,13 +30,13 @@ card "Yuki-Onna, the Ice Mayakashi" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: AtkChange
-        code: Destroyed
-        property: CardTarget + Oath + Delay
-        range: MonsterZone
-        count_limit: (1, 66870733)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_destroyed
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

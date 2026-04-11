@@ -6,9 +6,8 @@ card "Camelot, Realm of Noble Knights and Noble Arms" {
     id: 15635751
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -20,11 +19,10 @@ card "Camelot, Realm of Noble Knights and Noble Arms" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: Banish + ToHand + SpecialSummon + Search
-        range: FieldZone
-        count_limit: (1, 15635751)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [field_zone]
         on_resolve {
             banish (1+, monster, opponent controls)
             special_summon (1, monster) from gy

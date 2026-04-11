@@ -6,9 +6,8 @@ card "Gagaga Utopic Tactics" {
     id: 75956913
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -31,12 +30,11 @@ card "Gagaga Utopic Tactics" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: LevelChange
-        property: CardTarget
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
+        activate_from: [spell_trap_zone]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -45,13 +43,14 @@ card "Gagaga Utopic Tactics" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Field + Trigger
-        category: Destroy
-        code: SpecialSummonSuccess
-        property: CardTarget + Delay
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned by_special_summon
+        activate_from: [spell_trap_zone]
         on_resolve {
             destroy (1+, monster, you controls)
         }

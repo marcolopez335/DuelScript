@@ -6,11 +6,9 @@ card "Crystron Inclusion" {
     id: 31552317
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + Search
-        code: FreeChain
-        count_limit: (1, 31552317)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)
@@ -26,12 +24,11 @@ card "Crystron Inclusion" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: SpecialSummon
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }

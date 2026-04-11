@@ -11,10 +11,9 @@ card "Evolsaur Pelta" {
     atk: 1100
     def: 2000
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: AtkChange
-        code: SpecialSummonSuccess
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
         on_resolve {
         }
     }
@@ -27,10 +26,11 @@ card "Evolsaur Pelta" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: BattleDamage
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_damage
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)

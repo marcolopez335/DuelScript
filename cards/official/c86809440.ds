@@ -6,9 +6,8 @@ card "Mimighoul Dungeon" {
     id: 86809440
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -42,11 +41,10 @@ card "Mimighoul Dungeon" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Ignition
-        category: ToHand + Search
-        range: FieldZone
-        count_limit: (1, 86809440)
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [field_zone]
         on_resolve {
             return (1+, monster, you controls) to hand
             reveal (1+, card, opponent controls)

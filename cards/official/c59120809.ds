@@ -38,12 +38,10 @@ card "Scareclaw Tri-Heart" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: ToHand + SpecialSummon + Search
-        property: CardTarget
-        range: 4096
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             special_summon (1, monster) from gy
             add_to_hand (1+, monster, you controls) from deck

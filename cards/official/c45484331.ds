@@ -11,22 +11,21 @@ card "Springans Kitt" {
     atk: 1700
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Hand
-        count_limit: (1, 45484331)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand + ToDeck + Search
-        code: SummonSuccess
-        property: Oath + Delay
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_summoned
         on_resolve {
             add_to_hand (1+, spell, you controls) from gy
             reveal (1+, card, opponent controls)
@@ -36,12 +35,12 @@ card "Springans Kitt" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: ToHand + ToDeck + Search
-        code: SpecialSummonSuccess
-        property: Oath + Delay
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             add_to_hand (1+, spell, you controls) from gy
             reveal (1+, card, opponent controls)

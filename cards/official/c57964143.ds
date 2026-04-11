@@ -6,19 +6,18 @@ card "Arbitration of White" {
     id: 57964143
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        code: FreeChain
-        property: CardTarget
-        range: SpellTrapZone
-        count_limit: (1, 57964143)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
+        activate_from: [spell_trap_zone]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -27,24 +26,25 @@ card "Arbitration of White" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: PositionChange
-        code: AttackAnnounce
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: when attack_declared
+        activate_from: [spell_trap_zone]
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: BattleDamage
-        property: Oath + Delay
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_battle_damage
+        activate_from: [spell_trap_zone]
         cost {
             send self to gy
         }
@@ -53,13 +53,13 @@ card "Arbitration of White" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: ChainEnd
-        property: Oath + Delay
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 5" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
+        activate_from: [spell_trap_zone]
         cost {
             send self to gy
         }

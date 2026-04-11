@@ -11,12 +11,11 @@ card "Virtual World Mai-Hime - Lulu" {
     atk: 1600
     def: 600
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: ToHand + ToGrave + SpecialSummon + Search
-        property: CardTarget
-        range: Hand
-        count_limit: (1, 49088914)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
+        activate_from: [hand]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

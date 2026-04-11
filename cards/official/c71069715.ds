@@ -6,9 +6,8 @@ card "D/D Reroll" {
     id: 71069715
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
         }
     }
@@ -22,12 +21,11 @@ card "D/D Reroll" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: ToDeck
-        code: FreeChain
-        property: CardTarget
-        range: Graveyard
+    effect "Effect 3" {
+        speed: spell_speed_2
+        optional: true
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }

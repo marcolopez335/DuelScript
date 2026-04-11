@@ -40,13 +40,10 @@ card "Gogogo Golem - Golden Form" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: MandatoryQuick
-        category: Disable
-        code: Chaining
-        property: Oath + CountCodeDuel
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate effect
         }

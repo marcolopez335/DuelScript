@@ -6,17 +6,18 @@ card "Insect Neglect" {
     id: 22991179
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        code: AttackAnnounce
-        range: SpellTrapZone
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when attack_declared
+        activate_from: [spell_trap_zone]
         cost {
             banish self
         }

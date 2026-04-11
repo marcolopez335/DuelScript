@@ -11,11 +11,12 @@ card "Motivating Captain" {
     atk: 400
     def: 1200
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: SummonSuccess
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {

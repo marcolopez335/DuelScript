@@ -6,9 +6,8 @@ card "Rescue-ACE HQ" {
     id: 63899465
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -39,12 +38,11 @@ card "Rescue-ACE HQ" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Ignition
-        category: ToDeck + Draw
-        property: CardTarget
-        range: FieldZone
-        count_limit: (1, 0)
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
+        activate_from: [field_zone]
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
             shuffle_deck

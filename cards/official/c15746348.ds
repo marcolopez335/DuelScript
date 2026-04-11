@@ -15,11 +15,10 @@ card "Eria the Water Channeler" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: ToHand + Search
-        range: Hand
-        count_limit: (1, 15746348)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand]
         cost {
             send self to gy
         }
@@ -33,12 +32,13 @@ card "Eria the Water Channeler" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: BattleDamage
-        range: Hand
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: when_battle_damage
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
         }

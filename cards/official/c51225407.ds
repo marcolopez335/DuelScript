@@ -6,9 +6,8 @@ card "Mayakashi Winter" {
     id: 51225407
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -31,12 +30,10 @@ card "Mayakashi Winter" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: Draw
-        property: InitialValue
-        range: SpellTrapZone
-        count_limit: (1, 51225407)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [spell_trap_zone]
         cost {
             send self to gy
         }
@@ -45,12 +42,11 @@ card "Mayakashi Winter" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Ignition
-        category: SpecialSummon
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 51225407)
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }

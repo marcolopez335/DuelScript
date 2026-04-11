@@ -18,11 +18,10 @@ card "D.D. Scout Plane" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        category: SpecialSummon
-        code: PhaseEnd
-        range: Banished
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: during_end_phase
+        activate_from: [banished]
         on_resolve {
             send (1+, card, either_player controls) to gy
             special_summon (1, monster) from gy

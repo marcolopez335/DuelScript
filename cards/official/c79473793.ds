@@ -15,22 +15,20 @@ card "White Night Dragon" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: MandatoryQuick
-        category: Destroy + Negate
-        code: Chaining
-        property: Oath + CountCodeDuel
-        range: MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_2
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate activation
             destroy (1+, spell, you controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        code: BattleTarget
-        range: MonsterZone
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_attacked
         cost {
             send self to gy
         }

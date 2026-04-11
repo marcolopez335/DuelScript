@@ -29,10 +29,9 @@ card "Watthydra" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: Banish
-        code: BattleDestroyed
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_battle_destroyed
         on_resolve {
             banish (1+, card, opponent controls, deck)
             register_effect on self {

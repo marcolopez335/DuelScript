@@ -6,10 +6,8 @@ card "Pollinosis" {
     id: 91078716
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Destroy + DisableSummon
-        code: 1103
+    effect "Effect 1" {
+        speed: spell_speed_2
         cost {
             tribute self
         }
@@ -19,10 +17,8 @@ card "Pollinosis" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Activate
-        category: Destroy + DisableSummon
-        code: 1105
+    effect "Effect 2" {
+        speed: spell_speed_2
         cost {
             tribute self
         }
@@ -32,10 +28,9 @@ card "Pollinosis" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Activate
-        category: Destroy + Negate
-        code: Chaining
+    effect "Effect 3" {
+        speed: spell_speed_2
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         cost {
             tribute self
         }

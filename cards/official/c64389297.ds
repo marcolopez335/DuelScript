@@ -6,11 +6,9 @@ card "Magical Labyrinth" {
     id: 64389297
     type: Equip Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        property: 4096
-        range: SpellTrapZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        activate_from: [spell_trap_zone]
         cost {
             tribute self
         }
@@ -19,10 +17,8 @@ card "Magical Labyrinth" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Activate
-        category: Equip
-        code: FreeChain
+    effect "Effect 2" {
+        speed: spell_speed_1
         on_resolve {
             equip self to (1, monster, you controls)
         }

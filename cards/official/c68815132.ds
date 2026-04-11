@@ -11,12 +11,10 @@ card "Harpie Dancer" {
     atk: 1200
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: ToHand + Summon
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 68815132)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
             normal_summon (1, monster, you controls)

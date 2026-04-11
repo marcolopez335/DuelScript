@@ -11,13 +11,12 @@ card "Shelrokket Dragon" {
     atk: 1100
     def: 2000
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: Destroy
-        code: Chaining
-        property: Oath + CountCodeDuel
-        range: MonsterZone
-        count_limit: (1, 5087128)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             destroy (1+, monster, either_player controls)
             destroy (1+, monster, either_player controls)

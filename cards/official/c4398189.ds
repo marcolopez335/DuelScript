@@ -6,11 +6,9 @@ card "Witch of the White Forest" {
     id: 4398189
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + Search
-        code: FreeChain
-        count_limit: (1, 4398189)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)
@@ -30,11 +28,11 @@ card "Witch of the White Forest" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        property: CardTarget
-        range: FieldZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
+        activate_from: [field_zone]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

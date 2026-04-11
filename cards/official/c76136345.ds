@@ -6,40 +6,19 @@ card "Revolving Switchyard" {
     id: 76136345
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: SummonSuccess
-        property: Delay
-        range: FieldZone
-        count_limit: (1, 76136345)
-        on_resolve {
-            register_effect on self {
-                grant: cannot_be_destroyed_by_battle
-                duration: until_end_of_turn
-            }
-            special_summon (1, monster) from gy
-            register_effect on self {
-                grant: cannot_be_destroyed_by_battle
-                duration: until_end_of_turn
-            }
-        }
-    }
-
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: SpecialSummonSuccess
-        property: Delay
-        range: FieldZone
-        count_limit: (1, 76136345)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned
+        activate_from: [field_zone]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -53,11 +32,30 @@ card "Revolving Switchyard" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: ToHand + Search
-        range: FieldZone
-        count_limit: (1, 76136345)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
+        activate_from: [field_zone]
+        on_resolve {
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+        }
+    }
+
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [field_zone]
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)

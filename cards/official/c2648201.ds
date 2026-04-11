@@ -11,21 +11,21 @@ card "ZW - Sleipnir Mail" {
     atk: 1000
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Equip
-        property: CardTarget
-        range: Hand + MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: false
+        activate_from: [hand, monster_zone]
         on_resolve {
             send (1+, card, either_player controls) to gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: ChainEnd
-        property: CardTarget + Oath
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             special_summon (1, monster) from gy
         }

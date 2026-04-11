@@ -21,11 +21,10 @@ card "Heavy Armored Train Ironwolf" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         cost {
             detach 1 overlay_unit from self
         }
@@ -41,11 +40,11 @@ card "Heavy Armored Train Ironwolf" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: ChainEnd
-        property: Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)

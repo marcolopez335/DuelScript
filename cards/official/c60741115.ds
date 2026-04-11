@@ -11,10 +11,12 @@ card "Damage Eater" {
     atk: 100
     def: 800
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        code: Chaining
-        range: Graveyard
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        activate_from: [gy]
         cost {
             banish self
         }

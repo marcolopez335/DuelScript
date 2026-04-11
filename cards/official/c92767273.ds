@@ -26,13 +26,11 @@ card "Performapal Barracuda" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: AtkChange
-        code: FreeChain
-        property: CardTarget + Oath
-        range: MonsterZone
-        count_limit: (1, 92767273)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

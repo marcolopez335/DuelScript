@@ -6,9 +6,8 @@ card "Spell Chronicle" {
     id: 74402414
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         cost {
             send self to gy
         }
@@ -34,11 +33,10 @@ card "Spell Chronicle" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: ToHand
-        property: CardTarget
-        range: SpellTrapZone
+    effect "Effect 4" {
+        speed: spell_speed_1
+        damage_step: false
+        activate_from: [spell_trap_zone]
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck
             reveal (1+, card, opponent controls)

@@ -6,11 +6,9 @@ card "Glorious Illusion" {
     id: 61962135
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon
-        code: FreeChain
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_2
+        damage_step: false
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -33,12 +31,11 @@ card "Glorious Illusion" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + MandatoryTrigger
-        category: DeckDestroy
-        code: PhaseEnd
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        trigger: during_end_phase
+        activate_from: [spell_trap_zone]
         on_resolve {
             mill 2
         }

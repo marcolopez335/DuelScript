@@ -42,11 +42,10 @@ card "Nobledragon Magician" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Ignition
-        category: SpecialSummon
-        property: CardTarget
-        range: Hand + Graveyard
+    effect "Effect 5" {
+        speed: spell_speed_1
+        damage_step: false
+        activate_from: [hand, gy]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

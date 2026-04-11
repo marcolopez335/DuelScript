@@ -21,11 +21,9 @@ card "Hi-Speedroid Clear Wing Rider" {
         method: synchro
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Destroy + ToDeck + AtkChange
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
             return (1+, card, either_player controls) to deck shuffle
@@ -33,11 +31,9 @@ card "Hi-Speedroid Clear Wing Rider" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        range: MonsterZone
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
         cost {
             tribute self
         }

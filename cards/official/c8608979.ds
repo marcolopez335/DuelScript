@@ -6,20 +6,19 @@ card "Super Team Buddy Force Unite!" {
     id: 8608979
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon
-        code: FreeChain
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_2
+        damage_step: false
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        code: Destroyed
-        property: Delay
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             set (1, card)
         }

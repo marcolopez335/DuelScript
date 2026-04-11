@@ -20,13 +20,11 @@ card "Abyss Actor - Super Producer" {
         method: link
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: Destroy
-        code: FreeChain
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 47404795)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
         on_resolve {
             destroy (1+, card, you controls, deck)
             send (1+, card, you controls, deck) to gy

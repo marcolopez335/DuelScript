@@ -33,12 +33,12 @@ card "Infernoble Knight Emperor Charles" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: Equip
-        code: PhaseEnd
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: during_end_phase
         on_resolve {
             equip (1, card) to (1, monster)
         }

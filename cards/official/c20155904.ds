@@ -11,11 +11,12 @@ card "Zoodiac Kataroost" {
     atk: 800
     def: 1200
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToDeck
-        code: Destroyed
-        property: CardTarget + Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_destroyed
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
         }

@@ -11,11 +11,10 @@ card "Dictator of D." {
     atk: 1200
     def: 1100
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Hand
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [hand]
         cost {
             send self to gy
         }
@@ -24,12 +23,10 @@ card "Dictator of D." {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: SpecialSummon
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             special_summon (1, monster) from gy
         }

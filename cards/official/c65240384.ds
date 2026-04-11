@@ -11,12 +11,9 @@ card "Big Shield Gardna" {
     atk: 100
     def: 2600
 
-    raw_effect "Effect 1" {
-        effect_type: MandatoryQuick
-        category: PositionChange + Negate
-        code: Chaining
-        property: IgnoreRange + Oath + CountCodeDuel
-        range: MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_2
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             change_battle_position (1, monster)
             negate activation

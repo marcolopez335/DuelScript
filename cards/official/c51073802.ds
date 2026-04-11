@@ -32,34 +32,35 @@ card "Majespecter Porcupine - Yamarashi" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        range: Hand
-        count_limit: (1, 51073802)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: LeaveGrave
-        code: SummonSuccess
-        property: CardTarget + Delay
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             set (1, card)
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single + Trigger
-        category: LeaveGrave
-        code: SpecialSummonSuccess
-        property: CardTarget + Delay
-        count_limit: (1, 0)
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             set (1, card)
         }

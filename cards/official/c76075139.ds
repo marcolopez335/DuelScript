@@ -39,19 +39,19 @@ card "Vaylantz Genesis Grand Duke" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        range: PendulumZone
-        count_limit: (1, 76075139)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: ToHand + Damage + AtkChange
-        code: SpecialSummonSuccess
-        property: CardTarget + Delay
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             return (1+, monster, opponent controls) to hand
             deal_damage to opponent: 1000

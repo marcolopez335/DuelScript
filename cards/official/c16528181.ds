@@ -6,9 +6,8 @@ card "King's Sarcophagus" {
     id: 16528181
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -22,11 +21,9 @@ card "King's Sarcophagus" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: ToGrave
-        range: SpellTrapZone
-        count_limit: (4, 16528181)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        activate_from: [spell_trap_zone]
         on_resolve {
             send (1+, monster, you controls, hand) to gy
         }

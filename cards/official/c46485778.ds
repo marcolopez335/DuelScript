@@ -12,32 +12,32 @@ card "Poissonniere de Nouvelles" {
     atk: 700
     def: 1700
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon + PositionChange
-        property: CardTarget
-        range: PendulumZone
-        count_limit: (1, 46485778)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             special_summon (1, monster) from gy
             change_battle_position (1, monster)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        code: Released
-        property: Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_tributed
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        code: SummonSuccess
-        property: Delay
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_summoned
         on_resolve {
             add_to_hand (1+, card, you controls) from gy
             reveal (1+, card, opponent controls)
@@ -46,11 +46,12 @@ card "Poissonniere de Nouvelles" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        code: SpecialSummonSuccess
-        property: Delay
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             add_to_hand (1+, card, you controls) from gy
             reveal (1+, card, opponent controls)

@@ -11,12 +11,12 @@ card "Prank-Kids Rocksies" {
     atk: 1500
     def: 1500
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Banish + SpecialSummon + Draw
-        code: FlipSuccess
-        property: Delay
-        count_limit: (1, 31440046)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_flipped
         on_resolve {
             banish (1+, card, you controls, hand)
             special_summon (1, monster) from gy

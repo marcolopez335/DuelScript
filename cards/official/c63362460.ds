@@ -11,23 +11,22 @@ card "Destiny HERO - Celestial" {
     atk: 1600
     def: 1400
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Destroy + Damage
-        code: AttackAnnounce
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when attack_declared
         on_resolve {
             destroy (1+, monster, you controls, gy)
             deal_damage to opponent: 500
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Draw
-        property: InitialValue
-        range: Graveyard
-        count_limit: (1, 63362460)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [gy]
         cost {
             banish self
         }

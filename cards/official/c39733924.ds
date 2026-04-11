@@ -6,21 +6,18 @@ card "Full-Armored Xyz" {
     id: 39733924
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
             xyz_summon (1, xyz monster) using (1+, monster, you controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Equip
-        code: FreeChain
-        property: CardTarget + Oath
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }

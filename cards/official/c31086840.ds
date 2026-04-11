@@ -21,12 +21,12 @@ card "Number 69: Heraldry Crest - Shatter Stream" {
         method: xyz
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: Destroy + SpecialSummon
-        code: Chaining
-        range: MonsterZone
-        count_limit: (1, 31086840)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             attach (1, card) to self as_material
             special_summon (1, monster) from gy
@@ -34,12 +34,12 @@ card "Number 69: Heraldry Crest - Shatter Stream" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Destroy + SpecialSummon
-        code: AttackAnnounce
-        range: MonsterZone
-        count_limit: (1, 31086840)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when attack_declared
         on_resolve {
             attach (1, card) to self as_material
             special_summon (1, monster) from gy

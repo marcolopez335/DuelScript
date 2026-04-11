@@ -6,17 +6,18 @@ card "Spiritual Swords of Revealing Light" {
     id: 78625592
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        code: AttackAnnounce
-        range: SpellTrapZone
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: when attack_declared
+        activate_from: [spell_trap_zone]
         cost {
             pay_lp your_lp / 2
         }
@@ -25,10 +26,10 @@ card "Spiritual Swords of Revealing Light" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        code: FreeChain
-        range: Graveyard
+    effect "Effect 3" {
+        speed: spell_speed_2
+        optional: true
+        activate_from: [gy]
         cost {
             banish self
         }

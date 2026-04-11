@@ -20,12 +20,12 @@ card "Tri-Brigade Arms Mouser" {
         method: link
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToGrave
-        code: SpecialSummonSuccess
-        property: Delay
-        count_limit: (1, 33781156)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             send (1+, monster, you controls, deck) to gy
             register_effect on self {
@@ -35,12 +35,13 @@ card "Tri-Brigade Arms Mouser" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: PositionChange
-        code: ChainEnd
-        property: CardTarget + Delay
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             change_battle_position (1, monster)
         }

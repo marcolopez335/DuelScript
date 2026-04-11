@@ -6,9 +6,8 @@ card "Mischief of the Gnomes" {
     id: 164710
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -21,10 +20,10 @@ card "Mischief of the Gnomes" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        code: FreeChain
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        activate_from: [gy]
         cost {
             banish self
         }

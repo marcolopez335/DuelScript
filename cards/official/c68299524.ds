@@ -15,11 +15,9 @@ card "Pandemic Dragon" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: AtkChange
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
         cost {
             pay_lp your_lp / 2
         }
@@ -31,21 +29,18 @@ card "Pandemic Dragon" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Destroy
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             destroy (1+, monster, either_player controls)
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + MandatoryTrigger
-        category: AtkChange
-        code: Destroyed
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: when_destroyed
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

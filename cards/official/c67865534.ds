@@ -22,23 +22,21 @@ card "Magician of Hope" {
         method: xyz
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: Destroy
-        code: AttackAnnounce
-        range: PendulumZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: when attack_declared
         on_resolve {
             negate attack
             destroy (1+, monster, you controls, hand)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: MonsterZone
-        count_limit: (1, 67865534)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
         cost {
             detach 1 overlay_unit from self
         }
@@ -56,10 +54,12 @@ card "Magician of Hope" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        code: SpecialSummonSuccess
-        property: CardTarget + Delay
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             attach (1, card) to self as_material
         }

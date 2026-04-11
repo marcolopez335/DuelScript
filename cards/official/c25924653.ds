@@ -11,11 +11,12 @@ card "Gladiator Beast Darius" {
     atk: 1700
     def: 300
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: SpecialSummonSuccess
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             special_summon (1, monster) from gy
         }

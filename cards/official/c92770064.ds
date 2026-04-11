@@ -20,11 +20,11 @@ card "Sunavalon Dryatrentiay" {
         method: link
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: SpecialSummonSuccess
-        property: Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             return (1+, spell, opponent controls) to hand
             reveal (1+, card, opponent controls)
@@ -50,11 +50,9 @@ card "Sunavalon Dryatrentiay" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: Destroy
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
         on_resolve {
             destroy (1+, spell, opponent controls)
         }

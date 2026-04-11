@@ -20,12 +20,12 @@ card "Altergeist Kidolga" {
         method: link
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: BattleDestroyed
-        property: CardTarget
-        range: MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_battle_destroyed
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {
@@ -35,11 +35,12 @@ card "Altergeist Kidolga" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: BattleDamage
-        property: CardTarget + Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_battle_damage
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }

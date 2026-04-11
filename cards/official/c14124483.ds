@@ -15,13 +15,12 @@ card "Elemental HERO Honest Neos" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: AtkChange
-        code: FreeChain
-        property: CardTarget + Oath
-        range: Hand
-        count_limit: (1, 14124483)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
+        activate_from: [hand]
         cost {
             discard (1, card, you controls)
         }
@@ -33,13 +32,10 @@ card "Elemental HERO Honest Neos" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: AtkChange
-        code: FreeChain
-        property: Oath
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
         on_resolve {
         }
     }

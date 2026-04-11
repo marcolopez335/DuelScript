@@ -20,23 +20,21 @@ card "Tri-Brigade Bearbrumm the Rampant Rampager" {
         method: link
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 47163170)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand + ToDeck + Search
-        code: ChainEnd
-        property: Delay
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             add_to_hand (1+, spell, you controls) from hand
             reveal (1+, card, opponent controls)

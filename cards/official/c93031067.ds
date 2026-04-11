@@ -6,9 +6,8 @@ card "Plunder Patroll Shipyarrrd" {
     id: 93031067
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -22,23 +21,21 @@ card "Plunder Patroll Shipyarrrd" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: ToHand + Search
-        range: FieldZone
-        count_limit: (1, 93031067)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [field_zone]
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
             reveal (1+, card, opponent controls)
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: ToHand
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
+        activate_from: [gy]
         on_resolve {
             set (1, card)
             add_to_hand (1+, card, you controls) from hand

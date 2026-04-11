@@ -6,9 +6,8 @@ card "Fire Fortress atop Liang Peak" {
     id: 66750703
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -29,10 +28,10 @@ card "Fire Fortress atop Liang Peak" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        range: FieldZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [field_zone]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -41,22 +40,20 @@ card "Fire Fortress atop Liang Peak" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Ignition
-        category: ToHand + Search
-        range: FieldZone
-        count_limit: (1, 0)
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [field_zone]
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)
         }
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: FieldZone
-        count_limit: (1, 0)
+    effect "Effect 6" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [field_zone]
         on_resolve {
             special_summon (1, monster) from gy
         }

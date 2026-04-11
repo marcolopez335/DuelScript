@@ -24,12 +24,10 @@ card "Veda Kalarcanum" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        category: Counter
-        code: Destroyed
-        range: PendulumZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: when_destroyed
         on_resolve {
         }
     }
@@ -52,21 +50,19 @@ card "Veda Kalarcanum" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: PendulumZone
+    effect "Effect 5" {
+        speed: spell_speed_1
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Field + Trigger
-        code: SpecialSummonSuccess
-        property: Delay
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 6" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         cost {
             banish self
         }
@@ -78,12 +74,10 @@ card "Veda Kalarcanum" {
         }
     }
 
-    raw_effect "Effect 7" {
-        effect_type: Field + MandatoryTrigger
-        category: ToHand + SpecialSummon
-        code: PhaseStandby
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 7" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
             shuffle_hand

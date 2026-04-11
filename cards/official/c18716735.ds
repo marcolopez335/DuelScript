@@ -12,24 +12,22 @@ card "Raremetalfoes Bismugear" {
     atk: 0
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Destroy
-        property: CardTarget
-        range: PendulumZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             destroy (1+, monster, you controls, deck)
             set (1, card)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: Destroyed
-        property: Delay
-        count_limit: (1, 18716735)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

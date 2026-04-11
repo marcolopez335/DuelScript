@@ -6,19 +6,17 @@ card "Magnetic Field" {
     id: 4740489
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: SpecialSummon
-        property: CardTarget
-        range: FieldZone
-        count_limit: (1, 4740489)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
+        activate_from: [field_zone]
         on_resolve {
             special_summon (1, monster) from gy
         }

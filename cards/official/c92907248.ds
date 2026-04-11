@@ -6,11 +6,9 @@ card "Wake Up Centur-Ion!" {
     id: 92907248
     type: Quick-Play Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon + Token
-        code: FreeChain
-        count_limit: (1, 92907248)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             create_token { atk: 0 def: 0 }
             register_effect on self {
@@ -29,11 +27,10 @@ card "Wake Up Centur-Ion!" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToGrave
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [gy]
         cost {
             banish self
         }

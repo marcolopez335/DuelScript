@@ -6,20 +6,18 @@ card "Three in One" {
     id: 50838440
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        code: FreeChain
-        property: CardTarget
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }

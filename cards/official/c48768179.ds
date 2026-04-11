@@ -15,9 +15,11 @@ card "Dark Scorpion - Gorg the Strong" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        code: BattleDestroyed
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_destroyed
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
             mill 1

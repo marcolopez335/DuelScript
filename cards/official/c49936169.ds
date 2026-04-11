@@ -6,12 +6,10 @@ card "U.A. Locker Room" {
     id: 49936169
     type: Quick-Play Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + ToDeck + Draw + Recover
-        code: FreeChain
-        property: CardTarget
-        count_limit: (1, 49936169)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand
             gain_lp: 500

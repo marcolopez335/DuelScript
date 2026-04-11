@@ -20,12 +20,10 @@ card "Metalfoes Mithrilium" {
         method: fusion
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: ToHand + ToDeck
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 4688231)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
             shuffle_deck
@@ -33,11 +31,11 @@ card "Metalfoes Mithrilium" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: ChainEnd
-        property: Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             special_summon (1, monster) from gy
         }

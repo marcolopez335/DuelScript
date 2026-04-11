@@ -15,13 +15,10 @@ card "Gadarla, the Mystery Dust Kaiju" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: AtkChange + DefChange
-        code: FreeChain
-        property: Oath
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -34,10 +31,9 @@ card "Gadarla, the Mystery Dust Kaiju" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Release + SpecialSummon
-        range: Hand
+    effect "Effect 2" {
+        speed: spell_speed_1
+        activate_from: [hand]
         cost {
             tribute (1, monster, opponent controls)
         }

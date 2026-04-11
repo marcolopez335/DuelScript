@@ -6,11 +6,9 @@ card "Soul Energy MAX!!!" {
     id: 79339613
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Destroy + Damage
-        code: FreeChain
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: soft
         cost {
             tribute self
         }
@@ -20,12 +18,11 @@ card "Soul Energy MAX!!!" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: ToHand + Summon + Search
-        code: FreeChain
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        activate_from: [gy]
         cost {
             banish self
         }

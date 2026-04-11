@@ -11,12 +11,10 @@ card "Crystron Thystvern" {
     atk: 1500
     def: 1500
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Destroy + SpecialSummon
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 29838323)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             destroy (1+, monster, you controls, deck)
             special_summon (1, monster) from gy
@@ -27,11 +25,10 @@ card "Crystron Thystvern" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToHand + Search
-        range: Graveyard
-        count_limit: (1, 29838323)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [gy]
         cost {
             banish self
         }

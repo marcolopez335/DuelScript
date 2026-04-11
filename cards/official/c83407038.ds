@@ -6,19 +6,17 @@ card "Amazoness Onslaught" {
     id: 83407038
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        activate_from: [spell_trap_zone]
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {
@@ -38,11 +36,12 @@ card "Amazoness Onslaught" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: ChainEnd
-        property: CardTarget + Delay
+    effect "Effect 4" {
+        speed: spell_speed_2
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             special_summon (1, monster) from gy
         }

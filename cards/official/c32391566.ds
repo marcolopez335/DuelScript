@@ -11,11 +11,12 @@ card "Extra Veiler" {
     atk: 600
     def: 200
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: SpecialSummonSuccess
-        range: Hand
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_summoned by_special_summon
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {

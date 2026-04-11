@@ -11,12 +11,10 @@ card "The Phantom Knights of Ancient Cloak" {
     atk: 800
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: AtkChange + DefChange
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 90432163)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             change_battle_position (1, monster)
             register_effect on self {
@@ -30,11 +28,10 @@ card "The Phantom Knights of Ancient Cloak" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToHand + Search
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [gy]
         cost {
             banish self
         }

@@ -6,11 +6,9 @@ card "Brightest, Blazing, Branded King" {
     id: 19271881
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Disable
-        code: FreeChain
-        count_limit: (1, 19271881)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
         on_resolve {
             negate effect
             register_effect on self {
@@ -24,12 +22,11 @@ card "Brightest, Blazing, Branded King" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: ToHand
-        code: FreeChain
-        range: Graveyard
-        count_limit: (1, 19271881)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [gy]
         on_resolve {
             return (1+, card, either_player controls) to hand
             reveal (1+, card, opponent controls)

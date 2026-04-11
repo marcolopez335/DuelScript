@@ -6,24 +6,23 @@ card "Furtive Techniques Fur Hire, Fur All Your Ultimate Moves" {
     id: 59374259
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Destroy + Banish
-        code: FreeChain
-        property: CardTarget
-        count_limit: (1, 59374259)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             banish (1+, monster, you controls)
             destroy (1+, monster, you controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: ToHand
-        code: SpecialSummonSuccess
-        range: Graveyard
-        count_limit: (1, 59374259)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when_summoned by_special_summon
+        activate_from: [gy]
         on_resolve {
             return (1+, monster, you controls) to hand
         }

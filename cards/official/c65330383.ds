@@ -20,11 +20,13 @@ card "Knightmare Gryphon" {
         method: link
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        code: SpecialSummonSuccess
-        property: CardTarget + Delay
-        count_limit: (1, 65330383)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned by_special_summon
         cost {
             discard (1, card, you controls)
         }

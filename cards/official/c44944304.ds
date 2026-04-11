@@ -16,32 +16,31 @@ card "Performapal Laugh Maker" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Recover
-        property: InitialValue
-        range: PendulumZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
         on_resolve {
             gain_lp: 1000
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: AtkChange
-        code: AttackAnnounce
-        count_limit: (1, 44944304)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when attack_declared
         on_resolve {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: Destroyed
-        property: CardTarget + Delay
-        count_limit: (1, 44944304)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_destroyed
         on_resolve {
             special_summon (1, monster) from gy
         }

@@ -20,22 +20,20 @@ card "Prank-Kids Rocket Ride" {
         method: fusion
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: AtkChange
-        code: SpecialSummonSuccess
-        property: Delay
-        count_limit: (1, 18514525)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: SpecialSummon
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         cost {
             tribute self
         }

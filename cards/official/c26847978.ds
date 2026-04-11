@@ -20,11 +20,9 @@ card "Tri-Brigade Ferrijit the Barren Blossom" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: MonsterZone
-        count_limit: (1, 26847978)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -34,12 +32,12 @@ card "Tri-Brigade Ferrijit the Barren Blossom" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToDeck + Draw
-        code: ChainEnd
-        property: Oath + CountCodeDuel + Delay
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             draw 1
             shuffle_hand

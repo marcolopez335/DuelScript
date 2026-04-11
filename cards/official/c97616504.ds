@@ -32,20 +32,19 @@ card "Sky Striker Mecharmory - Hercules Base" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: ToDeck
-        code: ChainEnd
-        property: CardTarget + Delay
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             return (1+, monster, you controls) to deck shuffle
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Activate
-        category: Equip
-        code: FreeChain
+    effect "Effect 5" {
+        speed: spell_speed_1
         on_resolve {
             equip self to (1, monster, you controls)
         }

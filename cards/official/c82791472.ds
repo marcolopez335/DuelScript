@@ -33,23 +33,19 @@ card "Ancient Warriors - Rebellious Lu Feng" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: Destroy
-        code: FreeChain
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
         on_resolve {
             destroy (1+, monster, either_player controls)
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + MandatoryTrigger
-        category: Control
-        code: PhaseEnd
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
         on_resolve {
             take_control of (1, monster, opponent controls)
         }

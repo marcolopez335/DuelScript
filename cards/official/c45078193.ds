@@ -11,21 +11,20 @@ card "Cyberdark Cannon" {
     atk: 1600
     def: 800
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Draw
-        code: ChainEnd
-        property: Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             draw 1
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToHand + Search
-        range: Hand
-        count_limit: (1, 45078193)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand]
         cost {
             discard (1, card, you controls)
         }

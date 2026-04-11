@@ -12,11 +12,9 @@ card "Moissa Knight, the Comet General" {
     atk: 100
     def: 100
 
-    raw_effect "Effect 1" {
-        effect_type: Field + MandatoryTrigger
-        category: ToDeck
-        code: SpecialSummonSuccess
-        range: PendulumZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
         }

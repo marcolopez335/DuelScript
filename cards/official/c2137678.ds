@@ -21,11 +21,12 @@ card "Meklord Army of Granel" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: AtkChange
-        code: SummonSuccess
-        property: CardTarget
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

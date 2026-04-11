@@ -6,11 +6,9 @@ card "Tachyon Chaos Hole" {
     id: 59650656
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Destroy + Banish
-        code: ChainEnd
-        property: Oath
+    effect "Effect 1" {
+        speed: spell_speed_2
+        trigger: on_custom_event "chain_end"
         on_resolve {
             destroy (1+, card, opponent controls)
         }

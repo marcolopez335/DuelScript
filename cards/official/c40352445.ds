@@ -30,13 +30,12 @@ card "White Knight of Dogmatika" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: ToGrave + AtkChange
-        code: Chaining
-        property: Delay
-        range: MonsterZone
-        count_limit: (1, 40352445)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             send (1+, card, either_player controls) to gy
             reveal (1+, card, opponent controls)

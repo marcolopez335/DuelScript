@@ -42,11 +42,12 @@ card "El Shaddoll Grysta" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: ChainEnd
-        property: CardTarget + Delay
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             add_to_hand (1+, spell, you controls) from hand
         }

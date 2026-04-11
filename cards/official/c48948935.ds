@@ -25,11 +25,10 @@ card "Masked Beast Des Gardius" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: Equip
-        code: ChainEnd
-        property: CardTarget + Oath
+    effect "Effect 2" {
+        speed: spell_speed_1
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             equip (1, card) to (1, monster)
             register_effect on self {

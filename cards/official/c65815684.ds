@@ -20,11 +20,12 @@ card "Vicious Astraloud" {
         method: fusion
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Destroy + AtkChange
-        code: SpecialSummonSuccess
-        property: CardTarget + Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             destroy (1+, monster, either_player controls)
         }

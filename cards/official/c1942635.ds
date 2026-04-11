@@ -6,9 +6,8 @@ card "Generaider Boss Loot" {
     id: 1942635
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -22,13 +21,11 @@ card "Generaider Boss Loot" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + MandatoryTrigger
-        category: Draw
-        code: Destroyed
-        property: Oath + Delay
-        range: SpellTrapZone
-        count_limit: (1, 1942635)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: when_destroyed
+        activate_from: [spell_trap_zone]
         on_resolve {
             draw 1
         }

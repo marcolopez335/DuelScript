@@ -11,12 +11,10 @@ card "S-Force Rappa Chiyomaru" {
     atk: 800
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: ToHand + SpecialSummon
-        code: FreeChain
-        range: MonsterZone
-        count_limit: (1, 22180094)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             special_summon (1, monster) from gy

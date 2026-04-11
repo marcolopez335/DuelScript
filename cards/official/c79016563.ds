@@ -20,23 +20,20 @@ card "Binary Sorceress" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: Recover
-        code: BattleDestroyed
-        range: MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_destroyed
         on_resolve {
             gain_lp: 1000
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: AtkChange
-        code: FreeChain
-        property: Oath
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

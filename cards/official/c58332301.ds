@@ -20,9 +20,8 @@ card "Evil HERO Dark Gaia" {
         method: fusion
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single
-        property: BothSide + Uncopyable
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -42,10 +41,11 @@ card "Evil HERO Dark Gaia" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: PositionChange
-        code: AttackAnnounce
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when attack_declared
         on_resolve {
             change_battle_position (1, monster)
         }

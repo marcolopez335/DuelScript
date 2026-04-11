@@ -11,10 +11,9 @@ card "Gishki Vision" {
     atk: 700
     def: 500
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: ToHand + Search
-        range: Hand
+    effect "Effect 1" {
+        speed: spell_speed_1
+        activate_from: [hand]
         cost {
             discard (1, card, you controls)
         }
@@ -24,10 +23,8 @@ card "Gishki Vision" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Activate
-        category: SpecialSummon
-        code: FreeChain
+    effect "Effect 2" {
+        speed: spell_speed_1
         on_resolve {
             ritual_summon (1, ritual monster) using (1+, monster, you controls)
         }

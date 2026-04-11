@@ -6,12 +6,10 @@ card "Scourge of the White Forest" {
     id: 93723936
     type: Quick-Play Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon + Disable
-        code: FreeChain
-        property: CardTarget
-        count_limit: (1, 93723936)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         cost {
             tribute self
         }
@@ -20,12 +18,12 @@ card "Scourge of the White Forest" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: LeaveGrave
-        code: ChainEnd
-        property: Delay
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             set (1, card)
         }

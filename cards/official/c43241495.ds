@@ -12,23 +12,24 @@ card "Performapal Trampolynx" {
     atk: 300
     def: 300
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: ToHand
-        code: SpecialSummonSuccess
-        property: CardTarget
-        range: PendulumZone
-        count_limit: (1, 43241495)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: SummonSuccess
-        property: CardTarget
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }

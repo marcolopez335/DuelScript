@@ -21,24 +21,24 @@ card "Lavalval Exlord" {
         method: synchro
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: Destroy + Damage
-        code: Chaining
-        range: MonsterZone
-        count_limit: (1, 12018201)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             destroy (1+, monster, you controls, gy)
             deal_damage to opponent: 1000
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: Destroyed
-        property: Oath + Delay
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {

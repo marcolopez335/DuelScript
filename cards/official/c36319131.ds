@@ -20,13 +20,12 @@ card "Fighting Flame Dragon" {
         method: fusion
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: Equip
-        code: FreeChain
-        property: CardTarget
-        range: MonsterZone + Graveyard
-        count_limit: (1, 36319131)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
+        activate_from: [monster_zone, gy]
         on_resolve {
             equip (1, card) to (1, monster)
         }

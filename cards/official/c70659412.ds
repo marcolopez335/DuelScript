@@ -21,12 +21,11 @@ card "Psychic Omnibuster" {
         method: synchro
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: Banish
-        code: Chaining
-        property: Delay
-        range: MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         cost {
             pay_lp 2000
         }

@@ -11,12 +11,11 @@ card "Virtual World Xiezhi - Jiji" {
     atk: 1000
     def: 1600
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: ToHand + ToGrave + SpecialSummon
-        property: CardTarget
-        range: Hand
-        count_limit: (1, 12571621)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
+        activate_from: [hand]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

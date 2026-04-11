@@ -11,21 +11,22 @@ card "Sylvan Flowerknight" {
     atk: 1800
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: DeckDestroy
-        code: SummonSuccess
-        property: Oath
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_summoned
         on_resolve {
             reveal (1, card, opponent controls, deck)
             send (1+, card, you controls, deck) to gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        code: ChainEnd
-        property: Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             shuffle_deck
             reveal (1, card, opponent controls, deck)

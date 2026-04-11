@@ -29,24 +29,21 @@ card "Tri-Gate Wizard" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Banish
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             banish (1+, card, either_player controls)
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: Banish + Negate
-        code: Chaining
-        property: Oath + CountCodeDuel
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate activation
             banish (1+, card, either_player controls)

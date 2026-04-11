@@ -6,11 +6,9 @@ card "Tally-ho! Springans" {
     id: 9175957
     type: Quick-Play Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + SpecialSummon + Search
-        code: FreeChain
-        count_limit: (1, 9175957)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         cost {
             detach 1 overlay_unit from self
         }
@@ -21,12 +19,11 @@ card "Tally-ho! Springans" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToHand
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 9175957)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
+        activate_from: [gy]
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
             reveal (1+, card, opponent controls)

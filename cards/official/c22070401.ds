@@ -21,10 +21,9 @@ card "Starving Venemy Lethal Dose Dragon" {
         method: fusion
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        range: PendulumZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
         on_resolve {
         }
     }
@@ -46,11 +45,9 @@ card "Starving Venemy Lethal Dose Dragon" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: Disable
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -63,10 +60,11 @@ card "Starving Venemy Lethal Dose Dragon" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single + Trigger
-        code: Destroyed
-        property: Delay
+    effect "Effect 5" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             special_summon (1, monster) from gy
         }

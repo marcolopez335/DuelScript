@@ -6,32 +6,29 @@ card "Goblin Biker Grand Crisis" {
     id: 15094540
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Banish
-        code: FreeChain
-        property: CardTarget
-        range: SpellTrapZone
-        count_limit: (1, 15094540)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
+        activate_from: [spell_trap_zone]
         on_resolve {
             banish (1+, monster, either_player controls, gy)
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        property: CardTarget
-        range: SpellTrapZone
-        count_limit: (1, 15094540)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
+        activate_from: [spell_trap_zone]
         cost {
             send self to gy
         }

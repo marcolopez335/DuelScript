@@ -6,24 +6,21 @@ card "Abyss-steam" {
     id: 63941169
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Draw
-        code: FreeChain
-        property: InitialValue
-        count_limit: (1, 63941169)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
         on_resolve {
             draw 1
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: ToHand
-        code: Destroyed
-        property: Oath
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: when_destroyed
+        activate_from: [gy]
         cost {
             banish self
         }

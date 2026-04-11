@@ -6,11 +6,10 @@ card "Gold Pride - Start Your Engines!" {
     id: 21677871
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Destroy + SpecialSummon
-        code: SummonSuccess
-        property: CardTarget + Delay
+    effect "Effect 1" {
+        speed: spell_speed_2
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             reveal (1+, card, opponent controls)
             special_summon (1, monster) from gy
@@ -18,11 +17,10 @@ card "Gold Pride - Start Your Engines!" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Activate
-        category: Destroy + SpecialSummon
-        code: SpecialSummonSuccess
-        property: CardTarget + Delay
+    effect "Effect 2" {
+        speed: spell_speed_2
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             reveal (1+, card, opponent controls)
             special_summon (1, monster) from gy

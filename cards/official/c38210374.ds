@@ -11,22 +11,21 @@ card "Explossum" {
     atk: 100
     def: 100
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Equip
-        property: CardTarget
-        range: Hand + MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: false
+        activate_from: [hand, monster_zone]
         on_resolve {
             send (1+, card, either_player controls) to gy
             equip (1, card) to (1, monster)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        code: PhaseStandby
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
+        activate_from: [spell_trap_zone]
         on_resolve {
         }
     }

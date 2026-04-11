@@ -19,24 +19,23 @@ card "Salamandra, the Flying Flame Dragon" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Equip
-        property: CardTarget
-        range: Hand + Graveyard
-        count_limit: (1, 37531679)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
+        activate_from: [hand, gy]
         on_resolve {
             send (1+, spell, you controls, deck) to gy
             equip (1, card) to (1, monster)
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: ChainEnd
-        property: Delay
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck
             reveal (1+, card, opponent controls)

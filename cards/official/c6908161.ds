@@ -20,12 +20,12 @@ card "Ragnaraika Chain Coils" {
         method: link
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        code: Chaining
-        property: Delay
-        range: MonsterZone
-        count_limit: (1, 6908161)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -34,12 +34,11 @@ card "Ragnaraika Chain Coils" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToDeck + SpecialSummon
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
+        activate_from: [gy]
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
             special_summon (1, monster) from gy

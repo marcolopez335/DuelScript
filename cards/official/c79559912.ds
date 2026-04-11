@@ -21,12 +21,11 @@ card "D/D/D Wave High King Caesar" {
         method: xyz
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: Destroy + AtkChange + Negate
-        code: Chaining
-        property: Oath + CountCodeDuel
-        range: MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         cost {
             detach 1 overlay_unit from self
         }
@@ -40,11 +39,11 @@ card "D/D/D Wave High King Caesar" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: ChainEnd
-        property: Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             return (1+, monster, you controls) to hand
             reveal (1+, card, opponent controls)

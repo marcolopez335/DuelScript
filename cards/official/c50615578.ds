@@ -23,20 +23,19 @@ card "Karakuri Ninja mdl 7749 'Nanashick'" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: PositionChange
-        code: BattleTarget
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_attacked
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: Draw
-        code: SummonSuccess
-        property: InitialValue
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_summoned
         on_resolve {
             draw 1
         }

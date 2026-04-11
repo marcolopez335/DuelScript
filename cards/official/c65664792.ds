@@ -6,11 +6,9 @@ card "Harpie Lady Elegance" {
     id: 65664792
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToDeck + SpecialSummon
-        code: FreeChain
-        count_limit: (1, 65664792)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
         on_resolve {
             return (1+, monster, you controls) to deck shuffle
             special_summon (1, monster) from gy
@@ -21,12 +19,10 @@ card "Harpie Lady Elegance" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: ToHand + Search
-        code: Destroyed
-        property: Delay
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        trigger: when_destroyed
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
             reveal (1+, card, opponent controls)

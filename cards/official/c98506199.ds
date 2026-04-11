@@ -21,23 +21,22 @@ card "Wind Pegasus @Ignister" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Destroy
-        range: MonsterZone
-        count_limit: (1, 98506199)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             destroy (1+, spell, you controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: ToDeck
-        code: Destroyed
-        property: CardTarget + Oath + CountCodeDuel + Delay
-        range: MonsterZone + Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_destroyed
+        activate_from: [monster_zone, gy]
         cost {
             banish self
         }

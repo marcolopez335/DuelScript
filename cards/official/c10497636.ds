@@ -25,10 +25,11 @@ card "War Rock Meteoragon" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        code: AttackAnnounce
-        range: MonsterZone
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when attack_declared
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -49,13 +50,10 @@ card "War Rock Meteoragon" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: AtkChange
-        code: FreeChain
-        property: Oath
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

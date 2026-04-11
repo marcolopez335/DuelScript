@@ -15,11 +15,10 @@ card "Kuribabylon" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Hand
-        count_limit: (1, 70914287)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -45,23 +44,19 @@ card "Kuribabylon" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: ToHand + SpecialSummon
-        range: MonsterZone
-        count_limit: (1, 70914287)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: QuickEffect
-        category: ToHand + SpecialSummon
-        code: FreeChain
-        range: MonsterZone
-        count_limit: (1, 70914287)
+    effect "Effect 5" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
             special_summon (1, monster) from gy

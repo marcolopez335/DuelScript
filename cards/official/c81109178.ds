@@ -11,13 +11,11 @@ card "Fire Cracker" {
     atk: 1700
     def: 200
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: Damage
-        code: FreeChain
-        property: InitialValue
-        range: Hand
-        count_limit: (1, 81109178)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [hand]
         cost {
             discard (1, card, you controls)
         }
@@ -38,12 +36,10 @@ card "Fire Cracker" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + MandatoryTrigger
-        category: Damage
-        code: PhaseEnd
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
         on_resolve {
             deal_damage to opponent: 1000
         }

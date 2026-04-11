@@ -6,11 +6,9 @@ card "Nadir Servant" {
     id: 1984618
     type: Normal Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + ToGrave + Search
-        code: FreeChain
-        count_limit: (1, 1984618)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             send (1+, monster, you controls, gy) to gy
             add_to_hand (1+, monster, you controls) from gy

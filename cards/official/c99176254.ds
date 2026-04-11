@@ -6,12 +6,10 @@ card "Maiden of Blue Tears" {
     id: 99176254
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Destroy + Damage
-        code: 367611710
-        property: CardTarget + Delay
-        count_limit: (1, 99176254)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             destroy (1+, monster, you controls)
             deal_damage to opponent: 1000

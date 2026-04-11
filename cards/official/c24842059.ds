@@ -20,13 +20,12 @@ card "Linguriboh" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: Destroy + Disable
-        code: Chaining
-        property: Oath + CountCodeDuel
-        range: MonsterZone
-        count_limit: (1, 24842059)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         cost {
             tribute self
         }
@@ -36,12 +35,11 @@ card "Linguriboh" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        activate_from: [gy]
         cost {
             tribute self
         }

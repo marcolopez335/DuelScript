@@ -21,12 +21,12 @@ card "Chaos Ruler, the Chaotic Magical Dragon" {
         method: synchro
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToHand + DeckDestroy + Search
-        code: SpecialSummonSuccess
-        property: Delay
-        count_limit: (1, 3040496)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             reveal (1, card, opponent controls, deck)
             add_to_hand (1+, monster, you controls) from gy
@@ -36,11 +36,10 @@ card "Chaos Ruler, the Chaotic Magical Dragon" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [gy]
         cost {
             banish self
         }

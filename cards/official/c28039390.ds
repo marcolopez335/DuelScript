@@ -6,21 +6,18 @@ card "Frightfur Reborn" {
     id: 28039390
     type: Normal Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon
-        code: FreeChain
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: false
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToGrave
-        property: CardTarget
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_1
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }

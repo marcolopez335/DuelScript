@@ -6,11 +6,9 @@ card "Surprise Fusion" {
     id: 35167375
     type: Normal Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon + FusionSummon
-        code: FreeChain
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: false
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -23,11 +21,10 @@ card "Surprise Fusion" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Release + SpecialSummon + Token
-        range: Graveyard
-        count_limit: (1, 35167375)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [gy]
         cost {
             banish self
         }

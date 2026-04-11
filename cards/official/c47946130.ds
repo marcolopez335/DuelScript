@@ -40,25 +40,21 @@ card "Gouki The Giant Ogre" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: Negate
-        code: Chaining
-        property: Oath + CountCodeDuel
-        range: MonsterZone
+    effect "Effect 3" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate activation
             send (1+, card, either_player controls) to gy
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: QuickEffect
-        category: AtkChange
-        code: FreeChain
-        property: Oath
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
         on_resolve {
         }
     }

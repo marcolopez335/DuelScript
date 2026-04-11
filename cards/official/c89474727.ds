@@ -29,11 +29,10 @@ card "Stardust Chronicle Spark Dragon" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        code: FreeChain
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
         cost {
             banish self
         }
@@ -41,11 +40,12 @@ card "Stardust Chronicle Spark Dragon" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: Destroyed
-        property: CardTarget + Oath + Delay
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_destroyed
         on_resolve {
             special_summon (1, monster) from gy
         }

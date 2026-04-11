@@ -16,24 +16,22 @@ card "Doom Regina Archfiend" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Destroy + ToHand
-        property: CardTarget
-        range: PendulumZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             destroy (1+, spell, opponent controls)
             return (1+, spell, opponent controls) to hand
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: Destroy + Banish
-        code: SpecialSummonSuccess
-        property: Delay
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             destroy (1+, spell, opponent controls)
             banish (1+, spell, opponent controls)

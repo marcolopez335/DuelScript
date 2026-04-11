@@ -11,9 +11,9 @@ card "Lunalight Black Sheep" {
     atk: 100
     def: 600
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        range: Hand
+    effect "Effect 1" {
+        speed: spell_speed_1
+        activate_from: [hand]
         cost {
             discard (1, card, you controls)
         }
@@ -25,11 +25,11 @@ card "Lunalight Black Sheep" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: FlipSuccess
-        property: Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_flipped
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
             reveal (1+, card, opponent controls)

@@ -15,10 +15,9 @@ card "B.E.S. Crystal Core" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: Counter
-        code: SummonSuccess
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_summoned
         on_resolve {
         }
     }
@@ -47,12 +46,10 @@ card "B.E.S. Crystal Core" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Ignition
-        category: PositionChange
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             change_battle_position (1, monster)
         }

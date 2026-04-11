@@ -11,12 +11,13 @@ card "Leafplace Plaice" {
     atk: ?
     def: ?
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: PhaseStandby
-        range: Hand + Graveyard
-        count_limit: (1, 50599453)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: during_standby_phase
+        activate_from: [hand, gy]
         on_resolve {
             special_summon (1, monster) from gy
         }

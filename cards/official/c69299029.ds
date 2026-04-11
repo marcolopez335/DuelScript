@@ -6,10 +6,9 @@ card "Treasures of the Kings" {
     id: 69299029
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
-        count_limit: (1, 69299029)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             set (1, card)
         }
@@ -24,11 +23,10 @@ card "Treasures of the Kings" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: ToHand + Search
-        range: FieldZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [field_zone]
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)

@@ -11,13 +11,14 @@ card "Rokket Recharger" {
     atk: 0
     def: 2100
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: Destroyed
-        property: CardTarget + Oath + Delay
-        range: Hand + MonsterZone
-        count_limit: (1, 5969957)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_destroyed
+        activate_from: [hand, monster_zone]
         cost {
             send self to gy
         }

@@ -6,11 +6,9 @@ card "Curse of Diabell" {
     id: 64998567
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Destroy
-        code: FreeChain
-        count_limit: (1, 64998567)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
         cost {
             send self to gy
         }
@@ -19,12 +17,12 @@ card "Curse of Diabell" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: ChainEnd
-        property: Delay
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             return (1+, spell, opponent controls) to hand
             reveal (1+, card, opponent controls)

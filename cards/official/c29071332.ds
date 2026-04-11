@@ -21,21 +21,18 @@ card "Armory Arm" {
         method: synchro
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Equip
-        property: CardTarget
-        range: MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: false
         on_resolve {
             send (1+, monster, either_player controls) to gy
             equip (1, card) to (1, monster)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: SpellTrapZone
+    effect "Effect 2" {
+        speed: spell_speed_1
+        activate_from: [spell_trap_zone]
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -49,12 +46,10 @@ card "Armory Arm" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + MandatoryTrigger
-        category: Damage
-        code: BattleDamage
-        property: InitialValue
-        range: SpellTrapZone
+    effect "Effect 4" {
+        speed: spell_speed_1
+        trigger: when_battle_damage
+        activate_from: [spell_trap_zone]
         on_resolve {
             deal_damage to opponent: 1000
         }

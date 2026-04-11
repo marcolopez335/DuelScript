@@ -6,11 +6,10 @@ card "Psi-Curse" {
     id: 16678947
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Destroy + Damage
-        code: BattleDamage
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_2
+        damage_step: false
+        trigger: when_battle_damage
         on_resolve {
             destroy (1+, card, either_player controls)
             deal_damage to opponent: 1000

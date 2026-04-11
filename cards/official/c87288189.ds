@@ -15,11 +15,10 @@ card "Caius the Mega Monarch" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: Banish + Damage
-        code: SummonSuccess
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             banish (1+, card, you controls, hand)
             deal_damage to opponent: 1000

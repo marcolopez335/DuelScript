@@ -6,22 +6,21 @@ card "Amazoness Hot Spring" {
     id: 62480168
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + Search
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
             add_to_hand (1, card, you controls) from gy
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: Recover
-        code: BattleDestroyed
-        range: SpellTrapZone
-        count_limit: (1, 62480168)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when_battle_destroyed
+        activate_from: [spell_trap_zone]
         on_resolve {
             gain_lp: 1000
         }

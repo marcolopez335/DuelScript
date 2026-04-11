@@ -6,10 +6,9 @@ card "Starlight Road" {
     id: 58120309
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Destroy + SpecialSummon + Disable
-        code: Chaining
+    effect "Effect 1" {
+        speed: spell_speed_2
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate effect
             special_summon (1, monster) from gy

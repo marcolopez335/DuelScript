@@ -15,12 +15,12 @@ card "Sagitta, Maverick Fur Hire" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Damage
-        code: SpecialSummonSuccess
-        property: Delay
-        count_limit: (1, 93738004)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             deal_damage to opponent: 1000
         }

@@ -11,11 +11,10 @@ card "Kahkki, Guerilla of Dark World" {
     atk: 300
     def: 500
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: Destroy
-        code: ChainEnd
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             destroy (1+, card, either_player controls)
         }

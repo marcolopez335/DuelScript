@@ -29,23 +29,21 @@ card "Number 4: Stealth Kragen" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Destroy + Damage
-        code: FreeChain
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
         on_resolve {
             destroy (1+, monster, opponent controls)
             deal_damage to opponent: 1000
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: Destroyed
-        property: Oath + Delay
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             special_summon (1, monster) from gy
             attach (1, card) to self as_material

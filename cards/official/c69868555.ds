@@ -6,18 +6,16 @@ card "Ruins of the Divine Dragon Lords" {
     id: 69868555
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        category: Disable
-        code: SpecialSummonSuccess
-        range: SpellTrapZone
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
+        activate_from: [spell_trap_zone]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -34,11 +32,10 @@ card "Ruins of the Divine Dragon Lords" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: SpecialSummon + Token
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [spell_trap_zone]
         cost {
             send self to gy
         }
@@ -48,10 +45,9 @@ card "Ruins of the Divine Dragon Lords" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: ToHand
-        range: Graveyard
+    effect "Effect 4" {
+        speed: spell_speed_1
+        activate_from: [gy]
         cost {
             send self to gy
         }

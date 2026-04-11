@@ -6,9 +6,8 @@ card "Summon Over" {
     id: 48015771
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -39,11 +38,9 @@ card "Summon Over" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Ignition
-        category: ToGrave
-        property: 4096
-        range: FieldZone
+    effect "Effect 5" {
+        speed: spell_speed_1
+        activate_from: [field_zone]
         on_resolve {
             send (1+, monster, opponent controls) to gy
             send (1+, monster, opponent controls) to gy

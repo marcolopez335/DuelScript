@@ -6,19 +6,16 @@ card "Jackpot 7" {
     id: 81171949
     type: Normal Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToDeck
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: Banish
-        code: ChainEnd
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_end"
         on_resolve {
         }
     }

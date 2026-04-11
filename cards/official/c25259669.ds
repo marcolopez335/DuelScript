@@ -11,10 +11,11 @@ card "Goblindbergh" {
     atk: 1400
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: SpecialSummon + PositionChange
-        code: SummonSuccess
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_summoned
         on_resolve {
             special_summon (1, monster) from gy
             change_battle_position (1, monster)

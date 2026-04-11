@@ -33,13 +33,12 @@ card "Machina Ruinforce" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: Negate
-        code: Chaining
-        property: Oath + CountCodeDuel
-        range: MonsterZone
-        count_limit: (1, 46033517)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         cost {
             pay_lp your_lp / 2
         }
@@ -50,12 +49,12 @@ card "Machina Ruinforce" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: Destroyed
-        property: Delay
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             special_summon (1, monster) from gy
         }

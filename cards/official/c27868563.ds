@@ -11,11 +11,10 @@ card "Goblin Biker Boom Mach" {
     atk: 1300
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        range: Hand + Graveyard
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        activate_from: [hand, gy]
         on_resolve {
             detach 1 overlay_unit from self
             special_summon (1, monster) from gy

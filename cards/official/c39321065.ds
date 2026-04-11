@@ -11,12 +11,10 @@ card "Silent Swordsman Zero" {
     atk: 1000
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: Field + MandatoryTrigger
-        category: LevelChange
-        code: PhaseStandby
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
         on_resolve {
         }
     }
@@ -31,13 +29,12 @@ card "Silent Swordsman Zero" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: LevelChange + Negate
-        code: Chaining
-        property: Oath + CountCodeDuel
-        range: MonsterZone
-        count_limit: (1, 39321065)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate activation
         }

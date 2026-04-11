@@ -20,13 +20,11 @@ card "Filia Regis" {
         method: fusion
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: Banish + ToHand
-        code: FreeChain
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 70538272)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
         on_resolve {
             banish (1+, monster, you controls)
             return (1+, monster, you controls) to hand

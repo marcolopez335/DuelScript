@@ -11,12 +11,10 @@ card "Constellar Sombre" {
     atk: 1550
     def: 1600
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: ToHand
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 78358521)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         cost {
             banish self
         }
@@ -25,11 +23,9 @@ card "Constellar Sombre" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Summon
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
         on_resolve {
             normal_summon (1, monster, you controls)
         }

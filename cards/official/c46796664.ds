@@ -32,23 +32,23 @@ card "D/D Savant Copernicus" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: ToGrave
-        code: SummonSuccess
-        property: Delay
-        count_limit: (1, 46796664)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned
         on_resolve {
             send (1+, card, you controls, deck) to gy
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: ToGrave
-        code: SpecialSummonSuccess
-        property: Delay
-        count_limit: (1, 46796664)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             send (1+, card, you controls, deck) to gy
         }

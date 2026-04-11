@@ -11,35 +11,33 @@ card "SPYGAL Misty" {
     atk: 1500
     def: 1600
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Draw
-        code: SummonSuccess
-        property: InitialValue + Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_summoned
         on_resolve {
             reveal (1, card, opponent controls, deck)
             draw 1
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: Draw
-        code: SpecialSummonSuccess
-        property: InitialValue + Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             reveal (1, card, opponent controls, deck)
             draw 1
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: ToHand
-        code: FreeChain
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        damage_step: false
         on_resolve {
             return (1+, monster, either_player controls) to hand
         }

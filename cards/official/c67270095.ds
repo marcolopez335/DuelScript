@@ -11,10 +11,11 @@ card "Turbo Synchron" {
     atk: 100
     def: 500
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: PositionChange
-        code: AttackAnnounce
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when attack_declared
         on_resolve {
             change_battle_position (1, monster)
         }

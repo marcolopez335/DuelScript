@@ -36,21 +36,23 @@ card "Guardian Elma" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: Equip
-        code: SummonSuccess
-        property: CardTarget
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             equip (1, card) to (1, monster)
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single + Trigger
-        category: Equip
-        code: SpecialSummonSuccess
-        property: CardTarget
+    effect "Effect 5" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             equip (1, card) to (1, monster)
         }

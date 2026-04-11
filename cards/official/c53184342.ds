@@ -15,11 +15,10 @@ card "Dragunity Arma Gram" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Hand + Graveyard
-        count_limit: (1, 53184342)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand, gy]
         cost {
             banish self
         }
@@ -28,12 +27,10 @@ card "Dragunity Arma Gram" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Disable + AtkChange
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -50,12 +47,12 @@ card "Dragunity Arma Gram" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: Equip
-        code: BattleDamage
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: when_battle_damage
         on_resolve {
             equip (1, card) to (1, monster)
             register_effect on self {

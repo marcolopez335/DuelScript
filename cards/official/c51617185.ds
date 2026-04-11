@@ -15,11 +15,9 @@ card "Machina Megaform" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: MonsterZone
-        count_limit: (1, 51617185)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         cost {
             tribute self
         }
@@ -28,13 +26,13 @@ card "Machina Megaform" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: ChainEnd
-        property: Delay
-        range: Graveyard
-        count_limit: (1, 51617185)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
+        activate_from: [gy]
         cost {
             banish self
         }

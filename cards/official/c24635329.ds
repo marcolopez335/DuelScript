@@ -22,12 +22,12 @@ card "Qadshaddoll Keios" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: AtkChange + DefChange
-        code: ChainEnd
-        property: Oath + Delay
-        count_limit: (1, 24635329)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             send (1+, monster, you controls, hand) to gy
             register_effect on self {

@@ -16,13 +16,13 @@ card "Performapal Drummerilla" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: AtkChange
-        code: AttackAnnounce
-        property: CardTarget
-        range: PendulumZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when attack_declared
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -46,13 +46,13 @@ card "Performapal Drummerilla" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + Trigger
-        category: AtkChange
-        code: AttackAnnounce
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when attack_declared
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

@@ -11,11 +11,9 @@ card "Spirit of the Pot of Greed" {
     atk: 100
     def: 100
 
-    raw_effect "Effect 1" {
-        effect_type: Field + MandatoryTrigger
-        category: Draw
-        code: Chaining
-        range: MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             draw 1
         }

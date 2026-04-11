@@ -11,10 +11,12 @@ card "Flame Armor Ninja" {
     atk: 1700
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        code: SummonSuccess
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -23,10 +25,12 @@ card "Flame Armor Ninja" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        code: FlipSummonSuccess
-        property: CardTarget
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned by_flip_summon
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -35,10 +39,12 @@ card "Flame Armor Ninja" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        code: SpecialSummonSuccess
-        property: CardTarget
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

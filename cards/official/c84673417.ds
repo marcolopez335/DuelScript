@@ -11,12 +11,10 @@ card "Jain, Twilightsworn General" {
     atk: 1800
     def: 1200
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: AtkChange + DefChange
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         cost {
             banish self
         }
@@ -32,12 +30,10 @@ card "Jain, Twilightsworn General" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        category: DeckDestroy
-        code: Chaining
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             mill 2
         }

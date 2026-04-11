@@ -21,22 +21,21 @@ card "Time Thief Redoer" {
         method: xyz
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        code: PhaseStandby
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: during_standby_phase
         on_resolve {
             attach (1, card) to self as_material
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Banish + ToDeck + Draw
-        code: FreeChain
-        range: MonsterZone
-        count_limit: (1, 55285840)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
         on_resolve {
             send (1+, card, opponent controls) to gy
             emit_event "custom"

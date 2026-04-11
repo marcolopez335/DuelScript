@@ -6,11 +6,9 @@ card "The Hidden Hecahands" {
     id: 20415050
     type: Normal Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + Search
-        code: FreeChain
-        count_limit: (1, 20415050)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         cost {
             send self to gy
         }
@@ -22,11 +20,10 @@ card "The Hidden Hecahands" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: HandDestroy + Draw
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [gy]
         cost {
             banish self
         }

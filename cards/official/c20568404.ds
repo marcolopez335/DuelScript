@@ -11,11 +11,9 @@ card "Jurrac Stego" {
     atk: 1700
     def: 900
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Destroy + ToGrave + SpecialSummon
-        range: MonsterZone
-        count_limit: (1, 20568404)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -27,10 +25,11 @@ card "Jurrac Stego" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: BattleDamage
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_damage
         on_resolve {
             return (1+, card, you controls) to hand
         }

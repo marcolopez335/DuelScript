@@ -42,11 +42,12 @@ card "Junk Warrior/Assault Mode" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: SpecialSummon + ToExtra
-        code: Destroyed
-        property: CardTarget + Delay
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_destroyed
         on_resolve {
             return (1+, monster, you controls) to deck shuffle
             special_summon (1, monster) from gy

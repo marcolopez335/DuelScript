@@ -20,11 +20,11 @@ card "Lyrilusc - Independent Nightingale" {
         method: fusion
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: LevelChange
-        code: SpecialSummonSuccess
-        property: Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
         }
     }
@@ -56,12 +56,9 @@ card "Lyrilusc - Independent Nightingale" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Ignition
-        category: Damage
-        property: InitialValue
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: soft
         on_resolve {
             deal_damage to opponent: 1000
         }

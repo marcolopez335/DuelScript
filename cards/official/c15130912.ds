@@ -12,11 +12,9 @@ card "Saion the Vaylantz Archer" {
     atk: 1100
     def: 1100
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: PendulumZone
-        count_limit: (1, 15130912)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {
@@ -26,12 +24,10 @@ card "Saion the Vaylantz Archer" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Disable + AtkChange + CoinToss
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
             register_effect on self {
@@ -49,12 +45,13 @@ card "Saion the Vaylantz Archer" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: Destroy + ToHand + CoinToss
-        code: LeaveField
-        property: CardTarget + Delay
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_leaves_field
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
             destroy (1+, card, either_player controls)

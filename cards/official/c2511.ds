@@ -11,11 +11,11 @@ card "Labrynth Cooclock" {
     atk: 0
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        code: FreeChain
-        range: Hand
-        count_limit: (1, 2511)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [hand]
         cost {
             discard (1, card, you controls)
         }
@@ -27,13 +27,13 @@ card "Labrynth Cooclock" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: ToHand + SpecialSummon
-        code: ChainEnd
-        property: Delay
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
+        activate_from: [gy]
         on_resolve {
             add_to_hand (1, card, you controls) from gy
             special_summon (1, monster) from gy

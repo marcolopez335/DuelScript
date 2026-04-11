@@ -56,12 +56,13 @@ card "Duelittle Chimera" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: Destroyed
-        property: CardTarget + Delay
-        count_limit: (1, 37880706)
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_destroyed
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
         }

@@ -11,19 +11,20 @@ card "Gimmick Puppet Terror Baby" {
     atk: 500
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: SummonSuccess
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_1
+        activate_from: [gy]
         cost {
             banish self
         }

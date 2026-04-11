@@ -15,11 +15,10 @@ card "Demigod of the Tistina" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: ToHand + SpecialSummon + Search
-        range: Hand
-        count_limit: (1, 59504256)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
             return (1+, spell, opponent controls) to hand
@@ -27,12 +26,10 @@ card "Demigod of the Tistina" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: ToGrave + PositionChange
-        code: FreeChain
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
         on_resolve {
             change_battle_position (1, monster)
             send (1+, spell, opponent controls) to gy

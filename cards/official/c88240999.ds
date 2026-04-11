@@ -28,13 +28,12 @@ card "Nekroz of Decisive Armor" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: AtkChange + DefChange
-        code: FreeChain
-        property: CardTarget + Oath
-        range: Hand
-        count_limit: (1, 88240999)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
+        activate_from: [hand]
         cost {
             discard (1, card, you controls)
         }
@@ -50,12 +49,10 @@ card "Nekroz of Decisive Armor" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: Destroy + Banish
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             destroy (1+, card, either_player controls)
         }

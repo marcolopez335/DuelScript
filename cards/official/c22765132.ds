@@ -6,11 +6,10 @@ card "Performapal Call" {
     id: 22765132
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + Search
-        code: AttackAnnounce
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_2
+        damage_step: false
+        trigger: when attack_declared
         on_resolve {
             negate attack
             add_to_hand (1+, card, you controls) from deck

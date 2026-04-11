@@ -15,10 +15,9 @@ card "The Blazing Mars" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Hand + Graveyard
+    effect "Effect 1" {
+        speed: spell_speed_1
+        activate_from: [hand, gy]
         cost {
             banish self
         }
@@ -31,12 +30,9 @@ card "The Blazing Mars" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Damage
-        property: InitialValue
-        range: MonsterZone
-        count_limit: (1, 15033525)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
         cost {
             send self to gy
         }

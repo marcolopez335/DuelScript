@@ -21,12 +21,11 @@ card "Black Rose Moonlight Dragon" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: ToHand
-        code: SpecialSummonSuccess
-        property: CardTarget
-        count_limit: (1, 33698022)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }

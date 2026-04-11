@@ -15,10 +15,9 @@ card "Ignoble Knight of Black Laundsallyn" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Hand + Graveyard
+    effect "Effect 1" {
+        speed: spell_speed_1
+        activate_from: [hand, gy]
         cost {
             send self to gy
         }
@@ -27,11 +26,9 @@ card "Ignoble Knight of Black Laundsallyn" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToHand + Search
-        range: MonsterZone
-        count_limit: (1, 95772051)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
         cost {
             tribute self
         }

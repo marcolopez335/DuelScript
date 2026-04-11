@@ -6,9 +6,8 @@ card "Sangen Summoning" {
     id: 30336082
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -22,11 +21,10 @@ card "Sangen Summoning" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: ToHand + HandDestroy + Search
-        range: FieldZone
-        count_limit: (1, 30336082)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [field_zone]
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)
@@ -35,11 +33,12 @@ card "Sangen Summoning" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: AtkChange
-        code: Destroyed
-        property: CardTarget + Delay
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_destroyed
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

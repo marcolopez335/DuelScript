@@ -21,11 +21,9 @@ card "Infernal Flame Vixen" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: AtkChange
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
         cost {
             detach 1 overlay_unit from self
         }
@@ -33,10 +31,10 @@ card "Infernal Flame Vixen" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        code: Destroyed
-        property: CardTarget
+    effect "Effect 2" {
+        speed: spell_speed_1
+        damage_step: false
+        trigger: when_destroyed
         on_resolve {
             banish (1+, monster, either_player controls)
         }

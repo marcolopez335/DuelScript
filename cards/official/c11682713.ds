@@ -21,10 +21,11 @@ card "Sylvan Bladefender" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        code: ChainEnd
-        property: Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
             reveal (1+, card, opponent controls)

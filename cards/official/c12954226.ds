@@ -29,13 +29,13 @@ card "Circle of the Fairies" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: Damage + Recover
-        code: BattleDamage
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 12954226)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_battle_damage
         on_resolve {
             deal_damage to opponent: 1000
             gain_lp: 1000

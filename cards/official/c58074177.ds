@@ -36,12 +36,10 @@ card "Odd-Eyes Wing Dragon" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Disable
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 58074177)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             negate effect
             register_effect on self {
@@ -59,21 +57,20 @@ card "Odd-Eyes Wing Dragon" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: Destroy
-        code: FreeChain
-        range: MonsterZone
-        count_limit: (1, 58074177)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
         on_resolve {
             destroy (1+, trap, opponent controls)
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        code: Destroyed
-        property: Delay
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             special_summon (1, monster) from gy
         }

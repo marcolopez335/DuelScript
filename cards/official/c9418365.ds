@@ -25,11 +25,11 @@ card "Bujin Hirume" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: HandDestroy
-        code: ChainEnd
-        property: Oath + Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             discard (1, card)
             discard (1, card)

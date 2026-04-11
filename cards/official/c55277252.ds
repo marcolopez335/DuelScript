@@ -11,10 +11,9 @@ card "The Fabled Nozoochee" {
     atk: 1200
     def: 800
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Hand
+    effect "Effect 1" {
+        speed: spell_speed_1
+        activate_from: [hand]
         on_resolve {
             send (1+, monster, you controls, hand) to gy
             send (1+, monster, you controls, hand) to gy
@@ -22,10 +21,11 @@ card "The Fabled Nozoochee" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: SpecialSummonSuccess
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_summoned by_special_summon
         on_resolve {
             special_summon (1, monster) from gy
         }

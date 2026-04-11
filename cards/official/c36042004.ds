@@ -11,11 +11,9 @@ card "Babycerasaurus" {
     atk: 500
     def: 500
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: SpecialSummon
-        code: ChainEnd
-        property: Oath
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_end"
         on_resolve {
             special_summon (1, monster) from gy
         }

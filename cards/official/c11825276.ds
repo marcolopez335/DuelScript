@@ -39,12 +39,12 @@ card "Meizen the Battle Ninja" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: Chaining
-        range: MonsterZone
-        count_limit: (1, 11825276)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             special_summon (1, monster) from gy
             reveal (1+, card, opponent controls)

@@ -15,11 +15,12 @@ card "Dragunity Primus Pilus" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Equip
-        code: SummonSuccess
-        property: CardTarget + Oath
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             equip (1, card) to (1, monster)
             register_effect on self {
@@ -29,11 +30,12 @@ card "Dragunity Primus Pilus" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: Equip
-        code: SpecialSummonSuccess
-        property: CardTarget + Oath
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             equip (1, card) to (1, monster)
             register_effect on self {

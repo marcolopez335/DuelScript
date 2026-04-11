@@ -15,11 +15,10 @@ card "Kyoro Ryu-Ge Kaiva" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: ToHand + Search
-        range: Hand
-        count_limit: (1, 93509766)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand]
         cost {
             send self to deck
         }
@@ -29,12 +28,11 @@ card "Kyoro Ryu-Ge Kaiva" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        range: Hand
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -48,12 +46,10 @@ card "Kyoro Ryu-Ge Kaiva" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: Destroy
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             destroy (1+, monster, either_player controls)
         }

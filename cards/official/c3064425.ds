@@ -11,23 +11,22 @@ card "Superheavy Samurai Soulbang Cannon" {
     atk: 1000
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Equip
-        property: CardTarget
-        range: Hand + MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: false
+        activate_from: [hand, monster_zone]
         on_resolve {
             send (1+, monster, either_player controls) to gy
             equip (1, card) to (1, monster)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Destroy + Damage + Negate
-        code: Chaining
-        property: Oath + CountCodeDuel
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        activate_from: [gy]
         cost {
             banish self
         }

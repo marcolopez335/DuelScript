@@ -11,23 +11,21 @@ card "Mushroom Man #2" {
     atk: 1250
     def: 800
 
-    raw_effect "Effect 1" {
-        effect_type: Field + MandatoryTrigger
-        category: Damage
-        code: PhaseStandby
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
         on_resolve {
             deal_damage to opponent: 300
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: Control
-        code: PhaseEnd
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: during_end_phase
         cost {
             pay_lp 500
         }

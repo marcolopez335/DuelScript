@@ -6,11 +6,9 @@ card "The Phantom Knights of Shadow Veil" {
     id: 77462146
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: AtkChange
-        code: FreeChain
-        property: CardTarget + Oath
+    effect "Effect 1" {
+        speed: spell_speed_2
+        damage_step: false
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -23,11 +21,12 @@ card "The Phantom Knights of Shadow Veil" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: AttackAnnounce
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: when attack_declared
+        activate_from: [gy]
         on_resolve {
             special_summon (1, monster) from gy
         }

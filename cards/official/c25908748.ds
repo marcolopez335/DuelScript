@@ -6,9 +6,8 @@ card "Tri-Brigade Stand-Off" {
     id: 25908748
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -23,11 +22,10 @@ card "Tri-Brigade Stand-Off" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: ToHand + Search
-        range: SpellTrapZone
-        count_limit: (1, 25908748)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [spell_trap_zone]
         cost {
             send self to gy
         }
@@ -38,10 +36,11 @@ card "Tri-Brigade Stand-Off" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        code: Destroyed
-        property: Oath + Delay
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

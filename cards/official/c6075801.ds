@@ -11,20 +11,20 @@ card "Paladin of Felgrand" {
     atk: 1700
     def: 300
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Equip
-        code: SummonSuccess
-        property: Oath + Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_summoned
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: Equip
-        code: SpecialSummonSuccess
-        property: Oath + Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
         }
     }
@@ -39,11 +39,9 @@ card "Paladin of Felgrand" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: SpecialSummon
-        property: CardTarget
-        range: MonsterZone
+    effect "Effect 4" {
+        speed: spell_speed_1
+        damage_step: false
         cost {
             tribute self
         }

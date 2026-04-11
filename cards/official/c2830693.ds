@@ -11,25 +11,27 @@ card "Rainbow Kuriboh" {
     atk: 100
     def: 100
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: Equip
-        code: AttackAnnounce
-        property: CardTarget
-        range: Hand
-        count_limit: (1, 2830693)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when attack_declared
+        activate_from: [hand]
         on_resolve {
             send (1+, card, either_player controls) to gy
             equip (1, card) to (1, monster)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: AttackAnnounce
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: when attack_declared
+        activate_from: [gy]
         on_resolve {
             special_summon (1, monster) from gy
         }

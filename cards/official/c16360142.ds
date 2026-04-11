@@ -11,12 +11,11 @@ card "Mathmech Subtraction" {
     atk: 1000
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon + AtkChange
-        property: CardTarget
-        range: Hand
-        count_limit: (1, 16360142)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
+        activate_from: [hand]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

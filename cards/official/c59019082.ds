@@ -11,11 +11,9 @@ card "Garoth, Lightsworn Warrior" {
     atk: 1850
     def: 1300
 
-    raw_effect "Effect 1" {
-        effect_type: Field + MandatoryTrigger
-        category: DeckDestroy + Draw
-        code: ChainEnd
-        range: MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_end"
         on_resolve {
             mill 2
             draw 1

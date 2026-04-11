@@ -6,24 +6,21 @@ card "Resh Shaddoll Incarnation" {
     id: 23912837
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon
-        code: FreeChain
-        property: CardTarget
-        count_limit: (1, 23912837)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             special_summon (1, monster) from gy
             reveal (1+, card, opponent controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: PositionChange
-        code: FreeChain
-        range: Graveyard
-        count_limit: (1, 23912837)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [gy]
         cost {
             banish self
         }

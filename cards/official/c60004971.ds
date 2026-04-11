@@ -22,11 +22,10 @@ card "Dragunity Divine Lance" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: Equip
-        range: SpellTrapZone
-        count_limit: (1, 60004971)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [spell_trap_zone]
         on_resolve {
             equip (1, card) to (1, monster)
             register_effect on self {
@@ -36,10 +35,8 @@ card "Dragunity Divine Lance" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Activate
-        category: Equip
-        code: FreeChain
+    effect "Effect 4" {
+        speed: spell_speed_1
         on_resolve {
             equip self to (1, monster, you controls)
         }

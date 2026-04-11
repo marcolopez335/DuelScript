@@ -23,11 +23,10 @@ card "Dogmatika Nexus" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Banish + SpecialSummon
-        property: CardTarget
-        range: Hand
+    effect "Effect 2" {
+        speed: spell_speed_1
+        damage_step: false
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
             banish (1+, monster, either_player controls, gy)

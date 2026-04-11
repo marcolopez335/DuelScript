@@ -28,11 +28,9 @@ card "Prank-Kids Battle Butler" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Destroy
-        code: FreeChain
-        range: MonsterZone
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
         cost {
             tribute self
         }
@@ -41,12 +39,13 @@ card "Prank-Kids Battle Butler" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: ChainEnd
-        property: CardTarget + Oath + Delay
-        count_limit: (1, 81997228)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             special_summon (1, monster) from gy
         }

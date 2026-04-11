@@ -20,12 +20,12 @@ card "Sauravis, the Ancient and Ascended" {
         method: ritual
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: Negate
-        code: Chaining
-        property: Oath + CountCodeDuel
-        range: Hand
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        activate_from: [hand]
         cost {
             discard (1, card, you controls)
         }

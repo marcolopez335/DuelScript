@@ -19,22 +19,22 @@ card "Farfa, Malebranche of the Burning Abyss" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Hand
-        count_limit: (1, 36553319)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: Banish
-        code: ChainEnd
-        property: CardTarget + Delay
-        count_limit: (1, 36553319)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             banish (1+, spell, you controls)
             register_effect on self {

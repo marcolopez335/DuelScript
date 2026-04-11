@@ -6,20 +6,21 @@ card "Depth Amulet" {
     id: 8279188
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
             discard (1, card)
             negate attack
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        code: AttackAnnounce
-        property: CardTarget
-        range: SpellTrapZone
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when attack_declared
+        activate_from: [spell_trap_zone]
         on_resolve {
             discard (1, card)
             negate attack

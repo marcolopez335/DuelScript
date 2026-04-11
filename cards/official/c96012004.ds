@@ -6,19 +6,16 @@ card "Lucky Chance" {
     id: 96012004
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: MandatoryQuick
-        category: Draw
-        code: Chaining
-        property: Oath
-        range: SpellTrapZone
+    effect "Effect 2" {
+        speed: spell_speed_2
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        activate_from: [spell_trap_zone]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

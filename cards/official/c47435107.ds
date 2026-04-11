@@ -6,22 +6,21 @@ card "Primal Cry" {
     id: 47435107
     type: Ritual Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
             ritual_summon (1, ritual monster) using (1+, monster, you controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: PhaseEnd
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: during_end_phase
+        activate_from: [gy]
         cost {
             banish self
         }
@@ -30,10 +29,8 @@ card "Primal Cry" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Activate
-        category: SpecialSummon
-        code: FreeChain
+    effect "Effect 3" {
+        speed: spell_speed_1
         on_resolve {
             ritual_summon (1, ritual monster) using (1+, monster, you controls)
         }

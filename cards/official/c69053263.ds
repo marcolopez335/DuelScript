@@ -6,11 +6,9 @@ card "Black Rose Garden" {
     id: 69053263
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + Search
-        code: FreeChain
-        count_limit: (1, 69053263)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
             reveal (1+, card, opponent controls)
@@ -25,12 +23,10 @@ card "Black Rose Garden" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + MandatoryTrigger
-        category: Damage
-        code: Destroyed
-        property: InitialValue
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: when_destroyed
         on_resolve {
             deal_damage to opponent: 1000
             deal_damage to opponent: 2400

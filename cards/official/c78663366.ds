@@ -11,12 +11,12 @@ card "Evilswarm Thunderbird" {
     atk: 1650
     def: 1050
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: Banish
-        code: Chaining
-        range: MonsterZone
-        count_limit: (1, 78663366)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             banish (1+, card, either_player controls)
             register_effect on self {

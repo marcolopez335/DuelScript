@@ -39,12 +39,11 @@ card "Wollow, Founder of the Drudge Dragons" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        code: FreeChain
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 45935145)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
             special_summon (1, monster) from gy

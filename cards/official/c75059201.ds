@@ -44,12 +44,11 @@ card "F.A. Turbo Charger" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + Trigger
-        category: LevelChange
-        code: Chaining
-        property: Oath + CountCodeDuel + Delay
-        range: MonsterZone
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
         }
     }

@@ -21,13 +21,12 @@ card "Swordsoul Sinister Sovereign - Qixing Longyuan" {
         method: synchro
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: Draw
-        code: SpecialSummonSuccess
-        property: InitialValue
-        range: MonsterZone
-        count_limit: (1, 47710198)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when_summoned by_special_summon
         on_resolve {
             draw 1
         }
@@ -56,12 +55,12 @@ card "Swordsoul Sinister Sovereign - Qixing Longyuan" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: QuickEffect
-        category: Banish + Damage
-        code: Chaining
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             banish (1+, card, either_player controls)
             deal_damage to opponent: 1200

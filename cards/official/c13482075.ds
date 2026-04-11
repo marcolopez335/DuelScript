@@ -20,13 +20,12 @@ card "Vendread Chimera" {
         method: ritual
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: Destroy + Negate
-        code: Chaining
-        property: Oath + CountCodeDuel
-        range: MonsterZone
-        count_limit: (1, 13482075)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         cost {
             banish self
         }
@@ -36,11 +35,10 @@ card "Vendread Chimera" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: AtkChange + DefChange
-        code: Released
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: when_tributed
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

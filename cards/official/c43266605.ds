@@ -31,13 +31,13 @@ card "PSY-Frame Multi-Threader" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: SpecialSummonSuccess
-        property: Delay
-        range: Graveyard
-        count_limit: (1, 43266605)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
+        activate_from: [gy]
         on_resolve {
             special_summon (1, monster) from gy
         }

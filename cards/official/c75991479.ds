@@ -18,12 +18,13 @@ card "D.D. Patrol Plane" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: Banish + SpecialSummon
-        code: PhaseEnd
-        range: Banished
-        count_limit: (1, 75991479)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: during_end_phase
+        activate_from: [banished]
         on_resolve {
             banish (1+, card, you controls, gy)
             special_summon (1, monster) from gy

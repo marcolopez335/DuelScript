@@ -11,12 +11,12 @@ card "Wind-Up Knight" {
     atk: 1800
     def: 1200
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        code: BattleTarget
-        property: IgnoreRange2
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: when_attacked
         on_resolve {
             negate attack
         }

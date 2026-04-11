@@ -11,12 +11,10 @@ card "Fishborg Planter" {
     atk: 200
     def: 200
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: DeckDestroy + SpecialSummon
-        property: IgnoreRange2
-        range: Graveyard
-        count_limit: (1, 51282878)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [gy]
         on_resolve {
             special_summon (1, monster) from gy
         }

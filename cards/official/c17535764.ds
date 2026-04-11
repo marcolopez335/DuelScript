@@ -11,12 +11,12 @@ card "Gokipole" {
     atk: 1000
     def: 1200
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Destroy + ToHand + SpecialSummon + Search
-        code: ChainEnd
-        property: Delay
-        count_limit: (1, 17535764)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             return (1+, monster, either_player controls) to hand
             reveal (1+, card, opponent controls)

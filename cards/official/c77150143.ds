@@ -11,22 +11,22 @@ card "Zoodiac Thoroughblade" {
     atk: 1600
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Draw
-        code: SummonSuccess
-        property: Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_summoned
         on_resolve {
             discard (1, card)
             draw 1
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: Draw
-        code: SpecialSummonSuccess
-        property: Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             discard (1, card)
             draw 1

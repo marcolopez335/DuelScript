@@ -6,11 +6,10 @@ card "Verdict of Anubis" {
     id: 59576447
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Destroy + Damage + Negate
-        code: Chaining
-        count_limit: (1, 59576447)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate activation
             destroy (1+, spell, opponent controls)

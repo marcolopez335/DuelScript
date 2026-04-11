@@ -11,21 +11,20 @@ card "Dimensional Alchemist" {
     atk: 1300
     def: 200
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: AtkChange
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
         on_resolve {
             banish (1+, monster, either_player controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: ChainEnd
-        property: CardTarget + Oath
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
             reveal (1+, card, opponent controls)

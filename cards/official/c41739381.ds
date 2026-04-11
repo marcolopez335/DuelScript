@@ -20,12 +20,12 @@ card "Clockwork Knight" {
         method: link
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: SpecialSummonSuccess
-        property: Delay
-        count_limit: (1, 41739381)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         cost {
             send self to gy
         }
@@ -35,12 +35,10 @@ card "Clockwork Knight" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Release + SpecialSummon
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             tribute (1, monster, you controls)
             special_summon (1, monster) from gy

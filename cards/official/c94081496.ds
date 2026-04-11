@@ -11,12 +11,13 @@ card "Shiny Black 'C'" {
     atk: 200
     def: 500
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: Destroy
-        code: SpecialSummonSuccess
-        property: CardTarget
-        range: Graveyard
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned by_special_summon
+        activate_from: [gy]
         cost {
             banish self
         }

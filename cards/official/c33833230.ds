@@ -12,12 +12,10 @@ card "Performapal Seal Eel" {
     atk: 100
     def: 100
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Disable
-        property: CardTarget
-        range: PendulumZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             negate effect
             register_effect on self {
@@ -31,10 +29,12 @@ card "Performapal Seal Eel" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        code: SummonSuccess
-        property: CardTarget
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -43,10 +43,12 @@ card "Performapal Seal Eel" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        code: SpecialSummonSuccess
-        property: CardTarget
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

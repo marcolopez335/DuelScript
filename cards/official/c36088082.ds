@@ -11,10 +11,11 @@ card "Bull Blader" {
     atk: 1600
     def: 1200
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        code: AttackAnnounce
-        range: MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when attack_declared
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

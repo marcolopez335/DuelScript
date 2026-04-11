@@ -11,22 +11,20 @@ card "Photon Orbital" {
     atk: 500
     def: 2000
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Equip
-        property: CardTarget
-        range: Hand + MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: false
+        activate_from: [hand, monster_zone]
         on_resolve {
             send (1+, monster, you controls, deck) to gy
             equip (1, card) to (1, monster)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToHand + Search
-        range: SpellTrapZone
-        count_limit: (1, 89132148)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [spell_trap_zone]
         cost {
             send self to gy
         }

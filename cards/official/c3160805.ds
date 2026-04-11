@@ -6,9 +6,8 @@ card "Exchange of Night and Day" {
     id: 3160805
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
             send (1+, card, you controls, deck) to gy
             add_to_hand (1+, card, you controls) from deck
@@ -19,11 +18,10 @@ card "Exchange of Night and Day" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: ToHand + ToGrave + Search
-        code: FreeChain
-        range: SpellTrapZone
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        activate_from: [spell_trap_zone]
         on_resolve {
             send (1+, card, you controls, deck) to gy
             add_to_hand (1+, card, you controls) from deck

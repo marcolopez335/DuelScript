@@ -11,12 +11,11 @@ card "Aleister the Invoker" {
     atk: 1000
     def: 1800
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: AtkChange + DefChange
-        code: FreeChain
-        property: CardTarget + Oath
-        range: Hand
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        damage_step: false
+        activate_from: [hand]
         cost {
             send self to gy
         }
@@ -32,11 +31,11 @@ card "Aleister the Invoker" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: SummonSuccess
-        property: Oath + Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_summoned
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)

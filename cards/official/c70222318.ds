@@ -6,17 +6,16 @@ card "Mount Sylvania" {
     id: 70222318
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        range: FieldZone
-        count_limit: (1, 70222318)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [field_zone]
         cost {
             send self to gy
         }
@@ -26,12 +25,13 @@ card "Mount Sylvania" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: DeckDestroy
-        code: PhaseEnd
-        range: FieldZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: during_end_phase
+        activate_from: [field_zone]
         on_resolve {
             reveal (1, card, opponent controls, deck)
             send (1+, monster, you controls, hand) to gy

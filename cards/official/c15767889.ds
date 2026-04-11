@@ -11,13 +11,13 @@ card "Knight Day Grepher" {
     atk: 1700
     def: 1600
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: ToHand
-        code: PhaseEnd
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 15767889)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: during_end_phase
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
             reveal (1+, card, opponent controls)

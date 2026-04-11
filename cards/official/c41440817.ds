@@ -6,11 +6,10 @@ card "Jelly Cannon" {
     id: 41440817
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToDeck
-        code: AttackAnnounce
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_2
+        damage_step: false
+        trigger: when attack_declared
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
         }

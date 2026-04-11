@@ -26,22 +26,21 @@ card "Virtual World Kyubi - Shenshen" {
         redirect_to: banished
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: ToGrave
-        code: AttackAnnounce
-        range: MonsterZone
-        count_limit: (1, 92519087)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when attack_declared
         on_resolve {
             send (1+, monster, you controls, gy) to gy
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [gy]
         cost {
             banish self
         }

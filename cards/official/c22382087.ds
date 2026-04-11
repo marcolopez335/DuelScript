@@ -11,11 +11,10 @@ card "Garum the Storm Vassal" {
     atk: 800
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Hand
-        count_limit: (1, 22382087)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -25,12 +24,12 @@ card "Garum the Storm Vassal" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: Released
-        property: Delay
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_tributed
         on_resolve {
             return (1+, monster, you controls) to hand
             reveal (1+, card, opponent controls)

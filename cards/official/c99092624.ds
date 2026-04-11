@@ -6,23 +6,20 @@ card "Blooming of the Darkest Rose" {
     id: 99092624
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon + Token
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
             create_token { atk: 0 def: 0 }
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Banish + ToDeck + LeaveGrave
-        code: FreeChain
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 99092624)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
+        activate_from: [gy]
         on_resolve {
             banish (1+, spell, either_player controls)
             register_effect on self {

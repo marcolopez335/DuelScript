@@ -6,11 +6,10 @@ card "'Infernoble Arms - Durendal'" {
     id: 37478723
     type: Equip Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Destroy + ToHand + Search
-        range: SpellTrapZone
-        count_limit: (1, 37478723)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [spell_trap_zone]
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)
@@ -18,12 +17,13 @@ card "'Infernoble Arms - Durendal'" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: ChainEnd
-        property: CardTarget + Delay
-        count_limit: (1, 37478723)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {
@@ -33,10 +33,8 @@ card "'Infernoble Arms - Durendal'" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Activate
-        category: Equip
-        code: FreeChain
+    effect "Effect 3" {
+        speed: spell_speed_1
         on_resolve {
             equip self to (1, monster, you controls)
         }

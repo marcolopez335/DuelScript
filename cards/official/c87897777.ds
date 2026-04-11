@@ -16,21 +16,17 @@ card "Vaylantz Mad Marquess" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: PendulumZone
-        count_limit: (1, 87897777)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToHand + Search + DiceRoll
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
             reveal (1, card, opponent controls, deck)
@@ -40,12 +36,12 @@ card "Vaylantz Mad Marquess" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: SpecialSummon + DiceRoll
-        code: LeaveField
-        property: Delay
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_leaves_field
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
             special_summon (1, monster) from gy

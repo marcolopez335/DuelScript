@@ -20,12 +20,12 @@ card "Gate Guardian of Wind and Water" {
         method: fusion
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: Disable
-        code: Chaining
-        range: MonsterZone
-        count_limit: (2, 61398234)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        twice_per_turn
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate effect
         }

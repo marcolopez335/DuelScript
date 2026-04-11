@@ -6,19 +6,17 @@ card "Apocavities" {
     id: 28531163
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Counter
-        code: FreeChain
-        count_limit: (1, 28531163)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        property: CardTarget
-        range: SpellTrapZone
+    effect "Effect 2" {
+        speed: spell_speed_1
+        damage_step: false
+        activate_from: [spell_trap_zone]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

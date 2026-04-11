@@ -11,22 +11,22 @@ card "Sylvan Snapdrassinagon" {
     atk: 900
     def: 400
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: DeckDestroy
-        code: ChainEnd
-        property: Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             reveal (1, card, opponent controls, deck)
             send (1+, card, either_player controls) to gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: DeckDestroy
-        code: ChainEnd
-        property: Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             reveal (1, card, opponent controls, deck)
             send (1+, card, either_player controls) to gy

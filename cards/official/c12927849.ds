@@ -11,21 +11,21 @@ card "SZW - Fenrir Sword" {
     atk: 1800
     def: 1100
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: SummonSuccess
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Equip
-        property: CardTarget
-        range: Hand
+    effect "Effect 2" {
+        speed: spell_speed_1
+        damage_step: false
+        activate_from: [hand]
         on_resolve {
             send (1+, monster, either_player controls) to gy
         }

@@ -21,24 +21,20 @@ card "Gold Pride - Star Leon" {
         method: synchro
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: Destroy + AtkChange
-        code: FreeChain
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 22390469)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
         on_resolve {
             destroy (1+, card, opponent controls, gy)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        category: SpecialSummon + ToExtra
-        code: PhaseEnd
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
         on_resolve {
             return (1+, card, opponent controls) to deck shuffle
             special_summon (1, monster) from gy

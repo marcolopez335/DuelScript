@@ -11,13 +11,12 @@ card "Hop Ear Squadron" {
     atk: 300
     def: 600
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        property: CardTarget
-        range: Hand
-        count_limit: (1, 1980574)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
             synchro_summon (1, synchro monster) using (1+, monster, you controls)

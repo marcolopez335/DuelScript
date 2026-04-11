@@ -6,9 +6,8 @@ card "Volcanic Blaze Accelerator" {
     id: 85250352
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         cost {
             send self to gy
         }
@@ -16,22 +15,20 @@ card "Volcanic Blaze Accelerator" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [spell_trap_zone]
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: Destroy + ToGrave
-        property: CardTarget
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
+        activate_from: [spell_trap_zone]
         on_resolve {
             send (1+, card, you controls, hand) to gy
             destroy (1+, card, you controls, hand)

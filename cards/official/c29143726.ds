@@ -21,23 +21,25 @@ card "Samsara, Dragon of Rebirth" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: ChainEnd
-        property: CardTarget + Oath + Delay
-        count_limit: (1, 29143726)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: BattleDamage
-        property: CardTarget + Oath + Delay
-        count_limit: (1, 29143726)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_battle_damage
         on_resolve {
             special_summon (1, monster) from gy
         }

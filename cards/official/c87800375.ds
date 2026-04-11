@@ -6,10 +6,8 @@ card "Until Noble Arms are Needed Once Again" {
     id: 87800375
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + Search
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
             reveal (1, card, opponent controls, deck)
             add_to_hand (1+, card, you controls) from gy
@@ -20,12 +18,11 @@ card "Until Noble Arms are Needed Once Again" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        range: Graveyard
-        count_limit: (1, 87800375)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [gy]
         cost {
             banish self
         }

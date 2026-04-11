@@ -16,10 +16,8 @@ card "D/D/D Chaos King Apocalypse" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: PendulumZone
+    effect "Effect 1" {
+        speed: spell_speed_1
         cost {
             banish self
         }
@@ -28,13 +26,12 @@ card "D/D/D Chaos King Apocalypse" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Destroy + SpecialSummon
-        code: FreeChain
-        property: CardTarget
-        range: Hand + Graveyard
-        count_limit: (1, 83303851)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
+        activate_from: [hand, gy]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

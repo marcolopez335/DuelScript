@@ -11,19 +11,16 @@ card "Humpty Grumpty" {
     atk: 1400
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: PositionChange
-        range: MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: AtkChange
-        code: FlipSummonSuccess
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_summoned by_flip_summon
         on_resolve {
         }
     }

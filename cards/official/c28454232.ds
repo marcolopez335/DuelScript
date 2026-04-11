@@ -36,10 +36,9 @@ card "Enneacraft - Asta.PIXEA" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Hand
+    effect "Effect 3" {
+        speed: spell_speed_1
+        activate_from: [hand]
         cost {
             reveal self
         }
@@ -48,12 +47,11 @@ card "Enneacraft - Asta.PIXEA" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: QuickEffect
-        category: Banish + Disable
-        code: Chaining
-        property: IgnoreRange
-        range: MonsterZone
+    effect "Effect 4" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate effect
             banish (1+, card, opponent controls, hand)

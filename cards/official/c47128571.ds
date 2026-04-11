@@ -6,11 +6,10 @@ card "Hidden Fangs of Revenge" {
     id: 47128571
     type: Quick-Play Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Destroy
-        code: AttackAnnounce
-        count_limit: (1, 47128571)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: when attack_declared
         on_resolve {
             destroy (1+, monster, opponent controls)
             destroy (1+, monster, opponent controls)

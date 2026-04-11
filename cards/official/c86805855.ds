@@ -20,11 +20,12 @@ card "Dark Blade the Dragon Knight" {
         method: fusion
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Banish
-        code: BattleDestroyed
-        property: CardTarget + Oath
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_battle_destroyed
         on_resolve {
             banish (1+, monster, either_player controls)
         }

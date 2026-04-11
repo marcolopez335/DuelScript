@@ -6,23 +6,20 @@ card "Flame Swordsdance" {
     id: 8080257
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon + PositionChange
-        code: SpecialSummonSuccess
-        property: Delay
+    effect "Effect 1" {
+        speed: spell_speed_2
+        trigger: when_summoned by_special_summon
         on_resolve {
             special_summon (1, monster) from gy
             change_battle_position (1, monster)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        range: Graveyard
-        count_limit: (1, 8080257)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [gy]
         cost {
             banish self
             tribute self

@@ -6,11 +6,9 @@ card "Skill Prisoner" {
     id: 63227401
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Disable
-        code: FreeChain
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_2
+        damage_step: false
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -19,12 +17,11 @@ card "Skill Prisoner" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Disable
-        code: FreeChain
-        property: CardTarget
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }

@@ -49,11 +49,10 @@ card "Simorgh, Bird of Ancestry" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single + MandatoryTrigger
-        category: ToHand
-        code: SummonSuccess
-        property: CardTarget
+    effect "Effect 5" {
+        speed: spell_speed_1
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }

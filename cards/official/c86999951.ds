@@ -15,23 +15,21 @@ card "Crystal God Tistina" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: ToGrave + PositionChange
-        range: MonsterZone
-        count_limit: (1, 86999951)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             change_battle_position (1, monster)
             send (1+, monster, opponent controls) to gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToGrave + PositionChange
-        code: Destroyed
-        property: Delay
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             change_battle_position (1, monster)
             send (1+, monster, opponent controls) to gy

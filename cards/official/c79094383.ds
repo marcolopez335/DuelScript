@@ -11,22 +11,22 @@ card "Cipher Etranger" {
     atk: 0
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        property: CardTarget
-        range: Hand + Graveyard
-        count_limit: (1, 79094383)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
+        activate_from: [hand, gy]
         on_resolve {
             attach (1, card) to self as_material
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: ChainEnd
-        property: Delay
-        count_limit: (1, 79094383)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck
             reveal (1+, card, opponent controls)

@@ -19,20 +19,20 @@ card "Blackwing - Auster the South Wind" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: SummonSuccess
-        property: CardTarget
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: Counter
-        range: Graveyard
+    effect "Effect 3" {
+        speed: spell_speed_1
+        activate_from: [gy]
         cost {
             banish self
         }

@@ -11,23 +11,21 @@ card "Superheavy Samurai Soulfire Suit" {
     atk: 800
     def: 800
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Equip
-        property: CardTarget
-        range: Hand + MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: false
+        activate_from: [hand, monster_zone]
         on_resolve {
             equip (1, card) to (1, monster)
             send (1+, card, either_player controls) to gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: DefChange
-        code: FreeChain
-        property: CardTarget + Oath
-        range: Hand
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        damage_step: false
+        activate_from: [hand]
         cost {
             discard (1, card, you controls)
         }

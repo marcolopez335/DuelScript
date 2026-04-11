@@ -48,22 +48,21 @@ card "Yubel" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Field + MandatoryTrigger
-        category: Destroy + Release
-        code: PhaseEnd
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
         on_resolve {
             tribute (1, monster, you controls)
             destroy (1+, card, you controls, gy)
         }
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: Destroyed
+    effect "Effect 6" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_destroyed
         on_resolve {
             special_summon (1, monster) from gy
         }

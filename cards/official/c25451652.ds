@@ -23,11 +23,11 @@ card "Darklord Morningstar" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: SummonSuccess
-        property: Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_summoned
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -43,11 +43,9 @@ card "Darklord Morningstar" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: DeckDestroy + Recover
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
         on_resolve {
             mill 1
             gain_lp: 1000

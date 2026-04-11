@@ -11,11 +11,12 @@ card "Elemental HERO Voltic" {
     atk: 1000
     def: 1500
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: BattleDestroyed
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_battle_destroyed
         on_resolve {
             special_summon (1, monster) from gy
         }

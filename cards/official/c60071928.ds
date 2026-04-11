@@ -11,11 +11,12 @@ card "Righty Driver" {
     atk: 100
     def: 300
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: SummonSuccess
-        count_limit: (1, 60071928)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when_summoned
         on_resolve {
             special_summon (1, monster) from gy
         }

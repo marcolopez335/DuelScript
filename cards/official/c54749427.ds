@@ -11,13 +11,10 @@ card "Destiny HERO - Defender" {
     atk: 100
     def: 2700
 
-    raw_effect "Effect 1" {
-        effect_type: Field + MandatoryTrigger
-        category: Draw
-        code: PhaseStandby
-        property: InitialValue
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
         on_resolve {
             draw 1
         }

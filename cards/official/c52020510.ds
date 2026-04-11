@@ -6,11 +6,9 @@ card "Dinomorphia Alert" {
     id: 52020510
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon
-        code: FreeChain
-        count_limit: (1, 52020510)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
         cost {
             pay_lp your_lp / 2
         }
@@ -27,10 +25,12 @@ card "Dinomorphia Alert" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        code: Chaining
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        activate_from: [gy]
         cost {
             banish self
         }

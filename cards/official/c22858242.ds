@@ -31,11 +31,12 @@ card "Zeman the Ape King" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        code: AttackAnnounce
-        property: CardTarget
-        range: MonsterZone
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when attack_declared
         cost {
             send self to gy
         }

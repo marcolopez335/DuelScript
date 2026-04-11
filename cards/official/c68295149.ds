@@ -20,11 +20,12 @@ card "Linkmail Archfiend" {
         method: link
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: AtkChange
-        code: SpecialSummonSuccess
-        property: CardTarget + Oath + Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
         }
     }

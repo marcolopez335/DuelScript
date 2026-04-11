@@ -6,30 +6,27 @@ card "Court of Cards" {
     id: 28340377
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        range: SpellTrapZone
-        count_limit: (1, 28340377)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [spell_trap_zone]
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: Draw
-        code: FreeChain
-        range: SpellTrapZone
-        count_limit: (1, 28340377)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [spell_trap_zone]
         cost {
             banish self
         }

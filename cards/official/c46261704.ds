@@ -11,11 +11,12 @@ card "Galactikuriboh" {
     atk: 300
     def: 200
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: AttackAnnounce
-        range: Hand
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when attack_declared
+        activate_from: [hand]
         cost {
             send self to gy
         }

@@ -46,12 +46,11 @@ card "Stellarknight Constellar Diamond" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: QuickEffect
-        category: Destroy + Negate
-        code: Chaining
-        property: Oath + CountCodeDuel
-        range: MonsterZone
+    effect "Effect 4" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         cost {
             detach 1 overlay_unit from self
         }

@@ -11,11 +11,10 @@ card "Blackwing - Vayu the Emblem of Honor" {
     atk: 800
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Banish + SpecialSummon
-        property: CardTarget
-        range: Graveyard
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: false
+        activate_from: [gy]
         on_resolve {
             banish (1+, card, either_player controls)
             special_summon (1, monster) from gy

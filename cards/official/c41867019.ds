@@ -6,18 +6,15 @@ card "Mayakashi Mayhem" {
     id: 41867019
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Activate
-        category: ToGrave + Draw + Damage
-        code: SpecialSummonSuccess
-        property: InitialValue + Oath + Delay
+    effect "Effect 2" {
+        speed: spell_speed_2
+        trigger: when_summoned by_special_summon
         on_resolve {
             draw 1
             set_flag "tracked" on self
@@ -32,12 +29,12 @@ card "Mayakashi Mayhem" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: ToGrave + Draw + Damage
-        code: SpecialSummonSuccess
-        property: InitialValue + Oath + Delay
-        range: SpellTrapZone
+    effect "Effect 3" {
+        speed: spell_speed_2
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
+        activate_from: [spell_trap_zone]
         on_resolve {
             draw 1
             set_flag "tracked" on self

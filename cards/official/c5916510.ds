@@ -21,11 +21,9 @@ card "Starring Knight" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
         cost {
             detach 1 overlay_unit from self
         }
@@ -34,12 +32,11 @@ card "Starring Knight" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: SpecialSummon
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
+        activate_from: [gy]
         on_resolve {
             special_summon (1, monster) from gy
             attach (1, card) to self as_material

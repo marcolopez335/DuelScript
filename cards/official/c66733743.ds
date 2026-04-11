@@ -11,13 +11,13 @@ card "T.G. Metal Skeleton" {
     atk: 1100
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: Destroyed
-        property: Oath + Delay
-        range: Hand
-        count_limit: (1, 66733743)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_destroyed
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
         }

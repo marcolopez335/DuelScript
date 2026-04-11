@@ -21,25 +21,23 @@ card "Swordsoul Grandmaster - Chixiao" {
         method: synchro
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Banish + ToHand + Search
-        code: SpecialSummonSuccess
-        property: Delay
-        count_limit: (1, 69248256)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             add_to_hand (1, card, you controls) from gy
             banish (1+, card, you controls, deck)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Disable
-        code: FreeChain
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 69248256)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
         cost {
             banish self
         }

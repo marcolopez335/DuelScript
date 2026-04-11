@@ -11,10 +11,12 @@ card "Tripod Fish" {
     atk: 300
     def: 1300
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        code: SpecialSummonSuccess
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

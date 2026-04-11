@@ -22,22 +22,17 @@ card "Great Dezard" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: MandatoryQuick
-        category: Destroy + Negate
-        code: Chaining
-        property: Oath + CountCodeDuel
-        range: MonsterZone
+    effect "Effect 2" {
+        speed: spell_speed_2
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate activation
             destroy (1+, card, you controls, hand)
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: MonsterZone
+    effect "Effect 3" {
+        speed: spell_speed_1
         cost {
             tribute self
         }

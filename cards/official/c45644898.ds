@@ -11,22 +11,22 @@ card "Master with Eyes of Blue" {
     atk: 300
     def: 1200
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: SummonSuccess
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToGrave + SpecialSummon
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 45644898)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
+        activate_from: [gy]
         cost {
             send self to deck
         }

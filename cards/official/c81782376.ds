@@ -6,21 +6,19 @@ card "Dig of Destiny" {
     id: 81782376
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Draw
-        code: BattleDestroyed
-        property: InitialValue
+    effect "Effect 1" {
+        speed: spell_speed_2
+        trigger: when_battle_destroyed
         on_resolve {
             draw 1
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: Draw
-        code: Destroyed
-        property: InitialValue + Delay
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             draw 1
         }

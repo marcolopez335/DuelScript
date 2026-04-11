@@ -22,21 +22,19 @@ card "Speedroid Gum Prize" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        range: MonsterZone
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
         on_resolve {
             synchro_summon (1, synchro monster) using (1+, monster, you controls)
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: AtkChange
-        code: FlipSuccess
-        property: Delay
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_flipped
         on_resolve {
             mill 1
             register_effect on self {

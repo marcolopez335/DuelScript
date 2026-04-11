@@ -6,11 +6,9 @@ card "Super Koi Koi" {
     id: 66171432
     type: Normal Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon
-        code: FreeChain
-        count_limit: (1, 66171432)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             reveal (1, card, opponent controls, deck)
             special_summon (1, monster) from gy
@@ -31,10 +29,9 @@ card "Super Koi Koi" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_1
+        activate_from: [gy]
         cost {
             banish self
             tribute self

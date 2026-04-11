@@ -15,11 +15,12 @@ card "Master's Diploman" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Equip
-        code: SummonSuccess
-        property: CardTarget + Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             equip (1, card) to (1, monster)
             register_effect on self {

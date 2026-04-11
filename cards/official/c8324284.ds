@@ -6,17 +6,18 @@ card "Spirit Shield" {
     id: 8324284
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        code: AttackAnnounce
-        range: SpellTrapZone
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: when attack_declared
+        activate_from: [spell_trap_zone]
         cost {
             banish self
         }
@@ -25,13 +26,13 @@ card "Spirit Shield" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: Negate
-        code: Chaining
-        property: Oath + CountCodeDuel
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        activate_from: [spell_trap_zone]
         cost {
             banish self
         }
@@ -40,12 +41,11 @@ card "Spirit Shield" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + MandatoryTrigger
-        category: ToGrave
-        code: PhaseEnd
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        trigger: during_end_phase
+        activate_from: [spell_trap_zone]
         on_resolve {
         }
     }

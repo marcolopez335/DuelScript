@@ -25,12 +25,12 @@ card "Mekk-Knight Green Horizon" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: ToHand
-        code: AttackAnnounce
-        property: CardTarget
-        range: MonsterZone
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when attack_declared
         on_resolve {
             return (1+, monster, either_player controls) to hand
         }

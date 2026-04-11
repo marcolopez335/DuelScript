@@ -11,12 +11,13 @@ card "Patrol Robo" {
     atk: 1100
     def: 900
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        code: PhaseStandby
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: during_standby_phase
         on_resolve {
             reveal (1+, card, opponent controls)
         }

@@ -11,11 +11,10 @@ card "Watch Cat" {
     atk: 0
     def: 1800
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Hand
-        count_limit: (1, 70975131)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -29,11 +28,12 @@ card "Watch Cat" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        code: PhaseEnd
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: during_end_phase
         cost {
             banish self
         }

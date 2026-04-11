@@ -45,23 +45,19 @@ card "F.A. Shining Star GT" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + MandatoryTrigger
-        category: Counter
-        code: Chaining
-        property: Oath + CountCodeDuel + Delay
-        range: MonsterZone
+    effect "Effect 4" {
+        speed: spell_speed_1
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: QuickEffect
-        category: Destroy + Negate
-        code: Chaining
-        property: Oath + CountCodeDuel
-        range: MonsterZone
-        count_limit: (1, 37414347)
+    effect "Effect 5" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate activation
             destroy (1+, card, either_player controls)

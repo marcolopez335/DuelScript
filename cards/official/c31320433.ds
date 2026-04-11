@@ -21,20 +21,20 @@ card "Number 47: Nightmare Shark" {
         method: xyz
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        code: SpecialSummonSuccess
-        property: Oath
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_summoned by_special_summon
         on_resolve {
             attach (1, card) to self as_material
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         cost {
             detach 1 overlay_unit from self
         }

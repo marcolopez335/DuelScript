@@ -11,12 +11,13 @@ card "Vic Viper T301" {
     atk: 1200
     def: 800
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: Banish + SpecialSummon
-        code: AttackAnnounce
-        range: Hand + Graveyard
-        count_limit: (1, 10642488)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when attack_declared
+        activate_from: [hand, gy]
         on_resolve {
             special_summon (1, monster) from gy
         }

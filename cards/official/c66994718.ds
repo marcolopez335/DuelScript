@@ -6,11 +6,9 @@ card "Raptor's Gust" {
     id: 66994718
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Destroy + Negate
-        code: Chaining
-        property: Oath + CountCodeDuel
+    effect "Effect 1" {
+        speed: spell_speed_2
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate activation
             destroy (1+, card, you controls)

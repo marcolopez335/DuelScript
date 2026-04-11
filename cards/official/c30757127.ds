@@ -20,13 +20,10 @@ card "Destiny HERO - Dangerous" {
         method: fusion
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: ToGrave + AtkChange
-        code: FreeChain
-        property: Oath
-        range: MonsterZone
-        count_limit: (1, 30757127)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
         on_resolve {
             send (1+, monster, you controls) to gy
             register_effect on self {

@@ -48,12 +48,12 @@ card "Transcendosaurus Glaciasaurus" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: ToDeck + SpecialSummon
-        code: Destroyed
-        property: Delay
-        count_limit: (1, 94130731)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             return (1+, card, you controls) to deck shuffle
             special_summon (1, monster) from gy

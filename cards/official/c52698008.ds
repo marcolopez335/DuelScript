@@ -49,13 +49,12 @@ card "Cyberse Wicckid" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + Trigger
-        category: ToHand + Search
-        code: SpecialSummonSuccess
-        property: Delay
-        range: MonsterZone
-        count_limit: (1, 52698008)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         cost {
             banish self
         }

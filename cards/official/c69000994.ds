@@ -11,12 +11,12 @@ card "Fire King Avatar Barong" {
     atk: 1800
     def: 200
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: Destroyed
-        property: Delay
-        range: Hand
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_destroyed
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -30,11 +30,10 @@ card "Fire King Avatar Barong" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + MandatoryTrigger
-        category: ToHand + Search
-        code: PhaseStandby
-        range: Graveyard
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: during_standby_phase
+        activate_from: [gy]
         on_resolve {
             add_to_hand (1+, card, opponent controls) from deck
             reveal (1+, card, opponent controls)

@@ -20,11 +20,9 @@ card "Elemental HERO Storm Neos" {
         method: fusion
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Destroy
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
         on_resolve {
             destroy (1+, spell, you controls)
         }
@@ -39,21 +37,19 @@ card "Elemental HERO Storm Neos" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + MandatoryTrigger
-        category: ToDeck
-        code: PhaseEnd
-        range: MonsterZone
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: during_end_phase
         on_resolve {
             return self to deck shuffle
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + Trigger
-        category: ToDeck
-        code: PhaseEnd
-        range: MonsterZone
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: during_end_phase
         on_resolve {
             return self to deck shuffle
         }

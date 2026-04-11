@@ -6,19 +6,16 @@ card "Indomitable Gladiator Beast" {
     id: 55136228
     type: Quick-Play Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: AtkChange
-        code: FreeChain
-        property: CardTarget + Oath
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: false
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToHand
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_1
+        activate_from: [gy]
         on_resolve {
             add_to_hand (1+, card, you controls) from gy
         }

@@ -11,11 +11,10 @@ card "Informer Spider" {
     atk: 500
     def: 1800
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: Control
-        code: ChainEnd
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             take_control of (1, monster, opponent controls)
         }

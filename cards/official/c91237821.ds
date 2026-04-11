@@ -25,10 +25,11 @@ card "Clown Crew Devils" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        code: Released
-        property: Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_tributed
         on_resolve {
             return (1+, spell, either_player controls) to deck shuffle
             set (1, card)

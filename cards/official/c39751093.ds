@@ -19,11 +19,12 @@ card "Otohime" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: PositionChange
-        code: SummonSuccess
-        property: CardTarget + Oath
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             change_battle_position (1, monster)
         }

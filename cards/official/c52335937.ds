@@ -6,11 +6,9 @@ card "Exosister Betrayal" {
     id: 52335937
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + HandDestroy + Search
-        code: FreeChain
-        count_limit: (1, 52335937)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)
@@ -19,12 +17,11 @@ card "Exosister Betrayal" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Summon
-        property: CardTarget
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
+        activate_from: [spell_trap_zone]
         on_resolve {
             normal_summon (1, monster, you controls)
         }

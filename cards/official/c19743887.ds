@@ -15,12 +15,13 @@ card "VARefar, the Judge of Ball" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: Banish + SpecialSummon + PositionChange + AtkChange
-        code: Chaining
-        range: Hand
-        count_limit: (1, 19743887)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
             reveal (1+, card, opponent controls)
@@ -34,12 +35,13 @@ card "VARefar, the Judge of Ball" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Banish + SpecialSummon + PositionChange + AtkChange
-        code: BattleTarget
-        range: Hand
-        count_limit: (1, 19743887)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when_attacked
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
             reveal (1+, card, opponent controls)

@@ -11,35 +11,36 @@ card "Flogos, the Ogdoadic Boundless" {
     atk: 1800
     def: 1400
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToGrave + SpecialSummon
-        code: ChainEnd
-        property: CardTarget + Delay
-        count_limit: (1, 9400127)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             special_summon (1, monster) from gy
             send (1+, monster, you controls, hand) to gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToGrave + SpecialSummon
-        code: SpecialSummonSuccess
-        property: CardTarget + Delay
-        count_limit: (1, 9400127)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             special_summon (1, monster) from gy
             send (1+, monster, you controls, hand) to gy
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: ToHand
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [gy]
         cost {
             send self to gy
         }

@@ -6,20 +6,18 @@ card "U.A. Hyper Stadium" {
     id: 12931061
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + Search
-        code: FreeChain
-        count_limit: (1, 12931061)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
             reveal (1+, card, opponent controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        range: FieldZone
+    effect "Effect 2" {
+        speed: spell_speed_1
+        activate_from: [field_zone]
         cost {
             pay_lp your_lp / 2
         }

@@ -11,12 +11,11 @@ card "Kuribeh" {
     atk: 300
     def: 200
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: AtkChange
-        code: FreeChain
-        property: CardTarget + Oath
-        range: Hand
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        damage_step: false
+        activate_from: [hand]
         cost {
             discard (1, card, you controls)
         }
@@ -28,10 +27,8 @@ card "Kuribeh" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToHand + Summon + Search
-        range: MonsterZone
+    effect "Effect 2" {
+        speed: spell_speed_1
         cost {
             tribute self
         }

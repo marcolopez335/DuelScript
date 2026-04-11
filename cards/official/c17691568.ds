@@ -6,29 +6,30 @@ card "Gagaku-P.U.N.K. Crash Beat" {
     id: 17691568
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: Destroy
-        code: Chaining
-        property: CardTarget + Delay
-        range: SpellTrapZone
-        count_limit: (1, 17691568)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        activate_from: [spell_trap_zone]
         on_resolve {
             destroy (1+, monster, either_player controls)
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        code: Destroyed
-        property: Oath + Delay
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

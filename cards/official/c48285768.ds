@@ -21,23 +21,21 @@ card "Springans Merrymaker" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToGrave
-        code: SpecialSummonSuccess
-        property: Oath + Delay
-        count_limit: (1, 48285768)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             send (1+, monster, you controls, deck) to gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Banish + ToGrave
-        code: FreeChain
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
         on_resolve {
             banish (1+, monster, you controls, deck)
             register_effect on self {

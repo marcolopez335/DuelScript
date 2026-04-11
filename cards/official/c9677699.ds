@@ -22,21 +22,19 @@ card "Glass Slippers" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: Equip
-        code: ChainEnd
-        property: Delay
-        count_limit: (1, 9677699)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             equip (1, card) to (1, monster)
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Activate
-        category: Equip
-        code: FreeChain
+    effect "Effect 4" {
+        speed: spell_speed_1
         on_resolve {
             equip self to (1, monster, you controls)
         }

@@ -11,12 +11,13 @@ card "Neverending Nightmare Absorber" {
     atk: 0
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: Destroy + SpecialSummon
-        code: Chaining
-        range: Hand + Graveyard
-        count_limit: (1, 73413514)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        activate_from: [hand, gy]
         on_resolve {
             special_summon (1, monster) from gy
             destroy (1+, card, either_player controls)

@@ -6,9 +6,8 @@ card "Majesty's Pegasus" {
     id: 76473843
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -31,11 +30,10 @@ card "Majesty's Pegasus" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: FieldZone
-        count_limit: (1, 76473843)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [field_zone]
         cost {
             tribute self
         }

@@ -29,11 +29,12 @@ card "Metalfoes Orichalc" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: Destroy
-        code: ChainEnd
-        property: CardTarget + Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             destroy (1+, card, either_player controls)
         }

@@ -15,23 +15,23 @@ card "Powered Crawler" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Destroy
-        code: SummonSuccess
-        property: Oath + Delay
-        count_limit: (1, 87742943)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned
         on_resolve {
             destroy (1+, monster, opponent controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: Destroy
-        code: SpecialSummonSuccess
-        property: Oath + Delay
-        count_limit: (1, 87742943)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             destroy (1+, monster, opponent controls)
         }

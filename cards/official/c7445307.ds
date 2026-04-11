@@ -15,11 +15,10 @@ card "Dual Assembwurm" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon + AtkChange
-        range: Hand + Graveyard
-        count_limit: (1, 7445307)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand, gy]
         cost {
             banish self
         }
@@ -28,11 +27,9 @@ card "Dual Assembwurm" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Banish
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
         cost {
             banish self
         }

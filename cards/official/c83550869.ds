@@ -11,11 +11,11 @@ card "Ryko, Twilightsworn Fighter" {
     atk: 200
     def: 100
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Banish
-        code: SummonSuccess
-        property: Oath + Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_summoned
         cost {
             banish self
         }
@@ -37,12 +37,10 @@ card "Ryko, Twilightsworn Fighter" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + MandatoryTrigger
-        category: DeckDestroy
-        code: Chaining
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             mill 3
         }

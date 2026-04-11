@@ -21,11 +21,12 @@ card "Synkron Resonator" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: ChainEnd
-        property: CardTarget + Oath + Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             return (1+, monster, either_player controls) to hand
         }

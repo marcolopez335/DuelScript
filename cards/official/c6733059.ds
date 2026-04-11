@@ -6,19 +6,17 @@ card "Skull Lair" {
     id: 6733059
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Destroy
-        code: FreeChain
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        activate_from: [spell_trap_zone]
         on_resolve {
             destroy (1+, monster, you controls, gy)
         }

@@ -6,9 +6,8 @@ card "D - Formation" {
     id: 74329404
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -21,11 +20,12 @@ card "D - Formation" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: ToHand + Search
-        code: SummonSuccess
-        range: SpellTrapZone
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_summoned
+        activate_from: [spell_trap_zone]
         cost {
             send self to gy
         }
@@ -35,11 +35,12 @@ card "D - Formation" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + Trigger
-        category: ToHand + Search
-        code: SpecialSummonSuccess
-        range: SpellTrapZone
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_summoned by_special_summon
+        activate_from: [spell_trap_zone]
         cost {
             send self to gy
         }

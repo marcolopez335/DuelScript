@@ -6,20 +6,16 @@ card "Miracle Synchro Fusion" {
     id: 36484016
     type: Normal Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon + FusionSummon
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
             fusion_summon (1, fusion monster) using (1+, monster, you controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: Draw
-        code: ChainEnd
-        property: InitialValue + Oath
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_end"
         on_resolve {
             draw 1
         }

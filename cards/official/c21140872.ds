@@ -20,11 +20,12 @@ card "Red-Eyes Slash Dragon" {
         method: fusion
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        code: AttackAnnounce
-        property: CardTarget
-        range: MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when attack_declared
         on_resolve {
             equip (1, card) to (1, monster)
             register_effect on self {
@@ -38,12 +39,11 @@ card "Red-Eyes Slash Dragon" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Destroy + Negate
-        code: Chaining
-        property: Oath + CountCodeDuel
-        range: MonsterZone
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         cost {
             send self to gy
         }
@@ -61,11 +61,11 @@ card "Red-Eyes Slash Dragon" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: Destroyed
-        property: Delay
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             special_summon (1, monster) from gy
         }

@@ -11,20 +11,22 @@ card "Manju of the Ten Thousand Hands" {
     atk: 1400
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: SummonSuccess
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_summoned
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: FlipSummonSuccess
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_summoned by_flip_summon
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)

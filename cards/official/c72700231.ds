@@ -11,11 +11,10 @@ card "Yuki-Musume, the Ice Mayakashi" {
     atk: 0
     def: 1900
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: ToGrave + SpecialSummon
-        range: Hand + Graveyard
-        count_limit: (1, 72700231)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand, gy]
         on_resolve {
             special_summon (1, monster) from gy
             send (1+, card, you controls) to gy

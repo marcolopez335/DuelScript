@@ -6,9 +6,8 @@ card "Radiant Typhoon Manifestation" {
     id: 94103142
     type: Quick-Play Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
             send (1+, monster, you controls, deck) to gy
             add_to_hand (1+, monster, you controls) from deck
@@ -16,10 +15,11 @@ card "Radiant Typhoon Manifestation" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        code: Destroyed
-        property: Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             set (1, card)
         }

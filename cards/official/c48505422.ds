@@ -20,11 +20,10 @@ card "Legendary Six Samurai - Shinai" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: ToHand
-        code: Released
-        property: CardTarget
+    effect "Effect 2" {
+        speed: spell_speed_1
+        damage_step: false
+        trigger: when_tributed
         on_resolve {
             return (1+, monster, you controls) to hand
             reveal (1+, card, opponent controls)

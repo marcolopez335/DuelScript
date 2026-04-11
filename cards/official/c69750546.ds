@@ -11,20 +11,19 @@ card "Volcanic Scattershot" {
     atk: 500
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: Damage
-        code: ChainEnd
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_end"
         on_resolve {
             deal_damage to opponent: 1000
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: Destroy
-        code: ChainEnd
-        property: Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         cost {
             send self to gy
         }

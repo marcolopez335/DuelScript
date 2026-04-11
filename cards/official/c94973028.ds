@@ -40,10 +40,9 @@ card "Mecha Phantom Beast Coltwing" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + MandatoryTrigger
-        category: SpecialSummon + Token
-        code: SpecialSummonSuccess
+    effect "Effect 4" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
         on_resolve {
             create_token { atk: 0 def: 0 }
             special_summon (1, monster) from gy
@@ -52,12 +51,10 @@ card "Mecha Phantom Beast Coltwing" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Ignition
-        category: Destroy + Banish
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         cost {
             tribute self
         }

@@ -11,10 +11,12 @@ card "Tackle Crusader" {
     atk: 1500
     def: 1800
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        code: ChainEnd
-        property: CardTarget + Oath + Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             change_battle_position (1, monster)
             add_to_hand (1+, spell, either_player controls) from gy

@@ -6,19 +6,16 @@ card "Type Zero Magic Crusher" {
     id: 21237481
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Damage
-        code: FreeChain
-        property: InitialValue
-        range: SpellTrapZone
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        activate_from: [spell_trap_zone]
         cost {
             send self to gy
         }

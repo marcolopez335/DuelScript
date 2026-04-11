@@ -6,9 +6,8 @@ card "Hollow Giants" {
     id: 15462014
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -22,11 +21,10 @@ card "Hollow Giants" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + MandatoryTrigger
-        category: ToGrave + Damage
-        code: BattleDamage
-        range: SpellTrapZone
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: when_battle_damage
+        activate_from: [spell_trap_zone]
         on_resolve {
             send (1+, monster, you controls) to gy
             deal_damage to opponent: 1000

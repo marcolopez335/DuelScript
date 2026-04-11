@@ -11,12 +11,11 @@ card "Envoy of Chaos" {
     atk: 1500
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: AtkChange
-        code: FreeChain
-        property: CardTarget + Oath
-        range: Hand
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        damage_step: false
+        activate_from: [hand]
         cost {
             discard (1, card, you controls)
         }
@@ -32,12 +31,13 @@ card "Envoy of Chaos" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: ToHand
-        code: PhaseEnd
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: during_end_phase
+        activate_from: [gy]
         cost {
             banish self
         }

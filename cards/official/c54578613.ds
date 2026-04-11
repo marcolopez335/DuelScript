@@ -11,20 +11,19 @@ card "Dragunity Legionnaire" {
     atk: 1200
     def: 800
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Equip + LeaveGrave
-        code: SummonSuccess
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Destroy
-        property: CardTarget
-        range: MonsterZone
+    effect "Effect 2" {
+        speed: spell_speed_1
+        damage_step: false
         cost {
             send self to gy
         }

@@ -11,13 +11,12 @@ card "Silverrokket Dragon" {
     atk: 1900
     def: 100
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: Destroy + Banish
-        code: Chaining
-        property: Oath + CountCodeDuel
-        range: MonsterZone
-        count_limit: (1, 32476603)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             destroy (1+, card, either_player controls)
             reveal (1+, card, opponent controls)

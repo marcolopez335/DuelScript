@@ -11,12 +11,13 @@ card "Sinister Serpent" {
     atk: 300
     def: 250
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: Banish + ToHand
-        code: PhaseStandby
-        range: Graveyard
-        count_limit: (1, 8131171)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: during_standby_phase
+        activate_from: [gy]
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
             register_effect on self {

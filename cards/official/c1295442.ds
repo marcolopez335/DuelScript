@@ -31,24 +31,22 @@ card "Icejade Creation Aegirocassis" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: Equip
-        code: FreeChain
-        property: CardTarget
-        range: Hand + Graveyard
-        count_limit: (1, 1295442)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
+        activate_from: [hand, gy]
         on_resolve {
             equip (1, card) to (1, monster)
             send (1+, card, either_player controls) to gy
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: SpellTrapZone
-        count_limit: (1, 1295442)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [spell_trap_zone]
         on_resolve {
             special_summon (1, monster) from gy
         }

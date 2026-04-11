@@ -14,11 +14,12 @@ card "Penguin Sword" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: ToHand
-        code: BattleDestroyed
-        range: SpellTrapZone
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_destroyed
+        activate_from: [spell_trap_zone]
         on_resolve {
             return (1+, card, opponent controls) to hand
         }
@@ -68,10 +69,8 @@ card "Penguin Sword" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Activate
-        category: Equip
-        code: FreeChain
+    effect "Effect 5" {
+        speed: spell_speed_1
         on_resolve {
             equip self to (1, monster, you controls)
         }

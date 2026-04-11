@@ -11,23 +11,17 @@ card "Mysterious Puppeteer" {
     atk: 1000
     def: 1500
 
-    raw_effect "Effect 1" {
-        effect_type: Field + MandatoryTrigger
-        category: Recover
-        code: SummonSuccess
-        property: InitialValue
-        range: MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_summoned
         on_resolve {
             gain_lp: 1000
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        category: Recover
-        code: FlipSummonSuccess
-        property: InitialValue
-        range: MonsterZone
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_summoned by_flip_summon
         on_resolve {
             gain_lp: 1000
         }

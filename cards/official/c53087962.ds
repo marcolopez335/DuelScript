@@ -48,13 +48,12 @@ card "Ursarctic Septentrion" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + Trigger
-        category: ToHand + Search
-        code: SpecialSummonSuccess
-        property: Delay
-        range: MonsterZone
-        count_limit: (1, 53087962)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             return (1+, monster, you controls) to hand
             reveal (1+, card, opponent controls)

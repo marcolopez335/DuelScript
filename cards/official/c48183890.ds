@@ -39,12 +39,10 @@ card "Traptrix Atypus" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: Destroy + Banish + Disable
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

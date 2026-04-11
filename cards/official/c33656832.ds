@@ -16,12 +16,12 @@ card "Acrobatic Magician" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: Destroyed
-        range: PendulumZone
-        count_limit: (1, 33656832)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when_destroyed
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -38,9 +38,11 @@ card "Acrobatic Magician" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        code: BattleDamage
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_damage
         on_resolve {
             special_summon (1, monster) from gy
         }

@@ -15,11 +15,12 @@ card "Checksum Dragon" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: SpecialSummon + Recover
-        code: AttackAnnounce
-        range: Hand
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when attack_declared
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
             gain_lp: 1000

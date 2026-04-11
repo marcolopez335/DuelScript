@@ -6,9 +6,8 @@ card "Succumbing-Song Morganite" {
     id: 81756619
     type: Normal Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
             set_flag "tracked" on self
             register_effect on self {
@@ -27,10 +26,9 @@ card "Succumbing-Song Morganite" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToHand + ToDeck + Search
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_1
+        activate_from: [gy]
         cost {
             banish self
         }

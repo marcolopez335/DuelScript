@@ -6,23 +6,21 @@ card "Butterflyoke" {
     id: 75987257
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: PositionChange + Equip
-        code: AttackAnnounce
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_2
+        damage_step: false
+        trigger: when attack_declared
         on_resolve {
             change_battle_position (1, monster)
             equip (1, card) to (1, monster)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: PositionChange
-        code: FreeChain
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        activate_from: [spell_trap_zone]
         on_resolve {
             change_battle_position (1, monster)
         }

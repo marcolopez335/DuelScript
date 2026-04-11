@@ -11,11 +11,12 @@ card "Kuriboo" {
     atk: 300
     def: 200
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: ToHand + Search
-        code: AttackAnnounce
-        range: Hand
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when attack_declared
+        activate_from: [hand]
         cost {
             discard (1, card, you controls)
         }
@@ -25,13 +26,11 @@ card "Kuriboo" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: AtkChange
-        code: FreeChain
-        property: CardTarget + Oath
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        damage_step: false
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

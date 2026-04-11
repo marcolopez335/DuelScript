@@ -15,11 +15,12 @@ card "Steelswarm Girastag" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToGrave + Recover
-        code: SummonSuccess
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             send (1+, card, either_player controls) to gy
             gain_lp: 1000

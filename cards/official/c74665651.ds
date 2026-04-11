@@ -6,18 +6,19 @@ card "Dream Mirror of Joy" {
     id: 74665651
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        code: PhaseEnd
-        range: FieldZone
-        count_limit: (1, 74665651)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: during_end_phase
+        activate_from: [field_zone]
         cost {
             banish self
         }

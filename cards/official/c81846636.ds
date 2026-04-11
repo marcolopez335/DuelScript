@@ -11,11 +11,12 @@ card "Gem-Knight Lazuli" {
     atk: 600
     def: 100
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: ChainEnd
-        property: CardTarget + Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }

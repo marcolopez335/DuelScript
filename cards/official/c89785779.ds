@@ -11,13 +11,12 @@ card "Millennium-Eyes Illusionist" {
     atk: 0
     def: 1400
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: Equip
-        code: FreeChain
-        property: CardTarget
-        range: Hand
-        count_limit: (1, 89785779)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
+        activate_from: [hand]
         cost {
             discard (1, card, you controls)
         }
@@ -25,11 +24,11 @@ card "Millennium-Eyes Illusionist" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        code: SpecialSummonSuccess
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: when_summoned by_special_summon
+        activate_from: [gy]
         on_resolve {
             return (1+, monster, you controls) to hand
         }

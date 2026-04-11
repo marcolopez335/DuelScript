@@ -11,12 +11,12 @@ card "Herald of Purple Light" {
     atk: 300
     def: 500
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: Destroy + Negate
-        code: Chaining
-        property: Oath + CountCodeDuel
-        range: Hand
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        activate_from: [hand]
         cost {
             send self to gy
         }

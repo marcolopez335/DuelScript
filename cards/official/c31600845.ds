@@ -15,11 +15,10 @@ card "Amazement Abomination Arlekino" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: ToHand + SpecialSummon + Search
-        range: Hand
-        count_limit: (1, 31600845)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
             add_to_hand (1+, card, you controls) from gy
@@ -27,13 +26,11 @@ card "Amazement Abomination Arlekino" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: ToDeck + SpecialSummon + AtkChange
-        code: FreeChain
-        property: CardTarget + Oath
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        damage_step: false
         on_resolve {
             return (1+, card, you controls) to deck shuffle
             special_summon (1, monster) from gy

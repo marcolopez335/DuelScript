@@ -15,11 +15,12 @@ card "Green Baboon, Defender of the Forest" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: ChainEnd
-        range: Hand + Graveyard
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: on_custom_event "chain_end"
+        activate_from: [hand, gy]
         cost {
             pay_lp 1000
         }

@@ -6,12 +6,10 @@ card "Rage of Kairyu-Shin" {
     id: 82685480
     type: Quick-Play Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Destroy
-        code: FreeChain
-        property: CardTarget
-        count_limit: (1, 82685480)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             destroy (1+, monster, you controls)
             register_effect on self {

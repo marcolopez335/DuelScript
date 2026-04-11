@@ -11,22 +11,19 @@ card "Brushfire Knight" {
     atk: 1400
     def: 1200
 
-    raw_effect "Effect 1" {
-        effect_type: Field + MandatoryTrigger
-        category: ToGrave
-        code: ChainEnd
-        range: MonsterZone
-        count_limit: (1, 36569343)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: on_custom_event "chain_end"
         on_resolve {
             send (1+, monster, opponent controls, deck) to gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: ToGrave
-        code: ChainEnd
-        count_limit: (1, 36569343)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: on_custom_event "chain_end"
         on_resolve {
             send (1+, monster, opponent controls, deck) to gy
         }

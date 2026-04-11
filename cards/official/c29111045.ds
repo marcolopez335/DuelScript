@@ -6,11 +6,9 @@ card "Goblin Biker Grand Breakout" {
     id: 29111045
     type: Quick-Play Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon
-        code: FreeChain
-        count_limit: (1, 29111045)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         cost {
             tribute self
         }
@@ -23,12 +21,13 @@ card "Goblin Biker Grand Breakout" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: AtkChange
-        code: AttackAnnounce
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: when attack_declared
+        activate_from: [gy]
         cost {
             banish self
             detach 1 overlay_unit from self

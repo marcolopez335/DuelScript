@@ -11,22 +11,20 @@ card "Naturia Marron" {
     atk: 1200
     def: 700
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToGrave
-        code: SummonSuccess
-        property: Oath
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_summoned
         on_resolve {
             send (1+, monster, you controls, deck) to gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Draw
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             return (1+, monster, you controls) to deck shuffle
             shuffle_deck

@@ -11,10 +11,11 @@ card "Shocktopus" {
     atk: 1600
     def: 800
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Equip
-        code: BattleDamage
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_damage
         on_resolve {
             equip (1, card) to (1, monster)
         }

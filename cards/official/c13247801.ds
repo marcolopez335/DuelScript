@@ -6,9 +6,8 @@ card "Machina Defense Perimeter" {
     id: 13247801
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -32,13 +31,14 @@ card "Machina Defense Perimeter" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + Trigger
-        category: ToHand
-        code: Destroyed
-        property: CardTarget + Oath + Delay
-        range: SpellTrapZone
-        count_limit: (1, 13247801)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_destroyed
+        activate_from: [spell_trap_zone]
         on_resolve {
             return (1+, monster, you controls) to hand
         }

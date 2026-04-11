@@ -11,23 +11,20 @@ card "Superheavy Samurai Fist" {
     atk: 900
     def: 900
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        range: MonsterZone
-        count_limit: (1, 71386411)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
         on_resolve {
             synchro_summon (1, synchro monster) using (1+, monster, you controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: SpecialSummon
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
+        activate_from: [gy]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

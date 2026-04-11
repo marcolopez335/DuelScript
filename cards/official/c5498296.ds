@@ -11,10 +11,9 @@ card "Scarr, Scout of Dark World" {
     atk: 500
     def: 500
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: ToHand + Search
-        code: BattleDamage
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_battle_damage
         on_resolve {
             add_to_hand (1+, card, opponent controls) from deck
             reveal (1+, card, opponent controls)

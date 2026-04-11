@@ -15,23 +15,25 @@ card "Grandtusk Dragon" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Destroy + AtkChange
-        code: SummonSuccess
-        property: CardTarget + Delay
-        count_limit: (1, 98898163)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: Destroy + AtkChange
-        code: SpecialSummonSuccess
-        property: CardTarget + Delay
-        count_limit: (1, 98898163)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             destroy (1+, card, either_player controls)
         }

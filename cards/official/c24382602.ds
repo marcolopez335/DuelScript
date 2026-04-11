@@ -6,9 +6,8 @@ card "Mausoleum of White" {
     id: 24382602
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -21,12 +20,11 @@ card "Mausoleum of White" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: ToGrave + AtkChange + DefChange
-        property: CardTarget
-        range: FieldZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
+        activate_from: [field_zone]
         on_resolve {
             send (1+, monster, you controls, hand) to gy
             register_effect on self {
@@ -40,10 +38,9 @@ card "Mausoleum of White" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: ToHand + Search
-        range: Graveyard
+    effect "Effect 4" {
+        speed: spell_speed_1
+        activate_from: [gy]
         cost {
             banish self
         }

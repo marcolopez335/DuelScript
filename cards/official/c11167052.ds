@@ -6,9 +6,8 @@ card "Elemental Training" {
     id: 11167052
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
         }
     }
@@ -31,22 +30,20 @@ card "Elemental Training" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        activate_from: [spell_trap_zone]
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: QuickEffect
-        category: ToHand + HandDestroy
-        code: FreeChain
-        range: SpellTrapZone
+    effect "Effect 5" {
+        speed: spell_speed_2
+        optional: true
+        activate_from: [spell_trap_zone]
         cost {
             send self to gy
         }

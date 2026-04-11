@@ -21,19 +21,16 @@ card "Iron Chain Dragon" {
         method: synchro
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Banish + AtkChange
-        range: MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
             banish (1+, monster, you controls, gy)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: DeckDestroy
-        code: BattleDestroyed
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_battle_destroyed
         on_resolve {
             mill 3
         }

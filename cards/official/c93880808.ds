@@ -15,10 +15,9 @@ card "Arcana Triumph Joker" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Hand + Graveyard
+    effect "Effect 1" {
+        speed: spell_speed_1
+        activate_from: [hand, gy]
         cost {
             send self to gy
         }
@@ -37,10 +36,8 @@ card "Arcana Triumph Joker" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: Destroy
-        range: MonsterZone
+    effect "Effect 3" {
+        speed: spell_speed_1
         on_resolve {
             destroy (1+, monster, you controls, hand)
         }

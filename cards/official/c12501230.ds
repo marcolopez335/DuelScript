@@ -31,12 +31,9 @@ card "Combat Wheel" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: AtkChange + Counter
-        code: FreeChain
-        property: Oath
-        range: MonsterZone
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
         on_resolve {
         }
     }
@@ -49,10 +46,9 @@ card "Combat Wheel" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + MandatoryTrigger
-        category: Destroy
-        code: BattleDamage
+    effect "Effect 4" {
+        speed: spell_speed_1
+        trigger: when_battle_damage
         on_resolve {
             destroy (1+, monster, you controls)
         }

@@ -49,10 +49,11 @@ card "Zoodiac Boarbow" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: ToGrave + PositionChange
-        code: BattleDestroyed
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_destroyed
         on_resolve {
             send (1+, card, either_player controls) to gy
             change_battle_position (1, monster)

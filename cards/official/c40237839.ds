@@ -15,11 +15,10 @@ card "Winged Kuriboh Sabatiel LV10" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: ToHand + ToDeck + Search
-        range: Hand
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [hand]
         cost {
             pay_lp 1000
         }
@@ -34,12 +33,11 @@ card "Winged Kuriboh Sabatiel LV10" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: SpecialSummon + Damage
-        code: FreeChain
-        range: Hand
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
             deal_damage to opponent: 1000

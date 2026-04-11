@@ -11,34 +11,28 @@ card "Ipiria" {
     atk: 500
     def: 500
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: Draw
-        code: SummonSuccess
-        property: InitialValue + Oath
-        count_limit: (1, 70744296)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: when_summoned
         on_resolve {
             draw 1
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: Draw
-        code: FlipSummonSuccess
-        property: InitialValue + Oath
-        count_limit: (1, 70744296)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: when_summoned by_flip_summon
         on_resolve {
             draw 1
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + MandatoryTrigger
-        category: Draw
-        code: SpecialSummonSuccess
-        property: InitialValue + Oath
-        count_limit: (1, 70744296)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: when_summoned by_special_summon
         on_resolve {
             draw 1
         }

@@ -20,11 +20,11 @@ card "Yubel - The Loving Defender Forever" {
         method: fusion
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Damage
-        code: SpecialSummonSuccess
-        property: InitialValue + Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             deal_damage to opponent: 1000
         }

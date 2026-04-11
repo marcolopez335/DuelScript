@@ -33,12 +33,11 @@ card "Borreload Riot Dragon" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Destroy + ToHand
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
+        activate_from: [gy]
         on_resolve {
             destroy (1+, monster, you controls)
             return (1+, monster, you controls) to hand

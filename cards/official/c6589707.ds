@@ -6,9 +6,8 @@ card "Terrors in the Hidden City" {
     id: 6589707
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -50,11 +49,12 @@ card "Terrors in the Hidden City" {
         }
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: Destroyed
-        property: CardTarget + Delay
+    effect "Effect 6" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_destroyed
         on_resolve {
             special_summon (1, monster) from gy
             reveal (1+, card, opponent controls)

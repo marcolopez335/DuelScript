@@ -15,12 +15,12 @@ card "Sacred Arch-Airknight Parshath" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: Chaining
-        property: Delay
-        range: Hand + Graveyard
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        activate_from: [hand, gy]
         cost {
             banish self
         }
@@ -51,10 +51,11 @@ card "Sacred Arch-Airknight Parshath" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: BattleDestroyed
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_destroyed
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
             reveal (1+, card, opponent controls)

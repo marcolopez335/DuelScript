@@ -23,20 +23,18 @@ card "Vampire Lord" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        category: SpecialSummon
-        code: PhaseStandby
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: during_standby_phase
+        activate_from: [gy]
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + MandatoryTrigger
-        category: ToGrave
-        code: BattleDestroyed
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: when_battle_destroyed
         on_resolve {
             send (1+, card, opponent controls, deck) to gy
         }

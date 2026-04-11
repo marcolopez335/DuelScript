@@ -21,23 +21,20 @@ card "Glacial Beast Iceberg Narwhal" {
         method: synchro
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + MandatoryTrigger
-        category: Damage
-        code: Destroyed
-        property: InitialValue
-        range: MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_destroyed
         on_resolve {
             deal_damage to opponent: 1000
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Destroy + Disable
-        code: Chaining
-        range: MonsterZone
-        count_limit: (1, 6568731)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate effect
             destroy (1+, monster, you controls)

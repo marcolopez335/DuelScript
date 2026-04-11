@@ -6,10 +6,10 @@ card "Noble Arms - Clarent" {
     id: 41359411
     type: Equip Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [spell_trap_zone]
         cost {
             pay_lp 500
         }
@@ -17,21 +17,20 @@ card "Noble Arms - Clarent" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: Equip
-        code: ChainEnd
-        property: CardTarget + Oath + Delay
-        count_limit: (1, 41359411)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             equip (1, card) to (1, monster)
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Activate
-        category: Equip
-        code: FreeChain
+    effect "Effect 3" {
+        speed: spell_speed_1
         on_resolve {
             equip self to (1, monster, you controls)
         }

@@ -34,12 +34,12 @@ card "Battlewasp - Halberd the Charge" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: Damage
-        code: BattleDestroyed
-        property: InitialValue
-        count_limit: (1, 53950487)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when_battle_destroyed
         on_resolve {
             deal_damage to opponent: 1000
         }

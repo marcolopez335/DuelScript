@@ -42,11 +42,11 @@ card "Dark Magician of Destruction" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: SpecialSummonSuccess
-        property: Delay
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             return (1+, monster, you controls) to hand
             reveal (1+, card, opponent controls)

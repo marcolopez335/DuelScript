@@ -6,19 +6,17 @@ card "Nordic Relic Svalinn" {
     id: 64797746
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Disable
-        code: FreeChain
-        range: SpellTrapZone
-        count_limit: (1, 64797746)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [spell_trap_zone]
         on_resolve {
             negate effect
             register_effect on self {
@@ -32,13 +30,12 @@ card "Nordic Relic Svalinn" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        property: CardTarget
-        range: SpellTrapZone
-        count_limit: (1, 64797746)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
+        activate_from: [spell_trap_zone]
         cost {
             tribute self
         }

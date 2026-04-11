@@ -21,12 +21,10 @@ card "Onibimaru Soul Sweeper" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Banish
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         cost {
             detach 1 overlay_unit from self
         }
@@ -39,11 +37,12 @@ card "Onibimaru Soul Sweeper" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToDeck
-        code: Destroyed
-        property: CardTarget + Oath + Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_destroyed
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
         }

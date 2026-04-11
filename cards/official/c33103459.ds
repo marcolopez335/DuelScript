@@ -11,11 +11,9 @@ card "Performapal Corn" {
     atk: 600
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: ToHand + PositionChange + Search
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
         on_resolve {
             change_battle_position (1, monster)
             add_to_hand (1+, monster, you controls) from deck
@@ -23,11 +21,10 @@ card "Performapal Corn" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Recover
-        code: FreeChain
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        activate_from: [gy]
         cost {
             banish self
         }

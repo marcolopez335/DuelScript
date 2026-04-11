@@ -6,9 +6,8 @@ card "Fallen Paradise" {
     id: 13301895
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -33,12 +32,10 @@ card "Fallen Paradise" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: Draw
-        property: InitialValue
-        range: FieldZone
-        count_limit: (1, 13301895)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [field_zone]
         on_resolve {
             draw 1
         }

@@ -6,20 +6,18 @@ card "Rise of the Salamangreat" {
     id: 38784726
     type: Ritual Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: Destroyed
-        property: Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Activate
-        category: SpecialSummon
-        code: FreeChain
+    effect "Effect 2" {
+        speed: spell_speed_1
         on_resolve {
             ritual_summon (1, ritual monster) using (1+, monster, you controls)
         }

@@ -28,11 +28,11 @@ card "Five-Headed Link Dragon" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: Destroy
-        code: SpecialSummonSuccess
-        property: Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             destroy (1+, card, you controls, gy)
         }
@@ -63,12 +63,10 @@ card "Five-Headed Link Dragon" {
         }
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Field + MandatoryTrigger
-        category: Banish
-        code: PhaseEnd
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 6" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
         on_resolve {
             send (1+, card, you controls, gy) to gy
             banish (1+, card, you controls, gy)

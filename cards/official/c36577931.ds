@@ -11,12 +11,12 @@ card "Despian Tragedy" {
     atk: 400
     def: 400
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: ChainEnd
-        property: Oath + Delay
-        count_limit: (1, 36577931)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)
@@ -35,11 +35,11 @@ card "Despian Tragedy" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 36577931)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }

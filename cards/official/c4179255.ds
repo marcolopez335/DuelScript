@@ -21,13 +21,10 @@ card "Ancient Pixie Dragon" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + MandatoryTrigger
-        category: Draw
-        code: Chaining
-        property: InitialValue
-        range: MonsterZone
-        count_limit: (1, 4179255)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             draw 1
         }
@@ -45,12 +42,10 @@ card "Ancient Pixie Dragon" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: Destroy
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             destroy (1+, card, either_player controls)
         }

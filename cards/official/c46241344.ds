@@ -29,12 +29,10 @@ card "Brotherhood of the Fire Fist - Eagle" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToHand + ToGrave
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 46241344)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             send (1+, monster, you controls, deck) to gy

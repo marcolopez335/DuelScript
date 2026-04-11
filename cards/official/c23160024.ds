@@ -6,9 +6,8 @@ card "Amorphous Persona" {
     id: 23160024
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -42,11 +41,9 @@ card "Amorphous Persona" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Ignition
-        category: SpecialSummon
-        code: FreeChain
-        range: Graveyard
+    effect "Effect 5" {
+        speed: spell_speed_1
+        activate_from: [gy]
         cost {
             banish self
         }
@@ -55,10 +52,8 @@ card "Amorphous Persona" {
         }
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Activate
-        category: SpecialSummon
-        code: FreeChain
+    effect "Effect 6" {
+        speed: spell_speed_1
         on_resolve {
             ritual_summon (1, ritual monster) using (1+, monster, you controls)
         }

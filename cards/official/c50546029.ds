@@ -62,12 +62,12 @@ card "G Golem Dignified Trilithon" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: QuickEffect
-        category: Destroy + Disable
-        code: Chaining
-        range: MonsterZone
-        count_limit: (1, 50546029)
+    effect "Effect 4" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate effect
             destroy (1+, card, you controls, hand)

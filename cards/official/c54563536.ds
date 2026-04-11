@@ -11,13 +11,12 @@ card "Machina Resavenger" {
     atk: 1200
     def: 1800
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: AtkChange
-        code: FreeChain
-        property: CardTarget + Oath
-        range: Hand + MonsterZone
-        count_limit: (1, 54563536)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
+        activate_from: [hand, monster_zone]
         cost {
             send self to gy
         }

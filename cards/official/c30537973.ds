@@ -12,20 +12,17 @@ card "Predaplant Spider Orchid" {
     atk: 0
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
-        range: Hand
+    effect "Effect 1" {
+        speed: spell_speed_1
+        activate_from: [hand]
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Destroy
-        property: CardTarget
-        range: PendulumZone
-        count_limit: (1, 30537973)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             destroy (1+, card, you controls, hand)
         }

@@ -22,19 +22,18 @@ card "Artifact Lancea" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: SpecialSummon
-        code: ChainEnd
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_end"
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        code: FreeChain
-        range: Hand + MonsterZone
+    effect "Effect 3" {
+        speed: spell_speed_2
+        optional: true
+        activate_from: [hand, monster_zone]
         cost {
             tribute self
         }

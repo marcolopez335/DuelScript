@@ -6,9 +6,9 @@ card "Curse Reflection Doll" {
     id: 33391067
     type: Quick-Play Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: Chaining
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -17,11 +17,13 @@ card "Curse Reflection Doll" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        code: BattleDestroyed
-        range: Graveyard
-        count_limit: (1, 33391067)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when_battle_destroyed
+        activate_from: [gy]
         on_resolve {
             set (1, card)
         }

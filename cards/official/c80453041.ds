@@ -44,11 +44,12 @@ card "Phantom of Yubel" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: QuickEffect
-        code: Chaining
-        range: MonsterZone
-        count_limit: (1, 80453041)
+    effect "Effect 4" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         cost {
             tribute self
         }

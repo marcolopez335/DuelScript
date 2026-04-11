@@ -6,9 +6,8 @@ card "Ghostrick Parade" {
     id: 29400787
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -31,11 +30,12 @@ card "Ghostrick Parade" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + Trigger
-        category: ToHand + Search
-        code: AttackAnnounce
-        range: FieldZone
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when attack_declared
+        activate_from: [field_zone]
         on_resolve {
             return (1+, monster, opponent controls) to hand
             reveal (1+, card, opponent controls)

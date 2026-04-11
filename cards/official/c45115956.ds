@@ -6,30 +6,27 @@ card "Ancient Warriors Saga - Deception and Betrayal" {
     id: 45115956
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: SpecialSummon + Damage
-        range: SpellTrapZone
-        count_limit: (1, 45115956)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [spell_trap_zone]
         on_resolve {
             special_summon (1, monster) from gy
             deal_damage to opponent: 1000
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: Control
-        property: CardTarget
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
+        activate_from: [spell_trap_zone]
         cost {
             send self to gy
         }

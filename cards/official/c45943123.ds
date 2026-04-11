@@ -6,12 +6,10 @@ card "Torpedo Takedown" {
     id: 45943123
     type: Normal Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Damage + AtkChange
-        code: FreeChain
-        property: CardTarget
-        count_limit: (1, 45943123)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             deal_damage to opponent: 1000
             register_effect on self {
@@ -21,12 +19,10 @@ card "Torpedo Takedown" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Draw
-        property: InitialValue
-        range: Graveyard
-        count_limit: (1, 45943123)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [gy]
         cost {
             banish self
         }

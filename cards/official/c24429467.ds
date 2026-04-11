@@ -13,9 +13,8 @@ card "Mythical Bestiamorph" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 2" {
+        speed: spell_speed_2
         on_resolve {
         }
     }
@@ -37,12 +36,11 @@ card "Mythical Bestiamorph" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: QuickEffect
-        category: ToHand + Search
-        code: FreeChain
-        range: SpellTrapZone
-        count_limit: (1, 24429467)
+    effect "Effect 5" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [spell_trap_zone]
         cost {
             send self to gy
         }

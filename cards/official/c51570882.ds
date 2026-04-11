@@ -28,12 +28,10 @@ card "Greedy Venom Fusion Dragon" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Disable + AtkChange
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -50,10 +48,9 @@ card "Greedy Venom Fusion Dragon" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + MandatoryTrigger
-        category: Destroy + Banish + SpecialSummon
-        code: ChainEnd
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_end"
         on_resolve {
             destroy (1+, monster, you controls, gy)
             banish (1+, monster, you controls, gy)

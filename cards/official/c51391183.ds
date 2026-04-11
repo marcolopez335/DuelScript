@@ -12,11 +12,10 @@ card "Abyss Actor - Wild Hope" {
     atk: 1600
     def: 1200
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        property: CardTarget
-        range: PendulumZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -33,21 +32,19 @@ card "Abyss Actor - Wild Hope" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: AtkChange
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
         on_resolve {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: Destroyed
-        property: Delay
-        count_limit: (1, 51391183)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             return (1+, monster, you controls) to hand
             reveal (1+, card, opponent controls)

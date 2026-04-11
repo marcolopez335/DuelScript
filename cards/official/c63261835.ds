@@ -30,13 +30,13 @@ card "Cyber Slash Harpie Lady" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Destroy
-        code: Chaining
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 63261835)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }

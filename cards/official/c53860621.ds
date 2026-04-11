@@ -6,11 +6,9 @@ card "Glowing Crossbow" {
     id: 53860621
     type: Equip Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Equip
-        code: FreeChain
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: false
         on_resolve {
             equip (1, card) to (1, monster)
         }
@@ -51,12 +49,12 @@ card "Glowing Crossbow" {
         }
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: ChainEnd
-        property: Delay
-        count_limit: (1, 0)
+    effect "Effect 6" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
             reveal (1+, card, opponent controls)

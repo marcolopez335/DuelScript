@@ -15,10 +15,8 @@ card "Fushioh Richie" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: PositionChange
-        range: MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
             change_battle_position (1, monster)
         }
@@ -34,12 +32,9 @@ card "Fushioh Richie" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: MandatoryQuick
-        category: Destroy + Negate
-        code: Chaining
-        property: Oath + CountCodeDuel
-        range: MonsterZone
+    effect "Effect 3" {
+        speed: spell_speed_2
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate activation
             destroy (1+, card, either_player controls)

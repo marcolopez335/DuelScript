@@ -19,10 +19,9 @@ card "Ocean's Keeper" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: ToHand + Search
-        code: BattleDamage
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_battle_damage
         on_resolve {
             add_to_hand (1+, card, opponent controls) from deck
             reveal (1+, card, opponent controls)

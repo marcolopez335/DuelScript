@@ -6,11 +6,9 @@ card "Prologue of the Destruction Swordsman" {
     id: 33280639
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon
-        code: FreeChain
-        count_limit: (1, 33280639)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
         cost {
             send self to gy
         }
@@ -21,10 +19,10 @@ card "Prologue of the Destruction Swordsman" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        code: FreeChain
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        activate_from: [gy]
         cost {
             banish self
         }

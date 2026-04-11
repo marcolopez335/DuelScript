@@ -21,12 +21,10 @@ card "Number 99: Utopia Dragonar" {
         method: xyz
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        range: MonsterZone
-        count_limit: (1, 95134948)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
         cost {
             detach 1 overlay_unit from self
         }
@@ -35,12 +33,12 @@ card "Number 99: Utopia Dragonar" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: AtkChange
-        code: AttackAnnounce
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: when attack_declared
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

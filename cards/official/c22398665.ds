@@ -6,21 +6,18 @@ card "Meteonis Drytron" {
     id: 22398665
     type: Ritual Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: ToHand + AtkChange
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 22398665)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
+        activate_from: [gy]
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Activate
-        category: SpecialSummon
-        code: FreeChain
+    effect "Effect 2" {
+        speed: spell_speed_1
         on_resolve {
             ritual_summon (1, ritual monster) using (1+, monster, you controls)
         }

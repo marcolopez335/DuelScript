@@ -6,11 +6,9 @@ card "The Continuing Epic of Charles" {
     id: 11802691
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToGrave + SpecialSummon + Equip
-        code: FreeChain
-        count_limit: (1, 11802691)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
         on_resolve {
             reveal (1+, card, opponent controls)
             special_summon (1, monster) from gy
@@ -19,13 +17,12 @@ card "The Continuing Epic of Charles" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Equip
-        code: FreeChain
-        property: CardTarget + Oath
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }

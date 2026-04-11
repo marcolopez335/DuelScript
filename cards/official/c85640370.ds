@@ -6,10 +6,9 @@ card "Tip of the Tinying Tongue" {
     id: 85640370
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + Disable + Search
-        code: Chaining
+    effect "Effect 1" {
+        speed: spell_speed_2
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate effect
             add_to_hand (1+, card, you controls) from deck
@@ -17,11 +16,12 @@ card "Tip of the Tinying Tongue" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: AtkChange
-        code: Destroyed
-        property: CardTarget + Delay
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_destroyed
         on_resolve {
         }
     }

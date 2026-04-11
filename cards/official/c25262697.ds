@@ -11,11 +11,12 @@ card "Gravekeeper's Assailant" {
     atk: 1500
     def: 1500
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: PositionChange
-        code: AttackAnnounce
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when attack_declared
         on_resolve {
             change_battle_position (1, monster)
         }

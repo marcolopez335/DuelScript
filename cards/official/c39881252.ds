@@ -6,22 +6,19 @@ card "Play the Diabell" {
     id: 39881252
     type: Quick-Play Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToGrave
-        code: ChainEnd
-        property: Delay
-        count_limit: (1, 39881252)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: on_custom_event "chain_end"
         on_resolve {
             send (1+, spell, you controls, hand) to gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [gy]
         cost {
             banish self
         }

@@ -11,19 +11,19 @@ card "Madolche Mewfeuille" {
     atk: 500
     def: 300
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: ToDeck
-        code: ChainEnd
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_end"
         on_resolve {
             return (1+, card, you controls) to deck shuffle
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: SummonSuccess
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_summoned
         on_resolve {
             special_summon (1, monster) from gy
         }

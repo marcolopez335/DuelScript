@@ -6,11 +6,9 @@ card "Sekka's Light" {
     id: 24940422
     type: Normal Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Draw
-        code: FreeChain
-        count_limit: (1, 24940422)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             draw 1
             register_effect on self {
@@ -20,12 +18,10 @@ card "Sekka's Light" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToDeck + Draw
-        property: InitialValue
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [gy]
         cost {
             banish self
         }

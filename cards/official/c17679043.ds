@@ -19,12 +19,13 @@ card "Penguin Torpedo" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: Control
-        code: BattleDestroyed
-        property: CardTarget
-        count_limit: (1, 17679043)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_battle_destroyed
         on_resolve {
             take_control of (1, monster, opponent controls)
             register_effect on self {

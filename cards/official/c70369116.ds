@@ -20,11 +20,10 @@ card "Predaplant Verte Anaconda" {
         method: link
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 70369116)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -33,10 +32,9 @@ card "Predaplant Verte Anaconda" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
         cost {
             pay_lp your_lp / 2
         }

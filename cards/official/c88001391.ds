@@ -6,21 +6,18 @@ card "Zoma the Earthbound Spirit" {
     id: 88001391
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon
-        code: FreeChain
-        count_limit: (1, 88001391)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: Damage
-        code: BattleDamage
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        trigger: when_battle_damage
         on_resolve {
             deal_damage to opponent: 1000
         }

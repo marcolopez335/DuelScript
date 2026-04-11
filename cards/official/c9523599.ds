@@ -11,12 +11,13 @@ card "Stack Reviver" {
     atk: 100
     def: 600
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: FlipSuccess
-        property: CardTarget + Delay
-        count_limit: (1, 9523599)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_flipped
         on_resolve {
             special_summon (1, monster) from gy
         }

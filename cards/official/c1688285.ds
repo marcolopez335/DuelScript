@@ -31,11 +31,9 @@ card "Traptrix Pinguicula" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToHand + Search
-        range: MonsterZone
-        count_limit: (1, 1688285)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
         cost {
             detach 1 overlay_unit from self
         }
@@ -56,13 +54,12 @@ card "Traptrix Pinguicula" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + Trigger
-        category: LeaveGrave
-        code: ChainEnd
-        property: Delay
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             attach (1, card) to self as_material
         }

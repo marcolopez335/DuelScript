@@ -39,10 +39,8 @@ card "Gandora the Dragon of Destruction" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: Destroy
-        range: MonsterZone
+    effect "Effect 4" {
+        speed: spell_speed_1
         cost {
             pay_lp your_lp / 2
         }
@@ -51,12 +49,10 @@ card "Gandora the Dragon of Destruction" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Field + MandatoryTrigger
-        category: ToGrave
-        code: PhaseEnd
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
         on_resolve {
             send (1+, card, either_player controls) to gy
         }

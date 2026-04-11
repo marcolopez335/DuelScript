@@ -11,24 +11,23 @@ card "Redbeard, the Plunder Patroll Matey" {
     atk: 1000
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: SpecialSummon + Equip
-        code: FreeChain
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
         on_resolve {
             special_summon (1, monster) from gy
             equip (1, card) to (1, monster)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: Equip
-        code: ChainEnd
-        property: CardTarget + Delay
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             equip (1, card) to (1, monster)
         }

@@ -11,12 +11,9 @@ card "Archfiend Interceptor" {
     atk: 1400
     def: 1600
 
-    raw_effect "Effect 1" {
-        effect_type: Field + MandatoryTrigger
-        category: Damage
-        code: AttackAnnounce
-        property: InitialValue
-        range: MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when attack_declared
         on_resolve {
             deal_damage to opponent: 1000
         }

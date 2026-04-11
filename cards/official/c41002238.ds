@@ -15,12 +15,11 @@ card "Kaiser Glider - Golden Burst" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        range: Hand
-        count_limit: (1, 41002238)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [hand]
         cost {
             tribute self
         }
@@ -29,20 +28,22 @@ card "Kaiser Glider - Golden Burst" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: AtkChange
-        code: SummonSuccess
-        property: CardTarget + Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: AtkChange
-        code: SpecialSummonSuccess
-        property: CardTarget + Delay
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
         }
     }

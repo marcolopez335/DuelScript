@@ -21,20 +21,17 @@ card "Double-Edged Sword" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + MandatoryTrigger
-        category: ToGrave
-        code: BattleDestroyed
-        range: SpellTrapZone
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: when_battle_destroyed
+        activate_from: [spell_trap_zone]
         on_resolve {
             send (1+, card, either_player controls) to gy
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Activate
-        category: Equip
-        code: FreeChain
+    effect "Effect 4" {
+        speed: spell_speed_1
         on_resolve {
             equip self to (1, monster, you controls)
         }

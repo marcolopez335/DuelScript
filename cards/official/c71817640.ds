@@ -6,9 +6,8 @@ card "Dragonic Pendulum" {
     id: 71817640
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -31,24 +30,25 @@ card "Dragonic Pendulum" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + Trigger
-        category: Destroy
-        code: Chaining
-        property: CardTarget + Delay
-        range: FieldZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        activate_from: [field_zone]
         on_resolve {
             destroy (1+, monster, you controls, deck)
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single + Trigger
-        category: ToHand + SpecialSummon + Search
-        code: Destroyed
-        property: Delay
-        count_limit: (1, 0)
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             add_to_hand (1, card, you controls) from gy
             special_summon (1, monster) from gy

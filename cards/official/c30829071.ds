@@ -11,11 +11,12 @@ card "Amazement Ambassador Bufo" {
     atk: 1600
     def: 900
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Equip
-        code: SummonSuccess
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             equip (1, card) to (1, monster)
             register_effect on self {

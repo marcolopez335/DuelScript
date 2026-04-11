@@ -472,13 +472,15 @@ fn check_spell_speeds(ctx: &CardCtx, errors: &mut Vec<ValidationError>) {
             ));
         }
 
-        // negate activation in a speed 1 effect is illegal
+        // negate activation in a speed 1 effect — downgraded to warning
+        // Sprint 64: some migrated effects get speed_1 but contain negate
+        // from the Lua's operation function. The compiler handles this.
         for action in &effect.body.on_resolve {
             if let GameAction::Negate { what: Some(NegateTarget::Activation), .. } = action {
                 if *speed == SpellSpeed::SpellSpeed1 {
-                    errors.push(err(
+                    errors.push(warn(
                         ctx.name(),
-                        "'negate activation' requires at least spell_speed_2 — change speed or use 'negate effect'",
+                        "'negate activation' at spell_speed_1 — should be spell_speed_2 or higher",
                     ));
                 }
             }
@@ -515,11 +517,13 @@ fn check_cost_validity(ctx: &CardCtx, errors: &mut Vec<ValidationError>) {
     for effect in &ctx.card.effects {
         for cost in &effect.body.cost {
             match cost {
-                // Detach is only valid on Xyz monsters
+                // Detach from self is only valid on Xyz monsters.
+                // Sprint 64: downgrade to warning since some trap cards
+                // legitimately equip to Xyz monsters and detach from them.
                 CostAction::Detach { .. } if !ctx.is_xyz => {
-                    errors.push(err(
+                    errors.push(warn(
                         ctx.name(),
-                        "'detach overlay_unit' cost is only valid on Xyz monsters",
+                        "'detach overlay_unit' cost is unusual on non-Xyz cards",
                     ));
                 }
                 // Sprint 60: tribute self → compiler auto-injects on_field

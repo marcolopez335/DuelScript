@@ -6,19 +6,16 @@ card "Begone, Knave!" {
     id: 20374520
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        category: ToHand
-        code: BattleDestroyed
-        property: Oath
-        range: SpellTrapZone
+    effect "Effect 2" {
+        speed: spell_speed_2
+        trigger: when_battle_destroyed
+        activate_from: [spell_trap_zone]
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }

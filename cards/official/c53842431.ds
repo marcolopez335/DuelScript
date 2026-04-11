@@ -16,11 +16,9 @@ card "Mythical Beast Master Cerberus" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Destroy + ToHand + Search
-        range: PendulumZone
-        count_limit: (1, 53842431)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             destroy (1+, card, you controls, deck)
             add_to_hand (1+, card, you controls) from deck
@@ -56,12 +54,10 @@ card "Mythical Beast Master Cerberus" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Ignition
-        category: Banish + AtkChange
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             banish (1+, card, you controls, deck)
         }

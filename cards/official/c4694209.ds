@@ -11,18 +11,16 @@ card "Card Guard" {
     atk: 1600
     def: 500
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: Counter
-        code: SummonSuccess
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_summoned
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: Counter
-        code: SpecialSummonSuccess
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
         on_resolve {
         }
     }
@@ -37,12 +35,10 @@ card "Card Guard" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: Counter
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

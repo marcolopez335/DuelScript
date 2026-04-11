@@ -6,12 +6,10 @@ card "Saryuja's Shackles" {
     id: 11434258
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToDeck + Draw
-        code: FreeChain
-        property: CardTarget
-        count_limit: (1, 11434258)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             draw 1
             return (1+, card, you controls) to deck shuffle

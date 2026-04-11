@@ -11,11 +11,10 @@ card "Keldo" {
     atk: 1200
     def: 1600
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: ToDeck
-        code: BattleDamage
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: false
+        trigger: when_battle_damage
         on_resolve {
             return (1+, card, opponent controls) to deck shuffle
         }

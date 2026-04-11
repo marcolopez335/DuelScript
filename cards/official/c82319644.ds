@@ -15,11 +15,11 @@ card "Tlakalel, His Malevolent Majesty" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Destroy
-        code: SummonSuccess
-        property: Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_summoned
         on_resolve {
             destroy (1+, monster, opponent controls)
         }

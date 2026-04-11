@@ -25,11 +25,9 @@ card "Gizmek Yata, the Gleaming Vanguard" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Summon
-        range: MonsterZone
-        count_limit: (1, 13224603)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             normal_summon (1, monster, you controls)
             register_effect on self {
@@ -39,12 +37,10 @@ card "Gizmek Yata, the Gleaming Vanguard" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + MandatoryTrigger
-        category: Recover
-        code: Released
-        property: InitialValue
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: when_tributed
         on_resolve {
             gain_lp: 1000
         }

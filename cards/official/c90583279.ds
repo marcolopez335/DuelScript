@@ -25,12 +25,10 @@ card "Yakusa, Lord of the Eight Thunders" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToDeck + Draw + AtkChange
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 90583279)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             return (1+, monster, you controls) to deck shuffle
             shuffle_deck

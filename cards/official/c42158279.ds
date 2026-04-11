@@ -6,23 +6,20 @@ card "Dogmatikaturgy" {
     id: 42158279
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon
-        code: FreeChain
-        count_limit: (1, 42158279)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
         on_resolve {
             ritual_summon (1, ritual monster) using (1+, monster, you controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: ToHand + ToDeck
-        code: FreeChain
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 42158279)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }
@@ -33,10 +30,8 @@ card "Dogmatikaturgy" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Activate
-        category: SpecialSummon
-        code: FreeChain
+    effect "Effect 3" {
+        speed: spell_speed_2
         on_resolve {
             ritual_summon (1, ritual monster) using (1+, monster, you controls)
         }

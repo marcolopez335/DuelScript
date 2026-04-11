@@ -6,21 +6,18 @@ card "Gishki Nekromirror" {
     id: 36982581
     type: Ritual Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
             special_summon (1, monster) from gy
             gain_lp: 0
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToDeck
-        property: CardTarget
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_1
+        damage_step: false
+        activate_from: [gy]
         on_resolve {
             return (1+, monster, opponent controls) to deck shuffle
             reveal (1, card, opponent controls, deck)

@@ -6,10 +6,8 @@ card "Bonding - D2O" {
     id: 79402185
     type: Normal Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         cost {
             tribute self
         }
@@ -18,13 +16,11 @@ card "Bonding - D2O" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        category: ToHand
-        code: ChainEnd
-        property: Delay
-        range: Graveyard
-        count_limit: (1, 79402185)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: on_custom_event "chain_end"
+        activate_from: [gy]
         on_resolve {
             add_to_hand (1+, card, you controls) from gy
         }

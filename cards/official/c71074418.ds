@@ -15,13 +15,14 @@ card "Witchcrafter Golem Aruru" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: ToHand + SpecialSummon
-        code: BattleTarget
-        property: CardTarget
-        range: Hand
-        count_limit: (1, 71074418)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_attacked
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
             add_to_hand (1+, spell, either_player controls) from gy
@@ -41,12 +42,10 @@ card "Witchcrafter Golem Aruru" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + MandatoryTrigger
-        category: ToHand
-        code: PhaseStandby
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
         on_resolve {
             add_to_hand (1+, spell, either_player controls) from gy
         }

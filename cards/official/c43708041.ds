@@ -6,9 +6,8 @@ card "Hazy Glory" {
     id: 43708041
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
         }
     }
@@ -21,12 +20,11 @@ card "Hazy Glory" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: ToHand
-        code: FreeChain
-        property: CardTarget
-        range: SpellTrapZone
+    effect "Effect 3" {
+        speed: spell_speed_2
+        optional: true
+        damage_step: false
+        activate_from: [spell_trap_zone]
         cost {
             send self to gy
         }

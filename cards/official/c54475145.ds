@@ -15,11 +15,10 @@ card "Heart of the Blue-Eyes" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: ToHand + Search
-        range: Hand
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [hand]
         cost {
             discard (1, card, you controls)
         }
@@ -38,24 +37,26 @@ card "Heart of the Blue-Eyes" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: ToGrave + SpecialSummon
-        code: SummonSuccess
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: when_summoned
+        activate_from: [gy]
         on_resolve {
             send (1+, card, you controls, deck) to gy
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + Trigger
-        category: ToGrave + SpecialSummon
-        code: SpecialSummonSuccess
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: when_summoned by_special_summon
+        activate_from: [gy]
         on_resolve {
             send (1+, card, you controls, deck) to gy
             special_summon (1, monster) from gy

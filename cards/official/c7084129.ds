@@ -11,24 +11,25 @@ card "Magician's Rod" {
     atk: 1600
     def: 100
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: SummonSuccess
-        count_limit: (1, 7084129)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when_summoned
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck
             reveal (1+, card, opponent controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: ToHand
-        code: Chaining
-        property: Delay
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        activate_from: [gy]
         cost {
             tribute self
         }

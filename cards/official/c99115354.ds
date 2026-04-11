@@ -40,12 +40,13 @@ card "Hyper Psychic Riser" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: ChainEnd
-        property: CardTarget + Delay
-        count_limit: (1, 99115354)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
         }

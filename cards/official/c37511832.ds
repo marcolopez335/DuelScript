@@ -6,9 +6,9 @@ card "Sargasso Lighthouse" {
     id: 37511832
     type: Quick-Play Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: Chaining
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -26,11 +26,11 @@ card "Sargasso Lighthouse" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: ChainEnd
-        property: Oath
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: on_custom_event "chain_end"
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)

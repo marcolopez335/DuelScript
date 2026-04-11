@@ -15,11 +15,10 @@ card "Snowdrop the Rikka Fairy" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Hand
-        count_limit: (1, 33491462)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand]
         cost {
             tribute self
         }
@@ -32,11 +31,10 @@ card "Snowdrop the Rikka Fairy" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

@@ -6,11 +6,9 @@ card "Spell Card 'Soul Exchange'" {
     id: 15735108
     type: Normal Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Summon
-        code: FreeChain
-        count_limit: (1, 15735108)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -28,9 +26,9 @@ card "Spell Card 'Soul Exchange'" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        code: ChainEnd
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_end"
         on_resolve {
         }
     }

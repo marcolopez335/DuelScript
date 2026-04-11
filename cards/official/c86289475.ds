@@ -11,24 +11,23 @@ card "Magnet Warrior Omega Plus" {
     atk: 800
     def: 1900
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Destroy + Banish + SpecialSummon
-        range: Hand + Graveyard
-        count_limit: (1, 86289475)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand, gy]
         on_resolve {
             destroy (1+, monster, you controls, hand)
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: PositionChange
-        code: Chaining
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         cost {
             tribute self
         }

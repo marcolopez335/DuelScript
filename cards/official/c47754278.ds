@@ -11,22 +11,20 @@ card "Infernal Dragon" {
     atk: 2000
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Field + MandatoryTrigger
-        category: Destroy
-        code: PhaseEnd
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: ChainEnd
-        property: Oath
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: on_custom_event "chain_end"
         cost {
             tribute self
         }

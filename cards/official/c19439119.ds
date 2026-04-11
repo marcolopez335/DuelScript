@@ -11,11 +11,10 @@ card "Fabled Krus" {
     atk: 1000
     def: 800
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: SpecialSummon
-        code: ChainEnd
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             special_summon (1, monster) from gy
         }

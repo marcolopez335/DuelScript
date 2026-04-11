@@ -29,11 +29,9 @@ card "Topologic Blaster Dragon" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        category: Banish + ToDeck
-        code: SpecialSummonSuccess
-        range: 4096
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
         on_resolve {
             set_flag "tracked" on self
             return (1+, spell, either_player controls) to deck shuffle

@@ -20,10 +20,9 @@ card "Selene, Queen of the Master Magicians" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: Counter
-        code: SpecialSummonSuccess
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
         on_resolve {
         }
     }
@@ -38,12 +37,10 @@ card "Selene, Queen of the Master Magicians" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
         on_resolve {
             special_summon (1, monster) from gy
         }

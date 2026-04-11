@@ -6,9 +6,8 @@ card "Void Breach" {
     id: 96235944
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -22,10 +21,10 @@ card "Void Breach" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        range: SpellTrapZone
-        count_limit: (1, 96235944)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [spell_trap_zone]
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
             reveal (1+, card, opponent controls)

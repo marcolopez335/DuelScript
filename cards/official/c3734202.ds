@@ -6,19 +6,17 @@ card "Naturia Sacred Tree" {
     id: 3734202
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        range: SpellTrapZone
-        count_limit: (1, 3734202)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [spell_trap_zone]
         cost {
             tribute self
         }
@@ -27,12 +25,11 @@ card "Naturia Sacred Tree" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        range: SpellTrapZone
-        count_limit: (1, 3734202)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [spell_trap_zone]
         cost {
             tribute self
         }
@@ -41,10 +38,9 @@ card "Naturia Sacred Tree" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + MandatoryTrigger
-        category: ToHand + Search
-        code: ChainEnd
+    effect "Effect 4" {
+        speed: spell_speed_2
+        trigger: on_custom_event "chain_end"
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)

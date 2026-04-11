@@ -6,11 +6,9 @@ card "Pair Bear Scare!!" {
     id: 21501961
     type: Quick-Play Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Destroy + Recover
-        code: FreeChain
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
         on_resolve {
             reveal (1+, card, opponent controls)
             shuffle_hand
@@ -21,11 +19,10 @@ card "Pair Bear Scare!!" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: ToHand
-        code: ChainEnd
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: on_custom_event "chain_end"
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
         }

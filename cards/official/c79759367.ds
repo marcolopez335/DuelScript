@@ -6,11 +6,9 @@ card "Madolche Nights" {
     id: 79759367
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Negate
-        code: Chaining
-        property: Oath + CountCodeDuel
+    effect "Effect 1" {
+        speed: spell_speed_2
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate activation
             return (1+, card, you controls) to deck shuffle

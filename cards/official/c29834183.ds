@@ -11,11 +11,12 @@ card "Graydle Eagle" {
     atk: 1500
     def: 500
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Equip + LeaveGrave
-        code: ChainEnd
-        property: CardTarget + Oath + Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             equip (1, card) to (1, monster)
         }

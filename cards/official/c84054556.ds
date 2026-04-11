@@ -20,33 +20,29 @@ card "DoomZ Command 'A.D.R.A.S.T.E.I.A.'" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Destroy + SpecialSummon
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [spell_trap_zone]
         on_resolve {
             destroy (1+, card, you controls, gy)
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: Equip + Damage
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
+        activate_from: [gy]
         on_resolve {
             equip (1, card) to (1, monster)
             deal_damage to opponent: 1000
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Activate
-        category: Equip
-        code: FreeChain
+    effect "Effect 4" {
+        speed: spell_speed_1
         on_resolve {
             equip self to (1, monster, you controls)
         }

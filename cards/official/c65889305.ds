@@ -6,9 +6,8 @@ card "Argostars - Lightning Tydeu" {
     id: 65889305
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
         }
     }
@@ -31,12 +30,11 @@ card "Argostars - Lightning Tydeu" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: QuickEffect
-        category: ToHand + SpecialSummon + Search
-        code: FreeChain
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        activate_from: [spell_trap_zone]
         on_resolve {
             special_summon (1, monster) from gy
             add_to_hand (1+, card, you controls) from deck
@@ -44,11 +42,10 @@ card "Argostars - Lightning Tydeu" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: QuickEffect
-        code: FreeChain
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 5" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
         on_resolve {
             special_summon (1, monster) from gy
         }

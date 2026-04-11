@@ -21,12 +21,10 @@ card "Rikka Queen Strenna" {
         method: xyz
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: ToHand
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 3828844)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         cost {
             detach 1 overlay_unit from self
         }
@@ -35,12 +33,12 @@ card "Rikka Queen Strenna" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: Released
-        property: Delay
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_tributed
         on_resolve {
             special_summon (1, monster) from gy
             attach (1, card) to self as_material

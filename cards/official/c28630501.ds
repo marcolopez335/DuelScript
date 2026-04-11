@@ -11,22 +11,22 @@ card "Yosenju Kama 3" {
     atk: 1500
     def: 800
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Summon
-        code: SummonSuccess
-        property: Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_summoned
         on_resolve {
             normal_summon (1, monster, you controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: ToHand + Search
-        code: BattleDestroyed
-        range: MonsterZone
-        count_limit: (1, 28630501)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when_battle_destroyed
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
             reveal (1+, card, opponent controls)

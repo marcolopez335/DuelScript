@@ -6,12 +6,10 @@ card "Riot's Reason" {
     id: 51612489
     type: Quick-Play Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + SpecialSummon
-        code: FreeChain
-        property: CardTarget
-        count_limit: (1, 51612489)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
             shuffle_hand
@@ -19,12 +17,13 @@ card "Riot's Reason" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: PositionChange
-        code: AttackAnnounce
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: when attack_declared
+        activate_from: [gy]
         cost {
             banish self
         }

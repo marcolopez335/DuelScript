@@ -11,36 +11,32 @@ card "BM-4 Blast Spider" {
     atk: 1400
     def: 2200
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Destroy
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             destroy (1+, monster, either_player controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: Damage
-        code: BattleDamage
-        property: Delay
-        range: MonsterZone
-        count_limit: (1, 40634253)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_battle_damage
         on_resolve {
             deal_damage to opponent: 1000
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: Damage
-        code: ChainEnd
-        property: Delay
-        range: MonsterZone
-        count_limit: (1, 40634253)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             deal_damage to opponent: 1000
         }

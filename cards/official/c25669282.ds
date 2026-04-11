@@ -6,11 +6,9 @@ card "Burnout" {
     id: 25669282
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon
-        code: FreeChain
-        count_limit: (1, 25669282)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
         cost {
             banish self
         }
@@ -19,11 +17,12 @@ card "Burnout" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: AttackAnnounce
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: when attack_declared
+        activate_from: [gy]
         cost {
             banish self
         }

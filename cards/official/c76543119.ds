@@ -11,22 +11,20 @@ card "Gimmick Puppet Des Troy" {
     atk: 1200
     def: 2000
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Destroy
-        property: CardTarget + IgnoreRange2
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             destroy (1+, card, you controls, hand)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: ChainEnd
-        property: Oath
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: on_custom_event "chain_end"
         on_resolve {
             special_summon (1, monster) from gy
         }

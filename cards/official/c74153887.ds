@@ -11,9 +11,11 @@ card "Dark Scorpion - Meanae the Thorn" {
     atk: 1000
     def: 1800
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        code: BattleDestroyed
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_destroyed
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)

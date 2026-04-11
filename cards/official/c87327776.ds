@@ -21,11 +21,9 @@ card "Salamangreat Miragestallio" {
         method: xyz
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: MonsterZone
-        count_limit: (1, 87327776)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         cost {
             detach 1 overlay_unit from self
         }
@@ -38,12 +36,13 @@ card "Salamangreat Miragestallio" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: FlipSuccess
-        property: CardTarget + Delay
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_flipped
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
         }

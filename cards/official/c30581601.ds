@@ -20,11 +20,12 @@ card "Yummy★Snatchy" {
         method: link
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        code: SpecialSummonSuccess
-        property: Delay
-        count_limit: (1, 30581601)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             send (1+, card, either_player controls) to gy
             special_summon (1, monster) from gy
@@ -35,12 +36,10 @@ card "Yummy★Snatchy" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
         cost {
             pay_lp 100
         }

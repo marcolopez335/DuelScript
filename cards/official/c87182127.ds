@@ -30,21 +30,19 @@ card "Ancient Gear Howitzer" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Damage
-        property: InitialValue
-        range: MonsterZone
-        count_limit: (1, 87182127)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             deal_damage to opponent: 1000
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: BattleDamage
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_damage
         on_resolve {
             special_summon (1, monster) from gy
         }

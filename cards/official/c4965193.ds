@@ -21,11 +21,10 @@ card "Chasma, Dragon Ruler of Auroras" {
         method: xyz
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        code: FreeChain
-        range: MonsterZone
-        count_limit: (1, 4965193)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
         cost {
             detach 1 overlay_unit from self
         }
@@ -33,12 +32,12 @@ card "Chasma, Dragon Ruler of Auroras" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: Destroyed
-        property: Delay
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             special_summon (1, monster) from gy
         }

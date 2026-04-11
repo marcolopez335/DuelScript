@@ -30,12 +30,11 @@ card "Cursed Bride Doll" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + MandatoryTrigger
-        category: ToDeck
-        code: PhaseEnd
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
+        activate_from: [gy]
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
         }

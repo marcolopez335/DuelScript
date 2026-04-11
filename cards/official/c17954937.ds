@@ -6,11 +6,10 @@ card "Mitsurugi Great Purification" {
     id: 17954937
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Destroy + Disable
-        code: Chaining
-        count_limit: (1, 17954937)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         cost {
             tribute self
         }
@@ -20,13 +19,12 @@ card "Mitsurugi Great Purification" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Release + SpecialSummon
-        code: FreeChain
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 17954937)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }

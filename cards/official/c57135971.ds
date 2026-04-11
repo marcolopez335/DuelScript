@@ -6,22 +6,19 @@ card "Red-Eyes Fang with Chain" {
     id: 57135971
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Equip
-        code: FreeChain
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_2
+        damage_step: false
         on_resolve {
             equip (1, card) to (1, monster)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Equip
-        code: FreeChain
-        property: CardTarget + Oath
-        range: SpellTrapZone
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        damage_step: false
+        activate_from: [spell_trap_zone]
         cost {
             send self to gy
         }

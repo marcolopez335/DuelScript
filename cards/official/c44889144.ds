@@ -6,12 +6,11 @@ card "Libromancer Intervention" {
     id: 44889144
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + SpecialSummon + Disable
-        code: Chaining
-        property: CardTarget
-        count_limit: (1, 44889144)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        damage_step: false
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             add_to_hand (1+, card, you controls) from gy
             negate effect

@@ -30,12 +30,12 @@ card "Scarred Dragon Archfiend" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: Destroy + SpecialSummon
-        code: ChainEnd
-        property: Delay
-        count_limit: (1, 87451661)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             special_summon (1, monster) from gy
             destroy (1+, monster, opponent controls)

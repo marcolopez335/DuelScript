@@ -6,9 +6,8 @@ card "Yum☆Yum☆Yummys" {
     id: 56870908
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -27,12 +26,11 @@ card "Yum☆Yum☆Yummys" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: ToGrave + SpecialSummon
-        property: CardTarget
-        range: SpellTrapZone
-        count_limit: (1, 56870908)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
+        activate_from: [spell_trap_zone]
         cost {
             pay_lp 500
         }
@@ -42,13 +40,13 @@ card "Yum☆Yum☆Yummys" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: Chaining
-        property: Delay
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        activate_from: [spell_trap_zone]
         cost {
             pay_lp 100
         }

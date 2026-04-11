@@ -6,9 +6,8 @@ card "Mound of the Bound Creator" {
     id: 269012
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -32,22 +31,20 @@ card "Mound of the Bound Creator" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + MandatoryTrigger
-        category: Damage
-        code: BattleDamage
-        property: InitialValue
-        range: FieldZone
+    effect "Effect 4" {
+        speed: spell_speed_1
+        trigger: when_battle_damage
+        activate_from: [field_zone]
         on_resolve {
             deal_damage to opponent: 1000
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: ChainEnd
-        property: Oath
+    effect "Effect 5" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: on_custom_event "chain_end"
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)

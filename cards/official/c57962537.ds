@@ -11,12 +11,10 @@ card "Wind-Up Rat" {
     atk: 600
     def: 600
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        property: CardTarget + IgnoreRange2
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             change_battle_position (1, monster)
             special_summon (1, monster) from gy

@@ -6,11 +6,9 @@ card "Azamina Debtors" {
     id: 20934683
     type: Quick-Play Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToGrave + SpecialSummon + FusionSummon
-        code: FreeChain
-        count_limit: (1, 20934683)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             reveal (1+, card, opponent controls)
             reveal (1+, card, opponent controls)
@@ -19,12 +17,11 @@ card "Azamina Debtors" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: SpecialSummon
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 20934683)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }

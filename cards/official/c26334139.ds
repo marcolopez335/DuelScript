@@ -6,11 +6,9 @@ card "Sinful Spoils Subdual" {
     id: 26334139
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + SpecialSummon + Search
-        code: FreeChain
-        count_limit: (1, 26334139)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
         on_resolve {
             add_to_hand (1, card, you controls) from gy
             special_summon (1, monster) from gy
@@ -21,13 +19,12 @@ card "Sinful Spoils Subdual" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: ToHand
-        code: FreeChain
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 26334139)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }

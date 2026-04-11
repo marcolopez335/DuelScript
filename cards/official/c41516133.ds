@@ -15,11 +15,10 @@ card "Super B.E.S. Metal Slave" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon + Counter
-        range: Hand
-        count_limit: (1, 41516133)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand]
         cost {
             send self to gy
         }
@@ -28,13 +27,11 @@ card "Super B.E.S. Metal Slave" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Destroy
-        code: FreeChain
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        damage_step: false
         on_resolve {
             destroy (1+, card, you controls, hand)
         }

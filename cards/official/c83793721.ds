@@ -20,12 +20,10 @@ card "Flowering Etoile the Melodious Magnificat" {
         method: fusion
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: Banish + ToHand
-        code: FreeChain
-        range: MonsterZone
-        count_limit: (1, 83793721)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
         on_resolve {
             banish (1+, monster, opponent controls)
             return (1+, card, opponent controls) to hand

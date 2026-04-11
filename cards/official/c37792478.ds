@@ -11,11 +11,12 @@ card "Metabo-Shark" {
     atk: 1800
     def: 500
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToDeck
-        code: SummonSuccess
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
         }

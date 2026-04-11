@@ -6,10 +6,8 @@ card "Sabatiel - The Philosopher's Stone" {
     id: 80831721
     type: Normal Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + Search
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         cost {
             pay_lp your_lp / 2
         }
@@ -19,11 +17,10 @@ card "Sabatiel - The Philosopher's Stone" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: AtkChange
-        property: CardTarget
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_1
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }

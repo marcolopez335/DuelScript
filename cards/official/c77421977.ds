@@ -33,12 +33,10 @@ card "A.I. Shadow" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + MandatoryTrigger
-        category: Draw
-        code: ChainEnd
-        property: Delay
-        count_limit: (1, 77421977)
+    effect "Effect 4" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        trigger: on_custom_event "chain_end"
         on_resolve {
             draw 1
         }

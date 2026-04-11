@@ -6,24 +6,23 @@ card "Tearlaments Metanoise" {
     id: 38436986
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToGrave + PositionChange
-        code: FreeChain
-        property: CardTarget
-        count_limit: (1, 38436986)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             change_battle_position (1, monster)
             send (1+, monster, you controls) to gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: ChainEnd
-        property: CardTarget + Delay
-        count_limit: (1, 38436986)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             return (1+, monster, you controls) to hand
         }

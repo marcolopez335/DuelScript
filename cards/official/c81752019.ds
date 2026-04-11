@@ -11,11 +11,10 @@ card "Flower Cardian Pine" {
     atk: 100
     def: 100
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: ToGrave + Draw
-        code: SummonSuccess
-        count_limit: (1, 81752019)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: when_summoned
         on_resolve {
             draw 1
             reveal (1+, card, opponent controls)
@@ -24,11 +23,11 @@ card "Flower Cardian Pine" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: Draw
-        code: ChainEnd
-        property: Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             draw 1
         }

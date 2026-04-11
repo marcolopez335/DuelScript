@@ -11,11 +11,12 @@ card "Shogi Knight" {
     atk: 800
     def: 400
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Destroy
-        code: SummonSuccess
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             reveal (1+, card, opponent controls)
             destroy (1+, trap, you controls, hand)

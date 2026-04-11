@@ -21,12 +21,10 @@ card "Dewloren, Tiger King of the Ice Barrier" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: ToHand + AtkChange
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 70583986)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }

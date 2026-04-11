@@ -15,11 +15,9 @@ card "Sylvan Lotuswain" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: DeckDestroy
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
         on_resolve {
             reveal (1, card, opponent controls, deck)
             send (1+, card, either_player controls) to gy
@@ -28,11 +26,12 @@ card "Sylvan Lotuswain" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToDeck
-        code: ChainEnd
-        property: CardTarget + Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
             send_to_deck (1+, card, you controls)

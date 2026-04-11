@@ -28,11 +28,12 @@ card "Sky Striker Ace - Azalea" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: Destroy + ToGrave
-        code: SpecialSummonSuccess
-        property: CardTarget + Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             destroy (1+, spell, you controls, gy)
             send (1+, spell, you controls, gy) to gy

@@ -6,9 +6,8 @@ card "Extra Buck" {
     id: 94937430
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
         }
     }
@@ -21,12 +20,10 @@ card "Extra Buck" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: Draw
-        code: FreeChain
-        property: InitialValue
-        range: SpellTrapZone
+    effect "Effect 3" {
+        speed: spell_speed_2
+        optional: true
+        activate_from: [spell_trap_zone]
         cost {
             send self to gy
         }

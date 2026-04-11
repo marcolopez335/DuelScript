@@ -6,10 +6,8 @@ card "Soul of the Supreme King" {
     id: 92428405
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         cost {
             pay_lp your_lp / 2
         }
@@ -30,11 +28,12 @@ card "Soul of the Supreme King" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: Chaining
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        activate_from: [gy]
         cost {
             banish self
         }

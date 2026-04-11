@@ -31,12 +31,11 @@ card "F.A. Motorhome Transport" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: LevelChange
-        code: Chaining
-        property: Oath + CountCodeDuel + Delay
-        range: MonsterZone
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
         }
     }
@@ -61,12 +60,10 @@ card "F.A. Motorhome Transport" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Ignition
-        category: SpecialSummon
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             special_summon (1, monster) from gy
         }

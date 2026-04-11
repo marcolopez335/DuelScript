@@ -6,21 +6,18 @@ card "Invocation" {
     id: 74063034
     type: Normal Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon + FusionSummon
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
             fusion_summon (1, fusion monster) using (1+, monster, you controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToHand + ToDeck
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 74063034)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
+        activate_from: [gy]
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
             add_to_hand (1+, card, either_player controls) from gy

@@ -35,21 +35,22 @@ card "Freki the Runick Fangs" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: Banish
-        code: AttackAnnounce
-        range: 4096
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when attack_declared
         on_resolve {
             banish (1+, card, either_player controls)
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: Destroyed
-        property: CardTarget + Delay
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_destroyed
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }

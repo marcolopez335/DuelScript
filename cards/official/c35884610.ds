@@ -30,10 +30,12 @@ card "U.A. Powered Jersey" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + Trigger
-        code: BattleDamage
-        range: SpellTrapZone
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_damage
+        activate_from: [spell_trap_zone]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -42,22 +44,21 @@ card "U.A. Powered Jersey" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Field + MandatoryTrigger
-        category: Banish
-        code: PhaseStandby
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
+        activate_from: [spell_trap_zone]
         on_resolve {
             banish (1+, card, either_player controls)
         }
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: ChainEnd
-        property: Delay
+    effect "Effect 6" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }
@@ -71,10 +72,8 @@ card "U.A. Powered Jersey" {
         }
     }
 
-    raw_effect "Effect 8" {
-        effect_type: Activate
-        category: Equip
-        code: FreeChain
+    effect "Effect 8" {
+        speed: spell_speed_1
         on_resolve {
             equip self to (1, monster, you controls)
         }

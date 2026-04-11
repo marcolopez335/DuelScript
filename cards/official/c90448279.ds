@@ -21,11 +21,9 @@ card "Divine Arsenal AA-ZEUS - Sky Thunder" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: ToGrave
-        code: FreeChain
-        range: MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
         cost {
             detach 2 overlay_unit from self
         }
@@ -34,12 +32,12 @@ card "Divine Arsenal AA-ZEUS - Sky Thunder" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        code: Destroyed
-        property: Oath + Delay
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             attach (1, card) to self as_material
         }

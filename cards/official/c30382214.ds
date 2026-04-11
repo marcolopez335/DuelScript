@@ -11,10 +11,9 @@ card "Flower Cardian Cherry Blossom" {
     atk: 100
     def: 100
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Hand
+    effect "Effect 1" {
+        speed: spell_speed_1
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {
@@ -28,12 +27,9 @@ card "Flower Cardian Cherry Blossom" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToHand + ToGrave + SpecialSummon + Draw + Search
-        property: InitialValue
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
         cost {
             tribute self
         }

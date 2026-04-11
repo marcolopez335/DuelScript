@@ -25,13 +25,11 @@ card "Regenesis Warrior" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: ToHand
-        code: FreeChain
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        damage_step: false
         cost {
             tribute self
         }
@@ -40,12 +38,13 @@ card "Regenesis Warrior" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: ToHand
-        code: PhaseEnd
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: during_end_phase
+        activate_from: [gy]
         on_resolve {
             return (1+, monster, either_player controls) to hand
         }

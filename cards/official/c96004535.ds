@@ -6,12 +6,10 @@ card "Unbreakable Xyz Barrier" {
     id: 96004535
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Destroy + Negate
-        code: Chaining
-        property: Oath
-        count_limit: (1, 96004535)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate activation
             detach 1 overlay_unit from self
@@ -19,13 +17,12 @@ card "Unbreakable Xyz Barrier" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: LeaveGrave
-        code: FreeChain
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }

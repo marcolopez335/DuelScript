@@ -25,11 +25,10 @@ card "Machina Fortress" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: Destroy
-        code: BattleDamage
-        property: CardTarget
+    effect "Effect 2" {
+        speed: spell_speed_1
+        damage_step: false
+        trigger: when_battle_damage
         on_resolve {
             destroy (1+, card, you controls, hand)
         }

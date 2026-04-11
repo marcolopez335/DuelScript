@@ -11,11 +11,9 @@ card "Sand Gambler" {
     atk: 300
     def: 1600
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Destroy + CoinToss
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
             destroy (1+, monster, either_player controls)

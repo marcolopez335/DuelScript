@@ -19,20 +19,17 @@ card "Karakuri Watchdog mdl 313 'Saizan'" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: PositionChange
-        code: BattleTarget
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_attacked
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + MandatoryTrigger
-        category: AtkChange + DefChange
-        code: BattleDestroyed
-        range: MonsterZone
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: when_battle_destroyed
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

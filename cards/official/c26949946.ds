@@ -21,10 +21,11 @@ card "Mecha Phantom Beast Jaculuslan" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: HandDestroy
-        code: SpecialSummonSuccess
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_summoned by_special_summon
         cost {
             tribute self
         }
@@ -51,10 +52,11 @@ card "Mecha Phantom Beast Jaculuslan" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        code: Destroyed
-        property: Oath + Delay
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             set (1, card)
         }

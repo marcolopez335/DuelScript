@@ -33,10 +33,9 @@ card "Accel Synchron" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
         cost {
             send self to gy
         }
@@ -44,11 +43,9 @@ card "Accel Synchron" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        range: MonsterZone
+    effect "Effect 3" {
+        speed: spell_speed_2
+        optional: true
         on_resolve {
             synchro_summon (1, synchro monster) using (1+, monster, you controls)
         }

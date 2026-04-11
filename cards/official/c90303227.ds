@@ -28,12 +28,12 @@ card "K9-X 'Werewolf'" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Banish
-        code: Chaining
-        range: MonsterZone
-        count_limit: (1, 90303227)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         cost {
             detach 1 overlay_unit from self
         }

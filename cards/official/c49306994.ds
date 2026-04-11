@@ -16,10 +16,10 @@ card "White Veil" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        code: AttackAnnounce
-        range: SpellTrapZone
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when attack_declared
+        activate_from: [spell_trap_zone]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -62,10 +62,8 @@ card "White Veil" {
         }
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Activate
-        category: Equip
-        code: FreeChain
+    effect "Effect 6" {
+        speed: spell_speed_1
         on_resolve {
             equip self to (1, monster, you controls)
         }

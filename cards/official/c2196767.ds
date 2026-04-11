@@ -11,11 +11,9 @@ card "Gambler of Legend" {
     atk: 500
     def: 1400
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Destroy + HandDestroy + CoinToss
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
             destroy (1+, monster, opponent controls)

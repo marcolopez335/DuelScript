@@ -30,11 +30,11 @@ card "Guiding Ariadne" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: Destroyed
-        property: Delay
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             reveal (1+, card, opponent controls)
             add_to_hand (1+, trap, you controls) from deck

@@ -6,21 +6,17 @@ card "Pantheism of the Monarchs" {
     id: 22842126
     type: Normal Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Draw
-        code: FreeChain
-        property: InitialValue
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
             draw 1
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToHand + Search
-        range: Graveyard
-        count_limit: (1, 22842126)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [gy]
         cost {
             banish self
         }

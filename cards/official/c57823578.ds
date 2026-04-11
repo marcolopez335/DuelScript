@@ -6,9 +6,8 @@ card "Simorgh Sky Battle" {
     id: 57823578
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
         }
     }
@@ -32,12 +31,11 @@ card "Simorgh Sky Battle" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: QuickEffect
-        category: ToHand + Damage
-        code: FreeChain
-        range: SpellTrapZone
-        count_limit: (1, 57823578)
+    effect "Effect 4" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [spell_trap_zone]
         on_resolve {
             return (1+, monster, you controls) to hand
             deal_damage to opponent: 1000

@@ -28,10 +28,9 @@ card "Gem-Knight Amethyst" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: ToHand
-        code: ChainEnd
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_end"
         on_resolve {
             return (1+, spell, either_player controls) to hand
         }

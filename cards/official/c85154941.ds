@@ -21,12 +21,10 @@ card "Duke Archfiend" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToGrave + LevelChange
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 85154941)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             send (1+, monster, you controls, deck) to gy
             register_effect on self {
@@ -36,12 +34,13 @@ card "Duke Archfiend" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: BattleDamage
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: when_battle_damage
+        activate_from: [gy]
         on_resolve {
             special_summon (1, monster) from gy
         }

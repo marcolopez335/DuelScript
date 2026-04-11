@@ -11,13 +11,12 @@ card "Royal Rhino with Deceitful Dice" {
     atk: 600
     def: 600
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: Destroy + Damage + AtkChange + DiceRoll
-        code: Chaining
-        property: Oath + CountCodeDuel
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
             deal_damage to opponent: 1000

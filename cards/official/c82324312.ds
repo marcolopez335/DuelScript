@@ -11,10 +11,11 @@ card "Goblin Recon Squad" {
     atk: 1700
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToGrave
-        code: BattleDestroyed
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_destroyed
         on_resolve {
             reveal (1+, card, opponent controls)
             send (1+, card, either_player controls) to gy

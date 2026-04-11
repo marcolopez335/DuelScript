@@ -26,12 +26,10 @@ card "Vera the Vernusylph Goddess" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Control
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 55125728)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             take_control of (1, monster, opponent controls)
             register_effect on self {
@@ -41,13 +39,11 @@ card "Vera the Vernusylph Goddess" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        damage_step: false
         on_resolve {
             special_summon (1, monster) from gy
         }

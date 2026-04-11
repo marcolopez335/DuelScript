@@ -16,11 +16,11 @@ card "Mayosenju Daibak" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: AtkChange
-        code: AttackAnnounce
-        range: PendulumZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when attack_declared
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -45,32 +45,32 @@ card "Mayosenju Daibak" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: SummonSuccess
-        property: CardTarget + Oath + Delay
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: SpecialSummonSuccess
-        property: CardTarget + Oath + Delay
+    effect "Effect 5" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Field + MandatoryTrigger
-        category: ToHand
-        code: PhaseEnd
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 6" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }

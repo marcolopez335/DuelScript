@@ -11,12 +11,14 @@ card "Gnomaterial" {
     atk: 0
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        code: SpecialSummonSuccess
-        property: CardTarget + Delay
-        range: Hand
-        count_limit: (1, 58655504)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned by_special_summon
+        activate_from: [hand]
         cost {
             discard (1, card, you controls)
         }

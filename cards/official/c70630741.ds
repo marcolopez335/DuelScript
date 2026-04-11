@@ -19,11 +19,10 @@ card "Rescue Warrior" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: Control
-        code: BattleDamage
-        property: CardTarget
+    effect "Effect 2" {
+        speed: spell_speed_1
+        damage_step: false
+        trigger: when_battle_damage
         on_resolve {
             take_control of (1, monster, opponent controls)
         }

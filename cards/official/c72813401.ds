@@ -20,11 +20,9 @@ card "Hi-Speedroid Rubber Band Shooter" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Summon
-        range: MonsterZone
-        count_limit: (1, 72813401)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             normal_summon (1, monster, you controls)
             register_effect on self {
@@ -34,11 +32,9 @@ card "Hi-Speedroid Rubber Band Shooter" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToHand + ToGrave + Search
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
         cost {
             banish self
         }

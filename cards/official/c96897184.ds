@@ -44,13 +44,11 @@ card "Fossil Warrior Skull King" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: QuickEffect
-        category: HandDestroy + SpecialSummon
-        code: FreeChain
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 96897184)
+    effect "Effect 4" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
         on_resolve {
             discard (1, card)
             special_summon (1, monster) from gy

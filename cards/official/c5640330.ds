@@ -11,19 +11,16 @@ card "Hannibal Necromancer" {
     atk: 1400
     def: 1800
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: Counter
-        code: SummonSuccess
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_summoned
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Destroy
-        property: CardTarget
-        range: MonsterZone
+    effect "Effect 2" {
+        speed: spell_speed_1
+        damage_step: false
         on_resolve {
             destroy (1+, trap, either_player controls)
         }

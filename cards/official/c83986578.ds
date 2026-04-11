@@ -11,21 +11,17 @@ card "King Tiger Wanghu" {
     atk: 1700
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: Field + MandatoryTrigger
-        category: Destroy
-        code: SummonSuccess
-        range: MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_summoned
         on_resolve {
             destroy (1+, card, either_player controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        category: Destroy
-        code: SpecialSummonSuccess
-        range: MonsterZone
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
         on_resolve {
             destroy (1+, card, either_player controls)
         }

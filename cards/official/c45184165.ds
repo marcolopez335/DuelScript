@@ -11,12 +11,13 @@ card "Raidraptor - Skull Eagle" {
     atk: 1000
     def: 500
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: ChainEnd
-        property: CardTarget + Oath + Delay
-        count_limit: (1, 45184165)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         cost {
             banish self
         }

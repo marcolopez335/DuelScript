@@ -6,11 +6,10 @@ card "Icy Crevasse" {
     id: 20721759
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToGrave + Damage
-        code: ChainEnd
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_2
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             send (1+, card, either_player controls) to gy
             deal_damage to opponent: 1000

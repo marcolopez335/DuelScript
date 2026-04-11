@@ -21,11 +21,9 @@ card "Master Spirit Tech Force - Pendulum Ruler" {
         method: fusion
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: ToHand + Search
-        range: PendulumZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
         on_resolve {
             return (1+, card, you controls) to deck shuffle
             add_to_hand (1+, card, you controls) from deck
@@ -52,12 +50,10 @@ card "Master Spirit Tech Force - Pendulum Ruler" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: Destroy + Damage
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (2, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        twice_per_turn
+        damage_step: false
         cost {
             tribute self
         }
@@ -67,10 +63,9 @@ card "Master Spirit Tech Force - Pendulum Ruler" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Ignition
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: soft
         on_resolve {
             special_summon (1, monster) from gy
         }

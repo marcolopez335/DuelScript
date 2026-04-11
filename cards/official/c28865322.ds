@@ -16,12 +16,10 @@ card "Aether, the Evil Empowering Dragon" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Destroy
-        property: CardTarget
-        range: PendulumZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         cost {
             banish self
         }
@@ -30,21 +28,23 @@ card "Aether, the Evil Empowering Dragon" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: Banish
-        code: SummonSuccess
-        property: CardTarget + Oath
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             banish (1+, monster, you controls, gy)
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: Banish
-        code: SpecialSummonSuccess
-        property: CardTarget + Oath
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             banish (1+, monster, you controls, gy)
         }

@@ -11,11 +11,12 @@ card "Predaplant Pterapenthes" {
     atk: 300
     def: 2100
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Counter
-        code: BattleDestroyed
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_battle_destroyed
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -24,12 +25,10 @@ card "Predaplant Pterapenthes" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Control
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             take_control of (1, monster, opponent controls)
         }

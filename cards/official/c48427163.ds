@@ -11,11 +11,10 @@ card "Lunalight Purple Butterfly" {
     atk: 1000
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: AtkChange
-        property: CardTarget
-        range: Hand + MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: false
+        activate_from: [hand, monster_zone]
         cost {
             send self to gy
         }
@@ -27,11 +26,10 @@ card "Lunalight Purple Butterfly" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Graveyard
-        count_limit: (1, 48427163)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [gy]
         cost {
             banish self
         }

@@ -15,11 +15,10 @@ card "Mecha Phantom Beast Kalgriffin" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Hand
-        count_limit: (1, 41329458)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand]
         cost {
             tribute self
         }
@@ -48,11 +47,9 @@ card "Mecha Phantom Beast Kalgriffin" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: SpecialSummon + Token
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
         on_resolve {
             create_token { atk: 0 def: 0 }
             special_summon (1, monster) from gy

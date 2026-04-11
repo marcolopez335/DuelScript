@@ -11,19 +11,21 @@ card "Superheavy Samurai Wagon" {
     atk: 1200
     def: 1800
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: PositionChange
-        code: SummonSuccess
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_summoned
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: PositionChange
-        code: SpecialSummonSuccess
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_summoned by_special_summon
         on_resolve {
             change_battle_position (1, monster)
         }
@@ -36,11 +38,9 @@ card "Superheavy Samurai Wagon" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: ToHand + Search
-        range: MonsterZone
-        count_limit: (1, 34496660)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             change_battle_position (1, monster)
             add_to_hand (1+, spell, you controls) from gy

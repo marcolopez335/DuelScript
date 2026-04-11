@@ -6,11 +6,10 @@ card "Gagaga Escape" {
     id: 9591819
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: HandDestroy + SpecialSummon + Negate
-        code: Chaining
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate activation
             discard (1, card)
@@ -18,12 +17,11 @@ card "Gagaga Escape" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: PositionChange
-        code: FreeChain
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        activate_from: [gy]
         cost {
             banish self
         }

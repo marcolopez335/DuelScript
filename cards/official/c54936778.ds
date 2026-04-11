@@ -6,42 +6,39 @@ card "Dark Contract with the Different Dimension" {
     id: 54936778
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        category: Damage
-        code: PhaseStandby
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        trigger: during_standby_phase
+        activate_from: [spell_trap_zone]
         on_resolve {
             deal_damage to opponent: 1000
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: Banish
-        code: FreeChain
-        property: CardTarget
-        range: SpellTrapZone
-        count_limit: (1, 54936778)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
+        activate_from: [spell_trap_zone]
         on_resolve {
             banish (1+, card, you controls, gy)
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: Recover
-        code: Destroyed
-        property: Delay
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             gain_lp: 1000
             gain_lp: 500

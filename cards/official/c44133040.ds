@@ -31,21 +31,19 @@ card "Evil Eye of Selene" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + MandatoryTrigger
-        category: AtkChange
-        code: Chaining
-        property: Oath + CountCodeDuel + Delay
-        range: SpellTrapZone
+    effect "Effect 4" {
+        speed: spell_speed_1
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        activate_from: [spell_trap_zone]
         on_resolve {
             gain_lp: 0
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Ignition
-        range: Graveyard
-        count_limit: (1, 44133040)
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [gy]
         cost {
             banish self
             pay_lp your_lp / 2
@@ -55,10 +53,8 @@ card "Evil Eye of Selene" {
         }
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Activate
-        category: Equip
-        code: FreeChain
+    effect "Effect 6" {
+        speed: spell_speed_1
         on_resolve {
             equip self to (1, monster, you controls)
         }

@@ -6,11 +6,10 @@ card "Parallel Selection" {
     id: 23327298
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand
-        code: ChainEnd
-        property: CardTarget + Oath
+    effect "Effect 1" {
+        speed: spell_speed_2
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             add_to_hand (1+, spell, either_player controls) from gy
             reveal (1+, card, opponent controls)

@@ -53,22 +53,21 @@ card "The Legendary Exodia Incarnate" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Field + MandatoryTrigger
-        category: ToHand
-        code: PhaseEnd
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand
             reveal (1+, card, opponent controls)
         }
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Single + Trigger
-        category: Draw
-        code: BattleDamage
+    effect "Effect 6" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_damage
         on_resolve {
             reveal (1+, card, opponent controls)
             shuffle_hand

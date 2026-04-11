@@ -6,11 +6,9 @@ card "Limit Code" {
     id: 86607583
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon + Equip + Counter
-        code: FreeChain
-        count_limit: (1, 86607583)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
         on_resolve {
             special_summon (1, monster) from gy
             equip (1, card) to (1, monster)
@@ -25,11 +23,11 @@ card "Limit Code" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + MandatoryTrigger
-        code: PhaseEnd
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        trigger: during_end_phase
+        activate_from: [spell_trap_zone]
         on_resolve {
             destroy (1+, card, either_player controls)
         }

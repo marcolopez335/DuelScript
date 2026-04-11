@@ -12,11 +12,12 @@ card "Speedroid Marble Machine" {
     atk: 200
     def: 100
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        code: BattleTarget
-        range: PendulumZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: when_attacked
         on_resolve {
             change_battle_position (1, monster)
             register_effect on self {
@@ -26,12 +27,12 @@ card "Speedroid Marble Machine" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: SummonSuccess
-        property: Oath
-        count_limit: (1, 96708940)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when_summoned
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)

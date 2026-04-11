@@ -11,10 +11,11 @@ card "Baby Raccoon Ponpoko" {
     atk: 800
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: SummonSuccess
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_summoned
         on_resolve {
             special_summon (1, monster) from gy
             reveal (1+, card, opponent controls)

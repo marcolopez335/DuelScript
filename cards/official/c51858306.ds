@@ -11,10 +11,9 @@ card "Eclipse Wyvern" {
     atk: 1600
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: Banish
-        code: ChainEnd
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_end"
         on_resolve {
             banish (1+, card, opponent controls, deck)
         }

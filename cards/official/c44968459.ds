@@ -6,21 +6,17 @@ card "Silent Burning" {
     id: 44968459
     type: Quick-Play Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Draw
-        code: FreeChain
-        property: IgnoreImmune + BothSide
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
             draw 1
             draw 1
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToHand + Search
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_1
+        activate_from: [gy]
         cost {
             banish self
         }

@@ -11,22 +11,20 @@ card "Dinowrestler Capaptera" {
     atk: 1600
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: ToGrave
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 93507434)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             send (1+, card, either_player controls) to gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: AtkChange
-        code: FlipSuccess
-        property: Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_flipped
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

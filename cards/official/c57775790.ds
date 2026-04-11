@@ -6,10 +6,9 @@ card "Fabled Realm's Revival" {
     id: 57775790
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
-        count_limit: (1, 57775790)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             set (1, card)
         }
@@ -31,10 +30,10 @@ card "Fabled Realm's Revival" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [spell_trap_zone]
         on_resolve {
             draw 1
             special_summon (1, monster) from gy

@@ -11,21 +11,18 @@ card "Madolche Baaple" {
     atk: 0
     def: 1800
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: ToDeck
-        code: ChainEnd
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_end"
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: PositionChange
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             change_battle_position (1, monster)
             register_effect on self {

@@ -18,13 +18,13 @@ card "Keeper of the Shrine" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: ToHand + SpecialSummon
-        code: ChainEnd
-        property: Oath + Delay
-        range: Hand + Graveyard
-        count_limit: (1, 66752837)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
+        activate_from: [hand, gy]
         on_resolve {
             special_summon (1, monster) from gy
             add_to_hand (1+, card, you controls) from gy

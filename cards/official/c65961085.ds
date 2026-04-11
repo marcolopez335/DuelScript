@@ -15,12 +15,13 @@ card "Wheel of Prophecy" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToDeck
-        code: SpecialSummonSuccess
-        property: CardTarget + Oath
-        count_limit: (1, 65961085)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             return (1+, spell, either_player controls) to deck shuffle
             send (1+, spell, either_player controls) to gy

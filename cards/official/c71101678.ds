@@ -44,13 +44,12 @@ card "Earthbound Servant Geo Grasha" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: Destroy
-        code: Destroyed
-        property: Oath + Delay
-        range: MonsterZone
-        count_limit: (1, 71101678)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             destroy (1+, monster, you controls, deck)
         }

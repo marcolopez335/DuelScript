@@ -20,12 +20,11 @@ card "Gate Guardians Combined" {
         method: fusion
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: Destroy + Disable
-        code: Chaining
-        range: MonsterZone
-        count_limit: (3, 8505920)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate effect
             destroy (1+, card, either_player controls)

@@ -20,13 +20,11 @@ card "Firewall Dragon Singularity" {
         method: link
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: ToHand + AtkChange
-        code: FreeChain
-        property: CardTarget + Oath
-        range: MonsterZone
-        count_limit: (1, 21637210)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
         }

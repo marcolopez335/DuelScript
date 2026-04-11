@@ -6,10 +6,8 @@ card "Rainbow Bridge of Salvation" {
     id: 5611760
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToDeck + Draw
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
             set_flag "tracked" on self
             return (1+, monster, either_player controls) to deck shuffle
@@ -20,11 +18,10 @@ card "Rainbow Bridge of Salvation" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: ToHand + Search
-        code: FreeChain
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        activate_from: [gy]
         cost {
             banish self
         }

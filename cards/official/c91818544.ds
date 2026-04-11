@@ -27,24 +27,23 @@ card "WAKE CUP! Mocha" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: SpecialSummon + PositionChange
-        property: CardTarget
-        range: Hand
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
             change_battle_position (1, monster)
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: PositionChange
-        code: PhaseEnd
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: during_end_phase
         on_resolve {
             change_battle_position (1, monster)
         }

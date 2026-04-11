@@ -15,11 +15,9 @@ card "Danger! Thunderbird!" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: HandDestroy + SpecialSummon + Draw
-        code: FreeChain
-        range: Hand
+    effect "Effect 1" {
+        speed: spell_speed_1
+        activate_from: [hand]
         on_resolve {
             shuffle_hand
             send (1+, card, opponent controls, hand) to gy
@@ -28,12 +26,13 @@ card "Danger! Thunderbird!" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: Destroy
-        code: ChainEnd
-        property: CardTarget + Delay
-        count_limit: (1, 90807199)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             destroy (1+, card, opponent controls, hand)
         }

@@ -26,11 +26,12 @@ card "Majiosheldon" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: PhaseStandby
-        range: Graveyard
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: during_standby_phase
+        activate_from: [gy]
         on_resolve {
             special_summon (1, monster) from gy
         }

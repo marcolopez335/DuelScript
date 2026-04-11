@@ -20,11 +20,9 @@ card "Ragnaraika Mantis Monk" {
         method: link
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: ToHand + Search
-        range: MonsterZone
-        count_limit: (1, 70514456)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         cost {
             banish self
         }
@@ -34,12 +32,11 @@ card "Ragnaraika Mantis Monk" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToDeck + SpecialSummon
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
+        activate_from: [gy]
         on_resolve {
             return (1+, trap, you controls) to deck shuffle
             special_summon (1, monster) from gy

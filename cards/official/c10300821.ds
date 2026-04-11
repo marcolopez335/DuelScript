@@ -43,12 +43,12 @@ card "Number C79: Battlin' Boxer General Kaiser" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: ToGrave
-        code: AttackAnnounce
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: when attack_declared
         on_resolve {
             send (1+, monster, you controls, hand) to gy
             attach (1, card) to self as_material

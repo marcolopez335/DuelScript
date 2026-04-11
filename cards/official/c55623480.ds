@@ -11,31 +11,32 @@ card "Fairy Tail - Snow" {
     atk: 1850
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: PositionChange
-        code: SummonSuccess
-        property: CardTarget + Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: PositionChange
-        code: SpecialSummonSuccess
-        property: CardTarget + Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        range: Graveyard
+    effect "Effect 3" {
+        speed: spell_speed_2
+        optional: true
+        activate_from: [gy]
         cost {
             banish self
         }

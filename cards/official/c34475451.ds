@@ -11,11 +11,12 @@ card "Construction Train Signal Red" {
     atk: 1000
     def: 1300
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: AttackAnnounce
-        range: Hand
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when attack_declared
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
         }

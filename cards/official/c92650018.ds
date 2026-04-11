@@ -6,13 +6,12 @@ card "Amaze Attraction Horror House" {
     id: 92650018
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: Disable
-        code: FreeChain
-        property: CardTarget
-        range: SpellTrapZone
-        count_limit: (1, 92650018)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
+        activate_from: [spell_trap_zone]
         on_resolve {
             negate effect
             register_effect on self {
@@ -26,12 +25,11 @@ card "Amaze Attraction Horror House" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: PositionChange
-        code: FreeChain
-        range: SpellTrapZone
-        count_limit: (1, 92650018)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [spell_trap_zone]
         on_resolve {
             change_battle_position (1, monster)
         }

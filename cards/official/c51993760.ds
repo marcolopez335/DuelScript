@@ -34,13 +34,13 @@ card "Dark Spirit of Banishment" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: ToHand
-        code: ChainEnd
-        property: Delay
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
+        activate_from: [gy]
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }

@@ -66,11 +66,12 @@ card "Qliphort Carrier" {
         }
     }
 
-    raw_effect "Effect 7" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: Released
-        property: CardTarget + Oath + Delay
+    effect "Effect 7" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_tributed
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }

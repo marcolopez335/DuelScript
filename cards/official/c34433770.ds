@@ -6,24 +6,23 @@ card "Sky Striker Special Maneuver - Lemnisgate!" {
     id: 34433770
     type: Quick-Play Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + ToDeck
-        code: FreeChain
-        property: CardTarget
-        count_limit: (1, 34433770)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             return (1+, monster, you controls) to deck shuffle
             add_to_hand (1+, monster, you controls) from gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: SpecialSummonSuccess
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: when_summoned by_special_summon
+        activate_from: [gy]
         cost {
             banish self
         }

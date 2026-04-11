@@ -11,11 +11,10 @@ card "Mithra the Thunder Vassal" {
     atk: 800
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon + Token
-        range: Hand
-        count_limit: (1, 22404675)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
             create_token { atk: 0 def: 0 }
@@ -27,11 +26,12 @@ card "Mithra the Thunder Vassal" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        code: Released
-        property: Delay
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_tributed
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

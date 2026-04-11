@@ -6,20 +6,19 @@ card "Forge a New Future" {
     id: 27104921
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
-        count_limit: (1, 27104921)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: ToGrave + SpecialSummon + Counter
-        code: SpecialSummonSuccess
-        property: Delay
-        range: SpellTrapZone
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
+        activate_from: [spell_trap_zone]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

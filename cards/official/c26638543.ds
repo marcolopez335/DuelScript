@@ -12,11 +12,10 @@ card "Metrognome" {
     atk: 1800
     def: 1600
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        property: CardTarget
-        range: PendulumZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
         }
     }
@@ -49,10 +48,9 @@ card "Metrognome" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single + MandatoryTrigger
-        category: Destroy
-        code: BattleDestroyed
+    effect "Effect 5" {
+        speed: spell_speed_1
+        trigger: when_battle_destroyed
         on_resolve {
             destroy (1+, card, either_player controls)
         }

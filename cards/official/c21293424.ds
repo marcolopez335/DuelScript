@@ -39,11 +39,12 @@ card "Gunkan Suship Shirauo-class Carrier" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        code: SpecialSummonSuccess
-        property: Delay
-        count_limit: (1, 21293424)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             draw 1
             add_to_hand (1+, spell, either_player controls) from gy

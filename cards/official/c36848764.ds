@@ -6,12 +6,11 @@ card "Sweet Roommaid" {
     id: 36848764
     type: Quick-Play Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToDeck
-        code: ChainEnd
-        property: CardTarget + Delay
-        count_limit: (1, 36848764)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
         }

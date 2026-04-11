@@ -20,27 +20,27 @@ card "Heavy Mech Support Armor" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: SummonSuccess
-        property: CardTarget
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        range: MonsterZone
+    effect "Effect 3" {
+        speed: spell_speed_1
         on_resolve {
             equip self to (1, monster, you controls)
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        range: SpellTrapZone
+    effect "Effect 4" {
+        speed: spell_speed_1
+        activate_from: [spell_trap_zone]
         on_resolve {
             special_summon self from spell_trap_zone
         }

@@ -11,11 +11,10 @@ card "Destiny HERO - Dark Angel" {
     atk: 0
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        property: CardTarget
-        range: Hand
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: false
+        activate_from: [hand]
         cost {
             discard (1, card, you controls)
         }
@@ -34,11 +33,13 @@ card "Destiny HERO - Dark Angel" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        code: PhaseStandby
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: during_standby_phase
+        activate_from: [gy]
         cost {
             banish self
         }

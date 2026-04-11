@@ -6,20 +6,17 @@ card "Smile Action" {
     id: 47870325
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Banish
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
             banish (1+, spell, either_player controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        category: ToHand + HandDestroy
-        code: AttackAnnounce
-        range: FieldZone
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when attack_declared
+        activate_from: [field_zone]
         on_resolve {
             add_to_hand (1+, spell, either_player controls) from gy
             send (1+, spell, either_player controls) to gy

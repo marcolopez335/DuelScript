@@ -11,18 +11,16 @@ card "D Cubed" {
     atk: 0
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        code: SummonSuccess
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_summoned
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: MonsterZone
-        count_limit: (1, 99357565)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {
@@ -40,12 +38,12 @@ card "D Cubed" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: ToGrave
-        code: Destroyed
-        property: Delay
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             send (1+, monster, you controls, hand) to gy
         }

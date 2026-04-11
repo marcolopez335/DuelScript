@@ -38,24 +38,21 @@ card "Albion the Sanctifire Dragon" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        damage_step: false
         on_resolve {
             special_summon (1, monster) from gy
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: Release + SpecialSummon
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [gy]
         on_resolve {
             tribute (1, monster, you controls)
             special_summon (1, monster) from gy

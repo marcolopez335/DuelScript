@@ -6,21 +6,20 @@ card "World Legacy's Mind Meld" {
     id: 27705190
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: Chaining
-        count_limit: (1, 27705190)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 27705190)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }

@@ -6,12 +6,10 @@ card "Emblema Salvation" {
     id: 61950680
     type: Quick-Play Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Banish
-        code: FreeChain
-        property: CardTarget
-        count_limit: (1, 61950680)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         cost {
             banish self
         }
@@ -20,11 +18,11 @@ card "Emblema Salvation" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: LeaveGrave
-        code: Destroyed
-        property: Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {

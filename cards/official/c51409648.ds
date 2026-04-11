@@ -20,25 +20,24 @@ card "Rindbrumm the Striking Dragon" {
         method: fusion
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: ToHand + Disable
-        code: Chaining
-        range: MonsterZone
-        count_limit: (1, 51409648)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate effect
             return (1+, monster, either_player controls) to hand
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Banish + SpecialSummon
-        code: FreeChain
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        damage_step: false
+        activate_from: [gy]
         on_resolve {
             special_summon (1, monster) from gy
             banish (1+, monster, either_player controls)

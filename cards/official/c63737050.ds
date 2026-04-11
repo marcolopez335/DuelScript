@@ -15,11 +15,9 @@ card "Ryu Okami" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + MandatoryTrigger
-        category: ToGrave
-        code: SpecialSummonSuccess
-        range: MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
         on_resolve {
             send (1+, card, either_player controls) to gy
         }

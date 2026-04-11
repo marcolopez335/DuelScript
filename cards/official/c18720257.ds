@@ -6,10 +6,9 @@ card "The Weather Forecast" {
     id: 18720257
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
-        count_limit: (1, 18720257)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -33,11 +32,10 @@ card "The Weather Forecast" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: Summon
-        range: FieldZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [field_zone]
         on_resolve {
             normal_summon (1, monster, you controls)
         }

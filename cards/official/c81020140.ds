@@ -11,9 +11,11 @@ card "Volcanic Blaster" {
     atk: 1200
     def: 600
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        code: BattleDamage
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_damage
         on_resolve {
             shuffle_deck
             reveal (1, card, opponent controls, deck)

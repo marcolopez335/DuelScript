@@ -6,19 +6,17 @@ card "Sky Striker Mecha Modules - Multirole" {
     id: 24010609
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToGrave
-        property: CardTarget
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
+        activate_from: [spell_trap_zone]
         on_resolve {
             send (1+, spell, you controls, gy) to gy
             register_effect on self {
@@ -29,12 +27,13 @@ card "Sky Striker Mecha Modules - Multirole" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: LeaveGrave
-        code: PhaseEnd
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: during_end_phase
+        activate_from: [spell_trap_zone]
         on_resolve {
             set (1, card)
             register_effect on self {

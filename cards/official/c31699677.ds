@@ -11,12 +11,11 @@ card "Magikuriboh" {
     atk: 300
     def: 200
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        range: Hand
-        count_limit: (1, 31699677)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [hand]
         cost {
             send self to gy
         }
@@ -25,13 +24,13 @@ card "Magikuriboh" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: ToHand
-        code: Destroyed
-        property: Oath + Delay
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_destroyed
+        activate_from: [gy]
         on_resolve {
             add_to_hand (1+, card, you controls) from gy
         }

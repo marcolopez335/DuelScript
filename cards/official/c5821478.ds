@@ -20,11 +20,9 @@ card "Topologic Bomber Dragon" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + MandatoryTrigger
-        category: Destroy
-        code: SpecialSummonSuccess
-        range: MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
         on_resolve {
             destroy (1+, monster, either_player controls)
             register_effect on self {

@@ -11,12 +11,12 @@ card "Clear Kuriboh" {
     atk: 300
     def: 200
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: Negate
-        code: Chaining
-        property: Oath + CountCodeDuel
-        range: Hand
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        activate_from: [hand]
         cost {
             discard (1, card, you controls)
         }
@@ -25,12 +25,13 @@ card "Clear Kuriboh" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: SpecialSummon + Draw
-        code: AttackAnnounce
-        range: Graveyard
-        count_limit: (1, 46613515)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when attack_declared
+        activate_from: [gy]
         cost {
             banish self
         }

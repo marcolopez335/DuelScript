@@ -6,21 +6,19 @@ card "Exxod Fires of Rage" {
     id: 23617756
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Destroy
-        code: FreeChain
-        count_limit: (1, 23617756)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
         on_resolve {
             destroy (1+, monster, opponent controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        code: FreeChain
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        activate_from: [gy]
         cost {
             banish self
         }

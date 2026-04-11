@@ -11,11 +11,11 @@ card "Winged Rhynos" {
     atk: 1800
     def: 500
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: ToHand
-        code: Chaining
-        range: MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }

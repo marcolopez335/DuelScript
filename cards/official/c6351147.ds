@@ -6,10 +6,9 @@ card "Transaction Rollback" {
     id: 6351147
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
-        count_limit: (1, 6351147)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
         cost {
             pay_lp your_lp / 2
         }
@@ -17,11 +16,11 @@ card "Transaction Rollback" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        code: FreeChain
-        range: Graveyard
-        count_limit: (1, 6351147)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [gy]
         cost {
             pay_lp your_lp / 2
             banish self

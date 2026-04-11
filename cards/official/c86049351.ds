@@ -6,10 +6,9 @@ card "Last Counter" {
     id: 86049351
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Damage + AtkChange
-        code: AttackAnnounce
+    effect "Effect 1" {
+        speed: spell_speed_2
+        trigger: when attack_declared
         on_resolve {
             negate attack
             send (1+, monster, you controls) to gy

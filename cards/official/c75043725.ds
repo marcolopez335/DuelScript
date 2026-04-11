@@ -11,10 +11,9 @@ card "Emissary of the Afterlife" {
     atk: 1600
     def: 600
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: ToHand + Search
-        code: ChainEnd
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_end"
         on_resolve {
             add_to_hand (1+, card, opponent controls) from deck
             reveal (1+, card, opponent controls)

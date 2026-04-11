@@ -6,9 +6,8 @@ card "Flower Stacking" {
     id: 30786387
     type: Normal Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
             reveal (1+, card, opponent controls)
             shuffle_deck
@@ -17,12 +16,11 @@ card "Flower Stacking" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToHand
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 30786387)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }

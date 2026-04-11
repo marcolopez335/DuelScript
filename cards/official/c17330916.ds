@@ -16,10 +16,9 @@ card "Performapal Monkeyboard" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
-        range: Hand
+    effect "Effect 1" {
+        speed: spell_speed_1
+        activate_from: [hand]
         on_resolve {
         }
     }
@@ -42,10 +41,10 @@ card "Performapal Monkeyboard" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        range: Hand
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [hand]
         cost {
             discard (1, card, you controls)
         }
@@ -59,11 +58,9 @@ card "Performapal Monkeyboard" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Ignition
-        category: ToHand + Search
-        range: PendulumZone
-        count_limit: (1, 17330916)
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand
             reveal (1+, card, opponent controls)

@@ -11,12 +11,13 @@ card "Red-Eyes Wyvern" {
     atk: 1800
     def: 1600
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: PhaseEnd
-        property: CardTarget
-        range: Graveyard
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: during_end_phase
+        activate_from: [gy]
         cost {
             banish self
         }

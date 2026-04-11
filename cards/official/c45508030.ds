@@ -12,24 +12,21 @@ card "Possessed Resonance" {
     atk: 0
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon + PositionChange
-        code: FreeChain
-        property: CardTarget
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             special_summon (1, monster) from gy
             change_battle_position (1, monster)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: PositionChange
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }

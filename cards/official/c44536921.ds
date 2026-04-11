@@ -6,11 +6,9 @@ card "Predaplanning" {
     id: 44536921
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Counter
-        code: FreeChain
-        count_limit: (1, 44536921)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
         cost {
             send self to gy
         }
@@ -22,13 +20,14 @@ card "Predaplanning" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: Destroy
-        code: SpecialSummonSuccess
-        property: CardTarget + Delay
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned by_special_summon
+        activate_from: [gy]
         cost {
             banish self
         }

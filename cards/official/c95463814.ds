@@ -20,13 +20,13 @@ card "Phantasm Emperor Trilojig" {
         method: fusion
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: Damage
-        code: SpecialSummonSuccess
-        property: CardTarget + InitialValue
-        range: MonsterZone
-        count_limit: (1, 95463814)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             deal_damage to opponent: 1000
         }

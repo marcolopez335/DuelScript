@@ -11,11 +11,13 @@ card "Aqua Armor Ninja" {
     atk: 800
     def: 1600
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        code: AttackAnnounce
-        property: CardTarget
-        range: Graveyard
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when attack_declared
+        activate_from: [gy]
         cost {
             banish self
         }

@@ -6,11 +6,9 @@ card "Ryu-Ge Rivalry" {
     id: 81549048
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + SpecialSummon
-        code: FreeChain
-        count_limit: (1, 81549048)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
         on_resolve {
             special_summon (1, monster) from gy
             add_to_hand (1+, card, you controls) from gy
@@ -18,13 +16,12 @@ card "Ryu-Ge Rivalry" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: ToDeck + Draw
-        code: FreeChain
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }

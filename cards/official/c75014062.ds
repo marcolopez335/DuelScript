@@ -6,12 +6,10 @@ card "Spell Power Grasp" {
     id: 75014062
     type: Normal Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + Search + Counter
-        code: FreeChain
-        property: CardTarget
-        count_limit: (1, 75014062)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
             reveal (1+, card, opponent controls)

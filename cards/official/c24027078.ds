@@ -11,13 +11,13 @@ card "Morgan, the Enchantress of Avalon" {
     atk: 1300
     def: 1600
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: Destroy + Negate
-        code: Chaining
-        property: Oath + CountCodeDuel
-        range: Hand
-        count_limit: (1, 24027078)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        activate_from: [hand]
         cost {
             send self to gy
         }

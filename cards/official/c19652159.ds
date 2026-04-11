@@ -29,23 +29,21 @@ card "Light and Darkness Dragonlord" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: MandatoryQuick
-        category: AtkChange + DefChange + Negate
-        code: Chaining
-        property: Oath + CountCodeDuel
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate activation
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: Destroyed
-        property: CardTarget + Delay
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_destroyed
         on_resolve {
             special_summon (1, monster) from gy
         }

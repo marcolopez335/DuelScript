@@ -20,13 +20,13 @@ card "Trickstar Colchica" {
         method: link
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: Damage
-        code: BattleDamage
-        property: Delay
-        range: Graveyard
-        count_limit: (1, 298846)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_battle_damage
+        activate_from: [gy]
         cost {
             banish self
         }

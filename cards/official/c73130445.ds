@@ -12,24 +12,21 @@ card "Performapal Lizardraw" {
     atk: 1200
     def: 600
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Destroy + Draw
-        range: PendulumZone
-        count_limit: (1, 73130445)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             destroy (1+, card, either_player controls)
             draw 1
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: Draw
-        code: Destroyed
-        property: Oath + Delay
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             draw 1
         }

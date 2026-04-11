@@ -15,11 +15,10 @@ card "Space-Time Police" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: Banish
-        code: SpecialSummonSuccess
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             banish (1+, monster, either_player controls)
         }

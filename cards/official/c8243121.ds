@@ -6,12 +6,10 @@ card "Lyrilusc - Phantom Feathers" {
     id: 8243121
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: AtkChange + LevelChange
-        code: FreeChain
-        property: CardTarget + Oath
-        count_limit: (1, 8243121)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -28,11 +26,13 @@ card "Lyrilusc - Phantom Feathers" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        code: AttackAnnounce
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: when attack_declared
+        activate_from: [gy]
         cost {
             banish self
         }

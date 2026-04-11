@@ -25,10 +25,9 @@ card "Advanced Crystal Beast Cobalt Eagle" {
         redirect_to: banished
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: ToHand + Search
-        range: Hand + MonsterZone
+    effect "Effect 3" {
+        speed: spell_speed_1
+        activate_from: [hand, monster_zone]
         cost {
             send self to gy
         }
@@ -38,12 +37,10 @@ card "Advanced Crystal Beast Cobalt Eagle" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: ToHand + ToDeck
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             add_to_hand (1, card, you controls) from gy
             return (1+, card, you controls) to deck shuffle

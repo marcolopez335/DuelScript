@@ -16,11 +16,10 @@ card "Clown Crew Flair" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: ToHand + HandDestroy + Search
-        range: Hand
-        count_limit: (1, 42759961)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand]
         cost {
             reveal self
         }
@@ -32,10 +31,11 @@ card "Clown Crew Flair" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        code: Released
-        property: Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_tributed
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
             change_battle_position (1, monster)

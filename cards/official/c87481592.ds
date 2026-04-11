@@ -14,21 +14,19 @@ card "Dogmatikacism" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToGrave
-        code: ChainEnd
-        property: Delay
-        count_limit: (1, 87481592)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             send (1+, card, either_player controls) to gy
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Activate
-        category: Equip
-        code: FreeChain
+    effect "Effect 3" {
+        speed: spell_speed_1
         on_resolve {
             equip self to (1, monster, you controls)
         }

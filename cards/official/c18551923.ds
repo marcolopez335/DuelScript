@@ -11,35 +11,32 @@ card "Medusa, Watcher of the Evil Eye" {
     atk: 1400
     def: 1600
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToHand + LeaveGrave
-        code: SummonSuccess
-        property: CardTarget + Oath
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
             reveal (1+, card, opponent controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Banish
-        code: FreeChain
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 18551923)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
         on_resolve {
             banish (1+, monster, you controls, gy)
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + MandatoryTrigger
-        category: Banish + LeaveGrave
-        code: PhaseStandby
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
         on_resolve {
             banish (1+, monster, you controls, gy)
         }

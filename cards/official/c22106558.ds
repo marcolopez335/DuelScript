@@ -11,11 +11,11 @@ card "Mechanical Mechanic" {
     atk: 500
     def: 500
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: LevelChange
-        code: AttackAnnounce
-        range: MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when attack_declared
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -24,22 +24,19 @@ card "Mechanical Mechanic" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Hand
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: Destroy + ToHand + Search
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             destroy (1+, spell, either_player controls)
             add_to_hand (1+, spell, either_player controls) from gy

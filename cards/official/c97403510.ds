@@ -36,12 +36,12 @@ card "Number 92: Heart-eartH Dragon" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: Banish
-        code: PhaseEnd
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: during_end_phase
         cost {
             detach 1 overlay_unit from self
         }
@@ -50,20 +50,19 @@ card "Number 92: Heart-eartH Dragon" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: ChainEnd
-        property: Oath + Delay
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single + MandatoryTrigger
-        category: AtkChange
-        code: SpecialSummonSuccess
+    effect "Effect 5" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
         on_resolve {
         }
     }

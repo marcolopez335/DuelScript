@@ -37,22 +37,20 @@ card "Drytron Meteonis Quadrantids" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: Destroy
-        range: MonsterZone
-        count_limit: (1, 95209656)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             destroy (1+, spell, opponent controls)
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: Destroyed
-        property: Oath + CountCodeDuel + Delay
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             special_summon (1, monster) from gy
         }

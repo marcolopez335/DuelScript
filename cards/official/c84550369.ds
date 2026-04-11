@@ -6,11 +6,9 @@ card "Mikanko Shinbu - Noble Twins" {
     id: 84550369
     type: Normal Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToGrave
-        code: FreeChain
-        count_limit: (1, 84550369)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             send (1+, spell, you controls, deck) to gy
             set (1, card)
@@ -21,11 +19,10 @@ card "Mikanko Shinbu - Noble Twins" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Graveyard
-        count_limit: (1, 84550369)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [gy]
         cost {
             banish self
         }

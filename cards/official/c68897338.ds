@@ -11,23 +11,23 @@ card "The Fabled Behilmoth" {
     atk: 1000
     def: 600
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: HandDestroy + SpecialSummon
-        range: Hand
-        count_limit: (1, 68897338)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand]
         on_resolve {
             send (1+, monster, you controls, hand) to gy
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: ChainEnd
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: on_custom_event "chain_end"
+        activate_from: [gy]
         cost {
             banish self
         }

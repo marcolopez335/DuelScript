@@ -21,11 +21,11 @@ card "Silvera, Wolf Tamer of the White Forest" {
         method: synchro
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: PositionChange
-        code: SpecialSummonSuccess
-        property: Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             change_battle_position (1, monster)
         }

@@ -6,10 +6,9 @@ card "The Ultimate Creature of Destruction" {
     id: 56920308
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_2
+        damage_step: false
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -26,23 +25,25 @@ card "The Ultimate Creature of Destruction" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        code: SummonSuccess
-        property: Delay
-        range: Graveyard
-        count_limit: (1, 56920308)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned
+        activate_from: [gy]
         on_resolve {
             set (1, card)
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        code: SpecialSummonSuccess
-        property: Delay
-        range: Graveyard
-        count_limit: (1, 56920308)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
+        activate_from: [gy]
         on_resolve {
             set (1, card)
         }

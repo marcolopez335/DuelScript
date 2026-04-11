@@ -11,10 +11,9 @@ card "Raidraptor - Mimicry Lanius" {
     atk: 1100
     def: 1900
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -23,11 +22,10 @@ card "Raidraptor - Mimicry Lanius" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToHand + Search
-        range: Graveyard
-        count_limit: (1, 96345188)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [gy]
         cost {
             banish self
         }

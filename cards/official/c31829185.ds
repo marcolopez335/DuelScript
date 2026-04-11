@@ -33,12 +33,12 @@ card "Dark Necrofear" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + MandatoryTrigger
-        code: PhaseEnd
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
+        trigger: during_end_phase
+        activate_from: [gy]
         on_resolve {
             equip (1, card) to (1, monster)
         }

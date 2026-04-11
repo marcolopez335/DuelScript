@@ -23,12 +23,11 @@ card "Orcust Knightmare" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToGrave + AtkChange
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 4055337)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }
@@ -45,13 +44,12 @@ card "Orcust Knightmare" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: ToGrave + AtkChange
-        code: FreeChain
-        property: CardTarget + Oath
-        range: Graveyard
-        count_limit: (1, 4055337)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }

@@ -21,13 +21,12 @@ card "Despian Luluwalilith" {
         method: synchro
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: Disable + AtkChange
-        code: LeaveField
-        property: Delay
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_leaves_field
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -80,12 +79,13 @@ card "Despian Luluwalilith" {
         }
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: PhaseEnd
-        range: Graveyard
-        count_limit: (1, 53971455)
+    effect "Effect 6" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: during_end_phase
+        activate_from: [gy]
         on_resolve {
             special_summon (1, monster) from gy
         }

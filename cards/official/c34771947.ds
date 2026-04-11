@@ -6,9 +6,8 @@ card "Labyrinth Wall Shadow" {
     id: 34771947
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -22,10 +21,10 @@ card "Labyrinth Wall Shadow" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        range: FieldZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [field_zone]
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {

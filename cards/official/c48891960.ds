@@ -21,11 +21,9 @@ card "Dragunity Knight - Ascalon" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Banish
-        property: CardTarget
-        range: MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: false
         cost {
             banish self
         }
@@ -34,12 +32,12 @@ card "Dragunity Knight - Ascalon" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: Destroyed
-        property: Delay
-        count_limit: (1, 48891960)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             special_summon (1, monster) from gy
         }

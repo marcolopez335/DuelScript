@@ -567,6 +567,108 @@ fn friendly_range(val: u32) -> String {
     parts.join(" + ")
 }
 
+/// Sprint 64: attempt to map effect_type + code to semantic effect clauses.
+/// Returns Some((speed, trigger, optional, timing)) if the combination is clean.
+fn try_semantic_effect(effect_type: u32, code: u32, property: u32, is_trap: bool, is_counter_trap: bool) -> Option<(String, Option<String>, bool, Option<String>)> {
+    // Only convert effects with a SINGLE primary type flag
+    let is_activate   = effect_type & 0x0010 != 0;
+    let is_ignition   = effect_type & 0x0040 != 0;
+    let is_trigger_o  = effect_type & 0x0080 != 0;
+    let is_quick_o    = effect_type & 0x0100 != 0;
+    let is_trigger_f  = effect_type & 0x0200 != 0;
+    let is_quick_f    = effect_type & 0x0400 != 0;
+    // Skip continuous/field/equip/grant — these need different blocks
+    let is_continuous = effect_type & 0x0800 != 0;
+    let is_field      = effect_type & 0x0002 != 0 && !is_trigger_o && !is_trigger_f && !is_quick_o && !is_quick_f;
+    let is_flip       = effect_type & 0x0020 != 0;
+    if is_continuous || is_field || is_flip { return None; }
+
+    let speed = if is_counter_trap {
+        "spell_speed_3"
+    } else if is_quick_o || is_quick_f || is_trap {
+        "spell_speed_2"
+    } else {
+        "spell_speed_1"
+    };
+
+    let optional = is_trigger_o || is_quick_o;
+
+    // Map code to trigger
+    let trigger = match code {
+        1002 | 0 => None, // FreeChain / no trigger
+        1100 => Some("when_summoned".to_string()),
+        1101 => Some("when_summoned by_flip_summon".to_string()),
+        1102 => Some("when_summoned by_special_summon".to_string()),
+        1029 => Some("when_destroyed".to_string()),
+        1030 => Some("when_leaves_field".to_string()),
+        1130 => Some("when attack_declared".to_string()),
+        1131 => Some("when_attacked".to_string()),
+        1027 => Some("opponent_activates [activate_spell | activate_trap | activate_monster_effect]".to_string()),
+        0x1200 | 0x0220 => Some("during_end_phase".to_string()),
+        0x1002 | 0x0202 => Some("during_standby_phase".to_string()),
+        1017 => Some("when_tributed".to_string()),
+        1026 => Some("when_sent_to gy".to_string()),
+        1035 => Some("when_banished".to_string()),
+        1108 => Some("when_flipped".to_string()),
+        1140 => Some("when_battle_damage".to_string()),
+        1143 => Some("when_battle_destroyed".to_string()),
+        1014 => Some("on_custom_event \"chain_end\"".to_string()),
+        _ => {
+            // Unknown code — can't cleanly map to a trigger
+            if is_activate || is_ignition {
+                None // activations and ignitions don't need triggers
+            } else {
+                return None; // triggers need a known code
+            }
+        }
+    };
+
+    // Timing hint for optional triggers
+    let timing = if optional && trigger.is_some() {
+        let is_delay = property & 0x0001_0000 != 0; // EFFECT_FLAG_DELAY
+        if is_delay { Some("if".to_string()) } else { Some("when".to_string()) }
+    } else {
+        None
+    };
+
+    Some((speed.to_string(), trigger, optional, timing))
+}
+
+/// Sprint 64: map count_limit tuple to semantic frequency declaration.
+fn try_semantic_frequency(cl: &Option<String>, passcode: u64) -> Option<String> {
+    let cl = cl.as_ref()?;
+    let cleaned = cl.trim();
+    let parts: Vec<&str> = cleaned.split(',').map(|s| s.trim()).collect();
+    let count: u32 = parts.first().and_then(|s| s.parse().ok()).unwrap_or(1);
+    let code_val: u32 = parts.get(1).map(|s| {
+        if *s == "id" { passcode as u32 } else { s.parse().unwrap_or(0) }
+    }).unwrap_or(0);
+
+    if count == 1 && code_val == 0 {
+        Some("once_per_turn: soft".to_string())
+    } else if count == 1 && code_val == passcode as u32 {
+        Some("once_per_turn: hard".to_string())
+    } else if count == 1 {
+        Some(format!("once_per_turn: hard"))
+    } else if count == 2 {
+        Some("twice_per_turn".to_string())
+    } else {
+        None
+    }
+}
+
+/// Sprint 64: map range bitmask to activate_from zones.
+fn friendly_activate_from(range: u32) -> String {
+    let mut zones = Vec::new();
+    if range & 0x02 != 0 { zones.push("hand"); }
+    if range & 0x04 != 0 { zones.push("monster_zone"); }
+    if range & 0x08 != 0 { zones.push("spell_trap_zone"); }
+    if range & 0x10 != 0 { zones.push("gy"); }
+    if range & 0x20 != 0 { zones.push("banished"); }
+    if range & 0x100 != 0 { zones.push("field_zone"); }
+    zones.join(", ")
+}
+
 fn aux_call_to_action(name: &str) -> Option<String> {
     match name {
         // ToHandOrElse: try to add to hand; otherwise send to GY.
@@ -1694,22 +1796,99 @@ pub fn transpile_lua_to_ds(
             }
         }
 
-        ds.push_str(&format!("    raw_effect \"Effect {}\" {{\n", i + 1));
-        if effect_type != 0 { ds.push_str(&format!("        effect_type: {}\n", et_str)); }
-        if category != 0    { ds.push_str(&format!("        category: {}\n", cat_str)); }
-        if code != 0        { ds.push_str(&format!("        code: {}\n", code_str_friendly)); }
-        if property != 0    { ds.push_str(&format!("        property: {}\n", friendly_property(property))); }
-        if range != 0       { ds.push_str(&format!("        range: {}\n", range_str)); }
+        // Sprint 64: try to emit a semantic `effect { ... }` block
+        // instead of `raw_effect { ... }` when the effect_type + code
+        // combination maps to a clean speed + trigger pattern.
+        let card_is_trap = cdb_card.map(|c| c.is_trap()).unwrap_or(false);
+        let card_is_counter = cdb_card.map(|c| c.is_counter_trap()).unwrap_or(false);
+        let card_is_monster = cdb_card.map(|c| c.is_monster()).unwrap_or(false);
+        let card_is_normal_monster = cdb_card.map(|c| c.is_normal() && c.is_monster()).unwrap_or(false);
+        let card_is_xyz = cdb_card.map(|c| c.is_xyz()).unwrap_or(false);
+        let card_is_quickplay = cdb_card.map(|c| {
+            c.card_type & 0x10001 == 0x10001 // TYPE_SPELL + TYPE_QUICKPLAY
+        }).unwrap_or(false);
+        // Skip semantic conversion for problematic combos
+        let semantic = if card_is_normal_monster {
+            None // normal monsters shouldn't have effects
+        } else {
+            let sem = try_semantic_effect(effect_type, code, property, card_is_trap, card_is_counter);
+            // Post-validate: reject conversions that would fail validation
+            if let Some((ref _speed, ref trigger, _, _)) = sem {
+                // when_attacked only valid on monsters
+                if trigger.as_deref() == Some("when_attacked") && !card_is_monster {
+                    None
+                }
+                // Quick speed on non-quickplay non-trap spells
+                else if !card_is_trap && !card_is_quickplay && !card_is_monster
+                    && (effect_type & 0x0100 != 0 || effect_type & 0x0400 != 0) {
+                    None
+                }
+                // Detach cost on non-Xyz
+                else if !card_is_xyz && (
+                    effect.cost_fn.as_deref()
+                        .map(|c| c.contains("Detach") || c.contains("RemoveOverlayCard") || c.contains("Overlay"))
+                        .unwrap_or(false)
+                    || effect.helper_costs.iter().any(|c| c.contains("detach") || c.contains("overlay"))
+                ) {
+                    None
+                }
+                // negate activation requires spell_speed_2+
+                else if _speed == "spell_speed_1" && effect.helper_actions.iter()
+                    .chain(std::iter::once(&"".to_string()))
+                    .any(|a| a.contains("negate activation")) {
+                    None
+                }
+                else { sem }
+            } else { sem }
+        };
+        let is_semantic = semantic.is_some();
+        if let Some((speed, trigger, opt, timing)) = semantic {
+            ds.push_str(&format!("    effect \"Effect {}\" {{\n", i + 1));
+            ds.push_str(&format!("        speed: {}\n", speed));
+            if let Some(freq) = try_semantic_frequency(&effect.count_limit, passcode) {
+                ds.push_str(&format!("        {}\n", freq));
+            }
+            if opt {
+                ds.push_str("        optional: true\n");
+            }
+            if let Some(ref t) = timing {
+                ds.push_str(&format!("        timing: {}\n", t));
+            }
+            if property & 0x0010 != 0 { // CARD_TARGET
+                ds.push_str("        damage_step: false\n");
+            }
+            if let Some(ref trig) = trigger {
+                ds.push_str(&format!("        trigger: {}\n", trig));
+            }
+            if range != 0 && range != 0x04 { // emit activate_from if not just MZONE
+                let activate_zones = friendly_activate_from(range);
+                if !activate_zones.is_empty() {
+                    ds.push_str(&format!("        activate_from: [{}]\n", activate_zones));
+                }
+            }
+        } else {
+            // Fallback: raw_effect with bitfields
+            ds.push_str(&format!("    raw_effect \"Effect {}\" {{\n", i + 1));
+            if effect_type != 0 { ds.push_str(&format!("        effect_type: {}\n", et_str)); }
+            if category != 0    { ds.push_str(&format!("        category: {}\n", cat_str)); }
+            if code != 0        { ds.push_str(&format!("        code: {}\n", code_str_friendly)); }
+            if property != 0    { ds.push_str(&format!("        property: {}\n", friendly_property(property))); }
+            if range != 0       { ds.push_str(&format!("        range: {}\n", range_str)); }
+        }
 
-        if let Some(ref cl) = effect.count_limit {
-            // Parse "(1,id)" or "(1, id)" or "(1)" etc.
-            let cleaned = cl.trim();
-            let parts: Vec<&str> = cleaned.split(',').map(|s| s.trim()).collect();
-            let count: u32 = parts.get(0).and_then(|s| s.parse().ok()).unwrap_or(1);
-            let code_val: u32 = parts.get(1).map(|s| {
-                if *s == "id" { passcode as u32 } else { s.parse().unwrap_or(0) }
-            }).unwrap_or(0);
-            ds.push_str(&format!("        count_limit: ({}, {})\n", count, code_val));
+        // Sprint 64: semantic blocks use frequency (once_per_turn: hard)
+        // instead of raw count_limit tuples. Only emit count_limit for
+        // raw_effect fallback path.
+        if !is_semantic {
+            if let Some(ref cl) = effect.count_limit {
+                let cleaned = cl.trim();
+                let parts: Vec<&str> = cleaned.split(',').map(|s| s.trim()).collect();
+                let count: u32 = parts.get(0).and_then(|s| s.parse().ok()).unwrap_or(1);
+                let code_val: u32 = parts.get(1).map(|s| {
+                    if *s == "id" { passcode as u32 } else { s.parse().unwrap_or(0) }
+                }).unwrap_or(0);
+                ds.push_str(&format!("        count_limit: ({}, {})\n", count, code_val));
+            }
         }
 
         // Cost — resolve function body or helper-supplied costs.

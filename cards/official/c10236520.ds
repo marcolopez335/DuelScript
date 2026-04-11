@@ -11,10 +11,9 @@ card "Goe Goe the Gallant Ninja" {
     atk: 1500
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: HandDestroy
-        code: BattleDestroyed
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_battle_destroyed
         on_resolve {
             send (1+, card, either_player controls) to gy
         }

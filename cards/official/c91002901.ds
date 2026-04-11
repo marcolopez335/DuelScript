@@ -6,11 +6,9 @@ card "Duel Evolution - Assault Zone" {
     id: 91002901
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + Search
-        code: FreeChain
-        count_limit: (1, 91002901)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
             reveal (1+, card, opponent controls)
@@ -35,10 +33,10 @@ card "Duel Evolution - Assault Zone" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        range: FieldZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [field_zone]
         cost {
             pay_lp 2000
         }

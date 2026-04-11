@@ -20,11 +20,12 @@ card "Odd-Eyes Gravity Dragon" {
         method: ritual
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: SpecialSummonSuccess
-        count_limit: (1, 23851033)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when_summoned by_special_summon
         on_resolve {
             return (1+, spell, opponent controls) to hand
         }

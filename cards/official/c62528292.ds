@@ -6,28 +6,27 @@ card "Ancient Warriors Saga - East-by-South Winds" {
     id: 62528292
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToGrave + CoinToss
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [spell_trap_zone]
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
             send (1+, monster, you controls) to gy
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        code: ChainEnd
-        property: Oath + CountCodeDuel + Delay
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

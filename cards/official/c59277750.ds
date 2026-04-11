@@ -6,11 +6,10 @@ card "Intruder Alarm - Yellow Alert" {
     id: 59277750
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + SpecialSummon
-        code: AttackAnnounce
-        count_limit: (1, 59277750)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        trigger: when attack_declared
         on_resolve {
             special_summon (1, monster) from gy
             add_to_hand (1+, card, you controls) from hand

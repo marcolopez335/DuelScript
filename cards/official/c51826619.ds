@@ -38,12 +38,13 @@ card "Magnet Warrior Sigma Plus" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: ToHand + SpecialSummon
-        code: ChainEnd
-        property: CardTarget + Delay
-        count_limit: (1, 51826619)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             add_to_hand (1, card, you controls) from gy
             special_summon (1, monster) from gy

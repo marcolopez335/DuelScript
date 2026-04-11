@@ -6,10 +6,8 @@ card "Primite Roar" {
     id: 92501449
     type: Quick-Play Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         cost {
             pay_lp 2000
         }
@@ -22,12 +20,13 @@ card "Primite Roar" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: Banish
-        code: SummonSuccess
-        property: CardTarget + Delay
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned
+        activate_from: [gy]
         cost {
             banish self
         }

@@ -15,13 +15,13 @@ card "Veda Kalanta" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: ToHand + SpecialSummon + Search
-        code: Destroyed
-        property: Delay
-        range: Hand
-        count_limit: (1, 27015862)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_destroyed
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
             add_to_hand (1+, monster, you controls) from gy
@@ -29,13 +29,13 @@ card "Veda Kalanta" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: Destroy + AtkChange
-        code: Destroyed
-        property: CardTarget + Delay
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_destroyed
         on_resolve {
             destroy (1+, monster, you controls, gy)
         }

@@ -15,12 +15,13 @@ card "Dinowrestler Rambrachio" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: BattleDestroyed
-        range: Hand
-        count_limit: (1, 61764082)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when_battle_destroyed
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
         }

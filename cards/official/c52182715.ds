@@ -37,11 +37,10 @@ card "Green Duston" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + MandatoryTrigger
-        category: ToHand
-        code: Destroyed
-        property: CardTarget
+    effect "Effect 4" {
+        speed: spell_speed_1
+        damage_step: false
+        trigger: when_destroyed
         on_resolve {
             add_to_hand (1+, spell, either_player controls) from gy
         }

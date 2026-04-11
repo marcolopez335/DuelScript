@@ -11,11 +11,10 @@ card "Sakitama" {
     atk: 400
     def: 900
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Summon
-        range: Hand
-        count_limit: (1, 67972302)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand]
         cost {
             reveal self
         }
@@ -24,12 +23,11 @@ card "Sakitama" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: ToHand
-        code: Released
-        property: CardTarget
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
+        trigger: when_tributed
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
         }

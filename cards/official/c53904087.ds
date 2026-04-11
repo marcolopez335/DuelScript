@@ -37,13 +37,12 @@ card "Lahamu the Messenger of Sacred Scripture" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: ToDeck + Draw
-        code: PhaseEnd
-        property: InitialValue
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: during_end_phase
         on_resolve {
             reveal (1+, card, opponent controls)
             return (1+, monster, you controls) to deck shuffle

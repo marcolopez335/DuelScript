@@ -6,11 +6,9 @@ card "Eldlixir of White Destiny" {
     id: 94224458
     type: Quick-Play Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon
-        code: FreeChain
-        count_limit: (1, 94224458)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -20,10 +18,10 @@ card "Eldlixir of White Destiny" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        range: Graveyard
-        count_limit: (1, 94224458)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [gy]
         cost {
             banish self
         }

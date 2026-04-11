@@ -21,12 +21,11 @@ card "Maliss <P> March Hare" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Banish + SpecialSummon
-        code: FreeChain
-        range: Hand
-        count_limit: (1, 20938824)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [hand]
         on_resolve {
             banish (1+, monster, you controls, gy)
             special_summon (1, monster) from gy

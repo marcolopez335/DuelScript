@@ -11,21 +11,20 @@ card "A Man with Wdjat" {
     atk: 1600
     def: 1600
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        code: SummonSuccess
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             reveal (1+, card, opponent controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        code: PhaseStandby
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
+        trigger: during_standby_phase
         on_resolve {
             reveal (1+, card, opponent controls)
         }

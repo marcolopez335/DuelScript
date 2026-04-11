@@ -6,10 +6,9 @@ card "Dark Sacrifice" {
     id: 76045757
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToGrave + Disable
-        code: Chaining
+    effect "Effect 1" {
+        speed: spell_speed_2
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate effect
             send (1+, card, you controls, deck) to gy

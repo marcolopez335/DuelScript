@@ -80,13 +80,10 @@ card "Sandaion, the Timelord" {
         }
     }
 
-    raw_effect "Effect 8" {
-        effect_type: Field + MandatoryTrigger
-        category: ToDeck
-        code: PhaseStandby
-        property: ClientHint
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 8" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
         }

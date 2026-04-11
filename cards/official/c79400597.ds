@@ -6,10 +6,9 @@ card "Evil Eye Repose" {
     id: 79400597
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
-        count_limit: (1, 79400597)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         cost {
             banish self
         }
@@ -29,11 +28,12 @@ card "Evil Eye Repose" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: ToGrave
-        code: Destroyed
-        property: CardTarget + Delay
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_destroyed
         on_resolve {
             send (1+, card, you controls, gy) to gy
         }

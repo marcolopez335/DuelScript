@@ -11,19 +11,17 @@ card "Left-Hand Shark" {
     atk: 1300
     def: 1500
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Hand + Graveyard
-        count_limit: (1, 47840168)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand, gy]
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        code: SpecialSummonSuccess
-        property: Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
         on_resolve {
         }
     }

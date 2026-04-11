@@ -16,10 +16,8 @@ card "Reflection of Endymion" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: PendulumZone
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -42,11 +40,12 @@ card "Reflection of Endymion" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: SpecialSummonSuccess
-        property: CardTarget + Delay
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
         }
@@ -60,10 +59,11 @@ card "Reflection of Endymion" {
         }
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: BattleDamage
+    effect "Effect 6" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_damage
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
             reveal (1+, card, opponent controls)

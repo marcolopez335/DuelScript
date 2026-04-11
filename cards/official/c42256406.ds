@@ -11,45 +11,44 @@ card "Card Blocker" {
     atk: 400
     def: 400
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: PositionChange
-        code: SummonSuccess
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_summoned
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: PositionChange
-        code: FlipSummonSuccess
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_summoned by_flip_summon
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + MandatoryTrigger
-        category: PositionChange
-        code: SpecialSummonSuccess
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + Trigger
-        code: BattleTarget
-        range: MonsterZone
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_attacked
         on_resolve {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single + Trigger
-        category: DefChange
-        code: BattleTarget
+    effect "Effect 5" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_attacked
         on_resolve {
         }
     }

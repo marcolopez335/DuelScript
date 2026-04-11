@@ -21,11 +21,10 @@ card "Number 86: Heroic Champion - Rhongomyniad" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + MandatoryTrigger
-        code: PhaseEnd
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
         on_resolve {
         }
     }
@@ -88,11 +87,9 @@ card "Number 86: Heroic Champion - Rhongomyniad" {
         }
     }
 
-    raw_effect "Effect 8" {
-        effect_type: Ignition
-        category: Destroy
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 8" {
+        speed: spell_speed_1
+        once_per_turn: soft
         on_resolve {
             destroy (1+, card, opponent controls)
         }

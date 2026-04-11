@@ -6,25 +6,22 @@ card "Amaze Attraction Wonder Wheel" {
     id: 93473606
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: ToDeck + Draw
-        code: FreeChain
-        range: SpellTrapZone
-        count_limit: (1, 93473606)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [spell_trap_zone]
         on_resolve {
             return (1+, card, opponent controls) to deck shuffle
             draw 1
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: AtkChange + DefChange
-        code: FreeChain
-        property: Oath
-        range: SpellTrapZone
-        count_limit: (1, 93473606)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [spell_trap_zone]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

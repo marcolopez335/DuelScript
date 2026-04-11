@@ -11,12 +11,12 @@ card "Ojama Pink" {
     atk: 0
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: HandDestroy + Draw
-        code: ChainEnd
-        property: Oath + Delay
-        count_limit: (1, 42517468)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             draw 1
             draw 1

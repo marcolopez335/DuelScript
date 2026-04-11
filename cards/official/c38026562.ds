@@ -21,11 +21,12 @@ card "Vola-Chemicritter Methydraco" {
         method: xyz
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: SpecialSummonSuccess
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -50,11 +51,11 @@ card "Vola-Chemicritter Methydraco" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + Trigger
-        category: ToGrave
-        code: SummonSuccess
-        range: MonsterZone
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_summoned
         cost {
             detach 1 overlay_unit from self
         }

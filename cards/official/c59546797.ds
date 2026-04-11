@@ -11,24 +11,21 @@ card "Juragedo" {
     atk: 1700
     def: 1300
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: SpecialSummon + Recover
-        code: FreeChain
-        range: Hand
-        count_limit: (1, 59546797)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
             gain_lp: 1000
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: AtkChange
-        code: FreeChain
-        property: CardTarget + Oath
-        range: MonsterZone
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        damage_step: false
         cost {
             tribute self
         }

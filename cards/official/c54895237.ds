@@ -11,11 +11,10 @@ card "The Weather Painter Sun" {
     atk: 1600
     def: 400
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Graveyard
-        count_limit: (1, 54895237)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [gy]
         cost {
             send self to gy
         }
@@ -32,11 +31,12 @@ card "The Weather Painter Sun" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: PhaseStandby
-        range: Banished
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: during_standby_phase
+        activate_from: [banished]
         on_resolve {
             special_summon (1, monster) from gy
         }

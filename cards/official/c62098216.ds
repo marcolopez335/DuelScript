@@ -43,12 +43,12 @@ card "Evil★Twins Ki-sikil & Lil-la" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: ToGrave
-        code: SpecialSummonSuccess
-        property: Oath + Delay
-        count_limit: (1, 62098216)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             send (1+, card, either_player controls) to gy
         }

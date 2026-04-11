@@ -12,10 +12,11 @@ card "P.M. Captor" {
     atk: 1800
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        code: SpecialSummonSuccess
-        range: PendulumZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_summoned by_special_summon
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

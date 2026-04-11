@@ -6,20 +6,18 @@ card "Artifact Ignition" {
     id: 29223325
     type: Quick-Play Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Destroy
-        code: FreeChain
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: false
         on_resolve {
             destroy (1+, monster, you controls, deck)
             set (1, card)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        code: Destroyed
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_destroyed
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

@@ -20,13 +20,12 @@ card "Sorcerer of Sebek" {
         method: link
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: Recover
-        code: BattleDestroyed
-        property: InitialValue
-        range: MonsterZone
-        count_limit: (1, 39767432)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when_battle_destroyed
         on_resolve {
             gain_lp: 1000
         }

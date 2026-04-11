@@ -11,11 +11,11 @@ card "Mementotlan Goblin" {
     atk: 400
     def: 400
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        code: FreeChain
-        range: Hand
-        count_limit: (1, 17943271)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [hand]
         cost {
             discard (1, card, you controls)
         }
@@ -27,11 +27,9 @@ card "Mementotlan Goblin" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Destroy + ToGrave
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
         on_resolve {
             destroy (1+, monster, you controls)
             send (1+, monster, you controls) to gy

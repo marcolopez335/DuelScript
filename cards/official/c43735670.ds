@@ -32,11 +32,12 @@ card "Marincess Blue Slug" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: SpecialSummonSuccess
-        property: CardTarget + Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
             register_effect on self {

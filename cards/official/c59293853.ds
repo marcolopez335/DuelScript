@@ -6,11 +6,9 @@ card "Mimighoul Room" {
     id: 59293853
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon + PositionChange
-        code: FreeChain
-        count_limit: (1, 59293853)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
         on_resolve {
             special_summon (1, monster) from gy
             reveal (1+, card, opponent controls)
@@ -18,13 +16,12 @@ card "Mimighoul Room" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: ToHand
-        code: FreeChain
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 59293853)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }

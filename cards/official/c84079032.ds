@@ -11,26 +11,24 @@ card "Bettan Bat" {
     atk: 0
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: PositionChange + CoinToss
-        code: SummonSuccess
-        property: CardTarget + Delay
-        range: MonsterZone
-        count_limit: (3, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
             change_battle_position (1, monster)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: PositionChange + CoinToss
-        code: SpecialSummonSuccess
-        property: CardTarget + Delay
-        range: MonsterZone
-        count_limit: (3, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
             change_battle_position (1, monster)

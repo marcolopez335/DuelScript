@@ -16,13 +16,13 @@ card "D/D Extra Surveyor" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: Banish
-        code: Destroyed
-        property: CardTarget + Oath + Delay
-        range: PendulumZone
-        count_limit: (1, 74387963)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_destroyed
         on_resolve {
             banish (1+, card, either_player controls)
             register_effect on self {
@@ -32,11 +32,10 @@ card "D/D Extra Surveyor" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToHand
-        range: Hand
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [hand]
         cost {
             discard (1, card, you controls)
         }

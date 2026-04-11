@@ -32,13 +32,13 @@ card "Performage Stilts Launcher" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Damage
-        code: Chaining
-        property: InitialValue
-        range: Graveyard
-        count_limit: (1, 4081665)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        activate_from: [gy]
         cost {
             banish self
         }

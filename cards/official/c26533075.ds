@@ -6,21 +6,19 @@ card "Security Orb" {
     id: 26533075
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: PositionChange
-        code: AttackAnnounce
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_2
+        damage_step: false
+        trigger: when attack_declared
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: Destroy
-        code: ChainEnd
-        property: CardTarget
+    effect "Effect 2" {
+        speed: spell_speed_2
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             destroy (1+, card, either_player controls)
         }

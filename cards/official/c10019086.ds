@@ -36,23 +36,23 @@ card "Tri-Brigade Arms Bucephalus II" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: Banish
-        code: AttackAnnounce
-        range: MonsterZone
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when attack_declared
         on_resolve {
             banish (1+, spell, opponent controls)
             banish (1+, spell, opponent controls)
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: ToGrave
-        code: ChainEnd
-        property: Delay
-        count_limit: (1, 10019086)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             send (1+, spell, opponent controls) to gy
         }

@@ -21,9 +21,8 @@ card "Galaxy-Eyes Cipher X Dragon" {
         method: xyz
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        range: MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_1
         cost {
             detach 2 overlay_unit from self
         }
@@ -35,12 +34,12 @@ card "Galaxy-Eyes Cipher X Dragon" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: SpecialSummon + ToExtra
-        code: PhaseStandby
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: during_standby_phase
         on_resolve {
             return (1+, monster, you controls) to deck shuffle
             attach (1, card) to self as_material

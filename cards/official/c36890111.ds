@@ -6,11 +6,9 @@ card "Mansion of the Dreadful Dolls" {
     id: 36890111
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + Search
-        code: FreeChain
-        count_limit: (1, 36890111)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)
@@ -35,12 +33,11 @@ card "Mansion of the Dreadful Dolls" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: SpecialSummon
-        property: CardTarget
-        range: FieldZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
+        activate_from: [field_zone]
         cost {
             detach 1 overlay_unit from self
         }

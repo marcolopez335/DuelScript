@@ -11,10 +11,11 @@ card "Marmiting Captain" {
     atk: 1200
     def: 400
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToDeck + SpecialSummon + Draw
-        code: SummonSuccess
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_summoned
         on_resolve {
             return (1+, card, you controls) to deck shuffle
             shuffle_deck

@@ -6,11 +6,9 @@ card "Underworld Circle" {
     id: 73443672
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Destroy + Banish + SpecialSummon
-        code: FreeChain
-        count_limit: (1, 73443672)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             destroy (1+, monster, either_player controls)
             banish (1+, monster, either_player controls)
@@ -18,12 +16,11 @@ card "Underworld Circle" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        category: SpecialSummon
-        code: PhaseStandby
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
+        activate_from: [spell_trap_zone]
         on_resolve {
         }
     }

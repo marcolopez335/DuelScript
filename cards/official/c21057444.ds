@@ -11,11 +11,10 @@ card "Marincess Springirl" {
     atk: 1200
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Hand
-        count_limit: (1, 21057444)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand]
         cost {
             banish self
         }
@@ -24,12 +23,12 @@ card "Marincess Springirl" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: DeckDestroy + Damage
-        code: FlipSuccess
-        property: Delay
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_flipped
         on_resolve {
             mill 1
             deal_damage to opponent: 1000

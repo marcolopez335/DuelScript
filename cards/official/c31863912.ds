@@ -6,19 +6,18 @@ card "Dice-nied" {
     id: 31863912
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
             add_to_hand (1+, card, either_player controls) from gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        code: SpecialSummonSuccess
-        range: SpellTrapZone
+    effect "Effect 2" {
+        speed: spell_speed_2
+        trigger: when_summoned by_special_summon
+        activate_from: [spell_trap_zone]
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
             add_to_hand (1+, card, either_player controls) from gy

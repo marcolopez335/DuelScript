@@ -19,19 +19,17 @@ card "Karakuri Merchant mdl 177 'Inashichi'" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: PositionChange
-        code: BattleTarget
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_attacked
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + MandatoryTrigger
-        category: ToHand + Search
-        code: SummonSuccess
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: when_summoned
         on_resolve {
             add_to_hand (1+, card, opponent controls) from deck
             reveal (1+, card, opponent controls)

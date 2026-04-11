@@ -11,21 +11,19 @@ card "Neo Flamvell Hedgehog" {
     atk: 800
     def: 200
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: Banish
-        code: BattleDamage
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: false
+        trigger: when_battle_damage
         on_resolve {
             banish (1+, card, either_player controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: ToHand
-        code: Destroyed
-        property: CardTarget
+    effect "Effect 2" {
+        speed: spell_speed_1
+        damage_step: false
+        trigger: when_destroyed
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }

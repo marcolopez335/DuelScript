@@ -12,12 +12,10 @@ card "Performapal Handstandaccoon" {
     atk: 400
     def: 600
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: ToHand
-        property: CardTarget
-        range: PendulumZone
-        count_limit: (1, 81055000)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
             register_effect on self {
@@ -27,11 +25,12 @@ card "Performapal Handstandaccoon" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: BattleDamage
-        property: CardTarget
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_battle_damage
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }

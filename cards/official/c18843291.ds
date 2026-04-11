@@ -31,12 +31,12 @@ card "Minerva, the Athenian Lightsworn" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToGrave
-        code: SpecialSummonSuccess
-        property: Delay
-        count_limit: (1, 18843291)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             send (1+, monster, you controls, deck) to gy
         }
@@ -49,11 +49,9 @@ card "Minerva, the Athenian Lightsworn" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: DeckDestroy
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
         cost {
             banish self
         }

@@ -11,13 +11,12 @@ card "Sari of the Silverwing Axe" {
     atk: 500
     def: 100
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: Equip
-        code: FreeChain
-        property: CardTarget + Oath
-        range: Hand + MonsterZone
-        count_limit: (1, 99801464)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
+        activate_from: [hand, monster_zone]
         on_resolve {
             send (1+, card, either_player controls) to gy
         }

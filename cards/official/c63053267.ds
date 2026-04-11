@@ -6,9 +6,8 @@ card "Nagel's Protection" {
     id: 63053267
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -48,11 +47,10 @@ card "Nagel's Protection" {
         }
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Ignition
-        category: ToHand + Search
-        range: Graveyard
-        count_limit: (1, 63053267)
+    effect "Effect 6" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [gy]
         cost {
             discard (1, card, you controls)
             banish self

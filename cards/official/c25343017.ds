@@ -11,40 +11,35 @@ card "Hushed Psychic Cleric" {
     atk: 0
     def: 2100
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: PositionChange
-        code: SummonSuccess
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_summoned
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: PositionChange
-        code: FlipSummonSuccess
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_summoned by_flip_summon
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: Banish
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             banish (1+, card, you controls, hand)
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + MandatoryTrigger
-        category: SpecialSummon
-        code: ChainEnd
-        property: CardTarget
+    effect "Effect 4" {
+        speed: spell_speed_1
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             special_summon (1, monster) from gy
         }

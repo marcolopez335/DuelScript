@@ -6,9 +6,8 @@ card "Ancient Gear Duel" {
     id: 53541822
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
         }
     }
@@ -22,12 +21,11 @@ card "Ancient Gear Duel" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: Banish + SpecialSummon + FusionSummon
-        code: FreeChain
-        range: SpellTrapZone
-        count_limit: (1, 53541822)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [spell_trap_zone]
         on_resolve {
         }
     }

@@ -14,22 +14,19 @@ card "Synchro Emergency" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Activate
-        category: SpecialSummon + Disable
-        code: FreeChain
-        count_limit: (1, 49415281)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
         on_resolve {
             special_summon (1, monster) from gy
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        range: Graveyard
+    effect "Effect 3" {
+        speed: spell_speed_2
+        optional: true
+        activate_from: [gy]
         cost {
             banish self
         }

@@ -11,11 +11,11 @@ card "Flip Frozen" {
     atk: 500
     def: 500
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: PositionChange
-        code: ChainEnd
-        property: Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             change_battle_position (1, monster)
         }

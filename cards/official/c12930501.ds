@@ -6,21 +6,19 @@ card "Dark Spell Regeneration" {
     id: 12930501
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: LeaveGrave
-        code: AttackAnnounce
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_2
+        damage_step: false
+        trigger: when attack_declared
         on_resolve {
             set (1, card)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: ToGrave + SpecialSummon
-        code: FreeChain
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        activate_from: [gy]
         cost {
             send self to gy
         }

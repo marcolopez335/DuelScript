@@ -29,12 +29,10 @@ card "Ritual Beast Ulti-Reirautari" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToHand + Summon + ToExtra
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 96113307)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             return (1+, card, either_player controls) to hand
             shuffle_hand
@@ -42,13 +40,11 @@ card "Ritual Beast Ulti-Reirautari" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: Banish
-        code: FreeChain
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        damage_step: false
         on_resolve {
             banish (1+, card, either_player controls)
         }

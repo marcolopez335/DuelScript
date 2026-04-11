@@ -6,11 +6,9 @@ card "Dangers of the Divine" {
     id: 22082432
     type: Quick-Play Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + SpecialSummon + AtkChange + DefChange
-        code: FreeChain
-        count_limit: (1, 22082432)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         cost {
             pay_lp 1000
         }
@@ -33,11 +31,10 @@ card "Dangers of the Divine" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: ToGrave
-        code: ChainEnd
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: on_custom_event "chain_end"
         on_resolve {
             send (1+, monster, either_player controls) to gy
         }

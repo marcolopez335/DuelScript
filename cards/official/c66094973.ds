@@ -11,12 +11,10 @@ card "Transforming Sphere" {
     atk: 100
     def: 100
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: HandDestroy + Equip
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             discard (1, card)
         }
@@ -32,12 +30,10 @@ card "Transforming Sphere" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + MandatoryTrigger
-        category: SpecialSummon
-        code: PhaseEnd
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
         on_resolve {
             special_summon (1, monster) from gy
             send (1+, card, either_player controls) to gy

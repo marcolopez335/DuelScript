@@ -22,12 +22,13 @@ card "Naelshaddoll Ariel" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: Banish
-        code: ChainEnd
-        property: CardTarget + Oath + Delay
-        count_limit: (1, 97518132)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             banish (1+, card, either_player controls)
         }

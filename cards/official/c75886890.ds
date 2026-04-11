@@ -11,11 +11,12 @@ card "Vylon Sphere" {
     atk: 400
     def: 400
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Equip
-        code: ChainEnd
-        property: CardTarget + Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         cost {
             pay_lp 500
         }
@@ -24,11 +25,10 @@ card "Vylon Sphere" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Equip
-        property: CardTarget
-        range: SpellTrapZone
+    effect "Effect 2" {
+        speed: spell_speed_1
+        damage_step: false
+        activate_from: [spell_trap_zone]
         cost {
             send self to gy
         }

@@ -6,11 +6,10 @@ card "Blast Held by Destiny" {
     id: 51208877
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Destroy + Damage
-        code: AttackAnnounce
-        count_limit: (1, 51208877)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        trigger: when attack_declared
         on_resolve {
             destroy (1+, monster, opponent controls)
             deal_damage to opponent: 1000
@@ -18,12 +17,13 @@ card "Blast Held by Destiny" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: ChainEnd
-        property: CardTarget + Delay
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             return (1+, monster, opponent controls) to hand
             reveal (1+, card, opponent controls)

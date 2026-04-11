@@ -37,12 +37,12 @@ card "Kozmo Lightsword" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: ChainEnd
-        property: Delay
-        count_limit: (1, 82270047)
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         cost {
             pay_lp 800
         }
@@ -51,10 +51,8 @@ card "Kozmo Lightsword" {
         }
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Activate
-        category: Equip
-        code: FreeChain
+    effect "Effect 6" {
+        speed: spell_speed_1
         on_resolve {
             equip self to (1, monster, you controls)
         }

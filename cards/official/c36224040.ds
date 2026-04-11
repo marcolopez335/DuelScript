@@ -6,11 +6,9 @@ card "Rank-Up-Magic Zexal Force" {
     id: 36224040
     type: Normal Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon
-        code: FreeChain
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: false
         on_resolve {
             attach (1, card) to self as_material
             special_summon (1, monster) from gy
@@ -19,12 +17,10 @@ card "Rank-Up-Magic Zexal Force" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Draw
-        property: InitialValue
-        range: Graveyard
-        count_limit: (1, 36224040)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [gy]
         cost {
             banish self
         }

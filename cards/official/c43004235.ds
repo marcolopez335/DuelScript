@@ -6,12 +6,9 @@ card "Plunder Patroll Parrrty" {
     id: 43004235
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToDeck + Draw
-        code: FreeChain
-        property: InitialValue
-        count_limit: (1, 43004235)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
         on_resolve {
             draw 1
             shuffle_hand
@@ -20,12 +17,13 @@ card "Plunder Patroll Parrrty" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        code: SpecialSummonSuccess
-        property: Delay
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
+        activate_from: [gy]
         on_resolve {
         }
     }

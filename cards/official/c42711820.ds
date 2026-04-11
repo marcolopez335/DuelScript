@@ -21,12 +21,12 @@ card "Scrap Warrior" {
         method: synchro
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToHand + ToGrave + Search
-        code: SpecialSummonSuccess
-        property: Delay
-        count_limit: (1, 42711820)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             add_to_hand (1, card, you controls) from gy
         }

@@ -6,11 +6,9 @@ card "The True Name" {
     id: 39913299
     type: Normal Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + DeckDestroy + SpecialSummon + Search
-        code: FreeChain
-        count_limit: (1, 39913299)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             reveal (1, card, opponent controls, deck)
             send (1+, card, you controls, deck) to gy

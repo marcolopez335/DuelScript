@@ -24,21 +24,18 @@ card "Hydrojet Shark" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToGrave
-        range: MonsterZone
-        count_limit: (1, 90315086)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
         on_resolve {
             send (1+, spell, either_player controls) to gy
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: ToHand + Search
-        range: Graveyard
-        count_limit: (1, 90315086)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [gy]
         cost {
             banish self
         }

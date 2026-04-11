@@ -6,10 +6,8 @@ card "Gunkan Suship Daily Special" {
     id: 24393683
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + Search
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
             reveal (1+, card, opponent controls)
             add_to_hand (1+, monster, you controls) from deck
@@ -17,12 +15,11 @@ card "Gunkan Suship Daily Special" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: ToDeck + Draw
-        code: FreeChain
-        property: CardTarget
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }

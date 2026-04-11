@@ -48,10 +48,11 @@ card "Blue-Eyes Chaos Dragon" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: PositionChange + AtkChange
-        code: AttackAnnounce
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when attack_declared
         on_resolve {
             change_battle_position (1, monster)
             register_effect on self {

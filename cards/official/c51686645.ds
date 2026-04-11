@@ -6,22 +6,18 @@ card "Revenge Rally" {
     id: 51686645
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Equip
-        code: FreeChain
-        property: CardTarget + Oath
+    effect "Effect 1" {
+        speed: spell_speed_2
+        damage_step: false
         on_resolve {
             equip (1, card) to (1, monster)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: HandDestroy + Draw
-        code: ChainEnd
-        property: InitialValue + Delay
-        count_limit: (1, 51686645)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        trigger: on_custom_event "chain_end"
         on_resolve {
             draw 2
             shuffle_hand

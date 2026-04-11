@@ -33,11 +33,11 @@ card "Thestalos the Shadowfire Monarch" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: Banish + Damage
-        code: SummonSuccess
-        property: Delay
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_summoned
         on_resolve {
             banish (1+, monster, either_player controls)
             banish (1+, monster, either_player controls)

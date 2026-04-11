@@ -6,24 +6,22 @@ card "Amaze Attraction Thrill Train" {
     id: 36591747
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: PositionChange
-        code: FreeChain
-        range: SpellTrapZone
-        count_limit: (1, 36591747)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [spell_trap_zone]
         on_resolve {
             change_battle_position (1, monster)
             set (1, card)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Banish
-        code: FreeChain
-        range: SpellTrapZone
-        count_limit: (1, 36591747)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [spell_trap_zone]
         on_resolve {
             banish (1+, trap, you controls, gy)
             register_effect on self {

@@ -6,19 +6,19 @@ card "Gingerbread House" {
     id: 79922118
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: Destroy + AtkChange
-        code: PhaseStandby
-        range: SpellTrapZone
-        count_limit: (1, 79922118)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: during_standby_phase
+        activate_from: [spell_trap_zone]
         on_resolve {
             destroy (1+, monster, opponent controls)
             gain_lp: 1000

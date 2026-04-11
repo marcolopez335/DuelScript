@@ -6,22 +6,21 @@ card "Time Thief Flyback" {
     id: 18678554
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
-        property: CardTarget
-        count_limit: (1, 18678554)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             attach (1, card) to self as_material
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        code: FreeChain
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 18678554)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }

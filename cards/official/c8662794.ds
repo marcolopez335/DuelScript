@@ -20,21 +20,19 @@ card "Codebreaker Zero Day" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        category: Destroy
-        code: Destroyed
-        range: MonsterZone
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_destroyed
         on_resolve {
             destroy (1+, card, you controls, deck)
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: Destroyed
-        property: Delay
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)

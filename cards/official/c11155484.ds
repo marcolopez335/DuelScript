@@ -6,10 +6,9 @@ card "Crystal Miracle" {
     id: 11155484
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Destroy + Negate
-        code: Chaining
+    effect "Effect 1" {
+        speed: spell_speed_2
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             destroy (1+, monster, you controls)
             negate activation
@@ -17,12 +16,13 @@ card "Crystal Miracle" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        code: LeaveField
-        property: Oath + Delay
-        range: Graveyard
-        count_limit: (1, 11155484)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_leaves_field
+        activate_from: [gy]
         cost {
             banish self
         }

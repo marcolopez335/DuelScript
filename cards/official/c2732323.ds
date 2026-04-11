@@ -11,12 +11,10 @@ card "Decoy Dragon" {
     atk: 300
     def: 200
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: SpecialSummon
-        code: BattleTarget
-        property: CardTarget
-        range: MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: false
+        trigger: when_attacked
         on_resolve {
             special_summon (1, monster) from gy
         }

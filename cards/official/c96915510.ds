@@ -20,12 +20,11 @@ card "Crealtar, the Impcantation Originator" {
         method: ritual
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: HandDestroy + SpecialSummon
-        code: FreeChain
-        range: Hand
-        count_limit: (1, 96915510)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [hand]
         on_resolve {
             discard (1, card)
             special_summon (1, monster) from gy

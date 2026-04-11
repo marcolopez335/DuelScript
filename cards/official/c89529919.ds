@@ -11,18 +11,18 @@ card "Field-Commander Rahz" {
     atk: 1600
     def: 1200
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        code: SummonSuccess
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_summoned
         on_resolve {
             shuffle_deck
             reveal (1, card, opponent controls, deck)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        code: SpecialSummonSuccess
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
         on_resolve {
             shuffle_deck
             reveal (1, card, opponent controls, deck)

@@ -11,21 +11,20 @@ card "Skull Kraken" {
     atk: 600
     def: 1600
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Destroy
-        code: SummonSuccess
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             destroy (1+, spell, either_player controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: PositionChange
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
         on_resolve {
             change_battle_position (1, monster)
         }

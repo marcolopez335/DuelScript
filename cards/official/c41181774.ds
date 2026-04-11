@@ -41,11 +41,10 @@ card "Earthbound Immortal Wiraqocha Rasca" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + MandatoryTrigger
-        category: ToDeck + HandDestroy
-        code: SummonSuccess
-        property: CardTarget
+    effect "Effect 4" {
+        speed: spell_speed_1
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
             send (1+, card, either_player controls) to gy

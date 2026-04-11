@@ -11,12 +11,12 @@ card "Heraldic Beast Stad Whale" {
     atk: 900
     def: 1900
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: SummonSuccess
-        property: Delay
-        count_limit: (1, 97662494)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned
         cost {
             discard (1, card, you controls)
         }
@@ -26,12 +26,12 @@ card "Heraldic Beast Stad Whale" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: SpecialSummonSuccess
-        property: Delay
-        count_limit: (1, 97662494)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         cost {
             discard (1, card, you controls)
         }
@@ -41,12 +41,11 @@ card "Heraldic Beast Stad Whale" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: SpecialSummon
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }

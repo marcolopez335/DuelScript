@@ -6,23 +6,21 @@ card "Crystal Boon" {
     id: 85766789
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon + Recover
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
             special_summon (1, monster) from gy
             gain_lp: 1000
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: ToHand + DeckDestroy + SpecialSummon + Search
-        code: LeaveField
-        property: Oath + Delay
-        range: Graveyard
-        count_limit: (1, 85766789)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_leaves_field
+        activate_from: [gy]
         cost {
             banish self
         }

@@ -15,11 +15,10 @@ card "Thunder Dragonroar" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: ToHand
-        range: Hand
-        count_limit: (1, 29596581)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand]
         cost {
             discard (1, card, you controls)
         }
@@ -42,12 +41,12 @@ card "Thunder Dragonroar" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: ChainEnd
-        property: Delay
-        count_limit: (1, 29596581)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             special_summon (1, monster) from gy
             add_to_hand (1+, card, you controls) from gy

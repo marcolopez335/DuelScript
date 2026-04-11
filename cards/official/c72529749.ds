@@ -20,11 +20,9 @@ card "Topologic Trisbaena" {
         method: link
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + MandatoryTrigger
-        category: Banish + Damage
-        code: SpecialSummonSuccess
-        range: MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
         on_resolve {
             banish (1+, spell, either_player controls)
             deal_damage to opponent: 1000

@@ -6,11 +6,10 @@ card "Bad Aim" {
     id: 46253216
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Destroy
-        code: Chaining
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_2
+        damage_step: false
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             destroy (1+, card, either_player controls)
         }

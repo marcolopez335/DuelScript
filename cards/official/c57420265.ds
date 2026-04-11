@@ -11,22 +11,21 @@ card "Fishborg Harpooner" {
     atk: 400
     def: 400
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: HandDestroy + SpecialSummon
-        range: Hand
-        count_limit: (1, 57420265)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
             send (1+, card, you controls, hand) to gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: Disable
-        code: FlipSuccess
-        property: Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_flipped
         on_resolve {
         }
     }

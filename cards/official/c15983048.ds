@@ -27,9 +27,9 @@ card "Maginificent Magikey Mafteal" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        range: Hand
+    effect "Effect 3" {
+        speed: spell_speed_1
+        activate_from: [hand]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -39,12 +39,13 @@ card "Maginificent Magikey Mafteal" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: SummonSuccess
-        property: CardTarget
-        count_limit: (1, 15983048)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             special_summon (1, monster) from gy
         }

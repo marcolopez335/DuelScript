@@ -15,11 +15,10 @@ card "Swordsoul Strategist Longyuan" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon + Token
-        range: Hand
-        count_limit: (1, 93490856)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
             create_token { atk: 0 def: 0 }
@@ -35,12 +34,12 @@ card "Swordsoul Strategist Longyuan" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: Damage
-        code: FlipSuccess
-        property: InitialValue + Delay
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_flipped
         on_resolve {
             deal_damage to opponent: 1000
         }

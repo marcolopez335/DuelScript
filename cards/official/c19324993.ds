@@ -20,12 +20,12 @@ card "Xtra HERO Infernal Devicer" {
         method: link
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: SpecialSummonSuccess
-        property: Delay
-        count_limit: (1, 19324993)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             reveal (1+, card, opponent controls)
             add_to_hand (1+, card, you controls) from deck

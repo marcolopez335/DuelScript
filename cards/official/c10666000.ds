@@ -21,23 +21,23 @@ card "Number 1: Infection Buzzking" {
         method: xyz
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: LeaveGrave
-        code: PhaseStandby
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: during_standby_phase
         on_resolve {
             attach (1, card) to self as_material
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToGrave
-        code: SpecialSummonSuccess
-        property: Delay
-        count_limit: (1, 10666000)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             reveal (1+, card, opponent controls)
             send (1+, monster, opponent controls, gy) to gy
@@ -45,12 +45,10 @@ card "Number 1: Infection Buzzking" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: Destroy + Damage
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         cost {
             detach 1 overlay_unit from self
         }

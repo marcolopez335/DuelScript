@@ -11,12 +11,11 @@ card "Ret-time Reviver Emit-ter" {
     atk: 800
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon + PositionChange
-        property: CardTarget
-        range: Hand + Graveyard
-        count_limit: (1, 55702233)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
+        activate_from: [hand, gy]
         on_resolve {
             change_battle_position (1, monster)
             special_summon (1, monster) from gy

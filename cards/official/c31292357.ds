@@ -20,11 +20,11 @@ card "Performage Hat Tricker" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Counter
-        code: Chaining
-        range: MonsterZone
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

@@ -40,11 +40,12 @@ card "Kewl Tune Loudness War" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        code: Chaining
-        range: MonsterZone
-        count_limit: (1, 41069676)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         cost {
             banish self
         }

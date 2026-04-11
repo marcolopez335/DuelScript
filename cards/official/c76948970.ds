@@ -34,12 +34,12 @@ card "Mitsurugi no Miko, Wousu" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand + HandDestroy
-        code: Released
-        property: Delay
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_tributed
         on_resolve {
             discard (1, card)
             add_to_hand (1+, monster, either_player controls) from hand

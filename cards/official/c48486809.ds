@@ -34,11 +34,11 @@ card "Winged Kuriboh LV6" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: Destroy + Damage
-        code: AttackAnnounce
-        range: MonsterZone
+    effect "Effect 3" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: when attack_declared
         cost {
             tribute self
         }
@@ -48,11 +48,11 @@ card "Winged Kuriboh LV6" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: QuickEffect
-        category: Destroy + Damage
-        code: Chaining
-        range: MonsterZone
+    effect "Effect 4" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         cost {
             tribute self
         }

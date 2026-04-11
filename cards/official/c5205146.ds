@@ -15,12 +15,13 @@ card "Infinitrack Road Roller" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: Released
-        range: Hand + Graveyard
-        count_limit: (1, 5205146)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when_tributed
+        activate_from: [hand, gy]
         on_resolve {
             special_summon (1, monster) from gy
         }

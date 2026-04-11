@@ -26,12 +26,12 @@ card "Helshaddoll Hollow" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: DeckDestroy
-        code: ChainEnd
-        property: Delay
-        count_limit: (1, 92079625)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             mill 1
         }

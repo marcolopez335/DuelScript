@@ -28,10 +28,9 @@ card "Masked HERO Acid" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: Destroy + AtkChange
-        code: SpecialSummonSuccess
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
         on_resolve {
             destroy (1+, spell, opponent controls)
             register_effect on self {

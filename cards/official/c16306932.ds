@@ -34,11 +34,9 @@ card "Odd-Eyes Revolution Dragon" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: SpecialSummon
-        property: CardTarget
-        range: PendulumZone
+    effect "Effect 3" {
+        speed: spell_speed_1
+        damage_step: false
         on_resolve {
             destroy (1+, card, either_player controls, gy)
             special_summon (1, monster) from gy
@@ -63,10 +61,9 @@ card "Odd-Eyes Revolution Dragon" {
         }
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Ignition
-        category: ToHand + Search
-        range: Hand
+    effect "Effect 6" {
+        speed: spell_speed_1
+        activate_from: [hand]
         cost {
             send self to gy
             pay_lp your_lp / 2
@@ -97,11 +94,9 @@ card "Odd-Eyes Revolution Dragon" {
         }
     }
 
-    raw_effect "Effect 9" {
-        effect_type: Ignition
-        category: ToDeck
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 9" {
+        speed: spell_speed_1
+        once_per_turn: soft
         cost {
             pay_lp your_lp / 2
         }

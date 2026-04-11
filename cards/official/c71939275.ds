@@ -6,11 +6,12 @@ card "Spirit Illusion" {
     id: 71939275
     type: Equip Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: AtkChange
-        code: AttackAnnounce
-        range: SpellTrapZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when attack_declared
+        activate_from: [spell_trap_zone]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -19,10 +20,10 @@ card "Spirit Illusion" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        range: SpellTrapZone
-        count_limit: (1, 71939275)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [spell_trap_zone]
         on_resolve {
             create_token { atk: 0 def: 0 }
             special_summon (1, monster) from gy
@@ -33,10 +34,8 @@ card "Spirit Illusion" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Activate
-        category: Equip
-        code: FreeChain
+    effect "Effect 3" {
+        speed: spell_speed_1
         on_resolve {
             equip self to (1, monster, you controls)
         }

@@ -15,11 +15,11 @@ card "Odd-Eyes Advance Dragon" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Destroy + Damage
-        code: SummonSuccess
-        property: InitialValue + Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_summoned
         on_resolve {
             destroy (1+, card, you controls, gy)
             deal_damage to opponent: 1000

@@ -6,11 +6,10 @@ card "Guard Go!" {
     id: 64283880
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon
-        code: ChainEnd
-        property: CardTarget + Oath
+    effect "Effect 1" {
+        speed: spell_speed_2
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             special_summon (1, monster) from gy
             special_summon (1, monster) from gy

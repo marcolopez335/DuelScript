@@ -11,10 +11,11 @@ card "Performapal Skeeter Skimmer" {
     atk: 500
     def: 1600
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: PositionChange
-        code: BattleTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_attacked
         on_resolve {
             change_battle_position (1, monster)
             negate attack

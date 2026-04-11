@@ -30,13 +30,11 @@ card "Predaplant Dheadevil" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Destroy
-        code: FreeChain
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 82370493)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
         on_resolve {
             destroy (1+, spell, either_player controls)
         }

@@ -6,9 +6,8 @@ card "Gravekeeper's Trap" {
     id: 98715423
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
         }
     }
@@ -33,12 +32,11 @@ card "Gravekeeper's Trap" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: QuickEffect
-        category: ToHand + Search
-        code: FreeChain
-        range: SpellTrapZone
-        count_limit: (1, 98715423)
+    effect "Effect 4" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [spell_trap_zone]
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
             reveal (1+, card, opponent controls)

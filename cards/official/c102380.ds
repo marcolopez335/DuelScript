@@ -15,12 +15,10 @@ card "Lava Golem" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + MandatoryTrigger
-        category: Damage
-        code: PhaseStandby
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
         on_resolve {
             deal_damage to opponent: 1000
         }
@@ -60,10 +58,9 @@ card "Lava Golem" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Hand
+    effect "Effect 5" {
+        speed: spell_speed_1
+        activate_from: [hand]
         on_resolve {
             special_summon self from hand
         }

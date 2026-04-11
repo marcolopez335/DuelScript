@@ -11,9 +11,11 @@ card "Don Zaloog" {
     atk: 1400
     def: 1500
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        code: BattleDestroyed
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_destroyed
         on_resolve {
             send (1+, card, you controls, hand) to gy
             mill 2

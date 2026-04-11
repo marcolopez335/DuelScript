@@ -11,10 +11,11 @@ card "Secret Six Samurai - Kizaru" {
     atk: 1900
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: SpecialSummonSuccess
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_summoned by_special_summon
         on_resolve {
             return (1+, monster, you controls) to hand
             reveal (1+, card, opponent controls)

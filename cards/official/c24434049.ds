@@ -21,35 +21,30 @@ card "Epurrely Plump" {
         method: xyz
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: LeaveGrave
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             attach (1, card) to self as_material
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: LeaveGrave
-        code: FreeChain
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        damage_step: false
         on_resolve {
             attach (1, card) to self as_material
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: Banish
-        code: Chaining
-        range: MonsterZone
-        count_limit: (3, 0)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             attach (1, card) to self as_material
             banish (1+, monster, opponent controls)

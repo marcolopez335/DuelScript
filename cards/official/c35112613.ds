@@ -11,10 +11,10 @@ card "Kuriphoton" {
     atk: 300
     def: 200
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        code: FreeChain
-        range: Hand
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        activate_from: [hand]
         cost {
             pay_lp your_lp / 2
             send self to gy
@@ -31,10 +31,10 @@ card "Kuriphoton" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        range: Graveyard
-        count_limit: (1, 35112613)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [gy]
         cost {
             send self to gy
         }

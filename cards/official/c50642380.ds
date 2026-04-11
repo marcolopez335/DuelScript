@@ -11,11 +11,9 @@ card "Gagaku-P.U.N.K. Wa Gon" {
     atk: 900
     def: 600
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: ToHand + Search
-        range: MonsterZone
-        count_limit: (1, 50642380)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
         cost {
             pay_lp 600
         }
@@ -37,13 +35,12 @@ card "Gagaku-P.U.N.K. Wa Gon" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: Draw
-        code: BattleTarget
-        property: InitialValue
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: when_attacked
         on_resolve {
             draw 1
         }

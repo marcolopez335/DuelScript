@@ -19,20 +19,19 @@ card "Ghostrick Stein" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: PositionChange
-        range: MonsterZone
+    effect "Effect 2" {
+        speed: spell_speed_1
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: BattleDestroyed
-        count_limit: (1, 16279989)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when_battle_destroyed
         on_resolve {
             return (1+, spell, you controls) to hand
             reveal (1+, card, opponent controls)

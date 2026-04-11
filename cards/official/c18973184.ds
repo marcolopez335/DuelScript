@@ -6,9 +6,8 @@ card "Branded Lost" {
     id: 18973184
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -45,13 +44,13 @@ card "Branded Lost" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Field + Trigger
-        category: ToHand + Search
-        code: SpecialSummonSuccess
-        property: Delay
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
+        activate_from: [spell_trap_zone]
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)

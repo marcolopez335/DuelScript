@@ -24,11 +24,12 @@ card "Vouiburial, the Dragon Undertaker" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        code: ChainEnd
-        property: Delay
-        range: Hand + MonsterZone
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
+        activate_from: [hand, monster_zone]
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {

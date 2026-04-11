@@ -15,10 +15,9 @@ card "Flower Cardian Cherry Blossom with Curtain" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: ToGrave + SpecialSummon + Draw
-        range: Hand
+    effect "Effect 1" {
+        speed: spell_speed_1
+        activate_from: [hand]
         cost {
             reveal self
         }
@@ -31,12 +30,10 @@ card "Flower Cardian Cherry Blossom with Curtain" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: AtkChange
-        code: FreeChain
-        property: Oath
-        range: Hand
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        activate_from: [hand]
         cost {
             discard (1, card, you controls)
         }

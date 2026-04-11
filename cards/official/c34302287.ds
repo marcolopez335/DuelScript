@@ -6,11 +6,9 @@ card "Phantasm Spiral Battle" {
     id: 34302287
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Destroy
-        code: FreeChain
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_2
+        damage_step: false
         on_resolve {
             destroy (1+, spell, you controls)
         }
@@ -23,12 +21,11 @@ card "Phantasm Spiral Battle" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        category: Equip
-        code: FreeChain
-        property: CardTarget
-        range: Graveyard
+    effect "Effect 3" {
+        speed: spell_speed_2
+        optional: true
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }

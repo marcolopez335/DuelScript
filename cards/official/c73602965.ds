@@ -15,12 +15,11 @@ card "Arias the Labrynth Butler" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        range: Hand + MonsterZone
-        count_limit: (1, 73602965)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [hand, monster_zone]
         cost {
             send self to gy
         }
@@ -34,12 +33,13 @@ card "Arias the Labrynth Butler" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: Chaining
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        activate_from: [gy]
         on_resolve {
             special_summon (1, monster) from gy
         }

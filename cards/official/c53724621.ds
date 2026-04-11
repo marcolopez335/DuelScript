@@ -12,23 +12,21 @@ card "Performapal Guitartle" {
     atk: 300
     def: 400
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: Draw
-        code: Chaining
-        property: Delay
-        range: PendulumZone
-        count_limit: (1, 53724621)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             draw 1
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

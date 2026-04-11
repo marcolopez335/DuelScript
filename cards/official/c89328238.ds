@@ -6,12 +6,9 @@ card "Backup Team" {
     id: 89328238
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToDeck + Draw
-        code: FreeChain
-        property: InitialValue
-        count_limit: (1, 89328238)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
         on_resolve {
             draw 1
             return (1+, card, you controls) to deck shuffle
@@ -19,11 +16,11 @@ card "Backup Team" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        code: FreeChain
-        range: Graveyard
-        count_limit: (1, 89328238)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [gy]
         on_resolve {
             set (1, card)
         }

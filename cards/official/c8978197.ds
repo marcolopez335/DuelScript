@@ -20,10 +20,11 @@ card "The King of D." {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: SummonSuccess
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_summoned
         on_resolve {
             add_to_hand (1+, spell, you controls) from hand
             reveal (1+, card, opponent controls)

@@ -20,12 +20,10 @@ card "Enlilgirsu, the Orcust Mekk-Knight" {
         method: link
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: ToHand + ToDeck + Control
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 74820316)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             return (1+, card, either_player controls) to hand
             shuffle_hand
@@ -34,13 +32,11 @@ card "Enlilgirsu, the Orcust Mekk-Knight" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: ToHand + ToDeck + Control
-        code: FreeChain
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 74820316)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
         on_resolve {
             return (1+, card, either_player controls) to hand
             shuffle_hand
@@ -49,11 +45,10 @@ card "Enlilgirsu, the Orcust Mekk-Knight" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: ToGrave
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [gy]
         cost {
             banish self
         }
@@ -62,12 +57,11 @@ card "Enlilgirsu, the Orcust Mekk-Knight" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: QuickEffect
-        category: ToGrave
-        code: FreeChain
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        activate_from: [gy]
         cost {
             banish self
         }

@@ -11,13 +11,11 @@ card "Battlin' Boxer Counterpunch" {
     atk: 0
     def: 1100
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: AtkChange
-        code: FreeChain
-        property: Oath
-        range: Hand + Graveyard
-        count_limit: (1, 4549095)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [hand, gy]
         cost {
             banish self
         }

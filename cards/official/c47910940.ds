@@ -20,13 +20,12 @@ card "Marincess Great Bubble Reef" {
         method: link
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: Draw
-        code: PhaseStandby
-        property: InitialValue
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: during_standby_phase
         cost {
             banish self
         }
@@ -54,11 +53,9 @@ card "Marincess Great Bubble Reef" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: MonsterZone
-        count_limit: (1, 47910940)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: hard
         cost {
             send self to gy
         }

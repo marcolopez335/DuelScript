@@ -6,10 +6,9 @@ card "Hero Medal" {
     id: 10489311
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: ToDeck + Draw
-        code: ChainEnd
+    effect "Effect 1" {
+        speed: spell_speed_2
+        trigger: on_custom_event "chain_end"
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
             shuffle_deck

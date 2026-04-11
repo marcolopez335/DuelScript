@@ -6,23 +6,20 @@ card "Malefic Force" {
     id: 68721020
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Equip
-        code: FreeChain
-        property: CardTarget
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             equip (1, card) to (1, monster)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Destroy
-        code: FreeChain
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        activate_from: [gy]
         cost {
             banish self
         }
@@ -47,12 +44,11 @@ card "Malefic Force" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: QuickEffect
-        category: Destroy + ToHand + Search
-        code: FreeChain
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 5" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        activate_from: [spell_trap_zone]
         on_resolve {
             destroy (1+, card, either_player controls)
             add_to_hand (1+, card, either_player controls) from gy

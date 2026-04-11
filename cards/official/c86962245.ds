@@ -11,12 +11,11 @@ card "Salamangreat Foxer" {
     atk: 1200
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Destroy + ToDeck
-        property: CardTarget
-        range: Hand
-        count_limit: (1, 86962245)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
+        activate_from: [hand]
         cost {
             send self to gy
         }
@@ -26,13 +25,13 @@ card "Salamangreat Foxer" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: ChainEnd
-        property: Delay
-        range: Graveyard
-        count_limit: (1, 86962245)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
+        activate_from: [gy]
         on_resolve {
             special_summon (1, monster) from gy
         }

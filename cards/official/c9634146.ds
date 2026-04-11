@@ -21,12 +21,10 @@ card "Signal Warrior" {
         method: synchro
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + MandatoryTrigger
-        category: Counter
-        code: PhaseStandby
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
         on_resolve {
         }
     }
@@ -51,10 +49,9 @@ card "Signal Warrior" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
         on_resolve {
             deal_damage to opponent: 1000
             draw 1

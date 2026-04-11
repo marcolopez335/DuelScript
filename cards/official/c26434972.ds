@@ -6,9 +6,8 @@ card "Fiendsmith Kyrie" {
     id: 26434972
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
             set_flag "tracked" on self
             register_effect on self {
@@ -22,12 +21,11 @@ card "Fiendsmith Kyrie" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: SpecialSummon + FusionSummon
-        code: FreeChain
-        range: Graveyard
-        count_limit: (1, 26434972)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [gy]
         cost {
             banish self
         }

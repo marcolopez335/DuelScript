@@ -15,11 +15,11 @@ card "Floowandereeze & Empen" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToHand + Summon + Search
-        code: SummonSuccess
-        property: Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_summoned
         on_resolve {
             add_to_hand (1+, spell, you controls) from hand
             reveal (1+, card, opponent controls)

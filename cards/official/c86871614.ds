@@ -6,10 +6,9 @@ card "Cloning" {
     id: 86871614
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: SpecialSummon + Token
-        code: SummonSuccess
+    effect "Effect 1" {
+        speed: spell_speed_2
+        trigger: when_summoned
         on_resolve {
             create_token { atk: 0 def: 0 }
             register_effect on self {
@@ -40,10 +39,9 @@ card "Cloning" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Activate
-        category: SpecialSummon + Token
-        code: FlipSummonSuccess
+    effect "Effect 2" {
+        speed: spell_speed_2
+        trigger: when_summoned by_flip_summon
         on_resolve {
             create_token { atk: 0 def: 0 }
             register_effect on self {

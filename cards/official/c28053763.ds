@@ -6,9 +6,8 @@ card "Dragonoid Generator" {
     id: 28053763
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         cost {
             pay_lp 1000
         }
@@ -16,11 +15,10 @@ card "Dragonoid Generator" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: SpecialSummon + Token
-        range: SpellTrapZone
-        count_limit: (2, 28053763)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        twice_per_turn
+        activate_from: [spell_trap_zone]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

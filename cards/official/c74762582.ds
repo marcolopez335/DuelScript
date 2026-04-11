@@ -11,13 +11,14 @@ card "Subterror Fiendess" {
     atk: 800
     def: 500
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: PositionChange + Negate
-        code: Chaining
-        property: CardTarget + Oath + CountCodeDuel
-        range: Hand + MonsterZone
-        count_limit: (1, 74762582)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        activate_from: [hand, monster_zone]
         cost {
             send self to gy
         }
@@ -28,12 +29,10 @@ card "Subterror Fiendess" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: SpecialSummon + PositionChange
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             change_battle_position (1, monster)
             special_summon (1, monster) from gy

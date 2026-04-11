@@ -15,11 +15,12 @@ card "Divine Dragon Lord Felgrand" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Banish
-        code: SpecialSummonSuccess
-        property: CardTarget + Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             banish (1+, monster, either_player controls)
         }

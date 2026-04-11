@@ -21,26 +21,26 @@ card "Performapal Teeter Totter Hopper" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: ToHand + ToGrave
-        code: PhaseEnd
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: during_end_phase
         on_resolve {
             send (1+, monster, either_player controls) to gy
             add_to_hand (1+, monster, either_player controls) from gy
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: ChainEnd
-        property: Delay
-        range: Graveyard
-        count_limit: (1, 29169993)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
+        activate_from: [gy]
         on_resolve {
             special_summon (1, monster) from gy
         }

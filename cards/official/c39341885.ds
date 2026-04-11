@@ -20,23 +20,22 @@ card "Radiant Typhoon Varuroon, the Marine Eidolon" {
         method: link
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: SpecialSummonSuccess
-        property: Delay
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             return (1+, monster, either_player controls) to hand
             reveal (1+, card, opponent controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
         on_resolve {
             send (1+, monster, either_player controls) to gy
             special_summon (1, monster) from gy
@@ -47,12 +46,12 @@ card "Radiant Typhoon Varuroon, the Marine Eidolon" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        code: Chaining
-        property: Delay
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             special_summon (1, monster) from gy
         }

@@ -23,12 +23,14 @@ card "Ixeep, Omen of the Ghoti" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        code: PhaseStandby
-        property: CardTarget
-        range: Banished
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: during_standby_phase
+        activate_from: [banished]
         on_resolve {
             set (1, card)
         }

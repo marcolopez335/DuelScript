@@ -6,9 +6,8 @@ card "Ancient Warriors Saga - Defense of Changban" {
     id: 4810585
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
         }
     }
@@ -23,11 +22,11 @@ card "Ancient Warriors Saga - Defense of Changban" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: QuickEffect
-        code: FreeChain
-        range: SpellTrapZone
-        count_limit: (1, 4810585)
+    effect "Effect 3" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [spell_trap_zone]
         cost {
             send self to gy
         }
@@ -40,12 +39,13 @@ card "Ancient Warriors Saga - Defense of Changban" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: AttackAnnounce
-        range: Graveyard
-        count_limit: (1, 4810585)
+    effect "Effect 4" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when attack_declared
+        activate_from: [gy]
         cost {
             banish self
         }

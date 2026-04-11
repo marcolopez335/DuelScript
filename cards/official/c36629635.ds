@@ -11,12 +11,12 @@ card "Dandy Whitelion" {
     atk: 300
     def: 300
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: ChainEnd
-        property: Delay
-        count_limit: (1, 36629635)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             create_token { atk: 0 def: 0 }
             special_summon (1, monster) from gy

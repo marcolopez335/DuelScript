@@ -11,10 +11,10 @@ card "Fallen of the Tistina" {
     atk: 200
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        range: Hand + MonsterZone
-        count_limit: (1, 87498729)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand, monster_zone]
         cost {
             send self to gy
         }
@@ -24,12 +24,13 @@ card "Fallen of the Tistina" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: Destroyed
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: when_destroyed
+        activate_from: [gy]
         cost {
             banish self
         }

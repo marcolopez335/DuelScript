@@ -20,11 +20,12 @@ card "Gladiator Beast Gyzarus" {
         method: fusion
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Destroy
-        code: SpecialSummonSuccess
-        property: CardTarget + Oath
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             destroy (1+, monster, you controls)
         }

@@ -39,22 +39,22 @@ card "Guardian Dreadscythe" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: ChainEnd
-        property: Oath + Delay
-        range: Hand
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single + Trigger
-        category: Equip
-        code: SpecialSummonSuccess
-        property: Oath
+    effect "Effect 5" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_summoned by_special_summon
         on_resolve {
             equip (1, card) to (1, monster)
         }
@@ -80,10 +80,9 @@ card "Guardian Dreadscythe" {
         }
     }
 
-    raw_effect "Effect 8" {
-        effect_type: Single + MandatoryTrigger
-        category: HandDestroy + SpecialSummon
-        code: ChainEnd
+    effect "Effect 8" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_end"
         on_resolve {
             discard (1, card)
             special_summon (1, monster) from gy

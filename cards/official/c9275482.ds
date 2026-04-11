@@ -34,12 +34,12 @@ card "UFOLight" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: Banish + Draw + AtkChange
-        code: PhaseEnd
-        range: MonsterZone
-        count_limit: (1, 9275482)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: during_end_phase
         on_resolve {
             draw 1
             shuffle_hand

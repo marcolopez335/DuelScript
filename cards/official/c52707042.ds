@@ -37,12 +37,13 @@ card "Libromancer Mystigirl" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: Disable + AtkChange
-        code: SpecialSummonSuccess
-        property: CardTarget + Delay
-        count_limit: (1, 52707042)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

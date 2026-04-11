@@ -21,12 +21,10 @@ card "Earthbound Servant Geo Gryphon" {
         method: synchro
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -36,12 +34,12 @@ card "Earthbound Servant Geo Gryphon" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: Destroy + Damage
-        code: Destroyed
-        property: Delay
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             destroy (1+, monster, you controls, gy)
             deal_damage to opponent: 1000

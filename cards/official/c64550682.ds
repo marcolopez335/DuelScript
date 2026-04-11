@@ -24,21 +24,21 @@ card "Scrap Orthros" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: Destroy
-        code: SpecialSummonSuccess
-        property: CardTarget
+    effect "Effect 2" {
+        speed: spell_speed_1
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             destroy (1+, monster, you controls)
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: Destroyed
-        property: CardTarget + Delay
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_destroyed
         on_resolve {
             return (1+, monster, you controls) to hand
             reveal (1+, card, opponent controls)

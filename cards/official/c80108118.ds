@@ -21,10 +21,9 @@ card "X-Saber Urbellum" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: ToDeck
-        code: BattleDestroyed
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_battle_destroyed
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
         }

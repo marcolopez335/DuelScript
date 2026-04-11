@@ -29,12 +29,13 @@ card "El Shaddoll Apkallone" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: Disable
-        code: SpecialSummonSuccess
-        property: CardTarget + Delay
-        count_limit: (1, 50907446)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -61,12 +62,12 @@ card "El Shaddoll Apkallone" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: ToHand + HandDestroy
-        code: ChainEnd
-        property: Delay
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             add_to_hand (1+, trap, you controls) from gy
             reveal (1+, card, opponent controls)

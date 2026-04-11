@@ -11,11 +11,12 @@ card "Magicat" {
     atk: 600
     def: 500
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToDeck
-        code: FlipSuccess
-        property: CardTarget + Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_flipped
         on_resolve {
             return (1+, spell, either_player controls) to deck shuffle
         }

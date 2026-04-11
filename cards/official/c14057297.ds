@@ -6,11 +6,9 @@ card "Multiple Destruction" {
     id: 14057297
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToDeck + Draw
-        code: FreeChain
-        count_limit: (1, 14057297)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
             send_to_deck (1+, card, you controls)

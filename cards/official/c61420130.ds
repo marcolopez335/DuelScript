@@ -6,11 +6,9 @@ card "Paleozoic Hallucigenia" {
     id: 61420130
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: AtkChange + DefChange
-        code: FreeChain
-        property: CardTarget + Oath
+    effect "Effect 1" {
+        speed: spell_speed_2
+        damage_step: false
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -23,11 +21,12 @@ card "Paleozoic Hallucigenia" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: Chaining
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        activate_from: [gy]
         on_resolve {
             special_summon (1, monster) from gy
         }

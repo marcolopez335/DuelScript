@@ -47,21 +47,19 @@ card "G Golem Invalid Dolmen" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: Draw
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
         on_resolve {
             draw 1
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single + Trigger
-        category: Disable
-        code: Destroyed
-        property: Delay
+    effect "Effect 5" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

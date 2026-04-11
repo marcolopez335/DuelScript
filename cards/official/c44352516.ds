@@ -6,9 +6,8 @@ card "Cyberdark Inferno" {
     id: 44352516
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -32,23 +31,22 @@ card "Cyberdark Inferno" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: ToHand + Summon
-        property: CardTarget
-        range: FieldZone
-        count_limit: (1, 44352516)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
+        activate_from: [field_zone]
         on_resolve {
             add_to_hand (1+, spell, you controls) from hand
             normal_summon (1, monster, you controls)
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: Destroyed
-        property: Delay
+    effect "Effect 5" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             add_to_hand (1+, spell, you controls) from hand
             reveal (1+, card, opponent controls)

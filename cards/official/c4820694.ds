@@ -6,31 +6,34 @@ card "Constellar Tempest" {
     id: 4820694
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        code: PhaseEnd
-        property: CardTarget
-        range: SpellTrapZone
-        count_limit: (1, 4820694)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: during_end_phase
+        activate_from: [spell_trap_zone]
         on_resolve {
             send (1+, monster, either_player controls) to gy
             gain_lp: 0
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        code: PhaseStandby
-        property: CardTarget
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: during_standby_phase
+        activate_from: [spell_trap_zone]
         on_resolve {
             attach (1, card) to self as_material
         }

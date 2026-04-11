@@ -11,12 +11,11 @@ card "Undaunted Bumpkin Beast" {
     atk: 900
     def: 2000
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        range: Hand + Graveyard
-        count_limit: (1, 8700633)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [hand, gy]
         on_resolve {
             special_summon (1, monster) from gy
         }

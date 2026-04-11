@@ -12,24 +12,24 @@ card "Pendulum Witch" {
     atk: 1500
     def: 800
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: ToExtra
-        code: Destroyed
-        property: Delay
-        range: PendulumZone
-        count_limit: (1, 43502497)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             send (1+, card, you controls) to extra_deck
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: Destroy + ToHand + Search
-        code: SummonSuccess
-        property: CardTarget + Delay
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             destroy (1+, card, you controls, deck)
             add_to_hand (1+, card, you controls) from deck
@@ -37,12 +37,13 @@ card "Pendulum Witch" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: Destroy + ToHand + Search
-        code: SpecialSummonSuccess
-        property: CardTarget + Delay
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             destroy (1+, card, you controls, deck)
             add_to_hand (1+, card, you controls) from deck
@@ -50,10 +51,11 @@ card "Pendulum Witch" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        code: Destroyed
-        property: Delay
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             special_summon (1, monster) from gy
         }

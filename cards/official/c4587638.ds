@@ -6,9 +6,8 @@ card "Roaring Earth" {
     id: 4587638
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
         }
     }
@@ -22,11 +21,11 @@ card "Roaring Earth" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + MandatoryTrigger
-        code: BattleDestroyed
-        property: CardTarget
-        range: SpellTrapZone
+    effect "Effect 3" {
+        speed: spell_speed_2
+        damage_step: false
+        trigger: when_battle_destroyed
+        activate_from: [spell_trap_zone]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

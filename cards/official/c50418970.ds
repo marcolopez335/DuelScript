@@ -6,21 +6,18 @@ card "Spirit Burner" {
     id: 50418970
     type: Equip Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: PositionChange
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [spell_trap_zone]
         on_resolve {
             change_battle_position (1, monster)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: Damage
-        code: ChainEnd
-        property: InitialValue
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_end"
         on_resolve {
             deal_damage to opponent: 1000
         }
@@ -37,10 +34,8 @@ card "Spirit Burner" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Activate
-        category: Equip
-        code: FreeChain
+    effect "Effect 4" {
+        speed: spell_speed_1
         on_resolve {
             equip self to (1, monster, you controls)
         }

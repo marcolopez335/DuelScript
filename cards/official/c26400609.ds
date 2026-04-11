@@ -15,11 +15,10 @@ card "Tidal, Dragon Ruler of Waterfalls" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Hand + Graveyard
-        count_limit: (1, 26400609)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand, gy]
         cost {
             banish self
         }
@@ -28,22 +27,19 @@ card "Tidal, Dragon Ruler of Waterfalls" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        category: ToHand
-        code: PhaseEnd
-        range: MonsterZone
-        count_limit: (1, 26400609)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: during_end_phase
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: ToGrave
-        range: Hand
-        count_limit: (1, 26400609)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand]
         on_resolve {
             send (1+, monster, you controls, gy) to gy
         }

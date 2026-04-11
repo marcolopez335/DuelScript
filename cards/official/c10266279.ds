@@ -12,12 +12,12 @@ card "Power Patron Shadow Spirit Junordo" {
     atk: 0
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: Destroy + HandDestroy + Draw
-        code: SpecialSummonSuccess
-        range: PendulumZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: when_summoned by_special_summon
         on_resolve {
             destroy (1+, card, either_player controls)
             shuffle_hand
@@ -25,11 +25,9 @@ card "Power Patron Shadow Spirit Junordo" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Destroy + SpecialSummon
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
         cost {
             banish self
         }

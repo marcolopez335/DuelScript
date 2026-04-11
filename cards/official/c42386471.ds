@@ -61,10 +61,11 @@ card "Toon Gemini Elf" {
         }
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Single + Trigger
-        category: HandDestroy
-        code: BattleDestroyed
+    effect "Effect 6" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_destroyed
         on_resolve {
             send (1+, card, you controls) to gy
         }

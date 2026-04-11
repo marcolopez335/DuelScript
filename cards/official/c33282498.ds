@@ -15,11 +15,11 @@ card "Arkbrave Dragon" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Banish
-        code: SpecialSummonSuccess
-        property: Oath + Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             banish (1+, spell, opponent controls)
         }
@@ -33,13 +33,14 @@ card "Arkbrave Dragon" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: PhaseStandby
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: during_standby_phase
+        activate_from: [gy]
         on_resolve {
             special_summon (1, monster) from gy
         }

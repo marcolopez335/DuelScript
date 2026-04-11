@@ -20,11 +20,9 @@ card "Fiendsmith's Requiem" {
         method: link
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        range: MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
         cost {
             tribute self
         }
@@ -33,12 +31,11 @@ card "Fiendsmith's Requiem" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Equip
-        property: CardTarget
-        range: MonsterZone + Graveyard
-        count_limit: (1, 2463794)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
+        activate_from: [monster_zone, gy]
         on_resolve {
             equip (1, card) to (1, monster)
             send (1+, card, you controls, hand) to gy

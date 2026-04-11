@@ -6,12 +6,10 @@ card "Quadogmatika Beast" {
     id: 16693934
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToGrave + SpecialSummon
-        code: FreeChain
-        property: CardTarget
-        count_limit: (1, 16693934)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             send (1+, monster, you controls, deck) to gy
             special_summon (1, monster) from gy

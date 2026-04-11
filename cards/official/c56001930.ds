@@ -6,21 +6,19 @@ card "The Return to the Normal" {
     id: 56001930
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Destroy
-        code: SummonSuccess
-        count_limit: (1, 56001930)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        trigger: when_summoned
         on_resolve {
             destroy (1+, monster, either_player controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Activate
-        category: Destroy
-        code: SpecialSummonSuccess
-        count_limit: (1, 56001930)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        trigger: when_summoned by_special_summon
         on_resolve {
             destroy (1+, monster, either_player controls)
         }

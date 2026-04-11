@@ -6,21 +6,19 @@ card "Twilight Twin Dragons" {
     id: 60431417
     type: Normal Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + DeckDestroy
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
             return (1+, monster, you controls) to hand
             mill 4
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: Banish + ToHand
-        code: ChainEnd
-        property: Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             return (1+, monster, you controls) to hand
             banish (1+, monster, you controls)

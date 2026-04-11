@@ -38,11 +38,11 @@ card "Scrap Shark" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: ToGrave
-        code: Destroyed
-        property: Oath + Delay
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             send (1+, monster, you controls, deck) to gy
         }

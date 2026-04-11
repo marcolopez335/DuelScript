@@ -37,11 +37,10 @@ card "Yellow Duston" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + MandatoryTrigger
-        category: ToDeck
-        code: Destroyed
-        property: CardTarget
+    effect "Effect 4" {
+        speed: spell_speed_1
+        damage_step: false
+        trigger: when_destroyed
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
         }

@@ -40,23 +40,20 @@ card "Mecha Phantom Beast Blackfalcon" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + MandatoryTrigger
-        category: SpecialSummon + Token
-        code: AttackAnnounce
+    effect "Effect 4" {
+        speed: spell_speed_1
+        trigger: when attack_declared
         on_resolve {
             create_token { atk: 0 def: 0 }
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: QuickEffect
-        category: PositionChange
-        code: FreeChain
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 5" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        damage_step: false
         cost {
             tribute self
         }

@@ -6,9 +6,8 @@ card "Chicken Game" {
     id: 67616300
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -49,11 +48,10 @@ card "Chicken Game" {
         }
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Ignition
-        property: 4096
-        range: FieldZone
-        count_limit: (1, 0)
+    effect "Effect 6" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [field_zone]
         cost {
             pay_lp 1000
         }

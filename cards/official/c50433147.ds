@@ -6,9 +6,8 @@ card "The Nordic Lights" {
     id: 50433147
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -22,10 +21,9 @@ card "The Nordic Lights" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + MandatoryTrigger
-        category: Destroy
-        code: Destroyed
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: when_destroyed
         on_resolve {
             destroy (1+, monster, either_player controls)
         }

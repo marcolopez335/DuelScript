@@ -41,11 +41,9 @@ card "Dark Sage" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + MandatoryTrigger
-        category: ToHand + Search
-        code: SpecialSummonSuccess
-        range: MonsterZone
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: when_summoned by_special_summon
         on_resolve {
             add_to_hand (1+, spell, opponent controls) from deck
             reveal (1+, card, opponent controls)

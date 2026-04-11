@@ -37,10 +37,9 @@ card "Blue Duston" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + MandatoryTrigger
-        category: Banish
-        code: Destroyed
+    effect "Effect 4" {
+        speed: spell_speed_1
+        trigger: when_destroyed
         on_resolve {
             banish (1+, card, either_player controls)
             register_effect on self {

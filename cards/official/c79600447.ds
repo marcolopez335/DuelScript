@@ -6,9 +6,8 @@ card "Mementotlan Cranium Burst" {
     id: 79600447
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
         }
     }
@@ -31,12 +30,13 @@ card "Mementotlan Cranium Burst" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: QuickEffect
-        category: Disable + AtkChange + DefChange
-        code: Chaining
-        property: CardTarget
-        range: SpellTrapZone
+    effect "Effect 4" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        activate_from: [spell_trap_zone]
         on_resolve {
             negate effect
         }

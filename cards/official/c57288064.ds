@@ -21,13 +21,11 @@ card "Shiranui Samuraisaga" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: ToDeck + PositionChange
-        code: FreeChain
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        damage_step: false
         on_resolve {
             return (1+, monster, opponent controls) to deck shuffle
             change_battle_position (1, monster)

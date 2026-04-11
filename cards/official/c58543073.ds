@@ -6,11 +6,9 @@ card "Speedroid Dupligate" {
     id: 58543073
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand
-        code: FreeChain
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_2
+        damage_step: false
         cost {
             banish self
         }
@@ -19,13 +17,12 @@ card "Speedroid Dupligate" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: SpecialSummon + LevelChange
-        code: FreeChain
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 58543073)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
+        activate_from: [gy]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

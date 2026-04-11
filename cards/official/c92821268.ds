@@ -15,12 +15,13 @@ card "Gimmick Puppet Twilight Joker" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: BattleDamage
-        range: Hand
-        count_limit: (1, 92821268)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when_battle_damage
+        activate_from: [hand]
         cost {
             banish self
         }

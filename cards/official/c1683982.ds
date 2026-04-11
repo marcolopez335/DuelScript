@@ -6,9 +6,8 @@ card "Viper's Grudge" {
     id: 1683982
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
         }
     }
@@ -31,48 +30,48 @@ card "Viper's Grudge" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: BattleDamage
-        property: Oath + Delay
-        range: SpellTrapZone
-        count_limit: (1, 1683982)
+    effect "Effect 4" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_battle_damage
+        activate_from: [spell_trap_zone]
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: ChainEnd
-        property: Oath + Delay
-        range: SpellTrapZone
-        count_limit: (1, 1683982)
+    effect "Effect 5" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
+        activate_from: [spell_trap_zone]
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: FlipSuccess
-        property: Oath + Delay
-        range: SpellTrapZone
-        count_limit: (1, 1683982)
+    effect "Effect 6" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_flipped
+        activate_from: [spell_trap_zone]
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 7" {
-        effect_type: Single + Trigger
-        category: ToGrave
-        code: Destroyed
-        property: Delay
-        count_limit: (1, 0)
+    effect "Effect 7" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             send (1+, card, either_player controls) to gy
         }

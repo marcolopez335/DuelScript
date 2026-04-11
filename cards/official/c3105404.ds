@@ -6,22 +6,20 @@ card "Brilliant Spark" {
     id: 3105404
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Damage
-        code: Destroyed
-        property: CardTarget + Oath + Delay
-        count_limit: (1, 3105404)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        damage_step: false
+        trigger: when_destroyed
         on_resolve {
             deal_damage to opponent: 1000
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: ToHand
-        code: FreeChain
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        activate_from: [gy]
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
         }

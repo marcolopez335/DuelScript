@@ -6,11 +6,9 @@ card "Super Quantal Mech Sword - Magnaslayer" {
     id: 47819246
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Equip
-        code: FreeChain
-        property: CardTarget + Oath
+    effect "Effect 1" {
+        speed: spell_speed_2
+        damage_step: false
         on_resolve {
             equip (1, card) to (1, monster)
         }
@@ -32,10 +30,10 @@ card "Super Quantal Mech Sword - Magnaslayer" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: QuickEffect
-        code: FreeChain
-        range: SpellTrapZone
+    effect "Effect 4" {
+        speed: spell_speed_2
+        optional: true
+        activate_from: [spell_trap_zone]
         cost {
             send self to gy
         }

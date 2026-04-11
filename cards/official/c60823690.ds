@@ -29,11 +29,9 @@ card "Shinobaron Shade Peacock" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: ToHand + Search
-        range: MonsterZone
-        count_limit: (1, 60823690)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
         cost {
             tribute self
         }
@@ -43,12 +41,11 @@ card "Shinobaron Shade Peacock" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + MandatoryTrigger
-        category: SpecialSummon
-        code: PhaseStandby
-        range: Banished
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
+        activate_from: [banished]
         on_resolve {
             special_summon (1, monster) from gy
         }

@@ -11,12 +11,12 @@ card "Highness Archfiend" {
     atk: 1000
     def: 800
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: SummonSuccess
-        property: Delay
-        count_limit: (1, 11248645)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned
         cost {
             banish self
         }
@@ -30,12 +30,13 @@ card "Highness Archfiend" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: BattleDamage
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: when_battle_damage
+        activate_from: [gy]
         on_resolve {
             special_summon (1, monster) from gy
         }

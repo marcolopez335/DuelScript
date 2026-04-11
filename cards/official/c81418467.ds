@@ -24,12 +24,11 @@ card "Primite Imperial Dragon" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Summon
-        code: FreeChain
-        range: Hand
-        count_limit: (1, 81418467)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [hand]
         cost {
             reveal self
         }
@@ -38,11 +37,11 @@ card "Primite Imperial Dragon" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: Banish + Disable
-        code: SummonSuccess
-        property: Delay
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_summoned
         on_resolve {
             banish (1+, monster, you controls, hand)
         }

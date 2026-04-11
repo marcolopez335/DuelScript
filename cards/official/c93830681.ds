@@ -11,12 +11,14 @@ card "Friller Rabca" {
     atk: 700
     def: 1500
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        code: BattleTarget
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 93830681)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_attacked
+        activate_from: [gy]
         cost {
             banish self
         }

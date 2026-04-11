@@ -6,10 +6,9 @@ card "Dark Magic Mirror Force" {
     id: 59016454
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Destroy + Damage
-        code: AttackAnnounce
+    effect "Effect 1" {
+        speed: spell_speed_2
+        trigger: when attack_declared
         on_resolve {
             destroy (1+, monster, opponent controls)
             deal_damage to opponent: 1000
@@ -20,10 +19,9 @@ card "Dark Magic Mirror Force" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Activate
-        category: Destroy + Damage
-        code: Chaining
+    effect "Effect 2" {
+        speed: spell_speed_2
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             destroy (1+, monster, opponent controls)
             deal_damage to opponent: 1000

@@ -15,12 +15,10 @@ card "Queen Angel of Roses" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + MandatoryTrigger
-        category: Destroy
-        code: PhaseStandby
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
         on_resolve {
             destroy (1+, monster, either_player controls)
             destroy (1+, monster, either_player controls)

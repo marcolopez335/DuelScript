@@ -6,11 +6,9 @@ card "Haunted Zombies" {
     id: 32335697
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Banish + SpecialSummon + Token
-        code: FreeChain
-        count_limit: (1, 32335697)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
         on_resolve {
             banish (1+, monster, either_player controls, gy)
             create_token { atk: 0 def: 0 }
@@ -22,12 +20,11 @@ card "Haunted Zombies" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: ToDeck + LeaveGrave
-        code: FreeChain
-        range: Graveyard
-        count_limit: (1, 32335697)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [gy]
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
             set (1, card)

@@ -6,23 +6,20 @@ card "Majesty of the White Dragons" {
     id: 43219114
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Destroy
-        code: FreeChain
-        count_limit: (1, 43219114)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
         on_resolve {
             reveal (1+, card, opponent controls)
             destroy (1+, card, opponent controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        activate_from: [gy]
         cost {
             banish self
         }
@@ -31,10 +28,8 @@ card "Majesty of the White Dragons" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Activate
-        category: SpecialSummon
-        code: FreeChain
+    effect "Effect 3" {
+        speed: spell_speed_2
         on_resolve {
             ritual_summon (1, ritual monster) using (1+, monster, you controls)
         }

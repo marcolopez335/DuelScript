@@ -36,31 +36,28 @@ card "Grief Tablet" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Ignition
-        category: ToHand + Search
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [spell_trap_zone]
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)
         }
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Single + Trigger
-        category: Damage
-        code: ChainEnd
-        property: InitialValue + Delay
+    effect "Effect 6" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             deal_damage to opponent: 1000
         }
     }
 
-    raw_effect "Effect 7" {
-        effect_type: Activate
-        category: Equip
-        code: FreeChain
+    effect "Effect 7" {
+        speed: spell_speed_1
         on_resolve {
             equip self to (1, monster, you controls)
         }

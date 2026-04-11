@@ -6,9 +6,8 @@ card "Action Magic - Full Turn" {
     id: 99004583
     type: Quick-Play Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -18,9 +17,9 @@ card "Action Magic - Full Turn" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_1
+        activate_from: [gy]
         on_resolve {
             set (1, card)
         }

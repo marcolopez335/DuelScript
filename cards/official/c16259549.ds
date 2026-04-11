@@ -21,13 +21,10 @@ card "Number 49: Fortune Tune" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + MandatoryTrigger
-        category: Recover
-        code: PhaseStandby
-        property: InitialValue
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
         on_resolve {
             gain_lp: 1000
         }
@@ -50,12 +47,11 @@ card "Number 49: Fortune Tune" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + MandatoryTrigger
-        category: ToDeck
-        code: ChainEnd
-        property: CardTarget
-        count_limit: (1, 16259549)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             return (1+, card, you controls) to deck shuffle
             return (1+, card, you controls) to deck shuffle

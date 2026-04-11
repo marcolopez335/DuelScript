@@ -6,19 +6,17 @@ card "Virtual World Gate - Qinglong" {
     id: 50275295
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Disable
-        property: CardTarget
-        range: SpellTrapZone
-        count_limit: (1, 50275295)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
+        activate_from: [spell_trap_zone]
         cost {
             banish self
         }
@@ -34,11 +32,10 @@ card "Virtual World Gate - Qinglong" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: ToHand + HandDestroy + Search
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [gy]
         cost {
             banish self
         }

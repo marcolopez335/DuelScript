@@ -11,11 +11,12 @@ card "Tanngnjostr of the Nordic Beasts" {
     atk: 800
     def: 1100
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: BattleDamage
-        range: Hand
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_damage
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
         }

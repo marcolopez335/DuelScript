@@ -46,11 +46,12 @@ card "Assault Blackwing - Chidori the Rain Sprinkling" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: Destroyed
-        property: CardTarget + Oath
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_destroyed
         on_resolve {
             special_summon (1, monster) from gy
         }

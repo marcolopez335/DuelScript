@@ -6,12 +6,10 @@ card "Dracotail Horn" {
     id: 69932023
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + ToDeck + Draw + ToExtra
-        code: FreeChain
-        property: CardTarget
-        count_limit: (1, 69932023)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             add_to_hand (1+, card, you controls) from gy
             return (1+, card, you controls) to deck shuffle

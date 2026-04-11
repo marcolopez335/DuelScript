@@ -6,24 +6,23 @@ card "Ragnaraika Hunting Dance" {
     id: 89824842
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: Destroy
-        code: FreeChain
-        property: CardTarget
-        count_limit: (1, 89824842)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             destroy (1+, monster, you controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: Destroy
-        code: Destroyed
-        property: CardTarget + Delay
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_destroyed
+        activate_from: [gy]
         cost {
             banish self
         }

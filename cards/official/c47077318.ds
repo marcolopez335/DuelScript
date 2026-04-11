@@ -11,22 +11,20 @@ card "Sylvan Mikorange" {
     atk: 400
     def: 1100
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: DeckDestroy
-        code: ChainEnd
-        property: Oath
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: on_custom_event "chain_end"
         on_resolve {
             reveal (1, card, opponent controls, deck)
             send (1+, monster, you controls) to gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: AtkChange + DefChange
-        code: ChainEnd
-        property: Delay
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_end"
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

@@ -6,22 +6,21 @@ card "First-Aid Squad" {
     id: 33622465
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand
-        code: FreeChain
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_2
+        damage_step: false
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: BattleDamage
-        range: Graveyard
-        count_limit: (1, 33622465)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when_battle_damage
+        activate_from: [gy]
         on_resolve {
             special_summon (1, monster) from gy
         }

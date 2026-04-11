@@ -15,12 +15,9 @@ card "Volcanic Queen" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Damage
-        property: InitialValue
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
         cost {
             send self to gy
         }
@@ -29,12 +26,10 @@ card "Volcanic Queen" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        category: Release + Damage
-        code: PhaseEnd
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
         on_resolve {
             tribute (1, monster, you controls)
             deal_damage to opponent: 1000
@@ -57,10 +52,9 @@ card "Volcanic Queen" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: SpecialSummon
-        range: Hand
+    effect "Effect 4" {
+        speed: spell_speed_1
+        activate_from: [hand]
         on_resolve {
             special_summon self from hand
         }

@@ -16,11 +16,10 @@ card "Mayosenju Hitot" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        property: CardTarget
-        range: PendulumZone
-        count_limit: (1, 21364070)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -37,12 +36,10 @@ card "Mayosenju Hitot" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        category: ToHand
-        code: PhaseEnd
-        range: PendulumZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
         on_resolve {
             return (1+, monster, you controls) to hand
         }
@@ -56,21 +53,23 @@ card "Mayosenju Hitot" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: SummonSuccess
-        property: CardTarget + Oath + Delay
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned
         on_resolve {
             return (1+, monster, you controls) to hand
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: SpecialSummonSuccess
-        property: CardTarget + Oath + Delay
+    effect "Effect 5" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             return (1+, monster, you controls) to hand
         }
@@ -102,12 +101,10 @@ card "Mayosenju Hitot" {
         }
     }
 
-    raw_effect "Effect 8" {
-        effect_type: Field + MandatoryTrigger
-        category: ToHand
-        code: PhaseEnd
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 8" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_end_phase
         on_resolve {
             return (1+, monster, you controls) to hand
         }

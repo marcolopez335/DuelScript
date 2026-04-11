@@ -29,23 +29,20 @@ card "Judge of the Ice Barrier" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Ignition
-        category: ToDeck
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 53535814)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             return (1+, monster, you controls) to deck shuffle
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Ignition
-        category: PositionChange
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }

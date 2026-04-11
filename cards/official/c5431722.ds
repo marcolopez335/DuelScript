@@ -6,12 +6,10 @@ card "Dracotail Flame" {
     id: 5431722
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToDeck + Disable + Draw
-        code: FreeChain
-        property: CardTarget
-        count_limit: (1, 5431722)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        damage_step: false
         on_resolve {
             return (1+, spell, you controls) to deck shuffle
             draw 1

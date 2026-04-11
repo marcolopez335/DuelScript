@@ -16,11 +16,9 @@ card "Odd-Eyes Pendulum Dragon of the Four Heavenly Dragons" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Ignition
-        category: Destroy + ToHand + Search
-        range: PendulumZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
         on_resolve {
             destroy (1+, card, you controls, deck)
             add_to_hand (1+, card, you controls) from deck
@@ -53,12 +51,12 @@ card "Odd-Eyes Pendulum Dragon of the Four Heavenly Dragons" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: ToHand + SpecialSummon
-        code: Destroyed
-        property: Delay
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             shuffle_hand

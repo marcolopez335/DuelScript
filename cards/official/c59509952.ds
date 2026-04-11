@@ -39,12 +39,10 @@ card "Archlord Kristya" {
         redirect_to: deck
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + MandatoryTrigger
-        category: ToHand
-        code: SpecialSummonSuccess
-        property: CardTarget
-        range: MonsterZone
+    effect "Effect 4" {
+        speed: spell_speed_1
+        damage_step: false
+        trigger: when_summoned by_special_summon
         on_resolve {
             add_to_hand (1+, card, you controls) from gy
             shuffle_hand

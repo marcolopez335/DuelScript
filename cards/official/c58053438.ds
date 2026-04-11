@@ -6,11 +6,10 @@ card "Songs of the Dominators" {
     id: 58053438
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: ToHand + Disable + Search
-        code: Chaining
-        count_limit: (1, 58053438)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate effect
             add_to_hand (1+, card, you controls) from gy

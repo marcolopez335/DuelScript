@@ -6,9 +6,8 @@ card "Ancient City - Rainbow Ruins" {
     id: 34487429
     type: Field Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
@@ -46,22 +45,20 @@ card "Ancient City - Rainbow Ruins" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Ignition
-        category: Draw
-        range: FieldZone
-        count_limit: (1, 0)
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        activate_from: [field_zone]
         on_resolve {
             draw 1
         }
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Ignition
-        category: SpecialSummon
-        property: CardTarget
-        range: FieldZone
-        count_limit: (1, 0)
+    effect "Effect 6" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
+        activate_from: [field_zone]
         on_resolve {
             special_summon (1, monster) from gy
         }

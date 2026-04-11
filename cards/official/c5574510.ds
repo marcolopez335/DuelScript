@@ -6,18 +6,16 @@ card "Shateki" {
     id: 5574510
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Destroy + ToHand + Search + DiceRoll + LevelChange
-        property: CardTarget
-        range: SpellTrapZone
+    effect "Effect 2" {
+        speed: spell_speed_1
+        damage_step: false
+        activate_from: [spell_trap_zone]
         cost {
             discard (1, card, you controls)
         }

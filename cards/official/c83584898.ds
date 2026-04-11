@@ -30,21 +30,18 @@ card "Darkworld Shackles" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + MandatoryTrigger
-        category: Damage
-        code: PhaseStandby
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
+        activate_from: [spell_trap_zone]
         on_resolve {
             deal_damage to opponent: 1000
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Activate
-        category: Equip
-        code: FreeChain
+    effect "Effect 5" {
+        speed: spell_speed_1
         on_resolve {
             equip self to (1, monster, you controls)
         }

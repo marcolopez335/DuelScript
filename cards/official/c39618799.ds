@@ -20,11 +20,11 @@ card "Cyber Angel Dakini" {
         method: ritual
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToGrave
-        code: SpecialSummonSuccess
-        property: Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             send (1+, monster, you controls) to gy
         }
@@ -39,13 +39,13 @@ card "Cyber Angel Dakini" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: ToHand
-        code: PhaseEnd
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: during_end_phase
         on_resolve {
             return (1+, monster, you controls) to hand
         }

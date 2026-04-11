@@ -56,11 +56,11 @@ card "Cyberse Magician" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: Destroyed
-        property: Oath + Delay
+    effect "Effect 5" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_destroyed
         on_resolve {
             return (1+, monster, you controls) to hand
             reveal (1+, card, opponent controls)

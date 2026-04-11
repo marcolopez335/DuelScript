@@ -6,9 +6,8 @@ card "Infinite Light" {
     id: 72883039
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         cost {
             send self to gy
         }
@@ -43,11 +42,10 @@ card "Infinite Light" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        range: SpellTrapZone
+    effect "Effect 5" {
+        speed: spell_speed_2
+        optional: true
+        activate_from: [spell_trap_zone]
         on_resolve {
             special_summon (1, monster) from gy
         }

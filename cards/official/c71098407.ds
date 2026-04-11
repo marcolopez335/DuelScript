@@ -6,10 +6,9 @@ card "Memory Loss" {
     id: 71098407
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: PositionChange + Disable
-        code: Chaining
+    effect "Effect 1" {
+        speed: spell_speed_2
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate effect
             change_battle_position (1, monster)

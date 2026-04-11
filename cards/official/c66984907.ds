@@ -6,24 +6,22 @@ card "Amaze Attraction Cyclo-Coaster" {
     id: 66984907
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: ToGrave
-        code: FreeChain
-        property: CardTarget
-        range: SpellTrapZone
-        count_limit: (1, 66984907)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
+        activate_from: [spell_trap_zone]
         on_resolve {
             send (1+, monster, you controls, deck) to gy
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: ToHand + ToGrave + Search
-        code: FreeChain
-        range: SpellTrapZone
-        count_limit: (1, 66984907)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [spell_trap_zone]
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)

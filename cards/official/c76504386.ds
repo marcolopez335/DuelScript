@@ -29,11 +29,10 @@ card "Number 39: Utopia the Envoy of Light" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        code: FreeChain
-        property: CardTarget
-        range: MonsterZone
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        damage_step: false
         cost {
             detach 1 overlay_unit from self
         }
@@ -45,11 +44,11 @@ card "Number 39: Utopia the Envoy of Light" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: AtkChange
-        code: AttackAnnounce
-        range: MonsterZone
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when attack_declared
         on_resolve {
         }
     }

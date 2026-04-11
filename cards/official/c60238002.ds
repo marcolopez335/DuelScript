@@ -6,32 +6,31 @@ card "Interdimensional Matter Forwarder" {
     id: 60238002
     type: Continuous Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_1
         on_resolve {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Banish
-        property: CardTarget
-        range: SpellTrapZone
-        count_limit: (1, 60238002)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        damage_step: false
+        activate_from: [spell_trap_zone]
         on_resolve {
             banish (1+, card, either_player controls)
             special_summon (1, monster) from gy
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: Banish
-        code: Chaining
-        property: CardTarget + Delay
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        activate_from: [spell_trap_zone]
         on_resolve {
             banish (1+, card, either_player controls)
             special_summon (1, monster) from gy

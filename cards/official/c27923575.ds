@@ -6,9 +6,8 @@ card "Boo-Boo Game" {
     id: 27923575
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: AttackEnd
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -17,11 +16,13 @@ card "Boo-Boo Game" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        code: ChainEnd
-        property: CardTarget + Delay
-        count_limit: (1, 27923575)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             set (1, card)
             register_effect on self {

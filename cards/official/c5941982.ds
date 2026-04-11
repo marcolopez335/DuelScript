@@ -6,9 +6,8 @@ card "Scareclaw Alternative" {
     id: 5941982
     type: Normal Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         cost {
             tribute self
         }
@@ -21,12 +20,11 @@ card "Scareclaw Alternative" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Damage
-        code: FreeChain
-        range: Graveyard
-        count_limit: (1, 5941982)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        activate_from: [gy]
         cost {
             banish self
         }

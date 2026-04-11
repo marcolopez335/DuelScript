@@ -38,11 +38,11 @@ card "Performapal Momoncarpet" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: PositionChange
-        code: SpecialSummonSuccess
-        property: Oath + Delay
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_summoned by_special_summon
         on_resolve {
             change_battle_position (1, monster)
         }

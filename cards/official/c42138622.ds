@@ -6,11 +6,10 @@ card "Vortex of Time" {
     id: 42138622
     type: Quick-Play Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        category: CoinToss
-        code: Chaining
-        count_limit: (1, 42138622)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
         }

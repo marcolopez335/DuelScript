@@ -11,12 +11,12 @@ card "Vampire Ghost" {
     atk: 1500
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToHand + ToGrave + Search
-        code: SummonSuccess
-        property: Delay
-        count_limit: (1, 90299015)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned
         cost {
             send self to gy
         }
@@ -27,12 +27,11 @@ card "Vampire Ghost" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: Summon
-        code: FreeChain
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        activate_from: [gy]
         cost {
             pay_lp your_lp / 2
         }

@@ -11,11 +11,10 @@ card "Doomdog Octhros" {
     atk: 800
     def: 800
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: ToHand + Search
-        code: ChainEnd
-        count_limit: (1, 58616392)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: on_custom_event "chain_end"
         on_resolve {
             add_to_hand (1+, card, opponent controls) from deck
             reveal (1+, card, opponent controls)

@@ -11,12 +11,10 @@ card "Kozmo Farmgirl" {
     atk: 1500
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: FreeChain
-        range: MonsterZone
-        count_limit: (1, 31061682)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
         cost {
             banish self
         }
@@ -25,10 +23,11 @@ card "Kozmo Farmgirl" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: BattleDestroyed
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_destroyed
         cost {
             pay_lp 500
         }

@@ -23,11 +23,9 @@ card "Armed Dragon LV5" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Ignition
-        category: Destroy
-        property: CardTarget
-        range: MonsterZone
+    effect "Effect 2" {
+        speed: spell_speed_1
+        damage_step: false
         cost {
             send self to gy
         }
@@ -36,11 +34,11 @@ card "Armed Dragon LV5" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: PhaseEnd
-        range: MonsterZone
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: during_end_phase
         cost {
             send self to gy
         }

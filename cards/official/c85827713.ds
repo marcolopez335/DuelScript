@@ -6,9 +6,8 @@ card "Ghostrick Night" {
     id: 85827713
     type: Continuous Trap
 
-    raw_effect "Effect 1" {
-        effect_type: Activate
-        code: FreeChain
+    effect "Effect 1" {
+        speed: spell_speed_2
         on_resolve {
         }
     }
@@ -22,9 +21,9 @@ card "Ghostrick Night" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + MandatoryTrigger
-        code: ChainEnd
+    effect "Effect 3" {
+        speed: spell_speed_2
+        trigger: on_custom_event "chain_end"
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

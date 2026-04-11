@@ -38,11 +38,12 @@ card "Scrap Goblin" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: Destroyed
-        property: CardTarget + Delay
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: when_destroyed
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
         }

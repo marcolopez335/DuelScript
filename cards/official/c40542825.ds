@@ -22,10 +22,11 @@ card "Familiar-Possessed - Lyna" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: SpecialSummonSuccess
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_summoned by_special_summon
         on_resolve {
             return (1+, monster, you controls) to hand
             reveal (1+, card, opponent controls)

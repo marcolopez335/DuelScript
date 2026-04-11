@@ -11,12 +11,13 @@ card "Starry Knight Flamel" {
     atk: 1500
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: AttackAnnounce
-        range: Hand + MonsterZone
-        count_limit: (1, 86613346)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when attack_declared
+        activate_from: [hand, monster_zone]
         cost {
             send self to gy
         }
@@ -25,13 +26,12 @@ card "Starry Knight Flamel" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: ToHand
-        code: FreeChain
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 86613346)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        damage_step: false
+        activate_from: [gy]
         cost {
             banish self
         }
