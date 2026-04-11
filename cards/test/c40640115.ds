@@ -1,0 +1,50 @@
+// Pattern: 3-effect monster (ignition + trigger + continuous)
+// Ignition: tribute 1 monster; destroy 1 opponent's card.
+// Trigger: when summoned, draw 1.
+// Continuous: all "Iron" monsters you control gain 300 ATK.
+
+card "Iron Commander" {
+    type: Effect Monster
+    id: 40640115
+    attribute: EARTH
+    race: Machine
+    level: 5
+    atk: 2100
+    def: 1600
+
+    summon_condition {
+        tributes_required: 1
+    }
+
+    archetype: ["Iron"]
+
+    effect "Tactical Demolition" {
+        speed: spell_speed_1
+        once_per_turn: hard
+
+        cost {
+            tribute (1, monster, you controls)
+        }
+
+        on_resolve {
+            destroy (1, card, opponent controls)
+        }
+    }
+
+    effect "Deploy Draw" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_summoned
+
+        on_resolve {
+            draw 1
+        }
+    }
+
+    continuous_effect "Iron Resolve" {
+        scope: field
+        apply_to: (1+, "Iron" monster, you controls)
+        modifier: atk + 300
+    }
+}

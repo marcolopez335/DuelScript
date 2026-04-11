@@ -1,0 +1,28 @@
+// Pattern: multiple archetype card
+// Card belongs to both "Cyber" and "Machine" archetypes.
+// "When this card is Normal Summoned: add 1 'Cyber' or 'Machine'
+//  card from your Deck to your hand."
+
+card "Cyber Machine Linker" {
+    type: Effect Monster
+    id: 40640129
+    attribute: LIGHT
+    race: Machine
+    level: 4
+    atk: 1600
+    def: 1200
+
+    archetype: ["Cyber", "Machine"]
+
+    effect "Dual Search" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_summoned by_normal_summon
+
+        on_resolve {
+            add_to_hand (1, card) from deck
+        }
+    }
+}

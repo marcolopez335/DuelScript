@@ -1,0 +1,30 @@
+// Pattern: yes_no player choice (if_player_chooses)
+// "When this card is summoned: you can draw 1 card, then if you
+//  choose, discard 1 card; otherwise gain 500 LP."
+
+card "Forked Path Mage" {
+    type: Effect Monster
+    id: 40640123
+    attribute: DARK
+    race: Spellcaster
+    level: 4
+    atk: 1500
+    def: 1200
+
+    effect "Branching Fate" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_summoned
+
+        on_resolve {
+            draw 1
+            if_player_chooses {
+                discard (1, card, you controls, hand)
+                draw 2
+            } else {
+                gain_lp: 500
+            }
+        }
+    }
+}

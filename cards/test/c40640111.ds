@@ -1,0 +1,22 @@
+// Pattern: condition: hand_size >= 5
+// "If you have 5 or more cards in your hand: you can discard 2;
+//  draw 3."
+
+card "Overflowing Intellect" {
+    type: Normal Spell
+    id: 40640111
+
+    effect "Knowledge Surge" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        condition: hand_size >= 5
+
+        cost {
+            discard (2, card, you controls, hand)
+        }
+
+        on_resolve {
+            draw 3
+        }
+    }
+}

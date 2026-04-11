@@ -1,0 +1,23 @@
+// Pattern: when_destroyed by card_effect trigger
+// "When this card is destroyed by a card effect: draw 2 cards."
+
+card "Arcane Witness" {
+    type: Effect Monster
+    id: 40640101
+    attribute: LIGHT
+    race: Spellcaster
+    level: 3
+    atk: 800
+    def: 1500
+
+    effect "Effect Destruction Payoff" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_destroyed by card_effect
+
+        on_resolve {
+            draw 2
+        }
+    }
+}

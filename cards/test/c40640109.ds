@@ -1,0 +1,25 @@
+// Pattern: standby phase trigger with LP condition
+// "During your Standby Phase, if your LP are 3000 or less:
+//  draw 1 card."
+
+card "Desperate Oracle" {
+    type: Effect Monster
+    id: 40640109
+    attribute: LIGHT
+    race: Fairy
+    level: 4
+    atk: 1200
+    def: 1400
+
+    effect "Emergency Draw" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: during_standby_phase of yours
+        condition: your_lp <= 3000
+
+        on_resolve {
+            draw 1
+        }
+    }
+}

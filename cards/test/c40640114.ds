@@ -1,0 +1,24 @@
+// Pattern: composite condition (X and Y)
+// "If you control no monsters and your LP are 2000 or less:
+//  Special Summon this card from your hand."
+
+card "Last Stand Soldier" {
+    type: Effect Monster
+    id: 40640114
+    attribute: EARTH
+    race: Warrior
+    level: 4
+    atk: 1800
+    def: 1200
+
+    effect "Desperate Entry" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        activate_from: [hand]
+        condition: you_control_no_monsters and your_lp <= 2000
+
+        on_resolve {
+            special_summon self from hand
+        }
+    }
+}

@@ -1,0 +1,19 @@
+// Pattern: also { } simultaneous resolution
+// "Destroy 1 Spell/Trap your opponent controls. Also, gain 500 LP."
+
+card "Purifying Radiance" {
+    type: Quick-Play Spell
+    id: 40640120
+
+    effect "Cleanse and Heal" {
+        speed: spell_speed_2
+        once_per_turn: hard
+
+        on_resolve {
+            destroy (1, spell, opponent controls)
+            also {
+                gain_lp: 500
+            }
+        }
+    }
+}

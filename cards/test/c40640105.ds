@@ -1,0 +1,23 @@
+// Pattern: when_used_as_material for fusion trigger
+// "When this card is used as Fusion Material: draw 1 card."
+
+card "Fusion Catalyst" {
+    type: Effect Monster
+    id: 40640105
+    attribute: FIRE
+    race: Pyro
+    level: 3
+    atk: 900
+    def: 700
+
+    effect "Fusion Bonus" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_used_as_material for fusion
+
+        on_resolve {
+            draw 1
+        }
+    }
+}

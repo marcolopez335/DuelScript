@@ -1,0 +1,19 @@
+// Pattern: ritual_summon from spell with total_level constraint
+// "Tribute monsters from your hand or field whose total Levels
+//  equal or exceed the Level of the Ritual Monster you are
+//  summoning; Ritual Summon 1 DARK Ritual Monster from your hand."
+
+card "Forbidden Rite" {
+    type: Ritual Spell
+    id: 40640132
+
+    effect "Dark Ritual" {
+        speed: spell_speed_1
+
+        on_resolve {
+            ritual_summon (1, ritual monster)
+                using (1+, monster, you controls)
+                where total_level >= 7
+        }
+    }
+}

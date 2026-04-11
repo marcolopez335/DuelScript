@@ -1,0 +1,17 @@
+// Pattern: pendulum_summon action
+// "Once per turn: you can Pendulum Summon up to 2 monsters from
+//  your hand and/or face-up Extra Deck."
+
+card "Pendulum Gateway" {
+    type: Continuous Spell
+    id: 40640130
+
+    effect "Open the Scales" {
+        speed: spell_speed_1
+        once_per_turn: hard
+
+        on_resolve {
+            pendulum_summon (2, monster) from [hand, extra_deck_face_up]
+        }
+    }
+}

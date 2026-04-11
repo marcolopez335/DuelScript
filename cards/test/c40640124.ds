@@ -1,0 +1,19 @@
+// Pattern: excavate from deck
+// "Excavate the top 3 cards of your Deck. Add any Spell Cards
+//  among them to your hand, and send the rest to the GY."
+
+card "Mystic Excavation" {
+    type: Normal Spell
+    id: 40640124
+
+    effect "Dig for Spells" {
+        speed: spell_speed_1
+        once_per_turn: hard
+
+        on_resolve {
+            excavate 3 from your_deck
+            add_to_hand (1+, spell) from deck
+            send (1+, card) to gy
+        }
+    }
+}

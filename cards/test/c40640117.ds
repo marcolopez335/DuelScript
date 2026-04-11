@@ -1,0 +1,36 @@
+// Pattern: store/recall cross-phase state
+// "When this card is Normal Summoned: store the number of cards
+//  in your hand. During the End Phase: draw cards equal to the
+//  stored value minus your current hand size (minimum 0)."
+
+card "Memory Keeper" {
+    type: Effect Monster
+    id: 40640117
+    attribute: LIGHT
+    race: Spellcaster
+    level: 4
+    atk: 1400
+    def: 1200
+
+    effect "Record Hand" {
+        speed: spell_speed_1
+        trigger: when_summoned by_normal_summon
+
+        on_resolve {
+            store "hand_snapshot" = selected_targets
+        }
+    }
+
+    effect "Restore Balance" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: during_end_phase
+
+        on_resolve {
+            recall "hand_snapshot"
+            draw 1
+        }
+    }
+}

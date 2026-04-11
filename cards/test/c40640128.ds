@@ -1,0 +1,22 @@
+// Pattern: change_name action with duration
+// "Target 1 monster you control; its name becomes 'Blue-Eyes
+//  White Dragon' until the end of this turn."
+
+card "Identity Thief" {
+    type: Effect Monster
+    id: 40640128
+    attribute: DARK
+    race: Spellcaster
+    level: 3
+    atk: 1000
+    def: 600
+
+    effect "Assume Name" {
+        speed: spell_speed_1
+        once_per_turn: hard
+
+        on_resolve {
+            change_name (1, monster, you controls) to "Blue-Eyes White Dragon" until_end_of_turn
+        }
+    }
+}

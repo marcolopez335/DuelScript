@@ -1,0 +1,26 @@
+// Pattern: when_banished trigger
+// "When this card is banished: Special Summon 1 'Void' monster
+//  from your GY in defense position."
+
+card "Void Remnant" {
+    type: Effect Monster
+    id: 40640103
+    attribute: DARK
+    race: Fiend
+    level: 4
+    atk: 1400
+    def: 1000
+
+    archetype: ["Void"]
+
+    effect "Banish Revival" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_banished
+
+        on_resolve {
+            special_summon (1, "Void" monster) from gy in defense_position
+        }
+    }
+}
