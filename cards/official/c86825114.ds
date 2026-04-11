@@ -11,12 +11,12 @@ card "Trickstar Nightshade" {
     atk: 100
     def: 0
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        timing: if
-        trigger: when_flipped
+    raw_effect "Effect 1" {
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: FlipSuccess
+        property: Delay
+        count_limit: (1, 86825114)
         on_resolve {
             special_summon (1, monster) from gy
         }

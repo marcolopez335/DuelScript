@@ -12,14 +12,13 @@ card "Crusher Run" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
-        timing: if
-        damage_step: false
-        trigger: when_destroyed
-        activate_from: [spell_trap_zone]
+    raw_effect "Effect 2" {
+        effect_type: Field + Trigger
+        category: Destroy
+        code: Destroyed
+        property: CardTarget + Oath + Delay
+        range: SpellTrapZone
+        count_limit: (1, 88667504)
         on_resolve {
             destroy (1+, card, you controls, gy)
         }

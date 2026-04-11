@@ -35,12 +35,12 @@ card "Gazelle the King of Mythical Claws" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        timing: if
-        trigger: when_flipped
+    raw_effect "Effect 3" {
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: FlipSuccess
+        property: Delay
+        count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
             reveal (1+, card, opponent controls)

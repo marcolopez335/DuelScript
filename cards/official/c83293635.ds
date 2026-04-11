@@ -6,10 +6,11 @@ card "Seventh Force" {
     id: 83293635
     type: Quick-Play Spell
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        damage_step: false
-        trigger: when_destroyed
+    raw_effect "Effect 1" {
+        effect_type: Activate
+        category: ToHand + SpecialSummon + Search
+        code: Destroyed
+        property: CardTarget + Oath + Delay
         on_resolve {
             special_summon (1, monster) from gy
             attach (1, card) to self as_material

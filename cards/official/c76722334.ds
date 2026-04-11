@@ -22,12 +22,12 @@ card "Capshell" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        timing: if
-        trigger: when_flipped
+    raw_effect "Effect 2" {
+        effect_type: Single + Trigger
+        category: Draw
+        code: FlipSuccess
+        property: InitialValue + Delay
+        count_limit: (1, 76722334)
         on_resolve {
             draw 1
         }

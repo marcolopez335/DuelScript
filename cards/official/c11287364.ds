@@ -11,10 +11,11 @@ card "Quick-Span Knight" {
     atk: 1000
     def: 800
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        damage_step: false
-        trigger: when_flipped
+    raw_effect "Effect 1" {
+        effect_type: Single + MandatoryTrigger
+        category: AtkChange
+        code: FlipSuccess
+        property: CardTarget
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

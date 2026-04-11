@@ -19,10 +19,12 @@ card "Harpie Lady Elegance" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        trigger: when_destroyed
+    raw_effect "Effect 2" {
+        effect_type: Single + MandatoryTrigger
+        category: ToHand + Search
+        code: Destroyed
+        property: Delay
+        count_limit: (1, 0)
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
             reveal (1+, card, opponent controls)

@@ -14,11 +14,11 @@ card "Mythical Bestiary" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        timing: if
-        trigger: when_destroyed
+    raw_effect "Effect 2" {
+        effect_type: Single + Trigger
+        category: SpecialSummon + Counter
+        code: Destroyed
+        property: Delay
         on_resolve {
             special_summon (1, monster) from gy
         }

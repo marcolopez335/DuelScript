@@ -22,12 +22,11 @@ card "Tamtam the Melodious Diva" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        timing: if
-        damage_step: false
-        trigger: when_flipped
+    raw_effect "Effect 2" {
+        effect_type: Single + Trigger
+        category: Damage + AtkChange
+        code: FlipSuccess
+        property: CardTarget + Oath + Delay
         on_resolve {
             deal_damage to opponent: 500
         }

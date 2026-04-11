@@ -32,13 +32,12 @@ card "Chaos Mirage Dragon" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        timing: if
-        damage_step: false
-        trigger: when_flipped
+    raw_effect "Effect 2" {
+        effect_type: Single + Trigger
+        category: Banish
+        code: FlipSuccess
+        property: CardTarget + Delay
+        count_limit: (1, 0)
         on_resolve {
             banish (1+, card, either_player controls)
         }

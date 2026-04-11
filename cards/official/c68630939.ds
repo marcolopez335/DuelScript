@@ -16,13 +16,12 @@ card "Numbers Protection" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
-        timing: if
-        trigger: when_destroyed
-        activate_from: [gy]
+    raw_effect "Effect 2" {
+        effect_type: Field + Trigger
+        code: Destroyed
+        property: Oath + Delay
+        range: Graveyard
+        count_limit: (1, 68630939)
         on_resolve {
             set (1, card)
         }

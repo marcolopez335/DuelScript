@@ -11,12 +11,11 @@ card "Sinister Sprocket" {
     atk: 400
     def: 0
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        optional: true
-        timing: if
-        damage_step: false
-        trigger: when_flipped
+    raw_effect "Effect 1" {
+        effect_type: Single + Trigger
+        category: Destroy
+        code: FlipSuccess
+        property: CardTarget + Delay
         on_resolve {
             destroy (1+, spell, either_player controls)
         }

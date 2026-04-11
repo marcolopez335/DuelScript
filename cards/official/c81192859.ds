@@ -23,11 +23,10 @@ card "Gagaku-P.U.N.K. Wild Picking" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        optional: true
-        timing: if
-        trigger: when_destroyed
+    raw_effect "Effect 3" {
+        effect_type: Single + Trigger
+        code: Destroyed
+        property: Oath + Delay
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

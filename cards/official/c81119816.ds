@@ -11,12 +11,12 @@ card "Prank-Kids Fansies" {
     atk: 0
     def: 2000
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        timing: if
-        trigger: when_flipped
+    raw_effect "Effect 1" {
+        effect_type: Single + Trigger
+        category: ToGrave + SpecialSummon
+        code: FlipSuccess
+        property: Oath + Delay
+        count_limit: (1, 81119816)
         on_resolve {
             send (1+, card, you controls, hand) to gy
             special_summon (1, monster) from gy

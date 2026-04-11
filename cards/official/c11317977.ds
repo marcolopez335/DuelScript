@@ -25,11 +25,11 @@ card "Lunalight Black Sheep" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        timing: if
-        trigger: when_flipped
+    raw_effect "Effect 2" {
+        effect_type: Single + Trigger
+        category: ToHand
+        code: FlipSuccess
+        property: Delay
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
             reveal (1+, card, opponent controls)

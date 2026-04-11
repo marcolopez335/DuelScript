@@ -49,12 +49,11 @@ card "Terrors in the Hidden City" {
         }
     }
 
-    effect "Effect 6" {
-        speed: spell_speed_1
-        optional: true
-        timing: if
-        damage_step: false
-        trigger: when_destroyed
+    raw_effect "Effect 6" {
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
+        property: CardTarget + Delay
         on_resolve {
             special_summon (1, monster) from gy
             reveal (1+, card, opponent controls)

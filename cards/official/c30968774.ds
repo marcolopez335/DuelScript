@@ -11,12 +11,12 @@ card "Swap Cleric" {
     atk: 500
     def: 1000
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        timing: if
-        trigger: when_flipped
+    raw_effect "Effect 1" {
+        effect_type: Single + Trigger
+        category: Draw + AtkChange
+        code: FlipSuccess
+        property: InitialValue + Delay
+        count_limit: (1, 30968774)
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

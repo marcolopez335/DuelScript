@@ -21,11 +21,13 @@ card "Generaider Boss Loot" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        trigger: when_destroyed
-        activate_from: [spell_trap_zone]
+    raw_effect "Effect 3" {
+        effect_type: Field + MandatoryTrigger
+        category: Draw
+        code: Destroyed
+        property: Oath + Delay
+        range: SpellTrapZone
+        count_limit: (1, 1942635)
         on_resolve {
             draw 1
         }

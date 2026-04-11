@@ -1838,6 +1838,16 @@ pub fn transpile_lua_to_ds(
                     .any(|a| a.contains("negate activation")) {
                     None
                 }
+                // Sprint 68: when_flipped on non-Flip monsters
+                else if trigger.as_deref() == Some("when_flipped")
+                    && !cdb_card.map(|c| c.is_flip()).unwrap_or(false) {
+                    None
+                }
+                // Sprint 68: when_destroyed on Spell/Trap cards
+                else if trigger.as_deref() == Some("when_destroyed")
+                    && !card_is_monster {
+                    None
+                }
                 else { sem }
             } else { sem }
         };

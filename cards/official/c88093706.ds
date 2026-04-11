@@ -60,11 +60,10 @@ card "Update Jammer" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        timing: if
-        trigger: when_flipped
+    raw_effect "Effect 2" {
+        effect_type: Single + Trigger
+        code: FlipSuccess
+        property: Delay
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

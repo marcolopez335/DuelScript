@@ -12,11 +12,12 @@ card "Supply Squad" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: when_destroyed
-        activate_from: [spell_trap_zone]
+    raw_effect "Effect 2" {
+        effect_type: Field + MandatoryTrigger
+        category: Draw
+        code: Destroyed
+        range: SpellTrapZone
+        count_limit: (1, 0)
         on_resolve {
             draw 1
         }

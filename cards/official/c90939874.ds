@@ -14,12 +14,12 @@ card "Six Strike - Sextuple Barrage" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
-        timing: if
-        trigger: when_destroyed
+    raw_effect "Effect 2" {
+        effect_type: Single + Trigger
+        category: SpecialSummon
+        code: Destroyed
+        property: Delay
+        count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
         }

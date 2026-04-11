@@ -11,9 +11,11 @@ card "T.G. Jet Falcon" {
     atk: 1400
     def: 1200
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        trigger: when_flipped
+    raw_effect "Effect 1" {
+        effect_type: Single + MandatoryTrigger
+        category: Damage
+        code: FlipSuccess
+        property: InitialValue
         on_resolve {
             deal_damage to opponent: 1000
         }

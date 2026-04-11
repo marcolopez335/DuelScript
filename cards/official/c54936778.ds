@@ -33,12 +33,12 @@ card "Dark Contract with the Different Dimension" {
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
-        timing: if
-        trigger: when_destroyed
+    raw_effect "Effect 4" {
+        effect_type: Single + Trigger
+        category: Recover
+        code: Destroyed
+        property: Delay
+        count_limit: (1, 0)
         on_resolve {
             gain_lp: 1000
             gain_lp: 500

@@ -21,14 +21,13 @@ card "Loop of Destruction" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
-        timing: if
-        damage_step: false
-        trigger: when_destroyed
-        activate_from: [spell_trap_zone]
+    raw_effect "Effect 3" {
+        effect_type: Field + Trigger
+        category: Destroy + Damage
+        code: Destroyed
+        property: CardTarget + Delay
+        range: SpellTrapZone
+        count_limit: (1, 0)
         on_resolve {
             destroy (1+, card, either_player controls)
             deal_damage to opponent: 500

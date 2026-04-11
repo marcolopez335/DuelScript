@@ -32,13 +32,12 @@ card "Arionpos, Serpent of the Ghoti" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        timing: if
-        damage_step: false
-        trigger: when_flipped
+    raw_effect "Effect 2" {
+        effect_type: Single + Trigger
+        category: Banish + ToHand + Search
+        code: FlipSuccess
+        property: CardTarget + Delay
+        count_limit: (1, 0)
         on_resolve {
             banish (1+, card, you controls, deck)
             add_to_hand (1+, card, you controls) from deck

@@ -42,11 +42,11 @@ card "Cyberdark Inferno" {
         }
     }
 
-    effect "Effect 5" {
-        speed: spell_speed_1
-        optional: true
-        timing: if
-        trigger: when_destroyed
+    raw_effect "Effect 5" {
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: Destroyed
+        property: Delay
         on_resolve {
             add_to_hand (1+, spell, you controls) from hand
             reveal (1+, card, opponent controls)

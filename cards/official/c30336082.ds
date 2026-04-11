@@ -33,12 +33,11 @@ card "Sangen Summoning" {
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
-        optional: true
-        timing: if
-        damage_step: false
-        trigger: when_destroyed
+    raw_effect "Effect 4" {
+        effect_type: Single + Trigger
+        category: AtkChange
+        code: Destroyed
+        property: CardTarget + Delay
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

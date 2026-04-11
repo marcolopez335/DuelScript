@@ -6,10 +6,11 @@ card "Puzzle Reborn" {
     id: 30585393
     type: Normal Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        damage_step: false
-        trigger: when_destroyed
+    raw_effect "Effect 1" {
+        effect_type: Activate
+        category: SpecialSummon
+        code: Destroyed
+        property: CardTarget + Delay
         on_resolve {
             special_summon (1, monster) from gy
         }

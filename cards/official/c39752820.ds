@@ -40,12 +40,12 @@ card "Lib the World Key Blademaster" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        timing: if
-        trigger: when_flipped
+    raw_effect "Effect 3" {
+        effect_type: Single + Trigger
+        category: ToDeck
+        code: FlipSuccess
+        property: Delay
+        count_limit: (1, 0)
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
         }

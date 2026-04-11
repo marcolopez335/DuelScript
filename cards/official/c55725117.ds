@@ -11,12 +11,12 @@ card "Prank-Kids Dropsies" {
     atk: 1000
     def: 1000
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        timing: if
-        trigger: when_flipped
+    raw_effect "Effect 1" {
+        effect_type: Single + Trigger
+        category: SpecialSummon + Recover
+        code: FlipSuccess
+        property: Oath + Delay
+        count_limit: (1, 55725117)
         on_resolve {
             gain_lp: 1000
             special_summon (1, monster) from gy

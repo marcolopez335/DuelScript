@@ -11,10 +11,11 @@ card "Mecha Phantom Beast Warbluran" {
     atk: 300
     def: 300
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        trigger: when_flipped
+    raw_effect "Effect 1" {
+        effect_type: Single + MandatoryTrigger
+        category: SpecialSummon + Token
+        code: FlipSuccess
+        count_limit: (1, 31480215)
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

@@ -54,24 +54,24 @@ card "Viper's Grudge" {
         }
     }
 
-    effect "Effect 6" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
-        timing: if
-        trigger: when_flipped
-        activate_from: [spell_trap_zone]
+    raw_effect "Effect 6" {
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: FlipSuccess
+        property: Oath + Delay
+        range: SpellTrapZone
+        count_limit: (1, 1683982)
         on_resolve {
             special_summon (1, monster) from gy
         }
     }
 
-    effect "Effect 7" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
-        timing: if
-        trigger: when_destroyed
+    raw_effect "Effect 7" {
+        effect_type: Single + Trigger
+        category: ToGrave
+        code: Destroyed
+        property: Delay
+        count_limit: (1, 0)
         on_resolve {
             send (1+, card, either_player controls) to gy
         }

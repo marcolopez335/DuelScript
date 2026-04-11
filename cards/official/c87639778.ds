@@ -24,11 +24,11 @@ card "Harpie's Feather Storm" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_2
-        optional: true
-        timing: if
-        trigger: when_destroyed
+    raw_effect "Effect 3" {
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: Destroyed
+        property: Delay
         on_resolve {
             return (1+, monster, you controls) to hand
             reveal (1+, card, opponent controls)

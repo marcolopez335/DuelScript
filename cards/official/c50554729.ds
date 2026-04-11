@@ -43,13 +43,13 @@ card "Amorphage Infection" {
         }
     }
 
-    effect "Effect 5" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        timing: if
-        trigger: when_destroyed
-        activate_from: [spell_trap_zone]
+    raw_effect "Effect 5" {
+        effect_type: Field + Trigger
+        category: ToHand + Search
+        code: Destroyed
+        property: Oath + Delay
+        range: SpellTrapZone
+        count_limit: (1, 50554729)
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)

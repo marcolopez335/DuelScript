@@ -11,9 +11,11 @@ card "Bicorn Re'em" {
     atk: 800
     def: 1600
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        trigger: when_flipped
+    raw_effect "Effect 1" {
+        effect_type: Single + MandatoryTrigger
+        category: DeckDestroy
+        code: FlipSuccess
+        property: InitialValue
         on_resolve {
             mill 2
         }

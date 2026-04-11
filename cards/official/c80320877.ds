@@ -15,13 +15,12 @@ card "DoomZ Destruction" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
-        timing: if
-        damage_step: false
-        trigger: when_destroyed
+    raw_effect "Effect 2" {
+        effect_type: Single + Trigger
+        category: Equip
+        code: Destroyed
+        property: CardTarget + Delay
+        count_limit: (1, 0)
         on_resolve {
             equip (1, card) to (1, monster)
             register_effect on self {

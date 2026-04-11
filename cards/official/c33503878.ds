@@ -17,11 +17,11 @@ card "Abyss Script - Dramatic Story" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        timing: if
-        trigger: when_destroyed
+    raw_effect "Effect 2" {
+        effect_type: Single + Trigger
+        category: ToHand
+        code: Destroyed
+        property: Delay
         on_resolve {
             add_to_hand (1+, card, you controls) from deck
         }

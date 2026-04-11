@@ -15,12 +15,12 @@ card "Cybernetic Overflow" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
-        timing: if
-        trigger: when_destroyed
+    raw_effect "Effect 2" {
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: Destroyed
+        property: Delay
+        count_limit: (1, 0)
         on_resolve {
             return (1+, spell, opponent controls) to hand
             reveal (1+, card, opponent controls)

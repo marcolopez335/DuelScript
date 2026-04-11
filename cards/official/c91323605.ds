@@ -6,10 +6,12 @@ card "How Did Dai Get Here?" {
     id: 91323605
     type: Normal Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        trigger: when_destroyed
+    raw_effect "Effect 1" {
+        effect_type: Activate
+        category: SpecialSummon
+        code: Destroyed
+        property: Oath + Delay
+        count_limit: (1, 91323605)
         on_resolve {
             send (1+, card, either_player controls) to gy
             special_summon (1, monster) from gy

@@ -31,9 +31,10 @@ card "Cynet Universe" {
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
-        trigger: when_destroyed
+    raw_effect "Effect 4" {
+        effect_type: Single + MandatoryTrigger
+        category: ToGrave
+        code: Destroyed
         on_resolve {
             send (1+, monster, either_player controls) to gy
         }

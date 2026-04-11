@@ -14,13 +14,13 @@ card "Realm Elegy" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        timing: if
-        trigger: when_destroyed
-        activate_from: [gy]
+    raw_effect "Effect 2" {
+        effect_type: Field + Trigger
+        category: ToHand
+        code: Destroyed
+        property: Oath + Delay
+        range: Graveyard
+        count_limit: (1, 17462320)
         cost {
             banish self
         }

@@ -14,12 +14,11 @@ card "Artifact Sanctum" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        optional: true
-        timing: if
-        damage_step: false
-        trigger: when_destroyed
+    raw_effect "Effect 2" {
+        effect_type: Single + Trigger
+        category: Destroy
+        code: Destroyed
+        property: CardTarget + Oath + Delay
         on_resolve {
             destroy (1+, card, you controls, deck)
         }

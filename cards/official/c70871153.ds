@@ -15,12 +15,12 @@ card "Dracotail Urgula" {
         tributes_required: 1
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        timing: if
-        trigger: when_flipped
+    raw_effect "Effect 1" {
+        effect_type: Single + Trigger
+        category: Destroy
+        code: FlipSuccess
+        property: Delay
+        count_limit: (1, 70871153)
         on_resolve {
             set (1, card)
             shuffle_deck

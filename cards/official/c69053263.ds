@@ -23,10 +23,12 @@ card "Black Rose Garden" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        trigger: when_destroyed
+    raw_effect "Effect 3" {
+        effect_type: Single + MandatoryTrigger
+        category: Damage
+        code: Destroyed
+        property: InitialValue
+        count_limit: (1, 0)
         on_resolve {
             deal_damage to opponent: 1000
             deal_damage to opponent: 2400

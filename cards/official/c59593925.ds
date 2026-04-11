@@ -12,11 +12,11 @@ card "Resonant Destruction" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        damage_step: false
-        trigger: when_flipped
-        activate_from: [spell_trap_zone]
+    raw_effect "Effect 2" {
+        effect_type: Field + MandatoryTrigger
+        code: FlipSuccess
+        property: CardTarget
+        range: SpellTrapZone
         on_resolve {
             destroy (1+, card, either_player controls)
         }

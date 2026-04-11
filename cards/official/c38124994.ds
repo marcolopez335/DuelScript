@@ -11,13 +11,12 @@ card "Fluffal Rabbit" {
     atk: 300
     def: 1200
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        timing: if
-        damage_step: false
-        trigger: when_flipped
+    raw_effect "Effect 1" {
+        effect_type: Single + Trigger
+        category: ToHand
+        code: FlipSuccess
+        property: CardTarget + Delay
+        count_limit: (1, 38124994)
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
         }

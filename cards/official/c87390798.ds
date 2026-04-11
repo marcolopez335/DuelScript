@@ -17,12 +17,11 @@ card "Abyss Script - Fantasy Magic" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        optional: true
-        timing: if
-        damage_step: false
-        trigger: when_destroyed
+    raw_effect "Effect 2" {
+        effect_type: Single + Trigger
+        category: ToDeck
+        code: Destroyed
+        property: CardTarget + Delay
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
         }

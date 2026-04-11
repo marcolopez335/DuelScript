@@ -33,11 +33,10 @@ card "Opera the Melodious Diva" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        optional: true
-        timing: if
-        trigger: when_flipped
+    raw_effect "Effect 3" {
+        effect_type: Single + Trigger
+        code: FlipSuccess
+        property: Oath + Delay
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

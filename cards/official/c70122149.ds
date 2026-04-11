@@ -28,12 +28,11 @@ card "Evil Eye Domain - Pareidolia" {
         }
     }
 
-    effect "Effect 3" {
-        speed: spell_speed_1
-        optional: true
-        timing: if
-        damage_step: false
-        trigger: when_destroyed
+    raw_effect "Effect 3" {
+        effect_type: Single + Trigger
+        category: ToHand
+        code: Destroyed
+        property: CardTarget + Oath + CountCodeDuel + Delay
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)

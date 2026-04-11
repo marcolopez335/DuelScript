@@ -14,11 +14,10 @@ card "Photon Timestop" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        optional: true
-        timing: if
-        trigger: when_destroyed
+    raw_effect "Effect 2" {
+        effect_type: Single + Trigger
+        code: Destroyed
+        property: Delay
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

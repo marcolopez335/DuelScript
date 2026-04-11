@@ -14,14 +14,13 @@ card "Teleport Fusion" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        timing: if
-        damage_step: false
-        trigger: when_destroyed
-        activate_from: [gy]
+    raw_effect "Effect 2" {
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: Destroyed
+        property: CardTarget + Oath + Delay
+        range: Graveyard
+        count_limit: (1, 0)
         cost {
             banish self
         }

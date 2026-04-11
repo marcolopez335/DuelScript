@@ -23,11 +23,11 @@ card "Subterror Behemoth Burrowing" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        optional: true
-        timing: if
-        trigger: when_destroyed
+    raw_effect "Effect 2" {
+        effect_type: Single + Trigger
+        category: ToHand + Search
+        code: Destroyed
+        property: Oath + Delay
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
             reveal (1+, card, opponent controls)

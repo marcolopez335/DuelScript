@@ -12,13 +12,12 @@ card "Amorphage Lysis" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: hard
-        optional: true
-        timing: if
-        trigger: when_destroyed
-        activate_from: [spell_trap_zone]
+    raw_effect "Effect 2" {
+        effect_type: Field + Trigger
+        code: Destroyed
+        property: Delay
+        range: SpellTrapZone
+        count_limit: (1, 47598941)
         on_resolve {
             special_summon (1, monster) from gy
         }

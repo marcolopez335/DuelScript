@@ -33,13 +33,13 @@ card "Fandora, the Flying Fighting Furtress" {
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
-        once_per_turn: soft
-        optional: true
-        timing: if
-        trigger: when_destroyed
-        activate_from: [field_zone]
+    raw_effect "Effect 4" {
+        effect_type: Field + Trigger
+        category: SpecialSummon
+        code: Destroyed
+        property: Delay
+        range: FieldZone
+        count_limit: (1, 0)
         on_resolve {
             special_summon (1, monster) from gy
         }

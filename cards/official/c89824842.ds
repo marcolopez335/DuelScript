@@ -15,14 +15,13 @@ card "Ragnaraika Hunting Dance" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
-        timing: if
-        damage_step: false
-        trigger: when_destroyed
-        activate_from: [gy]
+    raw_effect "Effect 2" {
+        effect_type: Field + Trigger
+        category: Destroy
+        code: Destroyed
+        property: CardTarget + Delay
+        range: Graveyard
+        count_limit: (1, 0)
         cost {
             banish self
         }

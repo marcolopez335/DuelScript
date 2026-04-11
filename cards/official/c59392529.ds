@@ -23,12 +23,12 @@ card "Elemental HERO Liquid Soldier" {
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_1
-        once_per_turn: hard
-        optional: true
-        timing: if
-        trigger: when_flipped
+    raw_effect "Effect 2" {
+        effect_type: Single + Trigger
+        category: HandDestroy + Draw
+        code: FlipSuccess
+        property: InitialValue + Oath + Delay
+        count_limit: (1, 59392529)
         on_resolve {
             draw 1
             shuffle_hand

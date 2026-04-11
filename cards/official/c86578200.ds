@@ -34,11 +34,11 @@ card "Abyss Prop - Wild Wagon" {
         }
     }
 
-    effect "Effect 4" {
-        speed: spell_speed_1
-        optional: true
-        timing: if
-        trigger: when_destroyed
+    raw_effect "Effect 4" {
+        effect_type: Single + Trigger
+        category: ToHand
+        code: Destroyed
+        property: Delay
         on_resolve {
             return (1+, card, opponent controls) to hand
         }
