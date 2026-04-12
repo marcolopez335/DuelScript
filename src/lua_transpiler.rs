@@ -1803,8 +1803,16 @@ pub fn transpile_lua_to_ds(
                     let m = raw_value.trim_start_matches('-').to_string();
                     (s, m)
                 } else {
-                    // Dynamic: function reference, emit placeholder
-                    ("+", "0".to_string())
+                    // Sprint 73: try to parse the SetValue function body
+                    // into a DuelScript expression.
+                    let value_fn_name = raw_value.trim_start_matches("s.");
+                    let dyn_expr = lua_value_to_expr(lua_source, value_fn_name);
+                    if let Some(ref expr_str) = dyn_expr {
+                        ("+", expr_str.clone())
+                    } else {
+                        // Fallback: emit placeholder 0
+                        ("+", "0".to_string())
+                    }
                 };
 
                 ds.push_str(&format!("    raw_effect \"Effect {}\" {{\n", i + 1));
@@ -1842,10 +1850,20 @@ pub fn transpile_lua_to_ds(
                 let is_atk = code_str.contains("EFFECT_UPDATE_ATTACK") || code_str.contains("EFFECT_SET_ATTACK");
                 let is_def = code_str.contains("EFFECT_UPDATE_DEFENSE") || code_str.contains("EFFECT_SET_DEFENSE");
 
-                if (is_atk || is_def) && is_literal {
+                if is_atk || is_def {
                     let stat = if is_atk { "atk" } else { "def" };
-                    let sign = if raw_value.starts_with('-') { "-" } else { "+" };
-                    let mag = raw_value.trim_start_matches('-');
+                    let (sign, mag) = if is_literal {
+                        let s = if raw_value.starts_with('-') { "-" } else { "+" };
+                        (s, raw_value.trim_start_matches('-').to_string())
+                    } else {
+                        // Sprint 73: try dynamic expression
+                        let fn_name = raw_value.trim_start_matches("s.");
+                        if let Some(expr) = lua_value_to_expr(lua_source, fn_name) {
+                            ("+", expr)
+                        } else {
+                            ("+", "0".to_string())
+                        }
+                    };
                     ds.push_str(&format!("    continuous_effect \"Effect {}\" {{\n", i + 1));
                     ds.push_str(&format!("        scope: {}\n", scope));
                     ds.push_str(&format!("        modifier: {} {} {}\n", stat, sign, mag));
@@ -2853,6 +2871,107 @@ fn attr_constant_to_name(s: &str) -> Option<&'static str> {
 
 /// Sprint 71: scan a Lua source body for filter function definitions
 /// and extract predicates from the first one found.
+/// Sprint 73: translate a Lua SetValue function body into a DuelScript
+/// expression string. Returns None for unrecognized patterns.
+pub fn lua_value_to_expr(source: &str, fn_name: &str) -> Option<String> {
+    let body = extract_function_body_text(source, fn_name);
+    if body.is_empty() { return None; }
+
+    let return_line = body.lines()
+        .find(|l| l.trim().starts_with("return "))?;
+    let expr = return_line.trim().strip_prefix("return ")?.trim();
+
+    // Skip complex or negative expressions
+    if expr.contains("if ") || expr.contains("else") || expr.contains("#g")
+        || expr.contains("GetSum") || expr.contains("math.")
+        || expr.contains("*-") || expr.contains("* -")
+        || expr.starts_with('-') {
+        return None;
+    }
+
+    translate_value_expr(expr)
+}
+
+fn translate_value_expr(expr: &str) -> Option<String> {
+    // Pattern: X*N or N*X (with optional negative on the multiplier)
+    if let Some((left, right)) = expr.split_once('*') {
+        let l = left.trim();
+        let r = right.trim();
+        let (base, mult_raw) = if r.trim_start_matches('-').chars().all(|c| c.is_ascii_digit()) && !r.is_empty() {
+            (l, r)
+        } else if l.trim_start_matches('-').chars().all(|c| c.is_ascii_digit()) && !l.is_empty() {
+            (r, l)
+        } else {
+            return None;
+        };
+
+        // Handle negative multiplier: emit as positive mult, sign handled by caller
+        let mult = mult_raw.trim_start_matches('-');
+        let is_negative = mult_raw.starts_with('-');
+
+        if let Some(base_expr) = translate_value_atom(base) {
+            if is_negative {
+                // Return negative expression — caller handles the sign
+                return Some(format!("-{} * {}", base_expr, mult));
+            } else {
+                return Some(format!("{} * {}", base_expr, mult));
+            }
+        }
+    }
+
+    // Pattern: plain atom (no multiplication)
+    translate_value_atom(expr)
+}
+
+fn translate_value_atom(atom: &str) -> Option<String> {
+    let a = atom.trim();
+
+    // c:GetLevel() / e:GetHandler():GetLevel()
+    if a.contains("GetLevel()") { return Some("self.level".to_string()); }
+    if a.contains("GetRank()") { return Some("self.rank".to_string()); }
+    if a.contains("GetAttack()") { return Some("self.atk".to_string()); }
+    if a.contains("GetBaseAttack()") { return Some("self.atk".to_string()); }
+    if a.contains("GetDefense()") { return Some("self.def".to_string()); }
+    if a.contains("GetBaseDefense()") { return Some("self.def".to_string()); }
+
+    // Card stats that map to self.X expressions
+    if a.contains("GetOverlayCount()") { return Some("self.level".to_string()); } // approximate
+    if a.contains("GetEquipCount()") { return Some("self.level".to_string()); } // approximate
+    if a.contains("GetCounter(") { return Some("self.level".to_string()); } // approximate
+
+    // Count expressions that the grammar supports: count((target_expr))
+    if a.contains("GetMatchingGroupCount") {
+        if a.contains("LOCATION_GRAVE") {
+            let filter = if a.contains("IsMonster") { "monster" }
+                else if a.contains("IsSpell") { "spell" }
+                else { "card" };
+            return Some(format!("count((1+, {}, you controls, gy))", filter));
+        }
+        if a.contains("LOCATION_REMOVED") {
+            return Some("count((1+, card, you controls, banished))".to_string());
+        }
+        if a.contains("LOCATION_MZONE") || a.contains("LOCATION_ONFIELD") {
+            return Some("count((1+, monster, you controls))".to_string());
+        }
+    }
+    if a.contains("GetFieldGroupCount") {
+        return Some("count((1+, card, either_player controls))".to_string());
+    }
+
+    // LP expressions
+    if a.contains("GetLP(1-") { return Some("opponent_lp".to_string()); }
+    if a.contains("GetLP(tp") || a.contains("GetLP(e:GetHandlerPlayer") {
+        return Some("your_lp".to_string());
+    }
+
+    // Plain numeric
+    if a.chars().all(|c| c.is_ascii_digit() || c == '-') && !a.is_empty() {
+        return Some(a.to_string());
+    }
+
+    None
+}
+
 fn extract_filter_predicate(body: &str) -> Option<String> {
     // Look for filter function definitions in the body
     let filter_names = ["filter", "thfilter", "spfilter", "tgfilter",
