@@ -485,10 +485,10 @@ Against the full ProjectIgnis CardScripts/official directory
 
 | Tier            | Cards   | %      |
 |-----------------|---------|--------|
-| Full            | 12,695  | 95.6%  |
+| Full            | 12,713  | 95.7%  |
 | High            |     40  |  0.3%  |
 | Partial         |      4  |  0.0%  |
-| StructureOnly   |    547  |  4.1%  |
+| StructureOnly   |    529  |  4.0%  |
 | Failed          |      0  |  0.0%  |
 
 All 13,298 cards parse cleanly through the validator with **0
