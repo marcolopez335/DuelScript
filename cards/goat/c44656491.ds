@@ -1,0 +1,31 @@
+// 平和の使者
+// Messenger of Peace
+// Transpiled from c44656491.lua
+
+card "Messenger of Peace" {
+    id: 44656491
+    type: Continuous Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        on_resolve {
+        }
+    }
+
+    continuous_effect "Effect 2" {
+        scope: field
+        grant: cannot_attack
+    }
+
+    raw_effect "Effect 3" {
+        effect_type: Field + Continuous
+        code: PhaseStandby
+        property: BothSide + Uncopyable
+        range: SpellTrapZone
+        count_limit: (1, 0)
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

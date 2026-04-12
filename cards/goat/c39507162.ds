@@ -1,0 +1,40 @@
+// ブレイドナイト
+// Blade Knight
+// Transpiled from c39507162.lua
+
+card "Blade Knight" {
+    id: 39507162
+    type: Effect Monster
+    attribute: LIGHT
+    race: Warrior
+    level: 4
+    atk: 1600
+    def: 1000
+
+    raw_effect "Effect 1" {
+        effect_type: Single
+        code: UpdateAttack
+        property: SingleRange
+        range: MonsterZone
+        on_resolve {
+            modifier: atk + 400
+        }
+    }
+
+    raw_effect "Effect 2" {
+        effect_type: Single + Continuous
+        code: BattleEnd
+        range: MonsterZone
+        on_resolve {
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+        }
+    }
+
+}

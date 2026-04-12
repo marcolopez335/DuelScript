@@ -1,0 +1,22 @@
+// 魔法の筒
+// Magic Cylinder
+// Transpiled from c62279055.lua
+
+card "Magic Cylinder" {
+    id: 62279055
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        damage_step: false
+        trigger: when attack_declared
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
+        on_resolve {
+            negate attack
+            deal_damage to opponent: 1000
+        }
+    }
+
+}

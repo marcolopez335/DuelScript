@@ -1,0 +1,28 @@
+// サイバーポッド
+// Cyber Jar
+// Transpiled from c34124316.lua
+
+card "Cyber Jar" {
+    id: 34124316
+    type: Effect Monster
+    attribute: DARK
+    race: Rock
+    level: 3
+    atk: 900
+    def: 900
+
+    raw_effect "Effect 1" {
+        effect_type: Single + Flip
+        category: Destroy + ToHand + SpecialSummon + Search
+        on_resolve {
+            destroy (1+, monster, either_player controls)
+            reveal (1, card, opponent controls, deck)
+            reveal (1, card, opponent controls, deck)
+            return (1+, monster, either_player controls) to hand
+            shuffle_hand
+            shuffle_hand
+            send (1+, monster, either_player controls) to gy
+        }
+    }
+
+}

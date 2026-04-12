@@ -1,0 +1,33 @@
+// 霊滅術師 カイク
+// Kycoo the Ghost Destroyer
+// Transpiled from c88240808.lua
+
+card "Kycoo the Ghost Destroyer" {
+    id: 88240808
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 4
+    atk: 1800
+    def: 700
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_battle_destroyed
+        on_activate {
+            select (1+, monster, either_player controls, where { is_monster }) as target
+        }
+        on_resolve {
+            banish (1+, monster, either_player controls, where { is_monster })
+        }
+    }
+
+    continuous_effect "Effect 2" {
+        scope: field
+        grant: cannot_be_used_as_material
+    }
+
+}

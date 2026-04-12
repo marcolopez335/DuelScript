@@ -1,0 +1,25 @@
+// 抹殺の使徒
+// Nobleman of Crossout
+// Transpiled from c71044499.lua
+
+card "Nobleman of Crossout" {
+    id: 71044499
+    type: Normal Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: false
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_down }) as target
+        }
+        on_resolve {
+            destroy (1+, card, either_player controls, deck)
+            banish (1+, card, either_player controls, deck)
+            reveal (1+, card, opponent controls)
+            reveal (1+, card, opponent controls)
+            shuffle_deck
+            shuffle_deck
+        }
+    }
+
+}
