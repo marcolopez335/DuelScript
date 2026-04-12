@@ -18,6 +18,9 @@ card "Salamangreat Falco" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, spell, either_player controls) as target
+        }
         on_resolve {
             set (1, card)
         }
@@ -28,6 +31,9 @@ card "Salamangreat Falco" {
         once_per_turn: hard
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, spell, either_player controls) as target
+        }
         on_resolve {
             add_to_hand (1+, spell, either_player controls) from gy
             special_summon (1, monster) from gy

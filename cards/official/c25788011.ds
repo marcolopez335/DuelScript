@@ -17,6 +17,9 @@ card "Risebell the Star Adjuster" {
         timing: when
         damage_step: false
         trigger: when_summoned by_special_summon
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up and level >= 1 }) as target
+        }
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

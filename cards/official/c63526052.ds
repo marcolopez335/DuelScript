@@ -20,6 +20,9 @@ card "Krawler Soma" {
         once_per_turn: hard
         damage_step: false
         activate_from: [hand]
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
             change_battle_position (1, monster)

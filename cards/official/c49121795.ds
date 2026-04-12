@@ -25,6 +25,9 @@ card "Heavy Armored Train Ironwolf" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, card, you controls, where { race == Machine }) as target
+        }
         cost {
             detach 1 overlay_unit from self
         }

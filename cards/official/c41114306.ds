@@ -35,6 +35,9 @@ card "Dark Garnex the Cubic Beast" {
         timing: when
         damage_step: false
         trigger: when_battle_damage
+        on_activate {
+            select (1+, monster, you controls, where { card_id == 78509901 }) as target
+        }
         on_resolve {
             send (1+, monster, you controls, where { card_id == 78509901 }) to gy
             special_summon (1, monster) from gy

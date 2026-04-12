@@ -22,6 +22,9 @@ card "Tearlaments Grief" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, trap, you controls, where { is_face_up }) as target
+        }
         on_resolve {
             add_to_hand (1+, trap, you controls, where { is_face_up }) from gy
         }

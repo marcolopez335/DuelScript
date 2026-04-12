@@ -38,6 +38,9 @@ card "Crimson Dragon" {
         once_per_turn: soft
         optional: true
         damage_step: false
+        on_activate {
+            select (1+, spell, you controls, where { is_spell }) as target
+        }
         on_resolve {
             return (1+, spell, you controls, where { is_spell }) to deck shuffle
             special_summon (1, monster) from gy

@@ -16,6 +16,9 @@ card "Blaze Accelerator" {
         speed: spell_speed_1
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             send (1+, card, you controls, hand) to gy
             destroy (1+, card, you controls, hand)

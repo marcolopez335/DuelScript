@@ -10,6 +10,9 @@ card "Machina Overdrive" {
         speed: spell_speed_2
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up and race == Machine }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
             destroy (1+, monster, you controls, hand)
@@ -22,6 +25,9 @@ card "Machina Overdrive" {
         optional: true
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up and race == Machine }) as target
+        }
         cost {
             banish self
         }

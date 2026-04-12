@@ -34,6 +34,9 @@ card "Seleglare the Luminous Lunar Dragon" {
         once_per_turn: hard
         optional: true
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
             take_control of (1, monster, opponent controls)

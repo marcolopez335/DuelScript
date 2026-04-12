@@ -10,6 +10,9 @@ card "March of the Dark Brigade" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
             banish (1+, monster, either_player controls)

@@ -24,6 +24,9 @@ card "Reshef the Dark Being" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, spell, you controls, where { is_spell }) as target
+        }
         on_resolve {
             take_control of (1, monster, opponent controls)
         }

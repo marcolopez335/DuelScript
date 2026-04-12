@@ -39,6 +39,9 @@ card "Supersonic Skull Flame" {
         timing: when
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, monster, you controls, where { card_id == 99899504 }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }

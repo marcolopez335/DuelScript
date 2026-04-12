@@ -29,6 +29,9 @@ card "TiSolfachord Beautia" {
         once_per_turn: hard
         optional: true
         damage_step: false
+        on_activate {
+            select (1+, monster, either_player controls, where { is_face_up and is_monster and is_spell }) as target
+        }
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

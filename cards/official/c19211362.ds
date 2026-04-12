@@ -16,6 +16,9 @@ card "Nemeses Flag" {
         once_per_turn: hard
         damage_step: false
         activate_from: [hand]
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
             return (1+, monster, you controls) to deck shuffle

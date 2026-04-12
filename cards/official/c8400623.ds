@@ -38,6 +38,9 @@ card "Evil Dragon Ananta" {
         once_per_turn: soft
         damage_step: false
         trigger: during_end_phase
+        on_activate {
+            select (1+, monster, you controls, where { race == Reptile }) as target
+        }
         on_resolve {
             destroy (1+, monster, you controls, where { race == Reptile })
         }

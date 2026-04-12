@@ -15,6 +15,9 @@ card "Paladin of the Cursed Dragon" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls, where { level <= 4 and race == Zombie }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }

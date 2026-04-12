@@ -32,6 +32,9 @@ card "Tellusion the Magna Warrior" {
         timing: when
         damage_step: false
         trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             take_control of (1, monster, opponent controls)
             destroy (1+, monster, you controls, gy)

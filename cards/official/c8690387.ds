@@ -26,6 +26,9 @@ card "Earthbound Servant Geo Gremlin" {
         once_per_turn: soft
         optional: true
         damage_step: false
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             destroy (1+, card, you controls, gy)
             gain_lp: 1000

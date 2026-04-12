@@ -9,6 +9,9 @@ card "Shuffle Reborn" {
     effect "Effect 1" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, card, opponent controls) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
             banish (1+, card, opponent controls, hand)
@@ -21,6 +24,9 @@ card "Shuffle Reborn" {
         once_per_turn: hard
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, card, opponent controls) as target
+        }
         cost {
             banish self
         }

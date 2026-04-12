@@ -39,6 +39,9 @@ card "Puppet Rook" {
         timing: when
         damage_step: false
         trigger: when_attacked
+        on_activate {
+            select (1+, card, you controls, where { attribute == EARTH and race == Warrior }) as target
+        }
         on_resolve {
             send (1+, card, you controls, deck) to gy
             special_summon (1, monster) from gy

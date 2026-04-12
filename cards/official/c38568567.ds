@@ -9,6 +9,9 @@ card "Wonder Clover" {
     effect "Effect 1" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, card, you controls, where { race == Plant }) as target
+        }
         cost {
             send self to gy
         }

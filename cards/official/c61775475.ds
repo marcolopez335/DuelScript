@@ -39,6 +39,9 @@ card "Arms of Genex Return Zero" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             return (1+, card, you controls) to deck shuffle
             destroy (1+, card, you controls, gy)

@@ -10,6 +10,9 @@ card "Staunch Defender" {
         speed: spell_speed_2
         damage_step: false
         trigger: when attack_declared
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

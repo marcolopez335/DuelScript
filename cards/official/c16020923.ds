@@ -39,6 +39,9 @@ card "Pikari @Ignister" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, spell, you controls) as target
+        }
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

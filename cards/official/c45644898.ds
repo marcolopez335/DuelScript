@@ -17,6 +17,9 @@ card "Master with Eyes of Blue" {
         timing: when
         damage_step: false
         trigger: when_summoned
+        on_activate {
+            select (1+, monster, you controls, where { level == 1 and attribute == LIGHT and is_tuner }) as target
+        }
         on_resolve {
             add_to_hand (1+, monster, you controls, where { level == 1 and attribute == LIGHT and is_tuner }) from gy
         }
@@ -27,6 +30,9 @@ card "Master with Eyes of Blue" {
         once_per_turn: hard
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, monster, you controls, where { level == 1 and attribute == LIGHT and is_tuner }) as target
+        }
         cost {
             send self to deck
         }

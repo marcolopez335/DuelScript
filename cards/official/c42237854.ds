@@ -9,6 +9,9 @@ card "Metalhold the Moving Blockade" {
     effect "Effect 1" {
         speed: spell_speed_2
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up and race == Machine }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }

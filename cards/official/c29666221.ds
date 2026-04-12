@@ -10,6 +10,9 @@ card "Orcustrated Attack" {
         speed: spell_speed_2
         damage_step: false
         trigger: when attack_declared
+        on_activate {
+            select (1+, monster, opponent controls) as target
+        }
         on_resolve {
             banish (1+, monster, opponent controls)
         }

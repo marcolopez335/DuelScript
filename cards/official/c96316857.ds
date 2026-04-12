@@ -20,6 +20,9 @@ card "Recycle" {
         damage_step: false
         trigger: during_standby_phase
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         cost {
             pay_lp 300
         }

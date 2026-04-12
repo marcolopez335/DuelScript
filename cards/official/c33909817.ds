@@ -39,6 +39,9 @@ card "Sylvan Princessprite" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, spell, you controls, where { is_face_up and race == Plant }) as target
+        }
         cost {
             send self to gy
         }

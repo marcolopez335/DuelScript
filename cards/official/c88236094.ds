@@ -17,6 +17,9 @@ card "Aswan Apparition" {
         timing: when
         damage_step: false
         trigger: when_battle_destroyed
+        on_activate {
+            select (1+, trap, either_player controls, where { is_trap }) as target
+        }
         on_resolve {
             return (1+, trap, either_player controls, where { is_trap }) to deck shuffle
         }

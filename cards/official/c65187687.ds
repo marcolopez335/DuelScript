@@ -28,6 +28,9 @@ card "Skeletal Dragon Felgrand" {
         timing: if
         damage_step: false
         trigger: when_summoned by_special_summon
+        on_activate {
+            select (1+, monster, either_player controls, where { is_monster }) as target
+        }
         on_resolve {
             banish (1+, monster, either_player controls, where { is_monster })
         }
@@ -40,6 +43,9 @@ card "Skeletal Dragon Felgrand" {
         timing: if
         damage_step: false
         trigger: when_summoned by_special_summon
+        on_activate {
+            select (1+, monster, either_player controls, where { is_monster }) as target
+        }
         on_resolve {
             negate effect
             register_effect on self {

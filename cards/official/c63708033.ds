@@ -10,6 +10,9 @@ card "Vernusylph and the Flower Buds" {
         speed: spell_speed_2
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up and attribute == EARTH }) as target
+        }
         on_resolve {
             return (1+, monster, you controls, where { is_face_up and attribute == EARTH }) to hand
             return (1+, monster, you controls, where { is_face_up and attribute == EARTH }) to hand

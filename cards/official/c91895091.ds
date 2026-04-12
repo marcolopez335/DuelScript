@@ -25,6 +25,9 @@ card "Soul of Silvermountain" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         cost {
             detach 1 overlay_unit from self
         }
@@ -42,6 +45,9 @@ card "Soul of Silvermountain" {
         timing: when
         damage_step: false
         trigger: when_battle_damage
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }

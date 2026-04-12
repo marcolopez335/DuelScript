@@ -24,6 +24,9 @@ card "Super Vehicroid - Mobile Base" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -36,6 +39,9 @@ card "Super Vehicroid - Mobile Base" {
         timing: when
         damage_step: false
         trigger: during_end_phase
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }

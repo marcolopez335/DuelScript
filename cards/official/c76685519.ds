@@ -26,6 +26,9 @@ card "Altergeist Kidolga" {
         timing: when
         damage_step: false
         trigger: when_battle_destroyed
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {
@@ -41,6 +44,9 @@ card "Altergeist Kidolga" {
         timing: if
         damage_step: false
         trigger: when_battle_damage
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }

@@ -9,6 +9,9 @@ card "Magical Stone Excavation" {
     effect "Effect 1" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, spell, you controls, where { is_spell }) as target
+        }
         on_resolve {
             add_to_hand (1+, spell, you controls, where { is_spell }) from hand
         }

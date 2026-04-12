@@ -39,6 +39,9 @@ card "Number 3: Cicada King" {
         timing: when
         damage_step: false
         trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        on_activate {
+            select (1+, trap, you controls) as target
+        }
         cost {
             detach 1 overlay_unit from self
         }

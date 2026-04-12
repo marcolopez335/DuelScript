@@ -30,6 +30,9 @@ card "Fortune Fairy Swee" {
         timing: if
         damage_step: false
         trigger: when_summoned by_special_summon
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up }) as target
+        }
         on_resolve {
             banish (1+, card, either_player controls, where { is_face_up })
             register_effect on self {

@@ -24,6 +24,9 @@ card "Wynn the Wind Charmer, Verdant" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls, where { is_monster and attribute == WIND }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }

@@ -10,6 +10,9 @@ card "Parallel Selection" {
         speed: spell_speed_2
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, spell, either_player controls, where { is_face_up and is_spell }) as target
+        }
         on_resolve {
             add_to_hand (1+, spell, either_player controls, where { is_face_up and is_spell }) from gy
             reveal (1+, card, opponent controls)

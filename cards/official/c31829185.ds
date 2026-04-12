@@ -39,6 +39,9 @@ card "Dark Necrofear" {
         damage_step: false
         trigger: during_end_phase
         activate_from: [gy]
+        on_activate {
+            select (1+, monster, you controls, where { race == Fiend }) as target
+        }
         on_resolve {
             equip (1, card) to (1, monster)
         }

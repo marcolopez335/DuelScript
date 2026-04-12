@@ -31,6 +31,9 @@ card "Joker's Straight" {
         damage_step: false
         trigger: during_end_phase
         activate_from: [gy]
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             return (1+, card, you controls) to deck shuffle
             add_to_hand (1+, card, you controls) from hand

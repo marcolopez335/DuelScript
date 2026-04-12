@@ -42,6 +42,9 @@ card "Cyber Angel Dakini" {
         timing: when
         damage_step: false
         trigger: during_end_phase
+        on_activate {
+            select (1+, monster, you controls, where { card_id == 39996157 }) as target
+        }
         on_resolve {
             return (1+, monster, you controls, where { card_id == 39996157 }) to hand
         }

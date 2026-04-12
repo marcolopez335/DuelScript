@@ -10,6 +10,9 @@ card "Fabled Treason" {
         speed: spell_speed_2
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             discard (1, card)
             destroy (1+, monster, either_player controls)

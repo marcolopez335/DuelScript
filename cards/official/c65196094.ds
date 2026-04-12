@@ -9,6 +9,9 @@ card "Variety Comes Out" {
     effect "Effect 1" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, card, you controls, where { is_face_up and is_synchro }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }

@@ -38,6 +38,9 @@ card "Prank-Kids Pranks" {
         damage_step: false
         trigger: during_end_phase
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             return (1+, card, you controls) to deck shuffle
             shuffle_deck

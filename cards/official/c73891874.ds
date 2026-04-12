@@ -19,6 +19,9 @@ card "White-Horned Dragon" {
         speed: spell_speed_1
         damage_step: false
         trigger: when_summoned
+        on_activate {
+            select (1+, spell, either_player controls, where { is_spell }) as target
+        }
         on_resolve {
             banish (1+, spell, either_player controls, where { is_spell })
         }
@@ -28,6 +31,9 @@ card "White-Horned Dragon" {
         speed: spell_speed_1
         damage_step: false
         trigger: when_summoned by_special_summon
+        on_activate {
+            select (1+, spell, either_player controls, where { is_spell }) as target
+        }
         on_resolve {
             banish (1+, spell, either_player controls, where { is_spell })
         }

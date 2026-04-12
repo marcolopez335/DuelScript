@@ -20,6 +20,9 @@ card "Meklord Assembly" {
         once_per_turn: soft
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             destroy (1+, monster, you controls, deck)
         }

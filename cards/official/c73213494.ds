@@ -35,6 +35,9 @@ card "Calcab, Malebranche of the Burning Abyss" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, spell, you controls, where { is_spell }) as target
+        }
         on_resolve {
             return (1+, spell, you controls, where { is_spell }) to hand
         }

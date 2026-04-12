@@ -31,6 +31,9 @@ card "Enneacraft - Atori.MAR" {
         timing: when
         damage_step: false
         trigger: during battle_phase
+        on_activate {
+            select (1+, monster, opponent controls) as target
+        }
         on_resolve {
             destroy (1+, monster, opponent controls)
         }

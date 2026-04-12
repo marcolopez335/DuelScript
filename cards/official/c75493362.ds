@@ -30,6 +30,9 @@ card "Vingolf's Blessing" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, card, you controls, where { attribute == LIGHT and race == Fairy }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }

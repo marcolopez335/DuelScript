@@ -40,6 +40,9 @@ card "Flame Swordsrealm" {
         damage_step: false
         trigger: when attack_declared
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up and race == Warrior }) as target
+        }
         on_resolve {
         }
     }

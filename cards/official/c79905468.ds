@@ -15,6 +15,9 @@ card "Guardragon Promineses" {
         speed: spell_speed_1
         damage_step: false
         activate_from: [hand, monster_zone]
+        on_activate {
+            select (1+, card, either_player controls, where { is_monster }) as target
+        }
         cost {
             send self to gy
         }

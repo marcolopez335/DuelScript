@@ -27,6 +27,9 @@ card "Meklord Army of Granel" {
         timing: when
         damage_step: false
         trigger: when_summoned
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

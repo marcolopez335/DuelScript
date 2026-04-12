@@ -16,6 +16,9 @@ card "Gathering Light" {
         speed: spell_speed_1
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up and level >= 7 and is_synchro }) as target
+        }
         cost {
             banish self
         }

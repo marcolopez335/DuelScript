@@ -28,6 +28,9 @@ card "Predaplanning" {
         damage_step: false
         trigger: when_summoned by_special_summon
         activate_from: [gy]
+        on_activate {
+            select (1+, monster, either_player controls, where { attribute == DARK }) as target
+        }
         cost {
             banish self
         }

@@ -17,6 +17,9 @@ card "Shogi Knight" {
         timing: when
         damage_step: false
         trigger: when_summoned
+        on_activate {
+            select (1+, trap, you controls) as target
+        }
         on_resolve {
             reveal (1+, card, opponent controls)
             destroy (1+, trap, you controls, hand)

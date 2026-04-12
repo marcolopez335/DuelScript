@@ -20,6 +20,9 @@ card "World Legacy Guardragon" {
         once_per_turn: soft
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, card, either_player controls, where { race == Dragon and level <= 4 }) as target
+        }
         on_resolve {
         }
     }

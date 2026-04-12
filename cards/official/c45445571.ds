@@ -49,6 +49,9 @@ card "The Duke of Demise" {
         once_per_turn: soft
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, monster, you controls, where { level >= 4 }) as target
+        }
         cost {
             banish self
         }

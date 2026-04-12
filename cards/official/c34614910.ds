@@ -16,6 +16,9 @@ card "Cyclamen the Rikka Fairy" {
         once_per_turn: hard
         damage_step: false
         activate_from: [hand, monster_zone]
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up and race == Plant and level >= 1 and level >= 1 }) as target
+        }
         cost {
             tribute self
         }

@@ -9,6 +9,9 @@ card "Fish and Swaps" {
     effect "Effect 1" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, card, you controls, where { is_face_up }) as target
+        }
         on_resolve {
             add_to_hand (1+, card, you controls, where { is_face_up }) from hand
             reveal (1+, card, opponent controls)

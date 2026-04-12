@@ -26,6 +26,9 @@ card "Groza, Tyrant of Thunder" {
         once_per_turn: hard
         optional: true
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls, where { is_monster and race == Fiend }) as target
+        }
         on_resolve {
             discard (1, card)
             negate effect

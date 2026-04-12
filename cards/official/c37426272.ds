@@ -27,6 +27,9 @@ card "Materiactor Exareptor" {
         optional: true
         damage_step: false
         activate_from: [hand]
+        on_activate {
+            select (1+, card, you controls, where { level == 3 and is_monster }) as target
+        }
         cost {
             discard (1, card, you controls)
         }

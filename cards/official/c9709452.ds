@@ -37,6 +37,9 @@ card "Gaia Blaze, the Force of the Sun" {
         timing: when
         damage_step: false
         trigger: during battle_phase
+        on_activate {
+            select (1+, card, either_player controls, where { attribute == FIRE }) as target
+        }
         on_resolve {
             add_to_hand (1+, card, either_player controls, where { attribute == FIRE }) from gy
             reveal (1+, card, opponent controls)

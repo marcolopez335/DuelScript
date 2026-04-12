@@ -28,6 +28,9 @@ card "Ghost Sleeper, the Underworld Princess" {
         once_per_turn: soft
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, monster, you controls, where { card_id == 35705817 }) as target
+        }
         on_resolve {
             add_to_hand (1+, monster, you controls, where { card_id == 35705817 }) from deck
         }

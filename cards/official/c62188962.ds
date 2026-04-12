@@ -28,6 +28,9 @@ card "Vampire Kingdom" {
         damage_step: false
         trigger: on_custom_event "chain_end"
         activate_from: [field_zone]
+        on_activate {
+            select (1+, card, opponent controls) as target
+        }
         on_resolve {
             send (1+, card, opponent controls, hand) to gy
             destroy (1+, card, opponent controls, hand)

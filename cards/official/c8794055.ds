@@ -43,6 +43,9 @@ card "The Most Distant, Deepest Depths" {
         damage_step: false
         trigger: when_summoned
         activate_from: [gy]
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up and race == Fish and is_synchro }) as target
+        }
         on_resolve {
             banish (1+, monster, you controls, where { is_face_up and race == Fish and is_synchro })
             return (1+, monster, you controls, where { is_face_up and race == Fish and is_synchro }) to hand
@@ -58,6 +61,9 @@ card "The Most Distant, Deepest Depths" {
         damage_step: false
         trigger: when_summoned by_special_summon
         activate_from: [gy]
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up and race == Fish and is_synchro }) as target
+        }
         on_resolve {
             banish (1+, monster, you controls, where { is_face_up and race == Fish and is_synchro })
             return (1+, monster, you controls, where { is_face_up and race == Fish and is_synchro }) to hand

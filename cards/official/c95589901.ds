@@ -17,6 +17,9 @@ card "Mischief of the Wolves" {
         once_per_turn: hard
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, monster, opponent controls) as target
+        }
         on_resolve {
             destroy (1+, monster, opponent controls)
             return (1+, monster, opponent controls) to hand

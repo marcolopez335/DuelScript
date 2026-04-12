@@ -16,6 +16,9 @@ card "Freezing Beast" {
         damage_step: false
         trigger: when_battle_destroyed
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_down }) as target
+        }
         on_resolve {
             destroy (1+, card, either_player controls, where { is_face_down })
         }

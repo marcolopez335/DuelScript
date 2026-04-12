@@ -10,6 +10,9 @@ card "The Gaze of Timaeus" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             reveal (1+, card, opponent controls)
             return (1+, card, either_player controls) to deck shuffle

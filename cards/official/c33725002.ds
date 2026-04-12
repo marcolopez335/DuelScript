@@ -17,6 +17,9 @@ card "V Salamander" {
         timing: when
         damage_step: false
         trigger: when_summoned
+        on_activate {
+            select (1+, monster, opponent controls) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -25,6 +28,9 @@ card "V Salamander" {
     effect "Effect 2" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, monster, opponent controls) as target
+        }
         on_resolve {
             send (1+, monster, opponent controls) to gy
             equip (1, card) to (1, monster)

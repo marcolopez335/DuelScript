@@ -35,6 +35,9 @@ card "Primal Dragon, the Primordial" {
         timing: if
         damage_step: false
         trigger: when_tributed
+        on_activate {
+            select (1+, monster, you controls, where { race == Dragon }) as target
+        }
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

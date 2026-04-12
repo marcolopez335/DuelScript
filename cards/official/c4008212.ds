@@ -10,6 +10,9 @@ card "Break the Destiny" {
         speed: spell_speed_2
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, spell, you controls) as target
+        }
         on_resolve {
             destroy (1+, spell, you controls, deck)
             register_effect on self {

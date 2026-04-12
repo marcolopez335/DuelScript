@@ -17,6 +17,9 @@ card "Vylon Soldier" {
         timing: when
         damage_step: false
         trigger: when attack_declared
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             change_battle_position (1, monster)
         }

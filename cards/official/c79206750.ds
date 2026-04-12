@@ -9,6 +9,9 @@ card "Abyss-scorn" {
     effect "Effect 1" {
         speed: spell_speed_2
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -21,6 +24,9 @@ card "Abyss-scorn" {
         speed: spell_speed_2
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             send (1+, card, either_player controls) to gy
         }

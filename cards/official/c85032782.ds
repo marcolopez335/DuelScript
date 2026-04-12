@@ -20,6 +20,9 @@ card "Sauge de Fleur" {
         once_per_turn: hard
         damage_step: false
         activate_from: [hand]
+        on_activate {
+            select (1+, monster, either_player controls, where { race == Plant and level == 1 }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
             destroy (1+, monster, either_player controls, where { race == Plant and level == 1 })
@@ -33,6 +36,9 @@ card "Sauge de Fleur" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, monster, either_player controls, where { race == Plant and level == 1 }) as target
+        }
         on_resolve {
             return (1+, monster, either_player controls, where { race == Plant and level == 1 }) to deck shuffle
             return (1+, monster, either_player controls, where { race == Plant and level == 1 }) to hand

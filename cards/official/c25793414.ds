@@ -24,6 +24,9 @@ card "Windwitch - Crystal Bell" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
         }
     }
@@ -35,6 +38,9 @@ card "Windwitch - Crystal Bell" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }

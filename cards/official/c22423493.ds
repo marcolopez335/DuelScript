@@ -29,6 +29,9 @@ card "Qliphort Genius" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, trap, you controls, where { race == Machine and level >= 5 }) as target
+        }
         on_resolve {
             negate effect
             register_effect on self {

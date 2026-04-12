@@ -10,6 +10,9 @@ card "Uni-Song Tuning" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls, where { is_tuner and level >= 1 }) as target
+        }
         on_resolve {
             banish (1+, card, either_player controls, where { is_tuner and level >= 1 })
             register_effect on self {

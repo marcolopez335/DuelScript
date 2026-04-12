@@ -38,6 +38,9 @@ card "Nekroz of Metaltron" {
         once_per_turn: soft
         optional: true
         damage_step: false
+        on_activate {
+            select (1+, spell, either_player controls) as target
+        }
         on_resolve {
             banish (1+, monster, opponent controls)
             banish (1+, spell, either_player controls)

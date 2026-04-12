@@ -25,6 +25,9 @@ card "Borreload Furious Dragon" {
         once_per_turn: hard
         optional: true
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             destroy (1+, card, either_player controls)
         }
@@ -35,6 +38,9 @@ card "Borreload Furious Dragon" {
         once_per_turn: soft
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         cost {
             banish self
         }

@@ -39,6 +39,9 @@ card "Clockwork Knight" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, card, you controls, where { card_id == 84797028 }) as target
+        }
         on_resolve {
             tribute (1, monster, you controls)
             special_summon (1, monster) from gy

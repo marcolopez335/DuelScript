@@ -43,6 +43,9 @@ card "Rescue-ACE Monitor" {
         damage_step: false
         trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         activate_from: [hand, monster_zone]
+        on_activate {
+            select (1+, trap, you controls) as target
+        }
         cost {
             tribute self
         }

@@ -28,6 +28,9 @@ card "Number XX: Utopic Dark Infinity" {
         timing: when
         damage_step: false
         trigger: when_battle_damage
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up }) as target
+        }
         cost {
             detach 1 overlay_unit from self
         }
@@ -40,6 +43,9 @@ card "Number XX: Utopic Dark Infinity" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up }) as target
+        }
         on_resolve {
             gain_lp: 1000
         }

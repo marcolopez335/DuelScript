@@ -28,6 +28,9 @@ card "Vaylantz Buster Baron" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
         }
     }
@@ -39,6 +42,9 @@ card "Vaylantz Buster Baron" {
         timing: if
         damage_step: false
         trigger: when_leaves_field
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

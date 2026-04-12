@@ -10,6 +10,9 @@ card "Dracotail Sting" {
         speed: spell_speed_2
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, spell, opponent controls) as target
+        }
         on_resolve {
             banish (1+, spell, opponent controls, gy)
             return (1+, spell, opponent controls) to deck shuffle

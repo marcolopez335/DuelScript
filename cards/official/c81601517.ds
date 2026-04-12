@@ -10,6 +10,9 @@ card "Gemini Counter" {
         speed: spell_speed_2
         damage_step: false
         trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up }) as target
+        }
         on_resolve {
             change_battle_position (1, monster)
             negate activation

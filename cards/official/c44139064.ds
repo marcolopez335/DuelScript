@@ -17,6 +17,9 @@ card "Megaroid City" {
         once_per_turn: hard
         damage_step: false
         activate_from: [field_zone]
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             destroy (1+, monster, you controls, deck)
             add_to_hand (1+, monster, you controls) from deck

@@ -26,6 +26,9 @@ card "Dragunity Aklys" {
         speed: spell_speed_1
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             destroy (1+, card, you controls, hand)
         }

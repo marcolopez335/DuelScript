@@ -13,6 +13,9 @@ card "Tokkosho of Ghost Destroying" {
         damage_step: false
         trigger: when_battle_destroyed
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, monster, either_player controls, where { is_monster }) as target
+        }
         on_resolve {
             banish (1+, monster, either_player controls, where { is_monster })
         }

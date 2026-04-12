@@ -32,6 +32,9 @@ card "Zeman the Ape King" {
         timing: when
         damage_step: false
         trigger: when attack_declared
+        on_activate {
+            select (1+, monster, you controls, where { is_monster }) as target
+        }
         cost {
             send self to gy
         }

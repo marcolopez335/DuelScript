@@ -30,6 +30,9 @@ card "Pendulum Witch" {
         timing: if
         damage_step: false
         trigger: when_summoned
+        on_activate {
+            select (1+, card, you controls, where { level <= 4 and is_pendulum }) as target
+        }
         on_resolve {
             destroy (1+, card, you controls, deck)
             add_to_hand (1+, card, you controls, where { level <= 4 and is_pendulum }) from deck
@@ -44,6 +47,9 @@ card "Pendulum Witch" {
         timing: if
         damage_step: false
         trigger: when_summoned by_special_summon
+        on_activate {
+            select (1+, card, you controls, where { level <= 4 and is_pendulum }) as target
+        }
         on_resolve {
             destroy (1+, card, you controls, deck)
             add_to_hand (1+, card, you controls, where { level <= 4 and is_pendulum }) from deck

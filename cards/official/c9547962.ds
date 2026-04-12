@@ -25,6 +25,9 @@ card "Euler's Circuit" {
         damage_step: false
         trigger: during_standby_phase
         activate_from: [field_zone]
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             take_control of (1, monster, opponent controls)
         }

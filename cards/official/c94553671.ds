@@ -18,6 +18,9 @@ card "Witchcrafter Patronus" {
         optional: true
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, spell, you controls) as target
+        }
         on_resolve {
             return (1+, spell, you controls) to deck shuffle
             add_to_hand (1+, spell, you controls) from deck
@@ -31,6 +34,9 @@ card "Witchcrafter Patronus" {
         optional: true
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, spell, you controls) as target
+        }
         cost {
             banish self
         }

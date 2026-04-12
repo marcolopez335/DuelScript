@@ -10,6 +10,9 @@ card "Driving Snow" {
         speed: spell_speed_2
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, trap, either_player controls, where { is_trap }) as target
+        }
         on_resolve {
             destroy (1+, trap, either_player controls, where { is_trap })
         }

@@ -20,6 +20,9 @@ card "Weapon Change" {
         damage_step: false
         trigger: during_standby_phase
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up }) as target
+        }
         cost {
             pay_lp 700
         }

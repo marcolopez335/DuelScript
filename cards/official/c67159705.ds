@@ -16,6 +16,9 @@ card "Armored Cybern" {
         once_per_turn: soft
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             destroy (1+, card, either_player controls)
         }

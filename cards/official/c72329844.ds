@@ -46,6 +46,9 @@ card "Spright Sprind" {
         timing: if
         damage_step: false
         trigger: when_summoned by_special_summon
+        on_activate {
+            select (1+, card, you controls, where { level == 2 }) as target
+        }
         cost {
             detach 1 overlay_unit from self
         }

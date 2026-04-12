@@ -18,6 +18,9 @@ card "Barrage Blast" {
         optional: true
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up and race == Machine and is_xyz }) as target
+        }
         on_resolve {
             destroy (1+, monster, you controls, where { is_face_up and race == Machine and is_xyz })
         }

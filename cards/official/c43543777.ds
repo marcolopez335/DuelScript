@@ -25,6 +25,9 @@ card "Izanami" {
         timing: when
         damage_step: false
         trigger: when_summoned
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
             reveal (1+, card, opponent controls)
@@ -37,6 +40,9 @@ card "Izanami" {
         timing: when
         damage_step: false
         trigger: on_custom_event "chain_active"
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
             reveal (1+, card, opponent controls)

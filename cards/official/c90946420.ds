@@ -10,6 +10,9 @@ card "Goblin Biker Grand Pileup" {
         speed: spell_speed_2
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             attach (1, card) to self as_material
             special_summon (1, monster) from gy
@@ -23,6 +26,9 @@ card "Goblin Biker Grand Pileup" {
         optional: true
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         cost {
             banish self
         }

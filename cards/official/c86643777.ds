@@ -35,6 +35,9 @@ card "Bug Matrix" {
         once_per_turn: hard
         damage_step: false
         activate_from: [field_zone]
+        on_activate {
+            select (1+, card, you controls, where { is_face_up and is_xyz and race == Insect }) as target
+        }
         on_resolve {
             attach (1, card) to self as_material
         }

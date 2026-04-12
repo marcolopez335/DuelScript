@@ -10,6 +10,9 @@ card "Kashtira Overlap" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             banish (1+, monster, either_player controls, gy)
             register_effect on self {

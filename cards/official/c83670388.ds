@@ -25,6 +25,9 @@ card "Icejade Curse" {
         damage_step: false
         trigger: when_battle_damage
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             deal_damage to opponent: 1000
         }

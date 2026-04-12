@@ -25,6 +25,9 @@ card "Advanced Crystal Beast Emerald Tortoise" {
         once_per_turn: soft
         optional: true
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up }) as target
+        }
         on_resolve {
             change_battle_position (1, monster)
         }

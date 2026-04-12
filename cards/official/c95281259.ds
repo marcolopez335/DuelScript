@@ -9,6 +9,9 @@ card "The Warrior Returning Alive" {
     effect "Effect 1" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls, where { race == Warrior }) as target
+        }
         on_resolve {
             add_to_hand (1+, card, either_player controls, where { race == Warrior }) from gy
         }

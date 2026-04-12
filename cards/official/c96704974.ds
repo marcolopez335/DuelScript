@@ -10,6 +10,9 @@ card "Boogie Trap" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, trap, you controls, where { is_trap }) as target
+        }
         on_resolve {
             set (1, card)
             register_effect on self {

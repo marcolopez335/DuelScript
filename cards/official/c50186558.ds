@@ -17,6 +17,9 @@ card "Guardragon Shield" {
         once_per_turn: hard
         damage_step: false
         activate_from: [field_zone]
+        on_activate {
+            select (1+, monster, either_player controls, where { is_monster }) as target
+        }
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

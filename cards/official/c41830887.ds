@@ -16,6 +16,9 @@ card "Appliancer Copybokkle" {
         once_per_turn: hard
         damage_step: false
         activate_from: [hand]
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -26,6 +29,9 @@ card "Appliancer Copybokkle" {
         once_per_turn: soft
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         cost {
             banish self
         }

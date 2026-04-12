@@ -37,6 +37,9 @@ card "True Draco Heritage" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, spell, you controls) as target
+        }
         on_resolve {
             destroy (1+, spell, you controls, hand)
         }

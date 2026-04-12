@@ -26,6 +26,9 @@ card "Ninjitsu Art Tool - Iron Digger" {
         once_per_turn: hard
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         cost {
             banish self
         }
@@ -41,6 +44,9 @@ card "Ninjitsu Art Tool - Iron Digger" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             add_to_hand (1, card, you controls) from gy
             special_summon (1, monster) from gy

@@ -35,6 +35,9 @@ card "Megistric Maginician" {
         timing: when
         damage_step: false
         trigger: during_end_phase
+        on_activate {
+            select (1+, spell, you controls) as target
+        }
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck
             reveal (1+, card, opponent controls)

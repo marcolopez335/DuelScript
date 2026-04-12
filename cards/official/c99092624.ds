@@ -20,6 +20,9 @@ card "Blooming of the Darkest Rose" {
         optional: true
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, spell, either_player controls, where { is_face_up }) as target
+        }
         on_resolve {
             banish (1+, spell, either_player controls, where { is_face_up })
             register_effect on self {

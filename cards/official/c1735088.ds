@@ -46,6 +46,9 @@ card "Wind-Up Zenmaintenance" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             attach (1, card) to self as_material
         }

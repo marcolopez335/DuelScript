@@ -10,6 +10,9 @@ card "Dimensional Prison" {
         speed: spell_speed_2
         damage_step: false
         trigger: when attack_declared
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             banish (1+, card, either_player controls)
         }

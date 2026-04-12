@@ -17,6 +17,9 @@ card "Tristan, Knight of the Underworld" {
         timing: when
         damage_step: false
         trigger: when_summoned
+        on_activate {
+            select (1+, monster, you controls, where { race == Zombie }) as target
+        }
         on_resolve {
             return (1+, monster, you controls, where { race == Zombie }) to hand
         }

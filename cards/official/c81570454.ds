@@ -17,6 +17,9 @@ card "Infernoble Knight - Roland" {
         optional: true
         damage_step: false
         activate_from: [hand]
+        on_activate {
+            select (1+, card, you controls, where { race == Warrior and attribute == FIRE }) as target
+        }
         on_resolve {
             send (1+, card, you controls, deck) to gy
             equip (1, card) to (1, monster)

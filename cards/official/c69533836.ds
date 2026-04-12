@@ -31,6 +31,9 @@ card "Soul Fist" {
         damage_step: false
         trigger: when attack_declared
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, monster, opponent controls) as target
+        }
         on_resolve {
             banish (1+, monster, opponent controls)
             register_effect on self {

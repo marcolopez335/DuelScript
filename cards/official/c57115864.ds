@@ -10,6 +10,9 @@ card "Lumenize" {
         speed: spell_speed_2
         damage_step: false
         trigger: when attack_declared
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up and attribute == LIGHT }) as target
+        }
         on_resolve {
             negate attack
             register_effect on self {

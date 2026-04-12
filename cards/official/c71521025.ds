@@ -16,6 +16,9 @@ card "Red Blossoms from Underroot" {
         once_per_turn: hard
         damage_step: false
         activate_from: [hand]
+        on_activate {
+            select (1+, spell, either_player controls) as target
+        }
         on_resolve {
             banish (1+, spell, either_player controls, gy)
             special_summon (1, monster) from gy
@@ -26,6 +29,9 @@ card "Red Blossoms from Underroot" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, spell, either_player controls) as target
+        }
         cost {
             tribute self
         }

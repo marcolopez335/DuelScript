@@ -43,6 +43,9 @@ card "Fiendsmith's Rextremende" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, card, you controls, where { attribute == LIGHT and race == Fiend }) as target
+        }
         on_resolve {
             add_to_hand (1+, card, you controls, where { attribute == LIGHT and race == Fiend }) from hand
         }

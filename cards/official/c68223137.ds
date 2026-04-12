@@ -10,6 +10,9 @@ card "One-Kuri-Way" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls, where { is_link }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
             return (1+, card, either_player controls, where { is_link }) to deck shuffle

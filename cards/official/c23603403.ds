@@ -42,6 +42,9 @@ card "Raidraptor - Satellite Cannon Falcon" {
         speed: spell_speed_2
         optional: true
         damage_step: false
+        on_activate {
+            select (1+, monster, opponent controls, where { is_spell }) as target
+        }
         cost {
             detach 1 overlay_unit from self
         }

@@ -20,6 +20,9 @@ card "Constellar Tempest" {
         damage_step: false
         trigger: during_end_phase
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             send (1+, monster, either_player controls) to gy
             gain_lp: 0
@@ -34,6 +37,9 @@ card "Constellar Tempest" {
         damage_step: false
         trigger: during_standby_phase
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             attach (1, card) to self as_material
         }

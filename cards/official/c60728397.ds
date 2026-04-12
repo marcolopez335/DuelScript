@@ -9,6 +9,9 @@ card "Venom Shot" {
     effect "Effect 1" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls, where { race == Reptile }) as target
+        }
         on_resolve {
             send (1+, monster, you controls, where { race == Reptile }) to gy
             emit_event "custom"

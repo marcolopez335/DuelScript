@@ -21,6 +21,9 @@ card "Depth Amulet" {
         damage_step: false
         trigger: when attack_declared
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             discard (1, card)
             negate attack

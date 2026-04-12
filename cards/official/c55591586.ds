@@ -54,6 +54,9 @@ card "Thunder Dragonduo" {
         timing: when
         damage_step: false
         trigger: during_end_phase
+        on_activate {
+            select (1+, monster, you controls, where { race == Thunder }) as target
+        }
         on_resolve {
             return (1+, monster, you controls, where { race == Thunder }) to deck shuffle
             return (1+, monster, you controls, where { race == Thunder }) to deck shuffle

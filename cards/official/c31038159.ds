@@ -19,6 +19,9 @@ card "Genesis Dragon" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, card, you controls, where { race == Dragon }) as target
+        }
         on_resolve {
             add_to_hand (1+, card, you controls, where { race == Dragon }) from gy
             reveal (1+, card, opponent controls)

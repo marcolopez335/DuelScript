@@ -44,6 +44,9 @@ card "Hi-Speedroid Puzzle" {
         damage_step: false
         trigger: during_end_phase
         activate_from: [gy]
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
         }

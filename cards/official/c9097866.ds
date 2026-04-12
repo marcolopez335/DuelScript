@@ -28,6 +28,9 @@ card "Cross Debug" {
         damage_step: false
         trigger: when attack_declared
         activate_from: [gy]
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up }) as target
+        }
         cost {
             banish self
         }

@@ -18,6 +18,9 @@ card "Megalith Promotion" {
         optional: true
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up and level >= 1 and level <= 4 }) as target
+        }
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

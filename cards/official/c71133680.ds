@@ -17,6 +17,9 @@ card "Mermail Abyssnerei" {
         optional: true
         damage_step: false
         activate_from: [hand]
+        on_activate {
+            select (1+, monster, you controls, where { attribute == WATER }) as target
+        }
         cost {
             discard (1, card, you controls)
         }

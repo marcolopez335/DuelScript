@@ -32,6 +32,9 @@ card "Brotherhood of the Fire Fist - Peacock" {
         timing: when
         damage_step: false
         trigger: when attack_declared
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             take_control of (1, monster, opponent controls)
             register_effect on self {

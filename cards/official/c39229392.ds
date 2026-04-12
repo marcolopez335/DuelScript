@@ -31,6 +31,9 @@ card "Overlay Sentinel" {
         speed: spell_speed_1
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up and is_xyz }) as target
+        }
         cost {
             banish self
         }

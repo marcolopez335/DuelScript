@@ -21,6 +21,9 @@ card "Hannibal Necromancer" {
     effect "Effect 2" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, trap, either_player controls, where { is_trap and is_face_up }) as target
+        }
         on_resolve {
             destroy (1+, trap, either_player controls, where { is_trap and is_face_up })
         }

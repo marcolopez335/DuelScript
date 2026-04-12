@@ -45,6 +45,9 @@ card "Elemental HERO Darkbright" {
         speed: spell_speed_1
         damage_step: false
         trigger: when_destroyed
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             destroy (1+, card, either_player controls)
         }

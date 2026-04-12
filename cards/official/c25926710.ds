@@ -19,6 +19,9 @@ card "Kelbek the Ancient Vanguard" {
         damage_step: false
         trigger: on_custom_event "chain_end"
         activate_from: [hand]
+        on_activate {
+            select (1+, trap, you controls) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
             add_to_hand (1+, trap, you controls) from gy

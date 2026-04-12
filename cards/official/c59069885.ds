@@ -20,6 +20,9 @@ card "Embrace of the Tistina" {
         damage_step: false
         trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             change_battle_position (1, monster)
         }
@@ -31,6 +34,9 @@ card "Embrace of the Tistina" {
         optional: true
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             take_control of (1, monster, opponent controls)
         }

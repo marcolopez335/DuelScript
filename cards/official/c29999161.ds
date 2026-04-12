@@ -9,6 +9,9 @@ card "Zenmairch" {
     effect "Effect 1" {
         speed: spell_speed_2
         damage_step: false
+        on_activate {
+            select (1+, card, opponent controls) as target
+        }
         on_resolve {
             add_to_hand (1+, card, opponent controls) from hand
             shuffle_hand

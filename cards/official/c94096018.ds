@@ -38,6 +38,9 @@ card "SPYGAL Misty" {
         once_per_turn: soft
         optional: true
         damage_step: false
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             return (1+, monster, either_player controls) to hand
         }

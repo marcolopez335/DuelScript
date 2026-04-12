@@ -26,6 +26,9 @@ card "Armed Dragon LV5" {
     effect "Effect 2" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls, where { is_monster }) as target
+        }
         cost {
             send self to gy
         }

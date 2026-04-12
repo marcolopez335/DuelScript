@@ -58,6 +58,9 @@ card "Meklord Emperor Granel" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, monster, either_player controls, where { is_monster }) as target
+        }
         on_resolve {
         }
     }
@@ -65,6 +68,9 @@ card "Meklord Emperor Granel" {
     effect "Effect 6" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, monster, either_player controls, where { is_monster }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }

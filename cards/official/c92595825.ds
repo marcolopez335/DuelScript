@@ -46,6 +46,9 @@ card "Twilight Rose Black Knight" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls, where { level <= 4 and race == Plant }) as target
+        }
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

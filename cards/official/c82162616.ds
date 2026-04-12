@@ -10,6 +10,9 @@ card "Eternal Galaxy" {
         speed: spell_speed_2
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             attach (1, card) to self as_material
             special_summon (1, monster) from gy

@@ -37,6 +37,9 @@ card "Grandpa Demetto" {
         timing: if
         damage_step: false
         trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             destroy (1+, monster, you controls)
             deal_damage to opponent: 1000

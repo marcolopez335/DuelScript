@@ -9,6 +9,9 @@ card "Berserker Crush" {
     effect "Effect 1" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up and card_id == 57116033 }) as target
+        }
         cost {
             banish self
         }

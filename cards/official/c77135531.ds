@@ -26,6 +26,9 @@ card "Vanguard of the Dragon" {
         timing: when
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, card, you controls, where { race == Dragon }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }

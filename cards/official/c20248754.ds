@@ -25,6 +25,9 @@ card "Plunder Patrollship Moerk" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, spell, you controls, where { is_face_up }) as target
+        }
         on_resolve {
             banish (1+, spell, you controls, deck)
             add_to_hand (1+, spell, you controls, where { is_face_up }) from deck
@@ -38,6 +41,9 @@ card "Plunder Patrollship Moerk" {
         once_per_turn: hard
         optional: true
         damage_step: false
+        on_activate {
+            select (1+, spell, you controls, where { is_face_up }) as target
+        }
         on_resolve {
             banish (1+, spell, you controls, deck)
             add_to_hand (1+, spell, you controls, where { is_face_up }) from deck

@@ -19,6 +19,9 @@ card "Snake-Eyes Flamberge Dragon" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up }) as target
+        }
         on_resolve {
             send (1+, monster, you controls, gy) to gy
             special_summon (1, monster) from gy
@@ -34,6 +37,9 @@ card "Snake-Eyes Flamberge Dragon" {
         once_per_turn: soft
         optional: true
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }

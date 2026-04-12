@@ -24,6 +24,9 @@ card "D.D. Guide" {
         once_per_turn: soft
         damage_step: false
         trigger: during_end_phase
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             banish (1+, card, either_player controls)
         }

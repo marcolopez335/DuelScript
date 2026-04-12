@@ -26,6 +26,9 @@ card "Call of the Forgotten" {
         damage_step: false
         trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         activate_from: [field_zone]
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             send (1+, card, you controls, gy) to gy
         }

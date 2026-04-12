@@ -30,6 +30,9 @@ card "Degrade Buster" {
         once_per_turn: hard
         optional: true
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up }) as target
+        }
         on_resolve {
             banish (1+, monster, you controls, gy)
             register_effect on self {

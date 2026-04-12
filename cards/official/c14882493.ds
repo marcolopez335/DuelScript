@@ -29,6 +29,9 @@ card "Gaia, the Polar Knight" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, card, you controls, where { race == Warrior and attribute == LIGHT }) as target
+        }
         cost {
             banish self
         }

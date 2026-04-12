@@ -30,6 +30,9 @@ card "Mekk-Knight Purple Nightfall" {
         once_per_turn: soft
         optional: true
         damage_step: false
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             banish (1+, monster, either_player controls)
             register_effect on self {

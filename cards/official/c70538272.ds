@@ -25,6 +25,9 @@ card "Filia Regis" {
         once_per_turn: hard
         optional: true
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls, where { race == Dragon and is_face_up }) as target
+        }
         on_resolve {
             banish (1+, monster, you controls, where { race == Dragon and is_face_up })
             return (1+, monster, you controls, where { race == Dragon and is_face_up }) to hand

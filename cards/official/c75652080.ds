@@ -9,6 +9,9 @@ card "Double Cyclone" {
     effect "Effect 1" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, spell, either_player controls, where { is_spell }) as target
+        }
         on_resolve {
             destroy (1+, spell, either_player controls, where { is_spell })
         }

@@ -47,6 +47,9 @@ card "Heroic Champion - Claivesolish" {
         timing: when
         damage_step: false
         trigger: when attack_declared
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up }) as target
+        }
         cost {
             detach 1 overlay_unit from self
         }

@@ -18,6 +18,9 @@ card "Evocator Eveque" {
         timing: if
         damage_step: false
         trigger: when_summoned
+        on_activate {
+            select (1+, card, either_player controls, where { race == Warrior and attribute == FIRE }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -30,6 +33,9 @@ card "Evocator Eveque" {
         timing: if
         damage_step: false
         trigger: when_summoned by_special_summon
+        on_activate {
+            select (1+, card, either_player controls, where { race == Warrior and attribute == FIRE }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }

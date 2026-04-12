@@ -20,6 +20,9 @@ card "Wishes for Eyes of Blue" {
         once_per_turn: soft
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, spell, you controls, where { level == 1 and attribute == LIGHT and is_tuner }) as target
+        }
         cost {
             banish self
         }

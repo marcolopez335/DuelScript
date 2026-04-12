@@ -1986,6 +1986,17 @@ pub fn transpile_lua_to_ds(
                     ds.push_str(&format!("        activate_from: [{}]\n", activate_zones));
                 }
             }
+
+            // Sprint 72: emit on_activate { select ... as target } for
+            // effects with CARD_TARGET property + a target function.
+            let has_card_target = property & 0x0010 != 0;
+            if has_card_target && effect.target_fn.is_some() {
+                // Infer the target filter from the target function body
+                let tgt = infer_target_struct(lua_source, FilterHint::Card);
+                ds.push_str("        on_activate {\n");
+                ds.push_str(&format!("            select {} as target\n", tgt.target_expr()));
+                ds.push_str("        }\n");
+            }
         } else {
             // Fallback: raw_effect with bitfields
             ds.push_str(&format!("    raw_effect \"Effect {}\" {{\n", i + 1));

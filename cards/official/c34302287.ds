@@ -9,6 +9,9 @@ card "Phantasm Spiral Battle" {
     effect "Effect 1" {
         speed: spell_speed_2
         damage_step: false
+        on_activate {
+            select (1+, spell, you controls) as target
+        }
         on_resolve {
             destroy (1+, spell, you controls)
         }
@@ -26,6 +29,9 @@ card "Phantasm Spiral Battle" {
         optional: true
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, spell, you controls) as target
+        }
         cost {
             banish self
         }

@@ -10,6 +10,9 @@ card "Splash Capture" {
         speed: spell_speed_2
         damage_step: false
         trigger: when_summoned by_special_summon
+        on_activate {
+            select (1+, monster, you controls, where { race == Fish }) as target
+        }
         cost {
             banish self
         }

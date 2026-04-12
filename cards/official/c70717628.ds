@@ -39,6 +39,9 @@ card "Clear Phantom" {
         timing: if
         damage_step: false
         trigger: when_destroyed
+        on_activate {
+            select (1+, spell, you controls, where { is_spell }) as target
+        }
         on_resolve {
             destroy (1+, spell, you controls, hand)
             mill 3

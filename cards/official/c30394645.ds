@@ -42,6 +42,9 @@ card "Dogmatika Lawbringer" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             return (1+, monster, either_player controls) to hand
         }

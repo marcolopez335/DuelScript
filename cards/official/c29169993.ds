@@ -23,6 +23,9 @@ card "Performapal Teeter Totter Hopper" {
         timing: when
         damage_step: false
         trigger: during_end_phase
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             send (1+, monster, either_player controls) to gy
             add_to_hand (1+, monster, either_player controls) from gy

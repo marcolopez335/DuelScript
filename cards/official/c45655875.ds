@@ -36,6 +36,9 @@ card "Magikey Beast - Ansyalabolas" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls, where { card_id == 99426088 }) as target
+        }
         on_resolve {
             change_battle_position (1, monster)
             register_effect on self {

@@ -44,6 +44,9 @@ card "Reptilianne Melusine" {
         timing: when
         damage_step: false
         trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        on_activate {
+            select (1+, card, you controls, where { race == Reptile }) as target
+        }
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

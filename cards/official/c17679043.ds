@@ -23,6 +23,9 @@ card "Penguin Torpedo" {
         timing: when
         damage_step: false
         trigger: when_battle_destroyed
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             take_control of (1, monster, opponent controls)
             register_effect on self {

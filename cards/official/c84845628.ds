@@ -39,6 +39,9 @@ card "Bird of Paradise Lost" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, card, you controls, where { is_tuner }) as target
+        }
         on_resolve {
             take_control of (1, monster, opponent controls)
         }

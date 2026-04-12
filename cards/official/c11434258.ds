@@ -10,6 +10,9 @@ card "Saryuja's Shackles" {
         speed: spell_speed_2
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, card, you controls, where { is_face_up }) as target
+        }
         on_resolve {
             draw 1
             return (1+, card, you controls, where { is_face_up }) to deck shuffle

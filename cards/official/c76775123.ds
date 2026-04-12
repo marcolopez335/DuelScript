@@ -18,6 +18,9 @@ card "Patrol Robo" {
         timing: when
         damage_step: false
         trigger: during_standby_phase
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             reveal (1+, card, opponent controls)
         }

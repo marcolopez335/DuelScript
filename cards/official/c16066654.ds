@@ -19,6 +19,9 @@ card "R.B. Operation Test" {
         once_per_turn: soft
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             gain_lp: 1000
             shuffle_hand

@@ -27,6 +27,9 @@ card "Infinitrack Goliath" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up and is_xyz }) as target
+        }
         on_resolve {
             attach (1, card) to self as_material
         }

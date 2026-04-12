@@ -40,6 +40,9 @@ card "Joyous Melffys" {
         once_per_turn: hard
         optional: true
         damage_step: false
+        on_activate {
+            select (1+, card, you controls, where { is_face_up and is_xyz and race == Beast }) as target
+        }
         on_resolve {
             return (1+, card, you controls, where { is_face_up and is_xyz and race == Beast }) to deck shuffle
             special_summon (1, monster) from gy

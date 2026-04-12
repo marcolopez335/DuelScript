@@ -38,6 +38,9 @@ card "Subterror Cave Clash" {
         damage_step: false
         trigger: when_battle_destroyed
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             return (1+, monster, either_player controls) to hand
         }

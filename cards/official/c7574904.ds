@@ -35,6 +35,9 @@ card "Myutant Arsenal" {
         timing: when
         damage_step: false
         trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        on_activate {
+            select (1+, spell, you controls) as target
+        }
         cost {
             banish self
         }
@@ -50,6 +53,9 @@ card "Myutant Arsenal" {
         timing: if
         damage_step: false
         trigger: when_destroyed
+        on_activate {
+            select (1+, spell, you controls) as target
+        }
         on_resolve {
             add_to_hand (1+, spell, you controls) from hand
         }

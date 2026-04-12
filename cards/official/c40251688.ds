@@ -41,6 +41,9 @@ card "Infernoble Knight Captain Roland" {
         optional: true
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, spell, you controls, where { race == Warrior }) as target
+        }
         on_resolve {
             equip (1, card) to (1, monster)
         }

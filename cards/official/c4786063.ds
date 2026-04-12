@@ -15,6 +15,9 @@ card "Superheavy Samurai Soulfire Suit" {
         speed: spell_speed_1
         damage_step: false
         activate_from: [hand, monster_zone]
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             equip (1, card) to (1, monster)
             send (1+, card, either_player controls) to gy
@@ -26,6 +29,9 @@ card "Superheavy Samurai Soulfire Suit" {
         optional: true
         damage_step: false
         activate_from: [hand]
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         cost {
             discard (1, card, you controls)
         }

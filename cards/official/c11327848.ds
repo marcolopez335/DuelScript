@@ -21,6 +21,9 @@ card "Master's Diploman" {
         timing: if
         damage_step: false
         trigger: when_summoned
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             equip (1, card) to (1, monster)
             register_effect on self {

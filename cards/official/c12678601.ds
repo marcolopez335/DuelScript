@@ -22,6 +22,9 @@ card "Tindangle Dholes" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, spell, you controls, where { is_spell }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }

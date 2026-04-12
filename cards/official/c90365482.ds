@@ -25,6 +25,9 @@ card "Hebo, Lord of the River" {
         timing: if
         damage_step: false
         trigger: when_summoned
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -44,6 +47,9 @@ card "Hebo, Lord of the River" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_active"
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

@@ -10,6 +10,9 @@ card "Yang Zing Path" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
             shuffle_deck

@@ -45,6 +45,9 @@ card "Shiranui Style Solemnity" {
         once_per_turn: soft
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, card, you controls, where { race == Zombie }) as target
+        }
         on_resolve {
             banish (1+, card, you controls, gy)
             send (1+, card, you controls, gy) to gy

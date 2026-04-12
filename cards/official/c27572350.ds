@@ -25,6 +25,9 @@ card "Bystial Dis Pater" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -37,6 +40,9 @@ card "Bystial Dis Pater" {
         timing: when
         damage_step: false
         trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
             destroy (1+, card, either_player controls)

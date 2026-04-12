@@ -27,6 +27,9 @@ card "Number 106: Giant Hand" {
         timing: when
         damage_step: false
         trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up }) as target
+        }
         cost {
             detach 2 overlay_unit from self
         }

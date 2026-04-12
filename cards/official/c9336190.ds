@@ -9,6 +9,9 @@ card "The Phantom Knights of Mist Claws" {
     effect "Effect 1" {
         speed: spell_speed_2
         damage_step: false
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
             reveal (1+, card, opponent controls)
@@ -22,6 +25,9 @@ card "The Phantom Knights of Mist Claws" {
         damage_step: false
         trigger: when attack_declared
         activate_from: [gy]
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
             special_summon (1, monster) from gy

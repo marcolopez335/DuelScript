@@ -46,6 +46,9 @@ card "Prank-Kids Rip-Roarin-Roaster" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, spell, opponent controls) as target
+        }
         on_resolve {
             return (1+, spell, opponent controls) to hand
         }

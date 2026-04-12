@@ -43,6 +43,9 @@ card "Sage of Benevolence - Ciela" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, spell, you controls) as target
+        }
         on_resolve {
             add_to_hand (1+, spell, you controls) from hand
         }

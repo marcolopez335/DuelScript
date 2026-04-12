@@ -9,6 +9,9 @@ card "Beast Soul Swap" {
     effect "Effect 1" {
         speed: spell_speed_2
         damage_step: false
+        on_activate {
+            select (1+, card, opponent controls, where { is_face_up and level >= 1 and race == Beast }) as target
+        }
         on_resolve {
             add_to_hand (1+, card, opponent controls, where { is_face_up and level >= 1 and race == Beast }) from hand
             special_summon (1, monster) from gy

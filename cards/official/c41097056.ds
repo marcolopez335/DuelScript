@@ -9,6 +9,9 @@ card "Synchro Cracker" {
     effect "Effect 1" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, monster, opponent controls, where { is_face_up and is_synchro }) as target
+        }
         on_resolve {
             return (1+, monster, opponent controls, where { is_face_up and is_synchro }) to deck shuffle
             destroy (1+, monster, opponent controls, where { is_face_up and is_synchro })

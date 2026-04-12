@@ -25,6 +25,9 @@ card "Tenyi Spirit - Adhara" {
         once_per_turn: soft
         damage_step: false
         activate_from: [hand, gy]
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up and race == Wyrm and is_monster }) as target
+        }
         cost {
             banish self
         }

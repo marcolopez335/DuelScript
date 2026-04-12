@@ -20,6 +20,9 @@ card "Performage Cup Tricker" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             attach (1, card) to self as_material
         }
@@ -43,6 +46,9 @@ card "Performage Cup Tricker" {
         once_per_turn: soft
         damage_step: false
         activate_from: [hand]
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {
@@ -59,6 +65,9 @@ card "Performage Cup Tricker" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             attach (1, card) to self as_material
             emit_event "custom"

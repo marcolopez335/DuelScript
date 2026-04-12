@@ -31,6 +31,9 @@ card "Blessed Winds" {
         optional: true
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, monster, you controls, where { is_monster and race == Plant }) as target
+        }
         on_resolve {
             return (1+, monster, you controls, where { is_monster and race == Plant }) to deck shuffle
             gain_lp: 500

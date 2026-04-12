@@ -34,6 +34,9 @@ card "Prohibit Snake" {
         damage_step: false
         trigger: when_battle_damage
         activate_from: [gy]
+        on_activate {
+            select (1+, monster, you controls, where { level <= 4 and race == Cyberse }) as target
+        }
         cost {
             banish self
         }

@@ -15,6 +15,9 @@ card "Ancient Warriors - Graceful Zhou Gong" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, spell, you controls) as target
+        }
         on_resolve {
             send (1+, spell, you controls, deck) to gy
             add_to_hand (1+, spell, you controls) from deck
@@ -29,6 +32,9 @@ card "Ancient Warriors - Graceful Zhou Gong" {
         timing: if
         damage_step: false
         trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        on_activate {
+            select (1+, spell, you controls) as target
+        }
         on_resolve {
             negate effect
             register_effect on self {

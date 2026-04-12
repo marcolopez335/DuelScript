@@ -24,6 +24,9 @@ card "Starship Spy Plane" {
         speed: spell_speed_1
         damage_step: false
         trigger: when_summoned by_special_summon
+        on_activate {
+            select (1+, spell, opponent controls, where { is_spell }) as target
+        }
         on_resolve {
             return (1+, spell, opponent controls, where { is_spell }) to hand
         }

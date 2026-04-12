@@ -17,6 +17,9 @@ card "World Legacy Collapse" {
         optional: true
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up }) as target
+        }
         cost {
             banish self
         }

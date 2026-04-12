@@ -15,6 +15,9 @@ card "Ancient Warriors - Deceptive Jia Wen" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, spell, either_player controls, where { is_face_up and is_spell }) as target
+        }
         on_resolve {
             send (1+, spell, either_player controls, where { is_face_up and is_spell }) to gy
             register_effect on self {
@@ -31,6 +34,9 @@ card "Ancient Warriors - Deceptive Jia Wen" {
         timing: if
         damage_step: false
         trigger: when_destroyed
+        on_activate {
+            select (1+, spell, either_player controls, where { is_face_up and is_spell }) as target
+        }
         on_resolve {
             return (1+, spell, either_player controls, where { is_face_up and is_spell }) to hand
         }

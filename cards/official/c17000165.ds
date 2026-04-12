@@ -17,6 +17,9 @@ card "Reptilianne Recoil" {
         once_per_turn: hard
         damage_step: false
         activate_from: [field_zone]
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up }) as target
+        }
         on_resolve {
             destroy (1+, card, either_player controls, where { is_face_up })
             special_summon (1, monster) from gy
@@ -31,6 +34,9 @@ card "Reptilianne Recoil" {
         damage_step: false
         trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         activate_from: [field_zone]
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up }) as target
+        }
         on_resolve {
             take_control of (1, monster, opponent controls)
             create_token { atk: 0 def: 0 }

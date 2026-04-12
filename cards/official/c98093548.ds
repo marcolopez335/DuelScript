@@ -43,6 +43,9 @@ card "Brotherhood of the Fire Fist - Elephant" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             return (1+, monster, you controls) to deck shuffle
             add_to_hand (1+, monster, you controls) from deck

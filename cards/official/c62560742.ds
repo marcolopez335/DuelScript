@@ -25,6 +25,9 @@ card "T.G. Recipro Dragonfly" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             send (1+, card, either_player controls) to gy
             special_summon (1, monster) from gy

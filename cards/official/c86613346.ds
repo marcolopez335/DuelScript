@@ -32,6 +32,9 @@ card "Starry Knight Flamel" {
         optional: true
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, monster, you controls, where { level == 7 and attribute == LIGHT and race == Dragon and is_face_up }) as target
+        }
         cost {
             banish self
         }

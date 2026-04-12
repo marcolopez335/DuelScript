@@ -20,6 +20,9 @@ card "D/D/D Doom King Armageddon" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -35,6 +38,9 @@ card "D/D/D Doom King Armageddon" {
         timing: when
         damage_step: false
         trigger: when_destroyed
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
         }
     }

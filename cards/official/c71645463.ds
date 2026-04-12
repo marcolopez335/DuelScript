@@ -44,6 +44,9 @@ card "Dragunity Quirinus" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, spell, you controls) as target
+        }
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck
             shuffle_hand

@@ -9,6 +9,9 @@ card "Hero Blast" {
     effect "Effect 1" {
         speed: spell_speed_2
         damage_step: false
+        on_activate {
+            select (1+, monster, opponent controls) as target
+        }
         on_resolve {
             return (1+, monster, opponent controls) to hand
             destroy (1+, monster, opponent controls)

@@ -37,6 +37,9 @@ card "Crystron Phoenix" {
         timing: if
         damage_step: false
         trigger: when_destroyed
+        on_activate {
+            select (1+, spell, opponent controls, where { is_spell }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }

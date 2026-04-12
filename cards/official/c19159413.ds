@@ -9,6 +9,9 @@ card "De-Spell" {
     effect "Effect 1" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, spell, either_player controls, where { is_face_down }) as target
+        }
         on_resolve {
             reveal (1+, card, opponent controls)
             destroy (1+, spell, either_player controls, where { is_face_down })

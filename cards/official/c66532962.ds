@@ -27,6 +27,9 @@ card "Magistus Chorozo" {
         timing: when
         damage_step: false
         trigger: when attack_declared
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             negate attack
             return (1+, card, you controls) to hand

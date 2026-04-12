@@ -16,6 +16,9 @@ card "Landrobe the Rock Vassal" {
         once_per_turn: hard
         damage_step: false
         activate_from: [hand]
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
             change_battle_position (1, monster)
@@ -33,6 +36,9 @@ card "Landrobe the Rock Vassal" {
         timing: if
         damage_step: false
         trigger: when_tributed
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up }) as target
+        }
         on_resolve {
             add_to_hand (1+, card, either_player controls, where { is_face_up }) from gy
         }

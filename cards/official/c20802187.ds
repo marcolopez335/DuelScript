@@ -17,6 +17,9 @@ card "Spirit Converter" {
         once_per_turn: soft
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             attach (1, card) to self as_material
         }
@@ -26,6 +29,9 @@ card "Spirit Converter" {
         speed: spell_speed_1
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             add_to_hand (1+, card, you controls) from gy
             reveal (1+, card, opponent controls)

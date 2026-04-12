@@ -48,6 +48,9 @@ card "Colossal Fighter/Assault Mode" {
         timing: when
         damage_step: false
         trigger: when_destroyed
+        on_activate {
+            select (1+, card, you controls, where { race == Warrior }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }

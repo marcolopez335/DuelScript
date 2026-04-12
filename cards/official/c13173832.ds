@@ -33,6 +33,9 @@ card "Salamangreat Wolvie" {
         timing: if
         damage_step: false
         trigger: when_summoned by_special_summon
+        on_activate {
+            select (1+, card, either_player controls, where { attribute == FIRE }) as target
+        }
         on_resolve {
             add_to_hand (1+, card, either_player controls, where { attribute == FIRE }) from gy
         }

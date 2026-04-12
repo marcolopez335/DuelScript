@@ -48,6 +48,9 @@ card "Thunder Ball" {
         timing: if
         damage_step: false
         trigger: when_destroyed
+        on_activate {
+            select (1+, trap, you controls) as target
+        }
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
             add_to_hand (1+, trap, you controls) from hand

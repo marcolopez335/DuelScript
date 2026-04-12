@@ -26,6 +26,9 @@ card "Amazoness Spy" {
         timing: when
         damage_step: false
         trigger: when_battle_damage
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             add_to_hand (1, card, you controls) from gy
             return (1+, monster, either_player controls) to deck shuffle

@@ -24,6 +24,9 @@ card "Number C80: Requiem in Berserk" {
     effect "Effect 1" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up and is_xyz }) as target
+        }
         on_resolve {
             send (1+, card, either_player controls, where { is_face_up and is_xyz }) to gy
             equip (1, card) to (1, monster)
@@ -33,6 +36,9 @@ card "Number C80: Requiem in Berserk" {
     effect "Effect 2" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up and is_xyz }) as target
+        }
         cost {
             detach 1 overlay_unit from self
         }

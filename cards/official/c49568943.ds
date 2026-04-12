@@ -19,6 +19,9 @@ card "Vaylantz World - Shinra Bansho" {
         once_per_turn: hard
         damage_step: false
         activate_from: [field_zone]
+        on_activate {
+            select (1+, card, you controls, where { is_face_up }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }

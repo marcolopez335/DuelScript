@@ -32,6 +32,9 @@ card "Garuda the Wind Spirit" {
         timing: when
         damage_step: false
         trigger: during_end_phase
+        on_activate {
+            select (1+, card, you controls, where { attribute == WIND }) as target
+        }
         on_resolve {
             change_battle_position (1, monster)
         }

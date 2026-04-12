@@ -17,6 +17,9 @@ card "Secret Six Samurai - Genba" {
         timing: when
         damage_step: false
         trigger: when_summoned
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
         }

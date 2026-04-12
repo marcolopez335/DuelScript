@@ -10,6 +10,9 @@ card "Ninjitsu Art of Dancing Leaves" {
         speed: spell_speed_2
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, spell, you controls) as target
+        }
         on_resolve {
             tribute (1, monster, you controls)
             special_summon (1, monster) from gy
@@ -30,6 +33,9 @@ card "Ninjitsu Art of Dancing Leaves" {
         optional: true
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, spell, you controls) as target
+        }
         on_resolve {
             add_to_hand (1+, spell, you controls) from deck
         }

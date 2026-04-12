@@ -20,6 +20,9 @@ card "Stardust Wish" {
         damage_step: false
         trigger: when_tributed
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }

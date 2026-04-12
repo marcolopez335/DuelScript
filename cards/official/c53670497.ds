@@ -28,6 +28,9 @@ card "Hieratic Seal From the Ashes" {
         optional: true
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             send (1+, monster, you controls, deck) to gy
         }
@@ -37,6 +40,9 @@ card "Hieratic Seal From the Ashes" {
         speed: spell_speed_2
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }

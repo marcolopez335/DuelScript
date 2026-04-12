@@ -22,6 +22,9 @@ card "Mitsurugi Sacred Boundary" {
         once_per_turn: hard
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
             tribute (1, monster, you controls)

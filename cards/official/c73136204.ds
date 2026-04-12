@@ -32,6 +32,9 @@ card "Sylvan Lotuswain" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
             send_to_deck (1+, card, you controls)

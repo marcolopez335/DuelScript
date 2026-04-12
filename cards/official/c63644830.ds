@@ -22,6 +22,9 @@ card "Melffy Hide-and-Seek" {
         once_per_turn: hard
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             return (1+, card, you controls) to deck shuffle
             shuffle_deck

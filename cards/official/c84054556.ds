@@ -32,6 +32,9 @@ card "DoomZ Command 'A.D.R.A.S.T.E.I.A.'" {
         once_per_turn: soft
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             equip (1, card) to (1, monster)
             deal_damage to opponent: 1000

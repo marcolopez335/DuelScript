@@ -18,6 +18,9 @@ card "Invocation" {
         once_per_turn: hard
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up and card_id == 86120751 }) as target
+        }
         on_resolve {
             return (1+, card, either_player controls, where { is_face_up and card_id == 86120751 }) to deck shuffle
             add_to_hand (1+, card, either_player controls, where { is_face_up and card_id == 86120751 }) from gy

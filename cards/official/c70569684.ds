@@ -20,6 +20,9 @@ card "High Rate Draw" {
         optional: true
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             destroy (1+, monster, you controls)
             set (1, card)

@@ -18,6 +18,9 @@ card "Obliterate!!!" {
         optional: true
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             send (1+, monster, you controls, hand) to gy
             add_to_hand (1+, monster, you controls) from hand
@@ -31,6 +34,9 @@ card "Obliterate!!!" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand
         }

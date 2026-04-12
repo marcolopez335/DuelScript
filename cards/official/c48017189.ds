@@ -29,6 +29,9 @@ card "EM:P Meowmine" {
         damage_step: false
         trigger: on_custom_event "chain_end"
         activate_from: [hand, gy]
+        on_activate {
+            select (1+, monster, either_player controls, where { is_face_up }) as target
+        }
         cost {
             banish self
         }

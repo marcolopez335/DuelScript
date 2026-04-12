@@ -24,6 +24,9 @@ card "VWXYZ-Dragon Catapult Cannon" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             banish (1+, card, you controls)
         }
@@ -35,6 +38,9 @@ card "VWXYZ-Dragon Catapult Cannon" {
         timing: when
         damage_step: false
         trigger: when attack_declared
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             change_battle_position (1, monster)
         }

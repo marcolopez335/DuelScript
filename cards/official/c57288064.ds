@@ -26,6 +26,9 @@ card "Shiranui Samuraisaga" {
         once_per_turn: soft
         optional: true
         damage_step: false
+        on_activate {
+            select (1+, monster, opponent controls, where { is_face_up and race == Zombie }) as target
+        }
         on_resolve {
             return (1+, monster, opponent controls, where { is_face_up and race == Zombie }) to deck shuffle
             change_battle_position (1, monster)

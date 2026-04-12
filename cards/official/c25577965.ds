@@ -29,6 +29,9 @@ card "Flametongue the Blazing Magical Blade" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, spell, either_player controls, where { attribute == FIRE and is_face_up }) as target
+        }
         on_resolve {
             add_to_hand (1+, spell, either_player controls, where { attribute == FIRE and is_face_up }) from gy
             reveal (1+, card, opponent controls)

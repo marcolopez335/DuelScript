@@ -23,6 +23,9 @@ card "New World Stars" {
         optional: true
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             add_to_hand (1, card, you controls) from gy
             return (1+, monster, you controls) to deck shuffle

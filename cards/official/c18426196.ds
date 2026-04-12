@@ -25,6 +25,9 @@ card "Noble Knight Joan" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, card, you controls, where { level <= 4 and race == Warrior }) as target
+        }
         on_resolve {
             add_to_hand (1+, card, you controls, where { level <= 4 and race == Warrior }) from hand
             reveal (1+, card, opponent controls)

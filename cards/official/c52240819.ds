@@ -20,6 +20,9 @@ card "Abyss Actor - Evil Heel" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, spell, opponent controls) as target
+        }
         cost {
             tribute self
         }
@@ -37,6 +40,9 @@ card "Abyss Actor - Evil Heel" {
         timing: if
         damage_step: false
         trigger: when_summoned
+        on_activate {
+            select (1+, spell, opponent controls) as target
+        }
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -51,6 +57,9 @@ card "Abyss Actor - Evil Heel" {
         timing: if
         damage_step: false
         trigger: when_summoned by_special_summon
+        on_activate {
+            select (1+, spell, opponent controls) as target
+        }
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -65,6 +74,9 @@ card "Abyss Actor - Evil Heel" {
         timing: when
         damage_step: false
         trigger: when_battle_damage
+        on_activate {
+            select (1+, spell, opponent controls) as target
+        }
         on_resolve {
             set (1, card)
         }

@@ -19,6 +19,9 @@ card "Tri-Blaze Accelerator" {
         speed: spell_speed_1
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, spell, you controls) as target
+        }
         on_resolve {
             send (1+, spell, you controls) to gy
             destroy (1+, spell, you controls)

@@ -36,6 +36,9 @@ card "Plunder Patroll Shipyarrrd" {
         once_per_turn: soft
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             set (1, card)
             add_to_hand (1+, card, you controls) from hand

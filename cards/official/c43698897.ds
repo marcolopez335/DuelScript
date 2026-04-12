@@ -30,6 +30,9 @@ card "Frightfur Factory" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, spell, you controls, where { is_face_up and card_id == 6077601 }) as target
+        }
         on_resolve {
             add_to_hand (1+, spell, you controls, where { is_face_up and card_id == 6077601 }) from gy
         }

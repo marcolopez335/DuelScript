@@ -9,6 +9,9 @@ card "Stardust Shimmer" {
     effect "Effect 1" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls, where { level >= 1 }) as target
+        }
         on_resolve {
             banish (1+, monster, you controls, gy)
             special_summon (1, monster) from gy

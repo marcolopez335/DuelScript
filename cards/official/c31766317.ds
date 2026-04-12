@@ -28,6 +28,9 @@ card "Archfiend Empress" {
         timing: when
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, monster, you controls, where { race == Fiend and attribute == DARK and level >= 6 }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }

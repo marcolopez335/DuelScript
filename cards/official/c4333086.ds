@@ -10,6 +10,9 @@ card "Shiranui Style Swallow's Slash" {
         speed: spell_speed_2
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, monster, either_player controls, where { race == Zombie }) as target
+        }
         on_resolve {
             destroy (1+, monster, either_player controls, where { race == Zombie })
             banish (1+, monster, either_player controls, where { race == Zombie })

@@ -48,6 +48,9 @@ card "Hot Red Dragon Archfiend King Calamity" {
         timing: if
         damage_step: false
         trigger: when_destroyed
+        on_activate {
+            select (1+, card, either_player controls, where { level <= 8 and race == Dragon and attribute == DARK }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }

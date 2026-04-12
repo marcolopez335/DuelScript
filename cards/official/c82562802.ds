@@ -17,6 +17,9 @@ card "Cyberdark Claw" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, monster, you controls, where { is_monster }) as target
+        }
         on_resolve {
             add_to_hand (1+, monster, you controls, where { is_monster }) from deck
             reveal (1+, card, opponent controls)

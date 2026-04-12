@@ -26,6 +26,9 @@ card "Mecha Bunny" {
         speed: spell_speed_1
         damage_step: false
         trigger: on_custom_event "chain_active"
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             deal_damage to opponent: 500
         }

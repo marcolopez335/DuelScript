@@ -18,6 +18,9 @@ card "Floowandereeze & Toccan" {
         timing: if
         damage_step: false
         trigger: when_summoned
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up }) as target
+        }
         on_resolve {
             add_to_hand (1+, monster, you controls, where { is_face_up }) from hand
             shuffle_hand

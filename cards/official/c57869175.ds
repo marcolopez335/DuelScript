@@ -43,6 +43,9 @@ card "Fortune Lady Past" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls, where { race == Spellcaster and is_face_up }) as target
+        }
         on_resolve {
             banish (1+, monster, you controls, gy)
             register_effect on self {

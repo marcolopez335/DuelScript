@@ -18,6 +18,9 @@ card "WAKE CUP! Macchia" {
         timing: when
         damage_step: false
         trigger: during_end_phase
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             send (1+, card, you controls, hand) to gy
         }
@@ -38,6 +41,9 @@ card "WAKE CUP! Macchia" {
         once_per_turn: soft
         damage_step: false
         trigger: on_custom_event "chain_active"
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             change_battle_position (1, monster)
         }

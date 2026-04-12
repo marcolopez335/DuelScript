@@ -42,6 +42,9 @@ card "Super Quantum Blue Layer" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             return (1+, card, you controls) to deck shuffle
         }

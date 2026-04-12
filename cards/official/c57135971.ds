@@ -9,6 +9,9 @@ card "Red-Eyes Fang with Chain" {
     effect "Effect 1" {
         speed: spell_speed_2
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up }) as target
+        }
         on_resolve {
             equip (1, card) to (1, monster)
         }
@@ -19,6 +22,9 @@ card "Red-Eyes Fang with Chain" {
         optional: true
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up }) as target
+        }
         cost {
             send self to gy
         }

@@ -29,6 +29,9 @@ card "Marincess Aqua Argonaut" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, monster, either_player controls, where { is_monster and attribute == WATER and is_face_up }) as target
+        }
         on_resolve {
             return (1+, monster, either_player controls, where { is_monster and attribute == WATER and is_face_up }) to hand
         }

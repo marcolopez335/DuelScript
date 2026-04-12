@@ -44,6 +44,9 @@ card "Magician of Black Chaos MAX" {
         timing: when
         damage_step: false
         trigger: when_battle_damage
+        on_activate {
+            select (1+, spell, either_player controls, where { is_spell }) as target
+        }
         on_resolve {
             add_to_hand (1+, spell, either_player controls, where { is_spell }) from gy
         }

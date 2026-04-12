@@ -15,6 +15,9 @@ card "Ally of Justice Searcher" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, card, you controls, where { is_face_down }) as target
+        }
         on_resolve {
             change_battle_position (1, monster)
         }

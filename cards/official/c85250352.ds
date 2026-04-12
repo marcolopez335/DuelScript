@@ -29,6 +29,9 @@ card "Volcanic Blaze Accelerator" {
         once_per_turn: soft
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, card, you controls, where { race == Pyro and level == 1 }) as target
+        }
         on_resolve {
             send (1+, card, you controls, hand) to gy
             destroy (1+, card, you controls, hand)

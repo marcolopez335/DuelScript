@@ -11,6 +11,9 @@ card "Release Brainwashing" {
         once_per_turn: hard
         damage_step: false
         trigger: when_tributed
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             take_control of (1, monster, opponent controls)
             add_to_hand (1+, monster, either_player controls) from gy

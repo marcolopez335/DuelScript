@@ -51,6 +51,9 @@ card "Indiora Doom Volt the Cubic Emperor" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
             return (1+, monster, you controls) to hand

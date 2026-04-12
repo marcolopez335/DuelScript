@@ -52,6 +52,9 @@ card "Vaylantz Genesis Grand Duke" {
         timing: if
         damage_step: false
         trigger: when_summoned by_special_summon
+        on_activate {
+            select (1+, monster, opponent controls) as target
+        }
         on_resolve {
             return (1+, monster, opponent controls) to hand
             deal_damage to opponent: 1000

@@ -21,6 +21,9 @@ card "Ashened for Eternity" {
         optional: true
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             take_control of (1, monster, opponent controls)
             register_effect on self {

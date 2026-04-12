@@ -18,6 +18,9 @@ card "Radiant Typhoon Mandate" {
         optional: true
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             return (1+, card, you controls) to deck shuffle
             shuffle_deck
@@ -41,6 +44,9 @@ card "Radiant Typhoon Mandate" {
         damage_step: false
         trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
         }
     }

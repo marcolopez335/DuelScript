@@ -47,6 +47,9 @@ card "Shiranui Style Samsara" {
         optional: true
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up and race == Zombie }) as target
+        }
         on_resolve {
             return (1+, monster, you controls, where { is_face_up and race == Zombie }) to deck shuffle
             shuffle_deck

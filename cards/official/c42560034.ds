@@ -9,6 +9,9 @@ card "Night Flight" {
     effect "Effect 1" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
             register_effect on self {

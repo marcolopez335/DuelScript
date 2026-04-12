@@ -25,6 +25,9 @@ card "Supreme King Gate Infinity" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, card, you controls, where { is_xyz and race == Dragon }) as target
+        }
         on_resolve {
             gain_lp: 1000
         }
@@ -34,6 +37,9 @@ card "Supreme King Gate Infinity" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, card, you controls, where { is_xyz and race == Dragon }) as target
+        }
         on_resolve {
             destroy (1+, card, you controls, where { is_xyz and race == Dragon })
             special_summon (1, monster) from gy

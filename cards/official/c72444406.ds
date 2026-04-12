@@ -28,6 +28,9 @@ card "Enigmaster Packbit" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             discard (1, card)
             send (1+, monster, you controls, hand) to gy
@@ -46,6 +49,9 @@ card "Enigmaster Packbit" {
         timing: if
         damage_step: false
         trigger: when_summoned by_special_summon
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             discard (1, card)
             send (1+, monster, you controls, hand) to gy

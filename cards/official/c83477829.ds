@@ -56,6 +56,9 @@ card "World Legacy - 'World Armor'" {
         once_per_turn: hard
         optional: true
         damage_step: false
+        on_activate {
+            select (1+, card, you controls, where { is_face_up }) as target
+        }
         on_resolve {
             add_to_hand (1+, card, you controls, where { is_face_up }) from deck
         }

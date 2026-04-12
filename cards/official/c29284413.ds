@@ -35,6 +35,9 @@ card "Joker's Knight" {
         damage_step: false
         trigger: during_end_phase
         activate_from: [gy]
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             return (1+, monster, you controls) to deck shuffle
             add_to_hand (1+, monster, you controls) from deck

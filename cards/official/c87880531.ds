@@ -9,6 +9,9 @@ card "Diffusion Wave-Motion" {
     effect "Effect 1" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up and race == Spellcaster and level >= 7 }) as target
+        }
         cost {
             pay_lp 1000
         }

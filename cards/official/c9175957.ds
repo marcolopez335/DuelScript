@@ -24,6 +24,9 @@ card "Tally-ho! Springans" {
         once_per_turn: hard
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up and is_xyz }) as target
+        }
         on_resolve {
             add_to_hand (1+, monster, you controls, where { is_face_up and is_xyz }) from gy
             reveal (1+, card, opponent controls)

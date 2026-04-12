@@ -47,6 +47,9 @@ card "Odd-Eyes Persona Dragon" {
         once_per_turn: soft
         optional: true
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             negate effect
             register_effect on self {

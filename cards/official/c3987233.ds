@@ -63,6 +63,9 @@ card "Missus Radiant" {
         timing: if
         damage_step: false
         trigger: when_destroyed
+        on_activate {
+            select (1+, monster, either_player controls, where { is_monster and attribute == EARTH }) as target
+        }
         on_resolve {
             add_to_hand (1+, monster, either_player controls, where { is_monster and attribute == EARTH }) from gy
         }

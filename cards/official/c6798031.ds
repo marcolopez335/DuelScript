@@ -22,6 +22,9 @@ card "Ryzeal Cross" {
         once_per_turn: hard
         damage_step: false
         activate_from: [field_zone]
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             return (1+, monster, you controls) to deck shuffle
             send_to_deck (1+, card, you controls)

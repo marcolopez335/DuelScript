@@ -10,6 +10,9 @@ card "Rocket Hand" {
         speed: spell_speed_2
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             equip (1, card) to (1, monster)
         }
@@ -21,6 +24,9 @@ card "Rocket Hand" {
         optional: true
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         cost {
             send self to gy
         }

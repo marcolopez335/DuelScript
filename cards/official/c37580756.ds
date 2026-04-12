@@ -10,6 +10,9 @@ card "Michizure" {
         speed: spell_speed_2
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, monster, either_player controls, where { is_monster }) as target
+        }
         on_resolve {
             destroy (1+, monster, either_player controls, where { is_monster })
         }

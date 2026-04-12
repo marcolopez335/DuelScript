@@ -22,6 +22,9 @@ card "Masked Chameleon" {
         timing: when
         damage_step: false
         trigger: when_summoned
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up and level >= 5 }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {

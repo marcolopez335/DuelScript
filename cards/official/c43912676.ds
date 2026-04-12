@@ -35,6 +35,9 @@ card "Celestia" {
         once_per_turn: soft
         damage_step: false
         activate_from: [field_zone]
+        on_activate {
+            select (1+, monster, you controls, where { race == Wyrm }) as target
+        }
         cost {
             banish self
         }

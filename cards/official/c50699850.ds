@@ -15,6 +15,9 @@ card "Loris, Lady of Lament" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             return (1+, monster, you controls) to deck shuffle
             send_to_deck (1+, card, you controls)
@@ -29,6 +32,9 @@ card "Loris, Lady of Lament" {
         timing: if
         damage_step: false
         trigger: when_tributed
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             set (1, card)
         }
@@ -41,6 +47,9 @@ card "Loris, Lady of Lament" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             set (1, card)
         }

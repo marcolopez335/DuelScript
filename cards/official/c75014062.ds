@@ -10,6 +10,9 @@ card "Spell Power Grasp" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up }) as target
+        }
         on_resolve {
             add_to_hand (1+, card, either_player controls, where { is_face_up }) from gy
             reveal (1+, card, opponent controls)

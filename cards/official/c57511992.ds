@@ -16,6 +16,9 @@ card "Yorishiro of the Aqua" {
         once_per_turn: hard
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         cost {
             banish self
         }
@@ -29,6 +32,9 @@ card "Yorishiro of the Aqua" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

@@ -10,6 +10,9 @@ card "Rising Fire" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
             equip (1, card) to (1, monster)

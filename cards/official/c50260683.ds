@@ -26,6 +26,9 @@ card "Number 36: Chronomaly Chateau Huyuk" {
         once_per_turn: soft
         optional: true
         damage_step: false
+        on_activate {
+            select (1+, monster, opponent controls, where { is_face_up }) as target
+        }
         cost {
             detach 1 overlay_unit from self
         }
@@ -40,6 +43,9 @@ card "Number 36: Chronomaly Chateau Huyuk" {
     effect "Effect 2" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, monster, opponent controls, where { is_face_up }) as target
+        }
         cost {
             tribute self
         }

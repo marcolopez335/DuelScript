@@ -34,6 +34,9 @@ card "Nowru Aries the Vernal Dragon" {
         timing: if
         damage_step: false
         trigger: when_destroyed
+        on_activate {
+            select (1+, monster, you controls, where { is_monster and level >= 5 }) as target
+        }
         on_resolve {
             banish (1+, monster, you controls, hand)
         }

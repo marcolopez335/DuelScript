@@ -45,6 +45,9 @@ card "Elemental HERO Core" {
         timing: when
         damage_step: false
         trigger: during battle_phase
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             destroy (1+, card, either_player controls)
         }
@@ -56,6 +59,9 @@ card "Elemental HERO Core" {
         timing: when
         damage_step: false
         trigger: when_destroyed
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }

@@ -9,6 +9,9 @@ card "Tail Swipe" {
     effect "Effect 1" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, monster, opponent controls, where { is_face_up and race == Dinosaur and level >= 5 }) as target
+        }
         on_resolve {
             return (1+, monster, opponent controls, where { is_face_up and race == Dinosaur and level >= 5 }) to hand
         }

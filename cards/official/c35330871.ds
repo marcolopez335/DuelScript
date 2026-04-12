@@ -33,6 +33,9 @@ card "Malacoda, Netherlord of the Burning Abyss" {
         once_per_turn: soft
         optional: true
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         cost {
             send self to gy
         }
@@ -54,6 +57,9 @@ card "Malacoda, Netherlord of the Burning Abyss" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             send (1+, monster, you controls, hand) to gy
         }

@@ -9,6 +9,9 @@ card "After the Storm" {
     effect "Effect 1" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             return (1+, card, either_player controls) to hand
             reveal (1+, card, opponent controls)

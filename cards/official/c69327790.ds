@@ -19,6 +19,9 @@ card "Raiza the Mega Monarch" {
         speed: spell_speed_1
         damage_step: false
         trigger: when_summoned
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
             send_to_deck (1+, card, you controls)

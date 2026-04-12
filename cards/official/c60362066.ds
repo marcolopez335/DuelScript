@@ -10,6 +10,9 @@ card "Tearlaments Heartbeat" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, trap, you controls) as target
+        }
         on_resolve {
             return (1+, trap, you controls) to deck shuffle
             send (1+, trap, you controls, hand) to gy
@@ -23,6 +26,9 @@ card "Tearlaments Heartbeat" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, trap, you controls) as target
+        }
         on_resolve {
             add_to_hand (1+, trap, you controls) from hand
         }

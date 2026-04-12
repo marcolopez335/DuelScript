@@ -26,6 +26,9 @@ card "Fighting Flame Dragon" {
         optional: true
         damage_step: false
         activate_from: [monster_zone, gy]
+        on_activate {
+            select (1+, card, either_player controls, where { race == Warrior and is_fusion and is_face_up }) as target
+        }
         on_resolve {
             equip (1, card) to (1, monster)
         }

@@ -20,6 +20,9 @@ card "Bystial Druiswurm" {
         once_per_turn: hard
         damage_step: false
         activate_from: [hand]
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             banish (1+, card, either_player controls)
             special_summon (1, monster) from gy
@@ -32,6 +35,9 @@ card "Bystial Druiswurm" {
         optional: true
         damage_step: false
         activate_from: [hand]
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             banish (1+, card, either_player controls)
             special_summon (1, monster) from gy
@@ -45,6 +51,9 @@ card "Bystial Druiswurm" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             send (1+, card, either_player controls) to gy
         }

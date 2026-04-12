@@ -24,6 +24,9 @@ card "Concours de Cuisine (Culinary Confrontation)" {
         once_per_turn: soft
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, card, either_player controls, where { in_archetype: "Archetyp" and is_pendulum }) as target
+        }
         cost {
             banish self
         }

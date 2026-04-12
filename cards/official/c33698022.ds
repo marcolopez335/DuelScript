@@ -26,6 +26,9 @@ card "Black Rose Moonlight Dragon" {
         once_per_turn: hard
         damage_step: false
         trigger: when_summoned by_special_summon
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up and level >= 5 }) as target
+        }
         on_resolve {
             add_to_hand (1+, card, either_player controls, where { is_face_up and level >= 5 }) from gy
         }

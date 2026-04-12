@@ -18,6 +18,9 @@ card "Kuribohrn" {
         damage_step: false
         trigger: during battle_phase
         activate_from: [hand]
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         cost {
             discard (1, card, you controls)
         }
@@ -33,6 +36,9 @@ card "Kuribohrn" {
         damage_step: false
         trigger: when attack_declared
         activate_from: [gy]
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         cost {
             banish self
         }

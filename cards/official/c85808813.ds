@@ -9,6 +9,9 @@ card "Time Stream" {
     effect "Effect 1" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             tribute (1, monster, you controls)
             special_summon (1, monster) from gy
@@ -19,6 +22,9 @@ card "Time Stream" {
         speed: spell_speed_1
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         cost {
             banish self
         }

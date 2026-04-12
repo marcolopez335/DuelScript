@@ -26,6 +26,9 @@ card "Spright Gamma Burst" {
         once_per_turn: hard
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, monster, either_player controls, where { is_face_up and level == 2 }) as target
+        }
         cost {
             banish self
         }

@@ -35,6 +35,9 @@ card "Aegaion the Sea Castrum" {
         once_per_turn: soft
         optional: true
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_down }) as target
+        }
         cost {
             detach 1 overlay_unit from self
         }

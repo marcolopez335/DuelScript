@@ -30,6 +30,9 @@ card "Fire King Avatar Arvata" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, monster, you controls, where { attribute == FIRE }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
             register_effect on self {

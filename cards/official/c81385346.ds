@@ -9,6 +9,9 @@ card "Stamping Destruction" {
     effect "Effect 1" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, spell, you controls) as target
+        }
         on_resolve {
             destroy (1+, spell, you controls)
             deal_damage to opponent: 500

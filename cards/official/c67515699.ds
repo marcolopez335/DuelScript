@@ -28,6 +28,9 @@ card "K9-66X 'Jacks'" {
         timing: if
         damage_step: false
         trigger: when_summoned by_special_summon
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         cost {
             detach 1 overlay_unit from self
         }
@@ -43,6 +46,9 @@ card "K9-66X 'Jacks'" {
         timing: if
         damage_step: false
         trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         cost {
             detach 1 overlay_unit from self
         }

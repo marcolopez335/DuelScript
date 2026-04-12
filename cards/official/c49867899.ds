@@ -32,6 +32,9 @@ card "Fiendsmith's Sequence" {
         once_per_turn: soft
         damage_step: false
         activate_from: [monster_zone, gy]
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             equip (1, card) to (1, monster)
             send (1+, card, you controls, gy) to gy

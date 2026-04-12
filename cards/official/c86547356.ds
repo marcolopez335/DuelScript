@@ -29,6 +29,9 @@ card "Infernity Paranoia" {
         speed: spell_speed_1
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, monster, you controls, where { attribute == DARK and level >= 1 and is_face_up }) as target
+        }
         cost {
             banish self
         }

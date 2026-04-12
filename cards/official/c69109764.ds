@@ -18,6 +18,9 @@ card "Hibernation Dragon" {
         timing: if
         damage_step: false
         trigger: when_summoned
+        on_activate {
+            select (1+, monster, you controls, where { race == Dragon and attribute == DARK }) as target
+        }
         on_resolve {
             return (1+, monster, you controls, where { race == Dragon and attribute == DARK }) to hand
             reveal (1+, card, opponent controls)
@@ -31,6 +34,9 @@ card "Hibernation Dragon" {
         timing: if
         damage_step: false
         trigger: when_summoned by_special_summon
+        on_activate {
+            select (1+, monster, you controls, where { race == Dragon and attribute == DARK }) as target
+        }
         on_resolve {
             return (1+, monster, you controls, where { race == Dragon and attribute == DARK }) to hand
             reveal (1+, card, opponent controls)
@@ -42,6 +48,9 @@ card "Hibernation Dragon" {
         once_per_turn: soft
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, monster, you controls, where { race == Dragon and attribute == DARK }) as target
+        }
         cost {
             banish self
         }

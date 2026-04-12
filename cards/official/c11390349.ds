@@ -33,6 +33,9 @@ card "Naturia Fruitfly" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up }) as target
+        }
         on_resolve {
             take_control of (1, monster, opponent controls)
         }

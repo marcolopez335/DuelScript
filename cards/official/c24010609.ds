@@ -17,6 +17,9 @@ card "Sky Striker Mecha Modules - Multirole" {
         once_per_turn: soft
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, spell, you controls) as target
+        }
         on_resolve {
             send (1+, spell, you controls, gy) to gy
             register_effect on self {

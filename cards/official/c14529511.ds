@@ -49,6 +49,9 @@ card "Mementomictlan Tecuhtlica - Creation King" {
         once_per_turn: soft
         optional: true
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls, where { card_id == 43338320 }) as target
+        }
         on_resolve {
             destroy (1+, card, either_player controls, where { card_id == 43338320 })
         }

@@ -10,6 +10,9 @@ card "Shield Handler" {
         speed: spell_speed_2
         damage_step: false
         trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        on_activate {
+            select (1+, monster, either_player controls, where { is_monster }) as target
+        }
         on_resolve {
             negate effect
             register_effect on self {

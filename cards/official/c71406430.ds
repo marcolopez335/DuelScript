@@ -47,6 +47,9 @@ card "Libromancer Doombroker" {
         timing: when
         damage_step: false
         trigger: when_battle_destroyed
+        on_activate {
+            select (1+, trap, you controls) as target
+        }
         on_resolve {
             return (1+, trap, you controls) to deck shuffle
         }

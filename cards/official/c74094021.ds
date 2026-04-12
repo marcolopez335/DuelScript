@@ -24,6 +24,9 @@ card "Legendary Six Samurai - Mizuho" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up and card_id == 48505422 }) as target
+        }
         cost {
             tribute self
         }

@@ -10,6 +10,9 @@ card "Ghostrick or Treat" {
         speed: spell_speed_2
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             change_battle_position (1, monster)
             emit_event "custom"

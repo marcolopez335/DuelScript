@@ -9,6 +9,9 @@ card "Factory of 100 Machines" {
     effect "Effect 1" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             banish (1+, monster, you controls, gy)
             register_effect on self {

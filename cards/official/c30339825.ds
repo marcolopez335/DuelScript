@@ -10,6 +10,9 @@ card "Hydor, the Base of All Things" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls, where { attribute == WATER and is_face_up }) as target
+        }
         on_resolve {
         }
     }
@@ -19,6 +22,9 @@ card "Hydor, the Base of All Things" {
         once_per_turn: hard
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, monster, you controls, where { attribute == WATER and is_face_up }) as target
+        }
         cost {
             banish self
         }

@@ -15,6 +15,9 @@ card "Wind-Up Bat" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             change_battle_position (1, monster)
             add_to_hand (1+, monster, either_player controls) from gy

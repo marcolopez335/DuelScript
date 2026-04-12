@@ -24,6 +24,9 @@ card "Ragnaraika Selene Snapper" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, spell, you controls) as target
+        }
         cost {
             banish self
         }
@@ -37,6 +40,9 @@ card "Ragnaraika Selene Snapper" {
         once_per_turn: soft
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, spell, you controls) as target
+        }
         on_resolve {
             return (1+, spell, you controls) to deck shuffle
             special_summon (1, monster) from gy

@@ -29,6 +29,9 @@ card "Masked Beast Des Gardius" {
         speed: spell_speed_1
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up }) as target
+        }
         on_resolve {
             equip (1, card) to (1, monster)
             register_effect on self {

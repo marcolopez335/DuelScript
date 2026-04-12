@@ -17,6 +17,9 @@ card "Disciples of the True Dracophoenix" {
         once_per_turn: hard
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, spell, you controls) as target
+        }
         on_resolve {
             return (1+, spell, you controls) to deck shuffle
             shuffle_deck
@@ -40,6 +43,9 @@ card "Disciples of the True Dracophoenix" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, spell, you controls) as target
+        }
         on_resolve {
             destroy (1+, spell, you controls, hand)
         }

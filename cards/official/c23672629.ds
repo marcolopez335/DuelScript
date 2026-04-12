@@ -25,6 +25,9 @@ card "Valiant Shark Lancer" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up and is_xyz and attribute == WATER }) as target
+        }
         on_resolve {
             detach 1 overlay_unit from self
             destroy (1+, monster, you controls, where { is_face_up and is_xyz and attribute == WATER })
@@ -36,6 +39,9 @@ card "Valiant Shark Lancer" {
         once_per_turn: hard
         optional: true
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up and is_xyz and attribute == WATER }) as target
+        }
         on_resolve {
             detach 1 overlay_unit from self
             destroy (1+, monster, you controls, where { is_face_up and is_xyz and attribute == WATER })

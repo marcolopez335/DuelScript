@@ -19,6 +19,9 @@ card "Magellanica, the Deep Sea City" {
         once_per_turn: soft
         damage_step: false
         activate_from: [field_zone]
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

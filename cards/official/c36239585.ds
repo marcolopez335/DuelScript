@@ -29,6 +29,9 @@ card "Ghostrick Fairy" {
         timing: when
         damage_step: false
         trigger: on_custom_event "chain_active"
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             send (1+, monster, you controls) to gy
             set (1, card)

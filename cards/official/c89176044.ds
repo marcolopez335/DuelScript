@@ -35,6 +35,9 @@ card "Predaprimitive" {
         damage_step: false
         trigger: when_summoned by_special_summon
         activate_from: [gy]
+        on_activate {
+            select (1+, spell, you controls, where { is_face_up }) as target
+        }
         cost {
             banish self
         }

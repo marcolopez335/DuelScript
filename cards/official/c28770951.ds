@@ -16,6 +16,9 @@ card "Galaxy Cleric" {
         once_per_turn: hard
         damage_step: false
         activate_from: [hand]
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             attach (1, card) to self as_material
         }
@@ -28,6 +31,9 @@ card "Galaxy Cleric" {
         timing: if
         damage_step: false
         trigger: when_summoned
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             return (1+, card, you controls) to deck shuffle
             shuffle_deck
@@ -42,6 +48,9 @@ card "Galaxy Cleric" {
         timing: if
         damage_step: false
         trigger: when_summoned by_special_summon
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             return (1+, card, you controls) to deck shuffle
             shuffle_deck

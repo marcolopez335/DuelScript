@@ -31,6 +31,9 @@ card "Ixeep, Omen of the Ghoti" {
         damage_step: false
         trigger: during_standby_phase
         activate_from: [banished]
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             set (1, card)
         }

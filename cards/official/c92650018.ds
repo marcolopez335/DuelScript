@@ -12,6 +12,9 @@ card "Amaze Attraction Horror House" {
         optional: true
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             negate effect
             register_effect on self {

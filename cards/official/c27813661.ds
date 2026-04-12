@@ -22,6 +22,9 @@ card "Sky Iris" {
         once_per_turn: hard
         damage_step: false
         activate_from: [field_zone]
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             destroy (1+, card, you controls, deck)
             add_to_hand (1+, card, you controls) from deck

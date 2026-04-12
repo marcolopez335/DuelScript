@@ -15,6 +15,9 @@ card "Crystron Rosenix" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, card, you controls, where { is_face_up }) as target
+        }
         on_resolve {
             destroy (1+, card, you controls, deck)
             special_summon (1, monster) from gy

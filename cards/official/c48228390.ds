@@ -20,6 +20,9 @@ card "Pyrite Knight" {
         once_per_turn: hard
         damage_step: false
         activate_from: [hand, gy]
+        on_activate {
+            select (1+, card, you controls, where { race == Warrior }) as target
+        }
         on_resolve {
             add_to_hand (1+, card, you controls, where { race == Warrior }) from hand
             special_summon (1, monster) from gy

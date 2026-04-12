@@ -38,6 +38,9 @@ card "Infernoble Knight Ogier" {
         once_per_turn: soft
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, card, you controls, where { is_face_up and race == Warrior }) as target
+        }
         on_resolve {
             equip (1, card) to (1, monster)
         }

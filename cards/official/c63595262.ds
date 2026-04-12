@@ -9,6 +9,9 @@ card "Unicorn Beacon" {
     effect "Effect 1" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, card, you controls, where { is_face_up and level <= 5 }) as target
+        }
         on_resolve {
             banish (1+, card, you controls, hand)
             special_summon (1, monster) from gy

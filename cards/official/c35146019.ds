@@ -9,6 +9,9 @@ card "Altergeist Manifestation" {
     effect "Effect 1" {
         speed: spell_speed_2
         damage_step: false
+        on_activate {
+            select (1+, trap, either_player controls) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
             equip (1, card) to (1, monster)
@@ -29,6 +32,9 @@ card "Altergeist Manifestation" {
         optional: true
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, trap, either_player controls) as target
+        }
         cost {
             banish self
         }

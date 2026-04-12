@@ -26,6 +26,9 @@ card "Dragon Mastery" {
         once_per_turn: soft
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             equip (1, card) to (1, monster)
             register_effect on self {

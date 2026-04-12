@@ -28,6 +28,9 @@ card "Disaster, Dragon Ruler of All Apocalypses" {
         timing: if
         damage_step: false
         trigger: when_summoned by_special_summon
+        on_activate {
+            select (1+, monster, opponent controls) as target
+        }
         on_resolve {
             attach (1, card) to self as_material
             banish (1+, monster, opponent controls, gy)

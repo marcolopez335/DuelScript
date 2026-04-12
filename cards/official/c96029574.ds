@@ -25,6 +25,9 @@ card "Black Brutdrago" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, spell, you controls, where { is_spell }) as target
+        }
         cost {
             send self to gy
         }
@@ -39,6 +42,9 @@ card "Black Brutdrago" {
         timing: when
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, spell, you controls, where { is_spell }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }

@@ -9,6 +9,9 @@ card "Terrors of the Afterroot" {
     effect "Effect 1" {
         speed: spell_speed_2
         damage_step: false
+        on_activate {
+            select (1+, monster, opponent controls, where { is_monster and is_face_up }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
             banish (1+, monster, opponent controls, where { is_monster and is_face_up })
@@ -21,6 +24,9 @@ card "Terrors of the Afterroot" {
         optional: true
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, monster, opponent controls, where { is_monster and is_face_up }) as target
+        }
         cost {
             banish self
         }

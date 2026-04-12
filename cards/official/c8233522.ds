@@ -16,6 +16,9 @@ card "Ally of Justice Cycle Reader" {
         optional: true
         damage_step: false
         activate_from: [hand]
+        on_activate {
+            select (1+, card, either_player controls, where { attribute == LIGHT }) as target
+        }
         cost {
             discard (1, card, you controls)
         }

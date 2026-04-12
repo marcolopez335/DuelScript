@@ -10,6 +10,9 @@ card "Icy Crevasse" {
         speed: spell_speed_2
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             send (1+, card, either_player controls) to gy
             deal_damage to opponent: 1000

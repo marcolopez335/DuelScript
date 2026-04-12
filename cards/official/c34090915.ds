@@ -44,6 +44,9 @@ card "Branded Regained" {
         damage_step: false
         trigger: when_summoned
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -57,6 +60,9 @@ card "Branded Regained" {
         damage_step: false
         trigger: when_summoned by_special_summon
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }

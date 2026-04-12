@@ -22,6 +22,9 @@ card "Joker's Wild" {
         optional: true
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, spell, you controls, where { is_spell }) as target
+        }
         on_resolve {
             return (1+, spell, you controls, where { is_spell }) to deck shuffle
             add_to_hand (1+, spell, you controls, where { is_spell }) from deck

@@ -10,6 +10,9 @@ card "Morphtronic Impact Return" {
         speed: spell_speed_2
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             reveal (1+, card, opponent controls)
             return (1+, monster, you controls) to deck shuffle
@@ -23,6 +26,9 @@ card "Morphtronic Impact Return" {
         optional: true
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         cost {
             banish self
         }

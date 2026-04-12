@@ -9,6 +9,9 @@ card "Infinite Impermanence" {
     effect "Effect 1" {
         speed: spell_speed_2
         damage_step: false
+        on_activate {
+            select (1+, spell, either_player controls) as target
+        }
         on_resolve {
             negate effect
             register_effect on self {

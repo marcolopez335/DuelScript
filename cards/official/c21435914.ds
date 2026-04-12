@@ -42,6 +42,9 @@ card "Dragocytos Corrupted Nethersoul Dragon" {
         timing: when
         damage_step: false
         trigger: during_standby_phase
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

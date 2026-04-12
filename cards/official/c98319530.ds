@@ -23,6 +23,9 @@ card "'Infernoble Arms - Almace'" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up and attribute == FIRE and race == Warrior }) as target
+        }
         on_resolve {
             return (1+, monster, you controls, where { is_face_up and attribute == FIRE and race == Warrior }) to hand
             reveal (1+, card, opponent controls)

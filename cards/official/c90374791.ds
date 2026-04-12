@@ -13,6 +13,9 @@ card "Armed Changer" {
         damage_step: false
         trigger: when_battle_damage
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, monster, you controls, where { is_monster }) as target
+        }
         on_resolve {
             add_to_hand (1+, monster, you controls, where { is_monster }) from hand
             reveal (1+, card, opponent controls)

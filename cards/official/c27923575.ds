@@ -24,6 +24,9 @@ card "Boo-Boo Game" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             set (1, card)
             register_effect on self {

@@ -22,6 +22,9 @@ card "Altergeist Meluseek" {
         timing: when
         damage_step: false
         trigger: when_battle_destroyed
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             send (1+, monster, you controls, deck) to gy
         }

@@ -38,6 +38,9 @@ card "Rescue-ACE Arbitrator" {
         timing: if
         damage_step: false
         trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             destroy (1+, card, you controls, gy)
         }

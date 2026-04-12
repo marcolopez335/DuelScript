@@ -15,6 +15,9 @@ card "Symphonic Warrior Drumss" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -27,6 +30,9 @@ card "Symphonic Warrior Drumss" {
         speed: spell_speed_1
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         cost {
             banish self
         }

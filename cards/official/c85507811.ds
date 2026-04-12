@@ -24,6 +24,9 @@ card "Elemental HERO Glow Neos" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             destroy (1+, monster, you controls)
             change_battle_position (1, monster)

@@ -25,6 +25,9 @@ card "Aileron" {
         optional: true
         damage_step: false
         activate_from: [hand, monster_zone]
+        on_activate {
+            select (1+, spell, you controls) as target
+        }
         on_resolve {
             equip (1, card) to (1, monster)
             send (1+, spell, you controls, deck) to gy

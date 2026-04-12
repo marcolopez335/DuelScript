@@ -28,6 +28,9 @@ card "Saion the Vaylantz Archer" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
             register_effect on self {
@@ -52,6 +55,9 @@ card "Saion the Vaylantz Archer" {
         timing: if
         damage_step: false
         trigger: when_leaves_field
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
             destroy (1+, card, either_player controls)

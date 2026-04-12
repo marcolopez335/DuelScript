@@ -41,6 +41,9 @@ card "Advanced Crystal Beast Cobalt Eagle" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             add_to_hand (1, card, you controls) from gy
             return (1+, card, you controls) to deck shuffle

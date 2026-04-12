@@ -9,6 +9,9 @@ card "Gravedigger Ghoul" {
     effect "Effect 1" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, monster, either_player controls, where { is_monster }) as target
+        }
         on_resolve {
             banish (1+, monster, either_player controls, where { is_monster })
         }

@@ -32,6 +32,9 @@ card "D/D/D Chaos King Apocalypse" {
         optional: true
         damage_step: false
         activate_from: [hand, gy]
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up and is_spell }) as target
+        }
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

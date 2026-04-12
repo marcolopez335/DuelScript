@@ -17,6 +17,9 @@ card "Reptilianne Nyami" {
         optional: true
         damage_step: false
         activate_from: [hand]
+        on_activate {
+            select (1+, card, you controls, where { is_face_up }) as target
+        }
         cost {
             send self to gy
         }

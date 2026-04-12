@@ -22,6 +22,9 @@ card "Wight Reanimator" {
         once_per_turn: soft
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, monster, you controls, where { is_monster }) as target
+        }
         on_resolve {
             send (1+, monster, you controls, deck) to gy
             special_summon (1, monster) from gy

@@ -19,6 +19,9 @@ card "Subterror Fiendess" {
         damage_step: false
         trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         activate_from: [hand, monster_zone]
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         cost {
             send self to gy
         }
@@ -33,6 +36,9 @@ card "Subterror Fiendess" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             change_battle_position (1, monster)
             special_summon (1, monster) from gy

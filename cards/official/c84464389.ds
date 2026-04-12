@@ -36,6 +36,9 @@ card "Borreload Fatalflare Dragon" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             equip (1, card) to (1, monster)
             register_effect on self {

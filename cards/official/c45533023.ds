@@ -32,6 +32,9 @@ card "Raidraptor - Blaze Falcon" {
         timing: when
         damage_step: false
         trigger: when_battle_destroyed
+        on_activate {
+            select (1+, monster, opponent controls) as target
+        }
         on_resolve {
             destroy (1+, monster, opponent controls)
         }

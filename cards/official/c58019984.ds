@@ -10,6 +10,9 @@ card "New World Formation" {
         speed: spell_speed_2
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, trap, either_player controls) as target
+        }
         on_resolve {
             set (1, card)
             register_effect on self {
@@ -25,6 +28,9 @@ card "New World Formation" {
         optional: true
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, trap, either_player controls) as target
+        }
         cost {
             banish self
         }

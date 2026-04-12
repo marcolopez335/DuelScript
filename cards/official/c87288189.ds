@@ -19,6 +19,9 @@ card "Caius the Mega Monarch" {
         speed: spell_speed_1
         damage_step: false
         trigger: when_summoned
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             banish (1+, card, you controls, hand)
             deal_damage to opponent: 1000

@@ -31,6 +31,9 @@ card "Koa'ki Meiru Crusader" {
         timing: when
         damage_step: false
         trigger: when_battle_damage
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand
             reveal (1+, card, opponent controls)

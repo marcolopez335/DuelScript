@@ -9,6 +9,9 @@ card "Frost Blast of the Monarchs" {
     effect "Effect 1" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, spell, you controls, where { is_face_down }) as target
+        }
         on_resolve {
             destroy (1+, spell, you controls, where { is_face_down })
         }
@@ -18,6 +21,9 @@ card "Frost Blast of the Monarchs" {
         speed: spell_speed_1
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, spell, you controls, where { is_face_down }) as target
+        }
         cost {
             banish self
         }

@@ -32,6 +32,9 @@ card "Archfiend Black Skull Dragon" {
         timing: when
         damage_step: false
         trigger: during battle_phase
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             deal_damage to opponent: 1000
             return (1+, card, either_player controls) to deck shuffle

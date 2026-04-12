@@ -16,6 +16,9 @@ card "SPYRAL MISSION - Rescue" {
         speed: spell_speed_2
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
         }
@@ -27,6 +30,9 @@ card "SPYRAL MISSION - Rescue" {
         optional: true
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
         }
@@ -37,6 +43,9 @@ card "SPYRAL MISSION - Rescue" {
         optional: true
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         cost {
             banish self
         }

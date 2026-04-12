@@ -35,6 +35,9 @@ card "Shamisen Samsara Sorrowcat" {
         once_per_turn: soft
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             send (1, card, you controls) to gy
             special_summon (1, monster) from gy

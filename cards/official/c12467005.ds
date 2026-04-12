@@ -17,6 +17,9 @@ card "Tackle Crusader" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, spell, either_player controls) as target
+        }
         on_resolve {
             change_battle_position (1, monster)
             add_to_hand (1+, spell, either_player controls) from gy

@@ -9,6 +9,9 @@ card "Cybersal Cyclone" {
     effect "Effect 1" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, monster, either_player controls, where { is_face_up }) as target
+        }
         on_resolve {
             banish (1+, monster, either_player controls, where { is_face_up })
             destroy (1+, monster, either_player controls, where { is_face_up })

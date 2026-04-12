@@ -25,6 +25,9 @@ card "R-Genex Undine" {
         speed: spell_speed_1
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             add_to_hand (1+, monster, you controls) from gy
             register_effect on self {

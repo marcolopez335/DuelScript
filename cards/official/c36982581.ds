@@ -18,6 +18,9 @@ card "Gishki Nekromirror" {
         speed: spell_speed_1
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, monster, opponent controls) as target
+        }
         on_resolve {
             return (1+, monster, opponent controls) to deck shuffle
             reveal (1, card, opponent controls, deck)

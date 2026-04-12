@@ -37,6 +37,9 @@ card "Rucia of the White Forest" {
         optional: true
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, spell, you controls) as target
+        }
         on_resolve {
             return (1+, spell, you controls) to deck shuffle
             special_summon (1, monster) from gy

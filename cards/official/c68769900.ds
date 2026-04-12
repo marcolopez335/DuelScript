@@ -28,6 +28,9 @@ card "Redbeard, the Plunder Patroll Matey" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, monster, opponent controls) as target
+        }
         on_resolve {
             equip (1, card) to (1, monster)
         }

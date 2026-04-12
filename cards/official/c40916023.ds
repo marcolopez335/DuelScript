@@ -32,6 +32,9 @@ card "Aqua Spirit" {
         timing: when
         damage_step: false
         trigger: during_standby_phase
+        on_activate {
+            select (1+, monster, you controls, where { attribute == WATER }) as target
+        }
         on_resolve {
             change_battle_position (1, monster)
             register_effect on self {

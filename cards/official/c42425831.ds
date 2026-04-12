@@ -18,6 +18,9 @@ card "Sealing Ceremony of Raiton" {
         optional: true
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up and attribute == WIND }) as target
+        }
         on_resolve {
             banish (1+, monster, you controls, where { is_face_up and attribute == WIND })
         }

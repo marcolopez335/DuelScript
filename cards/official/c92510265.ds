@@ -22,6 +22,9 @@ card "Black Luster Soldier - Sacred Soldier" {
         timing: when
         damage_step: false
         trigger: when_summoned
+        on_activate {
+            select (1+, card, either_player controls, where { level <= 7 and race == Warrior }) as target
+        }
         on_resolve {
             send (1+, card, either_player controls, where { level <= 7 and race == Warrior }) to gy
             banish (1+, card, either_player controls, where { level <= 7 and race == Warrior })
@@ -35,6 +38,9 @@ card "Black Luster Soldier - Sacred Soldier" {
         timing: when
         damage_step: false
         trigger: when_summoned by_special_summon
+        on_activate {
+            select (1+, card, either_player controls, where { level <= 7 and race == Warrior }) as target
+        }
         on_resolve {
             send (1+, card, either_player controls, where { level <= 7 and race == Warrior }) to gy
             banish (1+, card, either_player controls, where { level <= 7 and race == Warrior })
@@ -47,6 +53,9 @@ card "Black Luster Soldier - Sacred Soldier" {
         timing: when
         damage_step: false
         trigger: when_battle_damage
+        on_activate {
+            select (1+, card, either_player controls, where { level <= 7 and race == Warrior }) as target
+        }
         on_resolve {
             add_to_hand (1+, card, either_player controls, where { level <= 7 and race == Warrior }) from gy
         }

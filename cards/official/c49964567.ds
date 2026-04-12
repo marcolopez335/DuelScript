@@ -16,6 +16,9 @@ card "Staysailor Romarin" {
         once_per_turn: hard
         optional: true
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up and race == Plant }) as target
+        }
         on_resolve {
             send (1+, monster, you controls, where { is_face_up and race == Plant }) to gy
             register_effect on self {

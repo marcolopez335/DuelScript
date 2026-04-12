@@ -15,6 +15,9 @@ card "Evilswarm Zahak" {
         speed: spell_speed_1
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up and level >= 5 }) as target
+        }
         on_resolve {
             destroy (1+, card, either_player controls, where { is_face_up and level >= 5 })
         }

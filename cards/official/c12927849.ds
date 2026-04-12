@@ -17,6 +17,9 @@ card "SZW - Fenrir Sword" {
         timing: when
         damage_step: false
         trigger: when_summoned
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -26,6 +29,9 @@ card "SZW - Fenrir Sword" {
         speed: spell_speed_1
         damage_step: false
         activate_from: [hand]
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             send (1+, monster, either_player controls) to gy
         }
@@ -38,6 +44,9 @@ card "SZW - Fenrir Sword" {
         damage_step: false
         trigger: when_battle_damage
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
             add_to_hand (1+, monster, either_player controls) from gy
             reveal (1+, card, opponent controls)

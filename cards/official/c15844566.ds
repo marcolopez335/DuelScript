@@ -24,6 +24,9 @@ card "Powercode Talker" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, trap, either_player controls) as target
+        }
         on_resolve {
             negate effect
             register_effect on self {

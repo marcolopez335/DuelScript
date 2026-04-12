@@ -27,6 +27,9 @@ card "Mitsu the Insect Ninja" {
         timing: when
         damage_step: false
         trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             change_battle_position (1, monster)
             change_battle_position (1, monster)

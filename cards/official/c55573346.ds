@@ -9,6 +9,9 @@ card "Oops!" {
     effect "Effect 1" {
         speed: spell_speed_2
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             destroy (1+, card, either_player controls)
         }

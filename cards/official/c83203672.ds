@@ -20,6 +20,9 @@ card "Springans Branga" {
         once_per_turn: hard
         damage_step: false
         activate_from: [hand, monster_zone, gy]
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             attach (1, card) to self as_material
         }

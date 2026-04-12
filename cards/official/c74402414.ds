@@ -37,6 +37,9 @@ card "Spell Chronicle" {
         speed: spell_speed_1
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, spell, you controls, where { is_spell }) as target
+        }
         on_resolve {
             add_to_hand (1+, spell, you controls, where { is_spell }) from deck
             reveal (1+, card, opponent controls)

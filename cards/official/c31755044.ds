@@ -16,6 +16,9 @@ card "Zoodiac Whiptail" {
         optional: true
         damage_step: false
         activate_from: [hand, monster_zone]
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             attach (1, card) to self as_material
         }

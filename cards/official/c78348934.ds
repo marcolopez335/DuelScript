@@ -10,6 +10,9 @@ card "Karma of the Destruction Swordsman" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, monster, opponent controls) as target
+        }
         on_resolve {
             banish (1+, monster, opponent controls, gy)
             register_effect on self {

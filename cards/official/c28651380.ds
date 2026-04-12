@@ -39,6 +39,9 @@ card "Raviel, Lord of Phantasms - Shimmering Scraper" {
         optional: true
         damage_step: false
         activate_from: [hand]
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up and card_id == 69890967 }) as target
+        }
         cost {
             discard (1, card, you controls)
         }

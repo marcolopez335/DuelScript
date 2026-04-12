@@ -16,6 +16,9 @@ card "Possessed Resonance" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
             change_battle_position (1, monster)
@@ -27,6 +30,9 @@ card "Possessed Resonance" {
         once_per_turn: soft
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         cost {
             banish self
         }

@@ -24,6 +24,9 @@ card "Salamandra, the Flying Flame Dragon" {
         once_per_turn: hard
         damage_step: false
         activate_from: [hand, gy]
+        on_activate {
+            select (1+, spell, you controls) as target
+        }
         on_resolve {
             send (1+, spell, you controls, deck) to gy
             equip (1, card) to (1, monster)

@@ -21,6 +21,9 @@ card "Majespecter Unicorn - Kirin" {
         once_per_turn: hard
         optional: true
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up and is_pendulum }) as target
+        }
         on_resolve {
             add_to_hand (1+, card, either_player controls, where { is_face_up and is_pendulum }) from gy
         }

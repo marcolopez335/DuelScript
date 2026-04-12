@@ -29,6 +29,9 @@ card "Laval Lancelord" {
         timing: when
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up and attribute == FIRE }) as target
+        }
         on_resolve {
             add_to_hand (1+, card, either_player controls, where { is_face_up and attribute == FIRE }) from gy
             reveal (1+, card, opponent controls)

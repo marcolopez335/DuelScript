@@ -16,6 +16,9 @@ card "Sloppy Stasher Squirrel" {
         once_per_turn: hard
         optional: true
         damage_step: false
+        on_activate {
+            select (1+, spell, either_player controls) as target
+        }
         on_resolve {
             banish (1+, spell, either_player controls)
             destroy (1+, monster, opponent controls)
@@ -29,6 +32,9 @@ card "Sloppy Stasher Squirrel" {
         timing: when
         damage_step: false
         trigger: during_standby_phase
+        on_activate {
+            select (1+, spell, either_player controls) as target
+        }
         on_resolve {
             set (1, card)
         }

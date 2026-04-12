@@ -9,6 +9,9 @@ card "Ghostrick Renovation" {
     effect "Effect 1" {
         speed: spell_speed_2
         damage_step: false
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
         }
@@ -20,6 +23,9 @@ card "Ghostrick Renovation" {
         optional: true
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         cost {
             banish self
         }

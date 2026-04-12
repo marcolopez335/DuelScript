@@ -15,6 +15,9 @@ card "Venom Snake" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             emit_event "custom"
         }

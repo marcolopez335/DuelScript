@@ -20,6 +20,9 @@ card "Celestial Sword - Eatos" {
         timing: when
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, monster, either_player controls, where { is_face_up and card_id == 34022290 }) as target
+        }
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

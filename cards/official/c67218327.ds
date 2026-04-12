@@ -20,6 +20,9 @@ card "SIMM Tablir" {
         once_per_turn: hard
         damage_step: false
         activate_from: [hand]
+        on_activate {
+            select (1+, card, either_player controls, where { race == Cyberse and level == 4 }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
             add_to_hand (1+, card, either_player controls, where { race == Cyberse and level == 4 }) from gy

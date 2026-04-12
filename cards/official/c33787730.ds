@@ -10,6 +10,9 @@ card "Ryzeal Plasma Hole" {
         speed: spell_speed_2
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             destroy (1+, monster, you controls)
             attach (1, card) to self as_material

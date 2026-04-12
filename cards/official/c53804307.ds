@@ -41,6 +41,9 @@ card "Blaster, Dragon Ruler of Infernos" {
         once_per_turn: hard
         damage_step: false
         activate_from: [hand]
+        on_activate {
+            select (1+, monster, you controls, where { race == Dragon and attribute == FIRE }) as target
+        }
         on_resolve {
             destroy (1+, monster, you controls, gy)
         }

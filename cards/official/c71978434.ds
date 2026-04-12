@@ -36,6 +36,9 @@ card "Deep Sea Minstrel" {
         timing: if
         damage_step: false
         trigger: when_summoned by_special_summon
+        on_activate {
+            select (1+, card, you controls, where { attribute == WATER }) as target
+        }
         on_resolve {
             return (1+, card, you controls, where { attribute == WATER }) to deck shuffle
             return (1+, card, you controls, where { attribute == WATER }) to deck shuffle

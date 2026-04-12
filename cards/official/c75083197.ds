@@ -38,6 +38,9 @@ card "Dragonlark Pairen" {
         timing: when
         damage_step: false
         trigger: during_standby_phase
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         cost {
             detach 1 overlay_unit from self
         }

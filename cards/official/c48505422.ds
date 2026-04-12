@@ -24,6 +24,9 @@ card "Legendary Six Samurai - Shinai" {
         speed: spell_speed_1
         damage_step: false
         trigger: when_tributed
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up and card_id == 74094021 }) as target
+        }
         on_resolve {
             return (1+, monster, you controls, where { is_face_up and card_id == 74094021 }) to hand
             reveal (1+, card, opponent controls)

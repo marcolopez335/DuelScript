@@ -21,6 +21,9 @@ card "Phoenix Gearfried" {
         timing: if
         damage_step: false
         trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        on_activate {
+            select (1+, card, you controls, where { is_face_up }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }

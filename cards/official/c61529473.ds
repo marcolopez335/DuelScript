@@ -18,6 +18,9 @@ card "True Draco Apocalypse" {
         optional: true
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, monster, opponent controls) as target
+        }
         on_resolve {
             destroy (1+, monster, opponent controls)
             register_effect on self {
@@ -48,6 +51,9 @@ card "True Draco Apocalypse" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, monster, opponent controls) as target
+        }
         on_resolve {
             destroy (1+, monster, opponent controls)
         }

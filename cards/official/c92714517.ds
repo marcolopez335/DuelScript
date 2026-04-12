@@ -22,6 +22,9 @@ card "Big Welcome Labrynth" {
         optional: true
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, card, you controls, where { is_face_up and race == Fiend }) as target
+        }
         cost {
             banish self
         }

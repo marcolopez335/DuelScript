@@ -20,6 +20,9 @@ card "Kochobo's Hinamatsuri" {
         once_per_turn: hard
         damage_step: false
         activate_from: [hand, gy]
+        on_activate {
+            select (1+, card, either_player controls, where { race == Machine and level >= 1 and is_face_up }) as target
+        }
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

@@ -32,6 +32,9 @@ card "Number 23: Lancelot, Dark Knight of the Underworld" {
         timing: when
         damage_step: false
         trigger: when_battle_destroyed
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             destroy (1+, card, either_player controls)
         }

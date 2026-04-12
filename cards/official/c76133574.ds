@@ -16,6 +16,9 @@ card "Zep, Ruby of the Ghoti" {
         once_per_turn: hard
         damage_step: false
         activate_from: [hand]
+        on_activate {
+            select (1+, card, either_player controls, where { race == Fish }) as target
+        }
         cost {
             banish self
         }

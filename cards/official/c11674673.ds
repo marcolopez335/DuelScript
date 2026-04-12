@@ -39,6 +39,9 @@ card "Cyberse Witch" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls, where { card_id == 34767865 }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }

@@ -26,6 +26,9 @@ card "Hot Red Dragon Archfiend Abyss" {
         once_per_turn: hard
         optional: true
         damage_step: false
+        on_activate {
+            select (1+, trap, either_player controls) as target
+        }
         on_resolve {
             negate effect
             register_effect on self {
@@ -50,6 +53,9 @@ card "Hot Red Dragon Archfiend Abyss" {
         timing: when
         damage_step: false
         trigger: when_battle_destroyed
+        on_activate {
+            select (1+, trap, either_player controls) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }

@@ -15,6 +15,9 @@ card "Predaplant Squid Drosera" {
         speed: spell_speed_1
         damage_step: false
         activate_from: [hand]
+        on_activate {
+            select (1+, monster, opponent controls, where { is_face_up }) as target
+        }
         cost {
             send self to gy
         }

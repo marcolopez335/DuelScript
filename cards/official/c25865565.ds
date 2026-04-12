@@ -20,6 +20,9 @@ card "Crystron Sulfador" {
         once_per_turn: hard
         damage_step: false
         activate_from: [hand, gy]
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             destroy (1+, card, you controls, deck)
             special_summon (1, monster) from gy

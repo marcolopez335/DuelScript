@@ -62,6 +62,9 @@ card "Qliphort Helix" {
         timing: if
         damage_step: false
         trigger: when_tributed
+        on_activate {
+            select (1+, spell, either_player controls, where { is_spell }) as target
+        }
         on_resolve {
             destroy (1+, spell, either_player controls, where { is_spell })
         }

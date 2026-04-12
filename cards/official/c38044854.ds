@@ -10,6 +10,9 @@ card "Rise Rank-Up-Magic Raidraptor's Force" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
             attach (1, card) to self as_material

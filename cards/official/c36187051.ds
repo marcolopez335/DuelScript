@@ -18,6 +18,9 @@ card "Rock Band Xenoguitar" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, monster, you controls, where { is_monster and race == Rock }) as target
+        }
         on_resolve {
             add_to_hand (1+, monster, you controls, where { is_monster and race == Rock }) from deck
             reveal (1+, card, opponent controls)

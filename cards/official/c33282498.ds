@@ -41,6 +41,9 @@ card "Arkbrave Dragon" {
         damage_step: false
         trigger: during_standby_phase
         activate_from: [gy]
+        on_activate {
+            select (1+, spell, opponent controls, where { is_face_up and is_spell }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }

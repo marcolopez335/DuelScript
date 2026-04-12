@@ -17,6 +17,9 @@ card "Silent Psychic Wizard" {
         timing: when
         damage_step: false
         trigger: when_summoned
+        on_activate {
+            select (1+, card, either_player controls, where { race == Psychic }) as target
+        }
         on_resolve {
             banish (1+, card, either_player controls, where { race == Psychic })
         }

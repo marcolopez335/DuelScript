@@ -48,6 +48,9 @@ card "Lunalight Sabre Dancer" {
         once_per_turn: hard
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up and race == Beast-Warrior }) as target
+        }
         cost {
             banish self
         }

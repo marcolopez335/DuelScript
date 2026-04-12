@@ -16,6 +16,9 @@ card "Cipher Etranger" {
         once_per_turn: hard
         damage_step: false
         activate_from: [hand, gy]
+        on_activate {
+            select (1+, spell, you controls) as target
+        }
         on_resolve {
             attach (1, card) to self as_material
         }

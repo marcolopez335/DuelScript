@@ -27,6 +27,9 @@ card "Primite Roar" {
         damage_step: false
         trigger: when_summoned
         activate_from: [gy]
+        on_activate {
+            select (1+, card, you controls, where { is_monster and is_face_up }) as target
+        }
         cost {
             banish self
         }

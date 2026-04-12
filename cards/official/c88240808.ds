@@ -17,6 +17,9 @@ card "Kycoo the Ghost Destroyer" {
         timing: when
         damage_step: false
         trigger: when_battle_destroyed
+        on_activate {
+            select (1+, monster, either_player controls, where { is_monster }) as target
+        }
         on_resolve {
             banish (1+, monster, either_player controls, where { is_monster })
         }

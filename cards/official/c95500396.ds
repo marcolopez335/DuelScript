@@ -15,6 +15,9 @@ card "Superheavy Samurai Soulpeacemaker" {
         speed: spell_speed_1
         damage_step: false
         activate_from: [hand, monster_zone]
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             send (1+, card, you controls, deck) to gy
             equip (1, card) to (1, monster)

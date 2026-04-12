@@ -15,6 +15,9 @@ card "Flamvell Baby" {
         speed: spell_speed_1
         damage_step: false
         activate_from: [hand]
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up and attribute == FIRE }) as target
+        }
         cost {
             send self to gy
         }

@@ -40,6 +40,9 @@ card "Majestic Star Dragon" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, card, opponent controls) as target
+        }
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -69,6 +72,9 @@ card "Majestic Star Dragon" {
         once_per_turn: soft
         damage_step: false
         trigger: during_end_phase
+        on_activate {
+            select (1+, card, opponent controls) as target
+        }
         on_resolve {
             return (1+, card, opponent controls) to deck shuffle
             special_summon (1, monster) from gy

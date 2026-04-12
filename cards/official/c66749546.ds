@@ -19,6 +19,9 @@ card "Icejade Creation Kingfisher" {
         speed: spell_speed_1
         damage_step: false
         activate_from: [hand, monster_zone]
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up }) as target
+        }
         on_resolve {
             equip (1, card) to (1, monster)
             send (1+, card, either_player controls, where { is_face_up }) to gy
@@ -37,6 +40,9 @@ card "Icejade Creation Kingfisher" {
         once_per_turn: hard
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
             add_to_hand (1+, card, either_player controls, where { is_face_up }) from gy

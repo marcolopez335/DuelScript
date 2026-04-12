@@ -10,6 +10,9 @@ card "Spellbook of Life" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, spell, you controls, where { race == Spellcaster }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
             equip (1, card) to (1, monster)

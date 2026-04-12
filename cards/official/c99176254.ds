@@ -10,6 +10,9 @@ card "Maiden of Blue Tears" {
         speed: spell_speed_2
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             destroy (1+, monster, you controls)
             deal_damage to opponent: 1000

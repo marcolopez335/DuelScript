@@ -10,6 +10,9 @@ card "Poseidon Wave" {
         speed: spell_speed_2
         damage_step: false
         trigger: when attack_declared
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             negate attack
             deal_damage to opponent: 1000

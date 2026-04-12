@@ -23,6 +23,9 @@ card "D/D Extra Surveyor" {
         timing: if
         damage_step: false
         trigger: when_destroyed
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             banish (1+, card, either_player controls)
             register_effect on self {

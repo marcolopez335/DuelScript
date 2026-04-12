@@ -35,6 +35,9 @@ card "Snopios, Shade of the Ghoti" {
         timing: if
         damage_step: false
         trigger: when_summoned by_special_summon
+        on_activate {
+            select (1+, monster, you controls, where { is_monster and race == Fish }) as target
+        }
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

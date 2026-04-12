@@ -26,6 +26,9 @@ card "Red-Eyes Slash Dragon" {
         timing: when
         damage_step: false
         trigger: when attack_declared
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             equip (1, card) to (1, monster)
             register_effect on self {

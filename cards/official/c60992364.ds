@@ -41,6 +41,9 @@ card "ZW - Leo Arms" {
     effect "Effect 3" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             send (1+, monster, you controls, deck) to gy
         }

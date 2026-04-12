@@ -27,6 +27,9 @@ card "ZW - Eagle Claw" {
     effect "Effect 2" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             send (1+, card, either_player controls) to gy
         }

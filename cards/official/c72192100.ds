@@ -40,6 +40,9 @@ card "Desrook Archfiend" {
         damage_step: false
         trigger: on_custom_event "chain_end"
         activate_from: [hand]
+        on_activate {
+            select (1+, card, either_player controls, where { card_id == 35975813 }) as target
+        }
         cost {
             send self to gy
         }

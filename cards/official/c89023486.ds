@@ -22,6 +22,9 @@ card "Original Sinful Spoils - Snake-Eye" {
         once_per_turn: hard
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, monster, you controls, where { level == 1 and attribute == FIRE }) as target
+        }
         cost {
             banish self
         }

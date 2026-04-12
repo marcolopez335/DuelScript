@@ -20,6 +20,9 @@ card "Eldlich the Golden Lord" {
         once_per_turn: hard
         damage_step: false
         activate_from: [hand]
+        on_activate {
+            select (1+, spell, you controls, where { is_spell }) as target
+        }
         cost {
             send self to gy
         }

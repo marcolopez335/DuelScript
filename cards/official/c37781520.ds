@@ -29,6 +29,9 @@ card "Mermail Abyssleed" {
         timing: when
         damage_step: false
         trigger: when_summoned by_special_summon
+        on_activate {
+            select (1+, spell, you controls, where { attribute == WATER }) as target
+        }
         on_resolve {
             add_to_hand (1+, spell, you controls, where { attribute == WATER }) from hand
             reveal (1+, card, opponent controls)

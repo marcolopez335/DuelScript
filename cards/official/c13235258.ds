@@ -9,6 +9,9 @@ card "Corrosive Scales" {
     effect "Effect 1" {
         speed: spell_speed_2
         damage_step: false
+        on_activate {
+            select (1+, monster, opponent controls, where { is_face_up and race == Insect }) as target
+        }
         on_resolve {
             equip (1, card) to (1, monster)
         }

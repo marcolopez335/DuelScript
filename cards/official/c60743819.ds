@@ -9,6 +9,9 @@ card "Fiend Griefing" {
     effect "Effect 1" {
         speed: spell_speed_2
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls, where { is_monster }) as target
+        }
         on_resolve {
             return (1+, monster, you controls, where { is_monster }) to deck shuffle
             send (1+, monster, you controls, deck) to gy

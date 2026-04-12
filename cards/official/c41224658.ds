@@ -19,6 +19,9 @@ card "Ambitious Gofer" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, monster, opponent controls) as target
+        }
         on_resolve {
             reveal (1+, card, opponent controls)
             shuffle_hand

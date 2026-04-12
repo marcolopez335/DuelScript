@@ -39,6 +39,9 @@ card "Shiranui Shogunsaga" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up and race == Zombie }) as target
+        }
         on_resolve {
             send (1+, monster, you controls, gy) to gy
         }

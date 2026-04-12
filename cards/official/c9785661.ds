@@ -27,6 +27,9 @@ card "Azamina Sol Erysichthon" {
         timing: if
         damage_step: false
         trigger: when_summoned by_special_summon
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             send (1+, card, either_player controls) to gy
         }
@@ -39,6 +42,9 @@ card "Azamina Sol Erysichthon" {
         timing: when
         damage_step: false
         trigger: during_standby_phase
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }

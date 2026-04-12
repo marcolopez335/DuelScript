@@ -15,6 +15,9 @@ card "Abyss Soldier" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, card, you controls, where { attribute == WATER }) as target
+        }
         on_resolve {
             add_to_hand (1+, card, you controls, where { attribute == WATER }) from hand
         }

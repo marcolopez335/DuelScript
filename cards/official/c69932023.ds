@@ -10,6 +10,9 @@ card "Dracotail Horn" {
         speed: spell_speed_2
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             add_to_hand (1+, card, you controls) from gy
             return (1+, card, you controls) to deck shuffle

@@ -36,6 +36,9 @@ card "Stray Purrely Street" {
         damage_step: false
         trigger: during_end_phase
         activate_from: [field_zone]
+        on_activate {
+            select (1+, spell, you controls) as target
+        }
         on_resolve {
             attach (1, card) to self as_material
         }

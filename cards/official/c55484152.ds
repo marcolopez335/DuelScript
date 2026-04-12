@@ -20,6 +20,9 @@ card "Sangen Furo" {
         damage_step: false
         trigger: when_battle_damage
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, spell, either_player controls) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }
@@ -33,6 +36,9 @@ card "Sangen Furo" {
         damage_step: false
         trigger: during_end_phase
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, spell, either_player controls) as target
+        }
         cost {
             pay_lp 1000
         }

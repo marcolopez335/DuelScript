@@ -22,6 +22,9 @@ card "Valkyrie Erste" {
         timing: if
         damage_step: false
         trigger: when_summoned by_special_summon
+        on_activate {
+            select (1+, monster, you controls, where { card_id == 92182447 }) as target
+        }
         on_resolve {
             return (1+, monster, you controls, where { card_id == 92182447 }) to hand
         }

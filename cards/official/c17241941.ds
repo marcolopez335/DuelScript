@@ -16,6 +16,9 @@ card "Gigathunder Giclops" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, spell, either_player controls, where { is_face_up and is_spell }) as target
+        }
         on_resolve {
             change_battle_position (1, monster)
         }

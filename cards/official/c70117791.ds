@@ -38,6 +38,9 @@ card "Blazing Bombardment Beast" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, monster, opponent controls) as target
+        }
         on_resolve {
             destroy (1+, monster, opponent controls)
             deal_damage to opponent: 1000

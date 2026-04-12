@@ -26,6 +26,9 @@ card "Junk Gardna" {
         once_per_turn: soft
         optional: true
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
         }
     }
@@ -36,6 +39,9 @@ card "Junk Gardna" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
         }
     }

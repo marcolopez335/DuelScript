@@ -15,6 +15,9 @@ card "Charioteer of Prophecy" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, spell, you controls, where { race == Spellcaster }) as target
+        }
         on_resolve {
             add_to_hand (1+, spell, you controls, where { race == Spellcaster }) from hand
             reveal (1+, card, opponent controls)

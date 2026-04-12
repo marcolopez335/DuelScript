@@ -9,6 +9,9 @@ card "Dragon Laser" {
     effect "Effect 1" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls, where { card_id == 48568432 and card_id == 12079734 }) as target
+        }
         on_resolve {
             send (1+, card, either_player controls, where { card_id == 48568432 and card_id == 12079734 }) to gy
             destroy (1+, card, either_player controls, where { card_id == 48568432 and card_id == 12079734 })

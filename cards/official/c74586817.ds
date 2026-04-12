@@ -38,6 +38,9 @@ card "PSY-Framelord Omega" {
         timing: when
         damage_step: false
         trigger: during_standby_phase
+        on_activate {
+            select (1+, card, opponent controls) as target
+        }
         on_resolve {
             send (1+, card, opponent controls, hand) to gy
         }
@@ -47,6 +50,9 @@ card "PSY-Framelord Omega" {
         speed: spell_speed_1
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, card, opponent controls) as target
+        }
         on_resolve {
             return (1+, card, opponent controls) to deck shuffle
         }

@@ -61,6 +61,9 @@ card "Clock Arc" {
         timing: when
         damage_step: false
         trigger: during_end_phase
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             destroy (1+, monster, you controls)
             special_summon (1, monster) from gy

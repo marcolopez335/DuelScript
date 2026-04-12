@@ -9,6 +9,9 @@ card "Rank-Up-Magic Revolution Force" {
     effect "Effect 1" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             take_control of (1, monster, opponent controls)
             attach (1, card) to self as_material

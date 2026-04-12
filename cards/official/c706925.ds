@@ -25,6 +25,9 @@ card "Atlantean Marksman" {
         speed: spell_speed_1
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, card, you controls, where { is_face_down }) as target
+        }
         on_resolve {
             destroy (1+, card, you controls, deck)
         }

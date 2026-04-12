@@ -26,6 +26,9 @@ card "Dramatic Snake-Eye Chase" {
         damage_step: false
         trigger: during_end_phase
         activate_from: [gy]
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up }) as target
+        }
         cost {
             banish self
         }

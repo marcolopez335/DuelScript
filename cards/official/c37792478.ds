@@ -17,6 +17,9 @@ card "Metabo-Shark" {
         timing: when
         damage_step: false
         trigger: when_summoned
+        on_activate {
+            select (1+, card, either_player controls, where { race == Fish }) as target
+        }
         on_resolve {
             return (1+, card, either_player controls, where { race == Fish }) to deck shuffle
         }

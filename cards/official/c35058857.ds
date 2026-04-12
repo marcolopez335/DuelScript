@@ -34,6 +34,9 @@ card "Magical King Moonstar" {
         timing: if
         damage_step: false
         trigger: when_summoned
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up and is_tuner }) as target
+        }
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -48,6 +51,9 @@ card "Magical King Moonstar" {
         timing: if
         damage_step: false
         trigger: when_summoned by_special_summon
+        on_activate {
+            select (1+, monster, you controls, where { is_face_up and is_tuner }) as target
+        }
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

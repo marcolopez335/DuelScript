@@ -15,6 +15,9 @@ card "Keldo" {
         speed: spell_speed_1
         damage_step: false
         trigger: when_battle_damage
+        on_activate {
+            select (1+, card, opponent controls) as target
+        }
         on_resolve {
             return (1+, card, opponent controls) to deck shuffle
         }

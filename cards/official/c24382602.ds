@@ -25,6 +25,9 @@ card "Mausoleum of White" {
         once_per_turn: soft
         damage_step: false
         activate_from: [field_zone]
+        on_activate {
+            select (1+, monster, you controls, where { card_id == 17655904 }) as target
+        }
         on_resolve {
             send (1+, monster, you controls, hand) to gy
             register_effect on self {

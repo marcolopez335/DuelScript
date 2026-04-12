@@ -20,6 +20,9 @@ card "Heavy Forward" {
         once_per_turn: soft
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             change_battle_position (1, monster)
             attach (1, card) to self as_material

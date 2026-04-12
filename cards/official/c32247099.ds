@@ -20,6 +20,9 @@ card "Ultimate Divine-Beast" {
         damage_step: false
         trigger: when attack_declared
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, spell, opponent controls, where { is_spell }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }

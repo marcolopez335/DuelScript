@@ -18,6 +18,9 @@ card "Goblin Freefall Squad" {
         timing: if
         damage_step: false
         trigger: when_summoned by_special_summon
+        on_activate {
+            select (1+, card, you controls) as target
+        }
         on_resolve {
             change_battle_position (1, monster)
             register_effect on self {

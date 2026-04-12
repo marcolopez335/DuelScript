@@ -36,6 +36,9 @@ card "Lunalight Perfume Dancer" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, card, you controls, where { card_id == 48444114 }) as target
+        }
         on_resolve {
             add_to_hand (1+, card, you controls, where { card_id == 48444114 }) from deck
             shuffle_hand

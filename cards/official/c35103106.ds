@@ -32,6 +32,9 @@ card "Evolzar Lars" {
         timing: when
         damage_step: false
         trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         cost {
             detach 1 overlay_unit from self
         }

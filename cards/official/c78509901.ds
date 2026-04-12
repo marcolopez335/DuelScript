@@ -42,6 +42,9 @@ card "Blade Garoodia the Cubic Beast" {
         timing: when
         damage_step: false
         trigger: when_battle_damage
+        on_activate {
+            select (1+, monster, you controls, where { card_id == 4998619 }) as target
+        }
         on_resolve {
             send (1+, monster, you controls, where { card_id == 4998619 }) to gy
             special_summon (1, monster) from gy

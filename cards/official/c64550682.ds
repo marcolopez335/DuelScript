@@ -28,6 +28,9 @@ card "Scrap Orthros" {
         speed: spell_speed_1
         damage_step: false
         trigger: when_summoned by_special_summon
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             destroy (1+, monster, you controls)
         }
@@ -39,6 +42,9 @@ card "Scrap Orthros" {
         timing: if
         damage_step: false
         trigger: when_destroyed
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             return (1+, monster, you controls) to hand
             reveal (1+, card, opponent controls)

@@ -41,6 +41,9 @@ card "Yellow Duston" {
         speed: spell_speed_1
         damage_step: false
         trigger: when_destroyed
+        on_activate {
+            select (1+, monster, either_player controls, where { is_monster }) as target
+        }
         on_resolve {
             return (1+, monster, either_player controls, where { is_monster }) to deck shuffle
         }

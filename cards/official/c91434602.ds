@@ -37,6 +37,9 @@ card "Majesty Hyperion" {
     effect "Effect 3" {
         speed: spell_speed_1
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls, where { race == Fairy }) as target
+        }
         cost {
             banish self
         }

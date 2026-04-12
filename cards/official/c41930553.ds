@@ -18,6 +18,9 @@ card "Dark Smog" {
         optional: true
         damage_step: false
         activate_from: [spell_trap_zone]
+        on_activate {
+            select (1+, monster, you controls, where { race == Fiend }) as target
+        }
         on_resolve {
             send (1+, monster, you controls, hand) to gy
             banish (1+, monster, you controls, hand)

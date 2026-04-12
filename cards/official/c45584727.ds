@@ -10,6 +10,9 @@ card "Valkyrie's Embrace" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls) as target
+        }
         on_resolve {
             change_battle_position (1, monster)
             banish (1+, monster, you controls)

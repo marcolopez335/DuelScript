@@ -17,6 +17,9 @@ card "Medusa, Watcher of the Evil Eye" {
         timing: when
         damage_step: false
         trigger: when_summoned
+        on_activate {
+            select (1+, monster, you controls, where { is_monster }) as target
+        }
         on_resolve {
             add_to_hand (1+, monster, you controls, where { is_monster }) from gy
             reveal (1+, card, opponent controls)
@@ -28,6 +31,9 @@ card "Medusa, Watcher of the Evil Eye" {
         once_per_turn: hard
         optional: true
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls, where { is_monster }) as target
+        }
         on_resolve {
             banish (1+, monster, you controls, gy)
         }

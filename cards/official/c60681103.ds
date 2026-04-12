@@ -21,6 +21,9 @@ card "Divine Dragon Lord Felgrand" {
         timing: if
         damage_step: false
         trigger: when_summoned by_special_summon
+        on_activate {
+            select (1+, monster, either_player controls, where { is_monster }) as target
+        }
         on_resolve {
             banish (1+, monster, either_player controls, where { is_monster })
         }
@@ -32,6 +35,9 @@ card "Divine Dragon Lord Felgrand" {
         timing: if
         damage_step: false
         trigger: when_battle_damage
+        on_activate {
+            select (1+, monster, either_player controls, where { is_monster }) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
         }

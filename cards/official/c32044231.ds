@@ -10,6 +10,9 @@ card "Rank-Up-Magic Magical Force" {
         speed: spell_speed_1
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
         on_resolve {
             special_summon (1, monster) from gy
             attach (1, card) to self as_material

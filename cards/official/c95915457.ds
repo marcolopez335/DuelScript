@@ -9,6 +9,9 @@ card "Mirror Barrier" {
     effect "Effect 1" {
         speed: spell_speed_2
         damage_step: false
+        on_activate {
+            select (1+, card, you controls, where { card_id == 53770666 }) as target
+        }
         on_resolve {
             equip (1, card) to (1, monster)
         }

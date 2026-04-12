@@ -34,6 +34,9 @@ card "El Shaddoll Wendigo" {
         once_per_turn: hard
         optional: true
         damage_step: false
+        on_activate {
+            select (1+, spell, either_player controls) as target
+        }
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
@@ -48,6 +51,9 @@ card "El Shaddoll Wendigo" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, spell, either_player controls) as target
+        }
         on_resolve {
             add_to_hand (1+, spell, either_player controls) from gy
         }

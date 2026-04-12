@@ -29,6 +29,9 @@ card "Koa'ki Meiru Sea Panther" {
         speed: spell_speed_1
         once_per_turn: soft
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls, where { is_spell }) as target
+        }
         cost {
             send self to gy
         }

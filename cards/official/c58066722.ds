@@ -18,6 +18,9 @@ card "Alien Stealthbuster" {
         timing: if
         damage_step: false
         trigger: on_custom_event "chain_end"
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up }) as target
+        }
         on_resolve {
         }
     }
@@ -27,6 +30,9 @@ card "Alien Stealthbuster" {
         once_per_turn: soft
         damage_step: false
         activate_from: [gy]
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up }) as target
+        }
         cost {
             banish self
         }

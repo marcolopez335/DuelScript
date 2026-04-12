@@ -10,6 +10,9 @@ card "One by One" {
         speed: spell_speed_2
         once_per_turn: hard
         damage_step: false
+        on_activate {
+            select (1+, monster, you controls, where { is_monster }) as target
+        }
         on_resolve {
             add_to_hand (1+, monster, you controls, where { is_monster }) from hand
         }
