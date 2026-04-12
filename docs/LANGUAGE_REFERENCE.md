@@ -950,6 +950,102 @@ top_of_deck | bottom_of_deck
 
 ---
 
+## Redirect Effects (v0.8)
+
+Cards like Dimensional Fissure that redirect cards going to one zone to another:
+
+```
+redirect_effect "Banish Instead" {
+    when_going_to: gy
+    redirect_to: banished
+    apply_to: (1+, monster, either_player controls)
+}
+```
+
+---
+
+## Templates (v0.8)
+
+Reusable effect patterns. Define once, use in many cards:
+
+```
+template spirit {
+    effect "Return to Hand" {
+        speed: spell_speed_1
+        trigger: during_end_phase
+        on_resolve { return self to hand }
+    }
+}
+
+card "Tsukuyomi" {
+    type: Effect Monster | Spirit
+    id: 40640090
+    use spirit
+    // ... card-specific effects
+}
+```
+
+Templates expand at parse time — the card gets the template's effect blocks injected.
+
+---
+
+## Additional Durations (v0.8)
+
+```
+while_on_field        // lasts as long as the card is on the field
+while_face_up         // lasts while the card is face-up
+until_end_of_turn     // expires at end of turn
+until_end_phase       // expires at end of current phase
+permanently           // never expires
+this_turn             // same as until_end_of_turn
+```
+
+---
+
+## Additional Grant Abilities (v0.8)
+
+```
+lp_cost_zero                    // LP costs become 0
+lp_cost_halved                  // LP costs halved
+cannot_be_normal_summoned       // cannot be normal summoned
+cannot_be_special_summoned      // cannot be special summoned
+cannot_be_flip_summoned         // cannot be flip summoned
+```
+
+---
+
+## Named Constants (v0.8)
+
+Raw effect fields accept PascalCase names instead of numbers:
+
+```
+raw_effect "Effect 1" {
+    effect_type: Ignition           // was: 64
+    category: Destroy + Draw        // was: 65537
+    code: FreeChain                 // was: 1002
+    property: Delay + CardTarget    // was: 65552
+    range: MonsterZone              // was: 4
+}
+```
+
+Names are OR'd together with `+`. Both names and raw numbers work.
+
+---
+
+## Ritual Summon Level Constraints (v0.8)
+
+Ritual spells can declare the tribute level requirement:
+
+```
+ritual_summon (1, ritual monster)
+    using (1+, monster, you controls)
+    where total_level >= 8
+```
+
+Use `exact_level == 8` for equal-level rituals.
+
+---
+
 ## Python Module
 
 Install: `maturin develop --features python`
