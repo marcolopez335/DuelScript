@@ -1,0 +1,36 @@
+// 竜魔人 キングドラグーン
+// King Dragun
+// Transpiled from c13756293.lua
+
+card "King Dragun" {
+    id: 13756293
+    type: Fusion Monster
+    attribute: DARK
+    race: Dragon
+    level: 7
+    atk: 2400
+    def: 1100
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    materials {
+        require: "Lord of D." + "Divine Dragon Ragnarok"
+        method: fusion
+    }
+
+    continuous_effect "Effect 1" {
+        scope: field
+        grant: cannot_be_targeted_by_card_effects
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}

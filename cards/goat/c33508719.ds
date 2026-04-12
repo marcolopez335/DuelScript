@@ -1,24 +1,21 @@
 // メタモルポット
 // Morphing Jar
-// Transpiled from c33508719.lua
+// FLIP: Both players discard their entire hands, then draw 5 cards.
 
 card "Morphing Jar" {
+    type: Effect Monster | Flip
     id: 33508719
-    type: Effect Monster
     attribute: EARTH
     race: Rock
     level: 2
     atk: 700
     def: 600
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Flip
-        category: HandDestroy + Draw
+    flip_effect "Refresh Hands" {
         on_resolve {
-            send (1+, card, either_player controls) to gy
-            draw 5
+            discard_all your_hand
+            discard_all opponent_hand
             draw 5
         }
     }
-
 }

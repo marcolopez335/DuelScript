@@ -1,0 +1,31 @@
+// ガトリング・ドラゴン
+// Gatling Dragon
+// Transpiled from c87751584.lua
+
+card "Gatling Dragon" {
+    id: 87751584
+    type: Fusion Monster
+    attribute: DARK
+    race: Machine
+    level: 8
+    atk: 2600
+    def: 1200
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    materials {
+        require: "Barrel Dragon" + "Blowback Dragon"
+        method: fusion
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        on_resolve {
+            destroy (1+, monster, either_player controls)
+        }
+    }
+
+}

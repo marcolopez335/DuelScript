@@ -1,0 +1,34 @@
+// 死のデッキ破壊ウイルス
+// Crush Card Virus
+// Transpiled from c57728570.lua
+
+card "Crush Card Virus" {
+    id: 57728570
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        cost {
+            tribute self
+        }
+        on_resolve {
+            reveal (1+, card, opponent controls)
+            destroy (1+, monster, opponent controls, hand)
+            shuffle_hand
+            destroy (1+, monster, opponent controls, hand)
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+        }
+    }
+
+}

@@ -1,0 +1,26 @@
+// ニュードリュア
+// Newdoria
+// Transpiled from c4335645.lua
+
+card "Newdoria" {
+    id: 4335645
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 4
+    atk: 1200
+    def: 800
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: false
+        trigger: when_battle_damage
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

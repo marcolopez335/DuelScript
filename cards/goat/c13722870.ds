@@ -1,0 +1,36 @@
+// 黒炎の騎士－ブラック・フレア・ナイト－
+// Dark Flare Knight
+// Transpiled from c13722870.lua
+
+card "Dark Flare Knight" {
+    id: 13722870
+    type: Fusion Monster
+    attribute: DARK
+    race: Warrior
+    level: 6
+    atk: 2200
+    def: 800
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    materials {
+        require: "Dark Magician" + "Flame Swordsman"
+        method: fusion
+    }
+
+    continuous_effect "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed_by_battle
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: when_battle_damage
+        on_resolve {
+            special_summon (1, monster) from gy
+        }
+    }
+
+}
