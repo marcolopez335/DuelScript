@@ -25,8 +25,8 @@ card "Psychic Wave" {
             banish self
         }
         on_resolve {
-            send (1+, monster, you controls) to gy
-            return (1+, monster, you controls) to hand
+            send (1+, monster, you controls, where { race == Machine and is_monster }) to gy
+            return (1+, monster, you controls, where { race == Machine and is_monster }) to hand
             reveal (1+, card, opponent controls)
         }
     }

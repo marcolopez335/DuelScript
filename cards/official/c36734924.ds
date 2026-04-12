@@ -19,7 +19,7 @@ card "Priestess with Eyes of Blue" {
         count_limit: (1, 36734924)
         on_resolve {
             send (1+, monster, you controls, deck) to gy
-            add_to_hand (1+, monster, you controls) from deck
+            add_to_hand (1+, monster, you controls, where { is_face_up }) from deck
             reveal (1+, card, opponent controls)
         }
     }
@@ -30,7 +30,7 @@ card "Priestess with Eyes of Blue" {
         damage_step: false
         activate_from: [gy]
         on_resolve {
-            return (1+, monster, you controls) to deck shuffle
+            return (1+, monster, you controls, where { is_face_up }) to deck shuffle
             special_summon (1, monster) from gy
         }
     }

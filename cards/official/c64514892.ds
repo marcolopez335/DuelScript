@@ -35,7 +35,7 @@ card "Fire Fighting Daruma Doll" {
         once_per_turn: soft
         damage_step: false
         on_resolve {
-            destroy (1+, spell, either_player controls)
+            destroy (1+, spell, either_player controls, where { is_face_up })
         }
     }
 
@@ -46,7 +46,7 @@ card "Fire Fighting Daruma Doll" {
         damage_step: false
         trigger: when_battle_damage
         on_resolve {
-            return (1+, spell, either_player controls) to hand
+            return (1+, spell, either_player controls, where { is_face_up }) to hand
         }
     }
 

@@ -10,7 +10,7 @@ card "Blind Obliteration" {
         speed: spell_speed_2
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
-            destroy (1+, monster, either_player controls)
+            destroy (1+, monster, either_player controls, where { is_face_up and level <= 1 })
         }
     }
 

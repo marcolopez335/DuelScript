@@ -26,7 +26,7 @@ card "Aegaion the Sea Castrum" {
         once_per_turn: hard
         optional: true
         on_resolve {
-            banish (1+, card, either_player controls)
+            banish (1+, card, either_player controls, where { is_face_down })
         }
     }
 
@@ -39,8 +39,8 @@ card "Aegaion the Sea Castrum" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            return (1+, card, either_player controls) to deck shuffle
-            destroy (1+, card, either_player controls)
+            return (1+, card, either_player controls, where { is_face_down }) to deck shuffle
+            destroy (1+, card, either_player controls, where { is_face_down })
         }
     }
 

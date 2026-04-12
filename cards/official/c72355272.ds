@@ -21,7 +21,7 @@ card "Metaphys Nephthys" {
         timing: if
         trigger: when_summoned by_special_summon
         on_resolve {
-            banish (1+, spell, either_player controls)
+            banish (1+, spell, either_player controls, where { is_face_down and is_spell })
         }
     }
 
@@ -36,7 +36,7 @@ card "Metaphys Nephthys" {
             send self to deck
         }
         on_resolve {
-            return (1+, spell, either_player controls) to hand
+            return (1+, spell, either_player controls, where { is_face_down and is_spell }) to hand
             reveal (1+, card, opponent controls)
         }
     }

@@ -18,14 +18,14 @@ card "Nemleria Repeter" {
         optional: true
         activate_from: [spell_trap_zone]
         on_resolve {
-            return (1+, monster, opponent controls) to hand
+            return (1+, monster, opponent controls, where { level == 10 and race == Beast and is_face_up }) to hand
             reveal (1+, card, opponent controls)
             set_flag "tracked" on self
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
                 duration: until_end_of_turn
             }
-            send (1+, monster, opponent controls) to gy
+            send (1+, monster, opponent controls, where { level == 10 and race == Beast and is_face_up }) to gy
         }
     }
 

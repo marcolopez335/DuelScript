@@ -9,7 +9,7 @@ card "Red Reign" {
     effect "Effect 1" {
         speed: spell_speed_2
         on_resolve {
-            banish (1+, monster, either_player controls)
+            banish (1+, monster, either_player controls, where { is_face_up and level >= 8 and is_synchro })
         }
     }
 
@@ -21,7 +21,7 @@ card "Red Reign" {
         trigger: when_summoned by_special_summon
         activate_from: [gy]
         on_resolve {
-            return (1+, monster, either_player controls) to hand
+            return (1+, monster, either_player controls, where { is_face_up and level >= 8 and is_synchro }) to hand
         }
     }
 

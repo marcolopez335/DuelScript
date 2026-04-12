@@ -11,7 +11,7 @@ card "Blast Held by Destiny" {
         once_per_turn: hard
         trigger: when attack_declared
         on_resolve {
-            destroy (1+, monster, opponent controls)
+            destroy (1+, monster, opponent controls, where { level == 4 and attribute == EARTH and race == Fairy })
             deal_damage to opponent: 1000
             deal_damage to opponent: 1000
         }
@@ -25,7 +25,7 @@ card "Blast Held by Destiny" {
         damage_step: false
         trigger: on_custom_event "chain_end"
         on_resolve {
-            return (1+, monster, opponent controls) to hand
+            return (1+, monster, opponent controls, where { level == 4 and attribute == EARTH and race == Fairy }) to hand
             reveal (1+, card, opponent controls)
         }
     }

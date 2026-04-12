@@ -29,7 +29,7 @@ card "Ninaruru, the Magistus Glass Goddess" {
             detach 1 overlay_unit from self
         }
         on_resolve {
-            add_to_hand (1+, spell, either_player controls) from gy
+            add_to_hand (1+, spell, either_player controls, where { race == Spellcaster and level >= 4 }) from gy
         }
     }
 
@@ -46,7 +46,7 @@ card "Ninaruru, the Magistus Glass Goddess" {
         damage_step: false
         activate_from: [spell_trap_zone]
         on_resolve {
-            destroy (1+, spell, either_player controls)
+            destroy (1+, spell, either_player controls, where { race == Spellcaster and level >= 4 })
         }
     }
 

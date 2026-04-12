@@ -11,7 +11,7 @@ card "Dark Magical Circle" {
         once_per_turn: hard
         on_resolve {
             reveal (1+, card, opponent controls)
-            add_to_hand (1+, spell, either_player controls) from gy
+            add_to_hand (1+, spell, either_player controls, where { is_spell }) from gy
             reveal (1+, card, opponent controls)
             shuffle_hand
             send_to_deck (1+, card, you controls)
@@ -28,7 +28,7 @@ card "Dark Magical Circle" {
         trigger: when_summoned
         activate_from: [spell_trap_zone]
         on_resolve {
-            banish (1+, spell, either_player controls)
+            banish (1+, spell, either_player controls, where { is_spell })
         }
     }
 
@@ -41,7 +41,7 @@ card "Dark Magical Circle" {
         trigger: when_summoned by_special_summon
         activate_from: [spell_trap_zone]
         on_resolve {
-            banish (1+, spell, either_player controls)
+            banish (1+, spell, either_player controls, where { is_spell })
         }
     }
 

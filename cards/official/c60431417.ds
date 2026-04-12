@@ -9,7 +9,7 @@ card "Twilight Twin Dragons" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            return (1+, monster, you controls) to hand
+            return (1+, monster, you controls, where { card_id == 57774843 }) to hand
             mill 4
         }
     }
@@ -20,8 +20,8 @@ card "Twilight Twin Dragons" {
         timing: if
         trigger: on_custom_event "chain_end"
         on_resolve {
-            return (1+, monster, you controls) to hand
-            banish (1+, monster, you controls)
+            return (1+, monster, you controls, where { card_id == 57774843 }) to hand
+            banish (1+, monster, you controls, where { card_id == 57774843 })
         }
     }
 

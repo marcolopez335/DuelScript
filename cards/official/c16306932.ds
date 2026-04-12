@@ -64,7 +64,7 @@ card "Odd-Eyes Revolution Dragon" {
             pay_lp your_lp / 2
         }
         on_resolve {
-            add_to_hand (1+, card, either_player controls) from gy
+            add_to_hand (1+, card, either_player controls, where { is_pendulum and race == Dragon and level <= 8 }) from gy
             reveal (1+, card, opponent controls)
         }
     }
@@ -96,7 +96,7 @@ card "Odd-Eyes Revolution Dragon" {
             pay_lp your_lp / 2
         }
         on_resolve {
-            return (1+, card, either_player controls) to deck shuffle
+            return (1+, card, either_player controls, where { is_pendulum and race == Dragon and level <= 8 }) to deck shuffle
         }
     }
 

@@ -36,11 +36,11 @@ card "Tri-Brigade Bearbrumm the Rampant Rampager" {
         timing: if
         trigger: on_custom_event "chain_end"
         on_resolve {
-            add_to_hand (1+, spell, you controls) from hand
+            add_to_hand (1+, spell, you controls, where { is_face_up and level <= 4 }) from hand
             reveal (1+, card, opponent controls)
             shuffle_deck
             shuffle_hand
-            return (1+, spell, you controls) to deck shuffle
+            return (1+, spell, you controls, where { is_face_up and level <= 4 }) to deck shuffle
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
                 duration: until_end_of_turn

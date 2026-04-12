@@ -20,7 +20,7 @@ card "Sylvan Guardioak" {
         once_per_turn: soft
         on_resolve {
             reveal (1, card, opponent controls, deck)
-            send (1+, card, either_player controls) to gy
+            send (1+, card, either_player controls, where { race == Plant }) to gy
             send_to_deck (1+, card, you controls) bottom
             send_to_deck (1+, card, you controls)
         }
@@ -33,7 +33,7 @@ card "Sylvan Guardioak" {
         damage_step: false
         trigger: on_custom_event "chain_end"
         on_resolve {
-            return (1+, card, either_player controls) to deck shuffle
+            return (1+, card, either_player controls, where { race == Plant }) to deck shuffle
         }
     }
 

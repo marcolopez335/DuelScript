@@ -42,7 +42,7 @@ card "Thunder Dragonduo" {
             banish self
         }
         on_resolve {
-            add_to_hand (1+, monster, you controls) from gy
+            add_to_hand (1+, monster, you controls, where { race == Thunder }) from gy
             reveal (1+, card, opponent controls)
         }
     }
@@ -55,8 +55,8 @@ card "Thunder Dragonduo" {
         damage_step: false
         trigger: during_end_phase
         on_resolve {
-            return (1+, monster, you controls) to deck shuffle
-            return (1+, monster, you controls) to deck shuffle
+            return (1+, monster, you controls, where { race == Thunder }) to deck shuffle
+            return (1+, monster, you controls, where { race == Thunder }) to deck shuffle
         }
     }
 

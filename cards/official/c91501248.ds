@@ -21,10 +21,10 @@ card "Pot of The Forbidden" {
         count_limit: (1, 91501248)
         on_resolve {
             draw 1
-            return (1+, spell, either_player controls) to hand
-            destroy (1+, spell, either_player controls)
+            return (1+, spell, either_player controls, where { is_spell }) to hand
+            destroy (1+, spell, either_player controls, where { is_spell })
             reveal (1+, card, opponent controls)
-            return (1+, spell, either_player controls) to deck shuffle
+            return (1+, spell, either_player controls, where { is_spell }) to deck shuffle
             shuffle_hand
         }
     }

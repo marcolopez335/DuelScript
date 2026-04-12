@@ -10,7 +10,7 @@ card "World of Spirits" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            return (1+, monster, you controls) to hand
+            return (1+, monster, you controls, where { is_monster }) to hand
             reveal (1+, card, opponent controls)
         }
     }
@@ -30,7 +30,7 @@ card "World of Spirits" {
         trigger: during_end_phase
         activate_from: [field_zone]
         on_resolve {
-            destroy (1+, monster, you controls)
+            destroy (1+, monster, you controls, where { is_monster })
         }
     }
 

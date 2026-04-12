@@ -37,7 +37,7 @@ card "Evolsaur Lios" {
         speed: spell_speed_1
         once_per_turn: soft
         on_resolve {
-            send (1+, monster, either_player controls) to gy
+            send (1+, monster, either_player controls, where { is_monster and attribute == FIRE }) to gy
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
                 duration: until_end_of_turn

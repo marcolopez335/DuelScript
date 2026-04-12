@@ -20,8 +20,8 @@ card "Unchained Soul of Shyama" {
         once_per_turn: hard
         damage_step: false
         on_resolve {
-            destroy (1+, monster, either_player controls)
-            destroy (1+, monster, either_player controls)
+            destroy (1+, monster, either_player controls, where { is_face_up and is_monster and race == Fiend })
+            destroy (1+, monster, either_player controls, where { is_face_up and is_monster and race == Fiend })
         }
     }
 
@@ -31,7 +31,7 @@ card "Unchained Soul of Shyama" {
         damage_step: false
         activate_from: [gy]
         on_resolve {
-            destroy (1+, monster, either_player controls)
+            destroy (1+, monster, either_player controls, where { is_face_up and is_monster and race == Fiend })
             special_summon (1, monster) from gy
         }
     }

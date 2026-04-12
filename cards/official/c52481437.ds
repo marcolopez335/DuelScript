@@ -28,7 +28,7 @@ card "Super Express Bullet Train" {
         effect_type: Single
         code: 96
         on_resolve {
-            send (1+, card, you controls) to gy
+            send (1+, card, you controls, where { is_face_up and race == Machine and attribute == EARTH }) to gy
         }
     }
 
@@ -49,7 +49,7 @@ card "Super Express Bullet Train" {
         trigger: during_end_phase
         activate_from: [gy]
         on_resolve {
-            return (1+, card, you controls) to hand
+            return (1+, card, you controls, where { is_face_up and race == Machine and attribute == EARTH }) to hand
             reveal (1+, card, opponent controls)
         }
     }

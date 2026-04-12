@@ -12,7 +12,7 @@ card "Kahyoreigetsu" {
         on_resolve {
             special_summon (1, monster) from gy
             equip (1, card) to (1, monster)
-            return (1+, spell, either_player controls) to hand
+            return (1+, spell, either_player controls, where { is_face_up and race == Dragon }) to hand
         }
     }
 
@@ -32,7 +32,7 @@ card "Kahyoreigetsu" {
         trigger: during_end_phase
         activate_from: [gy]
         on_resolve {
-            return (1+, spell, either_player controls) to hand
+            return (1+, spell, either_player controls, where { is_face_up and race == Dragon }) to hand
             reveal (1+, card, opponent controls)
         }
     }

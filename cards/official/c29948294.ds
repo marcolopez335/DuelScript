@@ -12,9 +12,9 @@ card "Branded in High Spirits" {
         on_resolve {
             reveal (1+, card, opponent controls)
             shuffle_hand
-            send (1+, monster, either_player controls) to gy
-            send (1+, monster, either_player controls) to gy
-            add_to_hand (1+, monster, either_player controls) from gy
+            send (1+, monster, either_player controls, where { is_monster }) to gy
+            send (1+, monster, either_player controls, where { is_monster }) to gy
+            add_to_hand (1+, monster, either_player controls, where { is_monster }) from gy
             reveal (1+, card, opponent controls)
         }
     }
@@ -27,7 +27,7 @@ card "Branded in High Spirits" {
         trigger: during_end_phase
         activate_from: [gy]
         on_resolve {
-            add_to_hand (1+, monster, either_player controls) from gy
+            add_to_hand (1+, monster, either_player controls, where { is_monster }) from gy
         }
     }
 

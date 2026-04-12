@@ -19,7 +19,7 @@ card "Animadorned Archosaur" {
         trigger: when_summoned
         on_resolve {
             destroy (1+, monster, you controls, hand)
-            add_to_hand (1+, monster, you controls) from hand
+            add_to_hand (1+, monster, you controls, where { is_monster and level >= 1 }) from hand
             reveal (1+, card, opponent controls)
         }
     }
@@ -32,7 +32,7 @@ card "Animadorned Archosaur" {
         trigger: when_summoned by_special_summon
         on_resolve {
             destroy (1+, monster, you controls, hand)
-            add_to_hand (1+, monster, you controls) from hand
+            add_to_hand (1+, monster, you controls, where { is_monster and level >= 1 }) from hand
             reveal (1+, card, opponent controls)
         }
     }

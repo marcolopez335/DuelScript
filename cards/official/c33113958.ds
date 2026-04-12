@@ -28,7 +28,7 @@ card "LeVirtue Dragon" {
         timing: if
         trigger: when_summoned by_special_summon
         on_resolve {
-            return (1+, monster, either_player controls) to hand
+            return (1+, monster, either_player controls, where { card_id == 80534031 }) to hand
             reveal (1+, card, opponent controls)
         }
     }
@@ -38,7 +38,7 @@ card "LeVirtue Dragon" {
         once_per_turn: soft
         on_resolve {
             detach 1 overlay_unit from self
-            return (1+, monster, either_player controls) to hand
+            return (1+, monster, either_player controls, where { card_id == 80534031 }) to hand
             reveal (1+, card, opponent controls)
             attach (1, card) to self as_material
             emit_event "custom"

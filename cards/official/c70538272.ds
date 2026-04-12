@@ -26,8 +26,8 @@ card "Filia Regis" {
         optional: true
         damage_step: false
         on_resolve {
-            banish (1+, monster, you controls)
-            return (1+, monster, you controls) to hand
+            banish (1+, monster, you controls, where { race == Dragon and is_face_up })
+            return (1+, monster, you controls, where { race == Dragon and is_face_up }) to hand
         }
     }
 
@@ -38,7 +38,7 @@ card "Filia Regis" {
         range: Graveyard
         count_limit: (1, 0)
         on_resolve {
-            return (1+, monster, you controls) to hand
+            return (1+, monster, you controls, where { race == Dragon and is_face_up }) to hand
             special_summon (1, monster) from gy
         }
     }

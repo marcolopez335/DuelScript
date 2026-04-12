@@ -33,7 +33,7 @@ card "Earthbound Prisoner Stone Sweeper" {
             discard (1, card, you controls)
         }
         on_resolve {
-            add_to_hand (1+, card, either_player controls) from gy
+            add_to_hand (1+, card, either_player controls, where { level <= 3 and race == Fiend and is_tuner }) from gy
             reveal (1+, card, opponent controls)
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

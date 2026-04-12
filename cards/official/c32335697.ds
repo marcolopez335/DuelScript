@@ -26,7 +26,7 @@ card "Haunted Zombies" {
         optional: true
         activate_from: [gy]
         on_resolve {
-            return (1+, monster, either_player controls) to deck shuffle
+            return (1+, monster, either_player controls, where { race == Zombie and level >= 1 }) to deck shuffle
             set (1, card)
         }
     }

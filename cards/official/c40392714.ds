@@ -21,7 +21,7 @@ card "Geira Guile the Cubic King" {
         property: BothSide + Uncopyable
         range: Hand
         on_resolve {
-            send (1+, monster, you controls) to gy
+            send (1+, monster, you controls, where { card_id == 77387463 }) to gy
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
                 duration: until_end_of_turn
@@ -43,9 +43,9 @@ card "Geira Guile the Cubic King" {
         code: BattleDestroyed
         property: CardTarget
         on_resolve {
-            send (1+, monster, you controls) to gy
+            send (1+, monster, you controls, where { card_id == 77387463 }) to gy
             special_summon (1, monster) from gy
-            return (1+, monster, you controls) to hand
+            return (1+, monster, you controls, where { card_id == 77387463 }) to hand
             reveal (1+, card, opponent controls)
         }
     }

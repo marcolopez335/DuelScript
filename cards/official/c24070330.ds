@@ -29,7 +29,7 @@ card "Symphonic Warrior Rockks" {
         timing: when
         trigger: during_standby_phase
         on_resolve {
-            add_to_hand (1+, card, either_player controls) from gy
+            add_to_hand (1+, card, either_player controls, where { is_face_up and is_pendulum }) from gy
             reveal (1+, card, opponent controls)
         }
     }
@@ -40,7 +40,7 @@ card "Symphonic Warrior Rockks" {
         timing: when
         trigger: when attack_declared
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, either_player controls, where { is_face_up and is_pendulum })
         }
     }
 
@@ -61,7 +61,7 @@ card "Symphonic Warrior Rockks" {
         timing: if
         trigger: when_summoned by_special_summon
         on_resolve {
-            add_to_hand (1+, card, either_player controls) from gy
+            add_to_hand (1+, card, either_player controls, where { is_face_up and is_pendulum }) from gy
             reveal (1+, card, opponent controls)
         }
     }
@@ -70,7 +70,7 @@ card "Symphonic Warrior Rockks" {
         speed: spell_speed_1
         once_per_turn: soft
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1+, card, either_player controls, where { is_face_up and is_pendulum })
         }
     }
 

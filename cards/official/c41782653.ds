@@ -29,7 +29,7 @@ card "Overtex Qoatlus" {
         property: Uncopyable
         range: Hand
         on_resolve {
-            return (1+, monster, either_player controls) to deck shuffle
+            return (1+, monster, either_player controls, where { is_face_up and race == Dinosaur }) to deck shuffle
         }
     }
 
@@ -40,9 +40,9 @@ card "Overtex Qoatlus" {
         timing: when
         trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
-            destroy (1+, monster, either_player controls)
+            destroy (1+, monster, either_player controls, where { is_face_up and race == Dinosaur })
             negate activation
-            destroy (1+, monster, either_player controls)
+            destroy (1+, monster, either_player controls, where { is_face_up and race == Dinosaur })
         }
     }
 
@@ -53,7 +53,7 @@ card "Overtex Qoatlus" {
         timing: if
         trigger: on_custom_event "chain_end"
         on_resolve {
-            add_to_hand (1+, monster, either_player controls) from gy
+            add_to_hand (1+, monster, either_player controls, where { is_face_up and race == Dinosaur }) from gy
             reveal (1+, card, opponent controls)
         }
     }

@@ -26,8 +26,8 @@ card "Hi-Speedroid Clear Wing Rider" {
         once_per_turn: soft
         on_resolve {
             flip_coin { heads { draw 1 } tails { draw 1 } }
-            return (1+, card, either_player controls) to deck shuffle
-            destroy (1+, card, either_player controls)
+            return (1+, card, either_player controls, where { level == 7 and is_synchro and attribute == WIND }) to deck shuffle
+            destroy (1+, card, either_player controls, where { level == 7 and is_synchro and attribute == WIND })
         }
     }
 

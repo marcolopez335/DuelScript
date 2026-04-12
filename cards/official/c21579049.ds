@@ -14,7 +14,7 @@ card "White Circle Reef" {
             destroy (1+, monster, you controls, gy)
             add_to_hand (1, card, you controls) from gy
             special_summon (1, monster) from gy
-            add_to_hand (1+, monster, you controls) from gy
+            add_to_hand (1+, monster, you controls, where { race == Fish and is_face_up }) from gy
             reveal (1+, card, opponent controls)
         }
     }
@@ -28,7 +28,7 @@ card "White Circle Reef" {
             banish self
         }
         on_resolve {
-            return (1+, monster, you controls) to deck shuffle
+            return (1+, monster, you controls, where { race == Fish and is_face_up }) to deck shuffle
             special_summon (1, monster) from gy
         }
     }

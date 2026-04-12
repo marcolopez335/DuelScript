@@ -23,7 +23,7 @@ card "Metalfoes Vanisher" {
         timing: if
         trigger: when_destroyed
         on_resolve {
-            return (1+, monster, you controls) to hand
+            return (1+, monster, you controls, where { is_monster }) to hand
             reveal (1+, card, opponent controls)
         }
     }
@@ -34,7 +34,7 @@ card "Metalfoes Vanisher" {
         damage_step: false
         activate_from: [hand]
         on_resolve {
-            destroy (1+, monster, you controls)
+            destroy (1+, monster, you controls, where { is_monster })
             special_summon (1, monster) from gy
         }
     }
@@ -47,7 +47,7 @@ card "Metalfoes Vanisher" {
         damage_step: false
         trigger: when_summoned by_special_summon
         on_resolve {
-            banish (1+, monster, you controls)
+            banish (1+, monster, you controls, where { is_monster })
         }
     }
 

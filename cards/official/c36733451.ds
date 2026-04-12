@@ -15,7 +15,7 @@ card "Dimensional Alchemist" {
         speed: spell_speed_1
         once_per_turn: soft
         on_resolve {
-            banish (1+, monster, either_player controls)
+            banish (1+, monster, either_player controls, where { is_face_up and is_monster })
         }
     }
 
@@ -26,7 +26,7 @@ card "Dimensional Alchemist" {
         damage_step: false
         trigger: on_custom_event "chain_end"
         on_resolve {
-            add_to_hand (1+, monster, either_player controls) from gy
+            add_to_hand (1+, monster, either_player controls, where { is_face_up and is_monster }) from gy
             reveal (1+, card, opponent controls)
         }
     }

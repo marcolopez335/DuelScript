@@ -16,7 +16,7 @@ card "Wizard Buster Destruction Sword" {
         damage_step: false
         activate_from: [hand, monster_zone]
         on_resolve {
-            send (1+, monster, either_player controls) to gy
+            send (1+, monster, either_player controls, where { is_face_up }) to gy
             equip (1, card) to (1, monster)
         }
     }
@@ -34,7 +34,7 @@ card "Wizard Buster Destruction Sword" {
             send self to gy
         }
         on_resolve {
-            add_to_hand (1+, monster, either_player controls) from gy
+            add_to_hand (1+, monster, either_player controls, where { is_face_up }) from gy
         }
     }
 

@@ -18,7 +18,7 @@ card "World Soul - Carbon" {
             tribute self
         }
         on_resolve {
-            add_to_hand (1+, card, you controls) from deck
+            add_to_hand (1+, card, you controls, where { race == Fairy }) from deck
             reveal (1+, card, opponent controls)
         }
     }
@@ -31,7 +31,7 @@ card "World Soul - Carbon" {
         trigger: on_custom_event "chain_end"
         activate_from: [gy]
         on_resolve {
-            return (1+, card, you controls) to deck shuffle
+            return (1+, card, you controls, where { race == Fairy }) to deck shuffle
         }
     }
 

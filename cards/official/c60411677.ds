@@ -21,7 +21,7 @@ card "Anubis the Last Judge" {
         property: BothSide + Uncopyable
         range: Hand + Graveyard
         on_resolve {
-            return (1+, trap, you controls) to deck shuffle
+            return (1+, trap, you controls, where { card_id == 97522863 }) to deck shuffle
             send_to_deck (1+, card, you controls)
         }
     }
@@ -34,7 +34,7 @@ card "Anubis the Last Judge" {
             send self to gy
         }
         on_resolve {
-            add_to_hand (1+, trap, you controls) from gy
+            add_to_hand (1+, trap, you controls, where { card_id == 97522863 }) from gy
             reveal (1+, card, opponent controls)
         }
     }

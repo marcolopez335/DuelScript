@@ -61,13 +61,13 @@ card "Shooting Majestic Star Dragon" {
         timing: when
         trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
-            banish (1+, monster, opponent controls)
+            banish (1+, monster, opponent controls, where { is_synchro })
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
                 duration: until_end_of_turn
             }
             negate activation
-            banish (1+, monster, opponent controls)
+            banish (1+, monster, opponent controls, where { is_synchro })
         }
     }
 

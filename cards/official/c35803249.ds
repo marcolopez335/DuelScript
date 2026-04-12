@@ -29,7 +29,7 @@ card "Jinzo - Lord" {
         property: Uncopyable
         range: Hand
         on_resolve {
-            send (1+, trap, you controls) to gy
+            send (1+, trap, you controls, where { is_face_up and is_trap }) to gy
         }
     }
 
@@ -61,7 +61,7 @@ card "Jinzo - Lord" {
         speed: spell_speed_1
         once_per_turn: soft
         on_resolve {
-            destroy (1+, trap, you controls)
+            destroy (1+, trap, you controls, where { is_face_up and is_trap })
             deal_damage to opponent: 1000
         }
     }

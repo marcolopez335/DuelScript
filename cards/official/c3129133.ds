@@ -10,7 +10,7 @@ card "Delta of Invitation" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            send (1+, monster, either_player controls) to gy
+            send (1+, monster, either_player controls, where { level >= 5 and race == Zombie }) to gy
         }
     }
 
@@ -31,7 +31,7 @@ card "Delta of Invitation" {
         range: Graveyard
         count_limit: (1, 0)
         on_resolve {
-            return (1+, monster, either_player controls) to hand
+            return (1+, monster, either_player controls, where { level >= 5 and race == Zombie }) to hand
         }
     }
 

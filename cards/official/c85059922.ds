@@ -39,7 +39,7 @@ card "Master of Chaos" {
             tribute self
         }
         on_resolve {
-            banish (1+, spell, opponent controls)
+            banish (1+, spell, opponent controls, where { is_spell })
         }
     }
 
@@ -51,7 +51,7 @@ card "Master of Chaos" {
         damage_step: false
         trigger: when_destroyed
         on_resolve {
-            return (1+, spell, opponent controls) to hand
+            return (1+, spell, opponent controls, where { is_spell }) to hand
         }
     }
 

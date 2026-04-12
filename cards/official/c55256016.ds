@@ -11,8 +11,8 @@ card "Judgment of Anubis" {
         trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate activation
-            destroy (1+, spell, opponent controls)
-            destroy (1+, spell, opponent controls)
+            destroy (1+, spell, opponent controls, where { is_spell })
+            destroy (1+, spell, opponent controls, where { is_spell })
             deal_damage to opponent: 1000
         }
     }

@@ -10,7 +10,7 @@ card "Power Capsule" {
         speed: spell_speed_1
         damage_step: false
         on_resolve {
-            destroy (1+, spell, either_player controls)
+            destroy (1+, spell, either_player controls, where { is_face_up and card_id == 93130021 })
             create_token { atk: 0 def: 0 }
             special_summon (1, monster) from gy
             register_effect on self {

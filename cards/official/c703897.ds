@@ -12,7 +12,7 @@ card "Orcust Crescendo" {
         trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
         on_resolve {
             negate activation
-            banish (1+, monster, you controls)
+            banish (1+, monster, you controls, where { is_face_up and race == Machine and attribute == DARK })
         }
     }
 
@@ -22,7 +22,7 @@ card "Orcust Crescendo" {
         optional: true
         activate_from: [gy]
         on_resolve {
-            return (1+, monster, you controls) to hand
+            return (1+, monster, you controls, where { is_face_up and race == Machine and attribute == DARK }) to hand
             reveal (1+, card, opponent controls)
         }
     }

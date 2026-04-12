@@ -18,7 +18,7 @@ card "Ext Ryzeal" {
         range: Hand
         count_limit: (1, 34022970)
         on_resolve {
-            send (1+, card, either_player controls) to gy
+            send (1+, card, either_player controls, where { attribute == FIRE and race == Thunder }) to gy
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
                 duration: until_end_of_turn
@@ -33,7 +33,7 @@ card "Ext Ryzeal" {
         timing: if
         trigger: when_summoned
         on_resolve {
-            add_to_hand (1+, card, either_player controls) from gy
+            add_to_hand (1+, card, either_player controls, where { attribute == FIRE and race == Thunder }) from gy
             reveal (1+, card, opponent controls)
         }
     }
@@ -45,7 +45,7 @@ card "Ext Ryzeal" {
         timing: if
         trigger: when_summoned by_special_summon
         on_resolve {
-            add_to_hand (1+, card, either_player controls) from gy
+            add_to_hand (1+, card, either_player controls, where { attribute == FIRE and race == Thunder }) from gy
             reveal (1+, card, opponent controls)
         }
     }

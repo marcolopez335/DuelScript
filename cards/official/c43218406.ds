@@ -21,7 +21,7 @@ card "Gizmek Okami, the Dreaded Deluge Dragon" {
             pay_lp 1500
         }
         on_resolve {
-            destroy (1+, monster, either_player controls)
+            destroy (1+, monster, either_player controls, where { is_monster })
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
                 duration: until_end_of_turn
@@ -49,7 +49,7 @@ card "Gizmek Okami, the Dreaded Deluge Dragon" {
         timing: if
         trigger: on_custom_event "chain_end"
         on_resolve {
-            banish (1+, monster, either_player controls)
+            banish (1+, monster, either_player controls, where { is_monster })
             gain_lp: 1000
         }
     }

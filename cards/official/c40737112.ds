@@ -23,7 +23,7 @@ card "Dark Magician of Chaos" {
         damage_step: false
         trigger: during_end_phase
         on_resolve {
-            add_to_hand (1+, spell, either_player controls) from gy
+            add_to_hand (1+, spell, either_player controls, where { is_spell }) from gy
         }
     }
 
@@ -31,7 +31,7 @@ card "Dark Magician of Chaos" {
         speed: spell_speed_1
         trigger: on_custom_event "chain_end"
         on_resolve {
-            banish (1+, spell, either_player controls)
+            banish (1+, spell, either_player controls, where { is_spell })
         }
     }
 

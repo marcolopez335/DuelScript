@@ -2464,16 +2464,19 @@ pub struct InferredTarget {
     pub filter: &'static str,
     pub controller: &'static str,
     pub source_zone: Option<&'static str>,
-    /// True when the body indicates the source is the field itself
-    /// (MZONE or SZONE). Used to decide `return … to hand` vs
-    /// `add_to_hand … from gy` / `from deck`.
     pub source_is_field: bool,
+    /// Sprint 71: predicate from filter function analysis
+    pub predicate: Option<String>,
 }
 
 impl InferredTarget {
-    /// Render as `(1+, filter, controller)` — zone lives on the `from` suffix.
+    /// Render as `(1+, filter, controller)` with optional `where { predicate }`.
     pub fn target_expr(&self) -> String {
-        format!("(1+, {}, {})", self.filter, self.controller)
+        if let Some(ref pred) = self.predicate {
+            format!("(1+, {}, {}, where {{ {} }})", self.filter, self.controller, pred)
+        } else {
+            format!("(1+, {}, {})", self.filter, self.controller)
+        }
     }
     /// Render with a `from <zone>` suffix when the source is a specific zone.
     pub fn with_from_suffix(&self) -> String {
@@ -2593,7 +2596,11 @@ pub fn infer_target_struct(body: &str, default_filter: FilterHint) -> InferredTa
         None
     };
 
-    InferredTarget { filter, controller, source_zone, source_is_field }
+    // Sprint 71: extract predicate from filter functions referenced
+    // by the body. Look for common filter patterns.
+    let predicate = extract_filter_predicate(b);
+
+    InferredTarget { filter, controller, source_zone, source_is_field, predicate }
 }
 
 /// For each of the candidate function-call needles, find the first
@@ -2670,6 +2677,200 @@ pub fn extract_function_body_text(source: &str, fn_name: &str) -> String {
         }
     }
     String::new()
+}
+
+/// Sprint 71: Parse a Lua filter function's return expression into a
+/// DuelScript `where { predicate }` clause. Returns None if the filter
+/// is too complex to translate.
+///
+/// Handles common patterns:
+///   c:IsRace(RACE_DRAGON) → race == Dragon
+///   c:IsAttribute(ATTRIBUTE_DARK) → attribute == DARK
+///   c:IsSetCard(SET_BLUE_EYES) → in_archetype: "Blue-Eyes"
+///   c:IsLevel(4) → level == 4
+///   c:IsLevelBelow(4) → level <= 4
+///   c:IsFaceup() → is_face_up
+///   c:IsMonster() → is_monster
+///   c:IsType(TYPE_SPELL) → is_spell
+///   Chains with `and` are composed.
+pub fn lua_filter_to_predicate(source: &str, filter_fn_name: &str) -> Option<String> {
+    let body = extract_function_body_text(source, filter_fn_name);
+    if body.is_empty() { return None; }
+
+    // Find the return expression
+    let return_line = body.lines()
+        .find(|l| l.trim().starts_with("return "))?;
+    let expr = return_line.trim().strip_prefix("return ")?.trim();
+
+    // Only handle single-line return expressions with no Lua variables
+    if expr.contains("(e") || expr.contains(",tp") || expr.contains("1-tp")
+        || expr.contains("nil") || expr.contains("~=")
+        || expr.contains("id)") || expr.contains("code)")
+        || expr.contains("not ") || expr.contains("GetCode")
+        || expr.contains("SET_") // complex setcode expressions
+    {
+        return None; // too complex, skip
+    }
+
+    // Split on " and " to get individual conditions
+    let parts: Vec<&str> = expr.split(" and ").collect();
+    let mut predicates = Vec::new();
+
+    for part in &parts {
+        let p = part.trim();
+        if let Some(pred) = translate_single_filter(p) {
+            predicates.push(pred);
+        }
+        // Skip parts we can't translate
+    }
+
+    if predicates.is_empty() { return None; }
+    Some(predicates.join(" and "))
+}
+
+fn translate_single_filter(expr: &str) -> Option<String> {
+    // c:IsRace(RACE_X) → race == X
+    if let Some(race_str) = extract_between(expr, "IsRace(", ")") {
+        let race = race_constant_to_name(race_str.trim())?;
+        return Some(format!("race == {}", race));
+    }
+    // c:IsAttribute(ATTRIBUTE_X) → attribute == X
+    if let Some(attr_str) = extract_between(expr, "IsAttribute(", ")") {
+        let attr = attr_constant_to_name(attr_str.trim())?;
+        return Some(format!("attribute == {}", attr));
+    }
+    // c:IsSetCard(SET_X) → in_archetype: "X"
+    if let Some(set_str) = extract_between(expr, "IsSetCard(", ")") {
+        let name = setcode_to_name(set_str.trim());
+        return Some(format!("in_archetype: \"{}\"", name));
+    }
+    // c:IsLevel(N) — only for numeric values
+    if let Some(lvl) = extract_between(expr, "IsLevel(", ")") {
+        let v = lvl.trim();
+        if v.chars().all(|c| c.is_ascii_digit()) && !v.is_empty() {
+            return Some(format!("level == {}", v));
+        }
+        return None;
+    }
+    // c:IsLevelBelow(N)
+    if let Some(lvl) = extract_between(expr, "IsLevelBelow(", ")") {
+        let v = lvl.trim();
+        if v.chars().all(|c| c.is_ascii_digit()) && !v.is_empty() {
+            return Some(format!("level <= {}", v));
+        }
+        return None;
+    }
+    // c:IsLevelAbove(N)
+    if let Some(lvl) = extract_between(expr, "IsLevelAbove(", ")") {
+        let v = lvl.trim();
+        if v.chars().all(|c| c.is_ascii_digit()) && !v.is_empty() {
+            return Some(format!("level >= {}", v));
+        }
+        return None;
+    }
+    // c:IsFaceup()
+    if expr.contains("IsFaceup()") { return Some("is_face_up".to_string()); }
+    if expr.contains("IsFacedown()") { return Some("is_face_down".to_string()); }
+    // c:IsMonster() / IsSpell() / IsTrap()
+    if expr.contains("IsMonster()") { return Some("is_monster".to_string()); }
+    if expr.contains("IsSpell()") { return Some("is_spell".to_string()); }
+    if expr.contains("IsTrap()") { return Some("is_trap".to_string()); }
+    if expr.contains("IsSpellTrap()") { return Some("is_spell".to_string()); }
+    // c:IsType(TYPE_X)
+    if let Some(type_str) = extract_between(expr, "IsType(", ")") {
+        if type_str.contains("TYPE_MONSTER") { return Some("is_monster".to_string()); }
+        if type_str.contains("TYPE_SPELL") { return Some("is_spell".to_string()); }
+        if type_str.contains("TYPE_TRAP") { return Some("is_trap".to_string()); }
+        if type_str.contains("TYPE_NORMAL") { return Some("is_monster".to_string()); }
+        if type_str.contains("TYPE_SYNCHRO") { return Some("is_synchro".to_string()); }
+        if type_str.contains("TYPE_FUSION") { return Some("is_fusion".to_string()); }
+        if type_str.contains("TYPE_XYZ") { return Some("is_xyz".to_string()); }
+        if type_str.contains("TYPE_LINK") { return Some("is_link".to_string()); }
+        if type_str.contains("TYPE_TUNER") { return Some("is_tuner".to_string()); }
+        if type_str.contains("TYPE_PENDULUM") { return Some("is_pendulum".to_string()); }
+        if type_str.contains("TYPE_RITUAL") { return Some("is_ritual".to_string()); }
+    }
+    // c:IsCode(X) — only for numeric passcodes, not Lua constants
+    if let Some(code_str) = extract_between(expr, "IsCode(", ")") {
+        let code = code_str.trim();
+        if code.chars().all(|c| c.is_ascii_digit()) && !code.is_empty() {
+            return Some(format!("card_id == {}", code));
+        }
+        return None; // skip Lua variable references like CARD_X
+    }
+    // c:HasLevel()
+    if expr.contains("HasLevel()") { return Some("level >= 1".to_string()); }
+
+    None
+}
+
+fn extract_between<'a>(s: &'a str, start: &str, end: &str) -> Option<&'a str> {
+    let start_idx = s.find(start)? + start.len();
+    let end_idx = s[start_idx..].find(end)? + start_idx;
+    Some(&s[start_idx..end_idx])
+}
+
+fn race_constant_to_name(s: &str) -> Option<&'static str> {
+    Some(match s {
+        "RACE_WARRIOR" => "Warrior", "RACE_SPELLCASTER" => "Spellcaster",
+        "RACE_FAIRY" => "Fairy", "RACE_FIEND" => "Fiend",
+        "RACE_ZOMBIE" => "Zombie", "RACE_MACHINE" => "Machine",
+        "RACE_AQUA" => "Aqua", "RACE_PYRO" => "Pyro",
+        "RACE_ROCK" => "Rock", "RACE_WINDBEAST" | "RACE_WINGED_BEAST" => "Winged Beast",
+        "RACE_PLANT" => "Plant", "RACE_INSECT" => "Insect",
+        "RACE_THUNDER" => "Thunder", "RACE_DRAGON" => "Dragon",
+        "RACE_BEAST" => "Beast", "RACE_BEASTWARRIOR" | "RACE_BEAST_WARRIOR" => "Beast-Warrior",
+        "RACE_DINOSAUR" => "Dinosaur", "RACE_FISH" => "Fish",
+        "RACE_SEASERPENT" | "RACE_SEA_SERPENT" => "Sea Serpent",
+        "RACE_REPTILE" => "Reptile", "RACE_PSYCHIC" => "Psychic",
+        "RACE_DIVINEBEAST" | "RACE_DIVINE_BEAST" => "Divine-Beast",
+        "RACE_WYRM" => "Wyrm", "RACE_CYBERSE" => "Cyberse",
+        "RACE_ILLUSION" => "Illusion",
+        _ => return None,
+    })
+}
+
+fn attr_constant_to_name(s: &str) -> Option<&'static str> {
+    Some(match s {
+        "ATTRIBUTE_EARTH" => "EARTH", "ATTRIBUTE_WATER" => "WATER",
+        "ATTRIBUTE_FIRE" => "FIRE", "ATTRIBUTE_WIND" => "WIND",
+        "ATTRIBUTE_LIGHT" => "LIGHT", "ATTRIBUTE_DARK" => "DARK",
+        "ATTRIBUTE_DIVINE" => "DIVINE",
+        _ => return None,
+    })
+}
+
+/// Sprint 71: scan a Lua source body for filter function definitions
+/// and extract predicates from the first one found.
+fn extract_filter_predicate(body: &str) -> Option<String> {
+    // Look for filter function definitions in the body
+    let filter_names = ["filter", "thfilter", "spfilter", "tgfilter",
+                        "desfilter", "rmfilter", "atkfilter", "cfilter"];
+    for name in &filter_names {
+        let needle = format!("function s.{}(", name);
+        if body.contains(&needle) {
+            if let Some(pred) = lua_filter_to_predicate(body, name) {
+                return Some(pred);
+            }
+        }
+    }
+    None
+}
+
+fn setcode_to_name(s: &str) -> String {
+    // Convert SET_BLUE_EYES → "Blue-Eyes", SET_FUR_HIRE → "Fur Hire"
+    s.strip_prefix("SET_").unwrap_or(s)
+        .replace('_', " ")
+        .split(' ')
+        .map(|w| {
+            let mut c = w.chars();
+            match c.next() {
+                None => String::new(),
+                Some(f) => f.to_uppercase().collect::<String>() + &c.as_str().to_lowercase(),
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
 }
 
 fn extract_function_bodies(source: &str) -> std::collections::HashMap<String, Vec<DuelApiCall>> {

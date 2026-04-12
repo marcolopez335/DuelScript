@@ -11,7 +11,7 @@ card "Union Activation" {
         once_per_turn: hard
         on_resolve {
             send (1+, card, you controls, deck) to gy
-            add_to_hand (1+, card, you controls) from deck
+            add_to_hand (1+, card, you controls, where { attribute == LIGHT and race == Machine and is_monster }) from deck
             reveal (1+, card, opponent controls)
         }
     }
@@ -27,7 +27,7 @@ card "Union Activation" {
             banish self
         }
         on_resolve {
-            add_to_hand (1+, card, you controls) from deck
+            add_to_hand (1+, card, you controls, where { attribute == LIGHT and race == Machine and is_monster }) from deck
             reveal (1+, card, opponent controls)
             normal_summon (1, monster, you controls)
         }

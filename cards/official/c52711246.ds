@@ -25,13 +25,13 @@ card "Shiranui Squiresaga" {
         speed: spell_speed_1
         once_per_turn: soft
         on_resolve {
-            banish (1+, monster, you controls)
+            banish (1+, monster, you controls, where { is_monster and is_face_up })
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
                 duration: until_end_of_turn
             }
-            destroy (1+, monster, you controls)
-            destroy (1+, monster, you controls)
+            destroy (1+, monster, you controls, where { is_monster and is_face_up })
+            destroy (1+, monster, you controls, where { is_monster and is_face_up })
         }
     }
 

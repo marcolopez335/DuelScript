@@ -12,7 +12,7 @@ card "'Infernoble Arms - Almace'" {
         activate_from: [spell_trap_zone]
         on_resolve {
             equip (1, card) to (1, monster)
-            destroy (1+, monster, you controls)
+            destroy (1+, monster, you controls, where { is_face_up and attribute == FIRE and race == Warrior })
         }
     }
 
@@ -24,7 +24,7 @@ card "'Infernoble Arms - Almace'" {
         damage_step: false
         trigger: on_custom_event "chain_end"
         on_resolve {
-            return (1+, monster, you controls) to hand
+            return (1+, monster, you controls, where { is_face_up and attribute == FIRE and race == Warrior }) to hand
             reveal (1+, card, opponent controls)
         }
     }

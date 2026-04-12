@@ -11,8 +11,8 @@ card "Terrors of the Afterroot" {
         damage_step: false
         on_resolve {
             special_summon (1, monster) from gy
-            banish (1+, monster, opponent controls)
-            send (1+, monster, opponent controls) to gy
+            banish (1+, monster, opponent controls, where { is_monster and is_face_up })
+            send (1+, monster, opponent controls, where { is_monster and is_face_up }) to gy
         }
     }
 
@@ -25,7 +25,7 @@ card "Terrors of the Afterroot" {
             banish self
         }
         on_resolve {
-            return (1+, monster, opponent controls) to deck shuffle
+            return (1+, monster, opponent controls, where { is_monster and is_face_up }) to deck shuffle
             set (1, card)
         }
     }

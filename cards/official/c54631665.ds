@@ -22,7 +22,7 @@ card "SPYRAL Resort" {
         once_per_turn: soft
         activate_from: [field_zone]
         on_resolve {
-            add_to_hand (1+, monster, you controls) from gy
+            add_to_hand (1+, monster, you controls, where { is_monster }) from gy
             reveal (1+, card, opponent controls)
         }
     }
@@ -34,7 +34,7 @@ card "SPYRAL Resort" {
         range: FieldZone
         count_limit: (1, 0)
         on_resolve {
-            return (1+, monster, you controls) to deck shuffle
+            return (1+, monster, you controls, where { is_monster }) to deck shuffle
             destroy (1+, monster, you controls, gy)
         }
     }

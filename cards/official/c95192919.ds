@@ -31,7 +31,7 @@ card "Simorgh, Lord of the Storm" {
             tribute self
         }
         on_resolve {
-            return (1+, card, either_player controls) to deck shuffle
+            return (1+, card, either_player controls, where { attribute == WIND }) to deck shuffle
         }
     }
 
@@ -43,7 +43,7 @@ card "Simorgh, Lord of the Storm" {
         trigger: when_battle_damage
         activate_from: [gy]
         on_resolve {
-            add_to_hand (1+, card, either_player controls) from gy
+            add_to_hand (1+, card, either_player controls, where { attribute == WIND }) from gy
         }
     }
 

@@ -20,7 +20,7 @@ card "Genesis Dragon" {
         once_per_turn: soft
         damage_step: false
         on_resolve {
-            add_to_hand (1+, card, you controls) from gy
+            add_to_hand (1+, card, you controls, where { race == Dragon }) from gy
             reveal (1+, card, opponent controls)
         }
     }
@@ -31,7 +31,7 @@ card "Genesis Dragon" {
         timing: when
         trigger: on_custom_event "chain_end"
         on_resolve {
-            return (1+, card, you controls) to deck shuffle
+            return (1+, card, you controls, where { race == Dragon }) to deck shuffle
         }
     }
 

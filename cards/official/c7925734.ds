@@ -16,9 +16,9 @@ card "Link Apple" {
         once_per_turn: hard
         activate_from: [hand]
         on_resolve {
-            banish (1+, card, either_player controls)
+            banish (1+, card, either_player controls, where { is_face_down })
             special_summon (1, monster) from gy
-            send (1+, card, either_player controls) to gy
+            send (1+, card, either_player controls, where { is_face_down }) to gy
             draw 1
         }
     }

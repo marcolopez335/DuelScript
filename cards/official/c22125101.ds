@@ -29,7 +29,7 @@ card "Beyond the Pendulum" {
             pay_lp 1200
         }
         on_resolve {
-            add_to_hand (1+, monster, you controls) from deck
+            add_to_hand (1+, monster, you controls, where { is_pendulum and is_monster }) from deck
             reveal (1+, card, opponent controls)
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

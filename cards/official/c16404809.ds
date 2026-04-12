@@ -30,10 +30,10 @@ card "Kuribandit" {
         }
         on_resolve {
             reveal (1, card, opponent controls, deck)
-            add_to_hand (1+, spell, either_player controls) from gy
+            add_to_hand (1+, spell, either_player controls, where { is_spell }) from gy
             reveal (1+, card, opponent controls)
             shuffle_hand
-            send (1+, spell, either_player controls) to gy
+            send (1+, spell, either_player controls, where { is_spell }) to gy
         }
     }
 

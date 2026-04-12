@@ -10,7 +10,7 @@ card "Dark Spirit's Mastery" {
         speed: spell_speed_1
         once_per_turn: hard
         on_resolve {
-            add_to_hand (1+, card, you controls) from gy
+            add_to_hand (1+, card, you controls, where { race == Fiend }) from gy
             reveal (1+, card, opponent controls)
         }
     }
@@ -24,7 +24,7 @@ card "Dark Spirit's Mastery" {
         }
         on_resolve {
             reveal (1+, card, opponent controls)
-            return (1+, card, you controls) to deck shuffle
+            return (1+, card, you controls, where { race == Fiend }) to deck shuffle
             send_to_deck (1+, card, you controls)
             draw 1
         }

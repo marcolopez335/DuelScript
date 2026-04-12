@@ -9,8 +9,8 @@ card "The Law of the Normal" {
     effect "Effect 1" {
         speed: spell_speed_1
         on_resolve {
-            send (1+, card, either_player controls) to gy
-            destroy (1+, card, either_player controls)
+            send (1+, card, either_player controls, where { is_face_up and is_monster and level <= 2 }) to gy
+            destroy (1+, card, either_player controls, where { is_face_up and is_monster and level <= 2 })
         }
     }
 

@@ -15,7 +15,7 @@ card "Victory Viper XX03" {
         speed: spell_speed_1
         trigger: when_battle_damage
         on_resolve {
-            destroy (1+, spell, either_player controls)
+            destroy (1+, spell, either_player controls, where { is_face_up and is_spell })
             create_token { atk: 0 def: 0 }
             special_summon (1, monster) from gy
             register_effect on self {

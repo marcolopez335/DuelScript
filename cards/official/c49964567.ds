@@ -17,7 +17,7 @@ card "Staysailor Romarin" {
         optional: true
         damage_step: false
         on_resolve {
-            send (1+, monster, you controls) to gy
+            send (1+, monster, you controls, where { is_face_up and race == Plant }) to gy
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle
                 duration: until_end_of_turn
@@ -32,7 +32,7 @@ card "Staysailor Romarin" {
         timing: if
         trigger: on_custom_event "chain_end"
         on_resolve {
-            send (1+, monster, you controls) to gy
+            send (1+, monster, you controls, where { is_face_up and race == Plant }) to gy
         }
     }
 
