@@ -1,0 +1,23 @@
+// 王家の眠る谷－ネクロバレー
+// Necrovalley
+// All "Gravekeeper's" monsters gain 500 ATK and DEF. Cards in the
+// GY cannot be banished. Negate any card effect that would move
+// a card in the GY.
+
+card "Necrovalley" {
+    type: Field Spell
+    id: 47355498
+
+    continuous_effect "Gravekeeper Boost" {
+        scope: field
+        apply_to: (1+, "Gravekeeper" monster, either_player controls)
+        modifier: atk + 500
+        modifier: def + 500
+    }
+
+    continuous_effect "GY Lock" {
+        scope: field
+        apply_to: (1+, card, either_player controls, gy)
+        grant: cannot_be_used_as_material
+    }
+}

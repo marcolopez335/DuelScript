@@ -1,0 +1,28 @@
+// 王宮の勅命
+// Imperial Order
+// Negate all Spell effects on the field. During each Standby
+// Phase, pay 700 LP or destroy this card.
+
+card "Imperial Order" {
+    type: Continuous Trap
+    id: 61740673
+
+    continuous_effect "Spell Lockdown" {
+        scope: field
+        apply_to: (1+, spell, either_player controls)
+        grant: cannot_activate_effects
+    }
+
+    effect "Maintenance Cost" {
+        speed: spell_speed_2
+        trigger: during_standby_phase
+
+        on_resolve {
+            if_player_chooses {
+                deal_damage to you: 700
+            } else {
+                destroy self
+            }
+        }
+    }
+}

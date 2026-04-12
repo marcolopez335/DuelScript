@@ -1,0 +1,21 @@
+// 生者の書－禁断の呪術－
+// Book of Life
+// Transpiled from c2204140.lua
+
+card "Book of Life" {
+    id: 2204140
+    type: Normal Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: false
+        on_activate {
+            select (1+, monster, either_player controls, where { is_monster }) as target
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+            banish (1+, monster, either_player controls, where { is_monster })
+        }
+    }
+
+}

@@ -1,0 +1,37 @@
+// レスキューキャット
+// Rescue Cat
+// Transpiled from c14878871.lua
+
+card "Rescue Cat" {
+    id: 14878871
+    type: Effect Monster
+    attribute: EARTH
+    race: Beast
+    level: 4
+    atk: 300
+    def: 100
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        cost {
+            send self to gy
+        }
+        on_resolve {
+            special_summon (1, monster) from gy
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+            register_effect on self {
+                grant: cannot_be_destroyed_by_battle
+                duration: until_end_of_turn
+            }
+        }
+    }
+
+}

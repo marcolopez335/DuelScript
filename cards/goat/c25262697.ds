@@ -1,0 +1,28 @@
+// 墓守の暗殺者
+// Gravekeeper's Assailant
+// Transpiled from c25262697.lua
+
+card "Gravekeeper's Assailant" {
+    id: 25262697
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 4
+    atk: 1500
+    def: 1500
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when attack_declared
+        on_activate {
+            select (1+, card, either_player controls, where { is_face_up }) as target
+        }
+        on_resolve {
+            change_battle_position (1, monster)
+        }
+    }
+
+}

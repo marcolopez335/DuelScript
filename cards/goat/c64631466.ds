@@ -1,0 +1,41 @@
+// サクリファイス
+// Relinquished
+// Ritual Monster. Once per turn: target 1 monster opponent controls;
+// equip it to this card. ATK/DEF become equal to the equipped
+// monster's. If this card would be destroyed by battle, destroy
+// the equipped monster instead.
+
+card "Relinquished" {
+    type: Ritual Monster | Effect Monster
+    id: 64631466
+    attribute: DARK
+    race: Spellcaster
+    level: 1
+    atk: 0
+    def: 0
+
+    summon_condition {
+        cannot_normal_summon: true
+        must_be_summoned_by: ritual_spell
+    }
+
+    effect "Absorb Monster" {
+        speed: spell_speed_1
+        once_per_turn: soft
+
+        on_activate {
+            select (1, monster, opponent controls) as target
+        }
+
+        on_resolve {
+            equip (1, monster, opponent controls) to self
+        }
+    }
+
+    replacement_effect "Shield" {
+        instead_of: destroyed_by_battle
+        do: {
+            destroy (1, monster, you controls)
+        }
+    }
+}
