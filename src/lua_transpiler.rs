@@ -569,7 +569,7 @@ fn friendly_range(val: u32) -> String {
 
 /// Sprint 64: attempt to map effect_type + code to semantic effect clauses.
 /// Returns Some((speed, trigger, optional, timing)) if the combination is clean.
-fn try_semantic_effect(effect_type: u32, code: u32, property: u32, is_trap: bool, is_counter_trap: bool) -> Option<(String, Option<String>, bool, Option<String>)> {
+fn try_semantic_effect(effect_type: u32, code: u32, property: u32, is_trap: bool, is_counter_trap: bool, is_quickplay: bool) -> Option<(String, Option<String>, bool, Option<String>)> {
     // Only convert effects with a SINGLE primary type flag
     let is_activate   = effect_type & 0x0010 != 0;
     let is_ignition   = effect_type & 0x0040 != 0;
@@ -585,7 +585,7 @@ fn try_semantic_effect(effect_type: u32, code: u32, property: u32, is_trap: bool
 
     let speed = if is_counter_trap {
         "spell_speed_3"
-    } else if is_quick_o || is_quick_f || is_trap {
+    } else if is_quick_o || is_quick_f || is_trap || is_quickplay {
         "spell_speed_2"
     } else {
         "spell_speed_1"
@@ -1932,14 +1932,12 @@ pub fn transpile_lua_to_ds(
         let card_is_monster = cdb_card.map(|c| c.is_monster()).unwrap_or(false);
         let card_is_normal_monster = cdb_card.map(|c| c.is_normal() && c.is_monster()).unwrap_or(false);
         let card_is_xyz = cdb_card.map(|c| c.is_xyz()).unwrap_or(false);
-        let card_is_quickplay = cdb_card.map(|c| {
-            c.card_type & 0x10001 == 0x10001 // TYPE_SPELL + TYPE_QUICKPLAY
-        }).unwrap_or(false);
+        let card_is_quickplay = cdb_card.map(|c| c.is_quick_play()).unwrap_or(false);
         // Skip semantic conversion for problematic combos
         let semantic = if card_is_normal_monster {
             None // normal monsters shouldn't have effects
         } else {
-            let sem = try_semantic_effect(effect_type, code, property, card_is_trap, card_is_counter);
+            let sem = try_semantic_effect(effect_type, code, property, card_is_trap, card_is_counter, card_is_quickplay);
             // Post-validate: reject conversions that would fail validation
             if let Some((ref _speed, ref trigger, _, _)) = sem {
                 // when_attacked only valid on monsters
