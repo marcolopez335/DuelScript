@@ -11,12 +11,10 @@ card "Power Angel Valkyria" {
     atk: 1800
     def: 1050
 
-    raw_effect "Effect 1" {
-        effect_type: Field + MandatoryTrigger
-        category: ToHand + Search
-        code: SentToHand
-        range: MonsterZone
-        count_limit: (1, 89055154)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: when_sent_to hand
         on_resolve {
             add_to_hand (1+, card, opponent controls) from deck
             reveal (1+, card, opponent controls)

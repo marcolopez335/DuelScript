@@ -20,10 +20,11 @@ card "Bellcat Fighter" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: SpecialSummon + Token
-        code: BattleConfirmed
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_damage
         on_resolve {
             create_token { atk: 0 def: 0 }
             special_summon (1, monster) from gy

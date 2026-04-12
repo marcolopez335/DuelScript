@@ -17,10 +17,12 @@ card "Crystal Keeper" {
         grant: cannot_be_destroyed
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        code: AttackEnd
-        range: Hand + MonsterZone
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: when attack_declared
+        activate_from: [hand, monster_zone]
         cost {
             tribute self
         }

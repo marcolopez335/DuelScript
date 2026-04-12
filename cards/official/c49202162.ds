@@ -27,9 +27,11 @@ card "Black Luster Soldier - Soldier of Chaos" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        code: BattleConfirmed
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_damage
         on_resolve {
             banish (1+, monster, either_player controls)
         }

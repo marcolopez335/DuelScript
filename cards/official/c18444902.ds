@@ -11,12 +11,12 @@ card "Tatakawa Knight" {
     atk: 1500
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: Damage
-        code: SentToHand
-        property: InitialValue + Delay
-        range: Hand
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_sent_to hand
+        activate_from: [hand]
         cost {
             send self to gy
         }

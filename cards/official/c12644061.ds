@@ -36,10 +36,12 @@ card "Advanced Dark" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + Trigger
-        code: AttackEnd
-        range: FieldZone
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when attack_declared
+        activate_from: [field_zone]
         cost {
             send self to gy
         }

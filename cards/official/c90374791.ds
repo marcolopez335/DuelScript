@@ -6,12 +6,13 @@ card "Armed Changer" {
     id: 90374791
     type: Equip Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: ToHand
-        code: BattleConfirmed
-        property: CardTarget
-        range: SpellTrapZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_battle_damage
+        activate_from: [spell_trap_zone]
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand
             reveal (1+, card, opponent controls)

@@ -27,10 +27,9 @@ card "Dark Magician of Chaos" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: Banish
-        code: BattleEnd
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_end"
         on_resolve {
             banish (1+, spell, either_player controls)
         }

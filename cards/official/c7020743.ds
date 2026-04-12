@@ -21,13 +21,12 @@ card "Tantrum Toddler" {
         method: xyz
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: LeaveGrave
-        code: SentToHand
-        property: Delay
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: if
+        trigger: when_sent_to hand
         on_resolve {
             attach (1, card) to self as_material
         }

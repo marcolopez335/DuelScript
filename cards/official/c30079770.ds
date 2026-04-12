@@ -15,13 +15,12 @@ card "Red-Eyes Black Flare Dragon" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: Damage
-        code: PhaseBattleStep
-        property: InitialValue
-        range: MonsterZone
-        count_limit: (1, 30079770)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: during battle_phase
         on_resolve {
             deal_damage to opponent: 1000
         }

@@ -11,12 +11,13 @@ card "WAKE CUP! Mocha" {
     atk: 1000
     def: 100
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToGrave + AtkChange
-        code: ChainActive
-        property: CardTarget + Delay
-        count_limit: (1, 91818544)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_active"
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

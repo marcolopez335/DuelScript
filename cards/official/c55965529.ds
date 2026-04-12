@@ -55,10 +55,9 @@ card "Enato Enneacraft - 'oknirIA'" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single + MandatoryTrigger
-        category: ToDeck
-        code: ChainActive
+    effect "Effect 5" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_active"
         on_resolve {
             return (1+, card, you controls) to deck shuffle
         }

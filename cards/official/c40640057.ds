@@ -11,10 +11,12 @@ card "Kuriboh" {
     atk: 300
     def: 200
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        code: AttackEnd
-        range: Hand
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: when attack_declared
+        activate_from: [hand]
         cost {
             discard (1, card, you controls)
         }

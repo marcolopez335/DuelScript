@@ -20,10 +20,11 @@ card "Idaten the Conqueror Star" {
         method: fusion
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: AtkChange
-        code: AttackEnd
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when attack_declared
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

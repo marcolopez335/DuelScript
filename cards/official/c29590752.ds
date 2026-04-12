@@ -24,11 +24,9 @@ card "Gladiator Beast Octavius" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        category: ToDeck + HandDestroy
-        code: PhaseBattleStep
-        range: MonsterZone
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: during battle_phase
         on_resolve {
             discard (1, card)
             return (1+, card, either_player controls) to deck shuffle

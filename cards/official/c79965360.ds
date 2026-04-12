@@ -11,11 +11,10 @@ card "Amazoness Heirloom" {
         grant: cannot_be_destroyed
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        category: Destroy
-        code: BattleEnd
-        range: SpellTrapZone
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_end"
+        activate_from: [spell_trap_zone]
         on_resolve {
             destroy (1+, card, either_player controls)
         }

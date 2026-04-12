@@ -28,12 +28,13 @@ card "Vendread Nightmare" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: AtkChange
-        code: BattleConfirmed
-        range: SpellTrapZone
-        count_limit: (1, 33971095)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when_battle_damage
+        activate_from: [spell_trap_zone]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

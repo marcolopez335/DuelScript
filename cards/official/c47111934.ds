@@ -20,11 +20,10 @@ card "Worm Yagan" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: ToHand
-        code: ChainActive
-        property: CardTarget
+    effect "Effect 2" {
+        speed: spell_speed_1
+        damage_step: false
+        trigger: on_custom_event "chain_active"
         on_resolve {
             return (1+, monster, you controls) to hand
         }

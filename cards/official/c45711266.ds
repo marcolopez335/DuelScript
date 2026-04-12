@@ -11,10 +11,9 @@ card "Jurrac Ptera" {
     atk: 800
     def: 1500
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: ToHand
-        code: BattleEnd
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_end"
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }

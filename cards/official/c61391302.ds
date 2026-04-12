@@ -26,11 +26,12 @@ card "Odd-Eyes Advance Dragon" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: BattleConfirmed
-        count_limit: (1, 61391302)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when_battle_damage
         on_resolve {
             special_summon (1, monster) from gy
         }

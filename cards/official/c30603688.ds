@@ -47,11 +47,12 @@ card "Apprentice Illusion Magician" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: QuickEffect
-        category: AtkChange
-        code: AttackEnd
-        range: Hand + MonsterZone
+    effect "Effect 4" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: when attack_declared
+        activate_from: [hand, monster_zone]
         cost {
             send self to gy
         }

@@ -12,11 +12,10 @@ card "Madolche Waltz" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        category: Damage
-        code: BattleEnd
-        range: SpellTrapZone
+    effect "Effect 2" {
+        speed: spell_speed_2
+        trigger: on_custom_event "chain_end"
+        activate_from: [spell_trap_zone]
         on_resolve {
             deal_damage to opponent: 1000
         }

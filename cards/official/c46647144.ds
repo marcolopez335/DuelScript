@@ -15,12 +15,13 @@ card "World Legacy - 'World Lance'" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: AtkChange
-        code: AttackEnd
-        range: Hand
-        count_limit: (1, 46647144)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when attack_declared
+        activate_from: [hand]
         cost {
             discard (1, card, you controls)
         }

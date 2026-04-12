@@ -11,12 +11,12 @@ card "Battle Survivor" {
     atk: 1600
     def: 800
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: ToHand
-        code: PhaseBattleStep
-        range: MonsterZone
-        count_limit: (1, 64178868)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: during battle_phase
         on_resolve {
             add_to_hand (1+, card, you controls) from gy
             reveal (1+, card, opponent controls)

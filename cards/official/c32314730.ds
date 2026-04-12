@@ -25,11 +25,12 @@ card "Koa'ki Meiru Crusader" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: BattleConfirmed
-        property: CardTarget
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_battle_damage
         on_resolve {
             add_to_hand (1+, monster, you controls) from hand
             reveal (1+, card, opponent controls)

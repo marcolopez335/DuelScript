@@ -55,10 +55,11 @@ card "Black Luster Soldier - Legendary Swordsman" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single + Trigger
-        category: ToDeck
-        code: BattleConfirmed
+    effect "Effect 5" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_damage
         on_resolve {
             return (1+, card, opponent controls) to deck shuffle
         }

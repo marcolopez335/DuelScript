@@ -16,12 +16,10 @@ card "Reptilianne Naga" {
         grant: cannot_be_destroyed_by_battle
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        category: AtkChange
-        code: PhaseBattleStep
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during battle_phase
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

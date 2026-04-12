@@ -28,10 +28,12 @@ card "Favorite Hero" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + Trigger
-        code: BattleConfirmed
-        range: SpellTrapZone
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_damage
+        activate_from: [spell_trap_zone]
         cost {
             send self to gy
         }

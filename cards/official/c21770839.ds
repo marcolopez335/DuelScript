@@ -34,12 +34,12 @@ card "Odd-Eyes Phantasma Dragon" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: AtkChange
-        code: AttackEnd
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: when attack_declared
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

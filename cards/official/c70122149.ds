@@ -15,11 +15,13 @@ card "Evil Eye Domain - Pareidolia" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        code: AttackEnd
-        range: FieldZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: when attack_declared
+        activate_from: [field_zone]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

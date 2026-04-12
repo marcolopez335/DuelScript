@@ -21,10 +21,9 @@ card "Zoodiac Whiptail" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: MandatoryTrigger + XyzMaterial
-        category: Banish
-        code: BattleEnd
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_end"
         on_resolve {
             banish (1+, card, either_player controls)
         }

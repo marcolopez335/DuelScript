@@ -33,12 +33,11 @@ card "WAKE CUP! Macchia" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + MandatoryTrigger
-        category: PositionChange
-        code: ChainActive
-        property: CardTarget
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
+        trigger: on_custom_event "chain_active"
         on_resolve {
             change_battle_position (1, monster)
         }

@@ -26,12 +26,12 @@ card "Performapal Ballad" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: AtkChange
-        code: BattleEnd
-        property: CardTarget
-        range: MonsterZone
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

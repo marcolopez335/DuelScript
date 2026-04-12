@@ -20,10 +20,11 @@ card "Dragon Knight of Creation" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToGrave
-        code: BattleConfirmed
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_damage
         on_resolve {
             send (1+, card, you controls, deck) to gy
         }

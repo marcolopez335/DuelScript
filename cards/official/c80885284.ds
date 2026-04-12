@@ -23,12 +23,12 @@ card "Ghostrick Jiangshi" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: ChainActive
-        property: Oath
-        count_limit: (1, 80885284)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: on_custom_event "chain_active"
         on_resolve {
             return (1+, monster, you controls) to hand
             reveal (1+, card, opponent controls)

@@ -18,11 +18,11 @@ card "Geargiarmor" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: ChainActive
-        property: Oath
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: on_custom_event "chain_active"
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)

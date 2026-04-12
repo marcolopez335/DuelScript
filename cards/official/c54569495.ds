@@ -15,13 +15,14 @@ card "Marincess Crown Tail" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: AttackEnd
-        property: CardTarget
-        range: Hand
-        count_limit: (1, 54569495)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when attack_declared
+        activate_from: [hand]
         cost {
             send self to gy
         }

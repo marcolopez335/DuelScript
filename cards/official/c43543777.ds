@@ -31,11 +31,12 @@ card "Izanami" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: ToHand
-        code: ChainActive
-        property: CardTarget
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: on_custom_event "chain_active"
         on_resolve {
             add_to_hand (1+, card, you controls) from hand
             reveal (1+, card, opponent controls)

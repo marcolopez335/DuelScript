@@ -40,11 +40,12 @@ card "Masked HERO Anki" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: ToHand + Search
-        code: BattleConfirmed
-        count_limit: (1, 59642500)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when_battle_damage
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)

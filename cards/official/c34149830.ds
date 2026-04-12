@@ -12,11 +12,12 @@ card "Desperate Tag" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: AttackEnd
-        range: SpellTrapZone
+    effect "Effect 2" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: when attack_declared
+        activate_from: [spell_trap_zone]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

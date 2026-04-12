@@ -30,11 +30,12 @@ card "Gishki Natalia" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: ToDeck
-        code: ChainActive
-        property: CardTarget
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: on_custom_event "chain_active"
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
         }

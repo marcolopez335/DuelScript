@@ -20,10 +20,9 @@ card "Spellbook Magician of Prophecy" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: ToHand + Search
-        code: ChainActive
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_active"
         on_resolve {
             add_to_hand (1+, spell, opponent controls) from deck
             reveal (1+, card, opponent controls)

@@ -35,10 +35,11 @@ card "Bloom Diva the Melodious Choir" {
         grant: cannot_be_destroyed_by_battle
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: Destroy + Damage
-        code: BattleEnd
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: on_custom_event "chain_end"
         on_resolve {
             deal_damage to opponent: 1000
             destroy (1+, card, either_player controls)

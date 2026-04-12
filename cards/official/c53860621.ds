@@ -38,12 +38,13 @@ card "Glowing Crossbow" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Field + Trigger
-        category: HandDestroy
-        code: BattleConfirmed
-        range: SpellTrapZone
-        count_limit: (1, 53860621)
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when_battle_damage
+        activate_from: [spell_trap_zone]
         on_resolve {
             send (1+, card, you controls, hand) to gy
         }

@@ -11,10 +11,11 @@ card "D.D. Warrior Lady" {
     atk: 1500
     def: 1600
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Banish
-        code: BattleEnd
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: on_custom_event "chain_end"
         on_resolve {
             banish (1+, card, either_player controls)
         }

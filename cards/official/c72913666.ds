@@ -23,11 +23,10 @@ card "Ghostrick Warwolf" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + MandatoryTrigger
-        category: Damage
-        code: ChainActive
-        count_limit: (1, 72913666)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        trigger: on_custom_event "chain_active"
         on_resolve {
             deal_damage to opponent: 1000
         }

@@ -11,10 +11,9 @@ card "Cactus Fighter" {
     atk: 1900
     def: 400
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: SpecialSummon + Token
-        code: BattleConfirmed
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_battle_damage
         on_resolve {
             create_token { atk: 0 def: 0 }
             special_summon (1, monster) from gy

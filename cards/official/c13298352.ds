@@ -35,12 +35,13 @@ card "Yaguramaru the Armor Ninja" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: Banish
-        code: ChainActive
-        property: CardTarget + Delay
-        count_limit: (1, 13298352)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_active"
         cost {
             banish self
         }

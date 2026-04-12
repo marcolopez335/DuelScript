@@ -37,10 +37,9 @@ card "Tsumuha-Kutsunagi the Lord of Swords" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + MandatoryTrigger
-        category: ToDeck + ToGrave + Draw
-        code: ChainActive
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_active"
         on_resolve {
             send (1+, card, opponent controls) to gy
             draw 1

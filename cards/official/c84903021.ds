@@ -23,13 +23,13 @@ card "War Rock Mammud" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: Destroy + AtkChange
-        code: BattleEnd
-        property: CardTarget + Delay
-        range: MonsterZone
-        count_limit: (1, 84903021)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        damage_step: false
+        trigger: on_custom_event "chain_end"
         on_resolve {
             destroy (1+, spell, you controls)
             register_effect on self {

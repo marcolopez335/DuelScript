@@ -33,10 +33,9 @@ card "Trito Enneacraft - 'exapatisIA'" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + MandatoryTrigger
-        category: Destroy + SpecialSummon
-        code: ChainActive
+    effect "Effect 3" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_active"
         on_resolve {
             destroy (1+, spell, you controls, deck)
             special_summon (1, monster) from gy

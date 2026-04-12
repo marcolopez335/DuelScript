@@ -11,12 +11,13 @@ card "Vylon Tesseract" {
     atk: 800
     def: 600
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: BattleConfirmed
-        property: CardTarget
-        range: SpellTrapZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_battle_damage
+        activate_from: [spell_trap_zone]
         on_resolve {
             special_summon (1, monster) from gy
         }

@@ -23,11 +23,12 @@ card "Ghostrick Yeti" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: Banish
-        code: ChainActive
-        property: CardTarget + Oath
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: on_custom_event "chain_active"
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

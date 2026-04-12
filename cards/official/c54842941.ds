@@ -24,13 +24,13 @@ card "Enneacraft - Atori.MAR" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: Destroy
-        code: PhaseBattleStep
-        property: CardTarget
-        range: PendulumZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: during battle_phase
         on_resolve {
             destroy (1+, monster, opponent controls)
         }
@@ -58,10 +58,9 @@ card "Enneacraft - Atori.MAR" {
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single + MandatoryTrigger
-        category: PositionChange
-        code: ChainActive
+    effect "Effect 5" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_active"
         on_resolve {
             change_battle_position (1, monster)
             register_effect on self {

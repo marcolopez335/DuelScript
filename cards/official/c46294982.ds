@@ -32,11 +32,12 @@ card "Hexe Trude" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: AtkChange
-        code: BattleConfirmed
-        property: CardTarget
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_battle_damage
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

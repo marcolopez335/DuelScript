@@ -23,13 +23,12 @@ card "War Rock Orpis" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: ToGrave + AtkChange
-        code: BattleEnd
-        property: Delay
-        range: MonsterZone
-        count_limit: (1, 46169154)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_end"
         on_resolve {
             send (1+, monster, you controls) to gy
             register_effect on self {

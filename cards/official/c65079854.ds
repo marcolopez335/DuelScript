@@ -24,10 +24,10 @@ card "Thorn of Malice" {
         grant: cannot_be_destroyed_by_battle
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + MandatoryTrigger
-        code: BattleEnd
-        range: SpellTrapZone
+    effect "Effect 4" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_end"
+        activate_from: [spell_trap_zone]
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

@@ -11,12 +11,11 @@ card "Trigon" {
     atk: 500
     def: 1700
 
-    raw_effect "Effect 1" {
-        effect_type: Field + MandatoryTrigger
-        category: SpecialSummon
-        code: BattleConfirmed
-        property: CardTarget
-        range: SpellTrapZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: false
+        trigger: when_battle_damage
+        activate_from: [spell_trap_zone]
         on_resolve {
             special_summon (1, monster) from gy
         }

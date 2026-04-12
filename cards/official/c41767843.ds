@@ -11,11 +11,12 @@ card "Score the Melodious Diva" {
     atk: 200
     def: 200
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: AtkChange + DefChange
-        code: AttackEnd
-        range: Hand
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: when attack_declared
+        activate_from: [hand]
         cost {
             send self to gy
         }

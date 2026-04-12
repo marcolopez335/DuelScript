@@ -29,12 +29,12 @@ card "Number 27: Dreadnought Dreadnoid" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: PhaseBattleStep
-        range: MonsterZone
-        count_limit: (1, 8387138)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: during battle_phase
         on_resolve {
             attach (1, card) to self as_material
             special_summon (1, monster) from gy

@@ -22,11 +22,10 @@ card "Mecha Bunny" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: Damage
-        code: ChainActive
-        property: CardTarget
+    effect "Effect 2" {
+        speed: spell_speed_1
+        damage_step: false
+        trigger: on_custom_event "chain_active"
         on_resolve {
             deal_damage to opponent: 500
         }

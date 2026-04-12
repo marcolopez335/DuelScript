@@ -12,13 +12,11 @@ card "Pride of the Plunder Patroll" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        category: Draw
-        code: BattleConfirmed
-        property: InitialValue
-        range: SpellTrapZone
-        count_limit: (1, 17016131)
+    effect "Effect 2" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        trigger: when_battle_damage
+        activate_from: [spell_trap_zone]
         on_resolve {
             draw 1
         }

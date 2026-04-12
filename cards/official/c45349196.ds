@@ -25,13 +25,13 @@ card "Archfiend Black Skull Dragon" {
         grant: cannot_activate_effects
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: ToDeck + Damage
-        code: PhaseBattleStep
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: during battle_phase
         on_resolve {
             deal_damage to opponent: 1000
             return (1+, card, either_player controls) to deck shuffle

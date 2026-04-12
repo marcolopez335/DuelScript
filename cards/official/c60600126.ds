@@ -15,12 +15,12 @@ card "Cyber Emergency" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: ToHand
-        code: SentToHand
-        property: Delay
-        range: Graveyard
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: when_sent_to hand
+        activate_from: [gy]
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)

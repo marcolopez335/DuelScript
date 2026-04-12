@@ -11,13 +11,13 @@ card "Battlewasp - Dart the Hunter" {
     atk: 100
     def: 100
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: Damage
-        code: BattleConfirmed
-        property: InitialValue + Delay
-        range: Hand
-        count_limit: (1, 91283212)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: if
+        trigger: when_battle_damage
+        activate_from: [hand]
         cost {
             discard (1, card, you controls)
         }

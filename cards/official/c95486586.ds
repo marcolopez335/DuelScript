@@ -38,13 +38,13 @@ card "Elemental HERO Core" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: Destroy
-        code: PhaseBattleStep
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: during battle_phase
         on_resolve {
             destroy (1+, card, either_player controls)
         }

@@ -43,12 +43,11 @@ card "Miracle Flipper" {
         }
     }
 
-    raw_effect "Effect 6" {
-        effect_type: Field + MandatoryTrigger
-        category: SpecialSummon
-        code: PhaseBattleStep
-        range: Hand + MonsterZone + SpellTrapZone + Graveyard + Banished + Deck
-        count_limit: (1, 0)
+    effect "Effect 6" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during battle_phase
+        activate_from: [hand, monster_zone, spell_trap_zone, gy, banished]
         on_resolve {
             special_summon (1, monster) from gy
         }

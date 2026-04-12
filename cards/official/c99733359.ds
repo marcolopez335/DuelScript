@@ -15,12 +15,13 @@ card "Stegocyber" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: SpecialSummon
-        code: AttackEnd
-        range: Graveyard
-        count_limit: (1, 99733359)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when attack_declared
+        activate_from: [gy]
         cost {
             pay_lp 1000
         }

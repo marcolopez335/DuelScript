@@ -6,12 +6,10 @@ card "Orb of Yasaka" {
     id: 74115234
     type: Equip Spell
 
-    raw_effect "Effect 1" {
-        effect_type: Field + MandatoryTrigger
-        category: Recover
-        code: BattleConfirmed
-        property: InitialValue
-        range: SpellTrapZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_battle_damage
+        activate_from: [spell_trap_zone]
         on_resolve {
             gain_lp: 1000
         }

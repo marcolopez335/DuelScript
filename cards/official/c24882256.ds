@@ -20,12 +20,12 @@ card "Fire Phoenix @Ignister" {
         method: link
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: Damage
-        code: AttackEnd
-        range: MonsterZone
-        count_limit: (1, 24882256)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when attack_declared
         on_resolve {
             deal_damage to opponent: 1000
             register_effect on self {

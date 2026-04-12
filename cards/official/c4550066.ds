@@ -11,11 +11,12 @@ card "Rebuildeer" {
     atk: 1800
     def: 800
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: BattleConfirmed
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_battle_damage
         on_resolve {
             special_summon (1, monster) from gy
         }

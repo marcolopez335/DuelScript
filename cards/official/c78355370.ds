@@ -11,12 +11,13 @@ card "Kuribohrn" {
     atk: 300
     def: 200
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: PhaseBattleStep
-        property: CardTarget
-        range: Hand
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: during battle_phase
+        activate_from: [hand]
         cost {
             discard (1, card, you controls)
         }

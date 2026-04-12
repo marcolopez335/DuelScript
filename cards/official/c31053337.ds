@@ -36,10 +36,9 @@ card "Blackwing - Abrolhos the Megaquake" {
         grant: cannot_be_destroyed_by_battle
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + MandatoryTrigger
-        category: ToHand
-        code: BattleEnd
+    effect "Effect 4" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_end"
         on_resolve {
             return (1+, spell, opponent controls) to hand
         }

@@ -23,11 +23,12 @@ card "Striping Partner" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: SpecialSummon
-        code: SentToHand
-        range: Hand
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_sent_to hand
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
         }

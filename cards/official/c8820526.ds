@@ -15,11 +15,12 @@ card "Performapal Clay Breaker" {
         tributes_required: 1
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: AtkChange
-        code: AttackEnd
-        count_limit: (1, 8820526)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        trigger: when attack_declared
         on_resolve {
             register_effect on self {
                 grant: cannot_be_destroyed_by_battle

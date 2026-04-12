@@ -22,10 +22,12 @@ card "Vendread Nights" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        code: BattleConfirmed
-        range: FieldZone
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_damage
+        activate_from: [field_zone]
         cost {
             banish self
         }

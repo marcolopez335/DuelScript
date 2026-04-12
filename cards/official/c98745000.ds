@@ -15,10 +15,11 @@ card "Mystical Knight of Jackal" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: ToDeck
-        code: BattleConfirmed
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_damage
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
         }

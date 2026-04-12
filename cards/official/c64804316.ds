@@ -34,10 +34,9 @@ card "Ghostrick Siren" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + MandatoryTrigger
-        category: ToHand + ToGrave + DeckDestroy + PositionChange + Search
-        code: ChainActive
+    effect "Effect 4" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_active"
         on_resolve {
             mill 2
             add_to_hand (1+, spell, you controls) from deck

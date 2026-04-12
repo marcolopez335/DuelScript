@@ -11,11 +11,11 @@ card "Deskbot 004" {
     atk: 500
     def: 500
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: ToGrave + AtkChange + DefChange
-        code: AttackEnd
-        range: MonsterZone
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: when attack_declared
         on_resolve {
             send (1+, monster, you controls, deck) to gy
             register_effect on self {
@@ -25,10 +25,11 @@ card "Deskbot 004" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: BattleConfirmed
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_damage
         on_resolve {
             special_summon (1, monster) from gy
         }

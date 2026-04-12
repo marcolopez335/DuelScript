@@ -11,11 +11,10 @@ card "Nightmare Penguin" {
     atk: 900
     def: 1800
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: ToHand
-        code: ChainActive
-        property: CardTarget
+    effect "Effect 1" {
+        speed: spell_speed_1
+        damage_step: false
+        trigger: on_custom_event "chain_active"
         on_resolve {
             add_to_hand (1+, card, either_player controls) from gy
         }

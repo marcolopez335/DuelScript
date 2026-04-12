@@ -25,10 +25,11 @@ card "Orphebull the Harmonious Bullfighter Bard" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: Banish
-        code: BattleEnd
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: on_custom_event "chain_end"
         on_resolve {
             banish (1+, monster, you controls, gy)
         }

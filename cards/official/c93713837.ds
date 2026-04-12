@@ -56,10 +56,9 @@ card "Number 24: Dragulas the Vampiric Dragon" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + MandatoryTrigger
-        category: ToGrave
-        code: ChainActive
+    effect "Effect 4" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_active"
         on_resolve {
             send (1+, card, either_player controls) to gy
         }

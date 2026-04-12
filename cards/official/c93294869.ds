@@ -11,10 +11,11 @@ card "Brotherhood of the Fire Fist - Wolf" {
     atk: 0
     def: 1900
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        code: ChainActive
-        property: Oath + Delay
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: if
+        trigger: on_custom_event "chain_active"
         on_resolve {
             set (1, card)
             set (1, card)

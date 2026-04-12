@@ -19,13 +19,14 @@ card "Salamangreat Sanctuary" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: Recover + AtkChange
-        code: AttackEnd
-        property: CardTarget
-        range: FieldZone
-        count_limit: (1, 1295111)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when attack_declared
+        activate_from: [field_zone]
         cost {
             pay_lp 1000
         }

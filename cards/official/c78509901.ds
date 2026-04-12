@@ -36,11 +36,12 @@ card "Blade Garoodia the Cubic Beast" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: ToHand + SpecialSummon + Search
-        code: BattleConfirmed
-        property: CardTarget
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_battle_damage
         on_resolve {
             send (1+, monster, you controls) to gy
             special_summon (1, monster) from gy

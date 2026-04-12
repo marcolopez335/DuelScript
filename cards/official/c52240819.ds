@@ -59,10 +59,12 @@ card "Abyss Actor - Evil Heel" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        code: BattleConfirmed
-        property: CardTarget
+    effect "Effect 4" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_battle_damage
         on_resolve {
             set (1, card)
         }

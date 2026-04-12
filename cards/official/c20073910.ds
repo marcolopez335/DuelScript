@@ -25,10 +25,9 @@ card "Amaterasu" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: Banish
-        code: ChainActive
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_active"
         on_resolve {
             banish (1+, card, either_player controls)
         }

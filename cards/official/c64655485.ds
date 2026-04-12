@@ -38,10 +38,11 @@ card "Elemental HERO Brave Neos" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: Destroy
-        code: BattleConfirmed
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_damage
         on_resolve {
             add_to_hand (1+, monster, you controls) from deck
             reveal (1+, card, opponent controls)

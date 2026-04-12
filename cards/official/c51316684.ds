@@ -15,12 +15,12 @@ card "Infernoid Seitsemas" {
         cannot_normal_summon: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: Banish
-        code: PhaseBattleStep
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: during battle_phase
         on_resolve {
             banish (1+, card, either_player controls)
         }

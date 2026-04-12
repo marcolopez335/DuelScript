@@ -26,10 +26,12 @@ card "Converging Wishes" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        code: BattleConfirmed
-        range: SpellTrapZone
+    effect "Effect 3" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: when_battle_damage
+        activate_from: [spell_trap_zone]
         cost {
             banish self
         }

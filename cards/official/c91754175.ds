@@ -11,12 +11,12 @@ card "Caninetaur" {
     atk: 1500
     def: 200
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: ToGrave + AtkChange
-        code: AttackEnd
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 1" {
+        speed: spell_speed_2
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: when attack_declared
         on_resolve {
             send (1+, card, you controls, hand) to gy
         }

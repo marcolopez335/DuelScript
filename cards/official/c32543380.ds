@@ -35,10 +35,9 @@ card "Volcanic Doomfire" {
         grant: must_attack_if_able
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + MandatoryTrigger
-        category: Destroy + Damage
-        code: BattleConfirmed
+    effect "Effect 4" {
+        speed: spell_speed_1
+        trigger: when_battle_damage
         on_resolve {
             destroy (1+, monster, you controls)
             deal_damage to opponent: 1000

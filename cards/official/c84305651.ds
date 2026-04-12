@@ -28,9 +28,11 @@ card "Goyo King" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        code: BattleConfirmed
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_damage
         on_resolve {
             special_summon (1, monster) from gy
             take_control of (1, monster, opponent controls)

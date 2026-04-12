@@ -11,10 +11,9 @@ card "Legacy Hunter" {
     atk: 1000
     def: 1500
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: ToDeck
-        code: BattleConfirmed
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_battle_damage
         on_resolve {
             return (1+, card, either_player controls) to deck shuffle
         }

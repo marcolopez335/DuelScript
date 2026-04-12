@@ -11,12 +11,13 @@ card "Vylon Pentachloro" {
     atk: 500
     def: 400
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: Destroy
-        code: BattleConfirmed
-        property: CardTarget
-        range: SpellTrapZone
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_battle_damage
+        activate_from: [spell_trap_zone]
         on_resolve {
             destroy (1+, card, either_player controls)
         }

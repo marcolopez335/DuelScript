@@ -11,10 +11,9 @@ card "D.D. Assailant" {
     atk: 1700
     def: 1600
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: Banish
-        code: BattleEnd
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_end"
         on_resolve {
             banish (1+, card, either_player controls)
         }

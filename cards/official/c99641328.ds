@@ -11,10 +11,11 @@ card "Sylvan Komushroomo" {
     atk: 100
     def: 2000
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Trigger
-        category: DeckDestroy
-        code: ChainActive
+    effect "Effect 1" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: on_custom_event "chain_active"
         on_resolve {
             reveal (1, card, opponent controls, deck)
             send (1+, spell, either_player controls) to gy

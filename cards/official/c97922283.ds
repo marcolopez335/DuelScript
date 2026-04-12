@@ -12,11 +12,10 @@ card "Howl of the Wild" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + MandatoryTrigger
-        category: Damage
-        code: BattleConfirmed
-        range: SpellTrapZone
+    effect "Effect 2" {
+        speed: spell_speed_2
+        trigger: when_battle_damage
+        activate_from: [spell_trap_zone]
         on_resolve {
             deal_damage to opponent: 1000
         }

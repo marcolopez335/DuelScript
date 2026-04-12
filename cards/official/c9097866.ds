@@ -20,13 +20,14 @@ card "Cross Debug" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: AtkChange
-        code: AttackEnd
-        property: CardTarget
-        range: Graveyard
-        count_limit: (1, 0)
+    effect "Effect 2" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when attack_declared
+        activate_from: [gy]
         cost {
             banish self
         }

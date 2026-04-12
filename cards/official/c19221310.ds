@@ -27,10 +27,11 @@ card "Odd-Eyes Saber Dragon" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Trigger
-        category: Destroy
-        code: BattleConfirmed
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_damage
         on_resolve {
             destroy (1+, monster, opponent controls)
         }

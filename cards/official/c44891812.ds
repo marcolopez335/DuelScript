@@ -11,12 +11,13 @@ card "Superheavy Samurai Helper" {
     atk: 0
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: DefChange
-        code: AttackEnd
-        property: CardTarget
-        range: Hand
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when attack_declared
+        activate_from: [hand]
         cost {
             discard (1, card, you controls)
         }

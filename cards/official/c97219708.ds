@@ -11,11 +11,12 @@ card "Raidraptor - Last Strix" {
     atk: 100
     def: 100
 
-    raw_effect "Effect 1" {
-        effect_type: QuickEffect
-        category: SpecialSummon + Recover
-        code: AttackEnd
-        range: Hand
+    effect "Effect 1" {
+        speed: spell_speed_2
+        optional: true
+        timing: when
+        trigger: when attack_declared
+        activate_from: [hand]
         on_resolve {
             special_summon (1, monster) from gy
             gain_lp: 1000

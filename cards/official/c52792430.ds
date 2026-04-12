@@ -39,10 +39,11 @@ card "Predaplant Spinodionaea" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Trigger
-        category: SpecialSummon
-        code: BattleEnd
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: on_custom_event "chain_end"
         on_resolve {
             special_summon (1, monster) from gy
         }

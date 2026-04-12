@@ -14,12 +14,12 @@ card "SPYRAL GEAR - Fully Armed" {
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Trigger
-        category: Banish
-        code: BattleConfirmed
-        property: InitialValue
-        range: SpellTrapZone
+    effect "Effect 2" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_damage
+        activate_from: [spell_trap_zone]
         on_resolve {
             banish (1+, monster, opponent controls)
         }

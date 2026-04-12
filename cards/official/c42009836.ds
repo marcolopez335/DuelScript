@@ -16,10 +16,9 @@ card "Fossil Dyna Pachycephalo" {
         grant: cannot_be_used_as_material
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: Destroy
-        code: ChainActive
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_active"
         on_resolve {
             destroy (1+, monster, either_player controls)
         }

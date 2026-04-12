@@ -612,13 +612,27 @@ fn try_semantic_effect(effect_type: u32, code: u32, property: u32, is_trap: bool
         1108 => Some("when_flipped".to_string()),
         1140 => Some("when_battle_damage".to_string()),
         1143 => Some("when_battle_destroyed".to_string()),
-        1014 => Some("on_custom_event \"chain_end\"".to_string()),
+        1014 | 1138 => Some("on_custom_event \"chain_end\"".to_string()),
+        1139 => Some("when_battle_damage".to_string()),
+        1143 => Some("when_battle_destroyed".to_string()),
+        1134 => Some("when attack_declared".to_string()),
+        1030 => Some("when_leaves_field".to_string()),
+        1024 => Some("when_sent_to hand".to_string()),
+        1025 => Some("when_sent_to deck".to_string()),
+        1031 => Some("when_flipped".to_string()),
+        0x1001 | 1001 => Some("on_custom_event \"chain_active\"".to_string()),
+        0x1200 | 4608 => Some("during_end_phase".to_string()),
+        0x1002 | 4098 => Some("during_standby_phase".to_string()),
+        0x1004 | 4100 => Some("during main_phase_1".to_string()),
+        0x1080 | 4224 => Some("during battle_phase".to_string()),
+        0x1100 | 4352 => Some("during main_phase_2".to_string()),
         _ => {
-            // Unknown code — can't cleanly map to a trigger
+            // Unknown code — activations/ignitions don't need triggers,
+            // but trigger effects need a known code to be semantic.
             if is_activate || is_ignition {
-                None // activations and ignitions don't need triggers
+                None
             } else {
-                return None; // triggers need a known code
+                return None;
             }
         }
     };

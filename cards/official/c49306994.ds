@@ -31,11 +31,12 @@ card "White Veil" {
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        category: Destroy
-        code: BattleConfirmed
-        range: SpellTrapZone
+    effect "Effect 3" {
+        speed: spell_speed_1
+        optional: true
+        timing: when
+        trigger: when_battle_damage
+        activate_from: [spell_trap_zone]
         on_resolve {
             destroy (1+, trap, opponent controls)
         }

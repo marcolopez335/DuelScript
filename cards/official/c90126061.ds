@@ -36,24 +36,25 @@ card "Number 5: Doom Chimera Dragon" {
         grant: attack_all_opponent_monsters
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Trigger
-        code: PhaseBattleStep
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 3" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: during battle_phase
         on_resolve {
             attach (1, card) to self as_material
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Field + Trigger
-        category: ToDeck
-        code: PhaseBattleStep
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: during battle_phase
         on_resolve {
             return (1+, monster, either_player controls) to deck shuffle
         }

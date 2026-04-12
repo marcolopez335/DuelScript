@@ -15,13 +15,13 @@ card "Queen Azamina" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field + Trigger
-        category: ToHand
-        code: BattleConfirmed
-        property: CardTarget
-        range: MonsterZone
-        count_limit: (1, 65033975)
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: when_battle_damage
         on_resolve {
             add_to_hand (1+, spell, either_player controls) from gy
         }

@@ -40,21 +40,23 @@ card "Appliancer Laundry Dragon" {
         }
     }
 
-    raw_effect "Effect 4" {
-        effect_type: Single + Trigger
-        category: Banish
-        code: BattleEnd
-        count_limit: (1, 0)
+    effect "Effect 4" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: on_custom_event "chain_end"
         on_resolve {
             banish (1+, card, either_player controls)
         }
     }
 
-    raw_effect "Effect 5" {
-        effect_type: Single + Trigger
-        category: Destroy
-        code: BattleEnd
-        count_limit: (1, 0)
+    effect "Effect 5" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        optional: true
+        timing: when
+        trigger: on_custom_event "chain_end"
         on_resolve {
             destroy (1+, card, either_player controls)
             deal_damage to opponent: 1000
