@@ -1,0 +1,42 @@
+// 魔導戦士 ブレイカー
+// Breaker the Magical Warrior
+// Transpiled from c71413901.lua
+
+card "Breaker the Magical Warrior" {
+    id: 71413901
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 4
+    atk: 1600
+    def: 1000
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        trigger: when_summoned
+        on_resolve {
+        }
+    }
+
+    raw_effect "Effect 2" {
+        effect_type: Single
+        code: UpdateAttack
+        property: SingleRange
+        range: MonsterZone
+        on_resolve {
+            modifier: atk + 0
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        damage_step: false
+        on_activate {
+            select (1+, spell, either_player controls) as target
+        }
+        on_resolve {
+            destroy (1+, spell, either_player controls)
+        }
+    }
+
+}

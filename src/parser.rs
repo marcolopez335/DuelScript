@@ -51,10 +51,7 @@ pub fn parse(source: &str) -> Result<DuelScriptFile, ParseError> {
     let pairs = DuelScriptParser::parse(Rule::file, source)
         .map_err(|e| ParseError::PestError(e.to_string()))?;
 
-    // Sprint 61: two-pass parsing.
-    // Pass 1: collect template definitions (template name → raw source span).
-    // Pass 2: parse cards, expanding `use <name>` by re-parsing the
-    //         template's body items into the card.
+    // Two-pass: collect templates first, then parse cards (expanding `use <name>`).
     use std::collections::HashMap;
     let mut templates: HashMap<String, String> = HashMap::new();
     let mut card_pairs = Vec::new();
@@ -63,12 +60,11 @@ pub fn parse(source: &str) -> Result<DuelScriptFile, ParseError> {
         for inner in pair.into_inner() {
             match inner.as_rule() {
                 Rule::template_def => {
-                    // Extract template name and body source text
                     let full_text = inner.as_str();
                     let mut it = inner.into_inner();
                     if let Some(name_pair) = it.next() {
                         let name = name_pair.as_str().to_string();
-                        // Store the body items source (everything between { })
+                        // Extract body between { }
                         if let Some(open) = full_text.find('{') {
                             if let Some(close) = full_text.rfind('}') {
                                 let body_src = full_text[open+1..close].trim().to_string();

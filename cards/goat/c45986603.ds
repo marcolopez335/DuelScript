@@ -1,0 +1,33 @@
+// 強奪
+// Snatch Steal
+// Transpiled from c45986603.lua
+
+card "Snatch Steal" {
+    id: 45986603
+    type: Equip Spell
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        trigger: during_standby_phase
+        activate_from: [spell_trap_zone]
+        on_resolve {
+            gain_lp: 1000
+        }
+    }
+
+    raw_effect "Effect 2" {
+        effect_type: Equip
+        code: CannotActivate
+        on_resolve {
+        }
+    }
+
+    effect "Effect 3" {
+        speed: spell_speed_1
+        on_resolve {
+            equip self to (1, monster, you controls)
+        }
+    }
+
+}

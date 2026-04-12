@@ -395,10 +395,8 @@ fn check_link_arrows(ctx: &CardCtx, errors: &mut Vec<ValidationError>) {
 }
 
 fn check_materials(ctx: &CardCtx, errors: &mut Vec<ValidationError>) {
-    // Extra deck monsters (Fusion/Synchro/Xyz/Link) should declare materials.
-    // Sprint 57: ritual monsters no longer need materials — the ritual
-    // SPELL defines the summoning conditions. Materials on a ritual
-    // monster is still accepted for backwards compat but not required.
+    // Extra deck monsters should declare materials. Ritual monsters are exempt
+    // (the ritual spell defines summoning conditions).
     if ctx.is_extra_deck && ctx.card.materials.is_none() {
         errors.push(warn(ctx.name(), "Extra deck monster should declare a 'materials' block"));
     }
@@ -517,17 +515,14 @@ fn check_cost_validity(ctx: &CardCtx, errors: &mut Vec<ValidationError>) {
     for effect in &ctx.card.effects {
         for cost in &effect.body.cost {
             match cost {
-                // Detach from self is only valid on Xyz monsters.
-                // Sprint 64: downgrade to warning since some trap cards
-                // legitimately equip to Xyz monsters and detach from them.
+                // Detach is unusual on non-Xyz (but traps can equip to Xyz, so just warn).
                 CostAction::Detach { .. } if !ctx.is_xyz => {
                     errors.push(warn(
                         ctx.name(),
                         "'detach overlay_unit' cost is unusual on non-Xyz cards",
                     ));
                 }
-                // Sprint 60: tribute self → compiler auto-injects on_field
-                // condition, so no warning needed. The compiler handles it.
+                // Tribute self is valid — compiler auto-injects on_field condition.
                 CostAction::Tribute(SelfOrTarget::Self_) => {}
                 // Pay LP must be > 0
                 CostAction::PayLp(expr) => {

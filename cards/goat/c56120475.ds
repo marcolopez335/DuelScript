@@ -1,0 +1,21 @@
+// 炸裂装甲
+// Sakuretsu Armor
+// Transpiled from c56120475.lua
+
+card "Sakuretsu Armor" {
+    id: 56120475
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        damage_step: false
+        trigger: when attack_declared
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
+        on_resolve {
+            destroy (1+, card, either_player controls)
+        }
+    }
+
+}

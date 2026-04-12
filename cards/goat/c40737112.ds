@@ -1,0 +1,62 @@
+// 混沌の黒魔術師
+// Dark Magician of Chaos
+// Transpiled from c40737112.lua
+
+card "Dark Magician of Chaos" {
+    id: 40737112
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 8
+    atk: 2800
+    def: 2600
+
+    summon_condition {
+        tributes_required: 2
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: hard
+        optional: true
+        timing: when
+        damage_step: false
+        trigger: during_end_phase
+        on_activate {
+            select (1+, spell, either_player controls, where { is_spell }) as target
+        }
+        on_resolve {
+            add_to_hand (1+, spell, either_player controls, where { is_spell }) from gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: spell_speed_1
+        trigger: on_custom_event "chain_end"
+        on_resolve {
+            banish (1+, spell, either_player controls, where { is_spell })
+        }
+    }
+
+    redirect_effect "Effect 3" {
+        when_going_to: field
+        redirect_to: banished
+    }
+
+    raw_effect "Effect 4" {
+        effect_type: Field + Continuous
+        code: SummonSuccess
+        property: BothSide
+        on_resolve {
+        }
+    }
+
+    raw_effect "Effect 5" {
+        effect_type: Field + Continuous
+        code: SpecialSummonSuccess
+        property: BothSide
+        on_resolve {
+        }
+    }
+
+}

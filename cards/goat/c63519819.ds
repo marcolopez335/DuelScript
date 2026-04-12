@@ -1,0 +1,94 @@
+// サウザンド・アイズ・サクリファイス
+// Thousand-Eyes Restrict
+// Transpiled from c63519819.lua
+
+card "Thousand-Eyes Restrict" {
+    id: 63519819
+    type: Fusion Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 1
+    atk: 0
+    def: 0
+
+    summon_condition {
+        cannot_normal_summon: true
+    }
+
+    materials {
+        require: 2+ monster
+        method: fusion
+    }
+
+    effect "Effect 1" {
+        speed: spell_speed_1
+        once_per_turn: soft
+        damage_step: false
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
+        on_resolve {
+        }
+    }
+
+    continuous_effect "Effect 2" {
+        scope: field
+        grant: cannot_attack
+    }
+
+    continuous_effect "Effect 3" {
+        scope: field
+        grant: cannot_change_battle_position
+    }
+
+    raw_effect "Effect 4" {
+        effect_type: Single
+        code: SetAttack
+        property: SingleRange
+        range: MonsterZone
+        on_resolve {
+            modifier: atk + 0
+        }
+    }
+
+    raw_effect "Effect 5" {
+        effect_type: Single
+        code: SetDefense
+        property: SingleRange
+        range: MonsterZone
+        on_resolve {
+            modifier: def + 0
+        }
+    }
+
+    raw_effect "Effect 6" {
+        effect_type: Equip
+        code: 45
+        property: SetAvailable + IgnoreRange
+        on_resolve {
+        }
+    }
+
+    raw_effect "Effect 7" {
+        effect_type: Single
+        code: CannotAttack2
+        on_resolve {
+        }
+    }
+
+    continuous_effect "Effect 8" {
+        scope: self
+        grant: cannot_be_targeted_by_card_effects
+    }
+
+    continuous_effect "Effect 9" {
+        scope: self
+        grant: cannot_be_destroyed_by_effect
+    }
+
+    continuous_effect "Effect 10" {
+        scope: self
+        grant: cannot_be_destroyed_by_battle
+    }
+
+}

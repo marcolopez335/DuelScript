@@ -919,10 +919,7 @@ pub fn helper_map() -> &'static std::collections::HashMap<String, Vec<EffectBloc
             ..Default::default()
         };
 
-        // Sprint 24: builder that also attaches helper-supplied DSL
-        // actions/costs. Use this for helpers whose semantics we can
-        // express directly in DSL — the migrator emits the actions
-        // verbatim into the on_resolve block instead of `reveal self`.
+        // Builder that also attaches DSL actions/costs for helpers with known semantics.
         let mk_with_actions = |
             et: &str, code: &str, cat: &str, range: &str,
             actions: &[&str], costs: &[&str],
@@ -936,16 +933,14 @@ pub fn helper_map() -> &'static std::collections::HashMap<String, Vec<EffectBloc
             ..Default::default()
         };
 
-        // Helper to insert with both aux. and Auxiliary. aliases
+        // Insert with both aux. and Auxiliary. aliases
         let mut add = |name: &str, effects: Vec<EffectBlock>| {
             m.insert(format!("aux.{}", name), effects.clone());
             m.insert(format!("Auxiliary.{}", name), effects);
         };
 
         // === Equipment helpers ===
-        // AddEquipProcedure: registers an "equip self to target" activation.
-        // Sprint 24: now carries the on_resolve action so cards using this
-        // helper get a real DSL action instead of `reveal self`.
+        // AddEquipProcedure: equip self to target activation.
         add("AddEquipProcedure", vec![
             mk_with_actions(
                 "EFFECT_TYPE_ACTIVATE", "EVENT_FREE_CHAIN", "CATEGORY_EQUIP", "",
@@ -1004,9 +999,7 @@ pub fn helper_map() -> &'static std::collections::HashMap<String, Vec<EffectBloc
         ]);
 
         // === Neos / Elemental HERO helpers ===
-        // EnableNeosReturn: returns this monster to the Extra Deck during
-        // the End Phase. Two effects: mandatory trigger + optional trigger,
-        // depending on which Lua variant the script uses.
+        // EnableNeosReturn: return to Extra Deck during End Phase (mandatory + optional trigger).
         add("EnableNeosReturn", vec![
             mk_with_actions(
                 "EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F", "EVENT_PHASE+PHASE_END",
@@ -1023,17 +1016,13 @@ pub fn helper_map() -> &'static std::collections::HashMap<String, Vec<EffectBloc
         ]);
 
         // === Code / archetype helpers ===
-        // EnableChangeCode: marks the card as having an alternate name.
-        // No DSL action — this is metadata for the engine.
+        // EnableChangeCode: alternate name metadata (no DSL action).
         add("EnableChangeCode", vec![
             mk("EFFECT_TYPE_SINGLE", "EFFECT_CHANGE_CODE", "", ""),
         ]);
 
         // === Union helpers ===
-        // AddUnionProcedure: registers (1) ignition to equip self,
-        // (2) ignition to special summon back, (3) equip limit, (4)
-        // destroy-instead-of-equipped trigger. The first two have
-        // direct DSL expressions; the last two are pure metadata.
+        // AddUnionProcedure: equip/unequip ignitions + equip limit + destruction substitute.
         add("AddUnionProcedure", vec![
             mk_with_actions(
                 "EFFECT_TYPE_IGNITION", "", "", "LOCATION_MZONE",
@@ -1050,15 +1039,13 @@ pub fn helper_map() -> &'static std::collections::HashMap<String, Vec<EffectBloc
         ]);
 
         // === Persistent / protection helpers ===
-        // AddPersistentProcedure: triggers an effect when the card leaves
-        // the field. Most cards using this restore something on leave.
+        // AddPersistentProcedure: triggers on leave-field.
         add("AddPersistentProcedure", vec![
             mk("EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F", "EVENT_LEAVE_FIELD", "", "LOCATION_MZONE"),
         ]);
 
         // === Normal summon variants ===
-        // These register CANNOT_SUMMON / CANNOT_MSET restrictions —
-        // pure metadata, no on_resolve action.
+        // CANNOT_SUMMON / CANNOT_MSET restrictions (pure metadata).
         add("AddNormalSummonProcedure", vec![
             mk("EFFECT_TYPE_SINGLE", "EFFECT_CANNOT_SUMMON", "", ""),
         ]);
@@ -1067,8 +1054,7 @@ pub fn helper_map() -> &'static std::collections::HashMap<String, Vec<EffectBloc
         ]);
 
         // === Kaiju / Lava monsters ===
-        // Sprint 24: tribute opponent's monster to special summon yourself
-        // from your hand to their side of the field.
+        // Tribute opponent's monster to special summon self to their field.
         add("AddKaijuProcedure", vec![
             mk_with_actions(
                 "EFFECT_TYPE_IGNITION", "", "CATEGORY_SPECIAL_SUMMON+CATEGORY_RELEASE",
@@ -1257,22 +1243,13 @@ pub fn helper_map() -> &'static std::collections::HashMap<String, Vec<EffectBloc
         ]);
 
         // === Sprint 31: Procedure-module helpers ===
-        // The proc_*.lua files expose Ritual.X / Fusion.X / Synchro.X /
-        // Pendulum.X namespaces with their own procedure functions.
-        // ProjectIgnis cards call these directly (without the aux. prefix),
-        // so we need entries for the bare module names too. Each entry
-        // produces an EFFECT_TYPE_ACTIVATE registration with semantic
-        // ritual/fusion/etc. summon actions.
+        // Bare module-prefixed helpers (Ritual.X, Fusion.X, etc.) used by ProjectIgnis cards.
 
         let mut add_module = |module: &str, effects: Vec<EffectBlock>| {
             m.insert(format!("{}", module), effects);
         };
 
-        // Ritual procedure modules — register a ritual summon activation.
-        // The card is the ritual SPELL, summoning a ritual MONSTER.
-        // Sprint 39: extended with the remaining Ritual.* entry points
-        // (AddWholeLevelTribute / Target / Operation) so the matching
-        // ritual SPELL cards stop landing in StructureOnly.
+        // Ritual procedure modules — ritual spell summon activation.
         for fname in &[
             "Ritual.AddProcGreater",
             "Ritual.AddProcEqual",
@@ -1293,11 +1270,7 @@ pub fn helper_map() -> &'static std::collections::HashMap<String, Vec<EffectBloc
             ]);
         }
 
-        // Fusion procedure modules — these can be on either the FUSION
-        // monster (declaring its materials) or on a SPELL (Polymerization-
-        // style). The materials block path handles the monster case;
-        // here we register the spell case. The is_fusion_monster gate
-        // in the materials path prevents double-emission.
+        // Fusion procedure modules — spell-side registration (monster side handled by materials block).
         for fname in &[
             "Fusion.AddProcMix",
             "Fusion.AddProcMixN",
@@ -1305,15 +1278,11 @@ pub fn helper_map() -> &'static std::collections::HashMap<String, Vec<EffectBloc
             "Fusion.AddContactProc",
             "Fusion.CreateSummonEff",
         ] {
-            // Empty effects — the materials block + monster type tells
-            // the engine everything it needs. No on_resolve action.
+            // No effects needed — materials block handles these.
             add_module(fname, vec![]);
         }
 
-        // Synchro / Xyz / Link / Pendulum AddProcedure — same idea.
-        // Materials block already handles them; the helper entry is
-        // here so the helper-loop sees them as known and doesn't
-        // misclassify them as unrecognized aux calls.
+        // Synchro / Xyz / Link / Pendulum — registered so helper-loop recognizes them.
         for fname in &[
             "Synchro.AddProcedure",
             "Xyz.AddProcedure",
@@ -1325,8 +1294,7 @@ pub fn helper_map() -> &'static std::collections::HashMap<String, Vec<EffectBloc
             add_module(fname, vec![]);
         }
 
-        // Synchro.NonTuner / Synchro.NonTunerEx — material filter helpers,
-        // not effect builders. Empty entries.
+        // Synchro.NonTuner / Synchro.NonTunerEx — material filter helpers (no effects).
         add_module("Synchro.NonTuner", vec![]);
         add_module("Synchro.NonTunerEx", vec![]);
 
@@ -1384,16 +1352,8 @@ pub fn transpile_lua_to_ds(
             if depth <= 0 { break; }
             continue;
         }
-        // Look for helper calls: aux.X(...) / Auxiliary.X(...) / Module.X{...}.
-        // Sprint 31: match both `helper(` and `helper{` styles.
-        // Sprint 39: helpers are commonly assigned to a local variable
-        // (`local e1 = Module.X(...)`). The earlier strict-prefix
-        // matcher only caught bare statements and a single-named
-        // `local _ = Module.X(...)` form, so cards using
-        // `local e1=Ritual.AddProcGreater({...})` were missed and
-        // ended up in StructureOnly even though their helper has a
-        // mapping. Strip a `local <ident> = ` / `local <ident>=`
-        // prefix before checking, so any local-binding form works.
+        // Match helper calls: aux.X(...) / Auxiliary.X(...) / Module.X{...}.
+        // Also handles `local <ident> = Module.X(...)` binding forms.
         if !l.starts_with("function ") && !l.contains(":Set") && !l.contains("RegisterEffect") {
             // Strip an optional `local <ident> [=]? ` prefix.
             let stripped = if let Some(rest) = l.strip_prefix("local ") {
@@ -1491,23 +1451,14 @@ pub fn transpile_lua_to_ds(
     }
     ds.push('\n');
 
-    // Materials — Sprint 27: gated on CDB card type. We only emit
-    // a materials block when the CDB says the card actually IS an
-    // Extra Deck monster (Fusion / Synchro / Xyz / Link) or a Ritual
-    // monster. Spell cards that use Fusion.AddProcMix as part of
-    // their effect (Polymerization-style) shouldn't get a materials
-    // block — that's reserved for the monster, not the spell.
+    // Only emit materials for actual Extra Deck / Ritual monsters, not for spells that invoke fusion helpers.
     let is_fusion_monster  = cdb_card.map(|c| c.is_fusion() && c.is_monster()).unwrap_or(false);
     let is_synchro_monster = cdb_card.map(|c| c.is_synchro() && c.is_monster()).unwrap_or(false);
     let is_xyz_monster     = cdb_card.map(|c| c.is_xyz() && c.is_monster()).unwrap_or(false);
     let is_link_monster    = cdb_card.map(|c| c.is_link() && c.is_monster()).unwrap_or(false);
     let is_ritual_monster  = cdb_card.map(|c| c.is_ritual() && c.is_monster()).unwrap_or(false);
 
-    // Sprint 38: auto-emit tributes_required for Level 5+ main-deck
-    // monsters that don't already declare a special-summon-only condition.
-    // The validator warns about missing summon_conditions on Level 5/6
-    // (1 tribute) and Level 7-12 (2 tributes) cards. We can compute this
-    // straight from CDB level + extra-deck flags.
+    // Auto-emit tributes_required for Level 5+ main-deck monsters without revive limit.
     let has_revive_limit = lua_source.contains("EnableReviveLimit");
     if let Some(cdb) = cdb_card {
         let is_extra_deck = is_fusion_monster || is_synchro_monster
@@ -1554,11 +1505,7 @@ pub fn transpile_lua_to_ds(
         }
     }
 
-    // Sprint 38: fallback materials block for extra-deck monsters whose
-    // Lua doesn't use the standard procedure helpers (e.g. Masked HEROes
-    // summoned via Mask Change, contact-fusion variants, hand-traps that
-    // happen to be Synchro Tuners). Emit a permissive placeholder so the
-    // validator's "extra deck monster needs materials" check passes.
+    // Fallback materials for extra-deck monsters not using standard procedure helpers.
     if !emitted_materials {
         if is_xyz_monster {
             ds.push_str("    materials {\n        require: 2+ monster\n        method: xyz\n    }\n\n");
@@ -2122,10 +2069,7 @@ pub fn transpile_lua_to_ds(
         }
 
         // Sprint 34: drop the `reveal self` placeholder. The grammar
-        // now accepts an empty on_resolve block. Cards that genuinely
-        // have no recognizable on_resolve action just get `on_resolve {}`,
-        // which is a clean signal to hand-authors that the slot is
-        // unfilled rather than a confusing fake-action.
+        // Empty on_resolve {} signals the slot is unfilled.
         let _ = has_actions;
         ds.push_str("        }\n");
         ds.push_str("    }\n\n");
@@ -2133,14 +2077,10 @@ pub fn transpile_lua_to_ds(
 
     ds.push_str("}\n");
 
-    // Sprint 39: distinguish "vanilla" cards (no Effect.CreateEffect at
-    // all) from "structure-only" (has effects but couldn't extract any
-    // actions). Vanilla cards are perfectly captured — there's nothing
-    // to translate — so they belong in Full, not StructureOnly.
+    // Vanilla cards (no Effect.CreateEffect) are Full; cards with unextracted effects are StructureOnly.
     let has_effect_creation = lua_source.contains("Effect.CreateEffect");
     let accuracy = if !has_effect_creation && total_actions == 0 {
-        // Pure vanilla / procedure-only card. Materials + summon
-        // condition tell the engine everything; no further behavior.
+        // Pure vanilla / procedure-only card — fully captured.
         TranspileAccuracy::Full
     } else if total_actions == 0 {
         TranspileAccuracy::StructureOnly

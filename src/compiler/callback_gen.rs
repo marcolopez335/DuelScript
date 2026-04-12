@@ -18,21 +18,12 @@ use super::type_mapper;
 // The engine implements this trait to provide game-state access
 // for DuelScript callbacks. This keeps duelscript engine-agnostic.
 
-/// Runtime interface that engines must implement for DuelScript
-/// callbacks to execute against live game state.
-///
-/// Each method maps to a common game operation. The engine
-/// translates these into its internal API calls.
 /// Trait that engines implement to expose game state and operations
 /// to compiled DuelScript closures.
 ///
-/// Note: this trait is intentionally NOT `Send + Sync`. Implementations
-/// frequently wrap engine state via `Rc<RefCell>` (single-threaded
-/// reference counting), and forcing `Send + Sync` here would be
-/// incompatible. The closures stored in `GeneratedCallbacks` are still
-/// `Send + Sync` because they don't capture any runtime state — they
-/// receive `&mut dyn DuelScriptRuntime` as a parameter, and the runtime
-/// trait object can have any thread requirements the engine chooses.
+/// Intentionally not `Send + Sync` — implementations often use `Rc<RefCell>`.
+/// The closures themselves are `Send + Sync` because they receive the runtime
+/// as a parameter rather than capturing it.
 pub trait DuelScriptRuntime {
     // ── Queries ──────────────────────────────────────────────
     fn get_lp(&self, player: u8) -> i32;

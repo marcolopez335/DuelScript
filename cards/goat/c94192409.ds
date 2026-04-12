@@ -1,0 +1,20 @@
+// 強制脱出装置
+// Compulsory Evacuation Device
+// Transpiled from c94192409.lua
+
+card "Compulsory Evacuation Device" {
+    id: 94192409
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: spell_speed_2
+        damage_step: false
+        on_activate {
+            select (1+, card, either_player controls) as target
+        }
+        on_resolve {
+            add_to_hand (1+, card, either_player controls) from gy
+        }
+    }
+
+}
