@@ -14,6 +14,8 @@ use std::{
     process,
 };
 use duelscript::{parse, validator::{validate, ValidationReport}};
+use duelscript::test_harness::{compile_file, DuelScenario};
+use duelscript::compiler::callback_gen::DuelScriptRuntime;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -30,6 +32,7 @@ fn main() {
         "check"   => cmd_check(target),
         "inspect" => cmd_inspect(target),
         "fmt"     => cmd_fmt(target),
+        "test"    => cmd_test(target),
         other => {
             eprintln!("Unknown command: '{}'\n", other);
             print_usage();
@@ -247,6 +250,126 @@ fn cmd_fmt(target: &Path) {
 
 // ── File Collection ───────────────────────────────────────────
 
+fn cmd_test(target: &Path) {
+    if !target.exists() || !target.is_file() {
+        eprintln!("File not found: {}", target.display());
+        process::exit(1);
+    }
+
+    // Compile the card
+    let compiled = match compile_file(target) {
+        Ok(c) => c,
+        Err(e) => {
+            eprintln!("Compile error: {}", e);
+            process::exit(1);
+        }
+    };
+
+    println!("Testing: {} ({})", compiled.name, compiled.card_id);
+    println!("  Effects: {}", compiled.effects.len());
+    println!();
+
+    // Set up a MockRuntime with sensible defaults
+    let mut rt = DuelScenario::new()
+        .player(0).hand([compiled.card_id])
+        .player(0).deck([1001, 1002, 1003, 1004, 1005])
+        .player(1).deck([2001, 2002, 2003, 2004, 2005])
+        .activated_by(0, compiled.card_id)
+        .build();
+
+    let mut any_failed = false;
+
+    for (i, eff) in compiled.effects.iter().enumerate() {
+        let eff_name = format!("Effect {}", i + 1);
+        println!("  Effect {} \"{}\":", i + 1, eff_name);
+
+        // Condition
+        let cond_ok = if let Some(ref cond) = eff.callbacks.condition {
+            let ok = cond(&rt);
+            println!("    Condition: {}", if ok { "PASS" } else { "FAIL" });
+            ok
+        } else {
+            println!("    Condition: NONE (always true)");
+            true
+        };
+
+        if !cond_ok {
+            println!("    Skipped (condition failed)");
+            println!();
+            continue;
+        }
+
+        // Cost
+        if let Some(ref cost) = eff.callbacks.cost {
+            let can_pay = cost(&mut rt, true);
+            println!("    Cost check: {}", if can_pay { "CAN PAY" } else { "CANNOT PAY" });
+            if can_pay {
+                cost(&mut rt, false);
+                println!("    Cost paid");
+            } else {
+                println!("    Skipped (can't pay cost)");
+                println!();
+                continue;
+            }
+        } else {
+            println!("    Cost: NONE");
+        }
+
+        // Target
+        if let Some(ref target) = eff.callbacks.target {
+            let has_targets = target(&mut rt, true);
+            println!("    Targets: {}", if has_targets { "FOUND" } else { "NONE VALID" });
+            if has_targets {
+                target(&mut rt, false);
+            }
+        } else {
+            println!("    Target: NONE");
+        }
+
+        // Operation
+        if let Some(ref op) = eff.callbacks.operation {
+            let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                op(&mut rt);
+            }));
+            match result {
+                Ok(()) => {
+                    println!("    Operation: OK");
+                    // Print what happened
+                    let calls = rt.dump_calls();
+                    if !calls.is_empty() {
+                        for line in calls.lines().take(10) {
+                            println!("      {}", line);
+                        }
+                    }
+                }
+                Err(_) => {
+                    println!("    Operation: PANIC!");
+                    any_failed = true;
+                }
+            }
+        } else {
+            println!("    Operation: NONE");
+        }
+
+        println!();
+    }
+
+    // Final state
+    println!("  State after:");
+    println!("    Player 0: hand={}, deck={}, LP={}",
+        rt.get_hand_count(0), rt.get_deck_count(0), rt.get_lp(0));
+    println!("    Player 1: hand={}, deck={}, LP={}",
+        rt.get_hand_count(1), rt.get_deck_count(1), rt.get_lp(1));
+    println!();
+
+    if any_failed {
+        println!("  RESULT: FAILED (operation panicked)");
+        process::exit(1);
+    } else {
+        println!("  RESULT: ALL EFFECTS OK");
+    }
+}
+
 fn collect_ds_files(target: &Path) -> Vec<PathBuf> {
     if target.is_file() {
         if target.extension().map_or(false, |e| e == "ds") {
@@ -288,7 +411,8 @@ fn print_usage() {
     println!("COMMANDS:");
     println!("  check   <file.ds | directory>   Validate .ds files for errors and warnings");
     println!("  inspect <file.ds>               Pretty-print the parsed AST of a card");
-    println!("  fmt     <file.ds | directory>   Auto-format .ds files (v0.4 — stub in v0.3)");
+    println!("  fmt     <file.ds | directory>   Auto-format .ds files");
+    println!("  test    <file.ds>               Compile + run effects against MockRuntime");
     println!();
     println!("EXAMPLES:");
     println!("  duelscript check cards/");
