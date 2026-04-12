@@ -1744,6 +1744,11 @@ fn parse_game_action(pair: Pair<Rule>) -> Result<GameAction, ParseError> {
                 .ok_or(ParseError::MissingField("gain amount"))?;
             Ok(GameAction::GainLp { amount: parse_expr(expr)? })
         }
+        Rule::pay_lp_action => {
+            let expr = inner.into_inner().find(|p| p.as_rule() == Rule::expr)
+                .ok_or(ParseError::MissingField("pay amount"))?;
+            Ok(GameAction::PayLp { amount: parse_expr(expr)? })
+        }
         Rule::shuffle_action => {
             let zone = inner.into_inner().find(|p| p.as_rule() == Rule::zone)
                 .ok_or(ParseError::MissingField("shuffle zone"))?;

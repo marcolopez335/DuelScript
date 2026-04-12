@@ -923,6 +923,8 @@ pub enum GameAction {
 
     DealDamage { to: DamageTarget, amount: Expr },
     GainLp { amount: Expr },
+    /// Pay LP as a game action (not cost) — for maintenance effects.
+    PayLp { amount: Expr },
 
     Shuffle { zone: Zone },
 

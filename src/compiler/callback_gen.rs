@@ -636,6 +636,10 @@ fn execute_action(action: &GameAction, rt: &mut dyn DuelScriptRuntime, player: u
             let amt = eval_expr_runtime(amount, rt);
             rt.recover(player, amt);
         }
+        GameAction::PayLp { amount } => {
+            let amt = eval_expr_runtime(amount, rt);
+            rt.damage(player, amt);
+        }
         GameAction::Discard { target, random: _ } => {
             match target {
                 SelfOrTarget::Self_ => {

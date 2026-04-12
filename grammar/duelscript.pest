@@ -767,7 +767,12 @@ game_action = {
   | emit_event_action
   | confirm_action
   | negate_effects_action
+  | pay_lp_action
 }
+
+// pay_lp as a game action (not just cost) — for maintenance costs
+// like Imperial Order's "pay 700 LP or destroy this card"
+pay_lp_action = { "pay_lp" ~ expr }
 // Phase 2: emit a custom event. Other effects can listen via
 // `trigger: on_custom_event "name"`.
 emit_event_action = { "emit_event" ~ string }
