@@ -110,7 +110,7 @@ fn main() {
             .filter(|l| l.starts_with("--") && !l.starts_with("---"))
             .take(2)
             .collect();
-        let jp_name = comment_lines.first()
+        let _jp_name = comment_lines.first()
             .and_then(|l| l.strip_prefix("--"))
             .map(|s| s.trim().to_string());
         let card_name = comment_lines.get(1)

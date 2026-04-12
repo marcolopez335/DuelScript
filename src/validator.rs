@@ -541,16 +541,6 @@ fn check_cost_validity(ctx: &CardCtx, errors: &mut Vec<ValidationError>) {
     }
 }
 
-fn condition_implies_on_field(cond: &ConditionExpr) -> bool {
-    match cond {
-        ConditionExpr::Simple(SimpleCondition::OnField) => true,
-        ConditionExpr::And(conditions) | ConditionExpr::Or(conditions) => {
-            conditions.iter().any(|c| matches!(c, SimpleCondition::OnField))
-        }
-        _ => false,
-    }
-}
-
 fn check_trigger_validity(ctx: &CardCtx, errors: &mut Vec<ValidationError>) {
     for effect in &ctx.card.effects {
         let Some(trigger) = &effect.body.trigger else { continue };
