@@ -2982,13 +2982,6 @@ fn extract_function_bodies(source: &str) -> std::collections::HashMap<String, Ve
 }
 
 /// Count the `end` tokens on a line (as whole words, not inside
-/// identifiers). Handles single-line forms like `if X then Y end`.
-#[allow(dead_code)]
-fn count_end_tokens_local(line: &str) -> i32 {
-    // Reuse the existing count_end_tokens helper.
-    count_end_tokens(line)
-}
-
 /// Extract the contents of the first balanced `(...)` group in `s`.
 /// Handles arbitrary nesting depth so callers like cost extraction
 /// see the full inner expression.
@@ -3350,31 +3343,6 @@ fn inline_to_action(op_key: &str) -> Option<String> {
     None
 }
 
-/// Phase 1-3: map a raw Lua condition snippet to a DuelScript condition,
-/// if we recognize a well-known pattern. Returns None for unmatched input.
-#[allow(dead_code)]
-pub fn condition_to_ds(cond: &str) -> Option<String> {
-    // Duel.GetPreviousLocation(ev) & LOCATION_ONFIELD
-    if cond.contains("GetPreviousLocation") && cond.contains("LOCATION_ONFIELD") {
-        return Some("previous_location == field".to_string());
-    }
-    if cond.contains("GetPreviousPosition") && cond.contains("POS_FACEUP") {
-        return Some("previous_position == face_up".to_string());
-    }
-    // IsReason(REASON_BATTLE)
-    if cond.contains("IsReason") && cond.contains("REASON_BATTLE") {
-        return Some("sent_by_reason == battle".to_string());
-    }
-    // c:GetFlagEffect(id) > 0
-    if cond.contains("GetFlagEffect") {
-        return Some("has_flag \"tracked\" on self".to_string());
-    }
-    // aux.GlobalCheck — signals a global handler is needed upstream
-    if cond.contains("aux.GlobalCheck") {
-        return Some("/* global_handler needed */".to_string());
-    }
-    None
-}
 
 fn category_to_actions(cat: &str) -> Vec<String> {
     let mut actions = Vec::new();

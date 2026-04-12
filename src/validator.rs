@@ -114,7 +114,7 @@ struct CardCtx<'a> {
     is_pendulum: bool,
     is_normal_monster: bool,
     #[allow(dead_code)]
-    is_effect_monster: bool,
+    #[allow(dead_code)] is_effect_monster: bool,
 }
 
 impl<'a> CardCtx<'a> {
