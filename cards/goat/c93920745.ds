@@ -1,23 +1,25 @@
 // ペンギン・ソルジャー
 // Penguin Soldier
-// Transpiled from c93920745.lua
+// FLIP: You can target up to 2 monsters on the field;
+// return those targets to the hand.
 
 card "Penguin Soldier" {
     id: 93920745
-    type: Effect Monster
+    type: Effect Monster | Flip
     attribute: WATER
     race: Aqua
     level: 2
     atk: 750
     def: 500
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Flip + Trigger
-        category: ToHand
-        property: CardTarget + Delay
+    flip_effect "Bounce Monsters" {
+        optional: true
+
+        on_activate {
+            select (1+, monster, either_player controls) as target
+        }
         on_resolve {
-            add_to_hand (1+, card, either_player controls) from gy
+            return (1+, monster, either_player controls) to hand
         }
     }
-
 }

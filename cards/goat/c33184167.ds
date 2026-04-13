@@ -1,6 +1,7 @@
 // 同族感染ウィルス
 // Tribe-Infecting Virus
-// Transpiled from c33184167.lua
+// Discard 1 card and declare 1 Type. Destroy all face-up monsters
+// of the declared Type on the field.
 
 card "Tribe-Infecting Virus" {
     id: 33184167
@@ -11,11 +12,16 @@ card "Tribe-Infecting Virus" {
     atk: 1600
     def: 1000
 
-    effect "Effect 1" {
+    effect "Destroy by Type" {
         speed: spell_speed_1
+
+        cost {
+            discard (1, card, you controls)
+            announce type
+        }
+
         on_resolve {
-            destroy (1+, monster, either_player controls, where { is_face_up })
+            destroy (1+, monster, either_player controls, face_up)
         }
     }
-
 }

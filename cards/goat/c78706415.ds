@@ -1,26 +1,29 @@
 // ファイバーポッド
 // Fiber Jar
-// Transpiled from c78706415.lua
+// FLIP: Each player shuffles all cards from hand, field, GY into
+// Deck, then draws 5.
 
 card "Fiber Jar" {
     id: 78706415
-    type: Effect Monster
+    type: Effect Monster | Flip
     attribute: EARTH
     race: Plant
     level: 3
     atk: 500
     def: 500
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Flip
-        category: ToDeck + Draw
+    flip_effect "Reset Game" {
         on_resolve {
-            return (1+, card, either_player controls) to deck shuffle
-            shuffle_deck
-            shuffle_deck
+            return (1+, card, you controls) to deck shuffle
+            return (1+, card, opponent controls) to deck shuffle
+            send (1+, card, you controls, hand) to deck
+            send (1+, card, opponent controls, hand) to deck
+            send (1+, card, you controls, gy) to deck
+            send (1+, card, opponent controls, gy) to deck
+            shuffle deck
+            shuffle deck
             draw 5
             draw 5
         }
     }
-
 }

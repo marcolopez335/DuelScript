@@ -1,21 +1,40 @@
 // エネミーコントローラー
 // Enemy Controller
-// Transpiled from c98045062.lua
+// Activate 1 of these effects:
+// - Target 1 face-up monster your opponent controls; change its
+//   battle position.
+// - Tribute 1 monster, then target 1 face-up monster your opponent
+//   controls; take control of it until the End Phase.
 
 card "Enemy Controller" {
-    id: 98045062
     type: Quick-Play Spell
+    id: 98045062
 
-    effect "Effect 1" {
+    effect "Change Position" {
         speed: spell_speed_2
-        damage_step: false
+
         on_activate {
-            select (1+, card, either_player controls) as target
+            select (1, monster, opponent controls, face_up) as target
         }
+
         on_resolve {
-            change_battle_position (1, monster)
-            take_control of (1, monster, opponent controls)
+            change_position (1, monster, opponent controls)
         }
     }
 
+    effect "Take Control" {
+        speed: spell_speed_2
+
+        cost {
+            tribute (1, monster, you controls)
+        }
+
+        on_activate {
+            select (1, monster, opponent controls, face_up) as target
+        }
+
+        on_resolve {
+            take_control of (1, monster, opponent controls) until end_phase
+        }
+    }
 }

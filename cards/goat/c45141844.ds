@@ -1,23 +1,22 @@
 // 執念深き老魔術師
 // Old Vindictive Magician
-// Transpiled from c45141844.lua
+// FLIP: Target 1 monster your opponent controls; destroy that target.
 
 card "Old Vindictive Magician" {
     id: 45141844
-    type: Effect Monster
+    type: Effect Monster | Flip
     attribute: DARK
     race: Spellcaster
     level: 2
     atk: 450
     def: 600
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Flip
-        category: Destroy
-        property: CardTarget
+    flip_effect "Destroy Opponent Monster" {
+        on_activate {
+            select (1, monster, opponent controls) as target
+        }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1, monster, opponent controls)
         }
     }
-
 }

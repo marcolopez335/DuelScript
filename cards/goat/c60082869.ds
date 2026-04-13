@@ -1,21 +1,24 @@
 // 砂塵の大竜巻
 // Dust Tornado
-// Transpiled from c60082869.lua
+// Target 1 Spell/Trap your opponent controls; destroy that target,
+// then you can Set 1 Spell/Trap from your hand.
 
 card "Dust Tornado" {
-    id: 60082869
     type: Normal Trap
+    id: 60082869
 
-    effect "Effect 1" {
+    effect "Destroy and Set" {
         speed: spell_speed_2
-        damage_step: false
+
         on_activate {
-            select (1+, spell, you controls, where { is_spell }) as target
+            select (1, spell, opponent controls) as target
         }
+
         on_resolve {
-            destroy (1+, spell, you controls, hand)
-            set (1, card)
+            destroy (1, spell, opponent controls)
+            then {
+                set_spell_trap (1, card, you controls) from hand
+            }
         }
     }
-
 }

@@ -1,23 +1,20 @@
 // 和睦の使者
 // Waboku
-// Transpiled from c12607053.lua
+// You take no battle damage this turn. Your monsters cannot be
+// destroyed by battle this turn.
 
 card "Waboku" {
-    id: 12607053
     type: Normal Trap
+    id: 12607053
 
-    effect "Effect 1" {
+    effect "Battle Protection" {
         speed: spell_speed_2
+
         on_resolve {
-            register_effect on self {
-                grant: cannot_be_destroyed_by_battle
-                duration: until_end_of_turn
-            }
-            register_effect on self {
+            register_effect on (1+, monster, you controls) {
                 grant: cannot_be_destroyed_by_battle
                 duration: until_end_of_turn
             }
         }
     }
-
 }

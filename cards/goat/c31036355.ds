@@ -1,24 +1,20 @@
 // 強制転移
 // Creature Swap
-// Transpiled from c31036355.lua
+// Each player chooses 1 monster they control and switches control
+// of those monsters with each other. Those monsters cannot change
+// their battle positions for the rest of this turn.
 
 card "Creature Swap" {
-    id: 31036355
     type: Normal Spell
+    id: 31036355
 
-    effect "Effect 1" {
+    effect "Swap Monsters" {
         speed: spell_speed_1
+
         on_resolve {
+            select (1, monster, you controls) as yours
+            select (1, monster, opponent controls) as theirs
             take_control of (1, monster, opponent controls)
-            register_effect on self {
-                grant: cannot_be_destroyed_by_battle
-                duration: until_end_of_turn
-            }
-            register_effect on self {
-                grant: cannot_be_destroyed_by_battle
-                duration: until_end_of_turn
-            }
         }
     }
-
 }
