@@ -1,0 +1,17 @@
+// 聖なるバリア－ミラーフォース－
+// Mirror Force
+// When an opponent's monster declares an attack: Destroy all your
+// opponent's Attack Position monsters.
+
+card "Mirror Force" {
+    id: 44095762
+    type: Normal Trap
+
+    effect "Destroy Attackers" {
+        speed: 2
+        trigger: opponent_attack_declared
+        resolve {
+            destroy (all, monster, opponent controls, in attack_position)
+        }
+    }
+}

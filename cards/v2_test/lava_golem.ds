@@ -1,0 +1,43 @@
+// 溶岩魔神ラヴァ・ゴーレム
+// Lava Golem
+// Cannot be Normal Summoned/Set. Must first be Special Summoned
+// (from your hand) to your opponent's field by Tributing 2
+// monsters they control. You cannot Normal Summon/Set the turn
+// you Special Summon this card. Once per turn, during your
+// Standby Phase: Take 1000 damage.
+
+card "Lava Golem" {
+    id: 102380
+    type: Effect Monster
+    attribute: FIRE
+    race: Fiend
+    level: 8
+    atk: 3000
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+        special_summon_procedure {
+            from: hand
+            to: opponent_field
+            cost {
+                tribute (2, monster, opponent controls)
+            }
+            restriction "No Normal Summon This Turn" {
+                apply_to: summoner
+                cannot_normal_summon
+                duration: this_turn
+            }
+        }
+    }
+
+    effect "Burn" {
+        speed: 1
+        mandatory
+        trigger: standby_phase
+        who: controller
+        resolve {
+            damage controller 1000
+        }
+    }
+}

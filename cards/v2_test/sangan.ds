@@ -1,0 +1,25 @@
+// クリッター
+// Sangan
+// If this card is sent from the field to the GY: Add 1 monster
+// with 1500 or less ATK from your Deck to your hand.
+
+card "Sangan" {
+    id: 26202165
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 3
+    atk: 1000
+    def: 600
+
+    effect "Search" {
+        speed: 1
+        mandatory
+        trigger: sent_to gy from field
+        once_per_turn: hard
+        resolve {
+            search (1, monster, you control, from deck, where atk <= 1500)
+            add_to_hand searched
+        }
+    }
+}
