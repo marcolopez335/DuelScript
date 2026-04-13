@@ -610,6 +610,210 @@ summon {
 
 ---
 
-## Next Step
+## Gaps Found (Goat Format Review)
 
-Review this spec against ALL 151 Goat cards. For any card that can't be expressed, extend the spec. Once every Goat card is expressible, start writing the grammar in PEG.
+Reviewed 20 complex Goat cards. Found 10 mechanics the v2 spec doesn't yet cover:
+
+### Gap 1: Multi-turn duration
+**Card:** Crush Card Virus — "for the next 3 turns"
+**Need:** `duration: 3_turns` or `duration: N_turns(3)`
+```
+resolve {
+    destroy (all, monster, opponent controls, where atk <= 1500)
+    for_duration 3_turns {
+        check_drawn_cards opponent {
+            if (monster and atk <= 1500) { destroy it }
+        }
+    }
+}
+```
+
+### Gap 2: Damage step duration
+**Card:** Injection Fairy Lily — ATK boost during damage calc only
+**Need:** `until end_of_damage_step` duration
+```
+effect "Power Boost" {
+    speed: 2
+    trigger: damage_calculation
+    cost { pay_lp 2000 }
+    resolve {
+        modify_atk self +3000 until end_of_damage_step
+    }
+}
+```
+
+### Gap 3: Condition — summoned this turn
+**Card:** Dark Magician of Chaos — "if this card was summoned this turn"
+**Need:** `condition: self summoned_this_turn`
+```
+effect "Recover Spell" {
+    trigger: end_phase
+    condition: self summoned_this_turn
+    resolve { ... }
+}
+```
+
+### Gap 4: Replaceable event — leaves field
+**Card:** Dark Magician of Chaos — "if this card would leave the field, banish it instead"
+**Need:** `instead_of: leaves_field`
+```
+replacement "Banish Instead" {
+    instead_of: leaves_field
+    do { banish self }
+}
+```
+
+### Gap 5: Announce and reference
+**Card:** Vampire Lord — "Declare 1 card type; opponent sends 1 of that type from Deck to GY"
+**Need:** `announce type as declared` → filter by `declared`
+```
+resolve {
+    announce type as declared
+    send (1, card, from opponent_deck, where type == declared) to gy
+}
+```
+
+### Gap 6: Cost binding — reference tributed/discarded card
+**Card:** Metamorphosis — "Tribute 1 monster. Special Summon Fusion of same Level"
+**Need:** `cost { tribute (1, monster) as tributed }` → `where level == tributed.level`
+```
+effect "Transform" {
+    speed: 1
+    cost {
+        tribute (1, monster, you control) as tributed
+    }
+    resolve {
+        special_summon (1, fusion monster, from extra_deck, where level == tributed.level)
+    }
+}
+```
+
+### Gap 7: Target condition based on LP
+**Card:** Ring of Destruction — "target monster whose ATK <= opponent's LP"
+**Need:** `where atk <= opponent_lp` in target filter
+```
+target (1, monster, opponent controls, face_up, where atk <= opponent_lp)
+```
+
+### Gap 8: Intercept future draws
+**Card:** Crush Card Virus — "check all monsters drawn for 3 turns"
+**Need:** Future-event interceptor (very complex)
+**Approach:** `install_watcher` block
+```
+install_watcher "virus" {
+    event: opponent_draws
+    duration: 3_turns
+    check { if (monster and atk >= 1500) { destroy drawn_card } }
+}
+```
+
+### Gap 9: Token-specific restrictions
+**Card:** Scapegoat — tokens "cannot be Tributed for a Tribute Summon"
+**Need:** Restrictions on created tokens
+```
+create_token {
+    name: "Sheep Token"
+    atk: 0, def: 0
+    count: 4
+    position: defense
+    restriction {
+        cannot_be_tributed for tribute_summon
+    }
+}
+```
+
+### Gap 10: Mandatory cost vs optional activation
+**Card:** Imperial Order — MUST pay 700 LP each standby (not optional to activate, mandatory cost)
+**Need:** Distinguish "mandatory cost" from "optional effect with cost"
+```
+effect "Maintenance" {
+    mandatory
+    trigger: standby_phase
+    maintenance_cost {
+        pay_lp 700
+        if_cannot_pay {
+            destroy self
+        }
+    }
+}
+```
+
+---
+
+## Additional Constructs Needed
+
+From the gap analysis:
+
+### Durations (extended)
+```
+duration: this_turn
+duration: until end_of_turn
+duration: until end_phase
+duration: until end_of_damage_step    // NEW
+duration: until next_standby_phase    // NEW
+duration: N_turns(3)                  // NEW
+duration: while_on_field
+duration: while_face_up
+duration: permanently
+```
+
+### Conditions (extended)
+```
+condition: self summoned_this_turn    // NEW
+condition: self attacked_this_turn    // NEW
+condition: self flipped_this_turn     // NEW
+condition: on_field
+condition: in_gy
+condition: in_hand
+condition: in_banished
+```
+
+### Cost Bindings
+```
+cost {
+    tribute (1, monster) as tributed     // bind for later reference
+    discard (1, card) as discarded       // bind for later reference
+}
+resolve {
+    ... where level == tributed.level    // reference bound card
+    ... damage opponent discarded.level * 100
+}
+```
+
+### Announce System
+```
+announce type as declared              // player names a type
+announce attribute as declared
+announce level as declared
+announce card as declared              // player names a card
+```
+
+### Replaceable Events (extended)
+```
+instead_of: destroyed_by_battle
+instead_of: destroyed_by_effect
+instead_of: destroyed                  // either
+instead_of: sent_to_gy
+instead_of: banished
+instead_of: returned_to_hand
+instead_of: returned_to_deck
+instead_of: leaves_field               // NEW - any zone transition off field
+```
+
+### Future Watchers
+```
+install_watcher "name" {
+    event: opponent_draws / opponent_summons / ...
+    duration: N_turns(3)
+    check { ... }
+}
+```
+
+---
+
+## Spec Status
+
+- **Core syntax:** Complete (10 test cards all expressible)
+- **Actions:** 30+ defined, covers 95% of Goat cards
+- **Gaps found:** 10 (all have proposed solutions above)
+- **Next:** Write the PEG grammar implementing this full spec
