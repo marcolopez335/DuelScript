@@ -1,0 +1,629 @@
+// ============================================================
+// DuelScript v2 Grammar
+// A standalone scripting language for Yu-Gi-Oh card mechanics
+// ============================================================
+
+// ── Whitespace & Comments ────────────────────────────────────
+WHITESPACE = _{ " " | "\t" | "\r" | "\n" }
+COMMENT    = _{ "//" ~ (!"\n" ~ ANY)* | "/*" ~ (!"*/" ~ ANY)* ~ "*/" }
+
+// ── Primitives ───────────────────────────────────────────────
+ident      = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_" | "-")* }
+string     = @{ "\"" ~ (!"\"" ~ ANY)* ~ "\"" }
+integer    = @{ "-"? ~ ASCII_DIGIT+ }
+unsigned   = @{ ASCII_DIGIT+ }
+boolean    = { "true" | "false" }
+stat_val   = @{ "?" | integer }
+
+// ── Expressions ──────────────────────────────────────────────
+expr      = { expr_atom ~ (expr_op ~ expr_atom)* }
+expr_atom = {
+    "(" ~ expr ~ ")"
+  | count_expr
+  | stat_ref
+  | binding_ref
+  | player_ref
+  | "half"
+  | unsigned
+}
+expr_op    = { "+" | "-" | "*" | "/" }
+count_expr = { "count" ~ "(" ~ selector ~ ")" }
+stat_ref   = { ("self" | "target" | "equipped" | ident) ~ "." ~ stat_field }
+stat_field = { "atk" | "def" | "level" | "rank" | "link" | "scale"
+             | "base_atk" | "base_def" | "original_atk" | "original_def" }
+binding_ref = { ident ~ "." ~ stat_field }
+player_ref  = { "your_lp" | "opponent_lp" | "controller_lp" }
+
+// ── Compare Operators ────────────────────────────────────────
+compare_op = { ">=" | "<=" | "==" | "!=" | ">" | "<" }
+
+// ── File Structure ───────────────────────────────────────────
+file = { SOI ~ card+ ~ EOI }
+
+// ── Card Definition ──────────────────────────────────────────
+card = { "card" ~ string ~ "{" ~ card_body ~ "}" }
+card_body = { card_item* }
+card_item = {
+    field_decl
+  | summon_block
+  | effect_block
+  | passive_block
+  | restriction_block
+  | replacement_block
+}
+
+// ── Card Fields ──────────────────────────────────────────────
+field_decl = {
+    "id" ~ ":" ~ unsigned
+  | "type" ~ ":" ~ card_type ~ ("|" ~ card_type)*
+  | "attribute" ~ ":" ~ attribute
+  | "race" ~ ":" ~ race
+  | "level" ~ ":" ~ unsigned
+  | "rank" ~ ":" ~ unsigned
+  | "link" ~ ":" ~ unsigned
+  | "scale" ~ ":" ~ unsigned
+  | "atk" ~ ":" ~ stat_val
+  | "def" ~ ":" ~ stat_val
+  | "link_arrows" ~ ":" ~ "[" ~ arrow ~ ("," ~ arrow)* ~ "]"
+  | "archetype" ~ ":" ~ "[" ~ string ~ ("," ~ string)* ~ "]"
+}
+
+card_type = {
+    "Normal Monster" | "Effect Monster" | "Ritual Monster"
+  | "Fusion Monster" | "Synchro Monster" | "Xyz Monster"
+  | "Link Monster" | "Pendulum Monster"
+  | "Tuner" | "Synchro Tuner" | "Flip" | "Gemini" | "Union"
+  | "Spirit" | "Toon"
+  | "Normal Spell" | "Quick-Play Spell" | "Continuous Spell"
+  | "Equip Spell" | "Field Spell" | "Ritual Spell"
+  | "Normal Trap" | "Counter Trap" | "Continuous Trap"
+}
+
+attribute = { "LIGHT" | "DARK" | "FIRE" | "WATER" | "EARTH" | "WIND" | "DIVINE" }
+
+race = {
+    "Dragon" | "Spellcaster" | "Zombie" | "Warrior" | "Beast-Warrior"
+  | "Beast" | "Winged Beast" | "Fiend" | "Fairy" | "Insect"
+  | "Dinosaur" | "Reptile" | "Fish" | "Sea Serpent" | "Aqua"
+  | "Pyro" | "Thunder" | "Rock" | "Plant" | "Machine"
+  | "Psychic" | "Divine-Beast" | "Wyrm" | "Cyberse" | "Illusion"
+}
+
+arrow = {
+    "top_left" | "top" | "top_right"
+  | "left" | "right"
+  | "bottom_left" | "bottom" | "bottom_right"
+}
+
+// ══════════════════════════════════════════════════════════════
+// SUMMON BLOCK — how the card enters the field
+// ══════════════════════════════════════════════════════════════
+
+summon_block = { "summon" ~ "{" ~ summon_item+ ~ "}" }
+summon_item = {
+    "cannot_normal_summon"
+  | "cannot_special_summon"
+  | "tributes" ~ ":" ~ unsigned
+  | special_summon_procedure
+  | fusion_materials
+  | synchro_materials
+  | xyz_materials
+  | link_materials
+  | ritual_materials
+  | pendulum_rule
+}
+
+special_summon_procedure = {
+    "special_summon_procedure" ~ "{" ~ ssp_item+ ~ "}"
+}
+ssp_item = {
+    "from" ~ ":" ~ zone
+  | "to" ~ ":" ~ field_target
+  | cost_block
+  | condition_decl
+  | restriction_block
+}
+field_target = { "your_field" | "opponent_field" | "either_field" }
+
+fusion_materials = {
+    "fusion" ~ "materials" ~ ":" ~ material_list
+}
+synchro_materials = {
+    "synchro" ~ "materials" ~ "{" ~ synchro_material_item+ ~ "}"
+}
+synchro_material_item = {
+    "tuner" ~ ":" ~ selector
+  | "non_tuner" ~ ":" ~ selector
+}
+xyz_materials = {
+    "xyz" ~ "materials" ~ ":" ~ selector
+}
+link_materials = {
+    "link" ~ "materials" ~ ":" ~ selector
+}
+ritual_materials = {
+    "ritual" ~ "materials" ~ ":" ~ selector ~ level_constraint?
+}
+level_constraint = {
+    "where" ~ ("total_level" | "exact_level") ~ compare_op ~ expr
+}
+pendulum_rule = {
+    "pendulum" ~ "from" ~ ":" ~ "[" ~ zone ~ ("," ~ zone)* ~ "]"
+}
+
+material_list = { material_item ~ ("+" ~ material_item)* }
+material_item = { string | selector }
+
+// ══════════════════════════════════════════════════════════════
+// EFFECT BLOCK — activated and trigger effects
+// ══════════════════════════════════════════════════════════════
+
+effect_block = { "effect" ~ string ~ "{" ~ effect_item+ ~ "}" }
+effect_item = {
+    speed_decl
+  | frequency_decl
+  | mandatory_decl
+  | trigger_decl
+  | who_decl
+  | condition_decl
+  | activate_from_decl
+  | damage_step_decl
+  | timing_decl
+  | target_decl
+  | cost_block
+  | resolve_block
+  | choose_block
+}
+
+speed_decl     = { "speed" ~ ":" ~ ("1" | "2" | "3") }
+frequency_decl = {
+    "once_per_turn" ~ (":" ~ ("soft" | "hard"))?
+  | "once_per_duel"
+  | "twice_per_turn"
+}
+mandatory_decl    = { "mandatory" }
+timing_decl       = { "timing" ~ ":" ~ ("when" | "if") }
+who_decl          = { "who" ~ ":" ~ player_who }
+activate_from_decl = { "activate_from" ~ ":" ~ "[" ~ zone ~ ("," ~ zone)* ~ "]" }
+damage_step_decl  = { "damage_step" ~ ":" ~ boolean }
+
+player_who = { "you" | "opponent" | "controller" | "owner" | "summoner" | "both" }
+
+// ── Triggers ─────────────────────────────────────────────────
+trigger_decl = { "trigger" ~ ":" ~ trigger_expr }
+trigger_expr = {
+    // Summon triggers
+    "summoned" ~ summon_qualifier?
+  | "special_summoned" ~ summon_qualifier?
+  | "normal_summoned"
+  | "tribute_summoned"
+  | "flip_summoned"
+  | "flipped"
+    // Destruction triggers
+  | "destroyed" ~ destroy_qualifier?
+  | "destroyed_by_battle"
+  | "destroyed_by_effect"
+  | "destroys_by_battle"
+    // Movement triggers
+  | "sent_to" ~ zone ~ from_qualifier?
+  | "leaves_field"
+  | "banished"
+  | "returned_to" ~ zone
+    // Battle triggers
+  | "attack_declared"
+  | "opponent_attack_declared"
+  | "attacked"
+  | "battle_damage" ~ damage_qualifier?
+  | "direct_attack_damage"
+  | "damage_calculation"
+    // Phase triggers
+  | "standby_phase" ~ phase_qualifier?
+  | "end_phase"
+  | "draw_phase"
+  | "main_phase"
+  | "battle_phase"
+    // Chain triggers
+  | "summon_attempt"
+  | "spell_trap_activated"
+  | "opponent_activates" ~ category_list?
+  | "chain_link"
+    // Status triggers
+  | "targeted"
+  | "position_changed"
+  | "control_changed"
+  | "equipped"
+  | "unequipped"
+    // Material triggers
+  | "used_as_material" ~ ("for" ~ summon_method)?
+    // Custom
+  | "custom" ~ string
+}
+
+summon_qualifier  = { "by" ~ summon_method }
+summon_method     = { "normal" | "special" | "flip" | "tribute"
+                    | "fusion" | "synchro" | "xyz" | "link" | "ritual" | "pendulum" }
+destroy_qualifier = { "by" ~ ("battle" | "effect" | "card_effect") }
+from_qualifier    = { "from" ~ zone }
+damage_qualifier  = { "to" ~ ("you" | "opponent" | "controller" | "either") }
+phase_qualifier   = { "of" ~ ("yours" | "opponents" | "either") }
+category_list     = { "[" ~ category ~ ("," ~ category)* ~ "]" }
+category = {
+    "search" | "special_summon" | "send_to_gy" | "add_to_hand"
+  | "draw" | "banish" | "destroy" | "negate" | "mill"
+  | "activate_spell" | "activate_trap" | "activate_monster_effect"
+  | "normal_summon" | "fusion_summon" | "synchro_summon"
+  | "xyz_summon" | "link_summon" | "ritual_summon"
+  | "attack_declared"
+}
+
+// ── Conditions ───────────────────────────────────────────────
+condition_decl = { "condition" ~ ":" ~ condition_expr }
+condition_expr = { condition_atom ~ (("and" | "or") ~ condition_atom)* }
+condition_atom = {
+    "not" ~ condition_atom
+  | "self" ~ card_state
+  | player_who ~ "controls" ~ selector
+  | "no" ~ card_filter ~ "on" ~ ("your" | "opponent" | "either") ~ "field"
+  | "lp" ~ compare_op ~ expr
+  | "opponent_lp" ~ compare_op ~ expr
+  | "hand_size" ~ compare_op ~ expr
+  | "cards_in_gy" ~ compare_op ~ expr
+  | "cards_in_banished" ~ compare_op ~ expr
+  | "on_field"
+  | "in_gy"
+  | "in_hand"
+  | "in_banished"
+  | "phase" ~ "==" ~ phase_name
+  | "chain_includes" ~ category_list
+  | "has_counter" ~ string ~ "on" ~ ("self" | selector)
+  | "has_flag" ~ string
+}
+
+card_state = {
+    "summoned_this_turn"
+  | "attacked_this_turn"
+  | "flipped_this_turn"
+  | "activated_this_turn"
+  | "face_up"
+  | "face_down"
+  | "in_attack_position"
+  | "in_defense_position"
+}
+
+phase_name = {
+    "draw" | "standby" | "main1" | "battle" | "main2" | "end"
+  | "damage" | "damage_calculation"
+}
+
+// ── Target Selection ─────────────────────────────────────────
+target_decl = { "target" ~ selector ~ (("as" ~ ident) | binding)? }
+binding = { "as" ~ ident }
+
+// ── Selectors (the core card-matching system) ────────────────
+selector = {
+    "self"
+  | "target"                          // previously selected target
+  | "equipped_card"
+  | "negated_card"
+  | "searched"                        // result of last search
+  | "linked_card"                     // card linked via link_to
+  | ident                             // named binding reference
+  | "(" ~ quantity ~ "," ~ card_filter
+      ~ ("," ~ controller)?
+      ~ ("," ~ zone_filter)?
+      ~ ("," ~ position_filter)?
+      ~ ("," ~ where_clause)?
+    ~ ")"
+}
+
+quantity = { "all" | unsigned ~ "+"? }
+
+card_filter = {
+    string ~ "monster"               // "Dark Magician" monster
+  | string ~ "card"                  // "Blue-Eyes" card
+  | "non-tuner" ~ "monster"
+  | "tuner" ~ "monster"
+  | "non-token" ~ "monster"
+  | "fusion" ~ "monster"
+  | "synchro" ~ "monster"
+  | "xyz" ~ "monster"
+  | "link" ~ "monster"
+  | "ritual" ~ "monster"
+  | "pendulum" ~ "monster"
+  | "effect" ~ "monster"
+  | "normal" ~ "monster"
+  | "monster" | "spell" | "trap" | "card"
+}
+
+controller = {
+    "you" ~ "control"
+  | "opponent" ~ "controls"
+  | "either" ~ "controls"
+}
+
+zone_filter = {
+    "in" ~ zone
+  | "from" ~ zone
+  | "on" ~ ("your" | "opponent" | "either") ~ "field"
+}
+
+position_filter = {
+    "face_up" | "face_down"
+  | "in" ~ "attack_position"
+  | "in" ~ "defense_position"
+  | "except" ~ "self"
+}
+
+where_clause = { "where" ~ predicate }
+predicate = { pred_atom ~ (("and" | "or") ~ pred_atom)* }
+pred_atom = {
+    "not" ~ pred_atom
+  | "(" ~ predicate ~ ")"
+  | stat_field ~ compare_op ~ expr
+  | "attribute" ~ "==" ~ attribute
+  | "race" ~ "==" ~ race
+  | "type" ~ "==" ~ card_type
+  | "name" ~ "==" ~ string
+  | "archetype" ~ "==" ~ string
+  | "is_face_up" | "is_face_down"
+  | "is_monster" | "is_spell" | "is_trap"
+  | "is_effect" | "is_normal"
+  | "is_tuner" | "is_fusion" | "is_synchro" | "is_xyz" | "is_link"
+  | "is_ritual" | "is_pendulum" | "is_token"
+  | "is_flip"
+}
+
+// ── Costs ────────────────────────────────────────────────────
+cost_block = { "cost" ~ "{" ~ cost_action+ ~ "}" }
+cost_action = {
+    "pay_lp" ~ expr
+  | "discard" ~ selector ~ binding?
+  | "tribute" ~ selector ~ binding?
+  | "banish" ~ selector ~ ("from" ~ zone)? ~ binding?
+  | "send" ~ selector ~ "to" ~ zone ~ binding?
+  | "detach" ~ unsigned ~ "from" ~ ("self" | selector)
+  | "remove_counter" ~ string ~ unsigned ~ "from" ~ ("self" | selector)
+  | "reveal" ~ selector
+  | "announce" ~ announce_what ~ binding?
+  | "none"
+}
+
+announce_what = { "type" | "attribute" | "race" | "level" | "card" }
+
+// ── Resolve Block ────────────────────────────────────────────
+resolve_block = { "resolve" ~ "{" ~ action+ ~ "}" }
+
+// ── Choose Block (multi-option effects) ──────────────────────
+choose_block = { "choose" ~ "{" ~ option_block ~ option_block+ ~ "}" }
+option_block = { "option" ~ string ~ "{" ~ effect_item+ ~ "}" }
+
+// ── Actions (game operations) ────────────────────────────────
+action = {
+    draw_action
+  | destroy_action
+  | banish_action
+  | send_action
+  | return_action
+  | search_action
+  | add_to_hand_action
+  | special_summon_action
+  | normal_summon_action
+  | set_action
+  | flip_down_action
+  | change_position_action
+  | take_control_action
+  | equip_action
+  | negate_action
+  | negate_effects_action
+  | damage_action
+  | gain_lp_action
+  | pay_lp_action
+  | modify_stat_action
+  | set_stat_action
+  | change_property_action
+  | create_token_action
+  | attach_action
+  | detach_action
+  | counter_action
+  | mill_action
+  | excavate_action
+  | reveal_action
+  | look_at_action
+  | shuffle_action
+  | announce_action
+  | coin_flip_action
+  | dice_roll_action
+  | grant_action
+  | link_action
+  | if_action
+  | for_each_action
+  | choose_action
+  | delayed_action
+  | and_if_you_do_action
+  | then_action
+  | also_action
+  | install_watcher_action
+}
+
+// ── Individual Actions ───────────────────────────────────────
+draw_action           = { "draw" ~ expr }
+destroy_action        = { "destroy" ~ selector }
+banish_action         = { "banish" ~ selector ~ ("from" ~ zone)? ~ "face_down"? }
+send_action           = { "send" ~ selector ~ "to" ~ zone }
+return_action         = { "return" ~ selector ~ "to" ~ ("hand" | "deck" ~ deck_position? | "extra_deck") }
+deck_position         = { "top" | "bottom" | "shuffle" }
+search_action         = { "search" ~ selector ~ "from" ~ zone }
+add_to_hand_action    = { "add_to_hand" ~ selector ~ ("from" ~ zone)? }
+special_summon_action = { "special_summon" ~ selector ~ ("from" ~ zone)? ~ ("in" ~ battle_position)? }
+normal_summon_action  = { "normal_summon" ~ selector }
+set_action            = { "set" ~ selector ~ ("from" ~ zone)? }
+flip_down_action      = { "flip_down" ~ selector }
+change_position_action = { "change_position" ~ selector ~ ("to" ~ battle_position)? }
+take_control_action   = { "take_control" ~ selector ~ ("until" ~ duration)? }
+equip_action          = { "equip" ~ selector ~ "to" ~ selector }
+negate_action         = { "negate" ~ ("and" ~ "destroy")? }
+negate_effects_action = { "negate_effects" ~ selector ~ duration? }
+damage_action         = { "damage" ~ player_who ~ expr }
+gain_lp_action        = { "gain_lp" ~ expr }
+pay_lp_action         = { "pay_lp" ~ expr }
+modify_stat_action    = { "modify_" ~ stat_name ~ selector ~ ("+" | "-") ~ expr ~ ("until" ~ duration)? }
+set_stat_action       = { "set_" ~ stat_name ~ selector ~ expr ~ ("until" ~ duration)? }
+stat_name             = { "atk" | "def" }
+change_property_action = {
+    "change_level" ~ selector ~ "to" ~ expr
+  | "change_rank" ~ selector ~ "to" ~ expr
+  | "change_attribute" ~ selector ~ "to" ~ attribute
+  | "change_race" ~ selector ~ "to" ~ race
+  | "change_name" ~ selector ~ "to" ~ string ~ ("until" ~ duration)?
+  | "set_scale" ~ selector ~ "to" ~ expr
+}
+
+create_token_action = { "create_token" ~ "{" ~ token_item+ ~ "}" }
+token_item = {
+    "name" ~ ":" ~ string
+  | "attribute" ~ ":" ~ attribute
+  | "race" ~ ":" ~ race
+  | "level" ~ ":" ~ unsigned
+  | "atk" ~ ":" ~ stat_val
+  | "def" ~ ":" ~ stat_val
+  | "count" ~ ":" ~ unsigned
+  | "position" ~ ":" ~ battle_position
+  | restriction_block
+}
+
+attach_action   = { "attach" ~ selector ~ "to" ~ selector ~ "as_material" }
+detach_action   = { "detach" ~ unsigned ~ "from" ~ selector }
+counter_action  = {
+    "place_counter" ~ string ~ unsigned ~ "on" ~ selector
+  | "remove_counter" ~ string ~ unsigned ~ "from" ~ selector
+}
+mill_action     = { "mill" ~ expr ~ ("from" ~ ("your_deck" | "opponent_deck"))? }
+excavate_action = { "excavate" ~ expr ~ "from" ~ ("your_deck" | "opponent_deck") }
+reveal_action   = { "reveal" ~ selector }
+look_at_action  = { "look_at" ~ selector ~ ("from" ~ zone)? }
+shuffle_action  = { "shuffle_deck" ~ ("yours" | "opponents" | "both")? }
+announce_action = { "announce" ~ announce_what ~ binding? }
+link_action     = { "link" ~ selector ~ "to" ~ selector }
+
+coin_flip_action = { "flip_coin" ~ "{" ~ "heads" ~ "{" ~ action+ ~ "}" ~ "tails" ~ "{" ~ action+ ~ "}" ~ "}" }
+dice_roll_action = { "roll_dice" ~ "{" ~ action+ ~ "}" }
+
+grant_action = { "grant" ~ selector ~ grant_ability ~ ("until" ~ duration)? }
+grant_ability = {
+    "cannot_attack"
+  | "cannot_attack_directly"
+  | "cannot_change_position"
+  | "cannot_be_destroyed" ~ ("by" ~ ("battle" | "effect"))?
+  | "cannot_be_targeted" ~ ("by" ~ ("spells" | "traps" | "monsters" | "effects" | "opponent"))?
+  | "cannot_be_tributed"
+  | "cannot_be_used_as_material"
+  | "cannot_activate" ~ ("effects" | "spells" | "traps")?
+  | "cannot_normal_summon"
+  | "cannot_special_summon"
+  | "unaffected_by" ~ ("spells" | "traps" | "monsters" | "effects" | "opponent_effects")
+  | "piercing"
+  | "direct_attack"
+  | "double_attack"
+  | "triple_attack"
+  | "attack_all_monsters"
+  | "must_attack"
+  | "immune_to_targeting"
+}
+
+// ── Control Flow ─────────────────────────────────────────────
+if_action       = { "if" ~ "(" ~ condition_expr ~ ")" ~ "{" ~ action+ ~ "}" ~ ("else" ~ "{" ~ action+ ~ "}")? }
+for_each_action = { "for_each" ~ selector ~ "in" ~ zone ~ "{" ~ action+ ~ "}" }
+choose_action   = { "choose" ~ "{" ~ option_block ~ option_block+ ~ "}" }
+delayed_action  = { "delayed" ~ "until" ~ phase_name ~ "{" ~ action+ ~ "}" }
+and_if_you_do_action = { "and_if_you_do" ~ "{" ~ action+ ~ "}" }
+then_action     = { "then" ~ "{" ~ action+ ~ "}" }
+also_action     = { "also" ~ "{" ~ action+ ~ "}" }
+
+install_watcher_action = {
+    "install_watcher" ~ string ~ "{"
+      ~ "event" ~ ":" ~ trigger_expr
+      ~ "duration" ~ ":" ~ duration
+      ~ "check" ~ "{" ~ action+ ~ "}"
+    ~ "}"
+}
+
+// ══════════════════════════════════════════════════════════════
+// PASSIVE BLOCK — always-on continuous effects
+// ══════════════════════════════════════════════════════════════
+
+passive_block = { "passive" ~ string ~ "{" ~ passive_item+ ~ "}" }
+passive_item = {
+    "scope" ~ ":" ~ ("self" | "field")
+  | "target" ~ ":" ~ selector
+  | "condition" ~ ":" ~ condition_expr
+  | modifier_decl
+  | grant_decl
+  | "negate_effects"
+  | "set_atk" ~ ":" ~ expr
+  | "set_def" ~ ":" ~ expr
+}
+modifier_decl = { "modifier" ~ ":" ~ stat_name ~ ("+" | "-") ~ expr }
+grant_decl    = { "grant" ~ ":" ~ grant_ability }
+
+// ══════════════════════════════════════════════════════════════
+// RESTRICTION BLOCK — grant/deny abilities
+// ══════════════════════════════════════════════════════════════
+
+restriction_block = { "restriction" ~ string? ~ "{" ~ restriction_item+ ~ "}" }
+restriction_item = {
+    "apply_to" ~ ":" ~ player_who
+  | "target" ~ ":" ~ selector
+  | grant_ability
+  | "duration" ~ ":" ~ duration
+  | trigger_decl
+  | condition_decl
+}
+
+// ══════════════════════════════════════════════════════════════
+// REPLACEMENT BLOCK — "instead of X, do Y"
+// ══════════════════════════════════════════════════════════════
+
+replacement_block = { "replacement" ~ string? ~ "{" ~ replacement_item+ ~ "}" }
+replacement_item = {
+    "instead_of" ~ ":" ~ replaceable_event
+  | "do" ~ "{" ~ action+ ~ "}"
+  | condition_decl
+}
+replaceable_event = {
+    "destroyed_by_battle"
+  | "destroyed_by_effect"
+  | "destroyed"
+  | "sent_to_gy"
+  | "banished"
+  | "returned_to_hand"
+  | "returned_to_deck"
+  | "leaves_field"
+}
+
+// ── Zones ────────────────────────────────────────────────────
+zone = {
+    "hand" | "field" | "deck" | "extra_deck" | "extra_deck_face_up"
+  | "gy" | "graveyard" | "banished"
+  | "monster_zone" | "spell_trap_zone" | "field_zone"
+  | "pendulum_zone" | "extra_monster_zone"
+  | "overlay" | "equipped"
+  | "top_of_deck" | "bottom_of_deck"
+}
+
+// ── Duration ─────────────────────────────────────────────────
+duration = {
+    "this_turn"
+  | "end_of_turn"
+  | "end_phase"
+  | "end_of_damage_step"
+  | "next_standby_phase"
+  | "while_on_field"
+  | "while_face_up"
+  | "permanently"
+  | unsigned ~ "_turns"
+}
+
+// ── Battle Position ──────────────────────────────────────────
+battle_position = {
+    "attack_position" | "defense_position" | "face_down_defense"
+}
