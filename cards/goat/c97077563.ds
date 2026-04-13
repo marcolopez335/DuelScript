@@ -1,45 +1,41 @@
 // リビングデッドの呼び声
 // Call of the Haunted
-// Transpiled from c97077563.lua
+// Activate this card by targeting 1 monster in your GY; Special
+// Summon that target in Attack Position. When this card leaves the
+// field, destroy that monster. When that monster is destroyed,
+// destroy this card.
 
 card "Call of the Haunted" {
-    id: 97077563
     type: Continuous Trap
+    id: 97077563
 
-    effect "Effect 1" {
+    effect "Revive from GY" {
         speed: spell_speed_2
-        damage_step: false
+
         on_activate {
-            select (1+, card, either_player controls) as target
+            select (1, monster, you controls, gy) as target
         }
+
         on_resolve {
-            special_summon (1, monster) from gy
+            special_summon (1, monster) from gy in attack_position
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Continuous
-        code: 1019
-        property: BothSide
+    effect "Destroy Monster if This Leaves" {
+        speed: spell_speed_2
+        trigger: when_leaves_field
+
         on_resolve {
+            destroy (1, monster, you controls)
         }
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Single + Continuous
-        code: ChainNegated
+    effect "Destroy Self if Monster Dies" {
+        speed: spell_speed_2
+        trigger: when_destroyed
+
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy self
         }
     }
-
-    raw_effect "Effect 4" {
-        effect_type: Field + Continuous
-        code: ChainNegated
-        range: SpellTrapZone
-        on_resolve {
-            destroy (1, card)
-        }
-    }
-
 }

@@ -1,28 +1,24 @@
 // クリッター
 // Sangan
-// Transpiled from c26202165.lua
+// If this card is sent from the field to the GY: Add 1 monster
+// with 1500 or less ATK from your Deck to your hand.
 
 card "Sangan" {
-    id: 26202165
     type: Effect Monster
+    id: 26202165
     attribute: DARK
     race: Fiend
     level: 3
     atk: 1000
     def: 600
 
-    effect "Effect 1" {
+    effect "Search on Death" {
         speed: spell_speed_1
         once_per_turn: hard
-        trigger: on_custom_event "chain_end"
+        trigger: when_sent_to gy
+
         on_resolve {
-            add_to_hand (1+, monster, opponent controls, where { is_monster }) from deck
-            reveal (1+, card, opponent controls)
-            register_effect on self {
-                grant: cannot_be_destroyed_by_battle
-                duration: until_end_of_turn
-            }
+            add_to_hand (1, monster, you controls, with_atk <= 1500) from deck
         }
     }
-
 }
