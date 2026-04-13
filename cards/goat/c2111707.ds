@@ -1,6 +1,7 @@
 // XY－ドラゴン・キャノン
 // XY-Dragon Cannon
-// Transpiled from c2111707.lua
+// "X-Head Cannon" + "Y-Dragon Head"
+// Discard 1 card; destroy 1 face-up Spell or Trap Card on the field.
 
 card "XY-Dragon Cannon" {
     id: 2111707
@@ -16,19 +17,20 @@ card "XY-Dragon Cannon" {
     }
 
     materials {
-        require: 2+ monster
+        require: "X-Head Cannon" + "Y-Dragon Head"
         method: fusion
     }
 
-    effect "Effect 1" {
+    effect "Destroy Spell or Trap" {
         speed: spell_speed_1
-        damage_step: false
+        cost {
+            discard (1, card, you controls)
+        }
         on_activate {
-            select (1+, spell, you controls, where { is_face_up and is_spell }) as target
+            select (1, spell, either_player controls, face_up) as target
         }
         on_resolve {
-            destroy (1+, spell, you controls, where { is_face_up and is_spell })
+            destroy (1, spell, either_player controls)
         }
     }
-
 }

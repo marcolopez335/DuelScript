@@ -1,18 +1,20 @@
 // 苦渋の選択
 // Painful Choice
-// Transpiled from c74191942.lua
+// Select 5 cards from your Deck and show them to your opponent. Your
+// opponent selects 1 card among them. Add that card to your hand and
+// discard the remaining cards to the GY.
 
 card "Painful Choice" {
     id: 74191942
     type: Normal Spell
 
-    effect "Effect 1" {
+    effect "Select Five" {
         speed: spell_speed_1
         on_resolve {
-            reveal (1+, card, opponent controls)
-            add_to_hand (1+, card, you controls) from deck
-            send (1+, card, you controls, deck) to gy
+            search (1+, card, you controls) from deck
+            reveal (1+, card, you controls)
+            add_to_hand (1, card, you controls) from deck
+            send (1+, card, you controls) to gy
         }
     }
-
 }

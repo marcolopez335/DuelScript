@@ -1,6 +1,8 @@
 // ネフティスの鳳凰神
 // Sacred Phoenix of Nephthys
-// Transpiled from c61441708.lua
+// If this card is destroyed by a card effect: Special Summon it during
+// your next Standby Phase. When this card is Special Summoned this way:
+// Destroy all Spell and Trap Cards on the field.
 
 card "Sacred Phoenix of Nephthys" {
     id: 61441708
@@ -15,29 +17,22 @@ card "Sacred Phoenix of Nephthys" {
         tributes_required: 2
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Continuous
-        code: ChainEnd
-        property: BothSide
-        on_resolve {
-        }
-    }
-
-    effect "Effect 2" {
+    effect "Revive from Destruction" {
         speed: spell_speed_1
-        trigger: during_standby_phase
+        trigger: during_standby_phase of yours
+        condition: sent_by_reason: [card_effect]
         activate_from: [gy]
         on_resolve {
-            special_summon (1, monster) from gy
+            special_summon self from gy
         }
     }
 
-    effect "Effect 3" {
+    effect "Destroy All Spells and Traps" {
         speed: spell_speed_1
         trigger: when_summoned by_special_summon
         on_resolve {
-            destroy (1+, spell, either_player controls, where { is_spell })
+            destroy (1+, spell, either_player controls)
+            destroy (1+, trap, either_player controls)
         }
     }
-
 }

@@ -1,6 +1,7 @@
 // 氷帝メビウス
 // Mobius the Frost Monarch
-// Transpiled from c4929256.lua
+// When this card is Tribute Summoned: You can target up to 2 Spell/Trap
+// Cards on the field; destroy those targets.
 
 card "Mobius the Frost Monarch" {
     id: 4929256
@@ -15,18 +16,17 @@ card "Mobius the Frost Monarch" {
         tributes_required: 1
     }
 
-    effect "Effect 1" {
+    effect "Destroy Spells and Traps" {
         speed: spell_speed_1
         optional: true
-        timing: when
-        damage_step: false
-        trigger: when_summoned
+        trigger: when_tribute_summoned
+
         on_activate {
-            select (1+, spell, either_player controls, where { is_spell }) as target
+            select (1+, spell, either_player controls) as target
         }
+
         on_resolve {
-            destroy (1+, spell, either_player controls, where { is_spell })
+            destroy (1+, spell, either_player controls)
         }
     }
-
 }

@@ -1,6 +1,9 @@
 // 魔人 ダーク・バルター
 // Dark Balter the Terrible
-// Transpiled from c80071763.lua
+// "Possessed Dark Soul" + "Frontier Wiseman"
+// When a Normal Spell Card is activated: You can pay 1000 LP; negate
+// the activation, and if you do, destroy it. Negate the effects of
+// an Effect Monster destroyed by battle with this card.
 
 card "Dark Balter the Terrible" {
     id: 80071763
@@ -20,33 +23,22 @@ card "Dark Balter the Terrible" {
         method: fusion
     }
 
-    effect "Effect 1" {
+    effect "Negate Normal Spell" {
         speed: spell_speed_2
-        optional: true
-        timing: when
-        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+        trigger: opponent_activates [activate_spell]
         cost {
             pay_lp 1000
         }
         on_resolve {
+            negate activation and destroy
+        }
+    }
+
+    effect "Negate Destroyed Monster Effects" {
+        speed: spell_speed_1
+        trigger: when_destroys_by_battle
+        on_resolve {
             negate effect
         }
     }
-
-    raw_effect "Effect 2" {
-        effect_type: Single + Continuous
-        code: BattleEnd
-        range: MonsterZone
-        on_resolve {
-            register_effect on self {
-                grant: cannot_be_destroyed_by_battle
-                duration: until_end_of_turn
-            }
-            register_effect on self {
-                grant: cannot_be_destroyed_by_battle
-                duration: until_end_of_turn
-            }
-        }
-    }
-
 }

@@ -1,36 +1,33 @@
 // 暗黒のミミック LV1
 // Dark Mimic LV1
-// Transpiled from c74713516.lua
+// FLIP: Draw 1 card. During your Standby Phase, you can send this
+// face-up card to the GY to Special Summon 1 "Dark Mimic LV3" from
+// your hand or Deck.
 
 card "Dark Mimic LV1" {
     id: 74713516
-    type: Effect Monster
+    type: Effect Monster | Flip
     attribute: DARK
     race: Fiend
     level: 1
     atk: 100
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Flip
-        category: Draw
-        property: InitialValue
+    flip_effect "Draw on Flip" {
         on_resolve {
             draw 1
         }
     }
 
-    effect "Effect 2" {
+    effect "Level Up" {
         speed: spell_speed_1
         optional: true
-        timing: when
-        trigger: during_standby_phase
+        trigger: during_standby_phase of yours
         cost {
             send self to gy
         }
         on_resolve {
-            special_summon (1, monster) from gy
+            special_summon (1, "Dark Mimic LV3") from deck
         }
     }
-
 }

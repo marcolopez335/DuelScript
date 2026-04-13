@@ -1,23 +1,22 @@
 // 破壊輪
 // Ring of Destruction
-// Transpiled from c83555666.lua
+// Target 1 face-up monster your opponent controls; destroy that target,
+// and if you do, both players take damage equal to its ATK.
 
 card "Ring of Destruction" {
     id: 83555666
     type: Normal Trap
 
-    effect "Effect 1" {
+    effect "Destroy and Burn Both" {
         speed: spell_speed_2
-        once_per_turn: hard
-        damage_step: false
         on_activate {
-            select (1+, card, either_player controls, where { is_face_up }) as target
+            select (1, monster, opponent controls, face_up) as target
         }
         on_resolve {
-            destroy (1+, card, either_player controls, where { is_face_up })
-            deal_damage to opponent: 1000
-            deal_damage to opponent: 1000
+            destroy (1, monster, opponent controls)
+            and_if_you_do {
+                deal_damage to both_players: target.atk
+            }
         }
     }
-
 }

@@ -1,20 +1,18 @@
 // サイクロン
 // Mystical Space Typhoon
-// Transpiled from c5318639.lua
+// Target 1 Spell/Trap on the field; destroy that target.
 
 card "Mystical Space Typhoon" {
     id: 5318639
     type: Quick-Play Spell
 
-    effect "Effect 1" {
+    effect "Destroy Spell or Trap" {
         speed: spell_speed_2
-        damage_step: false
         on_activate {
-            select (1+, spell, either_player controls) as target
+            select (1, spell, either_player controls) as target
         }
         on_resolve {
-            destroy (1+, spell, either_player controls)
+            destroy (1, spell, either_player controls)
         }
     }
-
 }

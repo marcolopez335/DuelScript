@@ -1,6 +1,9 @@
 // 混沌の黒魔術師
 // Dark Magician of Chaos
-// Transpiled from c40737112.lua
+// When this card is Normal or Special Summoned: You can add 1 Spell
+// from your GY to your hand. A monster destroyed by battle with this
+// card is banished instead of going to the GY. When this card is
+// removed from the field, banish it.
 
 card "Dark Magician of Chaos" {
     id: 40737112
@@ -15,48 +18,28 @@ card "Dark Magician of Chaos" {
         tributes_required: 2
     }
 
-    effect "Effect 1" {
+    effect "Recover Spell" {
         speed: spell_speed_1
-        once_per_turn: hard
         optional: true
-        timing: when
-        damage_step: false
-        trigger: during_end_phase
-        on_activate {
-            select (1+, spell, either_player controls, where { is_spell }) as target
-        }
+        trigger: when_summoned
         on_resolve {
-            add_to_hand (1+, spell, either_player controls, where { is_spell }) from gy
+            add_to_hand (1, spell, you controls) from gy
         }
     }
 
-    effect "Effect 2" {
+    effect "Banish Destroyed Monster" {
         speed: spell_speed_1
-        trigger: on_custom_event "chain_end"
+        trigger: when_destroys_by_battle
         on_resolve {
-            banish (1+, spell, either_player controls, where { is_spell })
+            banish (1, monster, opponent controls)
         }
     }
 
-    redirect_effect "Effect 3" {
-        when_going_to: field
-        redirect_to: banished
-    }
-
-    raw_effect "Effect 4" {
-        effect_type: Field + Continuous
-        code: SummonSuccess
-        property: BothSide
+    effect "Banish Self When Removed" {
+        speed: spell_speed_1
+        trigger: when_leaves_field
         on_resolve {
+            banish self
         }
     }
-
-    raw_effect "Effect 5" {
-        effect_type: Field + Continuous
-        code: SpecialSummonSuccess
-        property: BothSide
-        on_resolve {
-        }
-    }
-
 }

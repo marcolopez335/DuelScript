@@ -1,20 +1,14 @@
 // グラヴィティ・バインド－超重力の網－
 // Gravity Bind
-// Transpiled from c85742772.lua
+// Level 4 or higher monsters cannot attack.
 
 card "Gravity Bind" {
     id: 85742772
     type: Continuous Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        on_resolve {
-        }
-    }
-
-    continuous_effect "Effect 2" {
+    continuous_effect "Lock High-Level Monsters" {
         scope: field
+        apply_to: (1+, monster, either_player controls, where { level >= 4 })
         grant: cannot_attack
     }
-
 }

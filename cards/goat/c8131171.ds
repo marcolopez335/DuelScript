@@ -1,6 +1,7 @@
 // キラー・スネーク
 // Sinister Serpent
-// Transpiled from c8131171.lua
+// During your Standby Phase, if this card is in your GY: You can
+// add this card to your hand.
 
 card "Sinister Serpent" {
     id: 8131171
@@ -11,29 +12,13 @@ card "Sinister Serpent" {
     atk: 300
     def: 250
 
-    effect "Effect 1" {
+    effect "Recover from GY" {
         speed: spell_speed_1
-        once_per_turn: hard
         optional: true
-        timing: when
-        trigger: during_standby_phase
+        trigger: during_standby_phase of yours
         activate_from: [gy]
         on_resolve {
-            add_to_hand (1+, monster, you controls) from gy
-            register_effect on self {
-                grant: cannot_be_destroyed_by_battle
-                duration: until_end_of_turn
-            }
+            add_to_hand self from gy
         }
     }
-
-    raw_effect "Effect 2" {
-        effect_type: Field + Continuous
-        code: PhaseEnd
-        count_limit: (1, 0)
-        on_resolve {
-            banish (1+, monster, you controls, gy)
-        }
-    }
-
 }

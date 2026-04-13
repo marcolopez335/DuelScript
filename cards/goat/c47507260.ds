@@ -1,6 +1,10 @@
 // ミスティック・ソードマン LV2
 // Mystic Swordsman LV2
-// Transpiled from c47507260.lua
+// If this card attacks a face-down Defense Position monster, destroy
+// that monster immediately with this card's effect without flipping
+// it face-up or applying damage calculation. During the End Phase of
+// a turn this card destroyed a monster by battle: Send this card to
+// the GY; Special Summon 1 "Mystic Swordsman LV4" from your hand or Deck.
 
 card "Mystic Swordsman LV2" {
     id: 47507260
@@ -11,34 +15,23 @@ card "Mystic Swordsman LV2" {
     atk: 900
     def: 0
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Continuous
-        code: BattleConfirmed
-        property: BothSide
+    effect "Destroy Face-Down" {
+        speed: spell_speed_1
+        trigger: when_attacked
         on_resolve {
+            destroy (1, monster, opponent controls, face_down)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + MandatoryTrigger
-        category: Destroy
-        code: DamageCalculation
-        on_resolve {
-            destroy (1+, card, you controls, hand)
-        }
-    }
-
-    effect "Effect 3" {
+    effect "Level Up" {
         speed: spell_speed_1
         optional: true
-        timing: when
         trigger: during_end_phase
         cost {
             send self to gy
         }
         on_resolve {
-            special_summon (1, monster) from gy
+            special_summon (1, "Mystic Swordsman LV4") from deck
         }
     }
-
 }

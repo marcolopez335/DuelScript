@@ -1,6 +1,8 @@
 // イグザリオン・ユニバース
 // Exarion Universe
-// Transpiled from c63749102.lua
+// If this card attacks a Defense Position monster, inflict piercing
+// battle damage to your opponent, but this card's ATK is reduced by
+// 400 during damage calculation.
 
 card "Exarion Universe" {
     id: 63749102
@@ -11,12 +13,8 @@ card "Exarion Universe" {
     atk: 1800
     def: 1900
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        once_per_turn: soft
-        optional: true
-        on_resolve {
-        }
+    continuous_effect "Piercing" {
+        scope: self
+        grant: piercing
     }
-
 }

@@ -1,16 +1,19 @@
 // 突然変異
 // Metamorphosis
-// Transpiled from c46411259.lua
+// Tribute 1 monster; Special Summon 1 Fusion Monster from your Extra
+// Deck with the same Level as the Tributed monster.
 
 card "Metamorphosis" {
     id: 46411259
     type: Normal Spell
 
-    effect "Effect 1" {
+    effect "Tribute for Fusion" {
         speed: spell_speed_1
+        cost {
+            tribute (1, monster, you controls)
+        }
         on_resolve {
-            special_summon (1, monster) from gy
+            special_summon (1, fusion monster, you controls) from extra_deck
         }
     }
-
 }

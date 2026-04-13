@@ -1,6 +1,9 @@
-// 霊滅術師 カイク
+// 霊滅術師 カイクウ
 // Kycoo the Ghost Destroyer
-// Transpiled from c88240808.lua
+// When this card inflicts Battle Damage to your opponent: You can
+// target up to 2 monsters in their GY; banish those targets. While
+// this card is face-up on the field, your opponent cannot banish
+// cards from either GY.
 
 card "Kycoo the Ghost Destroyer" {
     id: 88240808
@@ -11,23 +14,17 @@ card "Kycoo the Ghost Destroyer" {
     atk: 1800
     def: 700
 
-    effect "Effect 1" {
+    effect "Banish from Opponent GY" {
         speed: spell_speed_1
         optional: true
-        timing: when
-        damage_step: false
-        trigger: when_battle_destroyed
-        on_activate {
-            select (1+, monster, either_player controls, where { is_monster }) as target
-        }
+        trigger: when_battle_damage to opponent
         on_resolve {
-            banish (1+, monster, either_player controls, where { is_monster })
+            banish (1+, monster, opponent controls) from gy
         }
     }
 
-    continuous_effect "Effect 2" {
+    continuous_effect "Lock GY Banish" {
         scope: field
         grant: cannot_be_used_as_material
     }
-
 }

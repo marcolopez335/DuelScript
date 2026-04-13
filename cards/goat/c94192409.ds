@@ -1,20 +1,18 @@
 // 強制脱出装置
 // Compulsory Evacuation Device
-// Transpiled from c94192409.lua
+// Target 1 monster on the field; return that target to the hand.
 
 card "Compulsory Evacuation Device" {
     id: 94192409
     type: Normal Trap
 
-    effect "Effect 1" {
+    effect "Bounce Monster" {
         speed: spell_speed_2
-        damage_step: false
         on_activate {
-            select (1+, card, either_player controls) as target
+            select (1, monster, either_player controls) as target
         }
         on_resolve {
-            add_to_hand (1+, card, either_player controls) from gy
+            return (1, monster, either_player controls) to hand
         }
     }
-
 }

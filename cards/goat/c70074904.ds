@@ -1,6 +1,7 @@
 // D.D.アサイラント
 // D.D. Assailant
-// Transpiled from c70074904.lua
+// When this card is destroyed by battle with an opponent's monster
+// and sent to the GY: Banish that opponent's monster and this card.
 
 card "D.D. Assailant" {
     id: 70074904
@@ -11,12 +12,12 @@ card "D.D. Assailant" {
     atk: 1700
     def: 1600
 
-    effect "Effect 1" {
+    effect "Mutual Banish" {
         speed: spell_speed_1
-        trigger: on_custom_event "chain_end"
+        trigger: when_destroyed by battle
         on_resolve {
-            banish (1+, card, either_player controls)
+            banish self
+            banish (1, monster, opponent controls)
         }
     }
-
 }

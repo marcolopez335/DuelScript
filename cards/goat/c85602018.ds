@@ -1,28 +1,16 @@
 // 遺言状
 // Last Will
-// Transpiled from c85602018.lua
+// If a monster you control is sent to your GY this turn: You can
+// Special Summon 1 monster with 1500 or less ATK from your Deck.
 
 card "Last Will" {
     id: 85602018
     type: Normal Spell
 
-    effect "Effect 1" {
+    effect "Recruit on Death" {
         speed: spell_speed_1
         on_resolve {
-            special_summon (1, monster) from gy
-            register_effect on self {
-                grant: cannot_be_destroyed_by_battle
-                duration: until_end_of_turn
-            }
+            special_summon (1, monster, you controls, with_atk <= 1500) from deck
         }
     }
-
-    raw_effect "Effect 2" {
-        effect_type: Field + Continuous
-        code: ChainEnd
-        on_resolve {
-            set_flag "tracked" on self
-        }
-    }
-
 }

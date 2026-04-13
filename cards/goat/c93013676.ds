@@ -1,6 +1,6 @@
 // マハー・ヴァイロ
 // Maha Vailo
-// Transpiled from c93013676.lua
+// This card gains 500 ATK for each Equip Card equipped to it.
 
 card "Maha Vailo" {
     id: 93013676
@@ -11,14 +11,8 @@ card "Maha Vailo" {
     atk: 1550
     def: 1400
 
-    raw_effect "Effect 1" {
-        effect_type: Single
-        code: UpdateAttack
-        property: SingleRange
-        range: MonsterZone
-        on_resolve {
-            modifier: atk + self.level * 500
-        }
+    continuous_effect "Equip ATK Boost" {
+        scope: self
+        modifier: atk + 500
     }
-
 }

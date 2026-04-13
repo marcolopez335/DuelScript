@@ -1,16 +1,18 @@
 // 王家の生け贄
 // Royal Tribute
-// Transpiled from c72405967.lua
+// You can only activate this card when "Necrovalley" is on your side
+// of the field. Both players discard all Monster Cards from their hand.
 
 card "Royal Tribute" {
     id: 72405967
     type: Normal Spell
 
-    effect "Effect 1" {
+    effect "Discard All Monsters" {
         speed: spell_speed_1
+        condition: on_field
         on_resolve {
-            send (1+, card, either_player controls, hand) to gy
+            discard (1+, monster, you controls)
+            discard (1+, monster, opponent controls)
         }
     }
-
 }

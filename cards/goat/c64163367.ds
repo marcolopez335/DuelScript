@@ -1,39 +1,31 @@
 // 「A」細胞培養装置
 // 'A' Cell Incubator
-// Transpiled from c64163367.lua
+// Each time an A-Counter is removed from play, place 1 A-Counter on
+// this card. When this card is destroyed, distribute the A-Counters
+// on this card among face-up monsters.
 
 card "'A' Cell Incubator" {
     id: 64163367
     type: Continuous Spell
 
-    effect "Effect 1" {
+    counter_system {
+        name: "A-Counter"
+        max: none
+    }
+
+    effect "Collect Counters" {
         speed: spell_speed_1
+        trigger: when_sent_to gy
         on_resolve {
+            place_counter 1 "A-Counter" on self
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Field + Continuous
-        code: 131072
-        range: SpellTrapZone
+    effect "Distribute on Destroy" {
+        speed: spell_speed_1
+        trigger: when_destroyed by any
         on_resolve {
+            place_counter 1 "A-Counter" on (1+, monster, either_player controls, face_up)
         }
     }
-
-    raw_effect "Effect 3" {
-        effect_type: Single + Continuous
-        code: 1019
-        property: BothSide
-        on_resolve {
-        }
-    }
-
-    raw_effect "Effect 4" {
-        effect_type: Single + MandatoryTrigger
-        category: Counter
-        code: Destroyed
-        on_resolve {
-        }
-    }
-
 }

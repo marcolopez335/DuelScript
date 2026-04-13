@@ -1,28 +1,25 @@
 // 光の護封剣
 // Swords of Revealing Light
-// Transpiled from c72302403.lua
+// After activation, this card remains on the field for 3 of your
+// opponent's turns. When this card is activated: Change all face-down
+// monsters your opponent controls to face-up Defense Position. While
+// this card is face-up on the field, your opponent's monsters cannot
+// declare an attack.
 
 card "Swords of Revealing Light" {
     id: 72302403
     type: Normal Spell
 
-    effect "Effect 1" {
+    effect "Flip Face-Down Monsters" {
         speed: spell_speed_1
         on_resolve {
-            change_battle_position (1, monster)
+            change_position (1+, monster, opponent controls, face_down) to defense_position
         }
     }
 
-    continuous_effect "Effect 2" {
+    continuous_effect "Prevent Attacks" {
         scope: field
+        apply_to: (1+, monster, opponent controls)
         grant: cannot_attack
     }
-
-    raw_effect "Effect 3" {
-        effect_type: Single
-        code: CannotBeFusionMaterial
-        on_resolve {
-        }
-    }
-
 }

@@ -1,34 +1,22 @@
 // 死のデッキ破壊ウイルス
 // Crush Card Virus
-// Transpiled from c57728570.lua
+// Tribute 1 DARK monster with 1000 or less ATK; check all monsters
+// your opponent controls, in their hand, and all monsters they draw
+// for the next 3 turns, and destroy those with 1500 or more ATK.
 
 card "Crush Card Virus" {
     id: 57728570
     type: Normal Trap
 
-    effect "Effect 1" {
+    effect "Virus Infection" {
         speed: spell_speed_2
         cost {
-            tribute self
+            tribute (1, monster, you controls, with_atk <= 1000)
         }
         on_resolve {
-            reveal (1+, card, opponent controls)
-            destroy (1+, monster, opponent controls, hand)
-            shuffle_hand
-            destroy (1+, monster, opponent controls, hand)
-            register_effect on self {
-                grant: cannot_be_destroyed_by_battle
-                duration: until_end_of_turn
-            }
-            register_effect on self {
-                grant: cannot_be_destroyed_by_battle
-                duration: until_end_of_turn
-            }
-            register_effect on self {
-                grant: cannot_be_destroyed_by_battle
-                duration: until_end_of_turn
-            }
+            destroy (1+, monster, opponent controls, with_atk >= 1500)
+            look_at (1+, card, opponent controls) from hand
+            destroy (1+, monster, opponent controls, with_atk >= 1500)
         }
     }
-
 }

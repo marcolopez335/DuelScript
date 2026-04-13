@@ -1,20 +1,18 @@
 // マジック・ドレイン
 // Magic Drain
-// Transpiled from c59344077.lua
+// When a Spell Card is activated: Your opponent can discard 1 Spell;
+// otherwise negate the activation of that Spell Card, and if you do,
+// destroy it.
 
 card "Magic Drain" {
     id: 59344077
-    type: Normal Trap
+    type: Counter Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+    effect "Negate Spell" {
+        speed: spell_speed_3
+        trigger: opponent_activates [activate_spell]
         on_resolve {
-            send (1+, card, opponent controls, hand) to gy
-            negate effect
-            negate activation
-            destroy (1+, card, opponent controls, hand)
+            negate activation and destroy
         }
     }
-
 }

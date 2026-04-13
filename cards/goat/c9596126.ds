@@ -1,10 +1,13 @@
 // カオス・ソーサラー
 // Chaos Sorcerer
-// Transpiled from c9596126.lua
+// Cannot be Normal Summoned/Set. Must be Special Summoned by banishing
+// 1 LIGHT and 1 DARK monster from your GY. Once per turn: You can
+// target 1 face-up monster on the field; banish that target. This
+// card cannot attack the turn you activate this effect.
 
 card "Chaos Sorcerer" {
     id: 9596126
-    type: Effect Monster | Spirit
+    type: Effect Monster
     attribute: DARK
     race: Spellcaster
     level: 6
@@ -13,28 +16,17 @@ card "Chaos Sorcerer" {
 
     summon_condition {
         cannot_normal_summon: true
+        special_summon_only: true
     }
 
-    raw_effect "Effect 1" {
-        effect_type: Field
-        code: CannotSummon
-        property: BothSide + Uncopyable
-        range: Hand
-        on_resolve {
-            banish (1+, monster, you controls, gy)
-        }
-    }
-
-    effect "Effect 2" {
+    effect "Banish Monster" {
         speed: spell_speed_1
         once_per_turn: soft
-        damage_step: false
         on_activate {
-            select (1+, monster, you controls) as target
+            select (1, monster, either_player controls, face_up) as target
         }
         on_resolve {
-            banish (1+, monster, you controls, gy)
+            banish (1, monster, either_player controls)
         }
     }
-
 }

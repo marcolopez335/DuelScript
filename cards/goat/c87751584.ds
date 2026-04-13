@@ -1,6 +1,8 @@
 // ガトリング・ドラゴン
 // Gatling Dragon
-// Transpiled from c87751584.lua
+// "Barrel Dragon" + "Blowback Dragon"
+// Once per turn: You can toss a coin 3 times. Destroy monsters on
+// the field up to the number of heads.
 
 card "Gatling Dragon" {
     id: 87751584
@@ -20,12 +22,18 @@ card "Gatling Dragon" {
         method: fusion
     }
 
-    effect "Effect 1" {
+    effect "Coin Flip Destruction" {
         speed: spell_speed_1
         once_per_turn: soft
         on_resolve {
-            destroy (1+, monster, either_player controls)
+            flip_coin {
+                heads {
+                    destroy (1+, monster, either_player controls)
+                }
+                tails {
+                    destroy (1, monster, either_player controls)
+                }
+            }
         }
     }
-
 }

@@ -1,32 +1,32 @@
 // 早すぎた埋葬
 // Premature Burial
-// Transpiled from c70828912.lua
+// Pay 800 LP, then target 1 monster in your GY; Special Summon that
+// target in Attack Position and equip this card to it. When this card
+// is destroyed, destroy the equipped monster.
 
 card "Premature Burial" {
     id: 70828912
     type: Equip Spell
 
-    effect "Effect 1" {
+    effect "Revive Monster" {
         speed: spell_speed_1
-        damage_step: false
-        on_activate {
-            select (1+, card, either_player controls) as target
-        }
         cost {
             pay_lp 800
         }
+        on_activate {
+            select (1, monster, you controls) as target
+        }
         on_resolve {
-            special_summon (1, monster) from gy
-            equip (1, card) to (1, monster)
+            special_summon (1, monster, you controls) from gy in attack_position
+            equip self to (1, monster, you controls)
         }
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Continuous
-        code: ChainNegated
-        on_resolve {
-            destroy (1+, card, either_player controls)
+    equip_effect {
+        target: (1, monster, you controls)
+
+        on_equipped_destroyed {
+            destroy (1, monster, you controls)
         }
     }
-
 }

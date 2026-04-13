@@ -1,6 +1,8 @@
 // 魔導サイエンティスト
 // Magical Scientist
-// Transpiled from c34206604.lua
+// Pay 1000 Life Points; Special Summon 1 Level 6 or lower Fusion Monster
+// from your Extra Deck. It cannot attack your opponent directly, and is
+// returned to the Extra Deck at the end of the turn.
 
 card "Magical Scientist" {
     id: 34206604
@@ -11,22 +13,17 @@ card "Magical Scientist" {
     atk: 300
     def: 300
 
-    effect "Effect 1" {
+    effect "Summon Fusion" {
         speed: spell_speed_1
         cost {
             pay_lp 1000
         }
         on_resolve {
-            special_summon (1, monster) from gy
-            register_effect on self {
-                grant: cannot_be_destroyed_by_battle
-                duration: until_end_of_turn
-            }
-            register_effect on self {
-                grant: cannot_be_destroyed_by_battle
+            special_summon (1, fusion monster, you controls, where { level <= 6 }) from extra_deck
+            register_effect on (1, fusion monster, you controls) {
+                grant: cannot_attack_directly
                 duration: until_end_of_turn
             }
         }
     }
-
 }

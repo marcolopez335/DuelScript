@@ -1,23 +1,19 @@
 // 突進
 // Rush Recklessly
-// Transpiled from c70046172.lua
+// Target 1 face-up monster on the field; it gains 700 ATK until the
+// end of this turn.
 
 card "Rush Recklessly" {
     id: 70046172
     type: Quick-Play Spell
 
-    effect "Effect 1" {
+    effect "ATK Boost" {
         speed: spell_speed_2
-        damage_step: false
         on_activate {
-            select (1+, card, either_player controls) as target
+            select (1, monster, either_player controls, face_up) as target
         }
         on_resolve {
-            register_effect on self {
-                grant: cannot_be_destroyed_by_battle
-                duration: until_end_of_turn
-            }
+            modifier: atk + 700 on (1, monster, either_player controls) until_end_of_turn
         }
     }
-
 }

@@ -1,22 +1,24 @@
 // 魔法の筒
 // Magic Cylinder
-// Transpiled from c62279055.lua
+// When an opponent's monster declares an attack: Target the attacking
+// monster; negate the attack, and if you do, inflict damage to your
+// opponent equal to its ATK.
 
 card "Magic Cylinder" {
     id: 62279055
     type: Normal Trap
 
-    effect "Effect 1" {
+    effect "Negate and Burn" {
         speed: spell_speed_2
-        damage_step: false
         trigger: when attack_declared
         on_activate {
-            select (1+, card, either_player controls) as target
+            select (1, monster, opponent controls) as target
         }
         on_resolve {
             negate attack
-            deal_damage to opponent: 1000
+            and_if_you_do {
+                deal_damage to opponent: target.atk
+            }
         }
     }
-
 }

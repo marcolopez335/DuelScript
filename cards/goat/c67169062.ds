@@ -1,22 +1,22 @@
 // 貪欲な壺
 // Pot of Avarice
-// Transpiled from c67169062.lua
+// Target 5 monsters in your GY; shuffle all 5 into the Deck,
+// then draw 2 cards.
 
 card "Pot of Avarice" {
     id: 67169062
     type: Normal Spell
 
-    effect "Effect 1" {
+    effect "Recycle and Draw" {
         speed: spell_speed_1
-        damage_step: false
         on_activate {
-            select (1+, monster, either_player controls, where { is_monster }) as target
+            select (1+, monster, you controls) as target
         }
         on_resolve {
-            return (1+, monster, either_player controls, where { is_monster }) to deck shuffle
-            shuffle_deck
-            draw 2
+            return (1+, monster, you controls) to deck shuffle
+            then {
+                draw 2
+            }
         }
     }
-
 }

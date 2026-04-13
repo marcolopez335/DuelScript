@@ -1,6 +1,8 @@
 // グリズリーマザー
 // Mother Grizzly
-// Transpiled from c57839750.lua
+// When this card is destroyed by battle and sent to the GY: You can
+// Special Summon 1 WATER monster with 1500 or less ATK from your Deck
+// in Attack Position.
 
 card "Mother Grizzly" {
     id: 57839750
@@ -11,14 +13,12 @@ card "Mother Grizzly" {
     atk: 1400
     def: 1000
 
-    effect "Effect 1" {
+    effect "Recruit WATER Monster" {
         speed: spell_speed_1
         optional: true
-        timing: when
-        trigger: when_battle_damage
+        trigger: when_destroyed by battle
         on_resolve {
-            special_summon (1, monster) from gy
+            special_summon (1, monster, you controls, with_atk <= 1500) from deck in attack_position
         }
     }
-
 }

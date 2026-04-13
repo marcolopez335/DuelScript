@@ -1,6 +1,7 @@
 // 異次元の女戦士
 // D.D. Warrior Lady
-// Transpiled from c7572887.lua
+// After damage calculation, when this card battles an opponent's
+// monster: You can banish that monster, and also banish this card.
 
 card "D.D. Warrior Lady" {
     id: 7572887
@@ -11,14 +12,13 @@ card "D.D. Warrior Lady" {
     atk: 1500
     def: 1600
 
-    effect "Effect 1" {
+    effect "Mutual Banish" {
         speed: spell_speed_1
         optional: true
-        timing: when
-        trigger: on_custom_event "chain_end"
+        trigger: when_battle_damage
         on_resolve {
-            banish (1+, card, either_player controls)
+            banish self
+            banish (1, monster, opponent controls)
         }
     }
-
 }

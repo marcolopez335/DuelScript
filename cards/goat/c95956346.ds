@@ -1,6 +1,8 @@
 // シャインエンジェル
 // Shining Angel
-// Transpiled from c95956346.lua
+// When this card is destroyed by battle and sent to the GY: You can
+// Special Summon 1 LIGHT monster with 1500 or less ATK from your Deck
+// in Attack Position.
 
 card "Shining Angel" {
     id: 95956346
@@ -11,14 +13,12 @@ card "Shining Angel" {
     atk: 1400
     def: 800
 
-    effect "Effect 1" {
+    effect "Recruit LIGHT Monster" {
         speed: spell_speed_1
         optional: true
-        timing: when
-        trigger: when_battle_damage
+        trigger: when_destroyed by battle
         on_resolve {
-            special_summon (1, monster) from gy
+            special_summon (1, monster, you controls, with_atk <= 1500) from deck in attack_position
         }
     }
-
 }

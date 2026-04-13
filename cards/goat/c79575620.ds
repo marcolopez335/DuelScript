@@ -1,6 +1,8 @@
 // お注射天使リリー
 // Injection Fairy Lily
-// Transpiled from c79575620.lua
+// If this card attacks or is attacked, during damage calculation:
+// You can pay 2000 LP once per battle; this card gains 3000 ATK
+// during that damage calculation only.
 
 card "Injection Fairy Lily" {
     id: 79575620
@@ -11,16 +13,15 @@ card "Injection Fairy Lily" {
     atk: 400
     def: 1500
 
-    effect "Effect 1" {
+    effect "ATK Boost" {
         speed: spell_speed_2
         optional: true
-        timing: when
         trigger: when attack_declared
         cost {
-            pay_lp your_lp / 2
+            pay_lp 2000
         }
         on_resolve {
+            modifier: atk + 3000 on (1, monster, you controls) until_end_of_turn
         }
     }
-
 }

@@ -1,6 +1,8 @@
 // ドラゴン・ウォリアー
 // Ryu Senshi
-// Transpiled from c49868263.lua
+// "Warrior Dai Grepher" + "Spirit Ryu"
+// Negate the effect of a Normal Trap that targets this card and destroy
+// it. This card is unaffected by Normal Spell effects.
 
 card "Ryu Senshi" {
     id: 49868263
@@ -20,40 +22,16 @@ card "Ryu Senshi" {
         method: fusion
     }
 
-    effect "Effect 1" {
+    continuous_effect "Unaffected by Normal Spells" {
+        scope: self
+        grant: unaffected_by_spell_effects
+    }
+
+    effect "Negate Targeting Trap" {
         speed: spell_speed_2
-        optional: true
-        timing: when
-        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
-        cost {
-            pay_lp 1000
-        }
+        trigger: opponent_activates [activate_trap]
         on_resolve {
-            negate effect
+            negate activation and destroy
         }
     }
-
-    raw_effect "Effect 2" {
-        effect_type: Field + Continuous
-        code: 1020
-        range: MonsterZone
-        on_resolve {
-            negate effect
-            destroy (1+, spell, either_player controls)
-        }
-    }
-
-    continuous_effect "Effect 3" {
-        scope: field
-        grant: cannot_activate_effects
-    }
-
-    raw_effect "Effect 4" {
-        effect_type: Field
-        code: 141
-        on_resolve {
-            destroy self
-        }
-    }
-
 }

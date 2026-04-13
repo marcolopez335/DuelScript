@@ -1,16 +1,19 @@
 // 神秘の中華なべ
 // Mystik Wok
-// Transpiled from c80161395.lua
+// Tribute 1 monster you control; gain LP equal to either the ATK or
+// DEF (your choice) of the Tributed monster.
 
 card "Mystik Wok" {
     id: 80161395
     type: Quick-Play Spell
 
-    effect "Effect 1" {
+    effect "Tribute for LP" {
         speed: spell_speed_2
+        cost {
+            tribute (1, monster, you controls) as tributed
+        }
         on_resolve {
-            gain_lp: 1000
+            gain_lp: tributed.atk
         }
     }
-
 }
