@@ -1,26 +1,24 @@
 // ニュードリュア
 // Newdoria
-// Transpiled from c4335645.lua
+// Destroyed by battle: target 1 monster on field; destroy it.
 
 card "Newdoria" {
-    id: 4335645
     type: Effect Monster
+    id: 4335645
     attribute: DARK
     race: Fiend
     level: 4
     atk: 1200
     def: 800
 
-    effect "Effect 1" {
+    effect "Destroy on Death" {
         speed: spell_speed_1
-        damage_step: false
-        trigger: when_battle_damage
+        trigger: when_destroyed by battle
         on_activate {
-            select (1+, card, either_player controls) as target
+            select (1, monster, either_player controls) as target
         }
         on_resolve {
-            destroy (1+, card, either_player controls)
+            destroy (1, monster, either_player controls)
         }
     }
-
 }

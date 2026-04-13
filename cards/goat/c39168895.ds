@@ -1,27 +1,33 @@
-// 怒れる類人猿
-// Berserk Gorilla
-// Transpiled from c39168895.lua
+// 氷帝メビウス
+// Mobius the Frost Monarch
+// WATER Aqua / Level 6 / ATK 2400 / DEF 1000
+// When this card is Tribute Summoned: You can target up to 2 Spell/Trap
+// Cards on the field; destroy those targets.
 
-card "Berserk Gorilla" {
+card "Mobius the Frost Monarch" {
     id: 39168895
     type: Effect Monster
-    attribute: EARTH
-    race: Beast
-    level: 4
-    atk: 2000
+    attribute: WATER
+    race: Aqua
+    level: 6
+    atk: 2400
     def: 1000
 
-    continuous_effect "Effect 1" {
-        scope: self
-        grant: must_attack_if_able
+    summon_condition {
+        tributes_required: 1
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single
-        code: 141
+    effect "Destroy Spells and Traps" {
+        speed: spell_speed_1
+        optional: true
+        trigger: when_tribute_summoned
+
+        on_activate {
+            select (1+, spell, either_player controls, where { is_spell or is_trap }) as target
+        }
+
         on_resolve {
-            destroy self
+            destroy (1+, spell, either_player controls)
         }
     }
-
 }

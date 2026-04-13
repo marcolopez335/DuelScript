@@ -1,22 +1,20 @@
 // 墓守の偵察者
 // Gravekeeper's Spy
-// Transpiled from c24317029.lua
+// FLIP: Special Summon 1 "Gravekeeper's" monster with 1500 or
+// less ATK from your Deck in face-down Defense Position.
 
 card "Gravekeeper's Spy" {
     id: 24317029
-    type: Effect Monster
+    type: Effect Monster | Flip
     attribute: DARK
     race: Spellcaster
     level: 4
     atk: 1200
     def: 2000
 
-    raw_effect "Effect 1" {
-        effect_type: Single + Flip
-        category: SpecialSummon
+    flip_effect "Recruit Gravekeeper" {
         on_resolve {
-            special_summon (1, monster) from gy
+            special_summon (1, "Gravekeeper's" monster, you controls, where { atk <= 1500 }) from deck in face_down_defense
         }
     }
-
 }

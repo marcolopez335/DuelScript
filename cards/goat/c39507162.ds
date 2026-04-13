@@ -1,40 +1,32 @@
-// ブレイドナイト
-// Blade Knight
-// Transpiled from c39507162.lua
+// 雷帝ザボルグ
+// Zaborg the Thunder Monarch
+// LIGHT Thunder / Level 5 / ATK 2400 / DEF 1000
+// When this card is Tribute Summoned: Target 1 monster on the field;
+// destroy that target.
 
-card "Blade Knight" {
+card "Zaborg the Thunder Monarch" {
     id: 39507162
     type: Effect Monster
     attribute: LIGHT
-    race: Warrior
-    level: 4
-    atk: 1600
+    race: Thunder
+    level: 5
+    atk: 2400
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: Single
-        code: UpdateAttack
-        property: SingleRange
-        range: MonsterZone
-        on_resolve {
-            modifier: atk + 400
-        }
+    summon_condition {
+        tributes_required: 1
     }
 
-    raw_effect "Effect 2" {
-        effect_type: Single + Continuous
-        code: BattleEnd
-        range: MonsterZone
+    effect "Destroy Monster" {
+        speed: spell_speed_1
+        trigger: when_tribute_summoned
+
+        on_activate {
+            select (1, monster, either_player controls) as target
+        }
+
         on_resolve {
-            register_effect on self {
-                grant: cannot_be_destroyed_by_battle
-                duration: until_end_of_turn
-            }
-            register_effect on self {
-                grant: cannot_be_destroyed_by_battle
-                duration: until_end_of_turn
-            }
+            destroy (1, monster, either_player controls)
         }
     }
-
 }

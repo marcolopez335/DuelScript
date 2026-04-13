@@ -1,6 +1,8 @@
 // 天空騎士パーシアス
 // Airknight Parshath
-// Transpiled from c18036057.lua
+// If this card attacks a Defense Position monster, inflict piercing
+// battle damage. When this card inflicts battle damage to your
+// opponent: Draw 1 card.
 
 card "Airknight Parshath" {
     id: 18036057
@@ -15,17 +17,16 @@ card "Airknight Parshath" {
         tributes_required: 1
     }
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        trigger: when_battle_destroyed
-        on_resolve {
-            draw 1
-        }
-    }
-
-    continuous_effect "Effect 2" {
+    continuous_effect "Piercing" {
         scope: self
         grant: piercing
     }
 
+    effect "Draw on Battle Damage" {
+        speed: spell_speed_1
+        trigger: when_battle_damage to opponent
+        on_resolve {
+            draw 1
+        }
+    }
 }

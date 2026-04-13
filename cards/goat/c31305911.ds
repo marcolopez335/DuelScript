@@ -1,6 +1,9 @@
 // マシュマロン
 // Marshmallon
-// Transpiled from c31305911.lua
+// LIGHT Fairy / Level 3 / ATK 300 / DEF 500
+// Cannot be destroyed by battle. After being attacked, if this card was
+// face-down at the start of the Damage Step: The attacking player takes
+// 1000 damage.
 
 card "Marshmallon" {
     id: 31305911
@@ -11,17 +14,18 @@ card "Marshmallon" {
     atk: 300
     def: 500
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        trigger: on_custom_event "chain_end"
-        on_resolve {
-            deal_damage to opponent: 1000
-        }
-    }
-
-    continuous_effect "Effect 2" {
+    continuous_effect "Indestructible by Battle" {
         scope: self
         grant: cannot_be_destroyed_by_battle
     }
 
+    effect "Burn When Flipped in Battle" {
+        speed: spell_speed_1
+        trigger: when_flipped
+        condition: previous_position: face_down
+
+        on_resolve {
+            deal_damage to opponent: 1000
+        }
+    }
 }

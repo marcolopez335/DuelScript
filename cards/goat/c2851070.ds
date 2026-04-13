@@ -1,6 +1,9 @@
 // 魔鏡導士リフレクト・バウンダー
 // Reflect Bounder
-// Transpiled from c2851070.lua
+// LIGHT Machine / Level 4 / ATK 1700 / DEF 1000
+// Before damage calculation, when this face-up Attack Position card is
+// attacked by an opponent's monster: Inflict damage to your opponent equal
+// to the attacking monster's ATK. After damage calculation, destroy this card.
 
 card "Reflect Bounder" {
     id: 2851070
@@ -11,21 +14,21 @@ card "Reflect Bounder" {
     atk: 1700
     def: 1000
 
-    raw_effect "Effect 1" {
-        effect_type: Single + MandatoryTrigger
-        category: Damage
-        code: 1133
-        on_resolve {
-            deal_damage to opponent: 1000
-        }
-    }
-
-    effect "Effect 2" {
+    effect "Reflect Damage When Attacked" {
         speed: spell_speed_1
-        trigger: on_custom_event "chain_end"
+        trigger: when_attacked
+
         on_resolve {
-            destroy (1+, card, either_player controls)
+            deal_damage to opponent: target.atk
         }
     }
 
+    effect "Self Destroy After Damage" {
+        speed: spell_speed_1
+        trigger: when_attacked
+
+        on_resolve {
+            destroy self
+        }
+    }
 }

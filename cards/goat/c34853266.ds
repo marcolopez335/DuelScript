@@ -1,46 +1,58 @@
 // 月読命
 // Tsukuyomi
-// Transpiled from c34853266.lua
+// DARK Spellcaster / Level 4 / ATK 1100 / DEF 1400
+// Cannot be Special Summoned. During the End Phase of the turn this card
+// was Normal Summoned or flipped face-up, return it to its owner's hand.
+// When this card is Normal Summoned or flipped face-up: Target 1 face-up
+// monster on the field; change that target to face-down Defense Position.
 
 card "Tsukuyomi" {
     id: 34853266
-    type: Effect Monster | Flip
+    type: Effect Monster | Spirit
     attribute: DARK
     race: Spellcaster
     level: 4
     atk: 1100
     def: 1400
 
-    raw_effect "Effect 1" {
-        effect_type: Single
-        code: SpsummonCondition
-        property: BothSide + Uncopyable
-        on_resolve {
-        }
+    summon_condition {
+        cannot_special_summon: true
     }
 
-    effect "Effect 2" {
+    effect "Flip Target Face-Down" {
         speed: spell_speed_1
+        trigger: when_summoned by_normal_summon
         damage_step: false
-        trigger: when_summoned
+
         on_activate {
-            select (1+, card, either_player controls) as target
+            select (1, monster, either_player controls, where { is_face_up }) as target
         }
+
         on_resolve {
-            change_battle_position (1, monster)
+            flip_face_down (1, monster, either_player controls)
         }
     }
 
-    effect "Effect 3" {
+    effect "Flip Target Face-Down on Flip" {
         speed: spell_speed_1
+        trigger: when_flipped
         damage_step: false
-        trigger: on_custom_event "chain_active"
+
         on_activate {
-            select (1+, card, either_player controls) as target
+            select (1, monster, either_player controls, where { is_face_up }) as target
         }
+
         on_resolve {
-            change_battle_position (1, monster)
+            flip_face_down (1, monster, either_player controls)
         }
     }
 
+    effect "Return to Hand" {
+        speed: spell_speed_1
+        trigger: during_end_phase
+
+        on_resolve {
+            return self to hand
+        }
+    }
 }

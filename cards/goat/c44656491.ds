@@ -1,31 +1,26 @@
 // 平和の使者
 // Messenger of Peace
-// Transpiled from c44656491.lua
+// Monsters with 1500+ ATK cannot attack. Pay 100 LP each standby or destroy.
 
 card "Messenger of Peace" {
-    id: 44656491
     type: Continuous Spell
+    id: 44656491
 
-    effect "Effect 1" {
-        speed: spell_speed_1
-        on_resolve {
-        }
-    }
-
-    continuous_effect "Effect 2" {
+    continuous_effect "Attack Lock" {
         scope: field
+        apply_to: (1+, monster, either_player controls, with_atk >= 1500)
         grant: cannot_attack
     }
 
-    raw_effect "Effect 3" {
-        effect_type: Field + Continuous
-        code: PhaseStandby
-        property: BothSide + Uncopyable
-        range: SpellTrapZone
-        count_limit: (1, 0)
+    effect "Maintenance" {
+        speed: spell_speed_1
+        trigger: during_standby_phase
         on_resolve {
-            destroy (1+, card, either_player controls)
+            if_player_chooses {
+                pay_lp 100
+            } else {
+                destroy self
+            }
         }
     }
-
 }

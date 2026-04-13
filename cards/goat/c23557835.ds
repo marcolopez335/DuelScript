@@ -1,20 +1,20 @@
 // 次元融合
 // Dimension Fusion
-// Transpiled from c23557835.lua
+// Pay 2000 Life Points; both players Special Summon as many of
+// their removed from play monsters as possible.
 
 card "Dimension Fusion" {
     id: 23557835
     type: Normal Spell
 
-    effect "Effect 1" {
+    effect "Mass Return from Banished" {
         speed: spell_speed_1
         cost {
             pay_lp 2000
         }
         on_resolve {
-            special_summon (1, monster) from gy
-            special_summon (1, monster) from gy
+            special_summon (1+, monster, you controls) from banished
+            special_summon (1+, monster, opponent controls) from banished
         }
     }
-
 }

@@ -1,18 +1,16 @@
 // 強引な番兵
 // The Forceful Sentry
-// Transpiled from c42829885.lua
+// Look at opponent hand, return 1 card to Deck.
 
 card "The Forceful Sentry" {
-    id: 42829885
     type: Normal Spell
+    id: 42829885
 
-    effect "Effect 1" {
+    effect "Peek and Return" {
         speed: spell_speed_1
         on_resolve {
-            reveal (1+, card, opponent controls)
-            return (1+, card, either_player controls) to deck shuffle
-            shuffle_hand
+            look_at (1+, card, opponent controls) from hand
+            return (1, card, opponent controls) to deck shuffle
         }
     }
-
 }

@@ -1,6 +1,8 @@
 // ハイドロゲドン
 // Hydrogeddon
-// Transpiled from c22587018.lua
+// WATER Dinosaur / Level 4 / ATK 1600 / DEF 1000
+// When this card destroys an opponent's monster by battle and sends it to the
+// GY: You can Special Summon 1 "Hydrogeddon" from your Deck.
 
 card "Hydrogeddon" {
     id: 22587018
@@ -11,14 +13,14 @@ card "Hydrogeddon" {
     atk: 1600
     def: 1000
 
-    effect "Effect 1" {
+    effect "Summon Copy on Battle Destroy" {
         speed: spell_speed_1
         optional: true
         timing: when
-        trigger: when_battle_damage
+        trigger: when_destroys_by_battle
+
         on_resolve {
-            special_summon (1, monster) from gy
+            special_summon (1, monster, you controls, where { name == "Hydrogeddon" }) from deck in attack_position
         }
     }
-
 }

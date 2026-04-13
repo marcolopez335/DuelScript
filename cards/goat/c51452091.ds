@@ -1,34 +1,14 @@
 // 王宮のお触れ
 // Royal Decree
-// Transpiled from c51452091.lua
+// Negate all other Trap effects on the field.
 
 card "Royal Decree" {
-    id: 51452091
     type: Continuous Trap
+    id: 51452091
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        on_resolve {
-        }
-    }
-
-    continuous_effect "Effect 2" {
+    continuous_effect "Negate All Traps" {
         scope: field
+        apply_to: (1+, trap, either_player controls, other_than_self)
         grant: cannot_activate_effects
     }
-
-    raw_effect "Effect 3" {
-        effect_type: Field + Continuous
-        code: 1020
-        range: SpellTrapZone
-        on_resolve {
-            negate effect
-        }
-    }
-
-    continuous_effect "Effect 4" {
-        scope: field
-        grant: cannot_activate_effects
-    }
-
 }

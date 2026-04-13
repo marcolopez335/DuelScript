@@ -1,6 +1,9 @@
 // 竜魔人 キングドラグーン
 // King Dragun
-// Transpiled from c13756293.lua
+// "Lord of D." + "Divine Dragon Ragnarok"
+// Your opponent cannot target Dragon-Type monsters you control
+// with card effects. Once per turn: You can Special Summon 1
+// Dragon-Type monster from your hand.
 
 card "King Dragun" {
     id: 13756293
@@ -20,17 +23,17 @@ card "King Dragun" {
         method: fusion
     }
 
-    continuous_effect "Effect 1" {
+    continuous_effect "Dragon Targeting Protection" {
         scope: field
-        grant: cannot_be_targeted_by_card_effects
+        apply_to: (1+, monster, you controls, where { race == Dragon })
+        grant: cannot_be_targeted_by_opponent
     }
 
-    effect "Effect 2" {
+    effect "Special Summon Dragon" {
         speed: spell_speed_1
         once_per_turn: soft
         on_resolve {
-            special_summon (1, monster) from gy
+            special_summon (1, monster, you controls, where { race == Dragon }) from hand
         }
     }
-
 }

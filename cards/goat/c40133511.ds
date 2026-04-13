@@ -1,24 +1,22 @@
 // 魂を喰らう者 バズー
 // Bazoo the Soul-Eater
-// Transpiled from c40133511.lua
+// Once per turn: banish up to 3 monsters from GY; gain 300 ATK each until end of opponent turn.
 
 card "Bazoo the Soul-Eater" {
-    id: 40133511
     type: Effect Monster
-    attribute: EARTH
+    id: 40133511
+    attribute: DARK
     race: Beast
     level: 4
     atk: 1600
     def: 900
 
-    effect "Effect 1" {
+    effect "ATK Boost" {
         speed: spell_speed_1
         once_per_turn: soft
-        cost {
-            banish self
-        }
         on_resolve {
+            banish (1+, monster, you controls, gy)
+            modifier: atk + 300 on self until_end_of_turn
         }
     }
-
 }

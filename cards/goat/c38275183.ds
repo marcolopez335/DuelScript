@@ -1,27 +1,33 @@
 // 八式対魔法多重結界
 // Spell Shield Type-8
-// Transpiled from c38275183.lua
+// Counter Trap
+// When a Spell Card that targets is activated: Negate the activation, and
+// if you do, destroy it. OR: When a Spell Card is activated: You can discard
+// 1 Spell; negate the activation, and if you do, destroy it.
 
 card "Spell Shield Type-8" {
     id: 38275183
-    type: Normal Trap
+    type: Counter Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+    effect "Negate Targeting Spell" {
+        speed: spell_speed_3
+        trigger: opponent_activates [activate_spell]
+
         on_resolve {
-            negate activation
-            destroy (1+, spell, you controls, hand)
+            negate activation and destroy
         }
     }
 
-    effect "Effect 2" {
-        speed: spell_speed_2
-        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+    effect "Negate Any Spell by Discarding" {
+        speed: spell_speed_3
+        trigger: opponent_activates [activate_spell]
+
+        cost {
+            discard (1, spell, you controls)
+        }
+
         on_resolve {
-            negate activation
-            destroy (1+, spell, you controls, hand)
+            negate activation and destroy
         }
     }
-
 }

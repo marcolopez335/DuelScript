@@ -1,6 +1,8 @@
 // センジュ・ゴッド
 // Senju of the Thousand Hands
-// Transpiled from c23401839.lua
+// LIGHT Fairy / Level 4 / ATK 1400 / DEF 1000
+// When this card is Normal or Flip Summoned: You can add 1 Ritual Monster
+// from your Deck to your hand.
 
 card "Senju of the Thousand Hands" {
     id: 23401839
@@ -11,26 +13,25 @@ card "Senju of the Thousand Hands" {
     atk: 1400
     def: 1000
 
-    effect "Effect 1" {
+    effect "Search Ritual Monster" {
         speed: spell_speed_1
         optional: true
         timing: when
-        trigger: when_summoned
+        trigger: when_summoned by_normal_summon
+
         on_resolve {
-            add_to_hand (1+, card, you controls) from deck
-            reveal (1+, card, opponent controls)
+            add_to_hand (1, monster, you controls, where { is_ritual }) from deck
         }
     }
 
-    effect "Effect 2" {
+    effect "Search Ritual Monster on Flip" {
         speed: spell_speed_1
         optional: true
         timing: when
         trigger: when_summoned by_flip_summon
+
         on_resolve {
-            add_to_hand (1+, card, you controls) from deck
-            reveal (1+, card, opponent controls)
+            add_to_hand (1, monster, you controls, where { is_ritual }) from deck
         }
     }
-
 }

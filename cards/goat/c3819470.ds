@@ -1,21 +1,19 @@
 // 盗賊の七つ道具
 // Seven Tools of the Bandit
-// Transpiled from c3819470.lua
+// When a Trap is activated: Pay 1000 LP; negate and destroy.
 
 card "Seven Tools of the Bandit" {
+    type: Counter Trap
     id: 3819470
-    type: Normal Trap
 
-    effect "Effect 1" {
-        speed: spell_speed_2
-        trigger: opponent_activates [activate_spell | activate_trap | activate_monster_effect]
+    effect "Negate Trap" {
+        speed: spell_speed_3
+        trigger: opponent_activates [activate_trap]
         cost {
             pay_lp 1000
         }
         on_resolve {
-            negate activation
-            destroy (1+, card, either_player controls)
+            negate activation and destroy
         }
     }
-
 }

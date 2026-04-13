@@ -1,29 +1,20 @@
 // 魔のデッキ破壊ウイルス
 // Deck Devastation Virus
-// Transpiled from c35027493.lua
+// Tribute 1 DARK monster with 2000+ ATK; destroy all monsters
+// opponent controls with 1500 or less ATK.
 
 card "Deck Devastation Virus" {
-    id: 35027493
     type: Normal Trap
+    id: 35027493
 
-    effect "Effect 1" {
+    effect "Virus" {
         speed: spell_speed_2
         cost {
-            tribute self
+            tribute (1, monster, you controls)
         }
         on_resolve {
-            reveal (1+, card, opponent controls)
-            destroy (1+, monster, opponent controls, where { is_monster })
-            shuffle_hand
-            register_effect on self {
-                grant: cannot_be_destroyed_by_battle
-                duration: until_end_of_turn
-            }
-            register_effect on self {
-                grant: cannot_be_destroyed_by_battle
-                duration: until_end_of_turn
-            }
+            look_at (1+, card, opponent controls) from hand
+            destroy (1+, monster, opponent controls, with_atk <= 1500)
         }
     }
-
 }

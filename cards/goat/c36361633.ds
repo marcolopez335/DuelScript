@@ -1,19 +1,18 @@
 // 威嚇する咆哮
 // Threatening Roar
-// Transpiled from c36361633.lua
+// Your opponent cannot declare an attack this turn.
 
 card "Threatening Roar" {
-    id: 36361633
     type: Normal Trap
+    id: 36361633
 
-    effect "Effect 1" {
+    effect "No Attacks" {
         speed: spell_speed_2
         on_resolve {
-            register_effect on self {
-                grant: cannot_be_destroyed_by_battle
+            register_effect on (1+, monster, opponent controls) {
+                grant: cannot_attack
                 duration: until_end_of_turn
             }
         }
     }
-
 }

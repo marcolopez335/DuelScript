@@ -1,6 +1,9 @@
 // 黒炎の騎士－ブラック・フレア・ナイト－
 // Dark Flare Knight
-// Transpiled from c13722870.lua
+// "Dark Magician" + "Flame Swordsman"
+// The controller of this card takes no Battle Damage from any
+// battle involving this card. When this card is destroyed by
+// battle: Special Summon 1 "Mirage Knight" from your hand or Deck.
 
 card "Dark Flare Knight" {
     id: 13722870
@@ -20,17 +23,18 @@ card "Dark Flare Knight" {
         method: fusion
     }
 
-    continuous_effect "Effect 1" {
+    // Note: "no battle damage from battles involving this card" is
+    // a damage-zeroing continuous effect; engine handles via SetDamage(0).
+    continuous_effect "No Battle Damage" {
         scope: self
         grant: cannot_be_destroyed_by_battle
     }
 
-    effect "Effect 2" {
+    effect "Summon Mirage Knight" {
         speed: spell_speed_1
-        trigger: when_battle_damage
+        trigger: when_destroyed by battle
         on_resolve {
-            special_summon (1, monster) from gy
+            special_summon (1, "Mirage Knight") from deck
         }
     }
-
 }

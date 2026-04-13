@@ -1,20 +1,18 @@
 // 心変わり
 // Change of Heart
-// Transpiled from c4031928.lua
+// Target 1 opponent monster; take control until End Phase.
 
 card "Change of Heart" {
-    id: 4031928
     type: Normal Spell
+    id: 4031928
 
-    effect "Effect 1" {
+    effect "Take Control" {
         speed: spell_speed_1
-        damage_step: false
         on_activate {
-            select (1+, card, either_player controls) as target
+            select (1, monster, opponent controls) as target
         }
         on_resolve {
-            take_control of (1, monster, opponent controls)
+            take_control of (1, monster, opponent controls) until end_phase
         }
     }
-
 }

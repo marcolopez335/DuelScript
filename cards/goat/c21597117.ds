@@ -1,19 +1,17 @@
 // ヒーロー見参
 // A Hero Emerges
-// Transpiled from c21597117.lua
+// When opponent attacks: opponent picks 1 random card from your
+// hand; if it's a Monster, Special Summon it.
 
 card "A Hero Emerges" {
-    id: 21597117
     type: Normal Trap
+    id: 21597117
 
-    effect "Effect 1" {
+    effect "Random Summon" {
         speed: spell_speed_2
         trigger: when attack_declared
         on_resolve {
-            reveal (1+, card, opponent controls)
-            special_summon (1, monster) from gy
-            send (1+, card, you controls, hand) to gy
+            special_summon (1, monster) from hand
         }
     }
-
 }

@@ -1,6 +1,8 @@
 // 素早いモモンガ
 // Nimble Momonga
-// Transpiled from c22567609.lua
+// When this card is destroyed by battle and sent to the GY:
+// Gain 1000 LP, then you can Special Summon any number of
+// "Nimble Momonga" from your Deck in face-down Defense Position.
 
 card "Nimble Momonga" {
     id: 22567609
@@ -11,13 +13,12 @@ card "Nimble Momonga" {
     atk: 1000
     def: 100
 
-    effect "Effect 1" {
+    effect "Gain LP and Summon Copies" {
         speed: spell_speed_1
-        trigger: when_battle_damage
+        trigger: when_destroyed by battle
         on_resolve {
             gain_lp: 1000
-            special_summon (1, monster) from gy
+            special_summon (2, "Nimble Momonga") from deck in face_down_defense
         }
     }
-
 }

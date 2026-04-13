@@ -1,36 +1,27 @@
 // リバイバルスライム
 // Revival Jam
-// Transpiled from c31709826.lua
+// Destroyed by battle: pay 1000 LP; Special Summon it in DEF next Standby.
 
 card "Revival Jam" {
-    id: 31709826
     type: Effect Monster
+    id: 31709826
     attribute: WATER
     race: Aqua
     level: 4
     atk: 1500
     def: 500
 
-    effect "Effect 1" {
+    effect "Self Revive" {
         speed: spell_speed_1
         optional: true
-        timing: when
-        trigger: when_battle_damage
+        trigger: when_destroyed by battle
         cost {
             pay_lp 1000
         }
         on_resolve {
+            delayed until standby_phase {
+                special_summon self from gy in defense_position
+            }
         }
     }
-
-    raw_effect "Effect 2" {
-        effect_type: Field + Continuous
-        code: PhaseStandby
-        range: Graveyard
-        count_limit: (1, 0)
-        on_resolve {
-            special_summon (1, monster) from gy
-        }
-    }
-
 }
