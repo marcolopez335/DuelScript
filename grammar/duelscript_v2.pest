@@ -99,7 +99,7 @@ arrow = {
 // SUMMON BLOCK — how the card enters the field
 // ══════════════════════════════════════════════════════════════
 
-summon_block = { "summon" ~ "{" ~ summon_item+ ~ "}" }
+summon_block = { "summon" ~ "{" ~ summon_item* ~ "}" }
 summon_item = {
     "cannot_normal_summon"
   | "cannot_special_summon"
@@ -199,11 +199,11 @@ trigger_expr = {
   | "tribute_summoned"
   | "flip_summoned"
   | "flipped"
-    // Destruction triggers
-  | "destroyed" ~ destroy_qualifier?
+    // Destruction triggers (longer alternatives first)
   | "destroyed_by_battle"
   | "destroyed_by_effect"
   | "destroys_by_battle"
+  | "destroyed" ~ destroy_qualifier?
     // Movement triggers
   | "sent_to" ~ zone ~ from_qualifier?
   | "leaves_field"
@@ -258,7 +258,7 @@ category = {
 
 // ── Conditions ───────────────────────────────────────────────
 condition_decl = { "condition" ~ ":" ~ condition_expr }
-condition_expr = { condition_atom ~ (("and" | "or") ~ condition_atom)* }
+condition_expr = { condition_atom ~ (conjunction ~ condition_atom)* }
 condition_atom = {
     "not" ~ condition_atom
   | "self" ~ card_state
@@ -355,7 +355,8 @@ position_filter = {
 }
 
 where_clause = { "where" ~ predicate }
-predicate = { pred_atom ~ (("and" | "or") ~ pred_atom)* }
+predicate = { pred_atom ~ (conjunction ~ pred_atom)* }
+conjunction = { "and" | "or" }
 pred_atom = {
     "not" ~ pred_atom
   | "(" ~ predicate ~ ")"
@@ -374,7 +375,7 @@ pred_atom = {
 }
 
 // ── Costs ────────────────────────────────────────────────────
-cost_block = { "cost" ~ "{" ~ cost_action+ ~ "}" }
+cost_block = { "cost" ~ "{" ~ cost_action* ~ "}" }
 cost_action = {
     "pay_lp" ~ expr
   | "discard" ~ selector ~ binding?
@@ -391,7 +392,7 @@ cost_action = {
 announce_what = { "type" | "attribute" | "race" | "level" | "card" }
 
 // ── Resolve Block ────────────────────────────────────────────
-resolve_block = { "resolve" ~ "{" ~ action+ ~ "}" }
+resolve_block = { "resolve" ~ "{" ~ action* ~ "}" }
 
 // ── Choose Block (multi-option effects) ──────────────────────
 choose_block = { "choose" ~ "{" ~ option_block ~ option_block+ ~ "}" }
@@ -400,6 +401,7 @@ option_block = { "option" ~ string ~ "{" ~ effect_item+ ~ "}" }
 // ── Actions (game operations) ────────────────────────────────
 action = {
     draw_action
+  | discard_action
   | destroy_action
   | banish_action
   | send_action
@@ -447,12 +449,13 @@ action = {
 
 // ── Individual Actions ───────────────────────────────────────
 draw_action           = { "draw" ~ expr }
+discard_action        = { "discard" ~ selector }
 destroy_action        = { "destroy" ~ selector }
 banish_action         = { "banish" ~ selector ~ ("from" ~ zone)? ~ "face_down"? }
 send_action           = { "send" ~ selector ~ "to" ~ zone }
 return_action         = { "return" ~ selector ~ "to" ~ ("hand" | "deck" ~ deck_position? | "extra_deck") }
 deck_position         = { "top" | "bottom" | "shuffle" }
-search_action         = { "search" ~ selector ~ "from" ~ zone }
+search_action         = { "search" ~ selector ~ ("from" ~ zone)? }
 add_to_hand_action    = { "add_to_hand" ~ selector ~ ("from" ~ zone)? }
 special_summon_action = { "special_summon" ~ selector ~ ("from" ~ zone)? ~ ("in" ~ battle_position)? }
 normal_summon_action  = { "normal_summon" ~ selector }
@@ -510,8 +513,8 @@ dice_roll_action = { "roll_dice" ~ "{" ~ action+ ~ "}" }
 
 grant_action = { "grant" ~ selector ~ grant_ability ~ ("until" ~ duration)? }
 grant_ability = {
-    "cannot_attack"
-  | "cannot_attack_directly"
+    "cannot_attack_directly"
+  | "cannot_attack"
   | "cannot_change_position"
   | "cannot_be_destroyed" ~ ("by" ~ ("battle" | "effect"))?
   | "cannot_be_targeted" ~ ("by" ~ ("spells" | "traps" | "monsters" | "effects" | "opponent"))?
@@ -551,7 +554,7 @@ install_watcher_action = {
 // PASSIVE BLOCK — always-on continuous effects
 // ══════════════════════════════════════════════════════════════
 
-passive_block = { "passive" ~ string ~ "{" ~ passive_item+ ~ "}" }
+passive_block = { "passive" ~ string ~ "{" ~ passive_item* ~ "}" }
 passive_item = {
     "scope" ~ ":" ~ ("self" | "field")
   | "target" ~ ":" ~ selector
