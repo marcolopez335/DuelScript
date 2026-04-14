@@ -1,0 +1,36 @@
+card "Clock Arc" {
+    id: 87468732
+    type: Effect Monster | Pendulum Monster
+    attribute: DARK
+    race: Machine
+    level: 4
+    scale: 4
+    atk: 600
+    def: 1200
+
+    passive "Effect 5" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: standby_phase
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 6" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: end_phase
+        resolve {
+            destroy (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,40 @@
+card "Heroic Champion - Jarngreipr" {
+    id: 23848752
+    type: Xyz Monster
+    attribute: EARTH
+    race: Warrior
+    rank: 1
+    atk: 700
+    def: 1800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            detach 2 from self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: summoned
+        resolve {
+            gain_lp 1000
+        }
+    }
+}

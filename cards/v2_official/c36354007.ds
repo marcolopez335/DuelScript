@@ -1,0 +1,27 @@
+card "Gilford the Lightning" {
+    id: 36354007
+    type: Effect Monster
+    attribute: LIGHT
+    race: Warrior
+    level: 8
+    atk: 2800
+    def: 1400
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        trigger: summoned
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

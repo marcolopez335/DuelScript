@@ -1,0 +1,25 @@
+card "Wish Dragon" {
+    id: 64583600
+    type: Effect Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 2
+    atk: 700
+    def: 100
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+}

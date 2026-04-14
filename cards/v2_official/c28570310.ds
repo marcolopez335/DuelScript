@@ -1,0 +1,41 @@
+card "Mythical Beast Garuda" {
+    id: 28570310
+    type: Effect Monster | Pendulum Monster
+    attribute: LIGHT
+    race: Spellcaster
+    level: 4
+    scale: 4
+    atk: 1200
+    def: 1600
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: summoned
+        resolve {
+            special_summon (all, card, either controls)
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 5" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

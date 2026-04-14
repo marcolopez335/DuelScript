@@ -1,0 +1,21 @@
+card "Outstanding Dog Mary" {
+    id: 71583486
+    type: Effect Monster
+    attribute: LIGHT
+    race: Beast
+    level: 1
+    atk: 100
+    def: 100
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            return (all, card, either controls) to deck
+            add_to_hand (all, card, either controls)
+            return (all, card, either controls) to deck
+        }
+    }
+}

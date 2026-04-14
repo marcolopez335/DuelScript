@@ -1,0 +1,28 @@
+card "Alich, Malebranche of the Burning Abyss" {
+    id: 47728740
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 3
+    atk: 1200
+    def: 0
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            negate
+        }
+    }
+}

@@ -1,0 +1,44 @@
+card "Artmage Graflare" {
+    id: 60946049
+    type: Effect Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 5
+    atk: 2100
+    def: 1500
+
+    summon {
+        tributes: 1
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

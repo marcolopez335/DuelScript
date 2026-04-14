@@ -1,0 +1,33 @@
+card "Sneaky 'C'" {
+    id: 25137581
+    type: Effect Monster
+    attribute: EARTH
+    race: Insect
+    level: 7
+    atk: 1300
+    def: 2500
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: custom "chain_active"
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

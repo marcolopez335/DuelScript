@@ -1,0 +1,19 @@
+card "Qadshaddoll Keios" {
+    id: 24635329
+    type: Effect Monster
+    attribute: LIGHT
+    race: Spellcaster
+    level: 2
+    atk: 900
+    def: 100
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

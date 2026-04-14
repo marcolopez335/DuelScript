@@ -1,0 +1,27 @@
+card "Spellbook Magician of Prophecy" {
+    id: 14824019
+    type: Effect Monster
+    attribute: WATER
+    race: Spellcaster
+    level: 2
+    atk: 500
+    def: 400
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        trigger: summoned
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: custom "chain_active"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

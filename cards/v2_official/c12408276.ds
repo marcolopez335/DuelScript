@@ -1,0 +1,38 @@
+card "Kozmoll Dark Lady" {
+    id: 12408276
+    type: Effect Monster
+    attribute: DARK
+    race: Psychic
+    level: 5
+    atk: 2200
+    def: 1800
+
+    summon {
+        tributes: 1
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            pay_lp 1000
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

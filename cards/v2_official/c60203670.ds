@@ -1,0 +1,38 @@
+card "Gold Pride - Eliminator" {
+    id: 60203670
+    type: Effect Monster | Tuner
+    attribute: EARTH
+    race: Machine
+    level: 5
+    atk: 1800
+    def: 800
+
+    summon {
+        tributes: 1
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+}

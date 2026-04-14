@@ -1,0 +1,29 @@
+card "Penguin Cleric" {
+    id: 73640163
+    type: Effect Monster
+    attribute: WATER
+    race: Aqua
+    level: 3
+    atk: 600
+    def: 1700
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            send (all, card, either controls) to gy
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            gain_lp 1000
+        }
+    }
+}

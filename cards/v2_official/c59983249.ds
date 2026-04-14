@@ -1,0 +1,27 @@
+card "Monarchic Perfection" {
+    id: 59983249
+    type: Continuous Trap
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        cost {
+            banish self
+        }
+        resolve {
+            destroy (all, card, either controls)
+            destroy (all, card, either controls)
+            send (all, card, either controls) to gy
+            destroy (all, card, either controls)
+            return (all, card, either controls) to deck
+            banish (all, card, either controls)
+        }
+    }
+}

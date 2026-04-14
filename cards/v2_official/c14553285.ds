@@ -1,0 +1,36 @@
+card "Arcanite Magician/Assault Mode" {
+    id: 14553285
+    type: Effect Monster | Effect Monster
+    attribute: LIGHT
+    race: Spellcaster
+    level: 9
+    atk: 900
+    def: 2300
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        trigger: summoned by special
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        timing: when
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

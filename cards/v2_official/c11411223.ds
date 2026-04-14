@@ -1,0 +1,26 @@
+card "Number 10: Illumiknight" {
+    id: 11411223
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Warrior
+    rank: 4
+    atk: 2400
+    def: 2400
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            send (all, card, either controls) to gy
+            draw 1
+        }
+    }
+}

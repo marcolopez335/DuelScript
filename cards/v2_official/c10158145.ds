@@ -1,0 +1,33 @@
+card "Knightmare Corruptor Iblee" {
+    id: 10158145
+    type: Effect Monster
+    attribute: DARK
+    race: Cyberse
+    level: 2
+    atk: 0
+    def: 0
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: if
+        trigger: summoned
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

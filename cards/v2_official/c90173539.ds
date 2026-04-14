@@ -1,0 +1,26 @@
+card "World Dino Wrestling" {
+    id: 90173539
+    type: Field Spell
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+    }
+
+    effect "Effect 5" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

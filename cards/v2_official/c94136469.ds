@@ -1,0 +1,28 @@
+card "Checksum Dragon" {
+    id: 94136469
+    type: Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 6
+    atk: 400
+    def: 2400
+
+    summon {
+        tributes: 1
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        resolve {
+            special_summon (all, card, either controls)
+            gain_lp 1000
+        }
+    }
+}

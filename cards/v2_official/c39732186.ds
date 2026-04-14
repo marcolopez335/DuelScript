@@ -1,0 +1,22 @@
+card "Prohibit Snake" {
+    id: 39732186
+    type: Effect Monster
+    attribute: LIGHT
+    race: Cyberse
+    level: 2
+    atk: 500
+    def: 1000
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: battle_damage
+        cost {
+            banish self
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,31 @@
+card "Divine Serpent Apophis" {
+    id: 97800311
+    type: Fusion Monster
+    attribute: EARTH
+    race: Reptile
+    level: 6
+    atk: 2800
+    def: 2600
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

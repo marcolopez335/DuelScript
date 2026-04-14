@@ -1,0 +1,40 @@
+card "Reptilianne Melusine" {
+    id: 32138660
+    type: Synchro Monster
+    attribute: DARK
+    race: Reptile
+    level: 8
+    atk: 2500
+    def: 2800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+        }
+    }
+
+    effect "Effect 5" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

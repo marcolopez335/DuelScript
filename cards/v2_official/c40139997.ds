@@ -1,0 +1,36 @@
+card "Ruddy Rose Dragon" {
+    id: 40139997
+    type: Synchro Monster
+    attribute: FIRE
+    race: Dragon
+    level: 10
+    atk: 3200
+    def: 2400
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            banish (all, card, either controls)
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            tribute self
+        }
+        resolve {
+            negate
+            special_summon (all, card, either controls)
+        }
+    }
+}

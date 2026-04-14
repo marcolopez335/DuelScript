@@ -1,0 +1,19 @@
+card "Nopenguin" {
+    id: 32623004
+    type: Effect Monster
+    attribute: WATER
+    race: Aqua
+    level: 3
+    atk: 1600
+    def: 100
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        mandatory
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

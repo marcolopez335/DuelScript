@@ -1,0 +1,39 @@
+card "Mecha Phantom Beast Tetherwolf" {
+    id: 67922702
+    type: Effect Monster
+    attribute: WIND
+    race: Machine
+    level: 4
+    atk: 1700
+    def: 1200
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        trigger: summoned
+        resolve {
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 5" {
+        speed: 2
+        cost {
+            tribute self
+        }
+    }
+}

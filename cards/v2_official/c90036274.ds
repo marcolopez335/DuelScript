@@ -1,0 +1,43 @@
+card "Clear Wing Fast Dragon" {
+    id: 90036274
+    type: Synchro Monster | Pendulum Monster
+    attribute: WIND
+    race: Dragon
+    level: 7
+    scale: 4
+    atk: 2500
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+            negate
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

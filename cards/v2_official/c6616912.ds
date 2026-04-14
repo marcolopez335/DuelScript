@@ -1,0 +1,49 @@
+card "Gabrion, the Timelord" {
+    id: 6616912
+    type: Effect Monster
+    attribute: WATER
+    race: Fairy
+    level: 10
+    atk: 0
+    def: 0
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    passive "Effect 5" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 6" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: standby_phase
+        resolve {
+            return (all, card, either controls) to deck
+            draw 1
+        }
+    }
+
+    effect "Effect 7" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: standby_phase
+        resolve {
+            return (all, card, either controls) to deck
+        }
+    }
+}

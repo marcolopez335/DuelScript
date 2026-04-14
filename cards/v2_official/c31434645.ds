@@ -1,0 +1,36 @@
+card "Cursed Eldland" {
+    id: 31434645
+    type: Continuous Spell
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            pay_lp 800
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

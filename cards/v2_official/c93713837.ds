@@ -1,0 +1,41 @@
+card "Number 24: Dragulas the Vampiric Dragon" {
+    id: 93713837
+    type: Xyz Monster
+    attribute: DARK
+    race: Wyrm
+    rank: 6
+    atk: 2400
+    def: 2800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            detach 1 from self
+        }
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        mandatory
+        trigger: custom "chain_active"
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

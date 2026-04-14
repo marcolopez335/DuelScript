@@ -1,0 +1,52 @@
+card "Transonic Bird" {
+    id: 34072799
+    type: Ritual Monster
+    attribute: DARK
+    race: Winged Beast
+    level: 4
+    atk: 0
+    def: 2400
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    passive "Effect 5" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    passive "Effect 6" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            add_to_hand (all, card, either controls)
+            return (all, card, either controls) to deck
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: sent_to gy
+        resolve {
+            negate
+        }
+    }
+}

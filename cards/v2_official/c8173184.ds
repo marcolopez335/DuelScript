@@ -1,0 +1,26 @@
+card "Repair Genex Controller" {
+    id: 8173184
+    type: Link Monster
+    attribute: DARK
+    race: Machine
+    link: 1
+    atk: 1200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

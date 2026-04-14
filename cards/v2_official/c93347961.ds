@@ -1,0 +1,35 @@
+card "Elemental HERO Flame Wingman - Infernal Rage" {
+    id: 93347961
+    type: Fusion Monster
+    attribute: WIND
+    race: Warrior
+    level: 8
+    atk: 2100
+    def: 1200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

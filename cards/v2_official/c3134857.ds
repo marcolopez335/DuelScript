@@ -1,0 +1,39 @@
+card "Orcustrion" {
+    id: 3134857
+    type: Link Monster
+    attribute: DARK
+    race: Machine
+    link: 4
+    atk: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            return (all, card, either controls) to deck
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        once_per_turn: hard
+        resolve {
+            return (all, card, either controls) to deck
+        }
+    }
+}

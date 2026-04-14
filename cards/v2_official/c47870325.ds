@@ -1,0 +1,23 @@
+card "Smile Action" {
+    id: 47870325
+    type: Field Spell
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: summoned
+        resolve {
+            add_to_hand (all, card, either controls)
+            send (all, card, either controls) to gy
+            negate
+        }
+    }
+}

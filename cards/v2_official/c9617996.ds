@@ -1,0 +1,27 @@
+card "Crusadia Regulex" {
+    id: 9617996
+    type: Link Monster
+    attribute: LIGHT
+    race: Beast
+    link: 2
+    atk: 1000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

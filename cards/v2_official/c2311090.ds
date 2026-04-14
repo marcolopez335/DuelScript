@@ -1,0 +1,23 @@
+card "Spright Carrot" {
+    id: 2311090
+    type: Effect Monster
+    attribute: FIRE
+    race: Thunder
+    level: 2
+    atk: 1000
+    def: 1900
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            tribute self
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

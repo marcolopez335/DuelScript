@@ -1,0 +1,28 @@
+card "Dinowrestler Rambrachio" {
+    id: 61764082
+    type: Effect Monster
+    attribute: EARTH
+    race: Dinosaur
+    level: 5
+    atk: 1600
+    def: 0
+
+    summon {
+        tributes: 1
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: destroyed_by_battle
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

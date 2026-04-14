@@ -1,0 +1,22 @@
+card "A-Team: Trap Disposal Unit" {
+    id: 13026402
+    type: Effect Monster
+    attribute: FIRE
+    race: Machine
+    level: 2
+    atk: 300
+    def: 400
+
+    effect "Effect 1" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            tribute self
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

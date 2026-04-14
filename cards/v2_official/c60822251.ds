@@ -1,0 +1,31 @@
+card "Kaiki the Unity Star" {
+    id: 60822251
+    type: Effect Monster
+    attribute: LIGHT
+    race: Warrior
+    level: 5
+    atk: 1000
+    def: 2100
+
+    summon {
+        tributes: 1
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        cost {
+            pay_lp 500
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

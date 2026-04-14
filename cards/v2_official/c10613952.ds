@@ -1,0 +1,42 @@
+card "Sacred Noble Knight of King Artorigus" {
+    id: 10613952
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Warrior
+    rank: 5
+    atk: 2200
+    def: 2200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned by special
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

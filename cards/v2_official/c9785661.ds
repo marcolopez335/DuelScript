@@ -1,0 +1,33 @@
+card "Azamina Sol Erysichthon" {
+    id: 9785661
+    type: Fusion Monster
+    attribute: DARK
+    race: Warrior
+    level: 6
+    atk: 2700
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: standby_phase
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

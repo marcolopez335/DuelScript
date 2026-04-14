@@ -1,0 +1,33 @@
+card "Revendread Slayer" {
+    id: 4388680
+    type: Ritual Monster
+    attribute: DARK
+    race: Zombie
+    level: 6
+    atk: 2400
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        timing: when
+        trigger: summoned
+        cost {
+            banish self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+            send (all, card, either controls) to gy
+        }
+    }
+}

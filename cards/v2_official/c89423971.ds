@@ -1,0 +1,38 @@
+card "Infernoid Patrulea" {
+    id: 89423971
+    type: Effect Monster | Effect Monster
+    attribute: FIRE
+    race: Fiend
+    level: 4
+    atk: 1800
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            tribute self
+        }
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+}

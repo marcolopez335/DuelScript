@@ -1,0 +1,25 @@
+card "Sunvine Maiden" {
+    id: 53618293
+    type: Effect Monster
+    attribute: EARTH
+    race: Plant
+    level: 1
+    atk: 0
+    def: 0
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            special_summon (all, card, either controls)
+            negate
+        }
+    }
+}

@@ -1,0 +1,27 @@
+card "Infernoble Knight - Roland" {
+    id: 81570454
+    type: Effect Monster
+    attribute: FIRE
+    race: Warrior
+    level: 1
+    atk: 500
+    def: 500
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: end_phase
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

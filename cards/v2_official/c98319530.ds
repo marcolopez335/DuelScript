@@ -1,0 +1,30 @@
+card "'Infernoble Arms - Almace'" {
+    id: 98319530
+    type: Equip Spell
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        mandatory
+        resolve {
+        }
+    }
+}

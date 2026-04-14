@@ -1,0 +1,30 @@
+card "Performapal Lizardraw" {
+    id: 73130445
+    type: Effect Monster | Pendulum Monster
+    attribute: EARTH
+    race: Reptile
+    level: 3
+    scale: 6
+    atk: 1200
+    def: 600
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+            draw 1
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: destroyed
+        resolve {
+            draw 1
+        }
+    }
+}

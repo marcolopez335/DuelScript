@@ -1,0 +1,28 @@
+card "Extraceratops" {
+    id: 38383368
+    type: Effect Monster
+    attribute: EARTH
+    race: Warrior
+    level: 1
+    atk: 100
+    def: 100
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            draw 1
+        }
+    }
+}

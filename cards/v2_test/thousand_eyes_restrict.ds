@@ -1,0 +1,35 @@
+// サウザンド・アイズ・サクリファイス
+// Thousand-Eyes Restrict
+// "Relinquished" + "Thousand-Eyes Idol"
+// Other monsters cannot change positions or attack.
+// Equip 1 opponent's monster to this card (max 1).
+
+card "Thousand-Eyes Restrict" {
+    id: 63519819
+    type: Fusion Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 1
+    atk: 0
+    def: 0
+
+    summon {
+        cannot_normal_summon
+        fusion materials: "Relinquished" + "Thousand-Eyes Idol"
+    }
+
+    passive "Lock All" {
+        scope: field
+        target: (all, monster, either controls, except self)
+        grant: cannot_attack
+    }
+
+    effect "Absorb Monster" {
+        speed: 1
+        once_per_turn: soft
+        target (1, monster, opponent controls)
+        resolve {
+            equip target to self
+        }
+    }
+}

@@ -1,0 +1,23 @@
+// 執念深き老魔術師
+// Old Vindictive Magician
+// FLIP: Target 1 monster opponent controls; destroy it.
+
+card "Old Vindictive Magician" {
+    id: 45141844
+    type: Effect Monster | Flip
+    attribute: DARK
+    race: Spellcaster
+    level: 2
+    atk: 450
+    def: 600
+
+    effect "Destroy Monster" {
+        speed: 1
+        mandatory
+        trigger: flipped
+        target (1, monster, opponent controls)
+        resolve {
+            destroy target
+        }
+    }
+}

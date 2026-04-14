@@ -1,0 +1,39 @@
+card "Sage of Strength - Akash" {
+    id: 96795312
+    type: Effect Monster
+    attribute: FIRE
+    race: Machine
+    level: 5
+    atk: 2400
+    def: 200
+
+    summon {
+        tributes: 1
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    replacement "Effect 2" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

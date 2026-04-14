@@ -11,14 +11,8 @@ keywords    = ["yugioh", "card-game", "dsl", "game-engine"]
 default = []
 # Enable SQLite CDB reading (requires rusqlite)
 cdb = ["rusqlite"]
-# Enable Python bindings via PyO3
-python = ["pyo3"]
-# Enable Lua transpiler (function body walking for accurate action mapping)
-lua_transpiler = []
 # Enable LSP server (tower-lsp + tokio)
 lsp = ["tower-lsp", "tokio", "serde_json", "serde"]
-# Enable LLM-assisted card generation (Claude API)
-llm = ["reqwest", "tokio", "serde_json", "serde"]
 
 [dependencies]
 pest        = "2.7"
@@ -26,42 +20,20 @@ pest_derive = "2.7"
 thiserror   = "1.0"
 # Optional — enable with: duelscript = { features = ["cdb"] }
 rusqlite    = { version = "0.31", features = ["bundled"], optional = true }
-# Optional — enable with: duelscript = { features = ["python"] }
-pyo3        = { version = "0.22", features = ["extension-module"], optional = true }
 # Optional — enable with: duelscript = { features = ["lsp"] }
 tower-lsp   = { version = "0.20", optional = true }
 tokio       = { version = "1", features = ["io-std", "rt-multi-thread", "macros"], optional = true }
 serde       = { version = "1", features = ["derive"], optional = true }
 serde_json  = { version = "1", optional = true }
-# Optional — enable with: duelscript = { features = ["llm"] }
-reqwest     = { version = "0.12", features = ["json"], optional = true }
 
 [lib]
 name = "duelscript"
-crate-type = ["rlib", "cdylib"]
+crate-type = ["rlib"]
 
 [[bin]]
 name = "duelscript"
 path = "src/bin/duelscript.rs"
 
 [[bin]]
-name = "migrate_batch"
-path = "src/bin/migrate_batch.rs"
-
-[[bin]]
-name = "duelscript_lsp"
-path = "src/bin/duelscript_lsp.rs"
-required-features = ["lsp"]
-
-[[bin]]
 name = "lua_inventory"
 path = "src/bin/lua_inventory.rs"
-
-[[bin]]
-name = "llm_generate"
-path = "src/bin/llm_generate.rs"
-required-features = ["llm", "cdb"]
-
-[[example]]
-name = "parse_card"
-path = "examples/parse_card.rs"

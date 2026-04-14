@@ -1,0 +1,43 @@
+card "Flogos, the Ogdoadic Boundless" {
+    id: 9400127
+    type: Effect Monster
+    attribute: LIGHT
+    race: Reptile
+    level: 4
+    atk: 1800
+    def: 1400
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

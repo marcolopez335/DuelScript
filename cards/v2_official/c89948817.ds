@@ -1,0 +1,36 @@
+card "Jurrac Volcano" {
+    id: 89948817
+    type: Field Spell
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    replacement "Effect 4" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

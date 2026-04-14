@@ -1,0 +1,24 @@
+card "Stardust Wish" {
+    id: 35129241
+    type: Continuous Trap
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: if
+        trigger: sent_to gy
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

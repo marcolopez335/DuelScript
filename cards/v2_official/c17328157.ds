@@ -1,0 +1,30 @@
+card "Speedroid Horse Stilts" {
+    id: 17328157
+    type: Effect Monster
+    attribute: WIND
+    race: Machine
+    level: 4
+    atk: 1100
+    def: 1100
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

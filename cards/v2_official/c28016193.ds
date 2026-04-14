@@ -1,0 +1,27 @@
+card "Metalfoes Orichalc" {
+    id: 28016193
+    type: Fusion Monster
+    attribute: FIRE
+    race: Psychic
+    level: 8
+    atk: 2800
+    def: 2200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: piercing
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

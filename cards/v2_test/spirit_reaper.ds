@@ -1,0 +1,37 @@
+// 魂を削る死霊
+// Spirit Reaper
+// Cannot be destroyed by battle. If this card is targeted by a
+// card effect: Destroy this card. If this card attacks your
+// opponent directly: Your opponent discards 1 random card.
+
+card "Spirit Reaper" {
+    id: 23205979
+    type: Effect Monster
+    attribute: DARK
+    race: Zombie
+    level: 3
+    atk: 300
+    def: 200
+
+    passive "Indestructible" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Self-Destruct" {
+        speed: 1
+        mandatory
+        trigger: targeted
+        resolve {
+            destroy self
+        }
+    }
+
+    effect "Hand Rip" {
+        speed: 1
+        trigger: direct_attack_damage
+        resolve {
+            discard (1, card, opponent controls)
+        }
+    }
+}

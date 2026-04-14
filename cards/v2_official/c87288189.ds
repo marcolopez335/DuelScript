@@ -1,0 +1,34 @@
+card "Caius the Mega Monarch" {
+    id: 87288189
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 8
+    atk: 2800
+    def: 1000
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_change_position
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        trigger: summoned
+        resolve {
+            banish (all, card, either controls)
+            damage opponent 1000
+            banish (all, card, either controls)
+        }
+    }
+}

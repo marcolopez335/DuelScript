@@ -1,0 +1,29 @@
+card "Thunder Dragon Titan" {
+    id: 41685633
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Thunder
+    level: 10
+    atk: 3200
+    def: 3200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    replacement "Effect 4" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

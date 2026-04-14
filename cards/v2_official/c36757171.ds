@@ -1,0 +1,26 @@
+card "Evilswarm Bahamut" {
+    id: 36757171
+    type: Xyz Monster
+    attribute: DARK
+    race: Dragon
+    rank: 4
+    atk: 2350
+    def: 1350
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            send (all, card, either controls) to gy
+            take_control (all, card, either controls)
+        }
+    }
+}

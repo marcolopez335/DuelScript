@@ -1,0 +1,39 @@
+card "Deep Sea Prima Donna" {
+    id: 50793215
+    type: Synchro Monster | Tuner
+    attribute: WATER
+    race: Sea Serpent
+    level: 7
+    atk: 1500
+    def: 2700
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            add_to_hand (all, card, either controls)
+            special_summon (all, card, either controls)
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            return (all, card, either controls) to deck
+        }
+    }
+}

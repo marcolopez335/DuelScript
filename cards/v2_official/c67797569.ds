@@ -1,0 +1,36 @@
+card "Lavalval Salamander" {
+    id: 67797569
+    type: Synchro Monster
+    attribute: FIRE
+    race: Dragon
+    level: 7
+    atk: 2600
+    def: 200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            draw 1
+            send (all, card, either controls) to gy
+            return (all, card, either controls) to deck
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+        }
+    }
+}

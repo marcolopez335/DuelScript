@@ -1,0 +1,30 @@
+card "Spectral, Dragon Ruler of Flickers" {
+    id: 58201062
+    type: Effect Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 2
+    atk: 600
+    def: 1000
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

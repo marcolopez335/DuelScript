@@ -1,0 +1,31 @@
+card "The Flute of Guiding Dragon" {
+    id: 93871599
+    type: Normal Spell
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            draw 1
+        }
+    }
+}

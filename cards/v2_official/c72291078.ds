@@ -1,0 +1,43 @@
+card "Mecha Phantom Beast O-Lion" {
+    id: 72291078
+    type: Effect Monster | Tuner
+    attribute: WIND
+    race: Machine
+    level: 2
+    atk: 600
+    def: 1000
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+}

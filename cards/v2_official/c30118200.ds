@@ -1,0 +1,38 @@
+card "Appliancer Vacculephant" {
+    id: 30118200
+    type: Link Monster
+    attribute: DARK
+    race: Machine
+    link: 1
+    atk: 1000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: direct_attack
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

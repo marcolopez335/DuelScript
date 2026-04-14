@@ -1,0 +1,24 @@
+card "Blockman" {
+    id: 48115277
+    type: Effect Monster
+    attribute: EARTH
+    race: Rock
+    level: 4
+    atk: 1000
+    def: 1500
+
+    effect "Effect 3" {
+        speed: 1
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+}

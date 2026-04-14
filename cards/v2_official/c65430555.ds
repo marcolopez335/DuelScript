@@ -1,0 +1,42 @@
+card "Beetrooper Sting Lancer" {
+    id: 65430555
+    type: Effect Monster
+    attribute: WIND
+    race: Insect
+    level: 7
+    atk: 2400
+    def: 1800
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+            special_summon (all, card, either controls)
+            return (all, card, either controls) to deck
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,25 @@
+// 同族感染ウィルス
+// Tribe-Infecting Virus
+// Discard 1 card and declare 1 Type. Destroy all face-up monsters
+// of the declared Type on the field.
+
+card "Tribe-Infecting Virus" {
+    id: 33184167
+    type: Effect Monster
+    attribute: WATER
+    race: Aqua
+    level: 4
+    atk: 1600
+    def: 1000
+
+    effect "Destroy by Type" {
+        speed: 1
+        cost {
+            discard (1, card)
+            announce type
+        }
+        resolve {
+            destroy (all, monster, either controls, face_up)
+        }
+    }
+}

@@ -1,0 +1,41 @@
+card "Wonky Quartet" {
+    id: 47195442
+    type: Xyz Monster
+    attribute: EARTH
+    race: Beast
+    rank: 4
+    atk: 0
+    def: 2600
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: summoned by special
+        resolve {
+            take_control (all, card, either controls)
+            damage opponent 1000
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: standby_phase
+        resolve {
+            take_control (all, card, either controls)
+            damage opponent 1000
+            destroy (all, card, either controls)
+        }
+    }
+}

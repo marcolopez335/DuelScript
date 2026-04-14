@@ -1,0 +1,45 @@
+card "Princess Cologne" {
+    id: 75574498
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Fairy
+    rank: 4
+    atk: 500
+    def: 2200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

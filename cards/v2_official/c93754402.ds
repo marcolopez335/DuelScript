@@ -1,0 +1,20 @@
+card "Fire Formation - Domei" {
+    id: 93754402
+    type: Continuous Spell
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

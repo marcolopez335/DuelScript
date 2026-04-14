@@ -1,0 +1,26 @@
+card "Gigarays Gandora the Dragon of Destruction" {
+    id: 58330108
+    type: Effect Monster | Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 8
+    atk: 0
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            pay_lp your_lp / 2
+        }
+        resolve {
+            destroy (all, card, either controls)
+            banish (all, card, either controls)
+        }
+    }
+}

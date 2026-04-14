@@ -1,0 +1,29 @@
+card "Koa'ki Meiru Prototype" {
+    id: 176392
+    type: Effect Monster
+    attribute: EARTH
+    race: Rock
+    level: 4
+    atk: 1800
+    def: 1800
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: destroyed
+        resolve {
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+
+    replacement "Effect 1" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

@@ -1,0 +1,40 @@
+card "Fire King High Avatar Garunix" {
+    id: 23015896
+    type: Effect Monster
+    attribute: FIRE
+    race: Winged Beast
+    level: 8
+    atk: 2700
+    def: 1700
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: standby_phase
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        mandatory
+        trigger: summoned by special
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        timing: when
+        trigger: battle_damage
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

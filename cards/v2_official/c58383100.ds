@@ -1,0 +1,32 @@
+card "Cipher Mirror Knight" {
+    id: 58383100
+    type: Effect Monster
+    attribute: LIGHT
+    race: Warrior
+    level: 4
+    atk: 0
+    def: 0
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: custom "chain_end"
+        cost {
+            discard (all, card, either controls)
+        }
+        resolve {
+            send (all, card, either controls) to gy
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: end_phase
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

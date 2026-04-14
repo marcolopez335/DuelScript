@@ -1,0 +1,31 @@
+card "Number 42: Galaxy Tomahawk" {
+    id: 10389142
+    type: Xyz Monster
+    attribute: WIND
+    race: Machine
+    rank: 7
+    atk: 0
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            detach 2 from self
+        }
+        resolve {
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+            destroy (all, card, either controls)
+            destroy (all, card, either controls)
+        }
+    }
+}

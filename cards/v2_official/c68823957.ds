@@ -1,0 +1,37 @@
+card "Subterror Nemesis Defender" {
+    id: 68823957
+    type: Effect Monster
+    attribute: EARTH
+    race: Beast-Warrior
+    level: 2
+    atk: 100
+    def: 2000
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        timing: when
+        trigger: attacked
+        cost {
+            send self to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            send self to gy
+        }
+    }
+}

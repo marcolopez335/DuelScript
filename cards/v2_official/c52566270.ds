@@ -1,0 +1,35 @@
+card "Epsilon The Magnet Warrior" {
+    id: 52566270
+    type: Effect Monster
+    attribute: EARTH
+    race: Rock
+    level: 4
+    atk: 1300
+    def: 1500
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,28 @@
+card "K9-X 'Werewolf'" {
+    id: 90303227
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Beast-Warrior
+    rank: 9
+    atk: 3300
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+            banish (all, card, either controls)
+            banish (all, card, either controls)
+        }
+    }
+}

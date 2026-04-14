@@ -1,0 +1,24 @@
+card "Master Tao the Chanter" {
+    id: 34541543
+    type: Effect Monster
+    attribute: EARTH
+    race: Warrior
+    level: 3
+    atk: 1200
+    def: 900
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

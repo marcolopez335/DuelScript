@@ -1,0 +1,38 @@
+card "Goblin Freefall Squad" {
+    id: 85123771
+    type: Effect Monster
+    attribute: WIND
+    race: Warrior
+    level: 4
+    atk: 0
+    def: 2000
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,29 @@
+card "Elementsaber Lapauila" {
+    id: 18214905
+    type: Effect Monster
+    attribute: LIGHT
+    race: Warrior
+    level: 4
+    atk: 400
+    def: 2100
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            send self to gy
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+    }
+}

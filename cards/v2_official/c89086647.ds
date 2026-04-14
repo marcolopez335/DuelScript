@@ -1,0 +1,32 @@
+card "Okiku's Dish Count" {
+    id: 89086647
+    type: Continuous Trap
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+    }
+
+    effect "Effect 6" {
+        speed: 2
+        timing: if
+        trigger: custom "chain_end"
+    }
+}

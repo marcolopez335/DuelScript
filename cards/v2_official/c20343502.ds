@@ -1,0 +1,33 @@
+card "Madolche Teacher Glassouffle" {
+    id: 20343502
+    type: Xyz Monster
+    attribute: EARTH
+    race: Fairy
+    rank: 4
+    atk: 1800
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        cost {
+            detach 1 from self
+        }
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: custom "chain_end"
+        resolve {
+            return (all, card, either controls) to deck
+        }
+    }
+}

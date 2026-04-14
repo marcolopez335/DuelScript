@@ -1,0 +1,45 @@
+card "Stellarknight Zefraxciton" {
+    id: 22617205
+    type: Effect Monster | Pendulum Monster
+    attribute: LIGHT
+    race: Fiend
+    level: 4
+    scale: 7
+    atk: 1900
+    def: 0
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by flip
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

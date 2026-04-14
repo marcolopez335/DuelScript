@@ -1,0 +1,23 @@
+card "Meklord Fortress" {
+    id: 67328336
+    type: Field Spell
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: when
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

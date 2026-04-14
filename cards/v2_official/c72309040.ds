@@ -1,0 +1,32 @@
+card "Ghoti of the Deep Beyond" {
+    id: 72309040
+    type: Synchro Monster
+    attribute: WATER
+    race: Fish
+    level: 10
+    atk: ?
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: standby_phase
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

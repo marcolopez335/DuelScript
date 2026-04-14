@@ -1,0 +1,37 @@
+card "Epurrely Plump" {
+    id: 24434049
+    type: Xyz Monster
+    attribute: EARTH
+    race: Fairy
+    rank: 2
+    atk: 200
+    def: 2100
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+}

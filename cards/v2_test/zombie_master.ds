@@ -1,0 +1,25 @@
+// ゾンビ・マスター
+// Zombie Master
+// Once per turn: Discard 1 monster; Special Summon 1 Level 4 or
+// lower Zombie from either GY.
+
+card "Zombie Master" {
+    id: 17259470
+    type: Effect Monster
+    attribute: DARK
+    race: Zombie
+    level: 4
+    atk: 1800
+    def: 0
+
+    effect "Revive Zombie" {
+        speed: 1
+        once_per_turn: soft
+        cost {
+            discard (1, monster)
+        }
+        resolve {
+            special_summon (1, monster, where race == Zombie and level <= 4) from gy
+        }
+    }
+}

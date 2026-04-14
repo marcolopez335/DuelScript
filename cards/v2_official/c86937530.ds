@@ -1,0 +1,28 @@
+card "Fairy Tail - Luna" {
+    id: 86937530
+    type: Effect Monster
+    attribute: LIGHT
+    race: Spellcaster
+    level: 4
+    atk: 1850
+    def: 1000
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+            send (all, card, either controls) to gy
+            negate
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,33 @@
+card "Crystron Eleskeletus" {
+    id: 47736165
+    type: Synchro Monster
+    attribute: WATER
+    race: Machine
+    level: 7
+    atk: 2600
+    def: 2100
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

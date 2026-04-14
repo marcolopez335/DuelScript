@@ -1,0 +1,33 @@
+card "D/D/D Super Doom King Purple Armageddon" {
+    id: 84569886
+    type: Fusion Monster | Pendulum Monster
+    attribute: DARK
+    race: Fiend
+    level: 10
+    scale: 1
+    atk: 3500
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+            damage opponent 1000
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        timing: if
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

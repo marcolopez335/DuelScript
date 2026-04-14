@@ -1,0 +1,32 @@
+card "Sky Striker Ace - Camellia" {
+    id: 63013339
+    type: Link Monster
+    attribute: DARK
+    race: Machine
+    link: 2
+    atk: 1500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+            destroy (all, card, either controls)
+            send (all, card, either controls) to gy
+        }
+    }
+}

@@ -1,0 +1,33 @@
+// ミスティック・ソードマン LV2
+// Mystic Swordsman LV2
+// Destroys face-down monsters without flipping. Can level up
+// to LV4 during End Phase.
+
+card "Mystic Swordsman LV2" {
+    id: 47507260
+    type: Effect Monster
+    attribute: EARTH
+    race: Warrior
+    level: 2
+    atk: 900
+    def: 0
+
+    effect "Destroy Face-Down" {
+        speed: 1
+        trigger: attacked
+        resolve {
+            destroy (1, monster, opponent controls, face_down)
+        }
+    }
+
+    effect "Level Up" {
+        speed: 1
+        trigger: end_phase
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (1, "Mystic Swordsman LV4" monster) from deck
+        }
+    }
+}

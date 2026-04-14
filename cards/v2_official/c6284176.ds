@@ -1,0 +1,33 @@
+card "Kanzashi the Rikka Queen" {
+    id: 6284176
+    type: Xyz Monster
+    attribute: WATER
+    race: Plant
+    rank: 6
+    atk: 2400
+    def: 2400
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: sent_to gy
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    replacement "Effect 2" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

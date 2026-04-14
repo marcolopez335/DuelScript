@@ -1,0 +1,33 @@
+card "D/D/D Marksman King Tell" {
+    id: 71612253
+    type: Xyz Monster
+    attribute: DARK
+    race: Fiend
+    rank: 5
+    atk: 2300
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            damage opponent 1000
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

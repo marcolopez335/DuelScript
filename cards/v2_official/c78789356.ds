@@ -1,0 +1,30 @@
+card "Ogdoadic Daybreak" {
+    id: 78789356
+    type: Quick-Play Spell
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        mandatory
+        resolve {
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            return (all, card, either controls) to deck
+            send (all, card, either controls) to gy
+        }
+    }
+}

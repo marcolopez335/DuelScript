@@ -1,0 +1,34 @@
+card "Salamangreat Heatleo" {
+    id: 41463181
+    type: Link Monster
+    attribute: FIRE
+    race: Cyberse
+    link: 3
+    atk: 2300
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            return (all, card, either controls) to deck
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+        }
+    }
+}

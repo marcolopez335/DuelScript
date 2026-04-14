@@ -1,0 +1,27 @@
+card "Tearlaments Scheiren" {
+    id: 572850
+    type: Effect Monster
+    attribute: DARK
+    race: Aqua
+    level: 4
+    atk: 1800
+    def: 1300
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+            send (all, card, either controls) to gy
+            mill 3
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+    }
+}

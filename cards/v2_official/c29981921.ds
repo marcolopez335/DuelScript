@@ -1,0 +1,31 @@
+card "Legendary Six Samurai - Shi En" {
+    id: 29981921
+    type: Synchro Monster
+    attribute: DARK
+    race: Warrior
+    level: 5
+    atk: 2500
+    def: 1400
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+
+    replacement "Effect 2" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

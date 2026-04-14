@@ -1,0 +1,28 @@
+card "Gouki Jet Ogre" {
+    id: 59644128
+    type: Link Monster
+    attribute: EARTH
+    race: Warrior
+    link: 2
+    atk: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: custom "chain_end"
+    }
+}

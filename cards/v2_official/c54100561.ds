@@ -1,0 +1,26 @@
+card "FaSolfachord Fancia" {
+    id: 54100561
+    type: Effect Monster | Pendulum Monster
+    attribute: FIRE
+    race: Fairy
+    level: 4
+    scale: 5
+    atk: 1600
+    def: 400
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            send (all, card, either controls) to extra_deck
+        }
+    }
+
+    replacement "Effect 3" {
+        instead_of: destroyed
+        do {
+            return self to extra_deck
+        }
+    }
+}

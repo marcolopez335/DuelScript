@@ -1,0 +1,32 @@
+card "SPYRAL Master Plan" {
+    id: 91258852
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 7
+    atk: 1200
+    def: 2800
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

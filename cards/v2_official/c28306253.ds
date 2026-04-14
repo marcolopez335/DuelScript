@@ -1,0 +1,43 @@
+card "Angry Burger" {
+    id: 28306253
+    type: Ritual Monster
+    attribute: DARK
+    race: Warrior
+    level: 6
+    atk: 2800
+    def: 1850
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: must_attack
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: must_attack
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+            return (all, card, either controls) to deck
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

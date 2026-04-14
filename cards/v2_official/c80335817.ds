@@ -1,0 +1,30 @@
+card "Timebreaker Magician" {
+    id: 80335817
+    type: Effect Monster | Pendulum Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 3
+    scale: 2
+    atk: 1400
+    def: 0
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: summoned by special
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+}

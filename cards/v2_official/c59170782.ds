@@ -1,0 +1,40 @@
+card "Mermail Abysstrite" {
+    id: 59170782
+    type: Xyz Monster
+    attribute: WATER
+    race: Sea Serpent
+    rank: 3
+    atk: 1600
+    def: 2800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            detach 1 from self
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        cost {
+            detach 1 from self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: when
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

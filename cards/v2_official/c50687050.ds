@@ -1,0 +1,35 @@
+card "Arktos XII - Chronochasm Vaylantz" {
+    id: 50687050
+    type: Fusion Monster | Pendulum Monster
+    attribute: EARTH
+    race: Fairy
+    level: 12
+    scale: 12
+    atk: 3000
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: leaves_field
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

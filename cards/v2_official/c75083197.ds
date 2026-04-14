@@ -1,0 +1,36 @@
+card "Dragonlark Pairen" {
+    id: 75083197
+    type: Xyz Monster
+    attribute: WIND
+    race: Wyrm
+    rank: 6
+    atk: 2700
+    def: 1300
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: standby_phase
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

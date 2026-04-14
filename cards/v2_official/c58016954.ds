@@ -1,0 +1,35 @@
+card "Shaddoll Zefranaga" {
+    id: 58016954
+    type: Effect Monster | Pendulum Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 2
+    scale: 1
+    atk: 900
+    def: 100
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

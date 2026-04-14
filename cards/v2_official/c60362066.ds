@@ -1,0 +1,24 @@
+card "Tearlaments Heartbeat" {
+    id: 60362066
+    type: Quick-Play Spell
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        mandatory
+        resolve {
+            return (all, card, either controls) to deck
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: hard
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

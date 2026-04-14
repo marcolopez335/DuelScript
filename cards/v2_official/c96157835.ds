@@ -1,0 +1,34 @@
+card "Raidraptor - Arsenal Falcon" {
+    id: 96157835
+    type: Xyz Monster
+    attribute: DARK
+    race: Winged Beast
+    rank: 7
+    atk: 2500
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

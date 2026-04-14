@@ -1,0 +1,35 @@
+card "Odd-Eyes Vortex Dragon" {
+    id: 53262004
+    type: Fusion Monster
+    attribute: WIND
+    race: Dragon
+    level: 7
+    atk: 2500
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            return (all, card, either controls) to deck
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

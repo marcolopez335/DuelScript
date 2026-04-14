@@ -1,0 +1,32 @@
+card "Mind Castlin" {
+    id: 12172567
+    type: Synchro Monster
+    attribute: DARK
+    race: Psychic
+    level: 6
+    atk: 1500
+    def: 2600
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            take_control (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            take_control (all, card, either controls)
+        }
+    }
+}

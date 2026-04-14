@@ -1,0 +1,23 @@
+card "Naturia Stag Beetle" {
+    id: 23051413
+    type: Effect Monster
+    attribute: EARTH
+    race: Insect
+    level: 6
+    atk: 2200
+    def: 1500
+
+    summon {
+        tributes: 1
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

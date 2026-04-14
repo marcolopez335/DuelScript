@@ -1,0 +1,39 @@
+card "Doodle Beast - Tyranno" {
+    id: 67725394
+    type: Effect Monster
+    attribute: EARTH
+    race: Dinosaur
+    level: 8
+    atk: 2400
+    def: 1200
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    passive "Effect 5" {
+        scope: self
+        grant: cannot_change_position
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: summoned
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

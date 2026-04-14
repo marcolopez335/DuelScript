@@ -1,0 +1,28 @@
+card "Detonating Kuriboh" {
+    id: 46789706
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 300
+    def: 200
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

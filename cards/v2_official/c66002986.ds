@@ -1,0 +1,27 @@
+card "Speedroid Clear Wing Wonder" {
+    id: 66002986
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        cost {
+            banish self
+        }
+        resolve {
+            banish (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

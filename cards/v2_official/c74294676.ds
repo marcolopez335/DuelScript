@@ -1,0 +1,26 @@
+card "Evolzar Laggia" {
+    id: 74294676
+    type: Xyz Monster
+    attribute: FIRE
+    race: Dragon
+    rank: 4
+    atk: 2400
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            detach 2 from self
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

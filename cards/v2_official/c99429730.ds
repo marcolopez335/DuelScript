@@ -1,0 +1,31 @@
+card "Sylvan Guardioak" {
+    id: 99429730
+    type: Effect Monster
+    attribute: EARTH
+    race: Plant
+    level: 6
+    atk: 2400
+    def: 1500
+
+    summon {
+        tributes: 1
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            return (all, card, either controls) to deck
+        }
+    }
+}

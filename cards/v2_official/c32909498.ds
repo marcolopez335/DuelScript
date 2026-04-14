@@ -1,0 +1,42 @@
+card "Kashtira Fenrir" {
+    id: 32909498
+    type: Effect Monster
+    attribute: EARTH
+    race: Psychic
+    level: 7
+    atk: 2400
+    def: 2400
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: summoned
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+}

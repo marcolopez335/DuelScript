@@ -1,0 +1,23 @@
+card "Cyber Slash Harpie Lady" {
+    id: 63261835
+    type: Synchro Monster
+    attribute: WIND
+    race: Winged Beast
+    level: 8
+    atk: 2600
+    def: 1400
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

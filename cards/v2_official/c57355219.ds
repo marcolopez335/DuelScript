@@ -1,0 +1,29 @@
+card "Paradox Fusion" {
+    id: 57355219
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        mandatory
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            banish self
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

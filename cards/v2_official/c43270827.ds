@@ -1,0 +1,17 @@
+card "Therion Cross" {
+    id: 43270827
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        mandatory
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            banish (all, card, either controls)
+            negate
+            banish (all, card, either controls)
+        }
+    }
+}

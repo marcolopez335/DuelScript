@@ -1,0 +1,27 @@
+card "Deskbot 004" {
+    id: 22227683
+    type: Effect Monster
+    attribute: EARTH
+    race: Machine
+    level: 4
+    atk: 500
+    def: 500
+
+    effect "Effect 1" {
+        speed: 2
+        timing: when
+        trigger: summoned
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: battle_damage
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

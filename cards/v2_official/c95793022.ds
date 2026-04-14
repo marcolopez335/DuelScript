@@ -1,0 +1,31 @@
+card "World Chalice Guardragon Almarduke" {
+    id: 95793022
+    type: Fusion Monster
+    attribute: WIND
+    race: Dragon
+    level: 9
+    atk: 3000
+    def: 2600
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: attack_all_monsters
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        cost {
+            banish self
+        }
+        resolve {
+            destroy (all, card, either controls)
+            damage opponent 1000
+        }
+    }
+}

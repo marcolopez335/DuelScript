@@ -1,0 +1,39 @@
+card "Dinowrestler Giga Spinosavate" {
+    id: 58672736
+    type: Synchro Monster
+    attribute: EARTH
+    race: Dinosaur
+    level: 8
+    atk: 3000
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    replacement "Effect 4" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

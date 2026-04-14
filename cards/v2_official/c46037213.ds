@@ -1,0 +1,27 @@
+card "Guardian Tryce" {
+    id: 46037213
+    type: Effect Monster
+    attribute: LIGHT
+    race: Thunder
+    level: 5
+    atk: 1900
+    def: 1700
+
+    summon {
+        tributes: 1
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

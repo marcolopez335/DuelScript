@@ -1,0 +1,34 @@
+card "Exosisters Magnifica" {
+    id: 59242457
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Warrior
+    rank: 8
+    atk: 2800
+    def: 2800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            return (all, card, either controls) to deck
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,50 @@
+card "Eka the Flame Buddy" {
+    id: 35283277
+    type: Effect Monster
+    attribute: FIRE
+    race: Warrior
+    level: 4
+    atk: 1500
+    def: 200
+
+    passive "Effect 5" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    passive "Effect 6" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    passive "Effect 7" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+    }
+}

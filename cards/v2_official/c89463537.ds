@@ -1,0 +1,30 @@
+card "Nekroz of Unicore" {
+    id: 89463537
+    type: Ritual Monster
+    attribute: WATER
+    race: Spellcaster
+    level: 4
+    atk: 2300
+    def: 1000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            discard (all, card, either controls)
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

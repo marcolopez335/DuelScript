@@ -1,0 +1,39 @@
+card "Evigishki Neremanas" {
+    id: 88926295
+    type: Ritual Monster
+    attribute: WATER
+    race: Spellcaster
+    level: 10
+    atk: 3000
+    def: 1800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            return (all, card, either controls) to hand
+            negate
+            return (all, card, either controls) to deck
+        }
+    }
+}

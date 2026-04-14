@@ -1,0 +1,34 @@
+card "F.A. Shining Star GT" {
+    id: 37414347
+    type: Link Monster
+    attribute: LIGHT
+    race: Machine
+    link: 2
+    atk: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        mandatory
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+    }
+
+    effect "Effect 5" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

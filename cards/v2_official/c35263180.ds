@@ -1,0 +1,23 @@
+card "Seed-Spitting Saplings" {
+    id: 35263180
+    type: Effect Monster
+    attribute: LIGHT
+    race: Plant
+    level: 4
+    atk: 1600
+    def: 200
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: attacked
+        resolve {
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+}

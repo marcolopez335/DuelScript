@@ -1,0 +1,28 @@
+card "Photon Jumper" {
+    id: 97639441
+    type: Effect Monster
+    attribute: LIGHT
+    race: Warrior
+    level: 4
+    atk: 0
+    def: 0
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: summoned
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

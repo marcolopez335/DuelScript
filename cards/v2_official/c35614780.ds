@@ -1,0 +1,45 @@
+card "Light End Sublimation Dragon" {
+    id: 35614780
+    type: Effect Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 8
+    atk: 2600
+    def: 2100
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: summoned
+        resolve {
+        }
+    }
+}

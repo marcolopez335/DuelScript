@@ -1,0 +1,36 @@
+card "Gatchiri @Ignister" {
+    id: 82257671
+    type: Effect Monster
+    attribute: EARTH
+    race: Cyberse
+    level: 8
+    atk: 0
+    def: 3000
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+        }
+    }
+}

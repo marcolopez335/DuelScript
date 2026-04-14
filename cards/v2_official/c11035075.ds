@@ -1,0 +1,41 @@
+card "Shichi-Go-San" {
+    id: 11035075
+    type: Normal Trap
+
+    passive "Effect 4" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        mandatory
+        trigger: end_phase
+        resolve {
+        }
+    }
+
+    effect "Effect 5" {
+        speed: 2
+        once_per_turn: soft
+        mandatory
+        trigger: standby_phase
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 7" {
+        speed: 2
+        mandatory
+    }
+}

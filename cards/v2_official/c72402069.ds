@@ -1,0 +1,51 @@
+card "D/D/D Super Doom King Bright Armageddon" {
+    id: 72402069
+    type: Synchro Monster | Pendulum Monster
+    attribute: DARK
+    race: Fiend
+    level: 10
+    scale: 1
+    atk: 3500
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: summoned
+        resolve {
+            destroy (all, card, either controls)
+            damage opponent 1000
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: when
+        trigger: summoned
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        timing: when
+        trigger: summoned by special
+    }
+
+    effect "Effect 5" {
+        speed: 1
+        timing: if
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,24 @@
+// ファイバーポッド
+// Fiber Jar
+// FLIP: Shuffle all cards on field, in hand, and in GY into Deck.
+// Both players draw 5 cards.
+
+card "Fiber Jar" {
+    id: 78706415
+    type: Effect Monster | Flip
+    attribute: EARTH
+    race: Plant
+    level: 3
+    atk: 500
+    def: 500
+
+    effect "Reset Game" {
+        speed: 1
+        mandatory
+        trigger: flipped
+        resolve {
+            shuffle_deck both
+            draw 5
+        }
+    }
+}

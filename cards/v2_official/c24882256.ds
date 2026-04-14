@@ -1,0 +1,42 @@
+card "Fire Phoenix @Ignister" {
+    id: 24882256
+    type: Link Monster
+    attribute: FIRE
+    race: Cyberse
+    link: 3
+    atk: 2300
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: summoned
+        resolve {
+            damage opponent 1000
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: destroyed
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: standby_phase
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

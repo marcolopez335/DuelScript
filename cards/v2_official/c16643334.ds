@@ -1,0 +1,43 @@
+card "Starliege Photon Blast Dragon" {
+    id: 16643334
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Dragon
+    rank: 4
+    atk: 1800
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

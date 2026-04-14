@@ -1,0 +1,35 @@
+card "World Legacy Guardragon Mardark" {
+    id: 35183584
+    type: Effect Monster
+    attribute: WIND
+    race: Dragon
+    level: 9
+    atk: 2600
+    def: 3000
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: destroyed
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

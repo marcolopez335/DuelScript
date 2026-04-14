@@ -1,0 +1,54 @@
+card "Endymion, the Mighty Master of Magic" {
+    id: 3611830
+    type: Effect Monster | Pendulum Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 7
+    scale: 8
+    atk: 2800
+    def: 1700
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            return (all, card, either controls) to hand
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 6" {
+        speed: 1
+        timing: when
+        trigger: battle_damage
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+}

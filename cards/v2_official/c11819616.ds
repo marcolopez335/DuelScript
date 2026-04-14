@@ -1,0 +1,26 @@
+card "Tytannial, Princess of Camellias" {
+    id: 11819616
+    type: Effect Monster
+    attribute: WIND
+    race: Plant
+    level: 8
+    atk: 2800
+    def: 2600
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            tribute self
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

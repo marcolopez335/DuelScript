@@ -1,0 +1,26 @@
+card "Naturia Barkion" {
+    id: 2956282
+    type: Synchro Monster
+    attribute: EARTH
+    race: Dragon
+    level: 6
+    atk: 2500
+    def: 1800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            banish self
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

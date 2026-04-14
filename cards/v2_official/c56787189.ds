@@ -1,0 +1,19 @@
+card "New Frontier" {
+    id: 56787189
+    type: Field Spell
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

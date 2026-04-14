@@ -1,0 +1,49 @@
+card "Plunder Patrollship Jord" {
+    id: 85969517
+    type: Synchro Monster | Pendulum Monster
+    attribute: EARTH
+    race: Fiend
+    level: 8
+    scale: 1
+    atk: 1500
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            return (all, card, either controls) to deck
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            add_to_hand (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

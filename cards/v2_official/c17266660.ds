@@ -1,0 +1,22 @@
+card "Herald of Orange Light" {
+    id: 17266660
+    type: Effect Monster | Tuner
+    attribute: LIGHT
+    race: Fairy
+    level: 2
+    atk: 300
+    def: 500
+
+    effect "Effect 1" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            send self to gy
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

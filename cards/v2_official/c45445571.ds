@@ -1,0 +1,38 @@
+card "The Duke of Demise" {
+    id: 45445571
+    type: Fusion Monster
+    attribute: DARK
+    race: Fiend
+    level: 6
+    atk: 2000
+    def: 1700
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

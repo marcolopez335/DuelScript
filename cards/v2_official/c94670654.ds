@@ -1,0 +1,29 @@
+card "Baku the Beast Ninja" {
+    id: 94670654
+    type: Effect Monster
+    attribute: WIND
+    race: Beast
+    level: 3
+    atk: 1500
+    def: 600
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_active"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,34 @@
+card "DoomZ Break - Diactorus" {
+    id: 31010081
+    type: Xyz Monster
+    attribute: WIND
+    race: Machine
+    rank: 4
+    atk: 2400
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            destroy (all, card, either controls)
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: destroyed
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

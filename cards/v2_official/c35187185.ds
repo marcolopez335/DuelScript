@@ -1,0 +1,33 @@
+card "Oneiros, the Dream Mirror Erlking" {
+    id: 35187185
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 10
+    atk: 3000
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: sent_to gy
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

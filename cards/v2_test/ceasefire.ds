@@ -1,0 +1,17 @@
+// 停戦協定
+// Ceasefire
+// Change all face-down Defense Position monsters to face-up Defense.
+// Inflict 500 damage per Effect Monster on the field.
+
+card "Ceasefire" {
+    id: 36468556
+    type: Normal Trap
+
+    effect "Flip All and Burn" {
+        speed: 2
+        resolve {
+            change_position (all, monster, either controls, face_down)
+            damage opponent count((all, effect monster, either controls)) * 500
+        }
+    }
+}

@@ -1,0 +1,34 @@
+card "Lyrilusc - Ensemblue Robin" {
+    id: 72971064
+    type: Xyz Monster
+    attribute: WIND
+    race: Winged Beast
+    rank: 1
+    atk: 0
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

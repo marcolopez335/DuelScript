@@ -1,0 +1,29 @@
+card "The Hidden Hecahands" {
+    id: 20415050
+    type: Normal Spell
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            draw 1
+            discard (all, card, either controls)
+        }
+    }
+}

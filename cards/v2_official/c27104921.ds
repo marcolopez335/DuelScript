@@ -1,0 +1,21 @@
+card "Forge a New Future" {
+    id: 27104921
+    type: Continuous Trap
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        mandatory
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        timing: if
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+            send (all, card, either controls) to gy
+            special_summon (all, card, either controls)
+        }
+    }
+}

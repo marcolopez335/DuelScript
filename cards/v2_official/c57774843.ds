@@ -1,0 +1,34 @@
+card "Judgment Dragon" {
+    id: 57774843
+    type: Effect Monster | Effect Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 8
+    atk: 3000
+    def: 2600
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        cost {
+            pay_lp 1000
+        }
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: end_phase
+        resolve {
+            mill 4
+        }
+    }
+}

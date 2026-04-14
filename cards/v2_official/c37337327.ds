@@ -1,0 +1,28 @@
+card "Junk Connector" {
+    id: 37337327
+    type: Link Monster
+    attribute: DARK
+    race: Warrior
+    link: 2
+    atk: 1700
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

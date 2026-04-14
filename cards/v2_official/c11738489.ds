@@ -1,0 +1,31 @@
+card "The Arrival Cyberse @Ignister" {
+    id: 11738489
+    type: Link Monster
+    attribute: DARK
+    race: Cyberse
+    link: 6
+    atk: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+}

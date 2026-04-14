@@ -1,0 +1,39 @@
+card "Fighting Flame Swordsman" {
+    id: 1047075
+    type: Effect Monster
+    attribute: FIRE
+    race: Warrior
+    level: 4
+    atk: 1800
+    def: 1600
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

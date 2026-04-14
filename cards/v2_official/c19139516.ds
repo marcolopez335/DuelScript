@@ -1,0 +1,28 @@
+card "Scrap Beast" {
+    id: 19139516
+    type: Effect Monster | Tuner
+    attribute: EARTH
+    race: Beast
+    level: 4
+    atk: 1600
+    def: 1300
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: standby_phase
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: destroyed
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

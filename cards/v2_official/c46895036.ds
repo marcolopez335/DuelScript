@@ -1,0 +1,32 @@
+card "Ghostrick Dullahan" {
+    id: 46895036
+    type: Xyz Monster
+    attribute: DARK
+    race: Fiend
+    rank: 1
+    atk: 1000
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            detach 1 from self
+        }
+        resolve {
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+}

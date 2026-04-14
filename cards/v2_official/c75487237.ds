@@ -1,0 +1,26 @@
+card "Mid Shield Gardna" {
+    id: 75487237
+    type: Effect Monster
+    attribute: EARTH
+    race: Warrior
+    level: 4
+    atk: 100
+    def: 1800
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        mandatory
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            send (all, card, either controls) to gy
+        }
+    }
+}

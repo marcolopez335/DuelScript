@@ -1,0 +1,29 @@
+card "Centur-Ion Primera Primus" {
+    id: 8841431
+    type: Synchro Monster | Tuner
+    attribute: LIGHT
+    race: Spellcaster
+    level: 8
+    atk: 2600
+    def: 2600
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+            destroy (all, card, either controls)
+        }
+    }
+}

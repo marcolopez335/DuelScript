@@ -1,0 +1,34 @@
+card "Ragnaraika Mantis Monk" {
+    id: 70514456
+    type: Link Monster
+    attribute: WIND
+    race: Insect
+    link: 3
+    atk: 2300
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            return (all, card, either controls) to deck
+            special_summon (all, card, either controls)
+        }
+    }
+}

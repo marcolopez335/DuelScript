@@ -1,0 +1,41 @@
+card "Giant Mimighoul" {
+    id: 16955631
+    type: Xyz Monster
+    attribute: EARTH
+    race: Rock
+    rank: 1
+    atk: 1300
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: direct_attack
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            destroy (all, card, either controls)
+            damage opponent 1000
+        }
+    }
+}

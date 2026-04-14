@@ -1,0 +1,35 @@
+card "Aromalilith Rosemary" {
+    id: 30989084
+    type: Link Monster
+    attribute: DARK
+    race: Plant
+    link: 3
+    atk: 2200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            banish (all, card, either controls)
+            gain_lp 1000
+        }
+    }
+}

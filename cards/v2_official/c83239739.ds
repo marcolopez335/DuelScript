@@ -1,0 +1,22 @@
+card "Oyster Meister" {
+    id: 83239739
+    type: Effect Monster
+    attribute: WATER
+    race: Fish
+    level: 3
+    atk: 1600
+    def: 200
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+}

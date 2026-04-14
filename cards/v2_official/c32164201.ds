@@ -1,0 +1,36 @@
+card "ZW - Pegasus Twin Saber" {
+    id: 32164201
+    type: Effect Monster
+    attribute: LIGHT
+    race: Beast
+    level: 5
+    atk: 1000
+    def: 2100
+
+    summon {
+        tributes: 1
+    }
+
+    passive "Effect 8" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    passive "Effect 9" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    passive "Effect 10" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

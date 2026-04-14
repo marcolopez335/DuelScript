@@ -1,0 +1,31 @@
+card "Morpheus, the Dream Mirror White Knight" {
+    id: 1872843
+    type: Effect Monster
+    attribute: LIGHT
+    race: Warrior
+    level: 8
+    atk: 1000
+    def: 2800
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

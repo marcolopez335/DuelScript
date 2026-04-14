@@ -1,0 +1,30 @@
+card "Thelematech Clatis" {
+    id: 98986900
+    type: Xyz Monster
+    attribute: DARK
+    race: Spellcaster
+    rank: 8
+    atk: 3000
+    def: 900
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            add_to_hand (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+
+    replacement "Effect 4" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

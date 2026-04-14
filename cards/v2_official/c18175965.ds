@@ -1,0 +1,60 @@
+card "Guardian Dreadscythe" {
+    id: 18175965
+    type: Effect Monster | Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 8
+    atk: 2500
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_change_position
+    }
+
+    passive "Effect 6" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    passive "Effect 7" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 5" {
+        speed: 1
+        timing: when
+        trigger: summoned by special
+        resolve {
+        }
+    }
+
+    effect "Effect 8" {
+        speed: 1
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            discard (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

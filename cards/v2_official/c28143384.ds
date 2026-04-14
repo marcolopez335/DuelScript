@@ -1,0 +1,35 @@
+card "Aerial Eater" {
+    id: 28143384
+    type: Fusion Monster
+    attribute: WIND
+    race: Fiend
+    level: 6
+    atk: 2100
+    def: 2600
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,32 @@
+card "Number 77: The Seven Sins" {
+    id: 62541668
+    type: Xyz Monster
+    attribute: DARK
+    race: Fiend
+    rank: 12
+    atk: 4000
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            detach 2 from self
+        }
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+
+    replacement "Effect 2" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

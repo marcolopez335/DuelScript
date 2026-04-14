@@ -1,0 +1,31 @@
+card "Vampire Sucker" {
+    id: 37129797
+    type: Link Monster
+    attribute: DARK
+    race: Zombie
+    link: 2
+    atk: 1600
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: summoned by special
+        resolve {
+            draw 1
+        }
+    }
+}

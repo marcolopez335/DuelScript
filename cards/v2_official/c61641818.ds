@@ -1,0 +1,31 @@
+card "Virtual World Dragon - Longlong" {
+    id: 61641818
+    type: Xyz Monster
+    attribute: EARTH
+    race: Wyrm
+    rank: 3
+    atk: 2400
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            detach 2 from self
+        }
+        resolve {
+            negate
+        }
+    }
+}

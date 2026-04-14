@@ -1,0 +1,28 @@
+card "Dogmatika Alba Zoa" {
+    id: 51522296
+    type: Ritual Monster
+    attribute: LIGHT
+    race: Spellcaster
+    level: 12
+    atk: 4000
+    def: 4000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            send (all, card, either controls) to gy
+            return (all, card, either controls) to deck
+        }
+    }
+}

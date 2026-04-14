@@ -1,0 +1,23 @@
+card "Glow-Up Bloom" {
+    id: 92964816
+    type: Effect Monster | Tuner
+    attribute: DARK
+    race: Zombie
+    level: 1
+    atk: 0
+    def: 0
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: custom "chain_end"
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

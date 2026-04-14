@@ -1,0 +1,22 @@
+// いたずら好きな双子悪魔
+// Delinquent Duo
+// Pay 1000 LP; discard 1 random card from opponent's hand,
+// then they discard 1 more.
+
+card "Delinquent Duo" {
+    id: 44763025
+    type: Normal Spell
+
+    effect "Hand Rip" {
+        speed: 1
+        cost {
+            pay_lp 1000
+        }
+        resolve {
+            discard (1, card, opponent controls)
+            then {
+                discard (1, card, opponent controls)
+            }
+        }
+    }
+}

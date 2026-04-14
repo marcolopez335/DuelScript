@@ -1,0 +1,34 @@
+card "All-Eyes Phantom Dragon" {
+    id: 70335319
+    type: Effect Monster | Pendulum Monster | Effect Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 10
+    scale: 0
+    atk: 3000
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 5" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: summoned
+    }
+
+    effect "Effect 6" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            send self to gy
+        }
+        resolve {
+            negate
+        }
+    }
+}

@@ -1,0 +1,26 @@
+card "Naturia Landoise" {
+    id: 43932460
+    type: Synchro Monster
+    attribute: EARTH
+    race: Rock
+    level: 7
+    atk: 2350
+    def: 1600
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            send self to gy
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

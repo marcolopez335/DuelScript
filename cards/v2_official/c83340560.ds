@@ -1,0 +1,28 @@
+card "The Great Double Casted Caster" {
+    id: 83340560
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Spellcaster
+    level: 8
+    atk: 0
+    def: 2600
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: direct_attack
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

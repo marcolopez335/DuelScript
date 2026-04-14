@@ -1,0 +1,24 @@
+card "Morgan, the Enchantress of Avalon" {
+    id: 24027078
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 3
+    atk: 1300
+    def: 1600
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            send self to gy
+        }
+        resolve {
+            destroy (all, card, either controls)
+            negate
+            send (all, card, either controls) to gy
+        }
+    }
+}

@@ -1,0 +1,27 @@
+card "Frozen Fitzgerald" {
+    id: 94515289
+    type: Synchro Monster
+    attribute: WATER
+    race: Fiend
+    level: 5
+    atk: 2500
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: battle_damage
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

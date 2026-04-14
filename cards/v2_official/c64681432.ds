@@ -1,0 +1,34 @@
+card "Gandora the Dragon of Destruction" {
+    id: 64681432
+    type: Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 8
+    atk: 0
+    def: 0
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        mandatory
+        cost {
+            pay_lp your_lp / 2
+        }
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 5" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: end_phase
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

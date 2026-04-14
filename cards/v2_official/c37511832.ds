@@ -1,0 +1,21 @@
+card "Sargasso Lighthouse" {
+    id: 37511832
+    type: Quick-Play Spell
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        timing: when
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

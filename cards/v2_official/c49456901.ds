@@ -1,0 +1,37 @@
+card "Number C104: Umbral Horror Masquerade" {
+    id: 49456901
+    type: Xyz Monster
+    attribute: DARK
+    race: Spellcaster
+    rank: 5
+    atk: 3000
+    def: 1500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned by special
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            negate
+            send (all, card, either controls) to gy
+            gain_lp 0
+        }
+    }
+}

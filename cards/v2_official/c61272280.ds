@@ -1,0 +1,28 @@
+card "Vahram, the Magistus Divinity Dragon" {
+    id: 61272280
+    type: Synchro Monster
+    attribute: FIRE
+    race: Dragon
+    level: 8
+    atk: 2500
+    def: 2900
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: destroyed
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

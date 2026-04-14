@@ -1,0 +1,30 @@
+card "Labrynth Cooclock" {
+    id: 2511
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 0
+    def: 0
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        cost {
+            discard (all, card, either controls)
+        }
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

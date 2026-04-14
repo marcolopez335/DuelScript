@@ -1,0 +1,41 @@
+card "ZW - Phoenix Bow" {
+    id: 87008374
+    type: Effect Monster
+    attribute: FIRE
+    race: Winged Beast
+    level: 3
+    atk: 1100
+    def: 0
+
+    passive "Effect 7" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    passive "Effect 8" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    passive "Effect 9" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: battle_damage
+        resolve {
+            damage opponent 1000
+        }
+    }
+}

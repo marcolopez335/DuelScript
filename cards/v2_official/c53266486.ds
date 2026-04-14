@@ -1,0 +1,20 @@
+card "Anesthrokket Dragon" {
+    id: 53266486
+    type: Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 1
+    atk: 0
+    def: 2200
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            destroy (all, card, either controls)
+            negate
+        }
+    }
+}

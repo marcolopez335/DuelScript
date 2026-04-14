@@ -1,0 +1,46 @@
+card "Number F0: Utopic Future Zexal" {
+    id: 41522092
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Warrior
+    rank: 1
+    atk: 0
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    passive "Effect 6" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    passive "Effect 7" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 5" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            take_control (all, card, either controls)
+        }
+    }
+}

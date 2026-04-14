@@ -1,0 +1,31 @@
+card "Crystron Thystvern" {
+    id: 29838323
+    type: Effect Monster
+    attribute: WATER
+    race: Machine
+    level: 3
+    atk: 1500
+    def: 1500
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

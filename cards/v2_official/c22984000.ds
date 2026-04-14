@@ -1,0 +1,38 @@
+card "Mercurium the Living Quicksilver" {
+    id: 22984000
+    type: Xyz Monster
+    attribute: DARK
+    race: Aqua
+    rank: 10
+    atk: 3000
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: end_phase
+        resolve {
+            damage opponent 3000
+            damage opponent 3000
+        }
+    }
+}

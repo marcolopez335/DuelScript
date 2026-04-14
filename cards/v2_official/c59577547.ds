@@ -1,0 +1,40 @@
+card "Salamangreat Parro" {
+    id: 59577547
+    type: Effect Monster
+    attribute: FIRE
+    race: Cyberse
+    level: 5
+    atk: 2000
+    def: 1000
+
+    summon {
+        tributes: 1
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: summoned by special
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            gain_lp 1000
+        }
+    }
+}

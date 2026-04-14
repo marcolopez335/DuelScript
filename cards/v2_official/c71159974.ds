@@ -1,0 +1,32 @@
+card "Magikey Dragon - Andrabime" {
+    id: 71159974
+    type: Fusion Monster
+    attribute: WIND
+    race: Dragon
+    level: 8
+    atk: 2800
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: destroyed
+        resolve {
+            draw 1
+        }
+    }
+}

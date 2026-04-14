@@ -1,0 +1,44 @@
+card "Supreme King Z-ARC - Synchro Universe" {
+    id: 48654267
+    type: Synchro Monster | Pendulum Monster
+    attribute: DARK
+    race: Dragon
+    level: 12
+    scale: 1
+    atk: 4000
+    def: 4000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: when
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        timing: if
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

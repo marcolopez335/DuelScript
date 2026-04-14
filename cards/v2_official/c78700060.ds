@@ -1,0 +1,22 @@
+card "Doomcaliber Knight" {
+    id: 78700060
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 4
+    atk: 1900
+    def: 1800
+
+    effect "Effect 2" {
+        speed: 2
+        mandatory
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            tribute self
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

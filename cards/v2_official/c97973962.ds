@@ -1,0 +1,22 @@
+card "Aleister the Invoker of Madness" {
+    id: 97973962
+    type: Link Monster
+    attribute: DARK
+    race: Spellcaster
+    link: 2
+    atk: 1800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            discard (all, card, either controls)
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

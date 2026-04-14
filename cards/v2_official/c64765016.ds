@@ -1,0 +1,21 @@
+card "Paleozoic Marrella" {
+    id: 64765016
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

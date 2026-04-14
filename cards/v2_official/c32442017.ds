@@ -1,0 +1,25 @@
+card "DoomZ Raiders" {
+    id: 32442017
+    type: Continuous Spell
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+            add_to_hand (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

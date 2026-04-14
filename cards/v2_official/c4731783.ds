@@ -1,0 +1,33 @@
+card "A Bao A Qu, the Lightless Shadow" {
+    id: 4731783
+    type: Link Monster
+    attribute: DARK
+    race: Fiend
+    link: 4
+    atk: 2800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+            destroy (all, card, either controls)
+            banish (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: standby_phase
+        resolve {
+            draw 1
+            return (all, card, either controls) to deck
+        }
+    }
+}

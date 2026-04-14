@@ -1,0 +1,25 @@
+// リバイバルスライム
+// Revival Jam
+// When destroyed by battle: Pay 1000 LP to Special Summon it
+// in Defense Position next Standby Phase.
+
+card "Revival Jam" {
+    id: 31709826
+    type: Effect Monster
+    attribute: WATER
+    race: Aqua
+    level: 4
+    atk: 1500
+    def: 500
+
+    effect "Self Revive" {
+        speed: 1
+        trigger: destroyed_by_battle
+        cost {
+            pay_lp 1000
+        }
+        resolve {
+            special_summon self from gy in defense_position
+        }
+    }
+}

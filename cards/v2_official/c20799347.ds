@@ -1,0 +1,30 @@
+card "Virtual World Oto-Hime - Toutou" {
+    id: 20799347
+    type: Effect Monster
+    attribute: EARTH
+    race: Wyrm
+    level: 6
+    atk: 1200
+    def: 1800
+
+    summon {
+        tributes: 1
+    }
+
+    passive "Effect 5" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            discard (all, card, either controls)
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

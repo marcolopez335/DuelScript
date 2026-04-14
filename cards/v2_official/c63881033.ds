@@ -1,0 +1,37 @@
+card "Marshalling Field" {
+    id: 63881033
+    type: Continuous Trap
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+        }
+    }
+
+    effect "Effect 5" {
+        speed: 2
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+
+    replacement "Effect 4" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

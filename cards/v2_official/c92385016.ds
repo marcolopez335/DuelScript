@@ -1,0 +1,42 @@
+card "Munin the Runick Wings" {
+    id: 92385016
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 3
+    atk: 0
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            banish self
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: end_phase
+    }
+}

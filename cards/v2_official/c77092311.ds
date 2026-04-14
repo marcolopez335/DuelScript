@@ -1,0 +1,35 @@
+card "Tsuchigumo, the Poisonous Mayakashi" {
+    id: 77092311
+    type: Synchro Monster
+    attribute: EARTH
+    race: Zombie
+    level: 5
+    atk: 2000
+    def: 1800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            mill 3
+            mill 3
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: destroyed
+        resolve {
+            banish (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

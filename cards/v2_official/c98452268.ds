@@ -1,0 +1,33 @@
+card "Odd-Eyes Rebellion Dragon Overlord" {
+    id: 98452268
+    type: Xyz Monster | Pendulum Monster
+    attribute: DARK
+    race: Dragon
+    rank: 7
+    scale: 4
+    atk: 3000
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        timing: if
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

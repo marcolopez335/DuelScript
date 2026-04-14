@@ -1,0 +1,40 @@
+card "Elemental HERO Storm Neos" {
+    id: 49352945
+    type: Fusion Monster
+    attribute: WIND
+    race: Warrior
+    level: 9
+    atk: 3000
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        mandatory
+        trigger: end_phase
+        resolve {
+            return self to deck
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        timing: when
+        trigger: end_phase
+        resolve {
+            return self to deck
+        }
+    }
+}

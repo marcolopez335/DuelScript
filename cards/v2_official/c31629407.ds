@@ -1,0 +1,19 @@
+card "Magical Musketeer Starfire" {
+    id: 31629407
+    type: Effect Monster
+    attribute: LIGHT
+    race: Fiend
+    level: 4
+    atk: 1300
+    def: 1700
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

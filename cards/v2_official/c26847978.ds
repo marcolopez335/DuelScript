@@ -1,0 +1,32 @@
+card "Tri-Brigade Ferrijit the Barren Blossom" {
+    id: 26847978
+    type: Link Monster
+    attribute: EARTH
+    race: Beast
+    link: 2
+    atk: 1600
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            draw 1
+            return (all, card, either controls) to deck
+        }
+    }
+}

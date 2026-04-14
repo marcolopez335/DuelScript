@@ -1,0 +1,32 @@
+card "Galaxy-Eyes Afterglow Dragon" {
+    id: 62968263
+    type: Effect Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 8
+    atk: 3000
+    def: 2500
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

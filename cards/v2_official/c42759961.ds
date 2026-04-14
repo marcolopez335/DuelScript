@@ -1,0 +1,34 @@
+card "Clown Crew Flair" {
+    id: 42759961
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 0
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+            discard (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: sent_to gy
+        resolve {
+            return (all, card, either controls) to deck
+        }
+    }
+}

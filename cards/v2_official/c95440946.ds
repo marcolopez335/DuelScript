@@ -1,0 +1,38 @@
+card "Eldlich the Golden Lord" {
+    id: 95440946
+    type: Effect Monster
+    attribute: LIGHT
+    race: Zombie
+    level: 10
+    atk: 2500
+    def: 2800
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

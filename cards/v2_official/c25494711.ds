@@ -1,0 +1,38 @@
+card "Deskbot 009" {
+    id: 25494711
+    type: Effect Monster
+    attribute: EARTH
+    race: Machine
+    level: 9
+    atk: 500
+    def: 500
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+        }
+    }
+
+    replacement "Effect 3" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

@@ -1,0 +1,46 @@
+card "Mitsurugi no Mikoto, Kusanagi" {
+    id: 82782870
+    type: Effect Monster
+    attribute: DARK
+    race: Reptile
+    level: 4
+    atk: 1600
+    def: 400
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: sent_to gy
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    replacement "Effect 4" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

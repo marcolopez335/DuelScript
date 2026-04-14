@@ -1,0 +1,56 @@
+card "Poseidra, the Storming Atlantean" {
+    id: 99193444
+    type: Effect Monster
+    attribute: WATER
+    race: Sea Serpent
+    level: 7
+    atk: 2800
+    def: 1600
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned
+        cost {
+            send self to gy
+        }
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        cost {
+            send self to gy
+        }
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+}

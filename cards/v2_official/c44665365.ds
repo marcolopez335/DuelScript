@@ -1,0 +1,26 @@
+card "Herald of Perfection" {
+    id: 44665365
+    type: Ritual Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 6
+    atk: 1800
+    def: 2800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            send self to gy
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

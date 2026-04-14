@@ -1,0 +1,27 @@
+card "Red-Eyes Baby Dragon" {
+    id: 58257569
+    type: Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 3
+    atk: 1200
+    def: 700
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: battle_damage
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

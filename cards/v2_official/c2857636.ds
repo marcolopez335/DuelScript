@@ -1,0 +1,28 @@
+card "Knightmare Phoenix" {
+    id: 2857636
+    type: Link Monster
+    attribute: FIRE
+    race: Fiend
+    link: 2
+    atk: 1900
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            destroy (all, card, either controls)
+            draw 1
+        }
+    }
+}

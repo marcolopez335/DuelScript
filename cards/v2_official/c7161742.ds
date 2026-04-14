@@ -1,0 +1,36 @@
+card "Predaplant Cordyceps" {
+    id: 7161742
+    type: Effect Monster
+    attribute: DARK
+    race: Plant
+    level: 1
+    atk: 0
+    def: 0
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_change_position
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: standby_phase
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

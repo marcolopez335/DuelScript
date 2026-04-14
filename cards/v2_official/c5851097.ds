@@ -1,0 +1,23 @@
+card "Vanity's Emptiness" {
+    id: 5851097
+    type: Continuous Trap
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

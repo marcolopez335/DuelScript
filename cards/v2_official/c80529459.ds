@@ -1,0 +1,28 @@
+card "Scrap Raptor" {
+    id: 80529459
+    type: Effect Monster | Tuner
+    attribute: EARTH
+    race: Dinosaur
+    level: 4
+    atk: 1400
+    def: 1000
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: destroyed
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

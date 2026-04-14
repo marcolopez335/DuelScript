@@ -1,0 +1,39 @@
+card "Primite Dragon Ether Beryl" {
+    id: 63198739
+    type: Effect Monster
+    attribute: EARTH
+    race: Dragon
+    level: 4
+    atk: 1600
+    def: 0
+
+    effect "Effect 1" {
+        speed: 1
+        timing: if
+        trigger: summoned
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: standby_phase
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

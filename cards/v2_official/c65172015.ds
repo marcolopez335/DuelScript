@@ -1,0 +1,35 @@
+card "A-to-Z-Dragon Buster Cannon" {
+    id: 65172015
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Machine
+    level: 10
+    atk: 4000
+    def: 4000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+            special_summon (all, card, either controls)
+            send (all, card, either controls) to gy
+        }
+    }
+}

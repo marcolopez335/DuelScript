@@ -1,0 +1,39 @@
+card "Super Quantum Green Layer" {
+    id: 85374678
+    type: Effect Monster
+    attribute: WIND
+    race: Spellcaster
+    level: 4
+    atk: 1600
+    def: 1400
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: summoned
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            draw 1
+        }
+    }
+}

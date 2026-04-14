@@ -1,0 +1,36 @@
+card "Infernoid Devyaty" {
+    id: 23440231
+    type: Effect Monster | Effect Monster
+    attribute: FIRE
+    race: Fiend
+    level: 9
+    atk: 2900
+    def: 2900
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned by special
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            tribute self
+        }
+        resolve {
+            negate
+            banish (all, card, either controls)
+        }
+    }
+}

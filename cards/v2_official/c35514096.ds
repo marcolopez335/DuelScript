@@ -1,0 +1,23 @@
+card "Lord British Space Fighter" {
+    id: 35514096
+    type: Effect Monster
+    attribute: LIGHT
+    race: Machine
+    level: 4
+    atk: 1200
+    def: 800
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        trigger: battle_damage
+        resolve {
+            destroy (all, card, either controls)
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+}

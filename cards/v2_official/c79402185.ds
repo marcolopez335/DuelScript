@@ -1,0 +1,25 @@
+card "Bonding - D2O" {
+    id: 79402185
+    type: Normal Spell
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

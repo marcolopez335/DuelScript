@@ -1,0 +1,32 @@
+card "Primite Roar" {
+    id: 92501449
+    type: Quick-Play Spell
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+        cost {
+            pay_lp 2000
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        timing: if
+        trigger: summoned
+        cost {
+            banish self
+        }
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+}

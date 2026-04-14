@@ -1,0 +1,35 @@
+card "Iron Dragon Tiamaton" {
+    id: 46247282
+    type: Effect Monster | Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 4
+    atk: 2000
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: hard
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        mandatory
+        trigger: summoned by special
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

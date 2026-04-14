@@ -1,0 +1,33 @@
+card "Tri-Brigade Fraktall" {
+    id: 87209160
+    type: Effect Monster
+    attribute: FIRE
+    race: Beast-Warrior
+    level: 4
+    atk: 1900
+    def: 1600
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

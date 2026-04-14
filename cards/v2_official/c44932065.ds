@@ -1,0 +1,28 @@
+card "Predaplant Byblisp" {
+    id: 44932065
+    type: Effect Monster
+    attribute: DARK
+    race: Plant
+    level: 1
+    atk: 0
+    def: 1900
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

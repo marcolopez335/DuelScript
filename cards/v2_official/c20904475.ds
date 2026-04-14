@@ -1,0 +1,44 @@
+card "Kairo Ryu-Ge Emva" {
+    id: 20904475
+    type: Effect Monster
+    attribute: WATER
+    race: Sea Serpent
+    level: 10
+    atk: 3000
+    def: 2000
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            discard (all, card, either controls)
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            banish (all, card, either controls)
+            draw 1
+        }
+    }
+}

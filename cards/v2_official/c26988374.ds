@@ -1,0 +1,34 @@
+card "Magikey Deity - Ashtartu" {
+    id: 26988374
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Fairy
+    rank: 8
+    atk: 3000
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: battle_damage
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            damage opponent 1000
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+}

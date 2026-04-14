@@ -1,0 +1,41 @@
+card "Darkest Diabolos, Lord of the Lair" {
+    id: 50383626
+    type: Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 8
+    atk: 3000
+    def: 2000
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: sent_to gy
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 5" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            return (all, card, either controls) to deck
+            return (all, card, either controls) to deck
+        }
+    }
+}

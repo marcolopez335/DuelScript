@@ -1,0 +1,49 @@
+card "The Winged Dragon of Ra - Immortal Phoenix" {
+    id: 10000090
+    type: Effect Monster | Effect Monster
+    attribute: DIVINE
+    race: Divine-Beast
+    level: 10
+    atk: 4000
+    def: 4000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        mandatory
+        cost {
+            pay_lp 1000
+        }
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 5" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: end_phase
+        resolve {
+            send (all, card, either controls) to gy
+            special_summon (all, card, either controls)
+        }
+    }
+}

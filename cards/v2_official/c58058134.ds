@@ -1,0 +1,31 @@
+card "Slacker Magician" {
+    id: 58058134
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Spellcaster
+    rank: 1
+    atk: 200
+    def: 2100
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

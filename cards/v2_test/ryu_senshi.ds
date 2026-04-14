@@ -1,0 +1,32 @@
+// ドラゴン・ウォリアー
+// Ryu Senshi
+// "Warrior Dai Grepher" + "Spirit Ryu"
+// Unaffected by Normal Spell effects. Negate Normal Traps targeting this card.
+
+card "Ryu Senshi" {
+    id: 49868263
+    type: Fusion Monster
+    attribute: EARTH
+    race: Warrior
+    level: 6
+    atk: 2000
+    def: 1200
+
+    summon {
+        cannot_normal_summon
+        fusion materials: "Warrior Dai Grepher" + "Spirit Ryu"
+    }
+
+    passive "Spell Immunity" {
+        scope: self
+        grant: unaffected_by spells
+    }
+
+    effect "Negate Trap" {
+        speed: 2
+        trigger: targeted
+        resolve {
+            negate and destroy
+        }
+    }
+}

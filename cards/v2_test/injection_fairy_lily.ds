@@ -1,0 +1,25 @@
+// お注射天使リリー
+// Injection Fairy Lily
+// During damage calculation: You can pay 2000 LP; this card gains
+// 3000 ATK during damage calculation only.
+
+card "Injection Fairy Lily" {
+    id: 79575620
+    type: Effect Monster
+    attribute: EARTH
+    race: Spellcaster
+    level: 3
+    atk: 400
+    def: 1500
+
+    effect "Power Up" {
+        speed: 1
+        trigger: damage_calculation
+        cost {
+            pay_lp 2000
+        }
+        resolve {
+            modify_atk self + 3000 until end_of_damage_step
+        }
+    }
+}

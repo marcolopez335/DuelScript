@@ -1,0 +1,28 @@
+card "Arcana Force EX - The Chaos Ruler" {
+    id: 12686296
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 10
+    atk: 3300
+    def: 3300
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+            return (all, card, either controls) to hand
+        }
+    }
+}

@@ -1,0 +1,35 @@
+card "Reaper of Prophecy" {
+    id: 9560338
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 6
+    atk: 2000
+    def: 1600
+
+    summon {
+        tributes: 1
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: summoned
+        resolve {
+            add_to_hand (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

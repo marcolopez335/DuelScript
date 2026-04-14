@@ -1,0 +1,49 @@
+card "Enneacraft - Asta.PIXEA" {
+    id: 28454232
+    type: Effect Monster | Pendulum Monster
+    attribute: LIGHT
+    race: Machine
+    level: 9
+    scale: 0
+    atk: 3000
+    def: 2500
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 6" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: standby_phase
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        mandatory
+        cost {
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            banish (all, card, either controls)
+        }
+    }
+}

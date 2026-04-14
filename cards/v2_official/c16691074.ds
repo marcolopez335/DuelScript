@@ -1,0 +1,37 @@
+card "Odd-Eyes Absolute Dragon" {
+    id: 16691074
+    type: Xyz Monster
+    attribute: WATER
+    race: Dragon
+    rank: 7
+    atk: 2800
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: summoned
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            negate
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

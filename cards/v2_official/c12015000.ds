@@ -1,0 +1,30 @@
+card "Fossil Dragon Skullgar" {
+    id: 12015000
+    type: Fusion Monster
+    attribute: EARTH
+    race: Rock
+    level: 4
+    atk: 2500
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: piercing
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

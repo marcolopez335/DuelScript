@@ -1,0 +1,29 @@
+card "Digital Bug Rhinosebus" {
+    id: 85004150
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Insect
+    rank: 7
+    atk: 2600
+    def: 2200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: piercing
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

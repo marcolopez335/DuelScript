@@ -1,0 +1,37 @@
+card "Beetrooper Armor Horn" {
+    id: 2834264
+    type: Link Monster
+    attribute: EARTH
+    race: Insect
+    link: 2
+    atk: 1000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,30 @@
+card "Vision HERO Minimum Ray" {
+    id: 61320914
+    type: Effect Monster
+    attribute: DARK
+    race: Warrior
+    level: 3
+    atk: 1200
+    def: 700
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

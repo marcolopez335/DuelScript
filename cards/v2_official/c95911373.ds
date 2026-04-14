@@ -1,0 +1,36 @@
+card "Zoroa, the Magistus Conflagrant Calamity" {
+    id: 95911373
+    type: Synchro Monster
+    attribute: FIRE
+    race: Spellcaster
+    level: 8
+    atk: 2900
+    def: 1500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

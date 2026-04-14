@@ -1,0 +1,26 @@
+card "Evil Eye Repose" {
+    id: 79400597
+    type: Continuous Spell
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            draw 1
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: custom "chain_end"
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+}

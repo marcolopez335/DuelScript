@@ -1,0 +1,26 @@
+card "Galaxy Wizard" {
+    id: 98555327
+    type: Effect Monster
+    attribute: LIGHT
+    race: Spellcaster
+    level: 4
+    atk: 0
+    def: 1800
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

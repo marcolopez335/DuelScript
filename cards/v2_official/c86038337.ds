@@ -1,0 +1,34 @@
+card "Faisan, Hunting Scout of the Deep Forest" {
+    id: 86038337
+    type: Fusion Monster
+    attribute: EARTH
+    race: Warrior
+    level: 5
+    atk: 2300
+    def: 2300
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: hard
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,43 @@
+card "D/D/D Deviser King Deus Machinex" {
+    id: 46593546
+    type: Xyz Monster | Pendulum Monster
+    attribute: DARK
+    race: Fiend
+    rank: 10
+    scale: 10
+    atk: 3000
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: standby_phase
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

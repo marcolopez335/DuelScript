@@ -1,0 +1,28 @@
+card "Vouiburial, the Dragon Undertaker" {
+    id: 36974120
+    type: Effect Monster
+    attribute: DARK
+    race: Warrior
+    level: 10
+    atk: 3000
+    def: 0
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+            destroy (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,24 @@
+card "Fluffal Wings" {
+    id: 72413000
+    type: Effect Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 1
+    atk: 100
+    def: 100
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            banish (all, card, either controls)
+            draw 1
+            send (all, card, either controls) to gy
+            draw 1
+        }
+    }
+}

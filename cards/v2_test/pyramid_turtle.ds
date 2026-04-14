@@ -1,0 +1,22 @@
+// ピラミッド・タートル
+// Pyramid Turtle
+// When destroyed by battle: Special Summon 1 Zombie monster with
+// 2000 or less DEF from Deck.
+
+card "Pyramid Turtle" {
+    id: 77044671
+    type: Effect Monster
+    attribute: EARTH
+    race: Zombie
+    level: 4
+    atk: 1200
+    def: 1400
+
+    effect "Recruit Zombie" {
+        speed: 1
+        trigger: destroyed_by_battle
+        resolve {
+            special_summon (1, monster, where race == Zombie and def <= 2000) from deck
+        }
+    }
+}

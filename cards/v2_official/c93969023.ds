@@ -1,0 +1,26 @@
+card "Black Metal Dragon" {
+    id: 93969023
+    type: Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 1
+    atk: 600
+    def: 600
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

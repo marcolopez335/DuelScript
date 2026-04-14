@@ -1,0 +1,23 @@
+// 人喰い虫
+// Man-Eater Bug
+// FLIP: Target 1 monster on the field; destroy that target.
+
+card "Man-Eater Bug" {
+    id: 54652250
+    type: Effect Monster | Flip
+    attribute: EARTH
+    race: Insect
+    level: 2
+    atk: 450
+    def: 600
+
+    effect "Destroy Monster" {
+        speed: 1
+        mandatory
+        trigger: flipped
+        target (1, monster, either controls)
+        resolve {
+            destroy target
+        }
+    }
+}

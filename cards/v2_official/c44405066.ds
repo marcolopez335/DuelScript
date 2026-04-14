@@ -1,0 +1,29 @@
+card "Red-Eyes Flare Metal Dragon" {
+    id: 44405066
+    type: Xyz Monster
+    attribute: DARK
+    race: Dragon
+    rank: 7
+    atk: 2800
+    def: 2400
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

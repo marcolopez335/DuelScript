@@ -1,0 +1,31 @@
+card "Number C101: Silent Honor DARK" {
+    id: 12744567
+    type: Xyz Monster
+    attribute: WATER
+    race: Aqua
+    rank: 5
+    atk: 2800
+    def: 1500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+            gain_lp 1000
+        }
+    }
+}

@@ -1,0 +1,26 @@
+card "Parasite Paranoid" {
+    id: 14457896
+    type: Effect Monster
+    attribute: EARTH
+    race: Insect
+    level: 2
+    atk: 500
+    def: 300
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

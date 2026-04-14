@@ -1,0 +1,28 @@
+card "Mementoal Tecuhtlica - Combined Creation" {
+    id: 23288411
+    type: Effect Monster | Effect Monster
+    attribute: EARTH
+    race: Wyrm
+    level: 11
+    atk: 5000
+    def: 5000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: attack_all_monsters
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

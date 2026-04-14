@@ -1,0 +1,25 @@
+card "Radiant Typhoon Mandate" {
+    id: 53813120
+    type: Continuous Trap
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+            return (all, card, either controls) to deck
+            draw 1
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+    }
+}

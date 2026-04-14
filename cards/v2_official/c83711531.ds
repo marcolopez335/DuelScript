@@ -1,0 +1,45 @@
+card "Red-Eyes Metal Claws Dragon" {
+    id: 83711531
+    type: Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 7
+    atk: 2400
+    def: 2000
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+}

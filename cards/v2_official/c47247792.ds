@@ -1,0 +1,34 @@
+card "Conduction Warrior Plasma Magnum" {
+    id: 47247792
+    type: Fusion Monster
+    attribute: EARTH
+    race: Rock
+    level: 7
+    atk: 2300
+    def: 2800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+        }
+    }
+}

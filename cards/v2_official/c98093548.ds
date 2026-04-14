@@ -1,0 +1,45 @@
+card "Brotherhood of the Fire Fist - Elephant" {
+    id: 98093548
+    type: Effect Monster
+    attribute: FIRE
+    race: Beast-Warrior
+    level: 4
+    atk: 1000
+    def: 1800
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            return (all, card, either controls) to deck
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

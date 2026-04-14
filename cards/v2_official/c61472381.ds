@@ -1,0 +1,34 @@
+card "Brotherhood of the Fire Fist - Eland" {
+    id: 61472381
+    type: Ritual Monster
+    attribute: FIRE
+    race: Beast-Warrior
+    level: 6
+    atk: 2400
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            send self to gy
+        }
+        resolve {
+            negate
+        }
+    }
+}

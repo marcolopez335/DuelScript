@@ -1,0 +1,37 @@
+card "Darklord Morningstar" {
+    id: 25451652
+    type: Effect Monster
+    attribute: DARK
+    race: Fairy
+    level: 11
+    atk: 3000
+    def: 3000
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: summoned
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            mill 1
+            gain_lp 1000
+        }
+    }
+}

@@ -1,0 +1,44 @@
+card "Metalfoes Vanisher" {
+    id: 56518311
+    type: Effect Monster | Pendulum Monster
+    attribute: FIRE
+    race: Psychic
+    level: 9
+    scale: 1
+    atk: 2900
+    def: 1900
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: destroyed
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+}

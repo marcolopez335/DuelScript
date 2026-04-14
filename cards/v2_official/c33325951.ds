@@ -1,0 +1,33 @@
+card "Shinobaroness Shade Peacock" {
+    id: 33325951
+    type: Ritual Monster | Flip
+    attribute: WIND
+    race: Winged Beast
+    level: 4
+    atk: 1500
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: standby_phase
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

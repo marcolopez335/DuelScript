@@ -1,0 +1,24 @@
+card "New World Stars" {
+    id: 85407683
+    type: Continuous Trap
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: hard
+        resolve {
+            add_to_hand (all, card, either controls)
+            return (all, card, either controls) to deck
+            return (all, card, either controls) to deck
+        }
+    }
+}

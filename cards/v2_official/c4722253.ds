@@ -1,0 +1,27 @@
+card "Lightray Gearfried" {
+    id: 4722253
+    type: Effect Monster | Effect Monster
+    attribute: LIGHT
+    race: Warrior
+    level: 8
+    atk: 2800
+    def: 2200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            banish self
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

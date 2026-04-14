@@ -1,0 +1,48 @@
+card "Red Supernova Dragon" {
+    id: 99585850
+    type: Synchro Monster
+    attribute: DARK
+    race: Dragon
+    level: 12
+    atk: 4000
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: summoned
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 5" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 6" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: end_phase
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

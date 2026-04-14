@@ -1,0 +1,19 @@
+card "Magical Musketeer Calamity" {
+    id: 68024506
+    type: Effect Monster
+    attribute: LIGHT
+    race: Fiend
+    level: 4
+    atk: 1500
+    def: 1300
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

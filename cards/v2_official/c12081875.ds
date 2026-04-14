@@ -1,0 +1,28 @@
+card "Thunder Dragon Thunderstormech" {
+    id: 12081875
+    type: Link Monster
+    attribute: LIGHT
+    race: Thunder
+    link: 4
+    atk: 2800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            return (all, card, either controls) to deck
+        }
+    }
+
+    replacement "Effect 2" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

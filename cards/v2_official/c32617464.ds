@@ -1,0 +1,32 @@
+card "Tri-Gate Wizard" {
+    id: 32617464
+    type: Link Monster
+    attribute: EARTH
+    race: Cyberse
+    link: 3
+    atk: 2200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            banish (all, card, either controls)
+        }
+    }
+}

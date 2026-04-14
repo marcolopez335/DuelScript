@@ -1,0 +1,45 @@
+card "Phantom Skyblaster" {
+    id: 12958919
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 4
+    atk: 1100
+    def: 800
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        resolve {
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: summoned by flip
+        resolve {
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: standby_phase
+        resolve {
+            damage opponent 1000
+        }
+    }
+}

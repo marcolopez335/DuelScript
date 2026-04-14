@@ -1,0 +1,32 @@
+card "Scrap Twin Dragon" {
+    id: 50278554
+    type: Synchro Monster
+    attribute: EARTH
+    race: Dragon
+    level: 9
+    atk: 3000
+    def: 2200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

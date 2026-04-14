@@ -1,0 +1,29 @@
+card "Unchained Twins - Aruha" {
+    id: 26236560
+    type: Effect Monster
+    attribute: FIRE
+    race: Fiend
+    level: 3
+    atk: 1500
+    def: 1500
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,20 @@
+card "Kingyo Sukui" {
+    id: 9251497
+    type: Continuous Trap
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: hard
+        resolve {
+            add_to_hand (all, card, either controls)
+            return (all, card, either controls) to deck
+            send (all, card, either controls) to gy
+            destroy (all, card, either controls)
+        }
+    }
+}

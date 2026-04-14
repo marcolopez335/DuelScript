@@ -1,0 +1,23 @@
+// ニュードリュア
+// Newdoria
+// When destroyed by battle: Target 1 monster; destroy it.
+
+card "Newdoria" {
+    id: 4335645
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 4
+    atk: 1200
+    def: 800
+
+    effect "Destroy on Death" {
+        speed: 1
+        mandatory
+        trigger: destroyed_by_battle
+        target (1, monster, either controls)
+        resolve {
+            destroy target
+        }
+    }
+}

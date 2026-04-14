@@ -1,0 +1,41 @@
+card "Nirvana High Paladin" {
+    id: 80896940
+    type: Synchro Monster | Pendulum Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 10
+    scale: 8
+    atk: 3300
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+
+    effect "Effect 5" {
+        speed: 1
+        timing: when
+        trigger: battle_damage
+        resolve {
+            gain_lp 0
+        }
+    }
+
+    effect "Effect 6" {
+        speed: 1
+        timing: if
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

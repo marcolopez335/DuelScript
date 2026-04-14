@@ -1,0 +1,39 @@
+card "Hi-Speedroid Kendama" {
+    id: 97007933
+    type: Synchro Monster
+    attribute: WIND
+    race: Machine
+    level: 6
+    atk: 2200
+    def: 1600
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: piercing
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            damage opponent 1000
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

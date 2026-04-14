@@ -1,0 +1,40 @@
+card "Tearlaments Rulkallos" {
+    id: 84330567
+    type: Fusion Monster
+    attribute: WATER
+    race: Aqua
+    level: 8
+    atk: 3000
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            destroy (all, card, either controls)
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,33 @@
+card "Geomathmech Magma" {
+    id: 15248594
+    type: Synchro Monster | Tuner
+    attribute: FIRE
+    race: Cyberse
+    level: 8
+    atk: 2500
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: battle_damage
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: destroyed
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

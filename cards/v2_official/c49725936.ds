@@ -1,0 +1,41 @@
+card "Triple Burst Dragon" {
+    id: 49725936
+    type: Link Monster
+    attribute: DARK
+    race: Dragon
+    link: 3
+    atk: 2400
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: piercing
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

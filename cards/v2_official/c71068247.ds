@@ -1,0 +1,26 @@
+card "Totem Bird" {
+    id: 71068247
+    type: Xyz Monster
+    attribute: WIND
+    race: Winged Beast
+    rank: 3
+    atk: 1900
+    def: 1400
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            detach 2 from self
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

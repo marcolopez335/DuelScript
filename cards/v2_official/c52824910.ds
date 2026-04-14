@@ -1,0 +1,27 @@
+card "Kaiser Glider" {
+    id: 52824910
+    type: Effect Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 6
+    atk: 2400
+    def: 2200
+
+    summon {
+        tributes: 1
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

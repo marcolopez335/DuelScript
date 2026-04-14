@@ -1,0 +1,22 @@
+card "Gravekeeper's Watcher" {
+    id: 26084285
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 4
+    atk: 1000
+    def: 1000
+
+    effect "Effect 1" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            send self to gy
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

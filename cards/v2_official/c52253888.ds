@@ -1,0 +1,30 @@
+card "Light Law Medium" {
+    id: 52253888
+    type: Effect Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 2
+    atk: 400
+    def: 300
+
+    passive "Effect 3" {
+        scope: self
+        grant: must_attack
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: must_attack
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: summoned
+        resolve {
+            negate
+            damage opponent 1000
+        }
+    }
+}

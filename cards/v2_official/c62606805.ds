@@ -1,0 +1,35 @@
+card "Mind Procedure" {
+    id: 62606805
+    type: Effect Monster | Tuner
+    attribute: LIGHT
+    race: Psychic
+    level: 3
+    atk: 1100
+    def: 1100
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned
+        cost {
+            pay_lp 2000
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        cost {
+            pay_lp 2000
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

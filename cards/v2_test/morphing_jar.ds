@@ -1,0 +1,24 @@
+// メタモルポット
+// Morphing Jar
+// FLIP: Both players discard their entire hands, then draw 5 cards.
+
+card "Morphing Jar" {
+    id: 33508719
+    type: Effect Monster | Flip
+    attribute: EARTH
+    race: Rock
+    level: 2
+    atk: 700
+    def: 600
+
+    effect "Refresh Hands" {
+        speed: 1
+        mandatory
+        trigger: flipped
+        resolve {
+            discard (all, card, you control, in hand)
+            discard (all, card, opponent controls, in hand)
+            draw 5
+        }
+    }
+}

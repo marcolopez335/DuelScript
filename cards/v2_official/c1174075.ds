@@ -1,0 +1,37 @@
+card "Drytron Mu Beta Fafnir" {
+    id: 1174075
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Machine
+    rank: 1
+    atk: 2000
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

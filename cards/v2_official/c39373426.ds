@@ -1,0 +1,36 @@
+card "SPYRAL MISSION - Recapture" {
+    id: 39373426
+    type: Continuous Trap
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        mandatory
+        trigger: summoned by special
+        resolve {
+            take_control (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+            take_control (all, card, either controls)
+        }
+    }
+
+    replacement "Effect 4" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

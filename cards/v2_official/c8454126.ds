@@ -1,0 +1,41 @@
+card "Conductor of Nephthys" {
+    id: 8454126
+    type: Ritual Monster
+    attribute: WIND
+    race: Spellcaster
+    level: 2
+    atk: 2000
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: sent_to gy
+        resolve {
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: destroyed
+        resolve {
+        }
+    }
+}

@@ -483,14 +483,14 @@ impl CdbReader {
 
 // ── Merged Card ───────────────────────────────────────────────
 
-/// A card with both CDB stat data AND parsed DuelScript behavior.
+/// A card with both CDB stat data AND parsed DuelScript v2 behavior.
 /// This is the complete picture your engine works with.
 #[derive(Debug)]
 pub struct MergedCard {
     /// Raw stat data from BabelCdb
     pub cdb:  CdbCard,
-    /// Parsed behavior from .ds file (None if not yet scripted)
-    pub ds:   Option<std::sync::Arc<crate::ast::Card>>,
+    /// Parsed v2 behavior from .ds file (None if not yet scripted)
+    pub ds:   Option<std::sync::Arc<crate::v2::ast::Card>>,
 }
 
 impl MergedCard {
@@ -506,17 +506,17 @@ impl MergedCard {
     }
 }
 
-/// Merge a CDB reader and a DuelScript CardDatabase into
-/// a unified view of all cards. Cards in CDB but not in DS
+/// Merge a CDB reader and a map of v2 DuelScript cards (keyed by passcode)
+/// into a unified view of all cards. Cards in CDB but not in DS
 /// are included with ds=None (not yet ported).
 pub fn merge_databases(
     cdb: &CdbReader,
-    ds:  &crate::database::CardDatabase,
+    ds:  &std::collections::HashMap<u32, std::sync::Arc<crate::v2::ast::Card>>,
 ) -> Vec<MergedCard> {
     let mut merged = Vec::new();
 
     for cdb_card in cdb.all_cards() {
-        let ds_card = ds.get_by_passcode(cdb_card.id as u32);
+        let ds_card = ds.get(&(cdb_card.id as u32)).cloned();
         merged.push(MergedCard {
             cdb: cdb_card.clone(),
             ds:  ds_card,

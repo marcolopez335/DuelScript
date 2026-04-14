@@ -1,0 +1,43 @@
+card "Evil HERO Neos Lord" {
+    id: 13708888
+    type: Fusion Monster
+    attribute: DARK
+    race: Fiend
+    level: 10
+    atk: 2500
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            take_control (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            take_control (all, card, either controls)
+        }
+    }
+}

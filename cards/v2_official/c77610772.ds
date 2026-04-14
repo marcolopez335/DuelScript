@@ -1,0 +1,43 @@
+card "Ib the World Chalice Priestess" {
+    id: 77610772
+    type: Link Monster
+    attribute: WATER
+    race: Spellcaster
+    link: 2
+    atk: 1800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 5" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    replacement "Effect 4" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

@@ -1,0 +1,32 @@
+card "Ritual Beast Ulti-Cannahawk" {
+    id: 48063985
+    type: Fusion Monster
+    attribute: WIND
+    race: Thunder
+    level: 6
+    atk: 1400
+    def: 1600
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            send (all, card, either controls) to gy
+            return (all, card, either controls) to hand
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        resolve {
+            special_summon (all, card, either controls)
+            special_summon (all, card, either controls)
+            send (all, card, either controls) to gy
+        }
+    }
+}

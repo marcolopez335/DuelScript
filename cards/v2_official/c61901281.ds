@@ -1,0 +1,22 @@
+card "Black Dragon Collapserpent" {
+    id: 61901281
+    type: Effect Monster | Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 4
+    atk: 1800
+    def: 1700
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

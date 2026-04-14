@@ -1,0 +1,29 @@
+card "White Circle Reef" {
+    id: 21579049
+    type: Normal Spell
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+            add_to_hand (all, card, either controls)
+            special_summon (all, card, either controls)
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            return (all, card, either controls) to deck
+            special_summon (all, card, either controls)
+        }
+    }
+}

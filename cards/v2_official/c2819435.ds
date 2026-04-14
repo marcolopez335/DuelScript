@@ -1,0 +1,42 @@
+card "Pacifis, the Phantasm City" {
+    id: 2819435
+    type: Field Spell
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: summoned
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: summoned by special
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        timing: if
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,35 @@
+card "Dante, Pilgrim of the Burning Abyss" {
+    id: 18386170
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 9
+    atk: 2800
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+            draw 1
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

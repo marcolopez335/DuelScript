@@ -1,0 +1,24 @@
+// サイバーポッド
+// Cyber Jar
+// FLIP: Destroy all monsters on the field, then both players reveal
+// the top 5 cards of their Decks.
+
+card "Cyber Jar" {
+    id: 34124316
+    type: Effect Monster | Flip
+    attribute: DARK
+    race: Rock
+    level: 3
+    atk: 900
+    def: 900
+
+    effect "Mass Destroy and Reveal" {
+        speed: 1
+        mandatory
+        trigger: flipped
+        resolve {
+            destroy (all, monster, either controls)
+            excavate 5 from your_deck
+        }
+    }
+}

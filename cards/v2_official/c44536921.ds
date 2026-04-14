@@ -1,0 +1,28 @@
+card "Predaplanning" {
+    id: 44536921
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        cost {
+            banish self
+        }
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

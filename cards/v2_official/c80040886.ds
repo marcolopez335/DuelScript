@@ -1,0 +1,31 @@
+card "Navy Dragon Mech" {
+    id: 80040886
+    type: Synchro Monster
+    attribute: WATER
+    race: Machine
+    level: 9
+    atk: 2700
+    def: 1800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            negate
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

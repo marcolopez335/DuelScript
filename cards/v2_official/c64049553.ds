@@ -1,0 +1,29 @@
+card "Raidraptor - Roost" {
+    id: 64049553
+    type: Continuous Spell
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            return (all, card, either controls) to deck
+            draw 1
+        }
+    }
+}

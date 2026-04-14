@@ -1,0 +1,34 @@
+card "Ancient Gear Wyvern" {
+    id: 17663375
+    type: Effect Monster
+    attribute: EARTH
+    race: Machine
+    level: 4
+    atk: 1700
+    def: 1200
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

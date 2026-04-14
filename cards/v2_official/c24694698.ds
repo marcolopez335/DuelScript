@@ -1,0 +1,28 @@
+card "Naturia Marron" {
+    id: 24694698
+    type: Effect Monster
+    attribute: EARTH
+    race: Plant
+    level: 3
+    atk: 1200
+    def: 700
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            return (all, card, either controls) to deck
+            draw 1
+        }
+    }
+}

@@ -1,0 +1,25 @@
+card "Exploderokket Dragon" {
+    id: 31353051
+    type: Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 7
+    atk: 2000
+    def: 2000
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            destroy (all, card, either controls)
+            damage opponent 2000
+            damage opponent 2000
+        }
+    }
+}

@@ -1,0 +1,52 @@
+card "Tearlaments Kashtira" {
+    id: 4928565
+    type: Effect Monster
+    attribute: WATER
+    race: Psychic
+    level: 7
+    atk: 2300
+    def: 1200
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        resolve {
+            special_summon (all, card, either controls)
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned
+        resolve {
+            mill 3
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+            mill 3
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            mill 2
+        }
+    }
+}

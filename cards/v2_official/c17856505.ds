@@ -1,0 +1,40 @@
+card "Pumpking the Great Ghost King" {
+    id: 17856505
+    type: Xyz Monster
+    attribute: DARK
+    race: Zombie
+    rank: 6
+    atk: 2400
+    def: 2600
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+}

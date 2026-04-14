@@ -1,0 +1,32 @@
+// 黒炎の騎士－ブラック・フレア・ナイト－
+// Dark Flare Knight
+// "Dark Magician" + "Flame Swordsman"
+// When destroyed by battle: Special Summon 1 "Mirage Knight" from Deck.
+
+card "Dark Flare Knight" {
+    id: 13722870
+    type: Fusion Monster
+    attribute: DARK
+    race: Warrior
+    level: 6
+    atk: 2200
+    def: 800
+
+    summon {
+        cannot_normal_summon
+        fusion materials: "Dark Magician" + "Flame Swordsman"
+    }
+
+    passive "No Battle Damage" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Summon Mirage Knight" {
+        speed: 1
+        trigger: destroyed_by_battle
+        resolve {
+            special_summon (1, "Mirage Knight" monster) from deck
+        }
+    }
+}

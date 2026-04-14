@@ -1,0 +1,32 @@
+card "Plunder Patrollship Lys" {
+    id: 18832779
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Fiend
+    level: 8
+    atk: 2000
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

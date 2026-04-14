@@ -1,0 +1,24 @@
+card "Spiral Discharge" {
+    id: 29477860
+    type: Continuous Trap
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: summoned
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

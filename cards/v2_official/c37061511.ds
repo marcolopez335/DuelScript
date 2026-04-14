@@ -1,0 +1,39 @@
+card "Water Leviathan @Ignister" {
+    id: 37061511
+    type: Ritual Monster
+    attribute: WATER
+    race: Cyberse
+    level: 7
+    atk: 2300
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            return (all, card, either controls) to deck
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        timing: when
+        trigger: summoned
+        resolve {
+        }
+    }
+}

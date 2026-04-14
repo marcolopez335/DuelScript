@@ -1,0 +1,27 @@
+card "Norito the Moral Leader" {
+    id: 14152862
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Spellcaster
+    rank: 6
+    atk: 2700
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,36 @@
+card "Tessera the Primal Squire" {
+    id: 67584223
+    type: Effect Monster
+    attribute: LIGHT
+    race: Warrior
+    level: 1
+    atk: 800
+    def: 1000
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

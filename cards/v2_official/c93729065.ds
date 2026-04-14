@@ -1,0 +1,32 @@
+card "Starving Venemy Dragon" {
+    id: 93729065
+    type: Fusion Monster | Pendulum Monster
+    attribute: DARK
+    race: Dragon
+    level: 7
+    scale: 1
+    atk: 2500
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            damage opponent 500
+        }
+    }
+
+    effect "Effect 5" {
+        speed: 1
+        timing: if
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

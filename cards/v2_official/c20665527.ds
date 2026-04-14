@@ -1,0 +1,35 @@
+card "Amphibious Swarmship Amblowhale" {
+    id: 20665527
+    type: Link Monster
+    attribute: FIRE
+    race: Machine
+    link: 4
+    atk: 2600
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: destroyed
+        cost {
+            banish self
+        }
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

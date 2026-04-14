@@ -1,0 +1,39 @@
+card "Fushioh Richie" {
+    id: 39711336
+    type: Effect Monster | Effect Monster
+    attribute: DARK
+    race: Zombie
+    level: 7
+    atk: 2600
+    def: 2900
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: custom "chain_active"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        mandatory
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

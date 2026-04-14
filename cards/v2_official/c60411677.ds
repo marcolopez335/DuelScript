@@ -1,0 +1,35 @@
+card "Anubis the Last Judge" {
+    id: 60411677
+    type: Effect Monster | Effect Monster
+    attribute: EARTH
+    race: Fiend
+    level: 10
+    atk: 3000
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: destroyed
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

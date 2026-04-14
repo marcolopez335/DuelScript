@@ -1,0 +1,34 @@
+card "Starving Venom Fusion Dragon of the Four Heavenly Dragons" {
+    id: 27118421
+    type: Fusion Monster
+    attribute: DARK
+    race: Dragon
+    level: 8
+    atk: 2800
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+    }
+}

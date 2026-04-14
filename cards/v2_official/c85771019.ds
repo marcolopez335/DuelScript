@@ -1,0 +1,40 @@
+card "Darklord Asmodeus" {
+    id: 85771019
+    type: Effect Monster
+    attribute: DARK
+    race: Fairy
+    level: 8
+    atk: 3000
+    def: 2500
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+}

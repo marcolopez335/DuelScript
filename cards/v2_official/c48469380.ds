@@ -1,0 +1,47 @@
+card "Archfiend Emperor" {
+    id: 48469380
+    type: Ritual Monster | Pendulum Monster
+    attribute: FIRE
+    race: Fiend
+    level: 7
+    scale: 0
+    atk: 2500
+    def: 1200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,38 @@
+card "Abyssrhine, the Atlantean Spirit" {
+    id: 17080584
+    type: Effect Monster
+    attribute: WATER
+    race: Aqua
+    level: 3
+    atk: 1600
+    def: 1600
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            banish self
+        }
+        resolve {
+            draw 1
+        }
+    }
+}

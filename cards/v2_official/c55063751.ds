@@ -1,0 +1,34 @@
+card "Gameciel, the Sea Turtle Kaiju" {
+    id: 55063751
+    type: Effect Monster
+    attribute: WATER
+    race: Aqua
+    level: 8
+    atk: 2200
+    def: 3000
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        cost {
+            tribute (all, card, either controls)
+        }
+        resolve {
+            special_summon self
+        }
+    }
+}

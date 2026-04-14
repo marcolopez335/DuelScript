@@ -1,0 +1,37 @@
+card "Gouki The Giant Ogre" {
+    id: 47946130
+    type: Link Monster
+    attribute: EARTH
+    race: Warrior
+    link: 4
+    atk: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        once_per_turn: soft
+    }
+}

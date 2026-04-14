@@ -1,0 +1,39 @@
+card "Soul Fist" {
+    id: 69533836
+    type: Equip Spell
+
+    passive "Effect 1" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: summoned
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 6" {
+        speed: 1
+        mandatory
+        resolve {
+        }
+    }
+}

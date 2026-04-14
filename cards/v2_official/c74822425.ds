@@ -1,0 +1,33 @@
+card "El Shaddoll Shekhinaga" {
+    id: 74822425
+    type: Fusion Monster
+    attribute: EARTH
+    race: Machine
+    level: 10
+    atk: 2600
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,41 @@
+card "Laughing Puffin" {
+    id: 80275707
+    type: Effect Monster
+    attribute: DARK
+    race: Winged Beast
+    level: 4
+    atk: 1000
+    def: 1700
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            tribute self
+        }
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+}

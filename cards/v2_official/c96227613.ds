@@ -1,0 +1,43 @@
+card "Supreme King Gate Zero" {
+    id: 96227613
+    type: Effect Monster | Pendulum Monster
+    attribute: DARK
+    race: Fiend
+    level: 7
+    scale: 0
+    atk: 0
+    def: 0
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+            return (all, card, either controls) to hand
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        timing: if
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

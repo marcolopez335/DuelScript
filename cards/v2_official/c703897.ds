@@ -1,0 +1,23 @@
+card "Orcust Crescendo" {
+    id: 703897
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        mandatory
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: hard
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+}

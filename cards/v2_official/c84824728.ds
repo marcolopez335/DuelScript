@@ -1,0 +1,37 @@
+card "Treasure Panther" {
+    id: 84824728
+    type: Effect Monster
+    attribute: EARTH
+    race: Beast
+    level: 1
+    atk: 100
+    def: 100
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            damage opponent 900
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_active"
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

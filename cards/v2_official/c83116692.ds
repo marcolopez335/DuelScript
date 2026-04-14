@@ -1,0 +1,32 @@
+card "Doombearer Psychopompos" {
+    id: 83116692
+    type: Effect Monster | Tuner
+    attribute: EARTH
+    race: Zombie
+    level: 2
+    atk: 0
+    def: 0
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: end_phase
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: summoned by special
+        resolve {
+            banish (all, card, either controls)
+            banish (all, card, either controls)
+            send (all, card, either controls) to gy
+            send (all, card, either controls) to gy
+        }
+    }
+}

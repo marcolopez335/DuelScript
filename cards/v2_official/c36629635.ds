@@ -1,0 +1,28 @@
+card "Dandy Whitelion" {
+    id: 36629635
+    type: Effect Monster
+    attribute: EARTH
+    race: Plant
+    level: 3
+    atk: 300
+    def: 300
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+}

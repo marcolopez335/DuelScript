@@ -1,0 +1,41 @@
+card "Maiden of White" {
+    id: 17947697
+    type: Effect Monster | Tuner
+    attribute: LIGHT
+    race: Spellcaster
+    level: 1
+    atk: 0
+    def: 0
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: attacked
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

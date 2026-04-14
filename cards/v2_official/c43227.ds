@@ -1,0 +1,36 @@
+card "Magnum the Reliever" {
+    id: 43227
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Fiend
+    level: 8
+    atk: 2800
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            return (all, card, either controls) to deck
+            draw 1
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            banish self
+        }
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

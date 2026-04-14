@@ -1,0 +1,24 @@
+card "Heavy Metal Raiders" {
+    id: 3113667
+    type: Field Spell
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: battle_damage
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,46 @@
+card "R.B. Lambda Cannon" {
+    id: 81794107
+    type: Effect Monster
+    attribute: DARK
+    race: Machine
+    level: 6
+    atk: 1200
+    def: 1200
+
+    summon {
+        tributes: 1
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            pay_lp 1200
+        }
+        resolve {
+            destroy (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

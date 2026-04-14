@@ -1,0 +1,33 @@
+card "Majester Paladin, the Ascending Dracoslayer" {
+    id: 88722973
+    type: Xyz Monster
+    attribute: WIND
+    race: Dragon
+    rank: 4
+    atk: 1850
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned by special
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

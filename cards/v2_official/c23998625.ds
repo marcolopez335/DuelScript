@@ -1,0 +1,36 @@
+card "Number 53: Heart-eartH" {
+    id: 23998625
+    type: Xyz Monster
+    attribute: DARK
+    race: Fiend
+    rank: 5
+    atk: 100
+    def: 100
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: attacked
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        mandatory
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    replacement "Effect 2" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

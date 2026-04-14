@@ -1,0 +1,46 @@
+card "Majestic Red Dragon" {
+    id: 67030233
+    type: Synchro Monster
+    attribute: DARK
+    race: Dragon
+    level: 10
+    atk: 4000
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: end_phase
+        resolve {
+            return (all, card, either controls) to deck
+            special_summon (all, card, either controls)
+        }
+    }
+}

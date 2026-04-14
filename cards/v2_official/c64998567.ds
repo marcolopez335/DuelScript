@@ -1,0 +1,26 @@
+card "Curse of Diabell" {
+    id: 64998567
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+}

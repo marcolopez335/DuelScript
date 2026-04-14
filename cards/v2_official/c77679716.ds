@@ -1,0 +1,33 @@
+card "Superheavy Samurai Soulbreaker Armor" {
+    id: 77679716
+    type: Effect Monster
+    attribute: EARTH
+    race: Machine
+    level: 1
+    atk: 0
+    def: 500
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            damage opponent 1000
+        }
+    }
+}

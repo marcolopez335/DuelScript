@@ -1,0 +1,38 @@
+card "The Dragon that Devours the Dogma" {
+    id: 76666602
+    type: Fusion Monster
+    attribute: DARK
+    race: Beast
+    level: 8
+    atk: 3000
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            return (all, card, either controls) to deck
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: end_phase
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

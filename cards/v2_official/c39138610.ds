@@ -1,0 +1,40 @@
+card "Allied Code Talker @Ignister" {
+    id: 39138610
+    type: Link Monster
+    attribute: DARK
+    race: Cyberse
+    link: 5
+    atk: 2300
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            tribute self
+        }
+        resolve {
+            negate
+            banish (all, card, either controls)
+        }
+    }
+}

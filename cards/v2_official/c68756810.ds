@@ -1,0 +1,35 @@
+card "Cutter Shark" {
+    id: 68756810
+    type: Effect Monster
+    attribute: WATER
+    race: Fish
+    level: 5
+    atk: 0
+    def: 2000
+
+    summon {
+        tributes: 1
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: attacked
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+        }
+    }
+}

@@ -1,0 +1,36 @@
+card "Infernoid Evil" {
+    id: 97051536
+    type: Fusion Monster
+    attribute: FIRE
+    race: Fiend
+    level: 1
+    atk: 1100
+    def: 1100
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        cost {
+            banish self
+        }
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

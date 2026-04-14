@@ -1,0 +1,24 @@
+card "Magical Musket - Fiendish Deal" {
+    id: 92534075
+    type: Continuous Trap
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        mandatory
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

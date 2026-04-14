@@ -1,0 +1,32 @@
+card "Scareclaw Tri-Heart" {
+    id: 59120809
+    type: Link Monster
+    attribute: DARK
+    race: Beast-Warrior
+    link: 3
+    atk: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

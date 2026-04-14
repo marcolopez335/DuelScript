@@ -1,0 +1,45 @@
+card "Gussari @Ignister" {
+    id: 55762976
+    type: Effect Monster
+    attribute: EARTH
+    race: Cyberse
+    level: 8
+    atk: 3000
+    def: 3000
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: battle_damage
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: battle_damage
+        resolve {
+            damage opponent 1000
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: summoned
+        cost {
+            banish self
+        }
+        resolve {
+        }
+    }
+}

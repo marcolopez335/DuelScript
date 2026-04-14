@@ -1,0 +1,35 @@
+card "Raviel, Lord of Phantasms - Shimmering Scraper" {
+    id: 28651380
+    type: Effect Monster | Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 10
+    atk: 4000
+    def: 4000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: hard
+        cost {
+            discard (all, card, either controls)
+        }
+        resolve {
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

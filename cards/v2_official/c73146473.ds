@@ -1,0 +1,27 @@
+card "Cross Porter" {
+    id: 73146473
+    type: Effect Monster
+    attribute: DARK
+    race: Warrior
+    level: 2
+    atk: 400
+    def: 400
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        resolve {
+            send (all, card, either controls) to gy
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

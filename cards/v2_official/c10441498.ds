@@ -1,0 +1,31 @@
+card "Vennu, Bright Bird of Divinity" {
+    id: 10441498
+    type: Ritual Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 8
+    atk: 2800
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: sent_to gy
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,34 @@
+card "Red-Eyes Soul" {
+    id: 6556909
+    type: Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 7
+    atk: 900
+    def: 2000
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+            damage opponent 1000
+        }
+    }
+}

@@ -1,0 +1,20 @@
+card "Songs of the Dominators" {
+    id: 58053438
+    type: Normal Trap
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        mandatory
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

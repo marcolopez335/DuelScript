@@ -1,0 +1,35 @@
+card "Empty Machine" {
+    id: 9409625
+    type: Continuous Trap
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        resolve {
+            draw 1
+        }
+    }
+
+    effect "Effect 5" {
+        speed: 2
+        resolve {
+            return (all, card, either controls) to deck
+        }
+    }
+
+    replacement "Effect 2" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

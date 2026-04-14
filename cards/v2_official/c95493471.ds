@@ -1,0 +1,36 @@
+card "Neo Super Quantal Mech King Blaster Magna" {
+    id: 95493471
+    type: Link Monster
+    attribute: LIGHT
+    race: Machine
+    link: 3
+    atk: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: summoned by special
+        resolve {
+            draw 1
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

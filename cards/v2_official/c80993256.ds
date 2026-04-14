@@ -1,0 +1,27 @@
+card "Ashura King" {
+    id: 80993256
+    type: Xyz Monster
+    attribute: EARTH
+    race: Warrior
+    rank: 3
+    atk: 2100
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

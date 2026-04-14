@@ -1,0 +1,44 @@
+card "Eternal Bond" {
+    id: 45283341
+    type: Normal Trap
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    passive "Effect 5" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    passive "Effect 6" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            banish self
+        }
+        resolve {
+            take_control (all, card, either controls)
+        }
+    }
+}

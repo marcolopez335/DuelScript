@@ -1,0 +1,36 @@
+card "Mechanical Mechanic" {
+    id: 22106558
+    type: Effect Monster | Tuner
+    attribute: WIND
+    race: Machine
+    level: 3
+    atk: 500
+    def: 500
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

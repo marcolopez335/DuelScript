@@ -1,0 +1,24 @@
+card "Kewl Tune Cue" {
+    id: 16387555
+    type: Effect Monster | Tuner
+    attribute: LIGHT
+    race: Fairy
+    level: 3
+    atk: 900
+    def: 1900
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

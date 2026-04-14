@@ -1,0 +1,25 @@
+card "Blooming of the Darkest Rose" {
+    id: 99092624
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+        resolve {
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: hard
+        resolve {
+            banish (all, card, either controls)
+            return (all, card, either controls) to deck
+        }
+    }
+}

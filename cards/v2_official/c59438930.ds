@@ -1,0 +1,22 @@
+card "Ghost Ogre & Snow Rabbit" {
+    id: 59438930
+    type: Effect Monster | Tuner
+    attribute: LIGHT
+    race: Psychic
+    level: 3
+    atk: 0
+    def: 1800
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            send self to gy
+        }
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

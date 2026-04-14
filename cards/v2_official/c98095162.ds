@@ -1,0 +1,29 @@
+card "Curious, the Lightsworn Dominion" {
+    id: 98095162
+    type: Link Monster
+    attribute: LIGHT
+    race: Warrior
+    link: 3
+    atk: 2400
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: custom "chain_end"
+    }
+}

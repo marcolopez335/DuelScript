@@ -1,0 +1,28 @@
+card "Libromancer Fire" {
+    id: 16312943
+    type: Effect Monster
+    attribute: FIRE
+    race: Cyberse
+    level: 4
+    atk: 1800
+    def: 1800
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

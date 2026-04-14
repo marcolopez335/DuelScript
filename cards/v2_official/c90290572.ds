@@ -1,0 +1,35 @@
+card "Protector of The Agents - Moon" {
+    id: 90290572
+    type: Link Monster
+    attribute: LIGHT
+    race: Fairy
+    link: 2
+    atk: 1800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

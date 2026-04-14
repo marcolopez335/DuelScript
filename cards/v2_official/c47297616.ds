@@ -1,0 +1,33 @@
+card "Light and Darkness Dragon" {
+    id: 47297616
+    type: Effect Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 8
+    atk: 2800
+    def: 2400
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        mandatory
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            destroy (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

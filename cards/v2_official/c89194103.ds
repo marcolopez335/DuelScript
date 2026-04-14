@@ -1,0 +1,33 @@
+card "The Fabled Kudabbi" {
+    id: 89194103
+    type: Synchro Monster
+    attribute: LIGHT
+    race: Beast
+    level: 4
+    atk: 2200
+    def: 1100
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: end_phase
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

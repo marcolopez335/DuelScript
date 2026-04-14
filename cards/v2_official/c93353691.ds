@@ -1,0 +1,27 @@
+card "Driven Daredevil" {
+    id: 93353691
+    type: Synchro Monster
+    attribute: EARTH
+    race: Warrior
+    level: 7
+    atk: 2400
+    def: 2100
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

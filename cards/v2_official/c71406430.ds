@@ -1,0 +1,36 @@
+card "Libromancer Doombroker" {
+    id: 71406430
+    type: Ritual Monster
+    attribute: DARK
+    race: Fiend
+    level: 6
+    atk: 2500
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: direct_attack
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: destroyed_by_battle
+        resolve {
+            return (all, card, either controls) to deck
+        }
+    }
+}

@@ -1,0 +1,36 @@
+card "Apprentice Magician" {
+    id: 9156135
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 2
+    atk: 400
+    def: 800
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        trigger: summoned
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: summoned by flip
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        mandatory
+        trigger: summoned by special
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        timing: when
+        trigger: battle_damage
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

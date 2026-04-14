@@ -1,0 +1,31 @@
+card "Vampire Lord" {
+    id: 53839837
+    type: Effect Monster
+    attribute: DARK
+    race: Zombie
+    level: 5
+    atk: 2000
+    def: 1500
+
+    summon {
+        tributes: 1
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: standby_phase
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        mandatory
+        trigger: destroyed_by_battle
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

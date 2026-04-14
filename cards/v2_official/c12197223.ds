@@ -1,0 +1,29 @@
+card "Shiina, Twin Tempests of Celestial Thunder" {
+    id: 12197223
+    type: Effect Monster
+    attribute: WIND
+    race: Dragon
+    level: 9
+    atk: 2900
+    def: 1500
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            special_summon (all, card, either controls)
+            return (all, card, either controls) to hand
+        }
+    }
+}

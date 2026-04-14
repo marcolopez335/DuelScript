@@ -1,0 +1,42 @@
+card "Earthbound Prisoner Line Walker" {
+    id: 19322865
+    type: Effect Monster | Tuner
+    attribute: DARK
+    race: Fiend
+    level: 3
+    atk: 800
+    def: 1100
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            return (all, card, either controls) to deck
+            special_summon (all, card, either controls)
+        }
+    }
+}

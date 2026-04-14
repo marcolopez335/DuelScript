@@ -1,0 +1,42 @@
+card "Pendulumucho" {
+    id: 18210764
+    type: Effect Monster | Pendulum Monster
+    attribute: EARTH
+    race: Winged Beast
+    level: 1
+    scale: 0
+    atk: 0
+    def: 0
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            send (all, card, either controls) to extra_deck
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: summoned
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

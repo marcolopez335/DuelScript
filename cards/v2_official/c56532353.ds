@@ -1,0 +1,26 @@
+card "Neo Blue-Eyes Ultimate Dragon" {
+    id: 56532353
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 12
+    atk: 4500
+    def: 3800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            banish self
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

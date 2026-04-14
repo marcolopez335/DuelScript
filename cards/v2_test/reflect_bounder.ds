@@ -1,0 +1,24 @@
+// 魔鏡導士リフレクト・バウンダー
+// Reflect Bounder
+// When attacked: Inflict damage to opponent equal to attacking
+// monster's ATK. After damage calculation, destroy this card.
+
+card "Reflect Bounder" {
+    id: 2851070
+    type: Effect Monster
+    attribute: LIGHT
+    race: Machine
+    level: 4
+    atk: 1700
+    def: 1000
+
+    effect "Reflect Damage" {
+        speed: 1
+        mandatory
+        trigger: attacked
+        resolve {
+            damage opponent target.atk
+            destroy self
+        }
+    }
+}

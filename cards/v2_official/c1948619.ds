@@ -1,0 +1,39 @@
+card "Xtra HERO Wonder Driver" {
+    id: 1948619
+    type: Link Monster
+    attribute: LIGHT
+    race: Warrior
+    link: 2
+    atk: 1900
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        trigger: summoned
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        trigger: summoned by special
+        resolve {
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

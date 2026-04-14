@@ -1,0 +1,33 @@
+card "Ancient Warriors Oath - Double Dragon Lords" {
+    id: 65711558
+    type: Link Monster
+    attribute: WIND
+    race: Beast-Warrior
+    link: 2
+    atk: 1100
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            send self to gy
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

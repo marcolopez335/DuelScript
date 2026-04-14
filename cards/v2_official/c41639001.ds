@@ -1,0 +1,19 @@
+card "Hieratic Dragon of Nuit" {
+    id: 41639001
+    type: Effect Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 4
+    atk: 1700
+    def: 900
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        mandatory
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

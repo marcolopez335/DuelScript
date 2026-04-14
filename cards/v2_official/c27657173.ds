@@ -1,0 +1,37 @@
+card "Red-Eyes Black Meteor Dragon" {
+    id: 27657173
+    type: Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 6
+    atk: 2000
+    def: 2000
+
+    summon {
+        tributes: 1
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,38 @@
+card "True Light" {
+    id: 62089826
+    type: Continuous Trap
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        once_per_turn: hard
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 5" {
+        speed: 2
+        once_per_turn: hard
+        resolve {
+        }
+    }
+}

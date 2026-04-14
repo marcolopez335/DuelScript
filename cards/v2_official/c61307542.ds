@@ -1,0 +1,40 @@
+card "Paleozoic Anomalocaris" {
+    id: 61307542
+    type: Xyz Monster
+    attribute: WATER
+    race: Aqua
+    rank: 2
+    atk: 2400
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

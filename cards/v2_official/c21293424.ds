@@ -1,0 +1,29 @@
+card "Gunkan Suship Shirauo-class Carrier" {
+    id: 21293424
+    type: Xyz Monster
+    attribute: FIRE
+    race: Aqua
+    rank: 4
+    atk: 2200
+    def: 250
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            draw 1
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

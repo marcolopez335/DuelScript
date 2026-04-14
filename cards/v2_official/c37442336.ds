@@ -1,0 +1,41 @@
+card "Cosmic Quasar Dragon" {
+    id: 37442336
+    type: Synchro Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 12
+    atk: 4000
+    def: 4000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    passive "Effect 5" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,19 @@
+// 破壊輪
+// Ring of Destruction
+// Target 1 face-up monster; destroy it, and both players take
+// damage equal to its ATK.
+
+card "Ring of Destruction" {
+    id: 83555666
+    type: Normal Trap
+
+    effect "Destroy and Burn" {
+        speed: 2
+        target (1, monster, either controls, face_up)
+        resolve {
+            destroy target
+            damage you target.atk
+            damage opponent target.atk
+        }
+    }
+}

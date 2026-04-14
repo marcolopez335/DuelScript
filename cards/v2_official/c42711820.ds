@@ -1,0 +1,23 @@
+card "Scrap Warrior" {
+    id: 42711820
+    type: Synchro Monster
+    attribute: EARTH
+    race: Warrior
+    level: 3
+    atk: 1700
+    def: 100
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

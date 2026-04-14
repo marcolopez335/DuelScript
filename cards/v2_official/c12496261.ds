@@ -1,0 +1,44 @@
+card "Dragunity Knight - Luin" {
+    id: 12496261
+    type: Synchro Monster | Tuner
+    attribute: WIND
+    race: Dragon
+    level: 6
+    atk: 1200
+    def: 1900
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    passive "Effect 5" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    passive "Effect 6" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+        }
+    }
+}

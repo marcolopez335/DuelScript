@@ -1,0 +1,28 @@
+card "Junk Warrior/Assault Mode" {
+    id: 23219323
+    type: Effect Monster | Effect Monster
+    attribute: DARK
+    race: Warrior
+    level: 7
+    atk: 2800
+    def: 1800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        timing: if
+        trigger: destroyed
+        resolve {
+            return (all, card, either controls) to deck
+            special_summon (all, card, either controls)
+        }
+    }
+}

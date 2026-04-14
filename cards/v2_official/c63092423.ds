@@ -1,0 +1,45 @@
+card "Linkbelt Wall Dragon" {
+    id: 63092423
+    type: Effect Monster | Effect Monster
+    attribute: EARTH
+    race: Dragon
+    level: 6
+    atk: 0
+    def: 2100
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 5" {
+        speed: 1
+        mandatory
+        trigger: summoned by special
+    }
+
+    effect "Effect 6" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: standby_phase
+    }
+}

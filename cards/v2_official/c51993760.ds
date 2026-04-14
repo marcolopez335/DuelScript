@@ -1,0 +1,19 @@
+card "Dark Spirit of Banishment" {
+    id: 51993760
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 3
+    atk: 1600
+    def: 0
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

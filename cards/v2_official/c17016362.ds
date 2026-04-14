@@ -1,0 +1,32 @@
+card "Performage Trapeze Magician" {
+    id: 17016362
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Spellcaster
+    rank: 4
+    atk: 2500
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            detach 1 from self
+        }
+        resolve {
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

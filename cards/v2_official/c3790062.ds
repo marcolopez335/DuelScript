@@ -1,0 +1,26 @@
+card "Number 65: Djinn Buster" {
+    id: 3790062
+    type: Xyz Monster
+    attribute: DARK
+    race: Fiend
+    rank: 2
+    atk: 1300
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            detach 2 from self
+        }
+        resolve {
+            negate
+            damage opponent 500
+        }
+    }
+}

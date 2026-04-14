@@ -1,0 +1,33 @@
+card "The Bystial Aluber" {
+    id: 45005708
+    type: Effect Monster | Tuner
+    attribute: DARK
+    race: Dragon
+    level: 4
+    atk: 1800
+    def: 0
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned
+        resolve {
+            send (all, card, either controls) to gy
+            take_control (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            send (all, card, either controls) to gy
+            take_control (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

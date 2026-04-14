@@ -1,0 +1,39 @@
+card "Darkness Neosphere" {
+    id: 60417395
+    type: Effect Monster | Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 10
+    atk: 4000
+    def: 4000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+}

@@ -1,0 +1,47 @@
+card "Flash Charge Dragon" {
+    id: 95372220
+    type: Link Monster
+    attribute: DARK
+    race: Dragon
+    link: 3
+    atk: 2300
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned
+        resolve {
+            destroy (all, card, either controls)
+            damage opponent 500
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+            destroy (all, card, either controls)
+            damage opponent 500
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            tribute self
+        }
+        resolve {
+            negate
+            send (all, card, either controls) to gy
+        }
+    }
+}

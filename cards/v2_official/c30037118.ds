@@ -1,0 +1,31 @@
+card "Devouring Sarcoughagus" {
+    id: 30037118
+    type: Effect Monster
+    attribute: DARK
+    race: Zombie
+    level: 4
+    atk: 0
+    def: 0
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: battle_damage
+        resolve {
+            take_control (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: battle_damage
+        cost {
+            banish self
+        }
+        resolve {
+            take_control (all, card, either controls)
+        }
+    }
+}

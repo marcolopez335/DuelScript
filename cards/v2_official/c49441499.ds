@@ -1,0 +1,26 @@
+card "Ultimate Insect LV1" {
+    id: 49441499
+    type: Effect Monster
+    attribute: WIND
+    race: Insect
+    level: 1
+    atk: 0
+    def: 0
+
+    passive "Effect 1" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: standby_phase
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,20 @@
+card "Magnarokket Dragon" {
+    id: 26655293
+    type: Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 4
+    atk: 1800
+    def: 1200
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            destroy (all, card, either controls)
+            send (all, card, either controls) to gy
+        }
+    }
+}

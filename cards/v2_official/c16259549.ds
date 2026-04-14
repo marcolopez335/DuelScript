@@ -1,0 +1,46 @@
+card "Number 49: Fortune Tune" {
+    id: 16259549
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Winged Beast
+    rank: 3
+    atk: 400
+    def: 900
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: standby_phase
+        resolve {
+            gain_lp 1000
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            return (all, card, either controls) to deck
+            return (all, card, either controls) to deck
+        }
+    }
+
+    replacement "Effect 3" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

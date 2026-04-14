@@ -1,0 +1,39 @@
+card "Yosenju Sabu" {
+    id: 58981727
+    type: Effect Monster
+    attribute: WIND
+    race: Beast-Warrior
+    level: 4
+    atk: 1700
+    def: 400
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: end_phase
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+            return (all, card, either controls) to deck
+        }
+    }
+}

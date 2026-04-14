@@ -1,0 +1,35 @@
+card "Koa'ki Meiru Rooklord" {
+    id: 10060427
+    type: Effect Monster
+    attribute: EARTH
+    race: Warrior
+    level: 7
+    atk: 2800
+    def: 2200
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_change_position
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        cost {
+            banish self
+        }
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

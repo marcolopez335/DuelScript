@@ -1,0 +1,39 @@
+card "Galaxy-Eyes Cipher X Dragon" {
+    id: 28346136
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Dragon
+    rank: 10
+    atk: 4000
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        cost {
+            detach 2 from self
+        }
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: standby_phase
+        resolve {
+            return (all, card, either controls) to deck
+            special_summon (all, card, either controls)
+        }
+    }
+}

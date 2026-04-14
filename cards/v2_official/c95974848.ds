@@ -1,0 +1,24 @@
+card "S-Force Orrafist" {
+    id: 95974848
+    type: Effect Monster
+    attribute: LIGHT
+    race: Cyberse
+    level: 4
+    atk: 1800
+    def: 1000
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

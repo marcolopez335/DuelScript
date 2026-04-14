@@ -1,0 +1,36 @@
+card "V Salamander" {
+    id: 33725002
+    type: Effect Monster
+    attribute: FIRE
+    race: Spellcaster
+    level: 4
+    atk: 1500
+    def: 1300
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+            damage opponent 1000
+        }
+    }
+}

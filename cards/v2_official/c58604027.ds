@@ -1,0 +1,37 @@
+card "The Legendary Exodia Incarnate" {
+    id: 58604027
+    type: Effect Monster | Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 10
+    atk: ?
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    effect "Effect 5" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: end_phase
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 6" {
+        speed: 1
+        timing: when
+        trigger: battle_damage
+        resolve {
+            draw 1
+        }
+    }
+}

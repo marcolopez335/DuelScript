@@ -1,0 +1,25 @@
+card "Pair Bear Scare!!" {
+    id: 21501961
+    type: Quick-Play Spell
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        mandatory
+        resolve {
+            gain_lp 2000
+            gain_lp 2000
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

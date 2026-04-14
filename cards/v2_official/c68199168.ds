@@ -1,0 +1,27 @@
+card "Harr, Generaider Boss of Storms" {
+    id: 68199168
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 9
+    atk: 3000
+    def: 3000
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            tribute self
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

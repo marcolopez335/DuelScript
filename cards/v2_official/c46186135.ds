@@ -1,0 +1,41 @@
+card "Enlightenment Dragon" {
+    id: 46186135
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 10
+    atk: 3000
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            pay_lp 2000
+        }
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: end_phase
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: destroyed
+        resolve {
+            add_to_hand (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

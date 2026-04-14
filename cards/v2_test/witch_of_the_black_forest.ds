@@ -1,0 +1,24 @@
+// 黒き森のウィッチ
+// Witch of the Black Forest
+// When sent from field to GY: Add 1 monster with 1500 or less DEF
+// from Deck to hand.
+
+card "Witch of the Black Forest" {
+    id: 78010363
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 4
+    atk: 1100
+    def: 1200
+
+    effect "Search Low DEF" {
+        speed: 1
+        mandatory
+        trigger: sent_to gy from field
+        resolve {
+            search (1, monster, where def <= 1500) from deck
+            add_to_hand searched
+        }
+    }
+}

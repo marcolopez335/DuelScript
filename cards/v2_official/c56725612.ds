@@ -1,0 +1,32 @@
+card "Fairy Tail Ball" {
+    id: 56725612
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 0
+    def: 0
+
+    passive "Effect 2" {
+        scope: self
+        grant: direct_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+        }
+    }
+}

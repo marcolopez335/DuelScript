@@ -1,0 +1,16 @@
+// 増援
+// Reinforcement of the Army
+// Add 1 Level 4 or lower Warrior monster from your Deck to your hand.
+
+card "Reinforcement of the Army" {
+    id: 32807846
+    type: Normal Spell
+
+    effect "Search Warrior" {
+        speed: 1
+        resolve {
+            search (1, monster, where level <= 4 and race == Warrior) from deck
+            add_to_hand searched
+        }
+    }
+}

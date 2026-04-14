@@ -1,0 +1,24 @@
+card "Crystal Clear Wing Over Synchro Dragon" {
+    id: 84343351
+    type: Synchro Monster
+    attribute: WIND
+    race: Dragon
+    level: 12
+    atk: 3500
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

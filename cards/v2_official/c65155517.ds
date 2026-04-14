@@ -1,0 +1,47 @@
+card "Speedroid Colonel Clackers" {
+    id: 65155517
+    type: Effect Monster | Pendulum Monster
+    attribute: WIND
+    race: Machine
+    level: 2
+    scale: 8
+    atk: 200
+    def: 1800
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: summoned
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,39 @@
+card "Vampire Fascinator" {
+    id: 72860663
+    type: Link Monster
+    attribute: DARK
+    race: Zombie
+    link: 3
+    atk: 2400
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            take_control (all, card, either controls)
+        }
+    }
+}

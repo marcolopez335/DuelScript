@@ -1,0 +1,28 @@
+card "Decode Talker" {
+    id: 1861629
+    type: Link Monster | Effect Monster
+    attribute: DARK
+    race: Cyberse
+    link: 3
+    atk: 2300
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Linked Monster Boost" {
+        scope: self
+        modifier: atk + count((all, monster)) * 500
+    }
+
+    effect "Negate Targeting" {
+        speed: 2
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            tribute (all, card, either controls)
+        }
+        resolve {
+            negate and destroy
+        }
+    }
+}

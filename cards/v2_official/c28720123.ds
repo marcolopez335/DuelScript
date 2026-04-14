@@ -1,0 +1,29 @@
+card "Dinomight Powerload, the Dracoslayer" {
+    id: 28720123
+    type: Effect Monster | Pendulum Monster
+    attribute: WATER
+    race: Machine
+    level: 4
+    scale: 6
+    atk: 1700
+    def: 1800
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: sent_to gy
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

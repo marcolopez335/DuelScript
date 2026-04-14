@@ -1,0 +1,35 @@
+card "Fallen of the Tistina" {
+    id: 87498729
+    type: Effect Monster
+    attribute: WATER
+    race: Aqua
+    level: 1
+    atk: 200
+    def: 0
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            send (all, card, either controls) to gy
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: destroyed
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

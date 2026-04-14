@@ -1,0 +1,21 @@
+card "Desrook Archfiend" {
+    id: 72192100
+    type: Effect Monster
+    attribute: LIGHT
+    race: Fiend
+    level: 3
+    atk: 1100
+    def: 1800
+
+    effect "Effect 3" {
+        speed: 2
+        timing: when
+        trigger: custom "chain_end"
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

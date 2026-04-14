@@ -1,0 +1,33 @@
+card "Supreme King Dragon Clear Wing" {
+    id: 70771599
+    type: Synchro Monster
+    attribute: DARK
+    race: Dragon
+    level: 8
+    atk: 2500
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

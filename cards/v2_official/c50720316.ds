@@ -1,0 +1,29 @@
+card "Elemental HERO Shadow Mist" {
+    id: 50720316
+    type: Effect Monster
+    attribute: DARK
+    race: Warrior
+    level: 4
+    atk: 1000
+    def: 1500
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

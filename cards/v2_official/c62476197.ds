@@ -1,0 +1,19 @@
+card "Achacha Chanbara" {
+    id: 62476197
+    type: Effect Monster
+    attribute: FIRE
+    race: Warrior
+    level: 3
+    atk: 1400
+    def: 400
+
+    effect "Effect 1" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            special_summon (all, card, either controls)
+            damage opponent 400
+        }
+    }
+}

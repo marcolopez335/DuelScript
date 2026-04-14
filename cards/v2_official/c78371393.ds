@@ -1,0 +1,42 @@
+card "Yubel" {
+    id: 78371393
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 10
+    atk: 0
+    def: 0
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 5" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: end_phase
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 6" {
+        speed: 1
+        timing: when
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

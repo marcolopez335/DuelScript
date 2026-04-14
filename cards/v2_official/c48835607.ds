@@ -1,0 +1,63 @@
+card "Galatea-I, the Orcust Automaton" {
+    id: 48835607
+    type: Link Monster
+    attribute: DARK
+    race: Machine
+    link: 1
+    atk: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 7" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        once_per_turn: hard
+        cost {
+            send self to gy
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 5" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 6" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

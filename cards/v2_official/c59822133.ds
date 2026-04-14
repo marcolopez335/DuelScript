@@ -1,0 +1,33 @@
+card "Blue-Eyes Spirit Dragon" {
+    id: 59822133
+    type: Synchro Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 9
+    atk: 2500
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

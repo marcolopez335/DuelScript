@@ -1,0 +1,38 @@
+card "Elemental Training" {
+    id: 11167052
+    type: Continuous Trap
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 5" {
+        speed: 2
+        cost {
+            send self to gy
+        }
+        resolve {
+            send (all, card, either controls) to gy
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

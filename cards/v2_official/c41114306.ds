@@ -1,0 +1,24 @@
+card "Dark Garnex the Cubic Beast" {
+    id: 41114306
+    type: Effect Monster | Effect Monster
+    attribute: EARTH
+    race: Beast
+    level: 2
+    atk: 0
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: battle_damage
+        resolve {
+            send (all, card, either controls) to gy
+            special_summon (all, card, either controls)
+            return (all, card, either controls) to hand
+        }
+    }
+}

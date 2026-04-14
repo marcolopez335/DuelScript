@@ -1,0 +1,28 @@
+card "Majespecter Orthrus - Nue" {
+    id: 66384688
+    type: Link Monster
+    attribute: WIND
+    race: Spellcaster
+    link: 2
+    atk: 1500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+            send (all, card, either controls) to extra_deck
+        }
+    }
+}

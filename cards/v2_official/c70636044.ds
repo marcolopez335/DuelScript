@@ -1,0 +1,37 @@
+card "Varudras, the Final Bringer of the End Times" {
+    id: 70636044
+    type: Xyz Monster
+    attribute: DARK
+    race: Wyrm
+    rank: 10
+    atk: 3000
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: destroyed
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

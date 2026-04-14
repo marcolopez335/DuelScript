@@ -1,0 +1,38 @@
+card "Darklord Eveningstar" {
+    id: 10136446
+    type: Fusion Monster
+    attribute: DARK
+    race: Fairy
+    level: 12
+    atk: 3000
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            pay_lp 1000
+        }
+        resolve {
+            return (all, card, either controls) to deck
+        }
+    }
+}

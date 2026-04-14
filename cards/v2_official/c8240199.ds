@@ -1,0 +1,31 @@
+card "Sage with Eyes of Blue" {
+    id: 8240199
+    type: Effect Monster | Tuner
+    attribute: LIGHT
+    race: Spellcaster
+    level: 1
+    atk: 0
+    def: 1500
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            discard (all, card, either controls)
+        }
+        resolve {
+            send (all, card, either controls) to gy
+            special_summon (all, card, either controls)
+        }
+    }
+}

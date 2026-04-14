@@ -1,0 +1,23 @@
+// Kycoo the Ghost Destroyer
+card "Kycoo the Ghost Destroyer" {
+    id: 88240808
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 4
+    atk: 1800
+    def: 700
+
+    effect "Banish from Opponent GY" {
+        speed: 1
+        trigger: battle_damage to opponent
+        resolve {
+            banish (all, monster, opponent controls) from gy
+        }
+    }
+
+    passive "Lock GY Banish" {
+        scope: field
+        grant: cannot_be_used_as_material
+    }
+}

@@ -1,0 +1,43 @@
+card "Thor, Lord of the Aesir" {
+    id: 30604579
+    type: Synchro Monster
+    attribute: EARTH
+    race: Beast-Warrior
+    level: 10
+    atk: 3500
+    def: 2800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: end_phase
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        timing: when
+        trigger: summoned by special
+        resolve {
+            damage opponent 1000
+        }
+    }
+}

@@ -1,0 +1,34 @@
+card "Kozmo Tincan" {
+    id: 64280356
+    type: Effect Monster
+    attribute: LIGHT
+    race: Psychic
+    level: 1
+    atk: 0
+    def: 0
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: end_phase
+        cost {
+            pay_lp 500
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+            send (all, card, either controls) to gy
+        }
+    }
+}

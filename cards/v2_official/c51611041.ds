@@ -1,0 +1,30 @@
+card "Epigonen, the Impersonation Invader" {
+    id: 51611041
+    type: Effect Monster
+    attribute: LIGHT
+    race: Rock
+    level: 7
+    atk: 2000
+    def: 2000
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+}

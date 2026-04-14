@@ -1,0 +1,47 @@
+card "D/D Savant Kepler" {
+    id: 11609969
+    type: Effect Monster | Pendulum Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    scale: 10
+    atk: 0
+    def: 0
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: standby_phase
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned
+        resolve {
+            return (all, card, either controls) to hand
+            return (all, card, either controls) to hand
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            return (all, card, either controls) to hand
+            return (all, card, either controls) to hand
+        }
+    }
+}

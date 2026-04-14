@@ -1,0 +1,29 @@
+card "Guardragon Promineses" {
+    id: 79905468
+    type: Effect Monster
+    attribute: FIRE
+    race: Dragon
+    level: 1
+    atk: 500
+    def: 200
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

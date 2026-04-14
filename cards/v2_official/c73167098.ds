@@ -1,0 +1,30 @@
+card "Aromalilith Magnolia" {
+    id: 73167098
+    type: Fusion Monster
+    attribute: DARK
+    race: Plant
+    level: 8
+    atk: 2600
+    def: 1800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            pay_lp 2000
+        }
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+}

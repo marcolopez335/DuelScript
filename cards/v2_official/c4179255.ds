@@ -1,0 +1,32 @@
+card "Ancient Pixie Dragon" {
+    id: 4179255
+    type: Synchro Monster
+    attribute: DARK
+    race: Dragon
+    level: 7
+    atk: 2100
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            draw 1
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

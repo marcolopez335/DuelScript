@@ -1,0 +1,32 @@
+card "Nagel's Protection" {
+    id: 63053267
+    type: Continuous Spell
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+    }
+
+    effect "Effect 6" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            discard (all, card, either controls)
+            banish self
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,30 @@
+card "Gladiator Beast Murmillo" {
+    id: 5975022
+    type: Effect Monster
+    attribute: WATER
+    race: Fish
+    level: 3
+    atk: 800
+    def: 400
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        trigger: summoned by special
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: standby_phase
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

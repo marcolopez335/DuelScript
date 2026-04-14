@@ -1,0 +1,23 @@
+card "Naturia Beast" {
+    id: 33198837
+    type: Synchro Monster
+    attribute: EARTH
+    race: Beast
+    level: 5
+    atk: 2200
+    def: 1700
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

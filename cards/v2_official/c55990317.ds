@@ -1,0 +1,38 @@
+card "Hugin the Runick Wings" {
+    id: 55990317
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 2
+    atk: 0
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        mandatory
+        trigger: destroyed
+        resolve {
+            return (all, card, either controls) to deck
+        }
+    }
+
+    replacement "Effect 2" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

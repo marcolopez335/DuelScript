@@ -1,0 +1,28 @@
+card "Secret Six Samurai - Hatsume" {
+    id: 44686185
+    type: Effect Monster
+    attribute: WATER
+    race: Warrior
+    level: 3
+    atk: 1600
+    def: 1500
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    replacement "Effect 2" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

@@ -1,0 +1,40 @@
+card "Dimension Conjurer" {
+    id: 77683371
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 1
+    atk: 500
+    def: 500
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            draw 1
+            return (all, card, either controls) to deck
+        }
+    }
+}

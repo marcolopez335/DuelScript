@@ -1,0 +1,33 @@
+// 深淵の暗殺者
+// Night Assailant
+// FLIP: Target 1 monster your opponent controls; destroy that target.
+// If this card is sent from your hand to the GY: Target 1 Flip
+// monster in your GY; add that target to your hand.
+
+card "Night Assailant" {
+    id: 16226786
+    type: Effect Monster | Flip
+    attribute: DARK
+    race: Fiend
+    level: 3
+    atk: 200
+    def: 500
+
+    effect "Destroy Monster" {
+        speed: 1
+        mandatory
+        trigger: flipped
+        target (1, monster, opponent controls)
+        resolve {
+            destroy target
+        }
+    }
+
+    effect "Recover Flip" {
+        speed: 1
+        trigger: sent_to gy from hand
+        resolve {
+            add_to_hand (1, monster, in gy, where is_flip)
+        }
+    }
+}

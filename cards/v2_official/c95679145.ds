@@ -1,0 +1,35 @@
+card "Dogmatika Maximus" {
+    id: 95679145
+    type: Effect Monster
+    attribute: LIGHT
+    race: Spellcaster
+    level: 8
+    atk: 1500
+    def: 3000
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            send (all, card, either controls) to gy
+            send (all, card, either controls) to gy
+        }
+    }
+}

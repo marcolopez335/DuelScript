@@ -1,0 +1,34 @@
+card "Cyber Angel Vrash" {
+    id: 78316184
+    type: Ritual Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 10
+    atk: 3000
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            destroy (all, card, either controls)
+            damage opponent 1000
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,30 @@
+card "Exceed the Pendulum" {
+    id: 92812851
+    type: Link Monster
+    attribute: LIGHT
+    race: Spellcaster
+    link: 3
+    atk: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

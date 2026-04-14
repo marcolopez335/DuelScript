@@ -1,0 +1,29 @@
+card "White Knight of Dogmatika" {
+    id: 40352445
+    type: Ritual Monster
+    attribute: LIGHT
+    race: Spellcaster
+    level: 8
+    atk: 500
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            send (all, card, either controls) to gy
+            send (all, card, either controls) to gy
+        }
+    }
+}

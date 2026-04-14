@@ -1,0 +1,27 @@
+card "Archnemeses Protos" {
+    id: 6728559
+    type: Effect Monster | Effect Monster
+    attribute: DARK
+    race: Wyrm
+    level: 11
+    atk: 2500
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

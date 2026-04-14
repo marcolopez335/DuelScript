@@ -1,0 +1,26 @@
+card "Linkross" {
+    id: 85243784
+    type: Link Monster
+    attribute: LIGHT
+    race: Cyberse
+    link: 1
+    atk: 900
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+}

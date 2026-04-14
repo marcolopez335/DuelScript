@@ -1,0 +1,40 @@
+card "Ancient Gear Advance" {
+    id: 4064925
+    type: Continuous Spell
+
+    passive "Effect 7" {
+        scope: self
+        grant: cannot_change_position
+    }
+
+    passive "Effect 8" {
+        scope: self
+        grant: cannot_change_position
+    }
+
+    passive "Effect 10" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            draw 1
+        }
+    }
+}

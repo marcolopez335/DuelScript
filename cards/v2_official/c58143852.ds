@@ -1,0 +1,38 @@
+card "Nightmare Apprentice" {
+    id: 58143852
+    type: Effect Monster
+    attribute: DARK
+    race: Warrior
+    level: 6
+    atk: 2000
+    def: 1700
+
+    summon {
+        tributes: 1
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

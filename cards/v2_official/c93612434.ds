@@ -1,0 +1,37 @@
+card "Double Disruptor Dragon" {
+    id: 93612434
+    type: Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 8
+    atk: 2500
+    def: 1500
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

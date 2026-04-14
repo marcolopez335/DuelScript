@@ -1,0 +1,40 @@
+card "Cyberdark Claw" {
+    id: 82562802
+    type: Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 3
+    atk: 1600
+    def: 800
+
+    effect "Effect 1" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            discard (all, card, either controls)
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: summoned
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

@@ -1,0 +1,36 @@
+card "Fantastical Dragon Phantazmay" {
+    id: 78661338
+    type: Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 7
+    atk: 2400
+    def: 1800
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+            draw 1
+            return (all, card, either controls) to deck
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

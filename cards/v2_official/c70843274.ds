@@ -1,0 +1,36 @@
+card "Psychic Processor" {
+    id: 70843274
+    type: Effect Monster
+    attribute: DARK
+    race: Psychic
+    level: 3
+    atk: 0
+    def: 1500
+
+    passive "Effect 3" {
+        scope: self
+        grant: direct_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: standby_phase
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

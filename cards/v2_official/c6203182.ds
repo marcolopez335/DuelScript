@@ -1,0 +1,32 @@
+card "Two Toads with One Sting" {
+    id: 6203182
+    type: Equip Spell
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    passive "Effect 5" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 6" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            take_control (all, card, either controls)
+        }
+    }
+}

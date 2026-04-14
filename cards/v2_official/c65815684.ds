@@ -1,0 +1,27 @@
+card "Vicious Astraloud" {
+    id: 65815684
+    type: Fusion Monster
+    attribute: DARK
+    race: Fairy
+    level: 8
+    atk: 3000
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

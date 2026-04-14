@@ -1,0 +1,38 @@
+card "Paces, Light of the Ghoti" {
+    id: 46037983
+    type: Effect Monster | Tuner
+    attribute: WATER
+    race: Fish
+    level: 2
+    atk: 0
+    def: 0
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: standby_phase
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+        }
+    }
+}

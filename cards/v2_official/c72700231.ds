@@ -1,0 +1,24 @@
+card "Yuki-Musume, the Ice Mayakashi" {
+    id: 72700231
+    type: Effect Monster
+    attribute: WATER
+    race: Zombie
+    level: 1
+    atk: 0
+    def: 1900
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+            send (all, card, either controls) to gy
+        }
+    }
+}

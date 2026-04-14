@@ -1,0 +1,31 @@
+card "Artifact Caduceus" {
+    id: 84268896
+    type: Effect Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 5
+    atk: 1600
+    def: 2400
+
+    summon {
+        tributes: 1
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        mandatory
+        trigger: summoned by special
+        resolve {
+            draw 1
+        }
+    }
+}

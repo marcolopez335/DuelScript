@@ -1,0 +1,36 @@
+card "Tobari the Sky Ninja" {
+    id: 31887806
+    type: Effect Monster
+    attribute: EARTH
+    race: Winged Beast
+    level: 1
+    atk: 0
+    def: 0
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 5" {
+        speed: 2
+        once_per_turn: soft
+    }
+}

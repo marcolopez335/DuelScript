@@ -1,0 +1,33 @@
+card "Toon Dark Magician" {
+    id: 21296502
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 7
+    atk: 2500
+    def: 2100
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: direct_attack
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+            return (all, card, either controls) to hand
+        }
+    }
+}

@@ -1,0 +1,19 @@
+// 魔のデッキ破壊ウイルス
+// Deck Devastation Virus
+// Tribute 1 DARK monster with 2000+ ATK; destroy all monsters
+// opponent controls with 1500 or less ATK.
+
+card "Deck Devastation Virus" {
+    id: 35027493
+    type: Normal Trap
+
+    effect "Virus" {
+        speed: 2
+        cost {
+            tribute (1, monster, you control, where atk >= 2000 and attribute == DARK)
+        }
+        resolve {
+            destroy (all, monster, opponent controls, where atk <= 1500)
+        }
+    }
+}

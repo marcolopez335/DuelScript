@@ -1,0 +1,22 @@
+// グリズリーマザー
+// Mother Grizzly
+// When destroyed by battle: Special Summon 1 WATER monster with
+// 1500 or less ATK from Deck in Attack Position.
+
+card "Mother Grizzly" {
+    id: 57839750
+    type: Effect Monster
+    attribute: WATER
+    race: Beast-Warrior
+    level: 4
+    atk: 1400
+    def: 1000
+
+    effect "Recruit WATER" {
+        speed: 1
+        trigger: destroyed_by_battle
+        resolve {
+            special_summon (1, monster, where attribute == WATER and atk <= 1500) from deck in attack_position
+        }
+    }
+}

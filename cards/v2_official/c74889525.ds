@@ -1,0 +1,35 @@
+card "Eldlich the Mad Golden Lord" {
+    id: 74889525
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Zombie
+    level: 10
+    atk: 3800
+    def: 3500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            take_control (all, card, either controls)
+        }
+    }
+}

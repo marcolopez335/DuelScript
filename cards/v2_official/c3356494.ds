@@ -1,0 +1,33 @@
+card "Galaxy-Eyes Solflare Dragon" {
+    id: 3356494
+    type: Link Monster
+    attribute: LIGHT
+    race: Dragon
+    link: 2
+    atk: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            send self to gy
+        }
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

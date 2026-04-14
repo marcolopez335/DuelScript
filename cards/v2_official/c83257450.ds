@@ -1,0 +1,51 @@
+card "The Unstoppable Exodia Incarnate" {
+    id: 83257450
+    type: Fusion Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 10
+    atk: ?
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: summoned
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: end_phase
+        resolve {
+        }
+    }
+
+    effect "Effect 5" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: standby_phase
+    }
+}

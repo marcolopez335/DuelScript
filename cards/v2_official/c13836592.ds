@@ -1,0 +1,53 @@
+card "Behemoth the King of a Hundred Battles" {
+    id: 13836592
+    type: Effect Monster
+    attribute: EARTH
+    race: Beast
+    level: 10
+    atk: 2700
+    def: 1500
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    passive "Effect 5" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    passive "Effect 6" {
+        scope: self
+        grant: cannot_change_position
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: if
+        trigger: summoned
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: end_phase
+    }
+}

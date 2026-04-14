@@ -1,0 +1,32 @@
+card "Altergeist Adminia" {
+    id: 61470213
+    type: Link Monster
+    attribute: DARK
+    race: Spellcaster
+    link: 4
+    atk: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            send self to gy
+        }
+        resolve {
+            take_control (all, card, either controls)
+        }
+    }
+}

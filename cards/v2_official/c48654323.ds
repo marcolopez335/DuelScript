@@ -1,0 +1,36 @@
+card "White Relic of Dogmatika" {
+    id: 48654323
+    type: Ritual Monster
+    attribute: LIGHT
+    race: Spellcaster
+    level: 4
+    atk: 500
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

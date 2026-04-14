@@ -1,0 +1,30 @@
+card "Albion the Branded Dragon" {
+    id: 87746184
+    type: Fusion Monster
+    attribute: DARK
+    race: Dragon
+    level: 8
+    atk: 2500
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: end_phase
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

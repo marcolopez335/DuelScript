@@ -1,0 +1,37 @@
+card "Cyber Jormungardr" {
+    id: 19715246
+    type: Effect Monster | Effect Monster
+    attribute: LIGHT
+    race: Machine
+    level: 5
+    atk: 1000
+    def: 2100
+
+    summon {
+        tributes: 1
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

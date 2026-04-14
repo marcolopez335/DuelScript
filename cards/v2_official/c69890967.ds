@@ -1,0 +1,35 @@
+card "Raviel, Lord of Phantasms" {
+    id: 69890967
+    type: Effect Monster | Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 10
+    atk: 4000
+    def: 4000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        mandatory
+        trigger: summoned
+        resolve {
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            tribute self
+        }
+    }
+}

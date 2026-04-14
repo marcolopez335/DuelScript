@@ -1,0 +1,41 @@
+card "K9-17 Izuna" {
+    id: 92248362
+    type: Effect Monster
+    attribute: EARTH
+    race: Warrior
+    level: 5
+    atk: 2100
+    def: 1600
+
+    summon {
+        tributes: 1
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: hard
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

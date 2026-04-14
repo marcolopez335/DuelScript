@@ -1,0 +1,26 @@
+card "Dinomist Pteran" {
+    id: 64973287
+    type: Effect Monster | Pendulum Monster
+    attribute: WATER
+    race: Machine
+    level: 4
+    scale: 3
+    atk: 1800
+    def: 1200
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: battle_damage
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    replacement "Effect 1" {
+        instead_of: destroyed
+        do {
+            return self to extra_deck
+        }
+    }
+}

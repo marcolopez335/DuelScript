@@ -1,0 +1,25 @@
+card "Solemn Report" {
+    id: 78114463
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 0
+    def: 0
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            negate
+            banish (all, card, either controls)
+        }
+    }
+}

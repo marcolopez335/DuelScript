@@ -1,0 +1,22 @@
+card "Call of the Forgotten" {
+    id: 80749819
+    type: Field Spell
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

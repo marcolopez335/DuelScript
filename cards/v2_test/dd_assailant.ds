@@ -1,0 +1,24 @@
+// D.D.アサイラント
+// D.D. Assailant
+// When this card is destroyed by battle with an opponent's monster
+// and sent to the GY: Banish that opponent's monster and this card.
+
+card "D.D. Assailant" {
+    id: 70074904
+    type: Effect Monster
+    attribute: EARTH
+    race: Warrior
+    level: 4
+    atk: 1700
+    def: 1600
+
+    effect "Mutual Banish" {
+        speed: 1
+        mandatory
+        trigger: destroyed_by_battle
+        resolve {
+            banish self
+            banish (1, monster, opponent controls)
+        }
+    }
+}

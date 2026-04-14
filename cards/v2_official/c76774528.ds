@@ -1,0 +1,31 @@
+card "Scrap Dragon" {
+    id: 76774528
+    type: Synchro Monster
+    attribute: EARTH
+    race: Dragon
+    level: 8
+    atk: 2800
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

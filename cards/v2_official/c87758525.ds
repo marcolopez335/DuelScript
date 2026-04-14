@@ -1,0 +1,33 @@
+card "Favorite HERO Shining Flare Wingman" {
+    id: 87758525
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Warrior
+    level: 8
+    atk: 2500
+    def: 2100
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            return (all, card, either controls) to deck
+            draw 1
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: battle_damage
+        resolve {
+            damage opponent 1000
+        }
+    }
+}

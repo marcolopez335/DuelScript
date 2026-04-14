@@ -1,0 +1,27 @@
+card "Silent Psychic Wizard" {
+    id: 62950604
+    type: Effect Monster
+    attribute: EARTH
+    race: Psychic
+    level: 4
+    atk: 1900
+    def: 0
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

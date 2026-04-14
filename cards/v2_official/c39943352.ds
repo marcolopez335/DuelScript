@@ -1,0 +1,45 @@
+card "Daidaratant the Ooze Giant" {
+    id: 39943352
+    type: Xyz Monster | Pendulum Monster
+    attribute: WATER
+    race: Zombie
+    rank: 4
+    scale: 3
+    atk: 2400
+    def: 400
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+            send (all, card, either controls) to extra_deck
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

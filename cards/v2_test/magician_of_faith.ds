@@ -1,0 +1,22 @@
+// 聖なる魔術師
+// Magician of Faith
+// FLIP: Target 1 Spell in your GY; add that target to your hand.
+
+card "Magician of Faith" {
+    id: 31560081
+    type: Effect Monster | Flip
+    attribute: LIGHT
+    race: Spellcaster
+    level: 1
+    atk: 300
+    def: 400
+
+    effect "Recover Spell" {
+        speed: 1
+        mandatory
+        trigger: flipped
+        resolve {
+            add_to_hand (1, spell, in gy)
+        }
+    }
+}

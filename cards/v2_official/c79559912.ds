@@ -1,0 +1,35 @@
+card "D/D/D Wave High King Caesar" {
+    id: 79559912
+    type: Xyz Monster
+    attribute: WATER
+    race: Fiend
+    rank: 6
+    atk: 2800
+    def: 1800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+}

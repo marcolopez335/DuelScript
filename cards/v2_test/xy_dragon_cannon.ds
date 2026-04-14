@@ -1,0 +1,30 @@
+// XY－ドラゴン・キャノン
+// XY-Dragon Cannon
+// "X-Head Cannon" + "Y-Dragon Head"
+// Discard 1 card; destroy 1 face-up Spell or Trap on the field.
+
+card "XY-Dragon Cannon" {
+    id: 2111707
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Machine
+    level: 6
+    atk: 2200
+    def: 1900
+
+    summon {
+        cannot_normal_summon
+        fusion materials: "X-Head Cannon" + "Y-Dragon Head"
+    }
+
+    effect "Destroy Spell/Trap" {
+        speed: 1
+        cost {
+            discard (1, card)
+        }
+        target (1, card, either controls, face_up)
+        resolve {
+            destroy target
+        }
+    }
+}

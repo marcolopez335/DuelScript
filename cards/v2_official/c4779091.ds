@@ -1,0 +1,33 @@
+card "Yubel - Terror Incarnate" {
+    id: 4779091
+    type: Effect Monster | Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 11
+    atk: 0
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: end_phase
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

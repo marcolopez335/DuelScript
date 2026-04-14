@@ -1,0 +1,28 @@
+card "Frightfur Jar" {
+    id: 18138630
+    type: Continuous Trap
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+            draw 1
+            destroy (all, card, either controls)
+            return (all, card, either controls) to deck
+            return (all, card, either controls) to deck
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+        }
+    }
+}

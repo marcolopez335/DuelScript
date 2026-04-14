@@ -1,0 +1,46 @@
+card "Underground Arachnid" {
+    id: 63465535
+    type: Synchro Monster
+    attribute: EARTH
+    race: Insect
+    level: 6
+    atk: 2400
+    def: 1200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    passive "Effect 5" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    passive "Effect 6" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    passive "Effect 7" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+    }
+
+    replacement "Effect 3" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

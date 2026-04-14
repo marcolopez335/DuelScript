@@ -1,0 +1,34 @@
+card "Baby Spider" {
+    id: 60023855
+    type: Effect Monster
+    attribute: DARK
+    race: Insect
+    level: 3
+    atk: 0
+    def: 0
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            pay_lp your_lp / 2
+            banish self
+            detach 1 from self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

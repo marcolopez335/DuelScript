@@ -4,8 +4,6 @@
 //   duelscript check cards/           validate all .ds files
 //   duelscript check ash_blossom.ds   validate a single file
 //   duelscript inspect ash_blossom.ds pretty-print the AST
-//   duelscript fmt ash_blossom.ds     auto-format a .ds file
-//   duelscript fmt cards/             auto-format all .ds files
 // ============================================================
 
 use std::{
@@ -13,9 +11,7 @@ use std::{
     path::{Path, PathBuf},
     process,
 };
-use duelscript::{parse, validator::{validate, ValidationReport}};
-use duelscript::test_harness::{compile_file, DuelScenario};
-use duelscript::compiler::callback_gen::DuelScriptRuntime;
+use duelscript::{parse_v2, validate_v2};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -31,8 +27,6 @@ fn main() {
     match command.as_str() {
         "check"   => cmd_check(target),
         "inspect" => cmd_inspect(target),
-        "fmt"     => cmd_fmt(target),
-        "test"    => cmd_test(target),
         other => {
             eprintln!("Unknown command: '{}'\n", other);
             print_usage();
@@ -64,30 +58,36 @@ fn cmd_check(target: &Path) {
             }
         };
 
-        match parse(&source) {
+        match parse_v2(&source) {
             Err(e) => {
                 println!("✗ {} — PARSE ERROR: {}", path.display(), e);
                 total_errors += 1;
                 all_clean = false;
             }
             Ok(file) => {
-                let all_errors = validate(&file);
-                let report = ValidationReport::from(all_errors);
+                let report = validate_v2(&file);
                 files_checked += 1;
 
-                if report.is_clean() && report.warnings.is_empty() {
+                let errors: Vec<_> = report.errors.iter()
+                    .filter(|e| e.severity == duelscript::v2::validator::Severity::Error)
+                    .collect();
+                let warnings: Vec<_> = report.errors.iter()
+                    .filter(|e| e.severity == duelscript::v2::validator::Severity::Warning)
+                    .collect();
+
+                if errors.is_empty() && warnings.is_empty() {
                     println!("✓ {}", path.display());
                 } else {
                     all_clean = false;
                     println!("\n── {} ──", path.display());
-                    for e in &report.errors {
-                        println!("  [ERROR] {}: {}", e.card_name, e.message);
+                    for e in &errors {
+                        println!("  [ERROR] {}: {}", e.card, e.message);
                     }
-                    for w in &report.warnings {
-                        println!("  [WARN ] {}: {}", w.card_name, w.message);
+                    for w in &warnings {
+                        println!("  [WARN ] {}: {}", w.card, w.message);
                     }
-                    total_errors   += report.errors.len();
-                    total_warnings += report.warnings.len();
+                    total_errors   += errors.len();
+                    total_warnings += warnings.len();
                 }
             }
         }
@@ -114,7 +114,7 @@ fn cmd_inspect(target: &Path) {
         process::exit(1);
     });
 
-    let file = parse(&source).unwrap_or_else(|e| {
+    let file = parse_v2(&source).unwrap_or_else(|e| {
         eprintln!("Parse error in {}: {}", target.display(), e);
         process::exit(1);
     });
@@ -123,252 +123,38 @@ fn cmd_inspect(target: &Path) {
         println!("╔══════════════════════════════════════");
         println!("║  Card: {}", card.name);
         println!("╠══════════════════════════════════════");
-        println!("║  Types:      {:?}", card.card_types);
-        if let Some(attr)  = &card.attribute { println!("║  Attribute:  {:?}", attr); }
-        if let Some(race)  = &card.race      { println!("║  Race:       {:?}", race); }
-        if let Some(level) = card.level      { println!("║  Level:      {}", level); }
-        if let Some(rank)  = card.rank       { println!("║  Rank:       {}", rank); }
-        if let Some(link)  = card.link       { println!("║  Link:       {}", link); }
-        if let Some(scale) = card.scale      { println!("║  Scale:      {}", scale); }
-
-        if let Some(atk) = &card.stats.atk { println!("║  ATK:        {:?}", atk); }
-        if let Some(def) = &card.stats.def { println!("║  DEF:        {:?}", def); }
-
-        if !card.archetypes.is_empty() {
-            println!("║  Archetypes: {:?}", card.archetypes);
-        }
-        if !card.link_arrows.is_empty() {
-            println!("║  Arrows:     {:?}", card.link_arrows);
-        }
-        if !card.summon_conditions.is_empty() {
-            println!("║  Summon Conditions:");
-            for rule in &card.summon_conditions {
-                println!("║    {:?}", rule);
-            }
-        }
+        println!("║  Types:      {:?}", card.fields.card_types);
+        if let Some(attr)  = &card.fields.attribute  { println!("║  Attribute:  {:?}", attr); }
+        if let Some(race)  = &card.fields.race        { println!("║  Race:       {:?}", race); }
+        if let Some(level) = card.fields.level        { println!("║  Level:      {}", level); }
+        if let Some(rank)  = card.fields.rank         { println!("║  Rank:       {}", rank); }
+        if let Some(link)  = card.fields.link         { println!("║  Link:       {}", link); }
+        if let Some(scale) = card.fields.scale        { println!("║  Scale:      {}", scale); }
+        if let Some(atk)   = &card.fields.atk         { println!("║  ATK:        {:?}", atk); }
+        if let Some(def)   = &card.fields.def         { println!("║  DEF:        {:?}", def); }
 
         println!("║  Effects: {}", card.effects.len());
         for (i, effect) in card.effects.iter().enumerate() {
-            println!("║  ┌─ Effect {} {:?}", i + 1, effect.name);
-            println!("║  │  Speed:     {:?}", effect.body.speed);
-            println!("║  │  Frequency: {:?}", effect.body.frequency);
-            println!("║  │  Optional:  {}", effect.body.optional);
-            println!("║  │  Timing:    {:?}", effect.body.timing);
-            if let Some(c) = &effect.body.condition { println!("║  │  Condition: {:?}", c); }
-            if let Some(t) = &effect.body.trigger   { println!("║  │  Trigger:   {:?}", t); }
-            if !effect.body.cost.is_empty() {
-                println!("║  │  Cost:      {:?}", effect.body.cost);
+            println!("║  ┌─ Effect {} \"{}\"", i + 1, effect.name);
+            println!("║  │  Speed:     {:?}", effect.speed);
+            println!("║  │  Mandatory: {}", effect.mandatory);
+            println!("║  │  Timing:    {:?}", effect.timing);
+            if let Some(c) = &effect.condition { println!("║  │  Condition: {:?}", c); }
+            if let Some(t) = &effect.trigger   { println!("║  │  Trigger:   {:?}", t); }
+            if !effect.cost.is_empty() {
+                println!("║  │  Cost:      {:?}", effect.cost);
             }
-            println!("║  │  Resolve actions: {}", effect.body.on_resolve.len());
-            for action in &effect.body.on_resolve {
+            println!("║  │  Resolve actions: {}", effect.resolve.len());
+            for action in &effect.resolve {
                 println!("║  │    {:?}", action);
             }
         }
 
-        if !card.continuous_effects.is_empty() {
-            println!("║  Continuous Effects: {}", card.continuous_effects.len());
-        }
-        if !card.replacement_effects.is_empty() {
-            println!("║  Replacement Effects: {}", card.replacement_effects.len());
-            for re in &card.replacement_effects {
-                println!("║    Instead of: {:?}", re.instead_of);
-            }
-        }
-        if let Some(wc) = &card.win_condition {
-            println!("║  Win Condition: {:?} → {:?}", wc.trigger, wc.result);
-        }
         println!("╚══════════════════════════════════════\n");
     }
 }
 
-fn cmd_fmt(target: &Path) {
-    // Sprint 19: real formatter via brace-aware reflow.
-    //
-    // Reads each .ds file, applies the canonical formatting pass,
-    // verifies the result still parses, and writes the file back
-    // if it changed. Set DUELSCRIPT_FMT_CHECK=1 to dry-run instead
-    // (exit non-zero if any file would change).
-    let check_only = std::env::var("DUELSCRIPT_FMT_CHECK").ok().as_deref() == Some("1");
-    let files = collect_ds_files(target);
-    if files.is_empty() {
-        eprintln!("No .ds files found at: {}", target.display());
-        process::exit(1);
-    }
-
-    println!("duelscript fmt — formatting {} file(s){}\n",
-        files.len(), if check_only { " (check only)" } else { "" });
-
-    let mut changed = 0;
-    let mut clean = 0;
-    let mut errors = 0;
-
-    for path in &files {
-        let source = match fs::read_to_string(path) {
-            Ok(s)  => s,
-            Err(e) => {
-                eprintln!("  ✗ {} — read error: {}", path.display(), e);
-                errors += 1;
-                continue;
-            }
-        };
-        let formatted = duelscript::format_source(&source);
-
-        // Sanity check: the formatted output must still parse.
-        if let Err(e) = parse(&formatted) {
-            eprintln!("  ✗ {} — fmt produced invalid output: {}", path.display(), e);
-            errors += 1;
-            continue;
-        }
-
-        if formatted == source {
-            clean += 1;
-            continue;
-        }
-        changed += 1;
-        if check_only {
-            println!("  Δ {}", path.display());
-        } else {
-            match fs::write(path, &formatted) {
-                Ok(_)  => println!("  ✓ {}", path.display()),
-                Err(e) => {
-                    eprintln!("  ✗ {} — write error: {}", path.display(), e);
-                    errors += 1;
-                }
-            }
-        }
-    }
-
-    println!("\n{} formatted, {} clean, {} errors",
-        if check_only { 0 } else { changed }, clean, errors);
-    if check_only && changed > 0 {
-        eprintln!("{} file(s) need formatting (run without DUELSCRIPT_FMT_CHECK=1 to apply)",
-            changed);
-        process::exit(1);
-    }
-    if errors > 0 { process::exit(1); }
-}
-
 // ── File Collection ───────────────────────────────────────────
-
-fn cmd_test(target: &Path) {
-    if !target.exists() || !target.is_file() {
-        eprintln!("File not found: {}", target.display());
-        process::exit(1);
-    }
-
-    // Compile the card
-    let compiled = match compile_file(target) {
-        Ok(c) => c,
-        Err(e) => {
-            eprintln!("Compile error: {}", e);
-            process::exit(1);
-        }
-    };
-
-    println!("Testing: {} ({})", compiled.name, compiled.card_id);
-    println!("  Effects: {}", compiled.effects.len());
-    println!();
-
-    // Set up a MockRuntime with sensible defaults
-    let mut rt = DuelScenario::new()
-        .player(0).hand([compiled.card_id])
-        .player(0).deck([1001, 1002, 1003, 1004, 1005])
-        .player(1).deck([2001, 2002, 2003, 2004, 2005])
-        .activated_by(0, compiled.card_id)
-        .build();
-
-    let mut any_failed = false;
-
-    for (i, eff) in compiled.effects.iter().enumerate() {
-        let eff_name = format!("Effect {}", i + 1);
-        println!("  Effect {} \"{}\":", i + 1, eff_name);
-
-        // Condition
-        let cond_ok = if let Some(ref cond) = eff.callbacks.condition {
-            let ok = cond(&rt);
-            println!("    Condition: {}", if ok { "PASS" } else { "FAIL" });
-            ok
-        } else {
-            println!("    Condition: NONE (always true)");
-            true
-        };
-
-        if !cond_ok {
-            println!("    Skipped (condition failed)");
-            println!();
-            continue;
-        }
-
-        // Cost
-        if let Some(ref cost) = eff.callbacks.cost {
-            let can_pay = cost(&mut rt, true);
-            println!("    Cost check: {}", if can_pay { "CAN PAY" } else { "CANNOT PAY" });
-            if can_pay {
-                cost(&mut rt, false);
-                println!("    Cost paid");
-            } else {
-                println!("    Skipped (can't pay cost)");
-                println!();
-                continue;
-            }
-        } else {
-            println!("    Cost: NONE");
-        }
-
-        // Target
-        if let Some(ref target) = eff.callbacks.target {
-            let has_targets = target(&mut rt, true);
-            println!("    Targets: {}", if has_targets { "FOUND" } else { "NONE VALID" });
-            if has_targets {
-                target(&mut rt, false);
-            }
-        } else {
-            println!("    Target: NONE");
-        }
-
-        // Operation
-        if let Some(ref op) = eff.callbacks.operation {
-            let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                op(&mut rt);
-            }));
-            match result {
-                Ok(()) => {
-                    println!("    Operation: OK");
-                    // Print what happened
-                    let calls = rt.dump_calls();
-                    if !calls.is_empty() {
-                        for line in calls.lines().take(10) {
-                            println!("      {}", line);
-                        }
-                    }
-                }
-                Err(_) => {
-                    println!("    Operation: PANIC!");
-                    any_failed = true;
-                }
-            }
-        } else {
-            println!("    Operation: NONE");
-        }
-
-        println!();
-    }
-
-    // Final state
-    println!("  State after:");
-    println!("    Player 0: hand={}, deck={}, LP={}",
-        rt.get_hand_count(0), rt.get_deck_count(0), rt.get_lp(0));
-    println!("    Player 1: hand={}, deck={}, LP={}",
-        rt.get_hand_count(1), rt.get_deck_count(1), rt.get_lp(1));
-    println!();
-
-    if any_failed {
-        println!("  RESULT: FAILED (operation panicked)");
-        process::exit(1);
-    } else {
-        println!("  RESULT: ALL EFFECTS OK");
-    }
-}
 
 fn collect_ds_files(target: &Path) -> Vec<PathBuf> {
     if target.is_file() {
@@ -403,7 +189,7 @@ fn collect_ds_recursive(dir: &Path, out: &mut Vec<PathBuf>) {
 // ── Usage ─────────────────────────────────────────────────────
 
 fn print_usage() {
-    println!("DuelScript CLI v0.3");
+    println!("DuelScript CLI v{}", env!("CARGO_PKG_VERSION"));
     println!();
     println!("USAGE:");
     println!("  duelscript <command> <target>");
@@ -411,12 +197,9 @@ fn print_usage() {
     println!("COMMANDS:");
     println!("  check   <file.ds | directory>   Validate .ds files for errors and warnings");
     println!("  inspect <file.ds>               Pretty-print the parsed AST of a card");
-    println!("  fmt     <file.ds | directory>   Auto-format .ds files");
-    println!("  test    <file.ds>               Compile + run effects against MockRuntime");
     println!();
     println!("EXAMPLES:");
     println!("  duelscript check cards/");
-    println!("  duelscript check cards/ash_blossom.ds");
-    println!("  duelscript inspect cards/stardust_dragon.ds");
-    println!("  duelscript fmt cards/");
+    println!("  duelscript check cards/v2_test/pot_of_greed.ds");
+    println!("  duelscript inspect cards/v2_test/stardust_dragon.ds");
 }

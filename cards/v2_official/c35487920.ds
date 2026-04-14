@@ -1,0 +1,33 @@
+card "Live☆Twin Channel" {
+    id: 35487920
+    type: Field Spell
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: summoned
+        cost {
+            tribute self
+        }
+        resolve {
+            negate
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: end_phase
+        resolve {
+            add_to_hand (all, card, either controls)
+            return (all, card, either controls) to deck
+        }
+    }
+}

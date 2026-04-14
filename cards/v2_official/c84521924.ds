@@ -1,0 +1,24 @@
+card "GranSolfachord Coolia" {
+    id: 84521924
+    type: Link Monster
+    attribute: LIGHT
+    race: Fairy
+    link: 3
+    atk: 2700
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            special_summon (all, card, either controls)
+            send (all, card, either controls) to gy
+            send (all, card, either controls) to extra_deck
+        }
+    }
+}

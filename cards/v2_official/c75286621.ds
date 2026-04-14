@@ -1,0 +1,24 @@
+card "Invoked Mechaba" {
+    id: 75286621
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Machine
+    level: 9
+    atk: 2500
+    def: 2100
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            banish (all, card, either controls)
+        }
+    }
+}

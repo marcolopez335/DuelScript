@@ -1,0 +1,33 @@
+card "Predaprimitive" {
+    id: 89176044
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 0
+    def: 0
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        cost {
+            banish self
+        }
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

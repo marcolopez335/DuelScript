@@ -1,0 +1,28 @@
+// マシュマロン
+// Marshmallon
+// Cannot be destroyed by battle. After being attacked while face-down:
+// The attacking player takes 1000 damage.
+
+card "Marshmallon" {
+    id: 31305911
+    type: Effect Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 3
+    atk: 300
+    def: 500
+
+    passive "Indestructible" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Burn on Flip" {
+        speed: 1
+        mandatory
+        trigger: flipped
+        resolve {
+            damage opponent 1000
+        }
+    }
+}

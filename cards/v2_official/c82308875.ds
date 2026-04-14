@@ -1,0 +1,27 @@
+card "Number 7: Lucky Straight" {
+    id: 82308875
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Fairy
+    rank: 7
+    atk: 700
+    def: 700
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            send (all, card, either controls) to gy
+            special_summon (all, card, either controls)
+            draw 3
+            discard (all, card, either controls)
+        }
+    }
+}

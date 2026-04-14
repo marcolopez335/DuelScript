@@ -1,0 +1,31 @@
+card "The Phantom Knights of Rusty Bardiche" {
+    id: 26692769
+    type: Link Monster
+    attribute: DARK
+    race: Warrior
+    link: 3
+    atk: 2100
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,35 @@
+card "F.A. Dawn Dragster" {
+    id: 33158448
+    type: Synchro Monster
+    attribute: LIGHT
+    race: Machine
+    level: 7
+    atk: 0
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: piercing
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

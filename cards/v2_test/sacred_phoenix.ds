@@ -1,0 +1,37 @@
+// ネフティスの鳳凰神
+// Sacred Phoenix of Nephthys
+// When destroyed by card effect: Special Summon it during next Standby.
+// When Special Summoned this way: Destroy all Spell/Traps on the field.
+
+card "Sacred Phoenix of Nephthys" {
+    id: 61441708
+    type: Effect Monster
+    attribute: FIRE
+    race: Winged Beast
+    level: 8
+    atk: 2400
+    def: 1600
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Self Revive" {
+        speed: 1
+        mandatory
+        trigger: destroyed_by_effect
+        resolve {
+            special_summon self from gy
+        }
+    }
+
+    effect "Destroy Spells/Traps" {
+        speed: 1
+        mandatory
+        trigger: special_summoned
+        resolve {
+            destroy (all, spell, either controls)
+            destroy (all, trap, either controls)
+        }
+    }
+}

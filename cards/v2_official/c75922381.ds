@@ -1,0 +1,23 @@
+card "Spright Red" {
+    id: 75922381
+    type: Effect Monster
+    attribute: FIRE
+    race: Thunder
+    level: 2
+    atk: 1200
+    def: 1800
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            tribute self
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

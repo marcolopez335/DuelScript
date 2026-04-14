@@ -1,0 +1,40 @@
+card "The Wicked Eraser" {
+    id: 57793869
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 10
+    atk: ?
+    def: ?
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 6" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    passive "Effect 7" {
+        scope: self
+        grant: cannot_change_position
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 5" {
+        speed: 1
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

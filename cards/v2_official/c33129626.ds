@@ -1,0 +1,32 @@
+card "Centaur Mina" {
+    id: 33129626
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Beast-Warrior
+    level: 6
+    atk: 2200
+    def: 1600
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

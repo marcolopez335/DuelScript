@@ -1,0 +1,25 @@
+card "Sauravis, the Ancient and Ascended" {
+    id: 4810828
+    type: Ritual Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 7
+    atk: 2600
+    def: 2800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            discard (all, card, either controls)
+        }
+        resolve {
+            negate
+        }
+    }
+}

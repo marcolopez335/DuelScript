@@ -1,0 +1,28 @@
+// 炎帝テスタロス
+// Thestalos the Firestorm Monarch
+// When this card is Tribute Summoned: Discard 1 random card from
+// your opponent's hand, then if it was a Monster Card, inflict
+// damage equal to its Level x 100.
+
+card "Thestalos the Firestorm Monarch" {
+    id: 26205777
+    type: Effect Monster
+    attribute: FIRE
+    race: Pyro
+    level: 6
+    atk: 2400
+    def: 1000
+
+    summon {
+        tributes: 1
+    }
+
+    effect "Discard and Burn" {
+        speed: 1
+        mandatory
+        trigger: tribute_summoned
+        resolve {
+            discard (1, card, opponent controls)
+        }
+    }
+}

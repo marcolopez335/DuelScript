@@ -1,0 +1,28 @@
+card "Morphtronic Slingen" {
+    id: 75775867
+    type: Effect Monster
+    attribute: WIND
+    race: Machine
+    level: 4
+    atk: 1200
+    def: 800
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    replacement "Effect 2" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

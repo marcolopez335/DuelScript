@@ -1,0 +1,31 @@
+card "Primineral Kongreat" {
+    id: 49729312
+    type: Effect Monster | Effect Monster
+    attribute: EARTH
+    race: Rock
+    level: 8
+    atk: 3000
+    def: 2000
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_active"
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

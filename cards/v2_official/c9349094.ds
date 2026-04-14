@@ -1,0 +1,34 @@
+card "Sacred Tree Beast, Hyperyton" {
+    id: 9349094
+    type: Xyz Monster
+    attribute: EARTH
+    race: Plant
+    rank: 9
+    atk: 2600
+    def: 1900
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            send (all, card, either controls) to gy
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,36 @@
+card "Goblin's Crazy Beast" {
+    id: 71100270
+    type: Xyz Monster
+    attribute: DARK
+    race: Fiend
+    rank: 6
+    atk: 2700
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    replacement "Effect 2" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

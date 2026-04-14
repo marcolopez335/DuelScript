@@ -1,0 +1,27 @@
+card "Avida, Rebuilder of Worlds" {
+    id: 17469113
+    type: Effect Monster | Effect Monster
+    attribute: LIGHT
+    race: Cyberse
+    level: 11
+    atk: 3500
+    def: 3500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 6" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 5" {
+        speed: 1
+        mandatory
+        trigger: summoned by special
+        resolve {
+            return (all, card, either controls) to deck
+        }
+    }
+}

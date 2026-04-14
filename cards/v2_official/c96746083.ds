@@ -1,0 +1,34 @@
+card "True King Agnimazud, the Vanisher" {
+    id: 96746083
+    type: Effect Monster
+    attribute: FIRE
+    race: Wyrm
+    level: 9
+    atk: 2900
+    def: 1900
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+            special_summon (all, card, either controls)
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: destroyed
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

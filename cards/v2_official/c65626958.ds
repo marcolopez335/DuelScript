@@ -1,0 +1,38 @@
+card "Nordic Beast Gullinbursti" {
+    id: 65626958
+    type: Effect Monster | Tuner
+    attribute: LIGHT
+    race: Beast
+    level: 3
+    atk: 300
+    def: 100
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

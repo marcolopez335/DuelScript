@@ -1,0 +1,20 @@
+card "Fortune Fairy Hikari" {
+    id: 6311717
+    type: Effect Monster
+    attribute: LIGHT
+    race: Spellcaster
+    level: 1
+    atk: 0
+    def: 0
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+            send (all, card, either controls) to gy
+            special_summon (all, card, either controls)
+        }
+    }
+}

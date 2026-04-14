@@ -1,0 +1,23 @@
+card "Dracotail Gulamel" {
+    id: 79755671
+    type: Fusion Monster
+    attribute: WATER
+    race: Spellcaster
+    level: 7
+    atk: 2800
+    def: 2300
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

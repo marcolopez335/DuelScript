@@ -1,0 +1,31 @@
+card "Hot Red Dragon Archfiend Abyss" {
+    id: 9753964
+    type: Synchro Monster
+    attribute: DARK
+    race: Dragon
+    level: 9
+    atk: 3200
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        resolve {
+            negate
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: destroyed_by_battle
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

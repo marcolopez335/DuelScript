@@ -1,0 +1,24 @@
+// レスキューキャット
+// Rescue Cat
+// Send this card to the GY; Special Summon 2 Level 3 or lower
+// Beast monsters from your Deck. They are destroyed during the End Phase.
+
+card "Rescue Cat" {
+    id: 14878871
+    type: Effect Monster
+    attribute: EARTH
+    race: Beast
+    level: 4
+    atk: 300
+    def: 100
+
+    effect "Summon Beasts" {
+        speed: 1
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (2, monster, where race == Beast and level <= 3) from deck
+        }
+    }
+}

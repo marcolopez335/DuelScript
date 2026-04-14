@@ -1,0 +1,37 @@
+card "Blackwing Full Armor Master" {
+    id: 54082269
+    type: Synchro Monster
+    attribute: DARK
+    race: Winged Beast
+    level: 10
+    atk: 3000
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            take_control (all, card, either controls)
+        }
+    }
+
+    effect "Effect 5" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: end_phase
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

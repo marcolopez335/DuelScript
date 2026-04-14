@@ -1,0 +1,31 @@
+card "CXyz Comics Hero Legend Arthur" {
+    id: 13030280
+    type: Xyz Monster
+    attribute: EARTH
+    race: Warrior
+    rank: 5
+    atk: 3000
+    def: 2400
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: battle_damage
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            banish (all, card, either controls)
+            damage opponent 1000
+        }
+    }
+}

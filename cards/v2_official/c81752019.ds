@@ -1,0 +1,29 @@
+card "Flower Cardian Pine" {
+    id: 81752019
+    type: Effect Monster
+    attribute: DARK
+    race: Warrior
+    level: 1
+    atk: 100
+    def: 100
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        trigger: summoned
+        resolve {
+            draw 1
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            draw 1
+        }
+    }
+}

@@ -1,0 +1,27 @@
+card "Dimensional Alchemist" {
+    id: 36733451
+    type: Effect Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 4
+    atk: 1300
+    def: 200
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

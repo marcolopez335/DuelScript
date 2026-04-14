@@ -1,0 +1,40 @@
+card "Majespecter Raccoon - Bunbuku" {
+    id: 31991800
+    type: Effect Monster | Pendulum Monster
+    attribute: WIND
+    race: Spellcaster
+    level: 3
+    scale: 5
+    atk: 1200
+    def: 900
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: summoned
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

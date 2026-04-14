@@ -1,0 +1,32 @@
+card "Boot-Up Admiral - Destroyer Dynamo" {
+    id: 36322312
+    type: Effect Monster | Effect Monster
+    attribute: EARTH
+    race: Machine
+    level: 8
+    atk: 2500
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 5" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

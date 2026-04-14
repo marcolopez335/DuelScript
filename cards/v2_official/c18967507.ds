@@ -1,0 +1,47 @@
+card "Cyberdarkness Dragon" {
+    id: 18967507
+    type: Fusion Monster
+    attribute: DARK
+    race: Machine
+    level: 10
+    atk: 2000
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 5" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    passive "Effect 6" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    passive "Effect 7" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            send self to gy
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,26 @@
+card "Decisive Battle of Golgonda" {
+    id: 70485614
+    type: Continuous Spell
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: end_phase
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    replacement "Effect 3" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

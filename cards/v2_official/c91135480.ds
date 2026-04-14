@@ -1,0 +1,44 @@
+card "Time Thief Double Barrel" {
+    id: 91135480
+    type: Xyz Monster
+    attribute: DARK
+    race: Psychic
+    rank: 4
+    atk: 2200
+    def: 2200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    passive "Effect 5" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    passive "Effect 6" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            send (all, card, either controls) to gy
+            take_control (all, card, either controls)
+        }
+    }
+}

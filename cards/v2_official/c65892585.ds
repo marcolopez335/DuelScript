@@ -1,0 +1,37 @@
+card "Gold Pride - Chariot Carrie" {
+    id: 65892585
+    type: Xyz Monster
+    attribute: WATER
+    race: Aqua
+    rank: 3
+    atk: 1900
+    def: 2700
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: end_phase
+        resolve {
+            return (all, card, either controls) to deck
+            special_summon (all, card, either controls)
+        }
+    }
+}

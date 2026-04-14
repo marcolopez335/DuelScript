@@ -1,0 +1,32 @@
+card "Ursarctic Grand Chariot" {
+    id: 80086070
+    type: Synchro Monster
+    attribute: WATER
+    race: Beast-Warrior
+    level: 7
+    atk: 2700
+    def: 700
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+        }
+    }
+}

@@ -1,0 +1,27 @@
+// 雷帝ザボルグ
+// Zaborg the Thunder Monarch (alt ID)
+// When Tribute Summoned: Target 1 monster; destroy it.
+
+card "Zaborg the Thunder Monarch" {
+    id: 39507162
+    type: Effect Monster
+    attribute: LIGHT
+    race: Thunder
+    level: 5
+    atk: 2400
+    def: 1000
+
+    summon {
+        tributes: 1
+    }
+
+    effect "Destroy Monster" {
+        speed: 1
+        mandatory
+        trigger: tribute_summoned
+        target (1, monster, either controls)
+        resolve {
+            destroy target
+        }
+    }
+}

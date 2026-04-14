@@ -1,0 +1,46 @@
+// 月読命
+// Tsukuyomi
+// Cannot be Special Summoned. When Normal Summoned or flipped face-up:
+// Target 1 face-up monster; change it to face-down Defense Position.
+// During the End Phase, return this card to the hand.
+
+card "Tsukuyomi" {
+    id: 34853266
+    type: Effect Monster | Spirit
+    attribute: DARK
+    race: Spellcaster
+    level: 4
+    atk: 1100
+    def: 1400
+
+    summon {
+        cannot_special_summon
+    }
+
+    effect "Flip Face-Down" {
+        speed: 1
+        trigger: normal_summoned
+        target (1, monster, either controls, face_up)
+        resolve {
+            flip_down target
+        }
+    }
+
+    effect "Flip on Flip" {
+        speed: 1
+        trigger: flipped
+        target (1, monster, either controls, face_up)
+        resolve {
+            flip_down target
+        }
+    }
+
+    effect "Spirit Return" {
+        speed: 1
+        mandatory
+        trigger: end_phase
+        resolve {
+            return self to hand
+        }
+    }
+}

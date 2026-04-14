@@ -1,0 +1,23 @@
+card "Buster Gundil the Cubic Behemoth" {
+    id: 4998619
+    type: Effect Monster | Effect Monster
+    attribute: LIGHT
+    race: Beast
+    level: 4
+    atk: 0
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+            return (all, card, either controls) to hand
+        }
+    }
+}

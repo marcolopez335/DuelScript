@@ -1,0 +1,38 @@
+card "Yummy★Snatchy" {
+    id: 30581601
+    type: Link Monster
+    attribute: LIGHT
+    race: Beast
+    link: 1
+    atk: 600
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            send (all, card, either controls) to gy
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            pay_lp 100
+        }
+        resolve {
+        }
+    }
+}

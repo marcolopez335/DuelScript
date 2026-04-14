@@ -1,0 +1,38 @@
+card "D/D/D Destiny King Zero Laplace" {
+    id: 21686473
+    type: Effect Monster | Pendulum Monster
+    attribute: DARK
+    race: Fiend
+    level: 10
+    scale: 1
+    atk: ?
+    def: 0
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: piercing
+    }
+
+    passive "Effect 5" {
+        scope: self
+        grant: cannot_be_destroyed
+    }
+
+    passive "Effect 6" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

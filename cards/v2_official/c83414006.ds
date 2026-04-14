@@ -1,0 +1,34 @@
+card "Vision HERO Poisoner" {
+    id: 83414006
+    type: Effect Monster
+    attribute: DARK
+    race: Warrior
+    level: 3
+    atk: 900
+    def: 700
+
+    passive "Effect 5" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+        }
+    }
+}

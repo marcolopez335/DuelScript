@@ -1,0 +1,33 @@
+card "Wiz, Sage Fur Hire" {
+    id: 1527418
+    type: Effect Monster
+    attribute: WATER
+    race: Spellcaster
+    level: 7
+    atk: 1600
+    def: 2800
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            gain_lp 1000
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+        }
+    }
+}

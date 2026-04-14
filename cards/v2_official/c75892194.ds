@@ -1,0 +1,26 @@
+card "Ancient Gear Dragon" {
+    id: 75892194
+    type: Effect Monster
+    attribute: EARTH
+    race: Machine
+    level: 5
+    atk: 500
+    def: 2500
+
+    summon {
+        tributes: 1
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            send self to gy
+        }
+        resolve {
+            negate
+        }
+    }
+}

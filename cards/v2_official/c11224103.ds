@@ -1,0 +1,30 @@
+card "Horus the Black Flame Dragon LV6" {
+    id: 11224103
+    type: Effect Monster
+    attribute: FIRE
+    race: Dragon
+    level: 6
+    atk: 2300
+    def: 1600
+
+    summon {
+        tributes: 1
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: when
+        trigger: end_phase
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

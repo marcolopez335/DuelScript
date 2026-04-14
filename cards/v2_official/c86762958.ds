@@ -1,0 +1,41 @@
+card "Assist★Yummy!" {
+    id: 86762958
+    type: Continuous Trap
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: standby_phase
+        resolve {
+            gain_lp 100
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: hard
+        cost {
+            send self to gy
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        once_per_turn: hard
+        cost {
+            banish self
+        }
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

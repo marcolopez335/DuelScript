@@ -1,0 +1,41 @@
+card "Erebus the Underworld Monarch" {
+    id: 23064604
+    type: Effect Monster
+    attribute: DARK
+    race: Zombie
+    level: 8
+    atk: 2800
+    def: 1000
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_change_position
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: if
+        trigger: summoned
+        resolve {
+            send (all, card, either controls) to gy
+            return (all, card, either controls) to deck
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

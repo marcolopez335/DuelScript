@@ -1,0 +1,31 @@
+card "Tri-Brigade Rugal the Silver Sheller" {
+    id: 52331012
+    type: Link Monster
+    attribute: EARTH
+    race: Beast-Warrior
+    link: 3
+    atk: 2300
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        resolve {
+            special_summon (all, card, either controls)
+            return (all, card, either controls) to hand
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+        }
+    }
+}

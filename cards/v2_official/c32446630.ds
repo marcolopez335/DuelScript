@@ -1,0 +1,29 @@
+card "Number C43: High Manipulator of Chaos" {
+    id: 32446630
+    type: Xyz Monster
+    attribute: DARK
+    race: Fiend
+    rank: 3
+    atk: 0
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+}

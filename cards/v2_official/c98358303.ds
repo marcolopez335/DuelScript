@@ -1,0 +1,28 @@
+card "Serene Psychic Witch" {
+    id: 98358303
+    type: Effect Monster
+    attribute: EARTH
+    race: Psychic
+    level: 3
+    atk: 1400
+    def: 1200
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: custom "chain_end"
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: standby_phase
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

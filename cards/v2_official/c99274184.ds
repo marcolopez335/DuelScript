@@ -1,0 +1,24 @@
+card "Crystron Impact" {
+    id: 99274184
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            banish self
+        }
+        resolve {
+            negate
+        }
+    }
+}

@@ -1,0 +1,41 @@
+card "Geistgrinder Golem" {
+    id: 26913989
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 8
+    atk: 3000
+    def: 300
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: summoned
+        resolve {
+            gain_lp 3000
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: when
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

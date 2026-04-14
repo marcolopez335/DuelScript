@@ -1,0 +1,24 @@
+card "Twilight Eraser" {
+    id: 57348141
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,28 @@
+card "Speedroid Skull Marbles" {
+    id: 35494087
+    type: Effect Monster
+    attribute: WIND
+    race: Machine
+    level: 7
+    atk: 0
+    def: 3000
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: standby_phase
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

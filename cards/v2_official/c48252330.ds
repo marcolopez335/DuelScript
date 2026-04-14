@@ -1,0 +1,27 @@
+card "Madolche Butlerusk" {
+    id: 48252330
+    type: Effect Monster
+    attribute: EARTH
+    race: Spellcaster
+    level: 4
+    atk: 1500
+    def: 800
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            return (all, card, either controls) to deck
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+}

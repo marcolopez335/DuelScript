@@ -1,0 +1,33 @@
+card "Evil HERO Infernal Sniper" {
+    id: 50282757
+    type: Fusion Monster
+    attribute: FIRE
+    race: Fiend
+    level: 6
+    atk: 2000
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: standby_phase
+        resolve {
+            damage opponent 1000
+        }
+    }
+}

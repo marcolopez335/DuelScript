@@ -1,0 +1,41 @@
+card "Abominable Unchained Soul" {
+    id: 1966438
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 8
+    atk: 3000
+    def: 1500
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: if
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: end_phase
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

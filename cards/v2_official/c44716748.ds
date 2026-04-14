@@ -1,0 +1,41 @@
+card "Trito Enneacraft - 'exapatisIA'" {
+    id: 44716748
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 0
+    def: 0
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            pay_lp 900
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        mandatory
+        trigger: custom "chain_active"
+        resolve {
+            destroy (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 5" {
+        speed: 1
+        mandatory
+        cost {
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

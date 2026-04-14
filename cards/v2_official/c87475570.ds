@@ -1,0 +1,26 @@
+card "Crystal Master" {
+    id: 87475570
+    type: Effect Monster | Pendulum Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 3
+    scale: 5
+    atk: 1300
+    def: 1000
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,29 @@
+card "Dark Infant @Ignister" {
+    id: 74567889
+    type: Link Monster
+    attribute: DARK
+    race: Cyberse
+    link: 1
+    atk: 500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+    }
+}

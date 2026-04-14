@@ -1,0 +1,31 @@
+card "Drytron Meteonis Draconids" {
+    id: 69815951
+    type: Ritual Monster
+    attribute: LIGHT
+    race: Machine
+    level: 12
+    atk: 4000
+    def: 4000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: attack_all_monsters
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        once_per_turn: hard
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

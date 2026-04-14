@@ -1,0 +1,36 @@
+card "Fortune Lady Every" {
+    id: 70252926
+    type: Synchro Monster
+    attribute: LIGHT
+    race: Spellcaster
+    level: 7
+    atk: ?
+    def: ?
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: standby_phase
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: end_phase
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,33 @@
+card "Scrap Worm" {
+    id: 32761286
+    type: Effect Monster | Tuner
+    attribute: EARTH
+    race: Insect
+    level: 2
+    atk: 500
+    def: 100
+
+    passive "Effect 4" {
+        scope: self
+        grant: direct_attack
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: standby_phase
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: destroyed
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

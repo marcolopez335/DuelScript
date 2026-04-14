@@ -1,0 +1,33 @@
+card "Auram the World Chalice Blademaster" {
+    id: 4709881
+    type: Link Monster
+    attribute: FIRE
+    race: Cyberse
+    link: 2
+    atk: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

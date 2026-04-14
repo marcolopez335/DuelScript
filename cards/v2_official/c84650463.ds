@@ -1,0 +1,30 @@
+card "Slushy" {
+    id: 84650463
+    type: Effect Monster
+    attribute: WATER
+    race: Aqua
+    level: 2
+    atk: 0
+    def: 0
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,21 @@
+card "Quick Booster" {
+    id: 45869829
+    type: Quick-Play Spell
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+        resolve {
+            return (all, card, either controls) to deck
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

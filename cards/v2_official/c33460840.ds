@@ -1,0 +1,62 @@
+card "Guardian of Felgrand" {
+    id: 33460840
+    type: Effect Monster
+    attribute: LIGHT
+    race: Warrior
+    level: 4
+    atk: 500
+    def: 500
+
+    passive "Effect 5" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    passive "Effect 6" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    passive "Effect 7" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    passive "Effect 9" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    passive "Effect 10" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    passive "Effect 11" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: if
+        trigger: summoned
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

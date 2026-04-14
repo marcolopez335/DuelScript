@@ -1,0 +1,23 @@
+card "Shinobaron Peacock" {
+    id: 52900000
+    type: Ritual Monster | Flip
+    attribute: WIND
+    race: Winged Beast
+    level: 8
+    atk: 3000
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

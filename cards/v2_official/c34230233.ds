@@ -1,0 +1,23 @@
+card "Grapha, Dragon Lord of Dark World" {
+    id: 34230233
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 8
+    atk: 2700
+    def: 1800
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            destroy (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,30 @@
+card "Ice Master" {
+    id: 32750510
+    type: Effect Monster
+    attribute: WATER
+    race: Spellcaster
+    level: 8
+    atk: 2500
+    def: 2000
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

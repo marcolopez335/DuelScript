@@ -1,0 +1,36 @@
+card "World Legacy - 'World Ark'" {
+    id: 42388271
+    type: Effect Monster
+    attribute: DARK
+    race: Machine
+    level: 7
+    atk: 2500
+    def: 500
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: destroyed
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

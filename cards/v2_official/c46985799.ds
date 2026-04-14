@@ -1,0 +1,58 @@
+card "Black Rose Dragon/Assault Mode" {
+    id: 46985799
+    type: Effect Monster | Effect Monster
+    attribute: FIRE
+    race: Dragon
+    level: 9
+    atk: 2900
+    def: 2300
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 5" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: if
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+        }
+        resolve {
+            return (all, card, either controls) to deck
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: summoned by special
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

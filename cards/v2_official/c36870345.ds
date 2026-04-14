@@ -1,0 +1,27 @@
+card "Dragunity Aklys" {
+    id: 36870345
+    type: Effect Monster | Tuner
+    attribute: WIND
+    race: Dragon
+    level: 2
+    atk: 1000
+    def: 800
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

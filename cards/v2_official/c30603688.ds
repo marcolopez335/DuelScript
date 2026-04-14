@@ -1,0 +1,40 @@
+card "Apprentice Illusion Magician" {
+    id: 30603688
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 6
+    atk: 2000
+    def: 1700
+
+    summon {
+        tributes: 1
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: summoned
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        timing: when
+        trigger: summoned
+        cost {
+            send self to gy
+        }
+    }
+}

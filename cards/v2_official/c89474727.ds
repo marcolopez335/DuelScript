@@ -1,0 +1,30 @@
+card "Stardust Chronicle Spark Dragon" {
+    id: 89474727
+    type: Synchro Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 10
+    atk: 3000
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            banish self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

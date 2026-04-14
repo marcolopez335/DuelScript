@@ -1,0 +1,30 @@
+card "Ikelos, the Dream Mirror Mara" {
+    id: 75888208
+    type: Effect Monster
+    attribute: DARK
+    race: Fairy
+    level: 1
+    atk: 500
+    def: 0
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

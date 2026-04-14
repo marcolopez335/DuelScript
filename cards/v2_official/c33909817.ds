@@ -1,0 +1,38 @@
+card "Sylvan Princessprite" {
+    id: 33909817
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Plant
+    rank: 1
+    atk: 1800
+    def: 100
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

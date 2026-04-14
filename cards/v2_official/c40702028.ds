@@ -1,0 +1,41 @@
+card "DPH Gendamoore" {
+    id: 40702028
+    type: Synchro Monster | Tuner
+    attribute: FIRE
+    race: Cyberse
+    level: 8
+    atk: 2000
+    def: 2800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: destroyed_by_battle
+        cost {
+            banish self
+        }
+        resolve {
+            damage opponent 1000
+        }
+    }
+}

@@ -1,0 +1,27 @@
+card "Heart of Gaia" {
+    id: 73129314
+    type: Effect Monster
+    attribute: EARTH
+    race: Warrior
+    level: 6
+    atk: 2300
+    def: 2100
+
+    summon {
+        tributes: 1
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            send self to gy
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

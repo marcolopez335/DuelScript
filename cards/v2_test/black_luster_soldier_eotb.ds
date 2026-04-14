@@ -1,0 +1,27 @@
+// カオス・ソルジャー －開闢の使者－
+// Black Luster Soldier - Envoy of the Beginning
+// Cannot be Normal Summoned/Set. Must be Special Summoned by
+// banishing 1 LIGHT and 1 DARK monster from your GY.
+
+card "Black Luster Soldier - Envoy of the Beginning" {
+    id: 72989439
+    type: Effect Monster
+    attribute: LIGHT
+    race: Warrior
+    level: 8
+    atk: 3000
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Banish 1 Card" {
+        speed: 1
+        once_per_turn: hard
+        target (1, card, either controls)
+        resolve {
+            banish target
+        }
+    }
+}

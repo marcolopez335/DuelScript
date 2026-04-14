@@ -1,0 +1,27 @@
+// 地帝グランマーグ
+// Granmarg the Rock Monarch
+// When this card is Tribute Summoned: Target 1 Set card on the field;
+// destroy that target.
+
+card "Granmarg the Rock Monarch" {
+    id: 60229110
+    type: Effect Monster
+    attribute: EARTH
+    race: Rock
+    level: 6
+    atk: 2400
+    def: 1000
+
+    summon {
+        tributes: 1
+    }
+
+    effect "Destroy Set Card" {
+        speed: 1
+        trigger: tribute_summoned
+        target (1, card, either controls, face_down)
+        resolve {
+            destroy target
+        }
+    }
+}

@@ -1,0 +1,40 @@
+card "DoomZ Command 'A.D.R.A.S.T.E.I.A.'" {
+    id: 84054556
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 0
+    def: 0
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            damage opponent 1000
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        mandatory
+        resolve {
+        }
+    }
+}

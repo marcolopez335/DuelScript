@@ -1,0 +1,43 @@
+card "G Golem Dignified Trilithon" {
+    id: 50546029
+    type: Link Monster
+    attribute: EARTH
+    race: Cyberse
+    link: 4
+    atk: 3200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: must_attack
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: must_attack
+    }
+
+    passive "Effect 6" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    passive "Effect 7" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,40 @@
+card "Aromalilith Rosalina" {
+    id: 24689197
+    type: Effect Monster | Tuner
+    attribute: DARK
+    race: Plant
+    level: 1
+    atk: 0
+    def: 0
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        cost {
+            discard (all, card, either controls)
+        }
+        resolve {
+            gain_lp 1000
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

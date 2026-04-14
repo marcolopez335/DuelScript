@@ -1,0 +1,31 @@
+card "Cyber Dragon Core" {
+    id: 23893227
+    type: Effect Monster
+    attribute: LIGHT
+    race: Machine
+    level: 2
+    atk: 400
+    def: 1500
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        trigger: summoned
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

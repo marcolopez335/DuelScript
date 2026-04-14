@@ -1,0 +1,34 @@
+card "Link Devotee" {
+    id: 48068378
+    type: Link Monster
+    attribute: EARTH
+    race: Cyberse
+    link: 1
+    atk: 500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        trigger: summoned by special
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: sent_to gy
+        resolve {
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+}

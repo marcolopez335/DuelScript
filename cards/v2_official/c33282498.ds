@@ -1,0 +1,32 @@
+card "Arkbrave Dragon" {
+    id: 33282498
+    type: Effect Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 7
+    atk: 2400
+    def: 2000
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: standby_phase
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

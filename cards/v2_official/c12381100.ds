@@ -1,0 +1,23 @@
+card "Dragon Master Magia" {
+    id: 12381100
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 12
+    atk: 5000
+    def: 4000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

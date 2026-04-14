@@ -1,0 +1,21 @@
+// Apprentice Magician
+card "Apprentice Magician" {
+    id: 9156135
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 2
+    atk: 400
+    def: 800
+
+    effect "Set Spellcaster from Deck" {
+        speed: 1
+        timing: when
+        trigger: destroyed_by_battle
+
+        resolve {
+            search (1, monster, you control, where level <= 2 and race == Spellcaster) from deck
+            set (1, monster, you control)
+        }
+    }
+}

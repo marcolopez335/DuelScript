@@ -1,0 +1,28 @@
+card "Storagepod" {
+    id: 24232799
+    type: Fusion Monster
+    attribute: DARK
+    race: Machine
+    level: 6
+    atk: 2500
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

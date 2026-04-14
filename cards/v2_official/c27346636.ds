@@ -1,0 +1,23 @@
+card "Gladiator Beast Heraklinos" {
+    id: 27346636
+    type: Fusion Monster
+    attribute: FIRE
+    race: Beast-Warrior
+    level: 8
+    atk: 3000
+    def: 2800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

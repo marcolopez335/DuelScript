@@ -1,0 +1,18 @@
+// 魔法の筒
+// Magic Cylinder
+// When opponent's monster attacks: Negate the attack, and inflict
+// damage to opponent equal to the attacking monster's ATK.
+
+card "Magic Cylinder" {
+    id: 62279055
+    type: Normal Trap
+
+    effect "Negate and Burn" {
+        speed: 2
+        trigger: opponent_attack_declared
+        resolve {
+            negate
+            damage opponent target.atk
+        }
+    }
+}

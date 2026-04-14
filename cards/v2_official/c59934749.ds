@@ -1,0 +1,31 @@
+card "Isolde, Two Tales of the Noble Knights" {
+    id: 59934749
+    type: Link Monster
+    attribute: LIGHT
+    race: Warrior
+    link: 2
+    atk: 1600
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

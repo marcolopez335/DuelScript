@@ -1,0 +1,32 @@
+card "Icejade Ran Aegirine" {
+    id: 18494511
+    type: Effect Monster | Tuner
+    attribute: WATER
+    race: Aqua
+    level: 7
+    atk: 1500
+    def: 2500
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+}

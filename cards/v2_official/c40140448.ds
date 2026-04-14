@@ -1,0 +1,36 @@
+card "Ancient Warriors - Masterful Sun Mou" {
+    id: 40140448
+    type: Effect Monster
+    attribute: WATER
+    race: Beast-Warrior
+    level: 4
+    atk: 1800
+    def: 1500
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+}

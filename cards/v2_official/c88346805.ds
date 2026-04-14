@@ -1,0 +1,23 @@
+card "You're Finished" {
+    id: 88346805
+    type: Continuous Trap
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

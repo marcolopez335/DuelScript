@@ -1,0 +1,42 @@
+card "Commander Souza, Swordmaster" {
+    id: 72867001
+    type: Synchro Monster
+    attribute: EARTH
+    race: Warrior
+    level: 10
+    atk: 2500
+    def: 1600
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: when
+        trigger: battle_damage
+        resolve {
+            draw 1
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            tribute self
+        }
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    replacement "Effect 5" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

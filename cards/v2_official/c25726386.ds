@@ -1,0 +1,33 @@
+card "Megalith Aratron" {
+    id: 25726386
+    type: Ritual Monster
+    attribute: EARTH
+    race: Rock
+    level: 8
+    atk: 2000
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        cost {
+            discard (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            return (all, card, either controls) to deck
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

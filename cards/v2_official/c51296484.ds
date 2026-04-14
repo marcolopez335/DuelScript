@@ -1,0 +1,44 @@
+card "Saffira, Dragon Queen of the Voiceless Voice" {
+    id: 51296484
+    type: Effect Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 6
+    atk: 2500
+    def: 2400
+
+    summon {
+        tributes: 1
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            discard (all, card, either controls)
+        }
+        resolve {
+            send (all, card, either controls) to gy
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        mandatory
+        resolve {
+        }
+    }
+}

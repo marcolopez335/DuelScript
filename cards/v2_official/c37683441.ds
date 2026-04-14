@@ -1,0 +1,31 @@
+card "Trickstar Noble Angel" {
+    id: 37683441
+    type: Link Monster
+    attribute: LIGHT
+    race: Fairy
+    link: 2
+    atk: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

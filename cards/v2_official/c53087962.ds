@@ -1,0 +1,28 @@
+card "Ursarctic Septentrion" {
+    id: 53087962
+    type: Synchro Monster
+    attribute: WATER
+    race: Beast-Warrior
+    level: 7
+    atk: 3000
+    def: 700
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+}

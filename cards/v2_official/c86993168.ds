@@ -1,0 +1,32 @@
+card "Mad Hacker" {
+    id: 86993168
+    type: Effect Monster
+    attribute: DARK
+    race: Cyberse
+    level: 2
+    atk: 1000
+    def: 600
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: end_phase
+        cost {
+            banish self
+        }
+        resolve {
+            take_control (all, card, either controls)
+        }
+    }
+}

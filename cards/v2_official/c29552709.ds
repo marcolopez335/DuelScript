@@ -1,0 +1,27 @@
+card "Daigusto Sphreez" {
+    id: 29552709
+    type: Synchro Monster
+    attribute: WIND
+    race: Psychic
+    level: 6
+    atk: 2000
+    def: 1300
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

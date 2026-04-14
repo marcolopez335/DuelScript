@@ -1,0 +1,40 @@
+card "Pharaonic Guardian Sphinx" {
+    id: 89707961
+    type: Effect Monster
+    attribute: EARTH
+    race: Rock
+    level: 8
+    atk: 2300
+    def: 3000
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: summoned by flip
+        resolve {
+            return (all, card, either controls) to deck
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,28 @@
+card "Golgoil the Steel Seismic Smasher" {
+    id: 59369430
+    type: Effect Monster
+    attribute: EARTH
+    race: Warrior
+    level: 10
+    atk: 1800
+    def: 3200
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

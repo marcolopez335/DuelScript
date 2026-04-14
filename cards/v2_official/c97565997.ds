@@ -1,0 +1,33 @@
+card "Ogdoabyss, the Ogdoadic Overlord" {
+    id: 97565997
+    type: Effect Monster
+    attribute: LIGHT
+    race: Reptile
+    level: 10
+    atk: 3100
+    def: 2200
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

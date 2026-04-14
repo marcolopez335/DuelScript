@@ -1,0 +1,26 @@
+// アビス・ソルジャー
+// Abyss Soldier
+// Once per turn: You can discard 1 WATER monster to the GY;
+// target 1 card on the field; return that target to the hand.
+
+card "Abyss Soldier" {
+    id: 18318842
+    type: Effect Monster
+    attribute: WATER
+    race: Aqua
+    level: 4
+    atk: 1800
+    def: 1300
+
+    effect "Bounce" {
+        speed: 1
+        once_per_turn: soft
+        cost {
+            discard (1, monster, where attribute == WATER)
+        }
+        target (1, card, either controls)
+        resolve {
+            return target to hand
+        }
+    }
+}

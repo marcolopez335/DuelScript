@@ -1,0 +1,33 @@
+card "Devotee of Nephthys" {
+    id: 88176533
+    type: Ritual Monster
+    attribute: WIND
+    race: Spellcaster
+    level: 2
+    atk: 1200
+    def: 1200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,30 @@
+card "Alien Shocktrooper M-Frame" {
+    id: 74974229
+    type: Link Monster
+    attribute: LIGHT
+    race: Reptile
+    link: 2
+    atk: 1900
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        cost {
+            send self to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

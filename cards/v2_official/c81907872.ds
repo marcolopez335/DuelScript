@@ -1,0 +1,31 @@
+card "Ghostrick Specter" {
+    id: 81907872
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 600
+    def: 0
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        resolve {
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: when
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+            draw 1
+        }
+    }
+}

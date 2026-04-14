@@ -1,0 +1,40 @@
+card "PSY-Framelord Omega" {
+    id: 74586817
+    type: Synchro Monster
+    attribute: LIGHT
+    race: Psychic
+    level: 8
+    atk: 2800
+    def: 2200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+            banish (all, card, either controls)
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: standby_phase
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        mandatory
+        resolve {
+            return (all, card, either controls) to deck
+        }
+    }
+}

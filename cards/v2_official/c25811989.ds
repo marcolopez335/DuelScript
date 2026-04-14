@@ -1,0 +1,33 @@
+card "Infernoid Piaty" {
+    id: 25811989
+    type: Effect Monster | Effect Monster
+    attribute: FIRE
+    race: Fiend
+    level: 5
+    atk: 2200
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: destroyed_by_battle
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            tribute self
+        }
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,45 @@
+card "Gandora-X the Dragon of Demolition" {
+    id: 71525232
+    type: Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 8
+    atk: 0
+    def: 0
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        resolve {
+            destroy (all, card, either controls)
+            damage opponent 1000
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: summoned by special
+        resolve {
+            destroy (all, card, either controls)
+            damage opponent 1000
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: end_phase
+    }
+}

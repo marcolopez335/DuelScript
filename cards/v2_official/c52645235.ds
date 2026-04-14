@@ -1,0 +1,27 @@
+card "Epurrely Happiness" {
+    id: 52645235
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Fairy
+    rank: 2
+    atk: 2000
+    def: 100
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

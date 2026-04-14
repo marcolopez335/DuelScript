@@ -1,0 +1,40 @@
+card "Number 38: Hope Harbinger Dragon Titanic Galaxy" {
+    id: 63767246
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Dragon
+    rank: 8
+    atk: 3000
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        cost {
+            detach 1 from self
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: destroyed
+        resolve {
+        }
+    }
+}

@@ -1,0 +1,23 @@
+card "Twilight Twin Dragons" {
+    id: 60431417
+    type: Normal Spell
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        resolve {
+            return (all, card, either controls) to hand
+            mill 4
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            return (all, card, either controls) to hand
+            banish (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,37 @@
+card "Traptrix Vesiculo" {
+    id: 28868394
+    type: Effect Monster
+    attribute: EARTH
+    race: Plant
+    level: 4
+    atk: 1400
+    def: 1400
+
+    passive "Effect 1" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+        }
+    }
+}

@@ -1,0 +1,18 @@
+// 生者の書－禁断の呪術－
+// Book of Life
+// Target 1 Zombie monster in your GY; Special Summon it, and banish
+// 1 monster from your opponent's GY.
+
+card "Book of Life" {
+    id: 2204140
+    type: Normal Spell
+
+    effect "Revive and Banish" {
+        speed: 1
+        target (1, monster, in gy, where race == Zombie)
+        resolve {
+            special_summon target from gy
+            banish (1, monster, opponent controls) from gy
+        }
+    }
+}

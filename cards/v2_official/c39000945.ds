@@ -1,0 +1,40 @@
+card "Reflection of Endymion" {
+    id: 39000945
+    type: Effect Monster | Pendulum Monster
+    attribute: LIGHT
+    race: Spellcaster
+    level: 7
+    scale: 2
+    atk: 1850
+    def: 2700
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 6" {
+        speed: 1
+        timing: when
+        trigger: battle_damage
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

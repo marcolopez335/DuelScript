@@ -1,0 +1,35 @@
+card "Virtual World Kyubi - Shenshen" {
+    id: 92519087
+    type: Synchro Monster
+    attribute: WIND
+    race: Psychic
+    level: 9
+    atk: 2800
+    def: 2400
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: summoned
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

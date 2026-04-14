@@ -1,0 +1,31 @@
+card "Shaman of the Tenyi" {
+    id: 78917791
+    type: Link Monster
+    attribute: FIRE
+    race: Wyrm
+    link: 2
+    atk: 1600
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: summoned
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

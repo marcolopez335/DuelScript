@@ -1,0 +1,27 @@
+card "Traptrix Cularia" {
+    id: 952523
+    type: Link Monster
+    attribute: EARTH
+    race: Plant
+    link: 2
+    atk: 1800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: end_phase
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

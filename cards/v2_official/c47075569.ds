@@ -1,0 +1,29 @@
+card "Performapal Pendulum Sorcerer" {
+    id: 47075569
+    type: Effect Monster | Pendulum Monster
+    attribute: EARTH
+    race: Spellcaster
+    level: 4
+    scale: 2
+    atk: 1500
+    def: 800
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        trigger: summoned by special
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            destroy (all, card, either controls)
+            return (all, card, either controls) to hand
+        }
+    }
+}

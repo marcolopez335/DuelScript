@@ -1,0 +1,35 @@
+card "Golem that Guards the Millennium Treasures" {
+    id: 74169516
+    type: Effect Monster
+    attribute: EARTH
+    race: Rock
+    level: 6
+    atk: 2000
+    def: 2200
+
+    summon {
+        tributes: 1
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            pay_lp your_lp / 2
+        }
+        resolve {
+            special_summon (all, card, either controls)
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

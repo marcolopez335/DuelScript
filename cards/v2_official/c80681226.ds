@@ -1,0 +1,28 @@
+card "Psychic Wave" {
+    id: 80681226
+    type: Quick-Play Spell
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            damage opponent 1000
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: hard
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            send (all, card, either controls) to gy
+            return (all, card, either controls) to hand
+        }
+    }
+}

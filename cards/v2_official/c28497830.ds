@@ -1,0 +1,33 @@
+card "Gold Pride - Pin Baller" {
+    id: 28497830
+    type: Fusion Monster
+    attribute: DARK
+    race: Machine
+    level: 9
+    atk: 3000
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: end_phase
+        resolve {
+            return (all, card, either controls) to deck
+            special_summon (all, card, either controls)
+        }
+    }
+}

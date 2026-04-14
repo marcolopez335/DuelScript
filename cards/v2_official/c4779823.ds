@@ -1,0 +1,45 @@
+card "Michael, the Arch-Lightsworn" {
+    id: 4779823
+    type: Synchro Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 7
+    atk: 2600
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            pay_lp 1000
+        }
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: destroyed
+        resolve {
+            return (all, card, either controls) to deck
+            gain_lp 1000
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: end_phase
+        resolve {
+            mill 3
+        }
+    }
+}

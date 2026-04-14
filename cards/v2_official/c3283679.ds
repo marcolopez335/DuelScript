@@ -1,0 +1,27 @@
+card "Evoltile Lagosucho" {
+    id: 3283679
+    type: Effect Monster
+    attribute: FIRE
+    race: Reptile
+    level: 3
+    atk: 1200
+    def: 500
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: custom "chain_active"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

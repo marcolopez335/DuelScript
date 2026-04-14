@@ -1,0 +1,25 @@
+card "Bellcat Fighter" {
+    id: 22953211
+    type: Link Monster
+    attribute: WIND
+    race: Machine
+    link: 3
+    atk: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: battle_damage
+        resolve {
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+}

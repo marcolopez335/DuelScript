@@ -1,0 +1,32 @@
+card "The Zombie Vampire" {
+    id: 73082255
+    type: Xyz Monster
+    attribute: DARK
+    race: Zombie
+    rank: 8
+    atk: 3000
+    def: 2800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            mill 4
+            mill 4
+            special_summon (all, card, either controls)
+        }
+    }
+}

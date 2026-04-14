@@ -1,0 +1,47 @@
+card "Dragunity Knight - Areadbhair" {
+    id: 88234821
+    type: Synchro Monster
+    attribute: WIND
+    race: Dragon
+    level: 10
+    atk: 3300
+    def: 3200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            banish self
+        }
+        resolve {
+            negate
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: custom "chain_end"
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: destroyed
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

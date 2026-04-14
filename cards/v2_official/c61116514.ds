@@ -1,0 +1,28 @@
+card "Palm Ryzeal" {
+    id: 61116514
+    type: Effect Monster | Effect Monster
+    attribute: FIRE
+    race: Thunder
+    level: 4
+    atk: 1200
+    def: 2400
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: summoned
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

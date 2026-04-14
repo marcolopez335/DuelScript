@@ -1,0 +1,25 @@
+card "Branded in High Spirits" {
+    id: 29948294
+    type: Quick-Play Spell
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        mandatory
+        resolve {
+            send (all, card, either controls) to gy
+            send (all, card, either controls) to gy
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: end_phase
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

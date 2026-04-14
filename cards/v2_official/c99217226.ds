@@ -1,0 +1,34 @@
+card "Paladins of Bonds and Unity" {
+    id: 99217226
+    type: Synchro Monster
+    attribute: LIGHT
+    race: Spellcaster
+    level: 12
+    atk: 2900
+    def: 2900
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 5" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

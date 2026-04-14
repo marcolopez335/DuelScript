@@ -1,0 +1,20 @@
+// 押収
+// Confiscation
+// Pay 1000 LP. Look at your opponent's hand, then discard 1 card
+// from their hand.
+
+card "Confiscation" {
+    id: 17375316
+    type: Normal Spell
+
+    effect "View and Discard" {
+        speed: 1
+        cost {
+            pay_lp 1000
+        }
+        resolve {
+            look_at (all, card, opponent controls, in hand)
+            discard (1, card, opponent controls)
+        }
+    }
+}

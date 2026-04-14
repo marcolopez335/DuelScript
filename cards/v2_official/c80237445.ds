@@ -1,0 +1,32 @@
+card "Artifact Mjollnir" {
+    id: 80237445
+    type: Effect Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 5
+    atk: 1300
+    def: 1800
+
+    summon {
+        tributes: 1
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

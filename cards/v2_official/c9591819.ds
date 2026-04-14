@@ -1,0 +1,26 @@
+card "Gagaga Escape" {
+    id: 9591819
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        mandatory
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            discard (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            banish self
+        }
+        resolve {
+        }
+    }
+}

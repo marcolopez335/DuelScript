@@ -1,0 +1,35 @@
+card "Ancient Gear Golem - Ultimate Pound" {
+    id: 95735217
+    type: Effect Monster
+    attribute: EARTH
+    race: Machine
+    level: 8
+    atk: 3000
+    def: 3000
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: piercing
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        twice_per_turn
+        timing: when
+        trigger: battle_damage
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        timing: if
+        trigger: destroyed
+        resolve {
+            add_to_hand (all, card, either controls)
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

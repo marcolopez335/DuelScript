@@ -1,0 +1,35 @@
+card "Laval Stennon" {
+    id: 20374351
+    type: Synchro Monster
+    attribute: FIRE
+    race: Pyro
+    level: 7
+    atk: 2700
+    def: 1800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        trigger: summoned by special
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            banish self
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

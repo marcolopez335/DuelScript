@@ -1,0 +1,35 @@
+card "CXyz Battleship Cherry Blossom" {
+    id: 76419637
+    type: Xyz Monster
+    attribute: EARTH
+    race: Plant
+    rank: 4
+    atk: 2400
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: end_phase
+        resolve {
+            discard (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            damage opponent 1000
+        }
+    }
+}

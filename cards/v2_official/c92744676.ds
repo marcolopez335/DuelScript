@@ -1,0 +1,33 @@
+card "Zapper Shrimp" {
+    id: 92744676
+    type: Synchro Monster | Tuner
+    attribute: LIGHT
+    race: Fish
+    level: 2
+    atk: 1000
+    def: 1200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        cost {
+            send self to gy
+        }
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+        }
+    }
+}

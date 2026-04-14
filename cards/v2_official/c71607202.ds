@@ -1,0 +1,34 @@
+card "Muckraker From the Underworld" {
+    id: 71607202
+    type: Link Monster
+    attribute: DARK
+    race: Fiend
+    link: 2
+    atk: 1000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            discard (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+
+    replacement "Effect 2" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

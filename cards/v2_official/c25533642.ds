@@ -1,0 +1,33 @@
+card "Altergeist Meluseek" {
+    id: 25533642
+    type: Effect Monster
+    attribute: WATER
+    race: Spellcaster
+    level: 1
+    atk: 500
+    def: 300
+
+    passive "Effect 1" {
+        scope: self
+        grant: direct_attack
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: destroyed_by_battle
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

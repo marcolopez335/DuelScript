@@ -1,0 +1,35 @@
+card "Knightmare Gryphon" {
+    id: 65330383
+    type: Link Monster
+    attribute: LIGHT
+    race: Fiend
+    link: 4
+    atk: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        cost {
+            discard (all, card, either controls)
+        }
+        resolve {
+            draw 1
+        }
+    }
+}

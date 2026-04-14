@@ -1,0 +1,47 @@
+card "Heraldic Beast Stad Whale" {
+    id: 97662494
+    type: Effect Monster
+    attribute: WATER
+    race: Fish
+    level: 4
+    atk: 900
+    def: 1900
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned
+        cost {
+            discard (all, card, either controls)
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        cost {
+            discard (all, card, either controls)
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

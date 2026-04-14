@@ -1,0 +1,52 @@
+card "Veda Kalarcanum" {
+    id: 40785230
+    type: Effect Monster | Pendulum Monster | Effect Monster
+    attribute: DARK
+    race: Warrior
+    level: 12
+    scale: 0
+    atk: 0
+    def: 4000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: destroyed
+    }
+
+    effect "Effect 5" {
+        speed: 1
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 6" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        cost {
+            banish self
+        }
+        resolve {
+        }
+    }
+
+    effect "Effect 7" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: standby_phase
+        resolve {
+            add_to_hand (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

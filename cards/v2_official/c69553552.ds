@@ -1,0 +1,24 @@
+card "F.A. Winners" {
+    id: 69553552
+    type: Continuous Spell
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: destroyed_by_battle
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+}

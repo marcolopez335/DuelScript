@@ -1,0 +1,20 @@
+card "Newbee!" {
+    id: 10807219
+    type: Effect Monster
+    attribute: LIGHT
+    race: Insect
+    level: 2
+    atk: 0
+    def: 0
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+            return (all, card, either controls) to deck
+        }
+    }
+}

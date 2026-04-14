@@ -1,0 +1,32 @@
+// 阿修羅
+// Asura Priest
+// Cannot be Special Summoned. Can attack all opponent's monsters
+// once each. Returns to hand during the End Phase.
+
+card "Asura Priest" {
+    id: 2134346
+    type: Effect Monster | Spirit
+    attribute: LIGHT
+    race: Fairy
+    level: 4
+    atk: 1700
+    def: 1200
+
+    summon {
+        cannot_special_summon
+    }
+
+    passive "Attack All" {
+        scope: self
+        grant: attack_all_monsters
+    }
+
+    effect "Spirit Return" {
+        speed: 1
+        mandatory
+        trigger: end_phase
+        resolve {
+            return self to hand
+        }
+    }
+}

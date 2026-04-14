@@ -1,0 +1,38 @@
+card "Super Quantal Mech King Great Magnus" {
+    id: 84025439
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Machine
+    rank: 12
+    atk: 3600
+    def: 3200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            return (all, card, either controls) to deck
+        }
+    }
+
+    effect "Effect 5" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

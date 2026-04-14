@@ -1,0 +1,28 @@
+card "Apple Magician Girl" {
+    id: 56132807
+    type: Effect Monster
+    attribute: FIRE
+    race: Spellcaster
+    level: 3
+    atk: 1200
+    def: 800
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: attacked
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: destroyed
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

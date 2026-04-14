@@ -1,0 +1,22 @@
+card "Dandylion" {
+    id: 15341821
+    type: Effect Monster
+    attribute: EARTH
+    race: Plant
+    level: 3
+    atk: 300
+    def: 300
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,30 @@
+card "Ikelos, the Dream Mirror Sprite" {
+    id: 49389190
+    type: Effect Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 1
+    atk: 0
+    def: 500
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

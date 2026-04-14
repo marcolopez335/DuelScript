@@ -1,0 +1,34 @@
+card "Prank-Kids Dodo-Doodle-Doo" {
+    id: 17382973
+    type: Link Monster
+    attribute: WIND
+    race: Thunder
+    link: 2
+    atk: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

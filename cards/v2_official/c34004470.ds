@@ -1,0 +1,32 @@
+card "The Big Saturn" {
+    id: 34004470
+    type: Effect Monster
+    attribute: DARK
+    race: Machine
+    level: 8
+    atk: 2800
+    def: 2200
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            pay_lp your_lp / 2
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            damage opponent 1000
+            damage opponent 1000
+        }
+    }
+}

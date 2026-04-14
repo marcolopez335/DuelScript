@@ -1,0 +1,41 @@
+card "Pandemic Dragon" {
+    id: 68299524
+    type: Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 7
+    atk: 2500
+    def: 1000
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            pay_lp your_lp / 2
+        }
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        mandatory
+        trigger: destroyed
+        resolve {
+        }
+    }
+}

@@ -1,0 +1,25 @@
+card "Substitoad" {
+    id: 20663556
+    type: Effect Monster
+    attribute: WATER
+    race: Aqua
+    level: 1
+    atk: 100
+    def: 2000
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

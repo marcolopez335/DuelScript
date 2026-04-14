@@ -1,0 +1,32 @@
+card "The Fabled Behilmoth" {
+    id: 68897338
+    type: Effect Monster | Tuner
+    attribute: LIGHT
+    race: Beast
+    level: 2
+    atk: 1000
+    def: 600
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            send (all, card, either controls) to gy
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: custom "chain_end"
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

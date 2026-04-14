@@ -1,0 +1,27 @@
+card "Rokket Recharger" {
+    id: 5969957
+    type: Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 4
+    atk: 0
+    def: 2100
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: destroyed
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

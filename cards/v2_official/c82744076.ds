@@ -1,0 +1,30 @@
+card "Tuning Gum" {
+    id: 82744076
+    type: Effect Monster | Tuner
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 400
+    def: 1200
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            banish self
+        }
+        resolve {
+            negate
+            send (all, card, either controls) to gy
+        }
+    }
+}

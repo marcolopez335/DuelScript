@@ -1,0 +1,34 @@
+card "Fossil Machine Skull Wagon" {
+    id: 83656563
+    type: Fusion Monster
+    attribute: EARTH
+    race: Rock
+    level: 6
+    atk: 1700
+    def: 1500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: when
+        trigger: battle_damage
+        resolve {
+            damage opponent 1000
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

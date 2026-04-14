@@ -1,0 +1,31 @@
+card "Artifact Moralltach" {
+    id: 85103922
+    type: Effect Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 5
+    atk: 2100
+    def: 1400
+
+    summon {
+        tributes: 1
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

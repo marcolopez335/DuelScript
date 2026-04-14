@@ -1,0 +1,28 @@
+card "Squirt Squid" {
+    id: 65500515
+    type: Effect Monster
+    attribute: WATER
+    race: Aqua
+    level: 2
+    atk: 0
+    def: 1800
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: attacked
+        resolve {
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+}

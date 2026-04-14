@@ -1,0 +1,31 @@
+card "Sylvan Dancepione" {
+    id: 21903613
+    type: Link Monster
+    attribute: WIND
+    race: Plant
+    link: 2
+    atk: 1200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+        }
+    }
+}

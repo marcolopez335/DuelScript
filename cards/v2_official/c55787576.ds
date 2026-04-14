@@ -1,0 +1,42 @@
+card "World Legacy - 'World Shield'" {
+    id: 55787576
+    type: Effect Monster
+    attribute: DARK
+    race: Machine
+    level: 6
+    atk: 0
+    def: 3000
+
+    summon {
+        tributes: 1
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: standby_phase
+        cost {
+            pay_lp 1000
+        }
+        resolve {
+            special_summon (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

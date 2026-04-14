@@ -1,0 +1,24 @@
+card "Dangerous Machine Type-6" {
+    id: 76895648
+    type: Continuous Spell
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: standby_phase
+        resolve {
+            discard (all, card, either controls)
+            discard (all, card, either controls)
+            draw 1
+            draw 1
+            destroy (all, card, either controls)
+            destroy (all, card, either controls)
+        }
+    }
+}

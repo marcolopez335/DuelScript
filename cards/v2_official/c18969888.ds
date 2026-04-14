@@ -1,0 +1,40 @@
+card "Sangenpai Transcendent Dragion" {
+    id: 18969888
+    type: Synchro Monster
+    attribute: FIRE
+    race: Dragon
+    level: 10
+    atk: 3000
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: must_attack
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        once_per_turn: hard
+        resolve {
+            special_summon (all, card, either controls)
+            destroy (all, card, either controls)
+        }
+    }
+}

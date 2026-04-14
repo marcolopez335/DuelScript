@@ -1,0 +1,31 @@
+card "Dinomorphia Shell" {
+    id: 25419323
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        mandatory
+        cost {
+            pay_lp your_lp / 2
+        }
+        resolve {
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        timing: when
+        trigger: summoned
+        cost {
+            banish self
+        }
+        resolve {
+        }
+    }
+}

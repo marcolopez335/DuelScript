@@ -1,0 +1,29 @@
+card "Constellar Tempest" {
+    id: 4820694
+    type: Continuous Spell
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: end_phase
+        resolve {
+            send (all, card, either controls) to gy
+            gain_lp 0
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: standby_phase
+        resolve {
+        }
+    }
+}

@@ -1,0 +1,33 @@
+card "WAKE CUP! Earl" {
+    id: 85586937
+    type: Effect Monster
+    attribute: WIND
+    race: Aqua
+    level: 7
+    atk: 2700
+    def: 400
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            discard (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: end_phase
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,34 @@
+card "Sunavalon Melias" {
+    id: 44478599
+    type: Link Monster
+    attribute: EARTH
+    race: Plant
+    link: 3
+    atk: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 5" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+        }
+    }
+}

@@ -1,0 +1,29 @@
+card "Wattkyuki" {
+    id: 67752972
+    type: Synchro Monster
+    attribute: LIGHT
+    race: Thunder
+    level: 8
+    atk: 1600
+    def: 1700
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: direct_attack
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: destroyed_by_battle
+        resolve {
+            return (all, card, either controls) to deck
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,19 @@
+card "Wind-Up Magician" {
+    id: 59297550
+    type: Effect Monster
+    attribute: FIRE
+    race: Spellcaster
+    level: 4
+    atk: 600
+    def: 1800
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

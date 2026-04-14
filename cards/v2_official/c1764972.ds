@@ -1,0 +1,31 @@
+card "Doomkaiser Dragon/Assault Mode" {
+    id: 1764972
+    type: Effect Monster | Effect Monster
+    attribute: FIRE
+    race: Zombie
+    level: 8
+    atk: 2900
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: when
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

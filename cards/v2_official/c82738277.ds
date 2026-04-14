@@ -1,0 +1,31 @@
+card "Traptrix Mantis" {
+    id: 82738277
+    type: Effect Monster
+    attribute: EARTH
+    race: Insect
+    level: 4
+    atk: 1500
+    def: 1300
+
+    passive "Effect 1" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

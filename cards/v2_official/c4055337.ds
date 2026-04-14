@@ -1,0 +1,41 @@
+card "Orcust Knightmare" {
+    id: 4055337
+    type: Effect Monster
+    attribute: DARK
+    race: Machine
+    level: 7
+    atk: 100
+    def: 2000
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: hard
+        cost {
+            banish self
+        }
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

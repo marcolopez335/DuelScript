@@ -1,0 +1,35 @@
+card "Herald of the Arc Light" {
+    id: 79606837
+    type: Synchro Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 4
+    atk: 600
+    def: 1000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            tribute self
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

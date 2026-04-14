@@ -1,0 +1,25 @@
+card "Performapal Gatlinghoul" {
+    id: 49820233
+    type: Fusion Monster
+    attribute: DARK
+    race: Fiend
+    level: 8
+    atk: 2900
+    def: 900
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            damage opponent 1000
+            destroy (all, card, either controls)
+            damage opponent 1000
+        }
+    }
+}

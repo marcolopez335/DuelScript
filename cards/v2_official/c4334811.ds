@@ -1,0 +1,36 @@
+card "Scrap Recycler" {
+    id: 4334811
+    type: Effect Monster
+    attribute: EARTH
+    race: Machine
+    level: 3
+    atk: 900
+    def: 1200
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: summoned by special
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            draw 1
+        }
+    }
+}

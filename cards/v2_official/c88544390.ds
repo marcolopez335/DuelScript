@@ -1,0 +1,31 @@
+card "The Phantom Knights of Stained Greaves" {
+    id: 88544390
+    type: Effect Monster
+    attribute: DARK
+    race: Warrior
+    level: 3
+    atk: 1200
+    def: 600
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

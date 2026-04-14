@@ -1,0 +1,36 @@
+card "White Aura Porpoise" {
+    id: 46956301
+    type: Synchro Monster
+    attribute: WATER
+    race: Fish
+    level: 6
+    atk: 2000
+    def: 1300
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: destroyed
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,56 @@
+card "Enlilgirsu, the Orcust Mekk-Knight" {
+    id: 74820316
+    type: Link Monster
+    attribute: DARK
+    race: Machine
+    link: 4
+    atk: 2600
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            return (all, card, either controls) to hand
+            return (all, card, either controls) to deck
+            take_control (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: hard
+        resolve {
+            return (all, card, either controls) to hand
+            return (all, card, either controls) to deck
+            take_control (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            banish self
+        }
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

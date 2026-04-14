@@ -1,0 +1,29 @@
+card "Salamangreat Balelynx" {
+    id: 14812471
+    type: Link Monster
+    attribute: FIRE
+    race: Cyberse
+    link: 1
+    atk: 500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    replacement "Effect 2" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

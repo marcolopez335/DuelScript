@@ -1,0 +1,35 @@
+card "Clear Kuriboh" {
+    id: 46613515
+    type: Effect Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 1
+    atk: 300
+    def: 200
+
+    effect "Effect 1" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            discard (all, card, either controls)
+        }
+        resolve {
+            negate
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: summoned
+        cost {
+            banish self
+        }
+        resolve {
+            draw 1
+            special_summon (all, card, either controls)
+        }
+    }
+}

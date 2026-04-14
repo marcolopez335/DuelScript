@@ -1,0 +1,33 @@
+card "Yuki-Onna, the Icicle Mayakashi" {
+    id: 36114945
+    type: Link Monster
+    attribute: WATER
+    race: Zombie
+    link: 3
+    atk: 2400
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+            negate
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

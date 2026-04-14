@@ -1,0 +1,33 @@
+card "Infernoid Sjette" {
+    id: 96055137
+    type: Effect Monster | Effect Monster
+    attribute: FIRE
+    race: Fiend
+    level: 6
+    atk: 2400
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            tribute self
+        }
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+}

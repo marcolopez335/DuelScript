@@ -1,0 +1,41 @@
+card "Dragunity Legionnaire" {
+    id: 54578613
+    type: Effect Monster
+    attribute: WIND
+    race: Winged Beast
+    level: 3
+    atk: 1200
+    def: 800
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    passive "Effect 5" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    passive "Effect 6" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

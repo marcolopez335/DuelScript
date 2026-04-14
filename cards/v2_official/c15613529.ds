@@ -1,0 +1,38 @@
+card "Mystical Elf - White Lightning" {
+    id: 15613529
+    type: Effect Monster
+    attribute: LIGHT
+    race: Spellcaster
+    level: 4
+    atk: 800
+    def: 2000
+
+    passive "Effect 3" {
+        scope: self
+        grant: must_attack
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: must_attack
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            special_summon (all, card, either controls)
+            negate
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,29 @@
+card "Double Iris Magician" {
+    id: 49684352
+    type: Effect Monster | Pendulum Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 4
+    scale: 8
+    atk: 1500
+    def: 1000
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            damage opponent 0
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: destroyed
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

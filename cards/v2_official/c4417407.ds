@@ -1,0 +1,42 @@
+card "Mecha Phantom Beast Blackfalcon" {
+    id: 4417407
+    type: Effect Monster
+    attribute: WIND
+    race: Machine
+    level: 4
+    atk: 1200
+    def: 1700
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        mandatory
+        trigger: summoned
+        resolve {
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 5" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            tribute self
+        }
+        resolve {
+        }
+    }
+}

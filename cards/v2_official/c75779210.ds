@@ -1,0 +1,30 @@
+card "Vylon Epsilon" {
+    id: 75779210
+    type: Synchro Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 8
+    atk: 2800
+    def: 1200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

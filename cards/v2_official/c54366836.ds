@@ -1,0 +1,38 @@
+card "Number 54: Lion Heart" {
+    id: 54366836
+    type: Xyz Monster
+    attribute: EARTH
+    race: Warrior
+    rank: 1
+    atk: 100
+    def: 100
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: destroyed_by_battle
+        resolve {
+            damage opponent 1000
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        timing: when
+        trigger: summoned
+        cost {
+            detach 1 from self
+        }
+        resolve {
+        }
+    }
+}

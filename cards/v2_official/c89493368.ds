@@ -1,0 +1,64 @@
+card "Summon Reactor ・SK" {
+    id: 89493368
+    type: Effect Monster
+    attribute: DARK
+    race: Machine
+    level: 5
+    atk: 2000
+    def: 1400
+
+    summon {
+        tributes: 1
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: summoned
+        resolve {
+            damage opponent 800
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: summoned by special
+        resolve {
+            damage opponent 800
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: summoned by flip
+        resolve {
+            damage opponent 800
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: summoned
+        resolve {
+            negate
+        }
+    }
+
+    effect "Effect 5" {
+        speed: 1
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

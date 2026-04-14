@@ -1,0 +1,20 @@
+card "Gingerbread House" {
+    id: 79922118
+    type: Continuous Spell
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: standby_phase
+        resolve {
+            destroy (all, card, either controls)
+            gain_lp 1000
+        }
+    }
+}

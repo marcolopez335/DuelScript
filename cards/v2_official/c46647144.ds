@@ -1,0 +1,49 @@
+card "World Legacy - 'World Lance'" {
+    id: 46647144
+    type: Effect Monster
+    attribute: DARK
+    race: Machine
+    level: 8
+    atk: 3000
+    def: 0
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: summoned
+        cost {
+            discard (all, card, either controls)
+        }
+        resolve {
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: summoned by special
+        resolve {
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

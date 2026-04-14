@@ -1,0 +1,34 @@
+card "Dangerous Frightfur Nightmary" {
+    id: 58468105
+    type: Fusion Monster
+    attribute: DARK
+    race: Fiend
+    level: 10
+    atk: 2000
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: battle_damage
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            banish self
+        }
+        resolve {
+            negate
+        }
+    }
+}

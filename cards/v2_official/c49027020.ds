@@ -1,0 +1,34 @@
+card "Traptrix Pudica" {
+    id: 49027020
+    type: Effect Monster
+    attribute: EARTH
+    race: Plant
+    level: 4
+    atk: 900
+    def: 1900
+
+    passive "Effect 1" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: summoned
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,32 @@
+card "Bujinki Ahashima" {
+    id: 71095768
+    type: Link Monster
+    attribute: LIGHT
+    race: Beast-Warrior
+    link: 2
+    atk: 1500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

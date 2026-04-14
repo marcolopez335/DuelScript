@@ -1,0 +1,33 @@
+card "Kurikurinku @Ignister" {
+    id: 66102515
+    type: Effect Monster
+    attribute: DARK
+    race: Cyberse
+    level: 1
+    atk: 300
+    def: 200
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            tribute self
+        }
+        resolve {
+            negate
+        }
+    }
+}

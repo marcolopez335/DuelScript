@@ -1,0 +1,35 @@
+card "Red-Eyes Black Fullmetal Dragon" {
+    id: 80870883
+    type: Effect Monster | Effect Monster
+    attribute: DARK
+    race: Machine
+    level: 8
+    atk: 3400
+    def: 2400
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+        }
+        resolve {
+            return (all, card, either controls) to deck
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            damage opponent 1000
+        }
+    }
+}

@@ -1,0 +1,33 @@
+card "Master Peace, the True Dracoslayer" {
+    id: 34079868
+    type: Effect Monster | Effect Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 8
+    atk: 2950
+    def: 2950
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        timing: if
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,22 @@
+// UFOタートル
+// UFO Turtle
+// When destroyed by battle: Special Summon 1 FIRE monster with
+// 1500 or less ATK from Deck in Attack Position.
+
+card "UFO Turtle" {
+    id: 60806437
+    type: Effect Monster
+    attribute: FIRE
+    race: Machine
+    level: 4
+    atk: 1400
+    def: 1200
+
+    effect "Recruit FIRE" {
+        speed: 1
+        trigger: destroyed_by_battle
+        resolve {
+            special_summon (1, monster, where attribute == FIRE and atk <= 1500) from deck in attack_position
+        }
+    }
+}

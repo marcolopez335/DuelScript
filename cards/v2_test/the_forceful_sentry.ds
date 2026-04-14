@@ -1,0 +1,17 @@
+// 強引な番兵
+// The Forceful Sentry
+// Look at your opponent's hand, then return 1 card from their hand
+// to the Deck.
+
+card "The Forceful Sentry" {
+    id: 42829885
+    type: Normal Spell
+
+    effect "Peek and Return" {
+        speed: 1
+        resolve {
+            look_at (all, card, opponent controls, in hand)
+            return (1, card, opponent controls) to deck shuffle
+        }
+    }
+}

@@ -1,0 +1,34 @@
+card "Malefic Truth Dragon" {
+    id: 37115575
+    type: Effect Monster | Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 12
+    atk: 5000
+    def: 5000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: destroyed
+        cost {
+            pay_lp your_lp / 2
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        mandatory
+        trigger: battle_damage
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

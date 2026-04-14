@@ -1,0 +1,39 @@
+card "Perfectron Hydradrive Dragon" {
+    id: 13203964
+    type: Link Monster
+    attribute: EARTH
+    race: Cyberse
+    link: 5
+    atk: 5000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    passive "Effect 6" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        trigger: summoned by special
+        resolve {
+            destroy (all, card, either controls)
+            damage opponent 1000
+        }
+    }
+
+    replacement "Effect 5" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

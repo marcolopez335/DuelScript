@@ -1,0 +1,35 @@
+card "Zefraath" {
+    id: 29432356
+    type: Effect Monster | Pendulum Monster | Effect Monster
+    attribute: EARTH
+    race: Rock
+    level: 11
+    scale: 5
+    atk: 3450
+    def: 2950
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            send (all, card, either controls) to extra_deck
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

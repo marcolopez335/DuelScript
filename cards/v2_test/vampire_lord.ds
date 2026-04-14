@@ -1,0 +1,36 @@
+// ヴァンパイア・ロード
+// Vampire Lord
+// When this card inflicts battle damage: Declare a card type;
+// opponent sends 1 of that type from Deck to GY.
+// When destroyed by card effect: Special Summon it next Standby.
+
+card "Vampire Lord" {
+    id: 53839837
+    type: Effect Monster
+    attribute: DARK
+    race: Zombie
+    level: 5
+    atk: 2000
+    def: 1500
+
+    summon {
+        tributes: 1
+    }
+
+    effect "Mill Opponent" {
+        speed: 1
+        trigger: battle_damage to opponent
+        resolve {
+            mill 1 from opponent_deck
+        }
+    }
+
+    effect "Self Revive" {
+        speed: 1
+        mandatory
+        trigger: destroyed_by_effect
+        resolve {
+            special_summon self from gy
+        }
+    }
+}

@@ -1,0 +1,23 @@
+card "Bujin Hirume" {
+    id: 9418365
+    type: Effect Monster | Effect Monster
+    attribute: LIGHT
+    race: Beast-Warrior
+    level: 4
+    atk: 2000
+    def: 1000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            discard (all, card, either controls)
+            discard (all, card, either controls)
+        }
+    }
+}

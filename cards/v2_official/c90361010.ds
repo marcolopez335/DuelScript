@@ -1,0 +1,31 @@
+card "Superheavy Samurai Soulpiercer" {
+    id: 90361010
+    type: Effect Monster
+    attribute: EARTH
+    race: Machine
+    level: 4
+    atk: 1200
+    def: 0
+
+    passive "Effect 4" {
+        scope: self
+        grant: piercing
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

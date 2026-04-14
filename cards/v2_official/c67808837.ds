@@ -1,0 +1,35 @@
+card "Performapal King Bear" {
+    id: 67808837
+    type: Effect Monster | Pendulum Monster
+    attribute: EARTH
+    race: Beast-Warrior
+    level: 6
+    scale: 7
+    atk: 2200
+    def: 1000
+
+    summon {
+        tributes: 1
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: end_phase
+        resolve {
+            destroy (all, card, either controls)
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,35 @@
+card "Predaplant Ophrys Scorpio" {
+    id: 35272499
+    type: Effect Monster
+    attribute: DARK
+    race: Plant
+    level: 3
+    atk: 1200
+    def: 800
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

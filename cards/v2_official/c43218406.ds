@@ -1,0 +1,44 @@
+card "Gizmek Okami, the Dreaded Deluge Dragon" {
+    id: 43218406
+    type: Effect Monster
+    attribute: WATER
+    race: Machine
+    level: 10
+    atk: 2950
+    def: 2950
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        cost {
+            pay_lp 1500
+        }
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            banish (all, card, either controls)
+            gain_lp 1000
+        }
+    }
+}

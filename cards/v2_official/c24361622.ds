@@ -1,0 +1,33 @@
+card "Hieratic Seal of the Heavenly Spheres" {
+    id: 24361622
+    type: Link Monster
+    attribute: LIGHT
+    race: Dragon
+    link: 2
+    atk: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            tribute self
+        }
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        trigger: sent_to gy
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

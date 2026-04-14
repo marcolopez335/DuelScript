@@ -1,0 +1,26 @@
+card "Infernoid Tierra" {
+    id: 82734805
+    type: Fusion Monster
+    attribute: FIRE
+    race: Fiend
+    level: 11
+    atk: 3400
+    def: 3600
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned by special
+        resolve {
+            send (all, card, either controls) to gy
+            mill 3
+            mill 3
+            send (all, card, either controls) to gy
+            send (all, card, either controls) to gy
+        }
+    }
+}

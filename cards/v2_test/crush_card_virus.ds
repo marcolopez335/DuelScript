@@ -1,0 +1,20 @@
+// 死のデッキ破壊ウイルス
+// Crush Card Virus
+// Tribute 1 DARK monster with 1000 or less ATK; check all monsters
+// opponent controls, in their hand, and drawn for 3 turns. Destroy
+// those with 1500 or more ATK.
+
+card "Crush Card Virus" {
+    id: 57728570
+    type: Normal Trap
+
+    effect "Virus" {
+        speed: 2
+        cost {
+            tribute (1, monster, you control, where attribute == DARK and atk <= 1000)
+        }
+        resolve {
+            destroy (all, monster, opponent controls, where atk >= 1500)
+        }
+    }
+}

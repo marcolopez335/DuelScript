@@ -1,0 +1,29 @@
+card "Inzektor Picofalena" {
+    id: 97273514
+    type: Link Monster
+    attribute: DARK
+    race: Insect
+    link: 2
+    atk: 1000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            return (all, card, either controls) to deck
+            draw 1
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+    }
+}

@@ -1,0 +1,34 @@
+card "Voltanis the Adjudicator" {
+    id: 20951752
+    type: Effect Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 8
+    atk: 2800
+    def: 1400
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: sent_to gy
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

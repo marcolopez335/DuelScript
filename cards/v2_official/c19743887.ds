@@ -1,0 +1,35 @@
+card "VARefar, the Judge of Ball" {
+    id: 19743887
+    type: Effect Monster
+    attribute: EARTH
+    race: Fiend
+    level: 11
+    atk: 2100
+    def: 800
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            special_summon (all, card, either controls)
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: attacked
+        resolve {
+            special_summon (all, card, either controls)
+            banish (all, card, either controls)
+        }
+    }
+}

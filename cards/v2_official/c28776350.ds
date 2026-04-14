@@ -1,0 +1,31 @@
+card "Akashic Magician" {
+    id: 28776350
+    type: Link Monster
+    attribute: DARK
+    race: Spellcaster
+    link: 2
+    atk: 1700
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            add_to_hand (all, card, either controls)
+            send (all, card, either controls) to gy
+        }
+    }
+}

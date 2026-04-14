@@ -1,0 +1,43 @@
+card "Five-Headed Link Dragon" {
+    id: 10669138
+    type: Link Monster
+    attribute: DARK
+    race: Dragon
+    link: 5
+    atk: 5000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    passive "Effect 5" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 6" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: end_phase
+        resolve {
+            send (all, card, either controls) to gy
+            banish (all, card, either controls)
+            send (all, card, either controls) to gy
+        }
+    }
+}

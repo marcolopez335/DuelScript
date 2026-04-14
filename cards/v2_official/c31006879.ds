@@ -1,0 +1,32 @@
+card "On Your Mark, Get Set, DUEL!" {
+    id: 31006879
+    type: Continuous Spell
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: standby_phase
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            draw 1
+            discard (all, card, either controls)
+        }
+    }
+}

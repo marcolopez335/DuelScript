@@ -1,0 +1,24 @@
+card "Life Shaver" {
+    id: 38105306
+    type: Continuous Trap
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        mandatory
+        trigger: end_phase
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        resolve {
+            send (all, card, either controls) to gy
+            discard (all, card, either controls)
+        }
+    }
+}

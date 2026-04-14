@@ -1,0 +1,39 @@
+card "Zefraniu, Secret of the Yang Zing" {
+    id: 58990362
+    type: Effect Monster | Pendulum Monster
+    attribute: EARTH
+    race: Wyrm
+    level: 6
+    scale: 7
+    atk: 0
+    def: 2600
+
+    summon {
+        tributes: 1
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: destroyed
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

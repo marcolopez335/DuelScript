@@ -1,0 +1,42 @@
+card "Absolute Axon Kicker" {
+    id: 80073414
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Psychic
+    level: 11
+    atk: 3400
+    def: 2200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        cost {
+            pay_lp 2000
+        }
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

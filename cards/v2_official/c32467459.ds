@@ -1,0 +1,39 @@
+card "El Shaddoll Meshahrail" {
+    id: 32467459
+    type: Fusion Monster
+    attribute: EARTH
+    race: Machine
+    level: 10
+    atk: 2800
+    def: 1000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            pay_lp 800
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,39 @@
+card "Number 64: Ronin Raccoon Sandayu" {
+    id: 39972129
+    type: Xyz Monster
+    attribute: EARTH
+    race: Beast
+    rank: 2
+    atk: 1000
+    def: 1000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+}

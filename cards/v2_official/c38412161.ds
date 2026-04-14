@@ -1,0 +1,23 @@
+card "Chow Sai the Ghost Stopper" {
+    id: 38412161
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 4
+    atk: 1900
+    def: 800
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+}

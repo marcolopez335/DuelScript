@@ -1,0 +1,18 @@
+// 補充要員
+// Backup Soldier
+// Activate only if there are 5 or more Monster Cards in your GY.
+// Add up to 3 Normal Monsters with 1500 or less ATK from your GY
+// to your hand.
+
+card "Backup Soldier" {
+    id: 36280194
+    type: Normal Trap
+
+    effect "Recover Normals" {
+        speed: 2
+        condition: cards_in_gy >= 5
+        resolve {
+            add_to_hand (3, normal monster, in gy, where atk <= 1500)
+        }
+    }
+}

@@ -1,0 +1,28 @@
+card "Soul of the Supreme King" {
+    id: 92428405
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+        cost {
+            pay_lp your_lp / 2
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

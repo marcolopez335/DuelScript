@@ -1,0 +1,33 @@
+card "Qliphort Helix" {
+    id: 37991342
+    type: Effect Monster | Pendulum Monster
+    attribute: EARTH
+    race: Machine
+    level: 6
+    scale: 9
+    atk: 2400
+    def: 1000
+
+    summon {
+        tributes: 1
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    passive "Effect 6" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    effect "Effect 7" {
+        speed: 1
+        timing: if
+        trigger: sent_to gy
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

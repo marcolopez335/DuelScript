@@ -1,0 +1,31 @@
+card "CXyz Coach Lord Ultimatrainer" {
+    id: 88754763
+    type: Xyz Monster
+    attribute: FIRE
+    race: Warrior
+    rank: 9
+    atk: 3800
+    def: 2300
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            draw 1
+            damage opponent 800
+        }
+    }
+}

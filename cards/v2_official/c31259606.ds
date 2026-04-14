@@ -1,0 +1,42 @@
+card "Supreme Sea Mare" {
+    id: 31259606
+    type: Effect Monster
+    attribute: WATER
+    race: Aqua
+    level: 4
+    atk: 1500
+    def: 1600
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: end_phase
+        cost {
+            tribute self
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

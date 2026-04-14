@@ -1,0 +1,48 @@
+card "X-Saber Bruno" {
+    id: 45462306
+    type: Effect Monster | Tuner
+    attribute: EARTH
+    race: Psychic
+    level: 3
+    atk: 1200
+    def: 1100
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+}

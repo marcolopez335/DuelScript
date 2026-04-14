@@ -1,0 +1,31 @@
+card "Salamangreat Mole" {
+    id: 89484053
+    type: Effect Monster
+    attribute: FIRE
+    race: Cyberse
+    level: 1
+    atk: 0
+    def: 0
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            return (all, card, either controls) to deck
+            draw 2
+        }
+    }
+}

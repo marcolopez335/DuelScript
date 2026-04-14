@@ -1,0 +1,35 @@
+card "Maha Vailo, Light of the Heavens" {
+    id: 45796834
+    type: Effect Monster
+    attribute: LIGHT
+    race: Spellcaster
+    level: 8
+    atk: 1550
+    def: 1400
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            send self to gy
+        }
+        resolve {
+            negate
+        }
+    }
+}

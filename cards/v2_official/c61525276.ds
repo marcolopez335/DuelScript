@@ -1,0 +1,42 @@
+card "Curse of Dragon, the Cursed Dragon" {
+    id: 61525276
+    type: Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 5
+    atk: 2000
+    def: 1500
+
+    summon {
+        tributes: 1
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+        }
+    }
+}

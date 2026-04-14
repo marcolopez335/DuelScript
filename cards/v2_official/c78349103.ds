@@ -1,0 +1,33 @@
+card "Machina Peacekeeper" {
+    id: 78349103
+    type: Effect Monster | Effect Monster
+    attribute: EARTH
+    race: Machine
+    level: 2
+    atk: 500
+    def: 400
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        resolve {
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        mandatory
+        resolve {
+            special_summon self
+        }
+    }
+}

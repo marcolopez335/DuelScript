@@ -1,0 +1,33 @@
+card "Vampire Ghost" {
+    id: 90299015
+    type: Effect Monster
+    attribute: DARK
+    race: Zombie
+    level: 3
+    atk: 1500
+    def: 0
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned
+        cost {
+            send self to gy
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            pay_lp your_lp / 2
+        }
+        resolve {
+        }
+    }
+}

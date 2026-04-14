@@ -1,0 +1,29 @@
+card "Deep Sea Sentry" {
+    id: 45483489
+    type: Effect Monster
+    attribute: WATER
+    race: Sea Serpent
+    level: 2
+    atk: 400
+    def: 2000
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

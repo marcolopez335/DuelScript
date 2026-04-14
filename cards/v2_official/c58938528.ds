@@ -1,0 +1,40 @@
+card "Performapal Ladyange" {
+    id: 58938528
+    type: Effect Monster | Pendulum Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 3
+    scale: 1
+    atk: 1000
+    def: 1500
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: summoned
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            draw 1
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

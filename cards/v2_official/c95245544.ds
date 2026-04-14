@@ -1,0 +1,31 @@
+card "Witchcrafter Pittore" {
+    id: 95245544
+    type: Effect Monster
+    attribute: WATER
+    race: Spellcaster
+    level: 3
+    atk: 1000
+    def: 1500
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            draw 1
+            send (all, card, either controls) to gy
+            banish (all, card, either controls)
+        }
+    }
+}

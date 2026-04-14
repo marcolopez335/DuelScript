@@ -1,0 +1,30 @@
+card "Performapal Turn Trooper" {
+    id: 220414
+    type: Effect Monster
+    attribute: LIGHT
+    race: Warrior
+    level: 4
+    atk: 1200
+    def: 1200
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: summoned
+        resolve {
+            negate
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+}

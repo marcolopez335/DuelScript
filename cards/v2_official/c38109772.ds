@@ -1,0 +1,25 @@
+card "Dragonic Knight" {
+    id: 38109772
+    type: Effect Monster
+    attribute: FIRE
+    race: Dragon
+    level: 7
+    atk: 2800
+    def: 2300
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

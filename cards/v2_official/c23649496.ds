@@ -1,0 +1,33 @@
+card "Number 18: Heraldry Patriarch" {
+    id: 23649496
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Psychic
+    rank: 4
+    atk: 2200
+    def: 2200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

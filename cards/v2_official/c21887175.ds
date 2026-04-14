@@ -1,0 +1,37 @@
+card "Mekk-Knight Crusadia Avramax" {
+    id: 21887175
+    type: Link Monster
+    attribute: LIGHT
+    race: Cyberse
+    link: 4
+    atk: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        timing: when
+        trigger: summoned
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            return (all, card, either controls) to deck
+        }
+    }
+}

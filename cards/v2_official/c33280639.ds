@@ -1,0 +1,37 @@
+card "Prologue of the Destruction Swordsman" {
+    id: 33280639
+    type: Normal Trap
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (all, card, either controls)
+            destroy (all, card, either controls)
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        cost {
+            banish self
+        }
+        resolve {
+        }
+    }
+}

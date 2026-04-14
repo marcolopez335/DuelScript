@@ -1,0 +1,35 @@
+card "Horned Brute Carnovorus" {
+    id: 34149150
+    type: Synchro Monster | Tuner
+    attribute: FIRE
+    race: Dinosaur
+    level: 6
+    atk: 2000
+    def: 200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: summoned
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

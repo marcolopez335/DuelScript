@@ -1,0 +1,34 @@
+card "Yoko, the Graceful Mayakashi" {
+    id: 3486020
+    type: Synchro Monster
+    attribute: FIRE
+    race: Zombie
+    level: 9
+    atk: 2900
+    def: 2400
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: destroyed
+        resolve {
+            banish (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

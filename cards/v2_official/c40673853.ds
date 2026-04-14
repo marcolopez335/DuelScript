@@ -1,0 +1,33 @@
+card "Vallon, the Super Psy Skyblaster" {
+    id: 40673853
+    type: Xyz Monster
+    attribute: DARK
+    race: Psychic
+    rank: 5
+    atk: 2500
+    def: 2200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        cost {
+            detach 1 from self
+        }
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

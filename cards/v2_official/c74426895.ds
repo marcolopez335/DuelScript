@@ -1,0 +1,35 @@
+card "Awakening of the Possessed - Gagigobyte" {
+    id: 74426895
+    type: Effect Monster
+    attribute: WATER
+    race: Reptile
+    level: 5
+    atk: 2000
+    def: 200
+
+    summon {
+        tributes: 1
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: summoned by special
+        resolve {
+            send (all, card, either controls) to gy
+            draw 1
+            draw 1
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+}

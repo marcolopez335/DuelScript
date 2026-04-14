@@ -1,0 +1,37 @@
+card "Tindangle Base Gardna" {
+    id: 94365540
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 5
+    atk: 0
+    def: 2300
+
+    summon {
+        tributes: 1
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: summoned
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,32 @@
+card "Flying 'C'" {
+    id: 80978111
+    type: Effect Monster
+    attribute: EARTH
+    race: Insect
+    level: 3
+    atk: 700
+    def: 700
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

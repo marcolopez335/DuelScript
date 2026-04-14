@@ -1,0 +1,25 @@
+// 魔導サイエンティスト
+// Magical Scientist
+// Pay 1000 LP; Special Summon 1 Level 6 or lower Fusion Monster
+// from your Extra Deck. It cannot attack directly, and returns
+// to the Extra Deck at end of turn.
+
+card "Magical Scientist" {
+    id: 34206604
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 1
+    atk: 300
+    def: 300
+
+    effect "Summon Fusion" {
+        speed: 1
+        cost {
+            pay_lp 1000
+        }
+        resolve {
+            special_summon (1, fusion monster, where level <= 6) from extra_deck
+        }
+    }
+}

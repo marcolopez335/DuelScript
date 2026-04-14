@@ -1,0 +1,31 @@
+card "Thunder Ball" {
+    id: 84813516
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 3
+    atk: 450
+    def: 400
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: destroyed
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

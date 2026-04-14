@@ -1,0 +1,21 @@
+// 奈落の落とし穴
+// Bottomless Trap Hole
+// When your opponent Summons a monster with 1500 or more ATK:
+// Destroy that monster, and if you do, banish it.
+
+card "Bottomless Trap Hole" {
+    id: 29401950
+    type: Normal Trap
+
+    effect "Destroy and Banish" {
+        speed: 2
+        timing: when
+        trigger: summoned
+        resolve {
+            destroy (all, monster, opponent controls, where atk >= 1500)
+            and_if_you_do {
+                banish (all, monster, opponent controls)
+            }
+        }
+    }
+}

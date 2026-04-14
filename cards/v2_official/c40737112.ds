@@ -1,0 +1,32 @@
+card "Dark Magician of Chaos" {
+    id: 40737112
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 8
+    atk: 2800
+    def: 2600
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: end_phase
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+}

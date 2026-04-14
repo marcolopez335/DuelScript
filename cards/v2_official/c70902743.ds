@@ -1,0 +1,32 @@
+card "Red Dragon Archfiend" {
+    id: 70902743
+    type: Synchro Monster
+    attribute: DARK
+    race: Dragon
+    level: 8
+    atk: 3000
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: end_phase
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

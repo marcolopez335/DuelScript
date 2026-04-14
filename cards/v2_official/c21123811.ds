@@ -1,0 +1,40 @@
+card "Cosmic Blazar Dragon" {
+    id: 21123811
+    type: Synchro Monster
+    attribute: WIND
+    race: Dragon
+    level: 12
+    atk: 4000
+    def: 4000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            banish self
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 6" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: summoned
+        cost {
+            banish self
+        }
+        resolve {
+            negate
+        }
+    }
+}

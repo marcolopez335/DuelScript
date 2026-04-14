@@ -1,0 +1,34 @@
+card "Berfomet the Mythical King of Phantom Beasts" {
+    id: 69601012
+    type: Fusion Monster
+    attribute: WIND
+    race: Fiend
+    level: 6
+    atk: 2400
+    def: 600
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

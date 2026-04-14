@@ -1,0 +1,32 @@
+card "Mobius the Mega Monarch" {
+    id: 23689697
+    type: Effect Monster
+    attribute: WATER
+    race: Aqua
+    level: 8
+    atk: 2800
+    def: 1000
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_change_position
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

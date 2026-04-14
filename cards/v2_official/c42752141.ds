@@ -1,0 +1,26 @@
+card "Evolzar Dolkka" {
+    id: 42752141
+    type: Xyz Monster
+    attribute: FIRE
+    race: Dragon
+    rank: 4
+    atk: 2300
+    def: 1700
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

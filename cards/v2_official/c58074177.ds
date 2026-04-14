@@ -1,0 +1,40 @@
+card "Odd-Eyes Wing Dragon" {
+    id: 58074177
+    type: Synchro Monster | Pendulum Monster
+    attribute: DARK
+    race: Dragon
+    level: 8
+    scale: 10
+    atk: 3000
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            negate
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: hard
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        timing: if
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

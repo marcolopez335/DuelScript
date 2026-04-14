@@ -1,0 +1,33 @@
+card "Beatrice, Lady of the Eternal" {
+    id: 27552504
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Fairy
+    rank: 6
+    atk: 2500
+    def: 2800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

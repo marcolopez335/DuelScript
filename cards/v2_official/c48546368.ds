@@ -1,0 +1,23 @@
+card "Herald of Ultimateness" {
+    id: 48546368
+    type: Ritual Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 12
+    atk: 2000
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

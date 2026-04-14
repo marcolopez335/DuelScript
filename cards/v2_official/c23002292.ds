@@ -1,0 +1,21 @@
+card "Red Reboot" {
+    id: 23002292
+    type: Normal Trap
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            pay_lp your_lp / 2
+        }
+        resolve {
+            negate
+        }
+    }
+}

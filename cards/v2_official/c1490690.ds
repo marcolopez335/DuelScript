@@ -1,0 +1,33 @@
+card "Canopic Protector" {
+    id: 1490690
+    type: Continuous Trap
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: hard
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+        }
+    }
+}

@@ -1,0 +1,31 @@
+card "Ghostrick Jiangshi" {
+    id: 80885284
+    type: Effect Monster
+    attribute: DARK
+    race: Zombie
+    level: 3
+    atk: 400
+    def: 1800
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        resolve {
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: custom "chain_active"
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+}

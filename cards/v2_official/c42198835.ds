@@ -1,0 +1,30 @@
+card "Illegal Knight" {
+    id: 42198835
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 7
+    atk: 2000
+    def: 2000
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+            take_control (all, card, either controls)
+            return (all, card, either controls) to hand
+        }
+    }
+}

@@ -1,0 +1,39 @@
+card "Winged Kuriboh LV6" {
+    id: 48486809
+    type: Effect Monster | Effect Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 6
+    atk: 300
+    def: 200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        timing: when
+        trigger: summoned
+        cost {
+            tribute self
+        }
+        resolve {
+            destroy (all, card, either controls)
+            damage opponent 1000
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            tribute self
+        }
+        resolve {
+            destroy (all, card, either controls)
+            damage opponent 1000
+        }
+    }
+}

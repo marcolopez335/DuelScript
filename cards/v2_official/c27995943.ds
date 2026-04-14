@@ -1,0 +1,35 @@
+card "Dr. Frankenderp" {
+    id: 27995943
+    type: Effect Monster
+    attribute: DARK
+    race: Psychic
+    level: 3
+    atk: 300
+    def: 300
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned
+        cost {
+            pay_lp 500
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        cost {
+            pay_lp 500
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

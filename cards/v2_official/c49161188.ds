@@ -1,0 +1,34 @@
+card "Gilti-Gearfried the Magical Steel Knight" {
+    id: 49161188
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Warrior
+    level: 8
+    atk: 2700
+    def: 1600
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: summoned
+        cost {
+            banish self
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

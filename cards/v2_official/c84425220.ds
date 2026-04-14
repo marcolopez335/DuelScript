@@ -1,0 +1,26 @@
+card "Armed Dragon LV10 White" {
+    id: 84425220
+    type: Effect Monster | Effect Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 10
+    atk: 3000
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

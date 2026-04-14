@@ -1,0 +1,27 @@
+card "Sylvan Bladefender" {
+    id: 11682713
+    type: Effect Monster
+    attribute: EARTH
+    race: Plant
+    level: 4
+    atk: 1900
+    def: 700
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: battle_damage
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

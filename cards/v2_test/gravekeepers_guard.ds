@@ -1,0 +1,24 @@
+// 墓守の番兵
+// Gravekeeper's Guard
+// FLIP: Target 1 monster opponent controls; return it to the hand.
+
+card "Gravekeeper's Guard" {
+    id: 37101832
+    type: Effect Monster | Flip
+    attribute: DARK
+    race: Spellcaster
+    level: 4
+    atk: 1000
+    def: 1900
+    archetype: ["Gravekeeper's"]
+
+    effect "Bounce Monster" {
+        speed: 1
+        mandatory
+        trigger: flipped
+        target (1, monster, opponent controls)
+        resolve {
+            return target to hand
+        }
+    }
+}

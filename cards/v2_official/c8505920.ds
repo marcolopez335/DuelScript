@@ -1,0 +1,23 @@
+card "Gate Guardians Combined" {
+    id: 8505920
+    type: Fusion Monster
+    attribute: DARK
+    race: Warrior
+    level: 12
+    atk: 3750
+    def: 3400
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

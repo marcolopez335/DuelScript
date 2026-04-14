@@ -1,0 +1,30 @@
+card "Guardian Slime" {
+    id: 15771991
+    type: Effect Monster
+    attribute: WATER
+    race: Aqua
+    level: 10
+    atk: 0
+    def: 0
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: summoned
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

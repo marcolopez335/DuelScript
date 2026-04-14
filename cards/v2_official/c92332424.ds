@@ -1,0 +1,40 @@
+card "Majesty Pegasus, the Dracoslayer" {
+    id: 92332424
+    type: Effect Monster | Pendulum Monster
+    attribute: WIND
+    race: Spellcaster
+    level: 4
+    scale: 2
+    atk: 1500
+    def: 1500
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            add_to_hand (all, card, either controls)
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        cost {
+            discard (all, card, either controls)
+        }
+        resolve {
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+            discard (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,36 @@
+card "Hecahands Xeno" {
+    id: 94410955
+    type: Fusion Monster
+    attribute: DARK
+    race: Warrior
+    level: 9
+    atk: 3400
+    def: 3500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: hard
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: destroyed
+        resolve {
+            take_control (all, card, either controls)
+        }
+    }
+}

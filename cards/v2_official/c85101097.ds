@@ -1,0 +1,30 @@
+card "Putrid Pudding Body Buddies" {
+    id: 85101097
+    type: Effect Monster
+    attribute: WATER
+    race: Fiend
+    level: 1
+    atk: 300
+    def: 300
+
+    effect "Effect 6" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: end_phase
+        resolve {
+            destroy (all, card, either controls)
+            take_control (all, card, either controls)
+        }
+    }
+
+    effect "Effect 7" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: standby_phase
+        resolve {
+            damage opponent 300
+        }
+    }
+}

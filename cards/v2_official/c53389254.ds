@@ -1,0 +1,35 @@
+card "Assault Blackwing - Sohaya the Rain Storm" {
+    id: 53389254
+    type: Synchro Monster
+    attribute: DARK
+    race: Winged Beast
+    level: 5
+    atk: 1500
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

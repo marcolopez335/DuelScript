@@ -1,0 +1,35 @@
+card "Virtual World Phoenix - Fanfan" {
+    id: 27069566
+    type: Xyz Monster
+    attribute: EARTH
+    race: Wyrm
+    rank: 6
+    atk: 2600
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            detach 2 from self
+        }
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

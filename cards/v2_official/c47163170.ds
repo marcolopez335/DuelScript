@@ -1,0 +1,32 @@
+card "Tri-Brigade Bearbrumm the Rampant Rampager" {
+    id: 47163170
+    type: Link Monster
+    attribute: FIRE
+    race: Beast
+    link: 2
+    atk: 1700
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+            return (all, card, either controls) to deck
+        }
+    }
+}

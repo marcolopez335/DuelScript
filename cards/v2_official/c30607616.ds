@@ -1,0 +1,33 @@
+card "Oboro-Guruma, the Wheeled Mayakashi" {
+    id: 30607616
+    type: Synchro Monster
+    attribute: EARTH
+    race: Zombie
+    level: 3
+    atk: 800
+    def: 2100
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: destroyed
+        resolve {
+            banish (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

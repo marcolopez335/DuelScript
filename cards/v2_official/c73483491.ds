@@ -1,0 +1,27 @@
+card "Vindikite R-Genex" {
+    id: 73483491
+    type: Synchro Monster
+    attribute: WIND
+    race: Machine
+    level: 8
+    atk: 2400
+    def: 1000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: battle_damage
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

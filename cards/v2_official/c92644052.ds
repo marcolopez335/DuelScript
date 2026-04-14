@@ -1,0 +1,46 @@
+card "Performapal Duelist Extraordinaire" {
+    id: 92644052
+    type: Effect Monster | Pendulum Monster
+    attribute: LIGHT
+    race: Spellcaster
+    level: 4
+    scale: 8
+    atk: 1800
+    def: 400
+
+    passive "Effect 5" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: destroyed_by_battle
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: standby_phase
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: summoned
+        resolve {
+            add_to_hand (all, card, either controls)
+            send (all, card, either controls) to gy
+            negate
+        }
+    }
+}

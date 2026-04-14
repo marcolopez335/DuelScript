@@ -1,0 +1,41 @@
+card "B.E.S. Big Core MK-3" {
+    id: 82821760
+    type: Effect Monster
+    attribute: LIGHT
+    race: Machine
+    level: 8
+    atk: 2700
+    def: 1900
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: summoned
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        mandatory
+        trigger: summoned by special
+    }
+
+    effect "Effect 6" {
+        speed: 1
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            return (all, card, either controls) to deck
+        }
+    }
+}

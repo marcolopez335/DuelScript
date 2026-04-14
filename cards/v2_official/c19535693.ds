@@ -1,0 +1,30 @@
+card "Noh-P.U.N.K. Ze Amin" {
+    id: 19535693
+    type: Effect Monster | Tuner
+    attribute: EARTH
+    race: Psychic
+    level: 3
+    atk: 600
+    def: 600
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            pay_lp 600
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+        }
+    }
+}

@@ -1,0 +1,29 @@
+card "Fiendish Rhino Warrior" {
+    id: 81035362
+    type: Effect Monster
+    attribute: EARTH
+    race: Fiend
+    level: 3
+    atk: 1400
+    def: 900
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

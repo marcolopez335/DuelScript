@@ -1,0 +1,27 @@
+card "Staysailor Romarin" {
+    id: 49964567
+    type: Effect Monster | Tuner
+    attribute: LIGHT
+    race: Plant
+    level: 4
+    atk: 1600
+    def: 300
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

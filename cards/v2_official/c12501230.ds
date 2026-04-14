@@ -1,0 +1,36 @@
+card "Combat Wheel" {
+    id: 12501230
+    type: Synchro Monster
+    attribute: EARTH
+    race: Machine
+    level: 6
+    atk: 2500
+    def: 1200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed
+    }
+
+    passive "Effect 5" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 2" {
+        speed: 2
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        mandatory
+        trigger: battle_damage
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

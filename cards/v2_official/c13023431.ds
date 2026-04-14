@@ -1,0 +1,38 @@
+card "Chevreuil, Hunting Scout of the Deep Forest" {
+    id: 13023431
+    type: Fusion Monster
+    attribute: EARTH
+    race: Warrior
+    level: 7
+    atk: 2600
+    def: 2600
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: must_attack
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: must_attack
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: battle_damage
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

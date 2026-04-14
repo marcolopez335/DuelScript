@@ -1,0 +1,43 @@
+card "Master Peace, the True Dracoverlord" {
+    id: 12800564
+    type: Effect Monster
+    attribute: DARK
+    race: Wyrm
+    level: 10
+    atk: 2950
+    def: 2950
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    passive "Effect 5" {
+        scope: self
+        grant: cannot_change_position
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: destroyed
+        resolve {
+        }
+    }
+}

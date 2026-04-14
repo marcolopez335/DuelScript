@@ -1,0 +1,28 @@
+card "Deep Sea Repetiteur" {
+    id: 33467872
+    type: Synchro Monster | Tuner
+    attribute: WATER
+    race: Sea Serpent
+    level: 5
+    atk: 1800
+    def: 1500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

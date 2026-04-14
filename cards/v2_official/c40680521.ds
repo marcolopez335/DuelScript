@@ -1,0 +1,42 @@
+card "Mamonaka the Vaylantz United" {
+    id: 40680521
+    type: Fusion Monster | Pendulum Monster
+    attribute: WATER
+    race: Spellcaster
+    level: 10
+    scale: 10
+    atk: 2800
+    def: 2800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+            destroy (all, card, either controls)
+            gain_lp 0
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

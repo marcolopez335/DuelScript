@@ -1,0 +1,27 @@
+card "Shuffle Reborn" {
+    id: 14816688
+    type: Normal Spell
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+            banish (all, card, either controls)
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            return (all, card, either controls) to deck
+            draw 1
+        }
+    }
+}

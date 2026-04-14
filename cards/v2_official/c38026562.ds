@@ -1,0 +1,44 @@
+card "Vola-Chemicritter Methydraco" {
+    id: 38026562
+    type: Xyz Monster
+    attribute: FIRE
+    race: Beast-Warrior
+    rank: 8
+    atk: 3000
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

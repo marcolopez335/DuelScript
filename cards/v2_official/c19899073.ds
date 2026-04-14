@@ -1,0 +1,45 @@
+card "Ame no Murakumo no Mitsurugi" {
+    id: 19899073
+    type: Ritual Monster
+    attribute: DARK
+    race: Reptile
+    level: 8
+    atk: 3200
+    def: 800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            discard (all, card, either controls)
+            negate
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: sent_to gy
+        resolve {
+            return (all, card, either controls) to hand
+            special_summon (all, card, either controls)
+        }
+    }
+}

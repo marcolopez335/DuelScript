@@ -1,0 +1,27 @@
+card "Chaos Hunter" {
+    id: 97940434
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 7
+    atk: 2500
+    def: 1600
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

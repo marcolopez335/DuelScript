@@ -1,0 +1,24 @@
+card "Cataclysmic Scorching Sunburner" {
+    id: 39505816
+    type: Effect Monster
+    attribute: FIRE
+    race: Fairy
+    level: 8
+    atk: 2600
+    def: 200
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+            damage opponent 1000
+        }
+    }
+}

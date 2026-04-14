@@ -1,0 +1,34 @@
+card "Regenesis Warrior" {
+    id: 96540807
+    type: Effect Monster
+    attribute: FIRE
+    race: Warrior
+    level: 7
+    atk: 2500
+    def: 2500
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            tribute self
+        }
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: end_phase
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+}

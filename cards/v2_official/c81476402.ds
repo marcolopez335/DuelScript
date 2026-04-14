@@ -1,0 +1,35 @@
+card "Wicked Serpent Night Dragon" {
+    id: 81476402
+    type: Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 7
+    atk: 2350
+    def: 2400
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: battle_damage
+        resolve {
+            send (all, card, either controls) to gy
+            special_summon (all, card, either controls)
+        }
+    }
+}

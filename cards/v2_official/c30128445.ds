@@ -1,0 +1,36 @@
+card "Transcendosaurus Drillygnathus" {
+    id: 30128445
+    type: Xyz Monster
+    attribute: WIND
+    race: Dinosaur
+    rank: 6
+    atk: 3000
+    def: 2300
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: destroyed
+        resolve {
+            return (all, card, either controls) to deck
+            special_summon (all, card, either controls)
+        }
+    }
+}

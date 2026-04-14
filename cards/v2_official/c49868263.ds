@@ -1,0 +1,30 @@
+card "Ryu Senshi" {
+    id: 49868263
+    type: Fusion Monster
+    attribute: EARTH
+    race: Warrior
+    level: 6
+    atk: 2000
+    def: 1200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            pay_lp 1000
+        }
+        resolve {
+            negate
+        }
+    }
+}

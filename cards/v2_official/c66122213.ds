@@ -1,0 +1,32 @@
+card "Infernal Strike Fighter" {
+    id: 66122213
+    type: Synchro Monster
+    attribute: DARK
+    race: Machine
+    level: 7
+    atk: 2600
+    def: 1800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+            destroy (all, card, either controls)
+            damage opponent 1000
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

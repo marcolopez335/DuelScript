@@ -1,0 +1,27 @@
+card "Esper Girl" {
+    id: 99070951
+    type: Effect Monster | Tuner
+    attribute: EARTH
+    race: Psychic
+    level: 2
+    atk: 500
+    def: 300
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        trigger: summoned by special
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

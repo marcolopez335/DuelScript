@@ -1,0 +1,35 @@
+card "Stardust Dragon" {
+    id: 44508094
+    type: Synchro Monster | Effect Monster
+    attribute: WIND
+    race: Dragon
+    level: 8
+    atk: 2500
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Negate Destruction" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            tribute self
+        }
+        resolve {
+            negate and destroy
+        }
+    }
+
+    effect "Revive Self" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: end_phase
+        resolve {
+            special_summon self in attack_position
+        }
+    }
+}

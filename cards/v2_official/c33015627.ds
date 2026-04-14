@@ -1,0 +1,48 @@
+card "Sandaion, the Timelord" {
+    id: 33015627
+    type: Effect Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 10
+    atk: 4000
+    def: 4000
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    passive "Effect 6" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 7" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: standby_phase
+        resolve {
+            damage opponent 1000
+        }
+    }
+
+    effect "Effect 8" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: standby_phase
+        resolve {
+            return (all, card, either controls) to deck
+        }
+    }
+}

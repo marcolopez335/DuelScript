@@ -1,0 +1,27 @@
+card "Black Luster Soldier - Legendary Swordsman" {
+    id: 70551291
+    type: Ritual Monster
+    attribute: EARTH
+    race: Warrior
+    level: 8
+    atk: 3000
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    effect "Effect 5" {
+        speed: 1
+        timing: when
+        trigger: battle_damage
+        resolve {
+            return (all, card, either controls) to deck
+        }
+    }
+}

@@ -1,0 +1,23 @@
+card "Sorcerer of Dark Magic" {
+    id: 88619463
+    type: Effect Monster | Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 9
+    atk: 3200
+    def: 2800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

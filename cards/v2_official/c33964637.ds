@@ -1,0 +1,32 @@
+card "Secret Six Samurai - Rihan" {
+    id: 33964637
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Warrior
+    level: 5
+    atk: 2400
+    def: 2400
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+
+    replacement "Effect 3" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

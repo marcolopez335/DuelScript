@@ -1,0 +1,19 @@
+card "Anarchist Monk of the Six Samurai" {
+    id: 80570228
+    type: Effect Monster | Tuner
+    attribute: DARK
+    race: Warrior
+    level: 3
+    atk: 500
+    def: 0
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+}

@@ -1,0 +1,22 @@
+card "Hi-Speedroid Chanbara" {
+    id: 42110604
+    type: Synchro Monster
+    attribute: WIND
+    race: Machine
+    level: 5
+    atk: 2000
+    def: 1000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,20 @@
+card "Silverrokket Dragon" {
+    id: 32476603
+    type: Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 4
+    atk: 1900
+    def: 100
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            destroy (all, card, either controls)
+            banish (all, card, either controls)
+        }
+    }
+}

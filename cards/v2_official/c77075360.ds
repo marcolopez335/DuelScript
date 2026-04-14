@@ -1,0 +1,30 @@
+card "Junk Speeder" {
+    id: 77075360
+    type: Synchro Monster
+    attribute: WIND
+    race: Warrior
+    level: 5
+    atk: 1800
+    def: 1000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: summoned
+    }
+}

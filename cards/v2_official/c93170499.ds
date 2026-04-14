@@ -1,0 +1,38 @@
+card "Jurrac Megalo" {
+    id: 93170499
+    type: Effect Monster | Tuner
+    attribute: FIRE
+    race: Dinosaur
+    level: 1
+    atk: 500
+    def: 1300
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            send (all, card, either controls) to gy
+            draw 2
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: destroyed
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

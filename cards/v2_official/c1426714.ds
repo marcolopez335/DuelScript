@@ -1,0 +1,33 @@
+card "Number 48: Shadow Lich" {
+    id: 1426714
+    type: Xyz Monster
+    attribute: DARK
+    race: Zombie
+    rank: 3
+    atk: 1800
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+}

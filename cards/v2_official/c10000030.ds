@@ -1,0 +1,26 @@
+card "Magi Magi Magician Gal" {
+    id: 10000030
+    type: Xyz Monster | Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    rank: 6
+    atk: 2400
+    def: 2000
+
+    summon {
+    }
+
+    effect "Choose Effect" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            detach 1 from self
+            banish (all, card, either controls)
+        }
+        resolve {
+            take_control (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

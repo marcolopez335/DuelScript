@@ -1,0 +1,24 @@
+card "Imperion Magnum the Superconductive Battlebot" {
+    id: 4628897
+    type: Fusion Monster
+    attribute: EARTH
+    race: Rock
+    level: 10
+    atk: 4000
+    def: 4000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

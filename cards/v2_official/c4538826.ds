@@ -1,0 +1,41 @@
+card "Chaos Emperor, the Dragon of Armageddon" {
+    id: 4538826
+    type: Effect Monster | Pendulum Monster | Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 8
+    scale: 1
+    atk: 3000
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            pay_lp 1000
+        }
+        resolve {
+            destroy (all, card, either controls)
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            pay_lp your_lp / 2
+        }
+        resolve {
+            send (all, card, either controls) to gy
+            send (all, card, either controls) to gy
+            damage opponent 1000
+        }
+    }
+}

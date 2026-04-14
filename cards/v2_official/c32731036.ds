@@ -1,0 +1,34 @@
+card "The Bystial Lubellion" {
+    id: 32731036
+    type: Effect Monster | Effect Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 8
+    atk: 2500
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

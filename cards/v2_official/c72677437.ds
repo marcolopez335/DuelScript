@@ -1,0 +1,30 @@
+card "Vennominon the King of Poisonous Snakes" {
+    id: 72677437
+    type: Effect Monster
+    attribute: DARK
+    race: Reptile
+    level: 8
+    atk: 0
+    def: 0
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: when
+        trigger: battle_damage
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

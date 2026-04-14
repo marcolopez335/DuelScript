@@ -1,0 +1,38 @@
+card "Eclipse, Dragon Ruler of Catastrophes" {
+    id: 30350202
+    type: Xyz Monster
+    attribute: DARK
+    race: Dragon
+    rank: 7
+    atk: 2700
+    def: 1900
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+            return (all, card, either controls) to deck
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            detach 2 from self
+        }
+        resolve {
+            negate
+            banish (all, card, either controls)
+        }
+    }
+}

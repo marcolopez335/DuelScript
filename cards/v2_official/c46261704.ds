@@ -1,0 +1,28 @@
+card "Galactikuriboh" {
+    id: 46261704
+    type: Effect Monster
+    attribute: LIGHT
+    race: Fiend
+    level: 1
+    atk: 300
+    def: 200
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    replacement "Effect 2" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

@@ -1,0 +1,32 @@
+card "Prank-Kids Rocket Ride" {
+    id: 18514525
+    type: Fusion Monster
+    attribute: FIRE
+    race: Pyro
+    level: 5
+    atk: 2000
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

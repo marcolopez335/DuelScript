@@ -1,0 +1,32 @@
+card "Mushroom Man #2" {
+    id: 93900406
+    type: Effect Monster
+    attribute: EARTH
+    race: Warrior
+    level: 3
+    atk: 1250
+    def: 800
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: standby_phase
+        resolve {
+            damage opponent 300
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: end_phase
+        cost {
+            pay_lp 500
+        }
+        resolve {
+            take_control (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,38 @@
+card "Performage Flame Eater" {
+    id: 4807253
+    type: Effect Monster
+    attribute: FIRE
+    race: Spellcaster
+    level: 4
+    atk: 1200
+    def: 1600
+
+    effect "Effect 1" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: summoned
+        resolve {
+            damage opponent 500
+            damage opponent 500
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        mandatory
+        trigger: summoned by special
+        resolve {
+            damage opponent 500
+            damage opponent 500
+        }
+    }
+}

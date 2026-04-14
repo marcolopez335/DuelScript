@@ -1,0 +1,34 @@
+card "Diplexer Chimera" {
+    id: 78084378
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Cyberse
+    level: 5
+    atk: 2000
+    def: 800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

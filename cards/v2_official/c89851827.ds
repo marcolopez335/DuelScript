@@ -1,0 +1,28 @@
+card "Secreterion Dragon" {
+    id: 89851827
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 8
+    atk: 3000
+    def: 1500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+            return (all, card, either controls) to deck
+        }
+    }
+}

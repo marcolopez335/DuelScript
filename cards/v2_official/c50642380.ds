@@ -1,0 +1,31 @@
+card "Gagaku-P.U.N.K. Wa Gon" {
+    id: 50642380
+    type: Effect Monster | Tuner
+    attribute: EARTH
+    race: Psychic
+    level: 3
+    atk: 900
+    def: 600
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            pay_lp 600
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: attacked
+        resolve {
+            draw 1
+        }
+    }
+}

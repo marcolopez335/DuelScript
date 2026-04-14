@@ -1,0 +1,34 @@
+card "Tellusion the Magna Warrior" {
+    id: 24431911
+    type: Effect Monster | Effect Monster
+    attribute: EARTH
+    race: Rock
+    level: 8
+    atk: 2500
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            take_control (all, card, either controls)
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

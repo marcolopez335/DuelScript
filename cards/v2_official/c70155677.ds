@@ -1,0 +1,39 @@
+card "Dreaming Nemleria" {
+    id: 70155677
+    type: Effect Monster | Pendulum Monster | Effect Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 1
+    scale: 8
+    atk: 0
+    def: 1500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 5" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+            send (all, card, either controls) to extra_deck
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            banish (all, card, either controls)
+            return (all, card, either controls) to deck
+        }
+    }
+}

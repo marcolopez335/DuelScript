@@ -1,0 +1,18 @@
+card "Slash Draw" {
+    id: 71344451
+    type: Normal Spell
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            mill 1
+            draw 1
+            send (all, card, either controls) to gy
+            destroy (all, card, either controls)
+            damage opponent 1000
+            return (all, card, either controls) to deck
+        }
+    }
+}

@@ -1,0 +1,49 @@
+card "Superheavy Samurai Commander Shanawo" {
+    id: 90587641
+    type: Synchro Monster | Pendulum Monster
+    attribute: DARK
+    race: Machine
+    level: 8
+    scale: 1
+    atk: 2000
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    passive "Effect 5" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    passive "Effect 6" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: summoned
+        resolve {
+            special_summon (all, card, either controls)
+            negate
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+            special_summon (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

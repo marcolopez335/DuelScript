@@ -1,0 +1,28 @@
+card "Binary Blader" {
+    id: 80088625
+    type: Link Monster
+    attribute: EARTH
+    race: Cyberse
+    link: 2
+    atk: 1800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: summoned
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: custom "chain_end"
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+}

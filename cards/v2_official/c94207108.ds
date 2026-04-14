@@ -1,0 +1,45 @@
+card "Marincess Wonder Heart" {
+    id: 94207108
+    type: Link Monster
+    attribute: WATER
+    race: Cyberse
+    link: 4
+    atk: 2400
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    passive "Effect 5" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    passive "Effect 6" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        timing: when
+        trigger: summoned
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

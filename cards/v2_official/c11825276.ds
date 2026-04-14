@@ -1,0 +1,33 @@
+card "Meizen the Battle Ninja" {
+    id: 11825276
+    type: Fusion Monster
+    attribute: DARK
+    race: Warrior
+    level: 6
+    atk: 2500
+    def: 1500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: direct_attack
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

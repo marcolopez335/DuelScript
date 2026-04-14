@@ -1,0 +1,27 @@
+card "Codebreaker Zero Day" {
+    id: 8662794
+    type: Effect Monster
+    attribute: DARK
+    race: Warrior
+    level: 4
+    atk: 1800
+    def: 0
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: destroyed
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: destroyed
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

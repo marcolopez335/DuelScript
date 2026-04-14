@@ -1,0 +1,28 @@
+card "The Seal of Orichalcos" {
+    id: 48179391
+    type: Field Spell
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_be_destroyed
+    }
+
+    passive "Effect 5" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

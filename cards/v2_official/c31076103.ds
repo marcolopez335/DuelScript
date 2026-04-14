@@ -1,0 +1,21 @@
+card "The First Sarcophagus" {
+    id: 31076103
+    type: Continuous Trap
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        mandatory
+        trigger: end_phase
+        resolve {
+            special_summon (all, card, either controls)
+            send (all, card, either controls) to gy
+            special_summon (all, card, either controls)
+        }
+    }
+}

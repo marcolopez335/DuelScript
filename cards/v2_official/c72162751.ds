@@ -1,0 +1,30 @@
+card "Queen of the Blazing Domain" {
+    id: 72162751
+    type: Effect Monster
+    attribute: DARK
+    race: Pyro
+    level: 9
+    atk: 3000
+    def: 2500
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+            special_summon (all, card, either controls)
+            destroy (all, card, either controls)
+            return (all, card, either controls) to hand
+        }
+    }
+}

@@ -1,0 +1,41 @@
+card "Dragonmaid Nudyarl" {
+    id: 49575521
+    type: Effect Monster
+    attribute: WATER
+    race: Dragon
+    level: 7
+    atk: 2600
+    def: 1600
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            discard (all, card, either controls)
+        }
+        resolve {
+            return (all, card, either controls) to deck
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: standby_phase
+        resolve {
+            return (all, card, either controls) to hand
+            special_summon (all, card, either controls)
+        }
+    }
+}

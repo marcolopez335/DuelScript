@@ -1,0 +1,21 @@
+card "Volcanic Rimfire" {
+    id: 59805313
+    type: Effect Monster
+    attribute: FIRE
+    race: Pyro
+    level: 1
+    atk: 300
+    def: 0
+
+    effect "Effect 1" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            banish (all, card, either controls)
+            send (all, card, either controls) to gy
+            banish (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

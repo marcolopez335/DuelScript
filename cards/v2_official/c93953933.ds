@@ -1,0 +1,34 @@
+card "Hydralander Orbit" {
+    id: 93953933
+    type: Effect Monster
+    attribute: DARK
+    race: Machine
+    level: 1
+    atk: 0
+    def: 1500
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            return (all, card, either controls) to deck
+        }
+    }
+}

@@ -1,0 +1,34 @@
+card "Number 39: Utopia Beyond" {
+    id: 21521304
+    type: Xyz Monster
+    attribute: LIGHT
+    race: Warrior
+    rank: 6
+    atk: 3000
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        trigger: summoned by special
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            banish (all, card, either controls)
+            special_summon (all, card, either controls)
+            gain_lp 1250
+        }
+    }
+}

@@ -1,0 +1,28 @@
+card "Revendread Executor" {
+    id: 34093683
+    type: Ritual Monster
+    attribute: DARK
+    race: Zombie
+    level: 8
+    atk: 3000
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: destroyed
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

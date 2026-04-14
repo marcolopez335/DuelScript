@@ -1,0 +1,39 @@
+card "Speaker for the Ice Barriers" {
+    id: 44308317
+    type: Effect Monster
+    attribute: WATER
+    race: Spellcaster
+    level: 4
+    atk: 1000
+    def: 1800
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_change_position
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+}

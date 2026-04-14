@@ -1,0 +1,34 @@
+card "Prank-Kids Weather Washer" {
+    id: 44509529
+    type: Fusion Monster
+    attribute: WATER
+    race: Aqua
+    level: 5
+    atk: 2000
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: hard
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

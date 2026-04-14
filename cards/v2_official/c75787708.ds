@@ -1,0 +1,40 @@
+card "Odd-Eyes Pendulum Dragon of the Four Heavenly Dragons" {
+    id: 75787708
+    type: Effect Monster | Pendulum Monster
+    attribute: DARK
+    race: Dragon
+    level: 7
+    scale: 4
+    atk: 2500
+    def: 2000
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 5" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: destroyed
+        resolve {
+            add_to_hand (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

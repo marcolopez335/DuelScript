@@ -1,0 +1,27 @@
+card "Mefist the Infernal General" {
+    id: 46820049
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 5
+    atk: 1800
+    def: 1700
+
+    summon {
+        tributes: 1
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: piercing
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        trigger: destroyed_by_battle
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

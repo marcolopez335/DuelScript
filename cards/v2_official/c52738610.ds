@@ -1,0 +1,24 @@
+card "Dance Princess of the Nekroz" {
+    id: 52738610
+    type: Effect Monster
+    attribute: WATER
+    race: Spellcaster
+    level: 4
+    atk: 1600
+    def: 800
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: sent_to gy
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

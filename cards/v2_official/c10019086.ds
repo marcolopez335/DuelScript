@@ -1,0 +1,32 @@
+card "Tri-Brigade Arms Bucephalus II" {
+    id: 10019086
+    type: Link Monster
+    attribute: DARK
+    race: Winged Beast
+    link: 5
+    atk: 3500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        resolve {
+            banish (all, card, either controls)
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

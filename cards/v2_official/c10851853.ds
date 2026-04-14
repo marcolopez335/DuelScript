@@ -1,0 +1,24 @@
+card "Flowerdino" {
+    id: 10851853
+    type: Effect Monster | Effect Monster
+    attribute: EARTH
+    race: Dinosaur
+    level: 4
+    atk: 2000
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            return (all, card, either controls) to deck
+            draw 1
+        }
+    }
+}

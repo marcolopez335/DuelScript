@@ -1,0 +1,37 @@
+card "Penguin Brave" {
+    id: 91397409
+    type: Synchro Monster
+    attribute: WATER
+    race: Aqua
+    level: 6
+    atk: 2400
+    def: 1200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+        }
+    }
+}

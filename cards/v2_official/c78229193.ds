@@ -1,0 +1,33 @@
+card "White Aura Dolphin" {
+    id: 78229193
+    type: Synchro Monster
+    attribute: WATER
+    race: Fish
+    level: 6
+    atk: 2400
+    def: 1000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: destroyed
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

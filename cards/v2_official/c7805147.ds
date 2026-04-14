@@ -1,0 +1,19 @@
+card "Soldier Dragons" {
+    id: 7805147
+    type: Effect Monster
+    attribute: EARTH
+    race: Dragon
+    level: 2
+    atk: 700
+    def: 800
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

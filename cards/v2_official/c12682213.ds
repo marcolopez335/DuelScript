@@ -1,0 +1,18 @@
+card "Iron Thunder" {
+    id: 12682213
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            pay_lp your_lp / 2
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+            destroy (all, card, either controls)
+        }
+    }
+}

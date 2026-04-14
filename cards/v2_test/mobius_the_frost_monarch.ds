@@ -1,0 +1,25 @@
+// Mobius the Frost Monarch
+card "Mobius the Frost Monarch" {
+    id: 39168895
+    type: Effect Monster
+    attribute: WATER
+    race: Aqua
+    level: 6
+    atk: 2400
+    def: 1000
+
+    summon {
+        tributes: 1
+    }
+
+    effect "Destroy Spells and Traps" {
+        speed: 1
+        trigger: tribute_summoned
+
+        target (all, spell, either controls, where is_spell or is_trap)
+
+        resolve {
+            destroy (all, spell, either controls)
+        }
+    }
+}

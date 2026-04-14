@@ -1,0 +1,33 @@
+card "Rush Warrior" {
+    id: 36736723
+    type: Effect Monster
+    attribute: WIND
+    race: Warrior
+    level: 2
+    atk: 300
+    def: 1200
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: summoned
+        cost {
+            send self to gy
+        }
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,28 @@
+card "Dark Cavalry" {
+    id: 73452089
+    type: Fusion Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 8
+    atk: 2800
+    def: 2300
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: piercing
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

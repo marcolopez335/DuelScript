@@ -1,0 +1,32 @@
+card "Celtic Guard of Noble Arms" {
+    id: 45531624
+    type: Effect Monster
+    attribute: EARTH
+    race: Warrior
+    level: 4
+    atk: 2100
+    def: 700
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: when
+        trigger: destroyed_by_battle
+        resolve {
+            draw 1
+        }
+    }
+}

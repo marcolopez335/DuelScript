@@ -1,0 +1,32 @@
+card "Dragunity Knight - Romulus" {
+    id: 11969228
+    type: Link Monster
+    attribute: WIND
+    race: Dragon
+    link: 2
+    atk: 1200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,28 @@
+card "Raidraptor - Fuzzy Lanius" {
+    id: 5929801
+    type: Effect Monster
+    attribute: DARK
+    race: Winged Beast
+    level: 4
+    atk: 500
+    def: 1500
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+}

@@ -1,0 +1,33 @@
+card "Number 39: Utopia" {
+    id: 84013237
+    type: Xyz Monster | Effect Monster
+    attribute: LIGHT
+    race: Warrior
+    rank: 4
+    atk: 2500
+    def: 2000
+
+    summon {
+    }
+
+    effect "Negate Attack" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            negate
+        }
+    }
+
+    effect "Self Destroy" {
+        speed: 1
+        mandatory
+        trigger: attacked
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

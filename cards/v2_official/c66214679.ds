@@ -1,0 +1,23 @@
+card "Dark Horus" {
+    id: 66214679
+    type: Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 8
+    atk: 3000
+    def: 1800
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,24 @@
+card "Skystarray" {
+    id: 47349310
+    type: Effect Monster
+    attribute: WIND
+    race: Sea Serpent
+    level: 3
+    atk: 600
+    def: 300
+
+    passive "Effect 2" {
+        scope: self
+        grant: direct_attack
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: standby_phase
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+}

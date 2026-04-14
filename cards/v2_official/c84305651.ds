@@ -1,0 +1,29 @@
+card "Goyo King" {
+    id: 84305651
+    type: Synchro Monster
+    attribute: EARTH
+    race: Warrior
+    level: 8
+    atk: 2800
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        trigger: summoned
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: battle_damage
+        resolve {
+            special_summon (all, card, either controls)
+            take_control (all, card, either controls)
+        }
+    }
+}

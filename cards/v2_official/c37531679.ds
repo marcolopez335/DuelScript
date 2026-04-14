@@ -1,0 +1,28 @@
+card "Salamandra, the Flying Flame Dragon" {
+    id: 37531679
+    type: Effect Monster
+    attribute: FIRE
+    race: Dragon
+    level: 2
+    atk: 700
+    def: 1600
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

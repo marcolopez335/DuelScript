@@ -1,0 +1,30 @@
+card "Fool of Prophecy" {
+    id: 63175639
+    type: Effect Monster
+    attribute: EARTH
+    race: Spellcaster
+    level: 3
+    atk: 1600
+    def: 900
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: end_phase
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

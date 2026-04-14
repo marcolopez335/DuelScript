@@ -1,0 +1,31 @@
+card "D/D Savant Newton" {
+    id: 19302550
+    type: Effect Monster | Pendulum Monster
+    attribute: DARK
+    race: Fiend
+    level: 7
+    scale: 10
+    atk: 0
+    def: 0
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            discard (all, card, either controls)
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

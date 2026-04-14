@@ -1,0 +1,29 @@
+card "Titaniklad the Ash Dragon" {
+    id: 41373230
+    type: Fusion Monster
+    attribute: DARK
+    race: Dragon
+    level: 8
+    atk: 2500
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 5" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: end_phase
+        resolve {
+            add_to_hand (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

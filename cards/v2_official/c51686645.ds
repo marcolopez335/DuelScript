@@ -1,0 +1,23 @@
+card "Revenge Rally" {
+    id: 51686645
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: hard
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            draw 2
+            discard (all, card, either controls)
+            draw 1
+        }
+    }
+}

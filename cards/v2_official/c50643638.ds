@@ -1,0 +1,33 @@
+card "Chanbar, the Flashy Sportsknight" {
+    id: 50643638
+    type: Synchro Monster
+    attribute: LIGHT
+    race: Warrior
+    level: 8
+    atk: 2700
+    def: 2100
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            send (all, card, either controls) to gy
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

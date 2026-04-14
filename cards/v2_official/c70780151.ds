@@ -1,0 +1,35 @@
+card "Thought Ruler Archfiend" {
+    id: 70780151
+    type: Synchro Monster
+    attribute: DARK
+    race: Psychic
+    level: 8
+    atk: 2700
+    def: 2300
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        trigger: battle_damage
+        resolve {
+            gain_lp 1000
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            pay_lp 1000
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

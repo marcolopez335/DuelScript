@@ -1,0 +1,29 @@
+card "Gouki Twistcobra" {
+    id: 97688360
+    type: Effect Monster
+    attribute: EARTH
+    race: Warrior
+    level: 3
+    atk: 1600
+    def: 0
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        cost {
+            tribute self
+        }
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,32 @@
+card "Trishula, Zero Dragon of the Ice Barrier" {
+    id: 70980824
+    type: Synchro Monster
+    attribute: WATER
+    race: Dragon
+    level: 11
+    atk: 2700
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned by special
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

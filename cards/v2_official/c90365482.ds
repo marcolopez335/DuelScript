@@ -1,0 +1,27 @@
+card "Hebo, Lord of the River" {
+    id: 90365482
+    type: Effect Monster | Flip
+    attribute: WATER
+    race: Aqua
+    level: 4
+    atk: 1800
+    def: 600
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: summoned
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_active"
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

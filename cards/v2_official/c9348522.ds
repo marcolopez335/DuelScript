@@ -1,0 +1,27 @@
+card "Cloudcastle" {
+    id: 9348522
+    type: Synchro Monster
+    attribute: WIND
+    race: Machine
+    level: 9
+    atk: 0
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,38 @@
+card "Centur-Ion Gargoyle II" {
+    id: 97698279
+    type: Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 8
+    atk: 2000
+    def: 3000
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,31 @@
+card "Dragon Buster Destruction Sword" {
+    id: 76218313
+    type: Effect Monster | Tuner
+    attribute: DARK
+    race: Dragon
+    level: 1
+    atk: 400
+    def: 300
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,45 @@
+// 混沌の黒魔術師
+// Dark Magician of Chaos
+// When Summoned: Add 1 Spell from your GY to your hand.
+// Monsters destroyed by battle with this card are banished.
+// When this card leaves the field, banish it.
+
+card "Dark Magician of Chaos" {
+    id: 40737112
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 8
+    atk: 2800
+    def: 2600
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Recover Spell" {
+        speed: 1
+        trigger: summoned
+        resolve {
+            add_to_hand (1, spell, in gy)
+        }
+    }
+
+    effect "Banish Destroyed" {
+        speed: 1
+        mandatory
+        trigger: destroys_by_battle
+        resolve {
+            banish (1, monster, opponent controls)
+        }
+    }
+
+    effect "Banish Self" {
+        speed: 1
+        mandatory
+        trigger: leaves_field
+        resolve {
+            banish self
+        }
+    }
+}

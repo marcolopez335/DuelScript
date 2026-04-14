@@ -1,0 +1,25 @@
+card "Valkyrie of the Nordic Ascendant" {
+    id: 40844552
+    type: Effect Monster | Tuner
+    attribute: LIGHT
+    race: Fairy
+    level: 2
+    atk: 400
+    def: 800
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        cost {
+            banish self
+        }
+        resolve {
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+}

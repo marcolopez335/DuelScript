@@ -1,0 +1,27 @@
+// ガトリング・ドラゴン
+// Gatling Dragon
+// "Barrel Dragon" + "Blowback Dragon"
+// Toss a coin 3 times. Destroy monsters on the field up to the
+// number of Heads.
+
+card "Gatling Dragon" {
+    id: 87751584
+    type: Fusion Monster
+    attribute: DARK
+    race: Machine
+    level: 8
+    atk: 2600
+    def: 1200
+
+    summon {
+        cannot_normal_summon
+        fusion materials: "Barrel Dragon" + "Blowback Dragon"
+    }
+
+    effect "Coin Flip Destroy" {
+        speed: 1
+        resolve {
+            destroy (3, monster, either controls)
+        }
+    }
+}

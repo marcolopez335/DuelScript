@@ -1,0 +1,30 @@
+card "Lockout Gardna" {
+    id: 37310367
+    type: Effect Monster
+    attribute: EARTH
+    race: Cyberse
+    level: 3
+    atk: 1000
+    def: 1000
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+    }
+}

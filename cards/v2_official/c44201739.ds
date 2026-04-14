@@ -1,0 +1,32 @@
+card "Mira Match" {
+    id: 44201739
+    type: Effect Monster
+    attribute: FIRE
+    race: Spellcaster
+    level: 1
+    atk: 0
+    def: 0
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            send self to gy
+        }
+        resolve {
+            send (all, card, either controls) to gy
+            negate
+        }
+    }
+}

@@ -1,0 +1,35 @@
+card "Phoenix Gearfried" {
+    id: 69488544
+    type: Effect Monster | Effect Monster
+    attribute: FIRE
+    race: Warrior
+    level: 8
+    atk: 2800
+    def: 2200
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: if
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            send self to gy
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

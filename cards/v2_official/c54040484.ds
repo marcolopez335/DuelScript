@@ -1,0 +1,26 @@
+card "Chaos Core" {
+    id: 54040484
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 3
+    atk: 0
+    def: 0
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: attacked
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    replacement "Effect 3" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

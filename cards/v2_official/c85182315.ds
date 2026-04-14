@@ -1,0 +1,27 @@
+card "The Breaking Ruin God" {
+    id: 85182315
+    type: Quick-Play Spell
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        mandatory
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: if
+        trigger: sent_to gy
+        cost {
+            banish self
+        }
+        resolve {
+            banish (all, card, either controls)
+            damage opponent 1000
+        }
+    }
+}

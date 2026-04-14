@@ -1,0 +1,31 @@
+card "Infernal Dragon" {
+    id: 47754278
+    type: Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 4
+    atk: 2000
+    def: 0
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        trigger: end_phase
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: custom "chain_end"
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

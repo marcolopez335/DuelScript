@@ -1,0 +1,36 @@
+card "Dragonmaid Sheou" {
+    id: 24799107
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 10
+    atk: 3500
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: standby_phase
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            destroy (all, card, either controls)
+            return (all, card, either controls) to deck
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,50 @@
+card "SZW - Fenrir Sword" {
+    id: 12927849
+    type: Effect Monster
+    attribute: LIGHT
+    race: Beast
+    level: 4
+    atk: 1800
+    def: 1100
+
+    passive "Effect 7" {
+        scope: self
+        grant: cannot_be_targeted by effects
+    }
+
+    passive "Effect 8" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    passive "Effect 9" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: when
+        trigger: battle_damage
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

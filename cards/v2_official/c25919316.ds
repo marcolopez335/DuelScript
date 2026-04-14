@@ -1,0 +1,32 @@
+card "Pitknight Filly" {
+    id: 25919316
+    type: Link Monster
+    attribute: FIRE
+    race: Cyberse
+    link: 2
+    atk: 1500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            damage opponent 0
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: standby_phase
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

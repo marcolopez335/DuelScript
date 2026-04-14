@@ -1,0 +1,36 @@
+// 超魔導剣士－ブラック・パラディン
+// Dark Paladin
+// "Dark Magician" + "Buster Blader"
+// Negate Spell activation by discarding 1 card.
+// Gains 500 ATK for each Dragon on field and in GYs.
+
+card "Dark Paladin" {
+    id: 98502113
+    type: Fusion Monster | Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 8
+    atk: 2900
+    def: 2400
+
+    summon {
+        cannot_normal_summon
+        fusion materials: "Dark Magician" + "Buster Blader"
+    }
+
+    effect "Negate Spell" {
+        speed: 2
+        trigger: opponent_activates [activate_spell]
+        cost {
+            discard (1, card)
+        }
+        resolve {
+            negate and destroy
+        }
+    }
+
+    passive "Dragon Power" {
+        scope: self
+        modifier: atk + count((all, "Dragon" monster, either controls, in gy)) * 500
+    }
+}

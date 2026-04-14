@@ -1,0 +1,38 @@
+card "Bloom Diva the Melodious Choir" {
+    id: 84988419
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 6
+    atk: 1000
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        timing: when
+        trigger: custom "chain_end"
+        resolve {
+            damage opponent 1000
+            destroy (all, card, either controls)
+        }
+    }
+}

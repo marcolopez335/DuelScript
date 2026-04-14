@@ -1,0 +1,27 @@
+card "Ceruli, Guru of Dark World" {
+    id: 7623640
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 100
+    def: 300
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        trigger: summoned by special
+        resolve {
+            discard (all, card, either controls)
+        }
+    }
+}

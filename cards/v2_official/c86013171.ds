@@ -1,0 +1,33 @@
+card "Kozmo Scaredy Lion" {
+    id: 86013171
+    type: Effect Monster
+    attribute: LIGHT
+    race: Psychic
+    level: 2
+    atk: 1200
+    def: 500
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            pay_lp 500
+        }
+        resolve {
+            send (all, card, either controls) to gy
+            damage opponent 500
+        }
+    }
+}

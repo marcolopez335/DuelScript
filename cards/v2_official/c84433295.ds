@@ -1,0 +1,27 @@
+card "Quintet Magician" {
+    id: 84433295
+    type: Fusion Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 12
+    atk: 4500
+    def: 4500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 7" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

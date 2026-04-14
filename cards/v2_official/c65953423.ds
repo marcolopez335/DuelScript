@@ -1,0 +1,21 @@
+card "Fairy Tail - Rochka" {
+    id: 65953423
+    type: Effect Monster
+    attribute: LIGHT
+    race: Spellcaster
+    level: 4
+    atk: 1850
+    def: 1000
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: summoned
+        resolve {
+            gain_lp 500
+            add_to_hand (all, card, either controls)
+            send (all, card, either controls) to gy
+        }
+    }
+}

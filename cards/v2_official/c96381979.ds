@@ -1,0 +1,45 @@
+card "Brotherhood of the Fire Fist - Tiger King" {
+    id: 96381979
+    type: Xyz Monster
+    attribute: FIRE
+    race: Beast-Warrior
+    rank: 4
+    atk: 2200
+    def: 1800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: summoned by special
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            detach 1 from self
+        }
+        resolve {
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: when
+        trigger: custom "chain_end"
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

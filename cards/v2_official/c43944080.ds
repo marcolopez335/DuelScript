@@ -1,0 +1,27 @@
+card "Nemleria Dream Defender - Couette" {
+    id: 43944080
+    type: Effect Monster
+    attribute: LIGHT
+    race: Beast
+    level: 10
+    atk: 2000
+    def: 2500
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            banish self
+        }
+        resolve {
+            negate
+            send (all, card, either controls) to gy
+        }
+    }
+}

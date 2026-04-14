@@ -1,0 +1,35 @@
+card "Primathmech Laplacian" {
+    id: 88021907
+    type: Xyz Monster
+    attribute: EARTH
+    race: Cyberse
+    rank: 4
+    atk: 2000
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            send (all, card, either controls) to gy
+            send (all, card, either controls) to gy
+            send (all, card, either controls) to gy
+        }
+    }
+
+    replacement "Effect 1" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

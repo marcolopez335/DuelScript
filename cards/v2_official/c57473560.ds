@@ -1,0 +1,29 @@
+card "Wightprince" {
+    id: 57473560
+    type: Effect Monster
+    attribute: DARK
+    race: Zombie
+    level: 1
+    atk: 0
+    def: 0
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

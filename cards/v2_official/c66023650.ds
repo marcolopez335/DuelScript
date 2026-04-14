@@ -1,0 +1,33 @@
+card "Folgo, Justice Fur Hire" {
+    id: 66023650
+    type: Link Monster
+    attribute: DARK
+    race: Beast
+    link: 3
+    atk: 2400
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: destroyed
+        resolve {
+            draw 1
+            draw 2
+        }
+    }
+}

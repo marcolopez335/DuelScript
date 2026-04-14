@@ -1,0 +1,30 @@
+card "Laevateinn the Burning Blade" {
+    id: 6260560
+    type: Link Monster
+    attribute: FIRE
+    race: Warrior
+    link: 2
+    atk: 1000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    replacement "Effect 2" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}

@@ -1,0 +1,27 @@
+card "Chef's Special Recipe" {
+    id: 87955518
+    type: Normal Trap
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        mandatory
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        cost {
+            banish self
+        }
+        resolve {
+        }
+    }
+}

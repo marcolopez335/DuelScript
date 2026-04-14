@@ -1,0 +1,37 @@
+card "Minerva, the Athenian Lightsworn" {
+    id: 18843291
+    type: Synchro Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 8
+    atk: 2800
+    def: 1800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            banish self
+        }
+    }
+}

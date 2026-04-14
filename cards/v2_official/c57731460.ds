@@ -1,0 +1,30 @@
+card "Gladiator Beast Equeste" {
+    id: 57731460
+    type: Effect Monster
+    attribute: WIND
+    race: Winged Beast
+    level: 4
+    atk: 1600
+    def: 1200
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: standby_phase
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

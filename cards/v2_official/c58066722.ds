@@ -1,0 +1,28 @@
+card "Alien Stealthbuster" {
+    id: 58066722
+    type: Effect Monster
+    attribute: LIGHT
+    race: Reptile
+    level: 4
+    atk: 1700
+    def: 1500
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: custom "chain_end"
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

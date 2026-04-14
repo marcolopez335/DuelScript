@@ -1,0 +1,40 @@
+card "Super Starslayer TY-PHON - Sky Crisis" {
+    id: 93039339
+    type: Xyz Monster
+    attribute: DARK
+    race: Fiend
+    rank: 12
+    atk: 2900
+    def: 2900
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    passive "Effect 5" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+}

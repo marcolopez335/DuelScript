@@ -1,0 +1,45 @@
+card "Dual Avatar - Manifested A-Un" {
+    id: 28798938
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Warrior
+    level: 4
+    atk: 0
+    def: 0
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    passive "Effect 6" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    passive "Effect 7" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: if
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 5" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+}

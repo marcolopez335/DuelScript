@@ -1,0 +1,24 @@
+card "R.B. Ga10 Cutter" {
+    id: 33438265
+    type: Effect Monster
+    attribute: EARTH
+    race: Machine
+    level: 4
+    atk: 700
+    def: 700
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            pay_lp 700
+        }
+        resolve {
+            destroy (all, card, either controls)
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

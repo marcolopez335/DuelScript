@@ -1,0 +1,24 @@
+// 墓守の暗殺者
+// Gravekeeper's Assailant
+// When this card declares an attack while "Necrovalley" is on the field:
+// Target 1 face-up monster opponent controls; change its battle position.
+
+card "Gravekeeper's Assailant" {
+    id: 25262697
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 4
+    atk: 1500
+    def: 1500
+    archetype: ["Gravekeeper's"]
+
+    effect "Change Position" {
+        speed: 1
+        trigger: attack_declared
+        target (1, monster, opponent controls, face_up)
+        resolve {
+            change_position target
+        }
+    }
+}

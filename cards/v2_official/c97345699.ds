@@ -1,0 +1,22 @@
+card "Vesper Girsu" {
+    id: 97345699
+    type: Quick-Play Spell
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        mandatory
+        resolve {
+            send (all, card, either controls) to gy
+            gain_lp 0
+            gain_lp 2000
+            return (all, card, either controls) to hand
+            banish (all, card, either controls)
+        }
+    }
+}

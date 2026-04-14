@@ -1,0 +1,19 @@
+card "Evilswarm Thunderbird" {
+    id: 78663366
+    type: Effect Monster
+    attribute: DARK
+    race: Thunder
+    level: 4
+    atk: 1650
+    def: 1050
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+}

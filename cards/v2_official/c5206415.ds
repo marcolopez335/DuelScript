@@ -1,0 +1,33 @@
+card "Thunder Dragonlord" {
+    id: 5206415
+    type: Effect Monster | Effect Monster
+    attribute: LIGHT
+    race: Thunder
+    level: 9
+    atk: 3000
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        cost {
+            banish self
+        }
+        resolve {
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: end_phase
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

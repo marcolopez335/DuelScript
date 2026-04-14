@@ -1,0 +1,28 @@
+card "Bujin Mikazuchi" {
+    id: 53678698
+    type: Effect Monster
+    attribute: LIGHT
+    race: Beast-Warrior
+    level: 4
+    atk: 1900
+    def: 1500
+
+    effect "Effect 1" {
+        speed: 1
+        timing: when
+        trigger: custom "chain_end"
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: end_phase
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

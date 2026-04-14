@@ -1,0 +1,21 @@
+card "Shelrokket Dragon" {
+    id: 5087128
+    type: Effect Monster
+    attribute: DARK
+    race: Dragon
+    level: 2
+    atk: 1100
+    def: 2000
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            destroy (all, card, either controls)
+            destroy (all, card, either controls)
+            destroy (all, card, either controls)
+        }
+    }
+}

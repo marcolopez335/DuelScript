@@ -1,0 +1,36 @@
+card "Shell of Chaos" {
+    id: 77312273
+    type: Effect Monster | Effect Monster
+    attribute: DARK
+    race: Machine
+    level: 4
+    atk: 1600
+    def: 0
+
+    passive "Effect 5" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            banish self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

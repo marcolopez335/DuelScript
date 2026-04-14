@@ -1,0 +1,35 @@
+card "D/D Savant Copernicus" {
+    id: 46796664
+    type: Effect Monster | Pendulum Monster
+    attribute: DARK
+    race: Fiend
+    level: 4
+    scale: 1
+    atk: 0
+    def: 0
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

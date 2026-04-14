@@ -1,0 +1,25 @@
+card "Magikey Spirit - Vepartu" {
+    id: 68300121
+    type: Xyz Monster
+    attribute: WATER
+    race: Sea Serpent
+    rank: 4
+    atk: 2000
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        cost {
+            detach 1 from self
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

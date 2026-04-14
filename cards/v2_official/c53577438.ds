@@ -1,0 +1,30 @@
+card "Mathmech Nabla" {
+    id: 53577438
+    type: Effect Monster | Tuner
+    attribute: DARK
+    race: Cyberse
+    level: 4
+    atk: 1000
+    def: 1500
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+        }
+    }
+}

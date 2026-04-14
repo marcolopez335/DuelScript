@@ -1,0 +1,27 @@
+card "Archnemeses Eschatos" {
+    id: 33212663
+    type: Effect Monster | Effect Monster
+    attribute: LIGHT
+    race: Dragon
+    level: 11
+    atk: 3000
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

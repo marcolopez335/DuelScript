@@ -1,0 +1,29 @@
+card "Penguin Torpedo" {
+    id: 17679043
+    type: Effect Monster
+    attribute: WATER
+    race: Aqua
+    level: 3
+    atk: 550
+    def: 300
+
+    passive "Effect 1" {
+        scope: self
+        grant: direct_attack
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: when
+        trigger: destroyed_by_battle
+        resolve {
+            take_control (all, card, either controls)
+        }
+    }
+}

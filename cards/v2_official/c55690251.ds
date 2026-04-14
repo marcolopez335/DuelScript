@@ -1,0 +1,32 @@
+card "Darklord Desire" {
+    id: 55690251
+    type: Effect Monster
+    attribute: DARK
+    race: Fairy
+    level: 10
+    atk: 3000
+    def: 2800
+
+    summon {
+        tributes: 2
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    passive "Effect 4" {
+        scope: self
+        grant: cannot_change_position
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            send (all, card, either controls) to gy
+        }
+    }
+}

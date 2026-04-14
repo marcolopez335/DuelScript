@@ -1,0 +1,33 @@
+card "ABC-Dragon Buster" {
+    id: 1561110
+    type: Fusion Monster
+    attribute: LIGHT
+    race: Machine
+    level: 8
+    atk: 3000
+    def: 2800
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+            banish (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        cost {
+            tribute self
+        }
+        resolve {
+            special_summon (all, card, either controls)
+            special_summon (all, card, either controls)
+            send (all, card, either controls) to gy
+        }
+    }
+}

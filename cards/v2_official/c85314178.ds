@@ -1,0 +1,34 @@
+card "Cosmo Queen the Queen of Prayers" {
+    id: 85314178
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 8
+    atk: 2900
+    def: 2450
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+            add_to_hand (all, card, either controls)
+            add_to_hand (all, card, either controls)
+        }
+    }
+}

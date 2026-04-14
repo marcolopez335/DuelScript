@@ -1,0 +1,21 @@
+card "Wild Fire" {
+    id: 68815401
+    type: Quick-Play Spell
+
+    effect "Effect 1" {
+        speed: 2
+        mandatory
+        cost {
+            pay_lp your_lp / 2
+        }
+        resolve {
+            destroy (all, card, either controls)
+            destroy (all, card, either controls)
+            create_token {
+                name: "Token"
+                count: 1
+            }
+            special_summon (all, card, either controls)
+        }
+    }
+}

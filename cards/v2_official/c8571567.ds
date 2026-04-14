@@ -1,0 +1,35 @@
+card "Blackwing - Shamal the Sandstorm" {
+    id: 8571567
+    type: Effect Monster | Tuner
+    attribute: DARK
+    race: Winged Beast
+    level: 4
+    atk: 1600
+    def: 0
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: summoned by special
+        cost {
+            banish self
+        }
+        resolve {
+            add_to_hand (all, card, either controls)
+            damage opponent 700
+        }
+    }
+}

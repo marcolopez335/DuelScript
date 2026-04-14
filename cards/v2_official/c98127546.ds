@@ -1,0 +1,33 @@
+card "Underworld Goddess of the Closed World" {
+    id: 98127546
+    type: Link Monster
+    attribute: LIGHT
+    race: Fiend
+    link: 5
+    atk: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 3" {
+        scope: self
+        grant: unaffected_by effects
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+    }
+
+    effect "Effect 4" {
+        speed: 2
+        once_per_turn: soft
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            negate
+        }
+    }
+}

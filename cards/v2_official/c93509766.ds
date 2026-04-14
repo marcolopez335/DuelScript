@@ -1,0 +1,42 @@
+card "Kyoro Ryu-Ge Kaiva" {
+    id: 93509766
+    type: Effect Monster
+    attribute: EARTH
+    race: Dinosaur
+    level: 10
+    atk: 3000
+    def: 1200
+
+    summon {
+        tributes: 2
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 2
+        once_per_turn: soft
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

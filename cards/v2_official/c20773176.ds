@@ -1,0 +1,29 @@
+card "Zefraxa, Flame Beast of the Nekroz" {
+    id: 20773176
+    type: Effect Monster | Pendulum Monster
+    attribute: FIRE
+    race: Dragon
+    level: 5
+    scale: 7
+    atk: 2000
+    def: 1000
+
+    summon {
+        tributes: 1
+    }
+
+    passive "Effect 1" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: destroyed
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,19 @@
+card "Vision Resonator" {
+    id: 98396890
+    type: Effect Monster | Tuner
+    attribute: DARK
+    race: Fiend
+    level: 2
+    atk: 400
+    def: 400
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: custom "chain_end"
+        resolve {
+            return (all, card, either controls) to hand
+        }
+    }
+}

@@ -1,0 +1,28 @@
+card "Odd-Eyes Mirage Dragon" {
+    id: 67754901
+    type: Effect Monster | Pendulum Monster
+    attribute: DARK
+    race: Dragon
+    level: 3
+    scale: 8
+    atk: 1200
+    def: 600
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        resolve {
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: if
+        trigger: destroyed
+        resolve {
+            destroy (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}

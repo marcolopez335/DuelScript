@@ -1,0 +1,22 @@
+card "Maryokutai" {
+    id: 71466592
+    type: Effect Monster
+    attribute: WATER
+    race: Aqua
+    level: 3
+    atk: 900
+    def: 900
+
+    effect "Effect 1" {
+        speed: 2
+        timing: when
+        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            tribute self
+        }
+        resolve {
+            negate
+            destroy (all, card, either controls)
+        }
+    }
+}

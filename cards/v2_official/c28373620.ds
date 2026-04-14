@@ -1,0 +1,36 @@
+card "Geri the Runick Fangs" {
+    id: 28373620
+    type: Fusion Monster
+    attribute: DARK
+    race: Beast
+    level: 4
+    atk: 0
+    def: 1000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by effect
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        timing: when
+        trigger: battle_damage
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}

@@ -1,0 +1,23 @@
+// 魔導雑貨商人
+// Magical Merchant
+// FLIP: Pick up cards from the top of your Deck until you pick up
+// a Spell/Trap Card. Add it to your hand, send the rest to the GY.
+
+card "Magical Merchant" {
+    id: 32362575
+    type: Effect Monster | Flip
+    attribute: LIGHT
+    race: Insect
+    level: 1
+    atk: 200
+    def: 700
+
+    effect "Dig for Spell" {
+        speed: 1
+        mandatory
+        trigger: flipped
+        resolve {
+            excavate 5 from your_deck
+        }
+    }
+}

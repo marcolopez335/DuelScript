@@ -1,0 +1,34 @@
+card "Magikey Mechmusket - Batosbuster" {
+    id: 19489718
+    type: Ritual Monster | Tuner
+    attribute: DARK
+    race: Machine
+    level: 4
+    atk: 2000
+    def: 2200
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        timing: when
+        trigger: summoned
+        resolve {
+            return (all, card, either controls) to deck
+            draw 1
+        }
+    }
+}

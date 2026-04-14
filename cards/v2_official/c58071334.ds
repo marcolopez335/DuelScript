@@ -1,0 +1,24 @@
+card "Snake-Eyes Doomed Dragon" {
+    id: 58071334
+    type: Fusion Monster
+    attribute: FIRE
+    race: Dragon
+    level: 8
+    atk: 3000
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: hard
+        timing: if
+        trigger: summoned by special
+        resolve {
+            send (all, card, either controls) to gy
+            special_summon (all, card, either controls)
+        }
+    }
+}

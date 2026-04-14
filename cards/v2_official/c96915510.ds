@@ -1,0 +1,27 @@
+card "Crealtar, the Impcantation Originator" {
+    id: 96915510
+    type: Ritual Monster
+    attribute: LIGHT
+    race: Fiend
+    level: 10
+    atk: 3000
+    def: 3000
+
+    summon {
+        cannot_normal_summon
+    }
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_activate effects
+    }
+
+    effect "Effect 1" {
+        speed: 2
+        once_per_turn: hard
+        resolve {
+            discard (all, card, either controls)
+            special_summon (all, card, either controls)
+        }
+    }
+}
