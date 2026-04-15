@@ -234,17 +234,33 @@ fn compile_passive(passive: &Passive, card: &Card) -> CompiledEffectV2 {
 
 fn grant_to_code(grant: &GrantAbility) -> u32 {
     match grant {
-        GrantAbility::CannotBeDestroyed(Some(DestroyBy::Battle)) => 30, // EFFECT_INDESTRUCTABLE_BATTLE
-        GrantAbility::CannotBeDestroyed(Some(DestroyBy::Effect)) => 31, // EFFECT_INDESTRUCTABLE_EFFECT
-        GrantAbility::CannotBeDestroyed(None) => 30,
-        GrantAbility::CannotBeTargeted(_) => 8, // EFFECT_CANNOT_BE_EFFECT_TARGET
-        GrantAbility::CannotAttack => 16, // EFFECT_CANNOT_ATTACK
-        GrantAbility::CannotActivate(_) => 2, // EFFECT_DISABLE
-        GrantAbility::Piercing => 96, // EFFECT_PIERCE
-        GrantAbility::DirectAttack => 17, // EFFECT_DIRECT_ATTACK
-        GrantAbility::CannotNormalSummon => 52, // EFFECT_CANNOT_SUMMON
-        GrantAbility::CannotSpecialSummon => 56, // EFFECT_CANNOT_SPECIAL_SUMMON
-        _ => 0,
+        GrantAbility::CannotBeDestroyed(Some(DestroyBy::Battle))      => 30, // EFFECT_INDESTRUCTABLE_BATTLE
+        GrantAbility::CannotBeDestroyed(Some(DestroyBy::Effect))       => 31, // EFFECT_INDESTRUCTABLE_EFFECT
+        GrantAbility::CannotBeDestroyed(Some(DestroyBy::CardEffect))   => 31,
+        GrantAbility::CannotBeDestroyed(None)                          => 30,
+        GrantAbility::CannotBeTargeted(_)                              => 8,  // EFFECT_CANNOT_BE_EFFECT_TARGET
+        GrantAbility::CannotAttack                                     => 16, // EFFECT_CANNOT_ATTACK
+        GrantAbility::CannotAttackDirectly                             => 18, // EFFECT_CANNOT_ATTACK_ANNOUNCE
+        GrantAbility::CannotChangePosition                             => 20, // EFFECT_CANNOT_CHANGE_POSITION
+        GrantAbility::CannotBeTributed                                 => 24, // EFFECT_CANNOT_BE_TRIBUTE
+        GrantAbility::CannotBeUsedAsMaterial                           => 25, // EFFECT_CANNOT_BE_SYNCHRO_MATERIAL (approx)
+        GrantAbility::CannotActivate(_)                                => 2,  // EFFECT_DISABLE
+        GrantAbility::CannotNormalSummon                               => 52, // EFFECT_CANNOT_SUMMON
+        GrantAbility::CannotSpecialSummon                              => 56, // EFFECT_CANNOT_SPECIAL_SUMMON
+        GrantAbility::Piercing                                         => 96, // EFFECT_PIERCE
+        GrantAbility::DirectAttack                                     => 17, // EFFECT_DIRECT_ATTACK
+        GrantAbility::DoubleAttack                                     => 19, // EFFECT_DOUBLE_ATTACK
+        GrantAbility::TripleAttack                                     => 19, // no separate triple in EDOPro; use DOUBLE_ATTACK code
+        GrantAbility::AttackAllMonsters                                => 21, // EFFECT_ATTACK_ALL
+        GrantAbility::MustAttack                                       => 22, // EFFECT_MUST_ATTACK
+        GrantAbility::ImmuneToTargeting                                => 8,  // shares EFFECT_CANNOT_BE_EFFECT_TARGET
+        GrantAbility::UnaffectedBy(src) => match src {
+            UnaffectedSource::Spells         => 32,
+            UnaffectedSource::Traps          => 33,
+            UnaffectedSource::Monsters       => 34,
+            UnaffectedSource::Effects        => 35,
+            UnaffectedSource::OpponentEffects => 36,
+        },
     }
 }
 
@@ -469,7 +485,11 @@ fn trigger_to_event_code(trigger: &Option<Trigger>) -> u32 {
             Trigger::ChainLink => tm::EVENT_CHAINING,
             Trigger::Targeted => 0, // special engine handling
             Trigger::UsedAsMaterial(_) => tm::EVENT_RELEASE,
-            _ => 0,
+            Trigger::PositionChanged => 0, // engine-specific; no standard event
+            Trigger::ControlChanged  => 0, // engine-specific
+            Trigger::Equipped        => 0, // engine-specific
+            Trigger::Unequipped      => 0, // engine-specific
+            Trigger::Custom(_)       => 0, // user-defined event
         }
     }
 }
@@ -523,8 +543,30 @@ fn action_category(action: &Action) -> u32 {
         }
         Action::Then(actions) | Action::Also(actions) | Action::AndIfYouDo(actions)
             => categories_from_actions(actions),
-        Action::Grant(_, _, _) => 0,
-        _ => 0,
+        Action::Grant(_, _, _)         => 0,
+        // Compound actions handled separately above or not categorised
+        Action::ForEach { body, .. }   => categories_from_actions(body),
+        Action::Delayed { body, .. }   => categories_from_actions(body),
+        Action::InstallWatcher { .. }  => 0,
+        Action::Set(_, _)              => 0,
+        Action::FlipDown(_)            => 0,
+        Action::ChangeLevel(_, _)      => 0,
+        Action::ChangeAttribute(_, _)  => 0,
+        Action::ChangeRace(_, _)       => 0,
+        Action::ChangeName(_, _, _)    => 0,
+        Action::SetScale(_, _)         => 0,
+        Action::Attach(_, _)           => 0,
+        Action::Detach(_, _)           => 0,
+        Action::LookAt(_, _)           => 0,
+        Action::Excavate(_, _)         => 0,
+        Action::ShuffleDeck(_)         => 0,
+        Action::Reveal(_)              => 0,
+        Action::Announce(_, _)         => 0,
+        Action::CoinFlip { heads, tails } => {
+            categories_from_actions(heads) | categories_from_actions(tails)
+        }
+        Action::DiceRoll(branches)     => categories_from_actions(branches),
+        Action::LinkTo(_, _)           => 0,
     }
 }
 
@@ -624,17 +666,22 @@ fn resolve_v2_selector(sel: &Selector, rt: &dyn DuelScriptRuntime, player: u8) -
 
 fn zone_to_location(zone: &Zone) -> u32 {
     match zone {
-        Zone::Hand => tm::LOCATION_HAND,
-        Zone::Field => tm::LOCATION_ONFIELD,
-        Zone::Deck => tm::LOCATION_DECK,
-        Zone::ExtraDeck | Zone::ExtraDeckFaceUp => tm::LOCATION_EXTRA,
-        Zone::Gy => tm::LOCATION_GRAVE,
-        Zone::Banished => tm::LOCATION_REMOVED,
-        Zone::MonsterZone => tm::LOCATION_MZONE,
-        Zone::SpellTrapZone => tm::LOCATION_SZONE,
-        Zone::FieldZone => tm::LOCATION_FZONE,
-        Zone::PendulumZone => tm::LOCATION_PZONE,
-        _ => 0,
+        Zone::Hand           => tm::LOCATION_HAND,
+        Zone::Field          => tm::LOCATION_ONFIELD,
+        Zone::Deck           => tm::LOCATION_DECK,
+        Zone::ExtraDeck
+        | Zone::ExtraDeckFaceUp => tm::LOCATION_EXTRA,
+        Zone::Gy             => tm::LOCATION_GRAVE,
+        Zone::Banished       => tm::LOCATION_REMOVED,
+        Zone::MonsterZone    => tm::LOCATION_MZONE,
+        Zone::SpellTrapZone  => tm::LOCATION_SZONE,
+        Zone::FieldZone      => tm::LOCATION_FZONE,
+        Zone::PendulumZone   => tm::LOCATION_PZONE,
+        Zone::ExtraMonsterZone => tm::LOCATION_MZONE, // extra monster zone is still a monster zone
+        Zone::Overlay        => 0, // overlay/xyz materials have no location constant
+        Zone::Equipped       => tm::LOCATION_SZONE, // equipped cards live in spell/trap zone
+        Zone::TopOfDeck
+        | Zone::BottomOfDeck => tm::LOCATION_DECK,
     }
 }
 
@@ -642,8 +689,9 @@ fn player_who_to_idx(who: &PlayerWho, player: u8) -> u8 {
     match who {
         PlayerWho::You | PlayerWho::Controller => player,
         PlayerWho::Opponent => 1 - player,
-        PlayerWho::Both => player, // caller handles both
-        _ => player,
+        PlayerWho::Both     => player, // caller handles both
+        PlayerWho::Owner    => player, // owner == controller in most contexts
+        PlayerWho::Summoner => player, // summoner == controller in most contexts
     }
 }
 
@@ -758,7 +806,42 @@ fn eval_v2_condition_atom(atom: &ConditionAtom, rt: &dyn DuelScriptRuntime) -> b
             };
             rt.get_field_card_count(p, tm::LOCATION_MZONE) == 0
         }
-        _ => true, // Other conditions: engine handles
+        ConditionAtom::OpponentLpCompare(op, expr) => {
+            compare_i32(rt.get_lp(opponent), op, eval_v2_expr(expr, rt))
+        }
+        ConditionAtom::CardsInBanished(op, expr) => {
+            compare_i32(rt.get_banished_count(player) as i32, op, eval_v2_expr(expr, rt))
+        }
+        ConditionAtom::SelfState(state) => {
+            let card_id = rt.effect_card_id();
+            match state {
+                CardState::SummonedThisTurn  => rt.was_summoned_this_turn(card_id),
+                CardState::AttackedThisTurn  => rt.has_attacked_this_turn(card_id),
+                CardState::FlippedThisTurn   => rt.was_flipped_this_turn(card_id),
+                CardState::ActivatedThisTurn => rt.was_summoned_this_turn(card_id), // proxy
+                CardState::FaceUp            => rt.is_face_up(card_id),
+                CardState::FaceDown          => rt.is_face_down(card_id),
+                CardState::InAttackPosition  => rt.is_attack_position(card_id),
+                CardState::InDefensePosition => rt.is_defense_position(card_id),
+            }
+        }
+        ConditionAtom::PhaseIs(phase) => {
+            rt.get_current_phase() == phase_name_to_code(phase)
+        }
+        ConditionAtom::ChainIncludes(cats) => {
+            cats.iter().any(|cat| {
+                let engine_cat = category_to_engine(cat);
+                rt.chain_includes_category(engine_cat)
+            })
+        }
+        ConditionAtom::HasCounter(name, _target) => {
+            let card_id = rt.effect_card_id();
+            rt.has_counter(card_id, name)
+        }
+        ConditionAtom::HasFlag(name) => {
+            let card_id = rt.effect_card_id();
+            rt.has_flag(card_id, name)
+        }
     }
 }
 
@@ -775,19 +858,25 @@ fn compare_i32(actual: i32, op: &CompareOp, expected: i32) -> bool {
 
 fn category_to_engine(cat: &Category) -> u32 {
     match cat {
-        Category::Search => tm::CATEGORY_SEARCH,
-        Category::SpecialSummon => tm::CATEGORY_SPECIAL_SUMMON,
-        Category::SendToGy => tm::CATEGORY_TOGRAVE,
-        Category::AddToHand => tm::CATEGORY_TOHAND,
-        Category::Draw => tm::CATEGORY_DRAW,
-        Category::Banish => tm::CATEGORY_REMOVE,
-        Category::Destroy => tm::CATEGORY_DESTROY,
-        Category::Negate => tm::CATEGORY_NEGATE,
-        Category::Mill => tm::CATEGORY_DECKDES,
-        Category::ActivateSpell => 0,
-        Category::ActivateTrap => 0,
+        Category::Search               => tm::CATEGORY_SEARCH,
+        Category::SpecialSummon        => tm::CATEGORY_SPECIAL_SUMMON,
+        Category::SendToGy             => tm::CATEGORY_TOGRAVE,
+        Category::AddToHand            => tm::CATEGORY_TOHAND,
+        Category::Draw                 => tm::CATEGORY_DRAW,
+        Category::Banish               => tm::CATEGORY_REMOVE,
+        Category::Destroy              => tm::CATEGORY_DESTROY,
+        Category::Negate               => tm::CATEGORY_NEGATE,
+        Category::Mill                 => tm::CATEGORY_DECKDES,
+        Category::ActivateSpell        => 0,
+        Category::ActivateTrap         => 0,
         Category::ActivateMonsterEffect => 0,
-        _ => 0,
+        Category::NormalSummon         => tm::CATEGORY_SUMMON,
+        Category::FusionSummon
+        | Category::SynchroSummon
+        | Category::XyzSummon
+        | Category::LinkSummon
+        | Category::RitualSummon       => tm::CATEGORY_SPECIAL_SUMMON,
+        Category::AttackDeclared       => 0,
     }
 }
 
@@ -845,10 +934,72 @@ fn gen_cost(costs: &[CostAction], card_id: u64) -> Option<Arc<dyn Fn(&mut dyn Du
                     let card_id = rt.effect_card_id();
                     rt.detach_material(card_id, *count as u32);
                 }
-                CostAction::None => {}
-                _ => {
+                CostAction::Banish(sel, _zone, binding) => {
                     if check_only { return true; }
+                    let player = rt.effect_player();
+                    // Gather candidates from hand and field
+                    let mut candidates = rt.get_field_cards(player, tm::LOCATION_HAND);
+                    candidates.extend(rt.get_field_cards(player, tm::LOCATION_MZONE));
+                    let _ = sel; // filter hint for engine-level use
+                    if !candidates.is_empty() {
+                        let selected = rt.select_cards(player, &candidates, 1, 1);
+                        rt.banish(&selected);
+                        if let Some(name) = binding {
+                            rt.bind_last_selection(name);
+                        }
+                    }
                 }
+                CostAction::Send(sel, zone, binding) => {
+                    if check_only { return true; }
+                    let player = rt.effect_player();
+                    let loc = zone_to_location(zone);
+                    let mut candidates = rt.get_field_cards(player, tm::LOCATION_HAND);
+                    candidates.extend(rt.get_field_cards(player, tm::LOCATION_MZONE));
+                    let _ = sel;
+                    if !candidates.is_empty() {
+                        let selected = rt.select_cards(player, &candidates, 1, 1);
+                        if loc == tm::LOCATION_GRAVE {
+                            rt.send_to_grave(&selected);
+                        } else {
+                            rt.send_to_deck(&selected, true);
+                        }
+                        if let Some(name) = binding {
+                            rt.bind_last_selection(name);
+                        }
+                    }
+                }
+                CostAction::RemoveCounter(name, count, sel) => {
+                    if check_only { return true; }
+                    let player = rt.effect_player();
+                    let card_id = rt.effect_card_id();
+                    let candidates = rt.get_field_cards(player, tm::LOCATION_MZONE);
+                    let _ = sel;
+                    let target = candidates.first().copied().unwrap_or(card_id);
+                    rt.remove_counter(target, name, *count as u32);
+                }
+                CostAction::Reveal(sel) => {
+                    if check_only { return true; }
+                    let player = rt.effect_player();
+                    let cards = rt.get_field_cards(player, tm::LOCATION_HAND);
+                    let _ = sel;
+                    rt.reveal(&cards);
+                }
+                CostAction::Announce(what, binding) => {
+                    if check_only { return true; }
+                    let player = rt.effect_player();
+                    let kind: u8 = match what {
+                        AnnounceWhat::Type      => 3,
+                        AnnounceWhat::Attribute => 1,
+                        AnnounceWhat::Race      => 2,
+                        AnnounceWhat::Level     => 4,
+                        AnnounceWhat::Card      => 0,
+                    };
+                    let token = rt.announce(player, kind, 0);
+                    if let Some(name) = binding {
+                        rt.set_binding(name, token);
+                    }
+                }
+                CostAction::None => {}
             }
         }
         true
@@ -1213,8 +1364,9 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
             // Signal the engine to register a watcher; engine handles trigger/duration logic
             rt.raise_custom_event(&format!("install_watcher:{}", name), &[]);
         }
-        // Remaining variants are handled by the engine (LinkTo, etc.)
-        _ => {}
+        Action::LinkTo(_, _) => {
+            // LinkTo is engine-internal (set link arrows); no runtime method yet
+        }
     }
 }
 

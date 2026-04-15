@@ -154,6 +154,18 @@ pub trait DuelScriptRuntime {
     // ── Sprint 67: Delayed effect registration ───────────────
     fn register_delayed(&mut self, _phase: u32, _card_id: u32) {}
 
+    // ── Phase / State Queries ────────────────────────────────
+    fn get_current_phase(&self) -> u32 { 0 }
+    fn is_face_up(&self, _card_id: u32) -> bool { true }
+    fn is_face_down(&self, _card_id: u32) -> bool { false }
+    fn is_attack_position(&self, _card_id: u32) -> bool { true }
+    fn is_defense_position(&self, _card_id: u32) -> bool { false }
+    fn has_attacked_this_turn(&self, _card_id: u32) -> bool { false }
+    fn was_summoned_this_turn(&self, _card_id: u32) -> bool { false }
+    fn was_flipped_this_turn(&self, _card_id: u32) -> bool { false }
+    fn has_counter(&self, _card_id: u32, _counter_name: &str) -> bool { false }
+    fn chain_includes_category(&self, _category: u32) -> bool { false }
+
     // ── Card Identity Changes ────────────────────────────────
     fn change_level(&mut self, _card_id: u32, _level: u32) {}
     fn change_attribute(&mut self, _card_id: u32, _attribute: u32) {}
