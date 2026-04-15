@@ -1,0 +1,42 @@
+// Test Complex Card — integration test fixture
+// Exercises counter costs, destroy, draw, mill, level change, and stat mod.
+
+card "Test Complex Card" {
+    id: 99999999
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 7
+    atk: 2500
+    def: 2100
+
+    effect "Counter Play" {
+        speed: 1
+        cost {
+            remove_counter "Spell Counter" 2 from self
+        }
+        resolve {
+            destroy (1, monster, opponent controls)
+            then {
+                draw 1
+            }
+        }
+    }
+
+    effect "Mill Effect" {
+        speed: 1
+        once_per_turn: hard
+        condition: lp >= 1000
+        resolve {
+            mill 2
+        }
+    }
+
+    effect "Level Change" {
+        speed: 1
+        resolve {
+            change_level self to 4
+            modify_atk self + 500
+        }
+    }
+}

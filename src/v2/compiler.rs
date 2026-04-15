@@ -1637,4 +1637,110 @@ card "Level Changer" {
         assert!(rt.was_called_with("change_level", "level=4"),
             "expected change_level call; calls: {}", rt.dump_calls());
     }
+
+    #[test]
+    fn test_complex_card_all_effects_execute() {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+
+        const CARD_ID: u32 = 99999999;
+        const OPP_MONSTER: u32 = 12345;
+
+        let c = compile("cards/goat/test_complex.ds");
+        assert_eq!(c.card_id, 99999999);
+        assert_eq!(c.effects.len(), 3, "expected 3 effects, got {}: {:?}", c.effects.len(), c.effects);
+
+        // --- Effect 0: Counter Play ---
+        // Cost: remove_counter; resolve: destroy opponent monster then draw
+        {
+            let eff = &c.effects[0];
+            assert_eq!(eff.label, "Counter Play");
+
+            // Execute cost callback
+            if let Some(ref cost_fn) = eff.cost {
+                let mut rt = MockRuntime::new();
+                rt.effect_player = 0;
+                rt.effect_card_id = CARD_ID;
+                // Put self on field so remove_counter can find a target
+                rt.state.add_card(CardSnapshot::monster(CARD_ID, "Test Complex Card", 2500, 2100, 7));
+                rt.state.players[0].field_monsters.push(CARD_ID);
+                cost_fn(&mut rt, false);
+                assert!(rt.was_called_with("remove_counter", "Spell Counter"),
+                    "Counter Play cost: expected remove_counter; calls: {}", rt.dump_calls());
+            } else {
+                panic!("Counter Play effect missing cost callback");
+            }
+
+            // Execute operation callback
+            if let Some(ref op) = eff.operation {
+                let mut rt = MockRuntime::new();
+                rt.effect_player = 0;
+                rt.effect_card_id = CARD_ID;
+                // Put an opponent monster on field so destroy selector finds something
+                rt.state.add_card(CardSnapshot::monster(OPP_MONSTER, "Opp Monster", 1800, 1200, 4));
+                rt.state.players[1].field_monsters.push(OPP_MONSTER);
+                // Give player 0 a deck card so draw works
+                rt.state.players[0].deck.push(42u32);
+                op(&mut rt);
+                let log = rt.dump_calls();
+                assert!(!log.is_empty(), "Counter Play operation produced no calls");
+            } else {
+                panic!("Counter Play effect missing operation callback");
+            }
+        }
+
+        // --- Effect 1: Mill Effect ---
+        // Condition: lp >= 1000; resolve: mill 2
+        {
+            let eff = &c.effects[1];
+            assert_eq!(eff.label, "Mill Effect");
+
+            // Evaluate condition (LP is 8000 by default, >= 1000 should pass)
+            if let Some(ref cond_fn) = eff.condition {
+                let mut rt = MockRuntime::new();
+                rt.effect_player = 0;
+                rt.effect_card_id = CARD_ID;
+                let result = cond_fn(&rt);
+                assert!(result, "Mill Effect condition should be true at 8000 LP");
+            } else {
+                panic!("Mill Effect missing condition callback");
+            }
+
+            // Execute operation
+            if let Some(ref op) = eff.operation {
+                let mut rt = MockRuntime::new();
+                rt.effect_player = 0;
+                rt.effect_card_id = CARD_ID;
+                // Give player a deck to mill
+                rt.state.players[0].deck = vec![1, 2, 3, 4];
+                op(&mut rt);
+                assert!(rt.was_called_with("mill", "count=2"),
+                    "Mill Effect: expected mill count=2; calls: {}", rt.dump_calls());
+            } else {
+                panic!("Mill Effect missing operation callback");
+            }
+        }
+
+        // --- Effect 2: Level Change ---
+        // resolve: change_level self to 4, modify_atk self + 500
+        {
+            let eff = &c.effects[2];
+            assert_eq!(eff.label, "Level Change");
+
+            if let Some(ref op) = eff.operation {
+                let mut rt = MockRuntime::new();
+                rt.effect_player = 0;
+                rt.effect_card_id = CARD_ID;
+                rt.state.add_card(CardSnapshot::monster(CARD_ID, "Test Complex Card", 2500, 2100, 7));
+                rt.state.players[0].field_monsters.push(CARD_ID);
+                op(&mut rt);
+                let log = rt.dump_calls();
+                assert!(rt.was_called_with("change_level", "level=4"),
+                    "Level Change: expected change_level level=4; calls: {}", log);
+                assert!(rt.was_called_with("modify_atk", "delta=500"),
+                    "Level Change: expected modify_atk delta=500; calls: {}", log);
+            } else {
+                panic!("Level Change effect missing operation callback");
+            }
+        }
+    }
 }

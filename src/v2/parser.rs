@@ -716,7 +716,12 @@ fn parse_cost_action(pair: Pair<Rule>) -> Result<CostAction, V2ParseError> {
         let counter_name = strip_quotes(it.next().unwrap().as_str());
         let count = it.next().unwrap().as_str().parse::<u32>()
             .map_err(|_| V2ParseError::InvalidValue("counter count".into()))?;
-        let sel = parse_selector(it.next().unwrap())?;
+        // Grammar: "from" ~ ("self" | selector) — when "self" is the literal
+        // alternative it produces no inner pair, so fall back to SelfCard.
+        let sel = match it.next() {
+            Some(p) => parse_selector(p)?,
+            None => Selector::SelfCard,
+        };
         Ok(CostAction::RemoveCounter(counter_name, count, sel))
     } else if text.starts_with("reveal") {
         let sel = parse_selector(inner.into_iter().next().unwrap())?;
