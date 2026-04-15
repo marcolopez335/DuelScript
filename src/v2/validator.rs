@@ -511,7 +511,7 @@ mod tests {
 
     #[test]
     fn test_pot_of_greed_valid() {
-        let source = include_str!("../../cards/v2_test/pot_of_greed.ds");
+        let source = include_str!("../../cards/goat/pot_of_greed.ds");
         let file = parse_v2(source).unwrap();
         let report = validate_v2(&file);
         assert_eq!(report.error_count(), 0, "errors: {:?}", report.errors);
@@ -519,7 +519,7 @@ mod tests {
 
     #[test]
     fn test_lava_golem_valid() {
-        let source = include_str!("../../cards/v2_test/lava_golem.ds");
+        let source = include_str!("../../cards/goat/lava_golem.ds");
         let file = parse_v2(source).unwrap();
         let report = validate_v2(&file);
         assert_eq!(report.error_count(), 0, "errors: {:?}", report.errors);
@@ -527,7 +527,7 @@ mod tests {
 
     #[test]
     fn test_mirror_force_valid() {
-        let source = include_str!("../../cards/v2_test/mirror_force.ds");
+        let source = include_str!("../../cards/goat/mirror_force.ds");
         let file = parse_v2(source).unwrap();
         let report = validate_v2(&file);
         assert_eq!(report.error_count(), 0, "errors: {:?}", report.errors);
@@ -535,7 +535,7 @@ mod tests {
 
     #[test]
     fn test_sangan_valid() {
-        let source = include_str!("../../cards/v2_test/sangan.ds");
+        let source = include_str!("../../cards/goat/sangan.ds");
         let file = parse_v2(source).unwrap();
         let report = validate_v2(&file);
         assert_eq!(report.error_count(), 0, "errors: {:?}", report.errors);
@@ -543,7 +543,7 @@ mod tests {
 
     #[test]
     fn test_solemn_judgment_valid() {
-        let source = include_str!("../../cards/v2_test/solemn_judgment.ds");
+        let source = include_str!("../../cards/goat/solemn_judgment.ds");
         let file = parse_v2(source).unwrap();
         let report = validate_v2(&file);
         assert_eq!(report.error_count(), 0, "errors: {:?}", report.errors);
@@ -630,7 +630,7 @@ mod tests {
 
     #[test]
     fn test_all_v2_cards_parse_and_validate() {
-        let dir = std::fs::read_dir("cards/v2_test").unwrap();
+        let dir = std::fs::read_dir("cards/goat").unwrap();
         let mut count = 0;
         let mut failures = Vec::new();
         for entry in dir {

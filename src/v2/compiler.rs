@@ -1005,7 +1005,7 @@ mod tests {
 
     #[test]
     fn test_pot_of_greed_compile() {
-        let c = compile("cards/v2_test/pot_of_greed.ds");
+        let c = compile("cards/goat/pot_of_greed.ds");
         assert_eq!(c.card_id, 55144522);
         assert_eq!(c.effects.len(), 1);
         let e = &c.effects[0];
@@ -1017,7 +1017,7 @@ mod tests {
 
     #[test]
     fn test_raigeki_compile() {
-        let c = compile("cards/v2_test/raigeki.ds");
+        let c = compile("cards/goat/raigeki.ds");
         assert_eq!(c.effects.len(), 1);
         let e = &c.effects[0];
         assert_eq!(e.effect_type, tm::EFFECT_TYPE_ACTIVATE);
@@ -1027,7 +1027,7 @@ mod tests {
 
     #[test]
     fn test_mirror_force_compile() {
-        let c = compile("cards/v2_test/mirror_force.ds");
+        let c = compile("cards/goat/mirror_force.ds");
         assert_eq!(c.effects.len(), 1);
         let e = &c.effects[0];
         assert_eq!(e.effect_type, tm::EFFECT_TYPE_ACTIVATE);
@@ -1038,7 +1038,7 @@ mod tests {
 
     #[test]
     fn test_solemn_judgment_compile() {
-        let c = compile("cards/v2_test/solemn_judgment.ds");
+        let c = compile("cards/goat/solemn_judgment.ds");
         // Solemn expands to 3 effects (summon + flip_summon + spsummon)
         assert_eq!(c.effects.len(), 3);
         assert_eq!(c.effects[0].code, tm::EVENT_SUMMON);
@@ -1049,7 +1049,7 @@ mod tests {
 
     #[test]
     fn test_sangan_compile() {
-        let c = compile("cards/v2_test/sangan.ds");
+        let c = compile("cards/goat/sangan.ds");
         assert_eq!(c.effects.len(), 1);
         let e = &c.effects[0];
         // Mandatory trigger on monster
@@ -1062,7 +1062,7 @@ mod tests {
 
     #[test]
     fn test_lava_golem_compile() {
-        let c = compile("cards/v2_test/lava_golem.ds");
+        let c = compile("cards/goat/lava_golem.ds");
         // Special summon procedure + cannot normal summon + effect
         assert!(c.effects.len() >= 2);
         // Find the triggered effect
@@ -1074,7 +1074,7 @@ mod tests {
 
     #[test]
     fn test_book_of_moon_compile() {
-        let c = compile("cards/v2_test/book_of_moon.ds");
+        let c = compile("cards/goat/book_of_moon.ds");
         assert_eq!(c.effects.len(), 1);
         let e = &c.effects[0];
         assert_eq!(e.effect_type, tm::EFFECT_TYPE_ACTIVATE);
@@ -1084,7 +1084,7 @@ mod tests {
 
     #[test]
     fn test_graceful_charity_compile() {
-        let c = compile("cards/v2_test/graceful_charity.ds");
+        let c = compile("cards/goat/graceful_charity.ds");
         assert_eq!(c.effects.len(), 1);
         let e = &c.effects[0];
         assert_eq!(e.category, tm::CATEGORY_DRAW | tm::CATEGORY_HANDES);
@@ -1092,7 +1092,7 @@ mod tests {
 
     #[test]
     fn test_jinzo_compile() {
-        let c = compile("cards/v2_test/jinzo.ds");
+        let c = compile("cards/goat/jinzo.ds");
         // summon (tributes: 1) + passive
         let passive = c.effects.iter().find(|e| e.label == "Trap Lockdown").unwrap();
         assert_ne!(passive.effect_type & tm::EFFECT_TYPE_FIELD, 0);
@@ -1103,7 +1103,7 @@ mod tests {
 
     #[test]
     fn test_dark_paladin_compile() {
-        let c = compile("cards/v2_test/dark_paladin.ds");
+        let c = compile("cards/goat/dark_paladin.ds");
         // summon proc + passive + negate effect
         let negate = c.effects.iter().find(|e| e.label == "Negate Spell").unwrap();
         assert_eq!(negate.effect_type, tm::EFFECT_TYPE_QUICK_O); // speed 2 monster = Quick Effect
@@ -1117,7 +1117,7 @@ mod tests {
 
     #[test]
     fn test_spirit_reaper_compile() {
-        let c = compile("cards/v2_test/spirit_reaper.ds");
+        let c = compile("cards/goat/spirit_reaper.ds");
         // passive (indestructible) + 2 triggered effects
         let passive = c.effects.iter().find(|e| e.label == "Indestructible").unwrap();
         assert_ne!(passive.effect_type & tm::EFFECT_TYPE_SINGLE, 0);
@@ -1135,7 +1135,7 @@ mod tests {
     #[test]
     fn test_pot_of_greed_executes() {
         use super::super::mock_runtime::MockRuntime;
-        let c = compile("cards/v2_test/pot_of_greed.ds");
+        let c = compile("cards/goat/pot_of_greed.ds");
         let effect = &c.effects[0];
         let mut rt = MockRuntime::new();
         rt.effect_player = 0;
@@ -1147,7 +1147,7 @@ mod tests {
     #[test]
     fn test_solemn_cost_pays_half_lp() {
         use super::super::mock_runtime::MockRuntime;
-        let c = compile("cards/v2_test/solemn_judgment.ds");
+        let c = compile("cards/goat/solemn_judgment.ds");
         let effect = &c.effects[0];
         let mut rt = MockRuntime::new();
         rt.effect_player = 0;
@@ -1161,7 +1161,7 @@ mod tests {
     #[test]
     fn test_negate_and_destroy_executes() {
         use super::super::mock_runtime::MockRuntime;
-        let c = compile("cards/v2_test/solemn_judgment.ds");
+        let c = compile("cards/goat/solemn_judgment.ds");
         let effect = &c.effects[0];
         let mut rt = MockRuntime::new();
         rt.effect_player = 0;
@@ -1173,7 +1173,7 @@ mod tests {
     #[test]
     fn test_lava_golem_damage_executes() {
         use super::super::mock_runtime::MockRuntime;
-        let c = compile("cards/v2_test/lava_golem.ds");
+        let c = compile("cards/goat/lava_golem.ds");
         let burn = c.effects.iter().find(|e| e.label == "Burn").unwrap();
         let mut rt = MockRuntime::new();
         rt.effect_player = 0;
@@ -1185,7 +1185,7 @@ mod tests {
     #[test]
     fn test_graceful_charity_executes() {
         use super::super::mock_runtime::MockRuntime;
-        let c = compile("cards/v2_test/graceful_charity.ds");
+        let c = compile("cards/goat/graceful_charity.ds");
         let effect = &c.effects[0];
         let mut rt = MockRuntime::new();
         rt.effect_player = 0;
@@ -1196,7 +1196,7 @@ mod tests {
 
     #[test]
     fn test_thestalos_compile() {
-        let c = compile("cards/v2_test/thestalos.ds");
+        let c = compile("cards/goat/thestalos.ds");
         let eff = c.effects.iter().find(|e| e.label == "Discard and Burn").unwrap();
         assert_ne!(eff.effect_type & tm::EFFECT_TYPE_TRIGGER_F, 0);
         assert_eq!(eff.code, tm::EVENT_SUMMON_SUCCESS);

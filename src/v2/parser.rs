@@ -1,6 +1,6 @@
 // ============================================================
 // DuelScript v2 Parser
-// Converts pest parse tree (duelscript_v2.pest) into v2 AST
+// Converts pest parse tree (duelscript.pest) into v2 AST
 // ============================================================
 
 use pest::Parser;
@@ -10,7 +10,7 @@ use super::ast::*;
 use std::fmt;
 
 #[derive(Parser)]
-#[grammar = "grammar/duelscript_v2.pest"]
+#[grammar = "grammar/duelscript.pest"]
 pub struct V2Parser;
 
 // ── Error Type ──────────────────────────────────────────────
@@ -2175,7 +2175,7 @@ mod tests {
 
     #[test]
     fn test_pot_of_greed() {
-        let source = include_str!("../../cards/v2_test/pot_of_greed.ds");
+        let source = include_str!("../../cards/goat/pot_of_greed.ds");
         let file = parse_v2(source).unwrap();
         assert_eq!(file.cards.len(), 1);
         let card = &file.cards[0];
@@ -2190,7 +2190,7 @@ mod tests {
 
     #[test]
     fn test_lava_golem() {
-        let source = include_str!("../../cards/v2_test/lava_golem.ds");
+        let source = include_str!("../../cards/goat/lava_golem.ds");
         let file = parse_v2(source).unwrap();
         assert_eq!(file.cards.len(), 1);
         let card = &file.cards[0];
@@ -2209,7 +2209,7 @@ mod tests {
 
     #[test]
     fn test_mirror_force() {
-        let source = include_str!("../../cards/v2_test/mirror_force.ds");
+        let source = include_str!("../../cards/goat/mirror_force.ds");
         let file = parse_v2(source).unwrap();
         assert_eq!(file.cards.len(), 1);
         let card = &file.cards[0];
@@ -2222,7 +2222,7 @@ mod tests {
 
     #[test]
     fn test_sangan() {
-        let source = include_str!("../../cards/v2_test/sangan.ds");
+        let source = include_str!("../../cards/goat/sangan.ds");
         let file = parse_v2(source).unwrap();
         assert_eq!(file.cards.len(), 1);
         let card = &file.cards[0];
@@ -2236,7 +2236,7 @@ mod tests {
 
     #[test]
     fn test_solemn_judgment() {
-        let source = include_str!("../../cards/v2_test/solemn_judgment.ds");
+        let source = include_str!("../../cards/goat/solemn_judgment.ds");
         let file = parse_v2(source).unwrap();
         assert_eq!(file.cards.len(), 1);
         let card = &file.cards[0];
@@ -2249,8 +2249,8 @@ mod tests {
     }
 
     #[test]
-    fn test_v2_official_error_report() {
-        let dir = match std::fs::read_dir("cards/v2_official") {
+    fn test_official_error_report() {
+        let dir = match std::fs::read_dir("cards/official") {
             Ok(d) => d,
             Err(_) => return, // skip if dir doesn't exist
         };
@@ -2276,7 +2276,7 @@ mod tests {
                 }
             }
         }
-        println!("\nv2_official parse: {} ok, {} fail", ok, fail);
+        println!("\nofficial parse: {} ok, {} fail", ok, fail);
         let mut sorted: Vec<_> = error_samples.into_iter().collect();
         sorted.sort_by(|a, b| b.1.0.cmp(&a.1.0));
         for (msg, (count, example)) in sorted.iter().take(10) {
@@ -2287,7 +2287,7 @@ mod tests {
 
     #[test]
     fn test_raigeki() {
-        let source = include_str!("../../cards/v2_test/raigeki.ds");
+        let source = include_str!("../../cards/goat/raigeki.ds");
         let file = parse_v2(source).unwrap();
         assert_eq!(file.cards[0].name, "Raigeki");
         assert_eq!(file.cards[0].effects[0].resolve.len(), 1);
@@ -2295,7 +2295,7 @@ mod tests {
 
     #[test]
     fn test_heavy_storm() {
-        let source = include_str!("../../cards/v2_test/heavy_storm.ds");
+        let source = include_str!("../../cards/goat/heavy_storm.ds");
         let file = parse_v2(source).unwrap();
         assert_eq!(file.cards[0].name, "Heavy Storm");
         assert_eq!(file.cards[0].effects[0].resolve.len(), 2); // destroy spell + destroy trap
@@ -2303,7 +2303,7 @@ mod tests {
 
     #[test]
     fn test_book_of_moon() {
-        let source = include_str!("../../cards/v2_test/book_of_moon.ds");
+        let source = include_str!("../../cards/goat/book_of_moon.ds");
         let file = parse_v2(source).unwrap();
         let card = &file.cards[0];
         assert_eq!(card.name, "Book of Moon");
@@ -2314,7 +2314,7 @@ mod tests {
 
     #[test]
     fn test_waboku() {
-        let source = include_str!("../../cards/v2_test/waboku.ds");
+        let source = include_str!("../../cards/goat/waboku.ds");
         let file = parse_v2(source).unwrap();
         assert_eq!(file.cards[0].name, "Waboku");
         assert_eq!(file.cards[0].fields.card_types, vec![CardType::NormalTrap]);
@@ -2323,7 +2323,7 @@ mod tests {
 
     #[test]
     fn test_graceful_charity() {
-        let source = include_str!("../../cards/v2_test/graceful_charity.ds");
+        let source = include_str!("../../cards/goat/graceful_charity.ds");
         let file = parse_v2(source).unwrap();
         assert_eq!(file.cards[0].name, "Graceful Charity");
         assert_eq!(file.cards[0].effects[0].resolve.len(), 2); // draw + discard
@@ -2331,7 +2331,7 @@ mod tests {
 
     #[test]
     fn test_scapegoat() {
-        let source = include_str!("../../cards/v2_test/scapegoat.ds");
+        let source = include_str!("../../cards/goat/scapegoat.ds");
         let file = parse_v2(source).unwrap();
         assert_eq!(file.cards[0].name, "Scapegoat");
         assert_eq!(file.cards[0].effects[0].speed, Some(2));
@@ -2339,7 +2339,7 @@ mod tests {
 
     #[test]
     fn test_spirit_reaper() {
-        let source = include_str!("../../cards/v2_test/spirit_reaper.ds");
+        let source = include_str!("../../cards/goat/spirit_reaper.ds");
         let file = parse_v2(source).unwrap();
         let card = &file.cards[0];
         assert_eq!(card.name, "Spirit Reaper");
@@ -2350,7 +2350,7 @@ mod tests {
 
     #[test]
     fn test_airknight_parshath() {
-        let source = include_str!("../../cards/v2_test/airknight_parshath.ds");
+        let source = include_str!("../../cards/goat/airknight_parshath.ds");
         let file = parse_v2(source).unwrap();
         let card = &file.cards[0];
         assert_eq!(card.name, "Airknight Parshath");
@@ -2361,7 +2361,7 @@ mod tests {
 
     #[test]
     fn test_gravekeepers_spy() {
-        let source = include_str!("../../cards/v2_test/gravekeepers_spy.ds");
+        let source = include_str!("../../cards/goat/gravekeepers_spy.ds");
         let file = parse_v2(source).unwrap();
         let card = &file.cards[0];
         assert_eq!(card.name, "Gravekeeper's Spy");
@@ -2371,7 +2371,7 @@ mod tests {
 
     #[test]
     fn test_jinzo() {
-        let source = include_str!("../../cards/v2_test/jinzo.ds");
+        let source = include_str!("../../cards/goat/jinzo.ds");
         let file = parse_v2(source).unwrap();
         let card = &file.cards[0];
         assert_eq!(card.name, "Jinzo");
@@ -2382,7 +2382,7 @@ mod tests {
 
     #[test]
     fn test_thestalos() {
-        let source = include_str!("../../cards/v2_test/thestalos.ds");
+        let source = include_str!("../../cards/goat/thestalos.ds");
         let file = parse_v2(source).unwrap();
         let card = &file.cards[0];
         assert_eq!(card.name, "Thestalos the Firestorm Monarch");
@@ -2392,7 +2392,7 @@ mod tests {
 
     #[test]
     fn test_dark_paladin() {
-        let source = include_str!("../../cards/v2_test/dark_paladin.ds");
+        let source = include_str!("../../cards/goat/dark_paladin.ds");
         let file = parse_v2(source).unwrap();
         let card = &file.cards[0];
         assert_eq!(card.name, "Dark Paladin");

@@ -200,6 +200,6 @@ fn print_usage() {
     println!();
     println!("EXAMPLES:");
     println!("  duelscript check cards/");
-    println!("  duelscript check cards/v2_test/pot_of_greed.ds");
-    println!("  duelscript inspect cards/v2_test/stardust_dragon.ds");
+    println!("  duelscript check cards/goat/pot_of_greed.ds");
+    println!("  duelscript inspect cards/goat/stardust_dragon.ds");
 }
