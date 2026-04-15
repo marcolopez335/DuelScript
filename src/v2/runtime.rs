@@ -160,4 +160,10 @@ pub trait DuelScriptRuntime {
     fn change_race(&mut self, _card_id: u32, _race: u32) {}
     fn change_name(&mut self, _card_id: u32, _name: &str, _duration: u32) {}
     fn set_scale(&mut self, _card_id: u32, _scale: u32) {}
+
+    // ── Info / RNG ───────────────────────────────────────────────────
+    fn reveal(&mut self, _card_ids: &[u32]) {}
+    fn look_at(&mut self, _player: u8, _card_ids: &[u32]) {}
+    fn coin_flip(&mut self, _player: u8) -> bool { true }
+    fn dice_roll(&mut self, _player: u8) -> u32 { 1 }
 }

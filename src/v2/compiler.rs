@@ -1095,6 +1095,38 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
             };
             rt.shuffle_deck(target_player);
         }
+        Action::Reveal(sel) => {
+            let cards = resolve_v2_selector(sel, rt, player);
+            rt.reveal(&cards);
+        }
+        Action::LookAt(sel, _zone) => {
+            let cards = resolve_v2_selector(sel, rt, player);
+            rt.look_at(player, &cards);
+        }
+        Action::Announce(what, _binding) => {
+            let kind: u8 = match what {
+                AnnounceWhat::Type      => 3,
+                AnnounceWhat::Attribute => 1,
+                AnnounceWhat::Race      => 2,
+                AnnounceWhat::Level     => 4,
+                AnnounceWhat::Card      => 0,
+            };
+            rt.announce(player, kind, 0);
+        }
+        Action::CoinFlip { heads, tails } => {
+            let result = rt.coin_flip(player);
+            let actions = if result { heads } else { tails };
+            for a in actions {
+                execute_v2_action(a, rt, player);
+            }
+        }
+        Action::DiceRoll(branches) => {
+            let result = rt.dice_roll(player) as usize;
+            if !branches.is_empty() {
+                let idx = if result > 0 && result <= branches.len() { result - 1 } else { 0 };
+                execute_v2_action(&branches[idx], rt, player);
+            }
+        }
         _ => {} // Remaining actions: stub for now
     }
 }

@@ -583,6 +583,22 @@ impl DuelScriptRuntime for MockRuntime {
             format!("card={} code={} duration=0x{:x}", card_id, code, duration_mask));
     }
 
+    // ── Info / RNG ───────────────────────────────────────────
+    fn reveal(&mut self, card_ids: &[u32]) {
+        self.record("reveal", format!("ids={:?}", card_ids));
+    }
+    fn look_at(&mut self, player: u8, card_ids: &[u32]) {
+        self.record("look_at", format!("player={} ids={:?}", player, card_ids));
+    }
+    fn coin_flip(&mut self, player: u8) -> bool {
+        self.record("coin_flip", format!("player={}", player));
+        true // deterministic: always heads
+    }
+    fn dice_roll(&mut self, player: u8) -> u32 {
+        self.record("dice_roll", format!("player={}", player));
+        1 // deterministic: always roll 1
+    }
+
     // ── Card Identity Changes ────────────────────────────────
     fn change_level(&mut self, card_id: u32, level: u32) {
         self.record("change_level", format!("card={} level={}", card_id, level));
