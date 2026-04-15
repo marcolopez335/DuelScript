@@ -486,6 +486,27 @@ impl DuelScriptRuntime for MockRuntime {
         self.record("remove_counter", format!("card={} name={} count={}", card_id, name, count));
     }
 
+    // ── Deck operations ──────────────────────────────────────
+    fn mill(&mut self, player: u8, count: u32) -> u32 {
+        self.record("mill", format!("player={} count={}", player, count));
+        let p = &mut self.state.players[player as usize];
+        let mut milled = 0u32;
+        for _ in 0..count {
+            if let Some(card) = p.deck.pop() {
+                p.graveyard.push(card);
+                milled += 1;
+            }
+        }
+        milled
+    }
+    fn excavate(&mut self, player: u8, count: u32) -> Vec<u32> {
+        self.record("excavate", format!("player={} count={}", player, count));
+        let deck = &self.state.players[player as usize].deck;
+        // Return the top N cards (end of vec) without removing them.
+        let n = (count as usize).min(deck.len());
+        deck[deck.len() - n..].to_vec()
+    }
+
     // ── Counting ─────────────────────────────────────────────
     fn count_matching(&self, player: u8, _location: u32, _filter: &CardFilter) -> usize {
         self.get_field_cards(player, 0).len()

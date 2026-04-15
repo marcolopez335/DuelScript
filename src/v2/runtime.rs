@@ -105,6 +105,10 @@ pub trait DuelScriptRuntime {
     fn place_counter(&mut self, card_id: u32, counter_name: &str, count: u32);
     fn remove_counter(&mut self, card_id: u32, counter_name: &str, count: u32);
 
+    // ── Deck operations ──────────────────────────────────────
+    fn mill(&mut self, _player: u8, _count: u32) -> u32 { 0 }
+    fn excavate(&mut self, _player: u8, _count: u32) -> Vec<u32> { Vec::new() }
+
     // ── Count matching cards ─────────────────────────────────
     fn count_matching(&self, player: u8, location: u32, filter: &CardFilter) -> usize;
 

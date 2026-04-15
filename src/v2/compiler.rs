@@ -1045,6 +1045,56 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
                 rt.set_scale(card_id, val);
             }
         }
+        Action::PlaceCounter(name, count, sel) => {
+            let cards = resolve_v2_selector(sel, rt, player);
+            for card_id in cards {
+                rt.place_counter(card_id, name, *count as u32);
+            }
+        }
+        Action::RemoveCounter(name, count, sel) => {
+            let cards = resolve_v2_selector(sel, rt, player);
+            for card_id in cards {
+                rt.remove_counter(card_id, name, *count as u32);
+            }
+        }
+        Action::Attach(material_sel, target_sel) => {
+            let materials = resolve_v2_selector(material_sel, rt, player);
+            let targets = resolve_v2_selector(target_sel, rt, player);
+            if let Some(&target_id) = targets.first() {
+                for mat_id in materials {
+                    rt.attach_material(mat_id, target_id);
+                }
+            }
+        }
+        Action::Detach(count, sel) => {
+            let cards = resolve_v2_selector(sel, rt, player);
+            if let Some(&card_id) = cards.first() {
+                rt.detach_material(card_id, *count as u32);
+            }
+        }
+        Action::Mill(expr, owner) => {
+            let count = eval_v2_expr(expr, rt) as u32;
+            let target_player = match owner {
+                Some(DeckOwner::Opponents) => 1 - player,
+                _ => player,
+            };
+            rt.mill(target_player, count);
+        }
+        Action::Excavate(expr, owner) => {
+            let count = eval_v2_expr(expr, rt) as u32;
+            let target_player = match owner {
+                DeckOwner::Yours => player,
+                DeckOwner::Opponents => 1 - player,
+            };
+            let _ = rt.excavate(target_player, count);
+        }
+        Action::ShuffleDeck(owner) => {
+            let target_player = match owner {
+                Some(DeckOwner::Opponents) => 1 - player,
+                _ => player,
+            };
+            rt.shuffle_deck(target_player);
+        }
         _ => {} // Remaining actions: stub for now
     }
 }
