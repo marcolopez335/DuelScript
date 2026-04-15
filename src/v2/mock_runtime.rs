@@ -561,6 +561,26 @@ impl DuelScriptRuntime for MockRuntime {
         self.record("change_card_code",
             format!("card={} code={} duration=0x{:x}", card_id, code, duration_mask));
     }
+
+    // ── Card Identity Changes ────────────────────────────────
+    fn change_level(&mut self, card_id: u32, level: u32) {
+        self.record("change_level", format!("card={} level={}", card_id, level));
+        if let Some(c) = self.state.cards.get_mut(&card_id) { c.level = level; }
+    }
+    fn change_attribute(&mut self, card_id: u32, attribute: u32) {
+        self.record("change_attribute", format!("card={} attribute=0x{:x}", card_id, attribute));
+        if let Some(c) = self.state.cards.get_mut(&card_id) { c.attribute = attribute as u64; }
+    }
+    fn change_race(&mut self, card_id: u32, race: u32) {
+        self.record("change_race", format!("card={} race=0x{:x}", card_id, race));
+        if let Some(c) = self.state.cards.get_mut(&card_id) { c.race = race as u64; }
+    }
+    fn change_name(&mut self, card_id: u32, name: &str, duration: u32) {
+        self.record("change_name", format!("card={} name={:?} duration={}", card_id, name, duration));
+    }
+    fn set_scale(&mut self, card_id: u32, scale: u32) {
+        self.record("set_scale", format!("card={} scale={}", card_id, scale));
+    }
 }
 
 // ── DuelScenario ─────────────────────────────────────────────

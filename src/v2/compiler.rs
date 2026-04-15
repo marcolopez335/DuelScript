@@ -617,6 +617,48 @@ fn player_who_to_idx(who: &PlayerWho, player: u8) -> u8 {
     }
 }
 
+fn attribute_to_engine(attr: &Attribute) -> u32 {
+    match attr {
+        Attribute::Light  => 0x10,
+        Attribute::Dark   => 0x20,
+        Attribute::Fire   => 0x40,
+        Attribute::Water  => 0x80,
+        Attribute::Earth  => 0x100,
+        Attribute::Wind   => 0x200,
+        Attribute::Divine => 0x400,
+    }
+}
+
+fn race_to_engine(race: &Race) -> u32 {
+    match race {
+        Race::Warrior      => 0x1,
+        Race::Spellcaster  => 0x2,
+        Race::Fairy        => 0x4,
+        Race::Fiend        => 0x8,
+        Race::Zombie       => 0x10,
+        Race::Machine      => 0x20,
+        Race::Aqua         => 0x40,
+        Race::Pyro         => 0x80,
+        Race::Rock         => 0x100,
+        Race::WingedBeast  => 0x200,
+        Race::Plant        => 0x400,
+        Race::Insect       => 0x800,
+        Race::Thunder      => 0x1000,
+        Race::Dragon       => 0x2000,
+        Race::Beast        => 0x4000,
+        Race::BeastWarrior => 0x8000,
+        Race::Dinosaur     => 0x10000,
+        Race::Fish         => 0x20000,
+        Race::SeaSerpent   => 0x40000,
+        Race::Reptile      => 0x80000,
+        Race::Psychic      => 0x100000,
+        Race::DivineBeast  => 0x200000,
+        Race::Wyrm         => 0x800000,
+        Race::Cyberse      => 0x1000000,
+        Race::Illusion     => 0x2000000,
+    }
+}
+
 // ── Callback Generation ─────────────────────────────────────
 
 fn gen_condition(effect: &Effect) -> Option<Arc<dyn Fn(&dyn DuelScriptRuntime) -> bool + Send + Sync>> {
@@ -969,6 +1011,40 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
         Action::Then(actions) | Action::Also(actions) | Action::AndIfYouDo(actions) => {
             for a in actions { execute_v2_action(a, rt, player); }
         }
+        Action::ChangeLevel(sel, expr) => {
+            let cards = resolve_v2_selector(sel, rt, player);
+            let val = eval_v2_expr(expr, rt) as u32;
+            for card_id in cards {
+                rt.change_level(card_id, val);
+            }
+        }
+        Action::ChangeAttribute(sel, attr) => {
+            let cards = resolve_v2_selector(sel, rt, player);
+            let attr_val = attribute_to_engine(attr);
+            for card_id in cards {
+                rt.change_attribute(card_id, attr_val);
+            }
+        }
+        Action::ChangeRace(sel, race) => {
+            let cards = resolve_v2_selector(sel, rt, player);
+            let race_val = race_to_engine(race);
+            for card_id in cards {
+                rt.change_race(card_id, race_val);
+            }
+        }
+        Action::ChangeName(sel, name, _duration) => {
+            let cards = resolve_v2_selector(sel, rt, player);
+            for card_id in cards {
+                rt.change_name(card_id, name, 0);
+            }
+        }
+        Action::SetScale(sel, expr) => {
+            let cards = resolve_v2_selector(sel, rt, player);
+            let val = eval_v2_expr(expr, rt) as u32;
+            for card_id in cards {
+                rt.set_scale(card_id, val);
+            }
+        }
         _ => {} // Remaining actions: stub for now
     }
 }
@@ -1201,5 +1277,43 @@ mod tests {
         assert_ne!(eff.effect_type & tm::EFFECT_TYPE_TRIGGER_F, 0);
         assert_eq!(eff.code, tm::EVENT_SUMMON_SUCCESS);
         assert_eq!(eff.category, tm::CATEGORY_HANDES);
+    }
+
+    #[test]
+    fn test_change_level_executes() {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        const CARD_ID: u32 = 99001;
+        let src = r#"
+card "Level Changer" {
+    id: 99001
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 6
+    atk: 2000
+    def: 1500
+
+    effect "Level Down" {
+        speed: 1
+        resolve {
+            change_level self to 4
+        }
+    }
+}
+"#;
+        let file = parse_v2(src).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        let effect = compiled.effects.iter().find(|e| e.label == "Level Down").unwrap();
+
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = CARD_ID;
+        // register the card so SelfCard selector can find its id
+        rt.state.add_card(CardSnapshot::monster(CARD_ID, "Level Changer", 2000, 1500, 6));
+        rt.state.players[0].field_monsters.push(CARD_ID);
+
+        (effect.operation.as_ref().unwrap())(&mut rt);
+        assert!(rt.was_called_with("change_level", "level=4"),
+            "expected change_level call; calls: {}", rt.dump_calls());
     }
 }

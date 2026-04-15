@@ -149,4 +149,11 @@ pub trait DuelScriptRuntime {
 
     // ── Sprint 67: Delayed effect registration ───────────────
     fn register_delayed(&mut self, _phase: u32, _card_id: u32) {}
+
+    // ── Card Identity Changes ────────────────────────────────
+    fn change_level(&mut self, _card_id: u32, _level: u32) {}
+    fn change_attribute(&mut self, _card_id: u32, _attribute: u32) {}
+    fn change_race(&mut self, _card_id: u32, _race: u32) {}
+    fn change_name(&mut self, _card_id: u32, _name: &str, _duration: u32) {}
+    fn set_scale(&mut self, _card_id: u32, _scale: u32) {}
 }
