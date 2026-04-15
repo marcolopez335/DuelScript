@@ -599,6 +599,29 @@ impl DuelScriptRuntime for MockRuntime {
         1 // deterministic: always roll 1
     }
 
+    // ── Summon / Set ─────────────────────────────────────────
+    fn normal_summon(&mut self, card_id: u32, player: u8) -> bool {
+        self.record("normal_summon", format!("card={} player={}", card_id, player));
+        self.state.players[player as usize].field_monsters.push(card_id);
+        true
+    }
+    fn set_card(&mut self, card_id: u32, player: u8) -> bool {
+        self.record("set_card", format!("card={} player={}", card_id, player));
+        self.state.players[player as usize].field_spells.push(card_id);
+        true
+    }
+
+    // ── Equip ─────────────────────────────────────────────────
+    fn equip_card(&mut self, equip_id: u32, target_id: u32) {
+        self.record("equip_card", format!("equip={} target={}", equip_id, target_id));
+    }
+
+    // ── Grant ─────────────────────────────────────────────────
+    fn register_grant(&mut self, card_id: u32, grant_code: u32, duration: u32) {
+        self.record("register_grant",
+            format!("card={} grant=0x{:x} duration={}", card_id, grant_code, duration));
+    }
+
     // ── Card Identity Changes ────────────────────────────────
     fn change_level(&mut self, card_id: u32, level: u32) {
         self.record("change_level", format!("card={} level={}", card_id, level));

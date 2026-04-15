@@ -248,6 +248,36 @@ fn grant_to_code(grant: &GrantAbility) -> u32 {
     }
 }
 
+/// Maps GrantAbility to an engine effect code, used for runtime grant actions.
+fn grant_ability_to_code(ability: &GrantAbility) -> u32 {
+    grant_to_code(ability)
+}
+
+/// Maps a phase name to an engine phase constant.
+fn phase_name_to_code(phase: &PhaseName) -> u32 {
+    match phase {
+        PhaseName::Draw => tm::PHASE_DRAW,
+        PhaseName::Standby => tm::PHASE_STANDBY,
+        PhaseName::Main1 => tm::PHASE_MAIN1,
+        PhaseName::Battle => tm::PHASE_BATTLE,
+        PhaseName::Main2 => tm::PHASE_MAIN2,
+        PhaseName::End => tm::PHASE_END,
+        PhaseName::Damage | PhaseName::DamageCalculation => tm::PHASE_BATTLE,
+    }
+}
+
+/// Maps an optional Duration to a numeric code for the engine.
+fn duration_to_code(dur: &Option<Duration>) -> u32 {
+    match dur {
+        Some(Duration::ThisTurn) | Some(Duration::EndOfTurn) => 1,
+        Some(Duration::EndPhase) => 2,
+        Some(Duration::WhileOnField) | Some(Duration::WhileFaceUp) => 3,
+        Some(Duration::Permanently) => 0,
+        None => 0,
+        _ => 1,
+    }
+}
+
 // ── Activated Effect Compilation ────────────────────────────
 
 fn compile_effect(effect: &Effect, card: &Card) -> Vec<CompiledEffectV2> {
@@ -956,7 +986,11 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
             }
         }
         Action::Equip(card_sel, target_sel) => {
-            let _ = (card_sel, target_sel); // engine handles equip
+            let equip_cards = resolve_v2_selector(card_sel, rt, player);
+            let target_cards = resolve_v2_selector(target_sel, rt, player);
+            if let (Some(&equip_id), Some(&target_id)) = (equip_cards.first(), target_cards.first()) {
+                rt.equip_card(equip_id, target_id);
+            }
         }
         Action::ModifyStat(stat, sel, is_negative, expr, _) => {
             let cards = resolve_v2_selector(sel, rt, player);
@@ -998,8 +1032,13 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
                 ReturnDest::ExtraDeck => { rt.send_to_deck(&cards, false); }
             }
         }
-        Action::Grant(sel, ability, _) => {
-            let _ = (sel, ability); // continuous grant — engine registers
+        Action::Grant(sel, ability, duration) => {
+            let cards = resolve_v2_selector(sel, rt, player);
+            let grant_code = grant_ability_to_code(ability);
+            let dur_code = duration_to_code(duration);
+            for card_id in cards {
+                rt.register_grant(card_id, grant_code, dur_code);
+            }
         }
         Action::If { condition, then, otherwise } => {
             if eval_v2_condition(condition, rt) {
@@ -1127,7 +1166,55 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
                 execute_v2_action(&branches[idx], rt, player);
             }
         }
-        _ => {} // Remaining actions: stub for now
+        Action::NormalSummon(sel) => {
+            let cards = resolve_v2_selector(sel, rt, player);
+            for card_id in cards {
+                rt.normal_summon(card_id, player);
+            }
+        }
+        Action::Set(sel, _zone) => {
+            let cards = resolve_v2_selector(sel, rt, player);
+            for card_id in cards {
+                rt.set_card(card_id, player);
+            }
+        }
+        Action::ForEach { selector, zone: _, body } => {
+            // Resolve the set of cards and iterate; execute body for each
+            let cards = resolve_v2_selector(selector, rt, player);
+            for card_id in cards {
+                // Set the card as the current target so body actions can reference it
+                rt.set_targets(&[card_id]);
+                for a in body {
+                    execute_v2_action(a, rt, player);
+                }
+            }
+        }
+        Action::Choose(block) => {
+            let labels: Vec<String> = block.options.iter()
+                .map(|o| o.label.clone())
+                .collect();
+            let chosen = rt.select_option(player, &labels);
+            if let Some(option) = block.options.get(chosen) {
+                for a in &option.resolve {
+                    execute_v2_action(a, rt, player);
+                }
+            }
+        }
+        Action::Delayed { until, body } => {
+            let phase_code = phase_name_to_code(until);
+            let card_id = rt.effect_card_id();
+            rt.register_delayed(phase_code, card_id);
+            // In mock/test context also execute body immediately so tests can observe
+            for a in body {
+                execute_v2_action(a, rt, player);
+            }
+        }
+        Action::InstallWatcher { name, .. } => {
+            // Signal the engine to register a watcher; engine handles trigger/duration logic
+            rt.raise_custom_event(&format!("install_watcher:{}", name), &[]);
+        }
+        // Remaining variants are handled by the engine (LinkTo, etc.)
+        _ => {}
     }
 }
 

@@ -166,4 +166,14 @@ pub trait DuelScriptRuntime {
     fn look_at(&mut self, _player: u8, _card_ids: &[u32]) {}
     fn coin_flip(&mut self, _player: u8) -> bool { true }
     fn dice_roll(&mut self, _player: u8) -> u32 { 1 }
+
+    // ── Summon / Set ─────────────────────────────────────────────────
+    fn normal_summon(&mut self, _card_id: u32, _player: u8) -> bool { true }
+    fn set_card(&mut self, _card_id: u32, _player: u8) -> bool { true }
+
+    // ── Equip ────────────────────────────────────────────────────────
+    fn equip_card(&mut self, _equip_id: u32, _target_id: u32) {}
+
+    // ── Grant (continuous effect registration) ───────────────────────
+    fn register_grant(&mut self, _card_id: u32, _grant_code: u32, _duration: u32) {}
 }
