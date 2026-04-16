@@ -465,7 +465,7 @@ pub enum Action {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum ReturnDest { Hand, Deck(Option<DeckPosition>), ExtraDeck }
+pub enum ReturnDest { Hand, Deck(Option<DeckPosition>), ExtraDeck, Owner }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DeckPosition { Top, Bottom, Shuffle }

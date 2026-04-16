@@ -513,6 +513,7 @@ fn action_category(action: &Action) -> u32 {
         Action::Send(_, Zone::Gy) => tm::CATEGORY_TOGRAVE,
         Action::Send(_, _) => 0,
         Action::Return(_, ReturnDest::Hand) => tm::CATEGORY_TOHAND,
+        Action::Return(_, ReturnDest::Owner) => tm::CATEGORY_TOHAND,
         Action::Return(_, ReturnDest::Deck(_)) => tm::CATEGORY_TODECK,
         Action::Return(_, ReturnDest::ExtraDeck) => tm::CATEGORY_TODECK,
         Action::Search(_, _) => tm::CATEGORY_SEARCH,
@@ -1194,6 +1195,7 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
             let cards = resolve_v2_selector(sel, rt, player);
             match dest {
                 ReturnDest::Hand => { rt.return_to_hand(&cards); }
+                ReturnDest::Owner => { rt.return_to_owner(&cards); }
                 ReturnDest::Deck(pos) => {
                     let top = !matches!(pos, Some(DeckPosition::Bottom));
                     rt.send_to_deck(&cards, top);
@@ -1958,5 +1960,38 @@ card "Level Changer" {
         let log = rt.dump_calls();
         assert!(log.contains("swap_stats") || log.contains("swap_control"),
             "Expected swap call in log: {}", log);
+    }
+
+    #[test]
+    fn test_return_to_owner() {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        let source = r#"
+            card "Compulsory Device" {
+                id: 94192409
+                type: Normal Trap
+                effect "Evacuate" {
+                    speed: 2
+                    resolve {
+                        return (1, monster, opponent controls) to owner
+                    }
+                }
+            }
+        "#;
+        let file = parse_v2(source).unwrap();
+        assert_eq!(file.cards.len(), 1);
+        let compiled = compile_card_v2(&file.cards[0]);
+        assert_eq!(compiled.effects.len(), 1);
+        let mut rt = MockRuntime::new();
+        rt.effect_card_id = 94192409;
+        rt.effect_player = 0;
+        // Add a monster to opponent's field so the selector resolves
+        let opp_monster: u32 = 77777777;
+        rt.state.add_card(CardSnapshot::monster(opp_monster, "Opp Monster", 1800, 0, 4));
+        rt.state.players[1].field_monsters.push(opp_monster);
+        if let Some(ref op) = compiled.effects[0].operation {
+            op(&mut rt);
+        }
+        let log = rt.dump_calls();
+        assert!(log.contains("return_to_owner"), "Expected return_to_owner, got: {}", log);
     }
 }

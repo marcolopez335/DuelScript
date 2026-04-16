@@ -84,6 +84,7 @@ pub trait DuelScriptRuntime {
     // ── Additional Card Movement ──────────────────────────────
     fn send_to_deck(&mut self, card_ids: &[u32], top: bool) -> u32;
     fn return_to_hand(&mut self, card_ids: &[u32]) -> u32;
+    fn return_to_owner(&mut self, _card_ids: &[u32]) -> u32 { 0 }
     fn tribute(&mut self, card_ids: &[u32]) -> u32;
     fn shuffle_deck(&mut self, player: u8);
 

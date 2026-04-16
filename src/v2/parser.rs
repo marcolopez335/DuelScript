@@ -1300,7 +1300,9 @@ fn parse_action(pair: Pair<Rule>) -> Result<Action, V2ParseError> {
             let text = normalize_ws(inner.as_str());
             let mut it = inner.into_inner();
             let sel = parse_selector(it.next().unwrap())?;
-            let dest = if text.contains("hand") {
+            let dest = if text.contains("to owner") {
+                ReturnDest::Owner
+            } else if text.contains("hand") {
                 ReturnDest::Hand
             } else if text.contains("extra_deck") {
                 ReturnDest::ExtraDeck
