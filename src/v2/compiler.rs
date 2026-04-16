@@ -849,9 +849,13 @@ fn eval_v2_condition_atom(atom: &ConditionAtom, rt: &dyn DuelScriptRuntime) -> b
                 rt.chain_includes_category(engine_cat)
             })
         }
-        ConditionAtom::HasCounter(name, _target) => {
+        ConditionAtom::HasCounter(name, op, expr, _target) => {
             let card_id = rt.effect_card_id();
-            rt.has_counter(card_id, name)
+            let count = rt.get_counter_count(card_id, name) as i32;
+            match (op, expr) {
+                (Some(op), Some(expr)) => compare_i32(count, op, eval_v2_expr(expr, rt)),
+                _ => count > 0,  // bare has_counter = at least 1
+            }
         }
         ConditionAtom::HasFlag(name) => {
             let card_id = rt.effect_card_id();
@@ -1862,5 +1866,45 @@ card "Level Changer" {
         }
         let log = rt.dump_calls();
         assert!(log.contains("send_to_hand"), "Expected send_to_hand, got: {}", log);
+    }
+
+    #[test]
+    fn test_counter_threshold_condition() {
+        use super::super::mock_runtime::MockRuntime;
+        let source = r#"
+            card "Counter Card" {
+                id: 77777777
+                type: Continuous Spell
+                effect "Spell Economy" {
+                    speed: 1
+                    condition: has_counter "Spell Counter" >= 3 on self
+                    resolve {
+                        draw 1
+                    }
+                }
+            }
+        "#;
+        let file = parse_v2(source).unwrap();
+        assert_eq!(file.cards.len(), 1);
+        let compiled = compile_card_v2(&file.cards[0]);
+        assert_eq!(compiled.effects.len(), 1);
+
+        // Default MockRuntime returns 0 counters, so condition should be false
+        let mut rt = MockRuntime::new();
+        rt.effect_card_id = 77777777;
+        rt.effect_player = 0;
+        if let Some(ref cond) = compiled.effects[0].condition {
+            let result = cond(&rt);
+            assert!(!result, "Expected false with 0 counters vs threshold of 3");
+        } else {
+            panic!("Expected a condition callback");
+        }
+
+        // Now place 3 counters and verify it becomes true
+        rt.place_counter(77777777, "Spell Counter", 3);
+        if let Some(ref cond) = compiled.effects[0].condition {
+            let result = cond(&rt);
+            assert!(result, "Expected true with 3 counters >= threshold of 3");
+        }
     }
 }

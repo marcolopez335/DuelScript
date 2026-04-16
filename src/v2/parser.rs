@@ -1075,8 +1075,17 @@ fn parse_condition_atom(pair: Pair<Rule>) -> Result<ConditionAtom, V2ParseError>
     // has_counter
     if text.starts_with("has_counter") {
         let counter = strip_quotes(inner[0].as_str());
+        let mut op: Option<CompareOp> = None;
+        let mut threshold: Option<Expr> = None;
+        for p in inner.iter().skip(1) {
+            match p.as_rule() {
+                Rule::compare_op => op = Some(parse_compare_op(p.as_str().trim())?),
+                Rule::expr => threshold = Some(parse_expr(p.clone())?),
+                _ => {}
+            }
+        }
         let target = if text.contains("self") { CounterTarget::OnSelf } else { CounterTarget::OnSelector };
-        return Ok(ConditionAtom::HasCounter(counter, target));
+        return Ok(ConditionAtom::HasCounter(counter, op, threshold, target));
     }
 
     // has_flag

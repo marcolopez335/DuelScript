@@ -135,6 +135,8 @@ pub struct MockState {
     pub cards: HashMap<u32, CardSnapshot>,
     /// Persistent flags: (card_id, name) → present
     pub flags: HashMap<(u32, String), ()>,
+    /// Counters: (card_id, counter_name) → count
+    pub counters: HashMap<(u32, String), u32>,
     /// Named bindings for the current effect resolution
     pub bindings: HashMap<String, Vec<u32>>,
     /// The "last selected" group, used by bind_last_selection
@@ -147,6 +149,7 @@ impl Default for MockState {
             players: [PlayerState::fresh(), PlayerState::fresh()],
             cards: HashMap::new(),
             flags: HashMap::new(),
+            counters: HashMap::new(),
             bindings: HashMap::new(),
             last_selection: Vec::new(),
         }
@@ -481,9 +484,16 @@ impl DuelScriptRuntime for MockRuntime {
     // ── Counters ─────────────────────────────────────────────
     fn place_counter(&mut self, card_id: u32, name: &str, count: u32) {
         self.record("place_counter", format!("card={} name={} count={}", card_id, name, count));
+        let entry = self.state.counters.entry((card_id, name.to_string())).or_insert(0);
+        *entry += count;
     }
     fn remove_counter(&mut self, card_id: u32, name: &str, count: u32) {
         self.record("remove_counter", format!("card={} name={} count={}", card_id, name, count));
+        let entry = self.state.counters.entry((card_id, name.to_string())).or_insert(0);
+        *entry = entry.saturating_sub(count);
+    }
+    fn get_counter_count(&self, card_id: u32, counter_name: &str) -> u32 {
+        self.state.counters.get(&(card_id, counter_name.to_string())).copied().unwrap_or(0)
     }
 
     // ── Deck operations ──────────────────────────────────────

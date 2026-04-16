@@ -263,7 +263,7 @@ pub enum ConditionAtom {
     InBanished,
     PhaseIs(PhaseName),
     ChainIncludes(Vec<Category>),
-    HasCounter(String, CounterTarget),
+    HasCounter(String, Option<CompareOp>, Option<Expr>, CounterTarget),
     HasFlag(String),
 }
 

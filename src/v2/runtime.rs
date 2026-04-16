@@ -164,6 +164,7 @@ pub trait DuelScriptRuntime {
     fn was_summoned_this_turn(&self, _card_id: u32) -> bool { false }
     fn was_flipped_this_turn(&self, _card_id: u32) -> bool { false }
     fn has_counter(&self, _card_id: u32, _counter_name: &str) -> bool { false }
+    fn get_counter_count(&self, _card_id: u32, _counter_name: &str) -> u32 { 0 }
     fn chain_includes_category(&self, _category: u32) -> bool { false }
 
     // ── Card Identity Changes ────────────────────────────────
