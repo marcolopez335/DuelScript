@@ -2,7 +2,7 @@
   "name": "duelscript",
   "displayName": "DuelScript",
   "description": "Syntax highlighting for DuelScript (.ds) — Yu-Gi-Oh card definition language",
-  "version": "0.8.0",
+  "version": "1.0.0",
   "publisher": "duelscript",
   "engines": {
     "vscode": "^1.75.0"
@@ -10,6 +10,20 @@
   "categories": [
     "Programming Languages"
   ],
+  "activationEvents": ["onLanguage:duelscript"],
+  "main": "./out/extension.js",
+  "scripts": {
+    "compile": "tsc -p .",
+    "watch": "tsc -watch -p ."
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.75.0",
+    "typescript": "^5.0.0"
+  },
   "contributes": {
     "languages": [
       {
@@ -25,6 +39,22 @@
         "scopeName": "source.duelscript",
         "path": "./syntaxes/duelscript.tmLanguage.json"
       }
-    ]
+    ],
+    "snippets": [
+      {
+        "language": "duelscript",
+        "path": "./snippets/duelscript.json"
+      }
+    ],
+    "configuration": {
+      "title": "DuelScript",
+      "properties": {
+        "duelscript.lspPath": {
+          "type": "string",
+          "default": "duelscript_lsp",
+          "description": "Path to the duelscript_lsp binary"
+        }
+      }
+    }
   }
 }
