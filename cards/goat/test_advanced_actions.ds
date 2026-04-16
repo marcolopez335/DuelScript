@@ -1,0 +1,33 @@
+// Integration test fixture: multi-zone, swap_stats, return to owner
+// Exercises features added in Tasks 2, 4, and 5.
+
+card "Test Advanced" {
+    id: 99999998
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 4
+    atk: 1800
+    def: 1000
+
+    effect "Search Both Zones" {
+        speed: 1
+        resolve {
+            search (1, monster, from gy or banished)
+        }
+    }
+
+    effect "Stats Swap" {
+        speed: 1
+        resolve {
+            swap_stats (all, monster, you control)
+        }
+    }
+
+    effect "Bounce" {
+        speed: 2
+        resolve {
+            return (1, monster, opponent controls) to owner
+        }
+    }
+}
