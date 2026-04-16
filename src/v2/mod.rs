@@ -1,6 +1,7 @@
 // DuelScript v2 — clean language redesign
 pub mod ast;
 pub mod parser;
+pub mod fmt;
 pub mod validator;
 pub mod compiler;
 pub mod constants;
