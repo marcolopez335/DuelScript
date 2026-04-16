@@ -341,9 +341,11 @@ controller = {
   | "either" ~ "controls"
 }
 
+zone_list   = { zone ~ ("or" ~ zone)* }
+
 zone_filter = {
-    "in" ~ zone
-  | "from" ~ zone
+    "in" ~ zone_list
+  | "from" ~ zone_list
   | "on" ~ ("your" | "opponent" | "either") ~ "field"
 }
 

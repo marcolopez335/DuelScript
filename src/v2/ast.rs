@@ -329,7 +329,7 @@ pub enum CardFilterKind {
 pub enum Controller { You, Opponent, Either }
 
 #[derive(Debug, Clone)]
-pub enum ZoneFilter { In(Zone), From(Zone), OnField(FieldOwner) }
+pub enum ZoneFilter { In(Vec<Zone>), From(Vec<Zone>), OnField(FieldOwner) }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum PositionFilter {

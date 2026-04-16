@@ -650,17 +650,28 @@ fn resolve_v2_selector(sel: &Selector, rt: &dyn DuelScriptRuntime, player: u8) -
                 Some(Controller::Opponent) => Some(opponent),
                 Some(Controller::Either) | None => None, // both
             };
-            let location = match zone {
-                Some(ZoneFilter::In(z)) | Some(ZoneFilter::From(z)) => zone_to_location(z),
-                Some(ZoneFilter::OnField(_)) => tm::LOCATION_ONFIELD,
-                None => tm::LOCATION_ONFIELD,
-            };
             let mut cards = Vec::new();
-            if let Some(p) = ctrl_player {
-                cards.extend(rt.get_field_cards(p, location));
-            } else {
-                cards.extend(rt.get_field_cards(player, location));
-                cards.extend(rt.get_field_cards(opponent, location));
+            match zone {
+                Some(ZoneFilter::In(zones)) | Some(ZoneFilter::From(zones)) => {
+                    for z in zones {
+                        let location = zone_to_location(z);
+                        if let Some(p) = ctrl_player {
+                            cards.extend(rt.get_field_cards(p, location));
+                        } else {
+                            cards.extend(rt.get_field_cards(player, location));
+                            cards.extend(rt.get_field_cards(opponent, location));
+                        }
+                    }
+                }
+                Some(ZoneFilter::OnField(_)) | None => {
+                    let location = tm::LOCATION_ONFIELD;
+                    if let Some(p) = ctrl_player {
+                        cards.extend(rt.get_field_cards(p, location));
+                    } else {
+                        cards.extend(rt.get_field_cards(player, location));
+                        cards.extend(rt.get_field_cards(opponent, location));
+                    }
+                }
             }
             cards
         }
@@ -1806,5 +1817,50 @@ card "Level Changer" {
         }
         let log = rt.dump_calls();
         assert!(log.contains("ritual_summon"), "Expected ritual_summon, got: {}", log);
+    }
+
+    #[test]
+    fn test_multi_zone_selector() {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        let source = r#"
+            card "Test Multi Zone" {
+                id: 88888888
+                type: Normal Spell
+                effect "Search" {
+                    speed: 1
+                    resolve {
+                        search (1, monster, from gy or banished)
+                    }
+                }
+            }
+        "#;
+        let file = parse_v2(source).unwrap();
+        assert_eq!(file.cards.len(), 1);
+        let compiled = compile_card_v2(&file.cards[0]);
+        assert_eq!(compiled.effects.len(), 1);
+
+        // Verify the AST has both zones in the From filter
+        if let Action::Search(Selector::Counted { zone: Some(ZoneFilter::From(zones)), .. }, _) =
+            &file.cards[0].effects[0].resolve[0]
+        {
+            assert_eq!(zones.len(), 2);
+            assert!(zones.contains(&Zone::Gy));
+            assert!(zones.contains(&Zone::Banished));
+        } else {
+            panic!("Expected Action::Search with Selector::Counted ZoneFilter::From([Gy, Banished])");
+        }
+
+        // Verify runtime execution: a monster in GY is found and added to hand
+        let mut rt = MockRuntime::new();
+        rt.effect_card_id = 88888888;
+        rt.effect_player = 0;
+        let monster_id: u32 = 99999999;
+        rt.state.add_card(CardSnapshot::monster(monster_id, "Test Monster", 1800, 1000, 4));
+        rt.state.players[0].graveyard.push(monster_id);
+        if let Some(ref op) = compiled.effects[0].operation {
+            op(&mut rt);
+        }
+        let log = rt.dump_calls();
+        assert!(log.contains("send_to_hand"), "Expected send_to_hand, got: {}", log);
     }
 }

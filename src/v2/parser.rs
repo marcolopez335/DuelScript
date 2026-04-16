@@ -846,16 +846,28 @@ fn parse_card_filter(pair: Pair<Rule>) -> Result<CardFilter, V2ParseError> {
     Ok(CardFilter { name: None, kind })
 }
 
+fn parse_zone_list(pair: Pair<Rule>) -> Result<Vec<Zone>, V2ParseError> {
+    let mut zones = Vec::new();
+    for p in pair.into_inner() {
+        if p.as_rule() == Rule::zone {
+            zones.push(parse_zone(p.as_str().trim())?);
+        }
+    }
+    Ok(zones)
+}
+
 fn parse_zone_filter(pair: Pair<Rule>) -> Result<ZoneFilter, V2ParseError> {
     let text = normalize_ws(pair.as_str());
     let mut inner = pair.into_inner();
 
     if text.starts_with("in ") {
-        let zone = parse_zone(inner.next().unwrap().as_str().trim())?;
-        Ok(ZoneFilter::In(zone))
+        let zone_list_pair = inner.next().unwrap();
+        let zones = parse_zone_list(zone_list_pair)?;
+        Ok(ZoneFilter::In(zones))
     } else if text.starts_with("from ") {
-        let zone = parse_zone(inner.next().unwrap().as_str().trim())?;
-        Ok(ZoneFilter::From(zone))
+        let zone_list_pair = inner.next().unwrap();
+        let zones = parse_zone_list(zone_list_pair)?;
+        Ok(ZoneFilter::From(zones))
     } else if text.starts_with("on ") {
         let owner = if text.contains("your") { FieldOwner::Your }
             else if text.contains("opponent") { FieldOwner::Opponent }
