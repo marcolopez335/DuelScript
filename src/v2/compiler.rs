@@ -571,6 +571,8 @@ fn action_category(action: &Action) -> u32 {
         Action::FusionSummon { .. }    => tm::CATEGORY_SPECIAL_SUMMON | tm::CATEGORY_FUSION_SUMMON,
         Action::SynchroSummon { .. }   => tm::CATEGORY_SPECIAL_SUMMON,
         Action::XyzSummon { .. }       => tm::CATEGORY_SPECIAL_SUMMON,
+        Action::SwapControl(_, _)      => tm::CATEGORY_CONTROL,
+        Action::SwapStats(_)           => tm::CATEGORY_ATKCHANGE | tm::CATEGORY_DEFCHANGE,
     }
 }
 
@@ -1383,6 +1385,19 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
             // Signal the engine to register a watcher; engine handles trigger/duration logic
             rt.raise_custom_event(&format!("install_watcher:{}", name), &[]);
         }
+        Action::SwapControl(sel_a, sel_b) => {
+            let a = resolve_v2_selector(sel_a, rt, player);
+            let b = resolve_v2_selector(sel_b, rt, player);
+            if let (Some(&card_a), Some(&card_b)) = (a.first(), b.first()) {
+                rt.swap_control(card_a, card_b);
+            }
+        }
+        Action::SwapStats(sel) => {
+            let cards = resolve_v2_selector(sel, rt, player);
+            for card_id in cards {
+                rt.swap_stats(card_id);
+            }
+        }
         Action::LinkTo(_, _) => {
             // LinkTo is engine-internal (set link arrows); no runtime method yet
         }
@@ -1906,5 +1921,42 @@ card "Level Changer" {
             let result = cond(&rt);
             assert!(result, "Expected true with 3 counters >= threshold of 3");
         }
+    }
+
+    #[test]
+    fn test_swap_actions() {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        let source = r#"
+            card "Test Swap" {
+                id: 66666666
+                type: Normal Spell
+                effect "Swap Everything" {
+                    speed: 1
+                    resolve {
+                        swap_stats (all, monster, you control)
+                        swap_control (1, monster, you control) and (1, monster, opponent controls)
+                    }
+                }
+            }
+        "#;
+        let file = parse_v2(source).unwrap();
+        assert_eq!(file.cards.len(), 1);
+        let compiled = compile_card_v2(&file.cards[0]);
+        let mut rt = MockRuntime::new();
+        rt.effect_card_id = 66666666;
+        rt.effect_player = 0;
+        // Add monsters to field so selectors resolve to something
+        let mon_a: u32 = 11111111;
+        let mon_b: u32 = 22222222;
+        rt.state.add_card(CardSnapshot::monster(mon_a, "Monster A", 1800, 1000, 4));
+        rt.state.add_card(CardSnapshot::monster(mon_b, "Monster B", 2000, 1500, 5));
+        rt.state.players[0].field_monsters.push(mon_a);
+        rt.state.players[1].field_monsters.push(mon_b);
+        if let Some(ref op) = compiled.effects[0].operation {
+            op(&mut rt);
+        }
+        let log = rt.dump_calls();
+        assert!(log.contains("swap_stats") || log.contains("swap_control"),
+            "Expected swap call in log: {}", log);
     }
 }

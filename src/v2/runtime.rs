@@ -193,6 +193,10 @@ pub trait DuelScriptRuntime {
     // ── Equip ────────────────────────────────────────────────────────
     fn equip_card(&mut self, _equip_id: u32, _target_id: u32) {}
 
+    // ── Swap ─────────────────────────────────────────────────────────
+    fn swap_control(&mut self, _card_a: u32, _card_b: u32) {}
+    fn swap_stats(&mut self, _card_id: u32) {}
+
     // ── Grant (continuous effect registration) ───────────────────────
     fn register_grant(&mut self, _card_id: u32, _grant_code: u32, _duration: u32) {}
 }

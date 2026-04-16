@@ -1701,7 +1701,28 @@ fn parse_action(pair: Pair<Rule>) -> Result<Action, V2ParseError> {
                 check,
             })
         }
+        Rule::swap_action => parse_swap_action(inner),
         _ => Err(V2ParseError::UnknownRule(format!("action: {:?}", inner.as_rule()))),
+    }
+}
+
+fn parse_swap_action(pair: Pair<Rule>) -> Result<Action, V2ParseError> {
+    let text = pair.as_str();
+    let selectors: Vec<Selector> = pair.into_inner()
+        .filter(|p| matches!(p.as_rule(), Rule::selector))
+        .map(parse_selector)
+        .collect::<Result<_, _>>()?;
+    if text.starts_with("swap_control") {
+        if selectors.len() < 2 {
+            return Err(V2ParseError::MissingField("swap_control needs two selectors"));
+        }
+        Ok(Action::SwapControl(selectors[0].clone(), selectors[1].clone()))
+    } else {
+        // swap_stats
+        if selectors.is_empty() {
+            return Err(V2ParseError::MissingField("swap_stats needs a selector"));
+        }
+        Ok(Action::SwapStats(selectors[0].clone()))
     }
 }
 

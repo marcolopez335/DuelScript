@@ -460,6 +460,8 @@ pub enum Action {
     Then(Vec<Action>),
     Also(Vec<Action>),
     InstallWatcher { name: String, event: Trigger, duration: Duration, check: Vec<Action> },
+    SwapControl(Selector, Selector),
+    SwapStats(Selector),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

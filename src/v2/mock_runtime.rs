@@ -648,6 +648,14 @@ impl DuelScriptRuntime for MockRuntime {
         self.record("equip_card", format!("equip={} target={}", equip_id, target_id));
     }
 
+    // ── Swap ──────────────────────────────────────────────────
+    fn swap_control(&mut self, card_a: u32, card_b: u32) {
+        self.record("swap_control", format!("a={} b={}", card_a, card_b));
+    }
+    fn swap_stats(&mut self, card_id: u32) {
+        self.record("swap_stats", format!("card={}", card_id));
+    }
+
     // ── Grant ─────────────────────────────────────────────────
     fn register_grant(&mut self, card_id: u32, grant_code: u32, duration: u32) {
         self.record("register_grant",

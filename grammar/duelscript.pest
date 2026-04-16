@@ -451,6 +451,7 @@ action = {
   | then_action
   | also_action
   | install_watcher_action
+  | swap_action
 }
 
 // ── Individual Actions ───────────────────────────────────────
@@ -517,6 +518,10 @@ look_at_action  = { "look_at" ~ selector ~ ("from" ~ zone)? }
 shuffle_action  = { "shuffle_deck" ~ ("yours" | "opponents" | "both")? }
 announce_action = { "announce" ~ announce_what ~ binding? }
 link_action     = { "link" ~ selector ~ "to" ~ selector }
+swap_action     = {
+    "swap_control" ~ selector ~ "and" ~ selector
+  | "swap_stats" ~ selector
+}
 
 coin_flip_action = { "flip_coin" ~ "{" ~ "heads" ~ "{" ~ action+ ~ "}" ~ "tails" ~ "{" ~ action+ ~ "}" ~ "}" }
 dice_roll_action = { "roll_dice" ~ "{" ~ action+ ~ "}" }
