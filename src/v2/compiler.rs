@@ -567,6 +567,10 @@ fn action_category(action: &Action) -> u32 {
         }
         Action::DiceRoll(branches)     => categories_from_actions(branches),
         Action::LinkTo(_, _)           => 0,
+        Action::RitualSummon { .. }    => tm::CATEGORY_SPECIAL_SUMMON,
+        Action::FusionSummon { .. }    => tm::CATEGORY_SPECIAL_SUMMON | tm::CATEGORY_FUSION_SUMMON,
+        Action::SynchroSummon { .. }   => tm::CATEGORY_SPECIAL_SUMMON,
+        Action::XyzSummon { .. }       => tm::CATEGORY_SPECIAL_SUMMON,
     }
 }
 
@@ -1367,6 +1371,34 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
         Action::LinkTo(_, _) => {
             // LinkTo is engine-internal (set link arrows); no runtime method yet
         }
+        Action::RitualSummon { target, materials, .. } => {
+            let targets = resolve_v2_selector(target, rt, player);
+            let mats = materials.as_ref().map(|m| resolve_v2_selector(m, rt, player)).unwrap_or_default();
+            if let Some(&card_id) = targets.first() {
+                rt.ritual_summon(card_id, player, &mats);
+            }
+        }
+        Action::FusionSummon { target, materials } => {
+            let targets = resolve_v2_selector(target, rt, player);
+            let mats = materials.as_ref().map(|m| resolve_v2_selector(m, rt, player)).unwrap_or_default();
+            if let Some(&card_id) = targets.first() {
+                rt.fusion_summon(card_id, player, &mats);
+            }
+        }
+        Action::SynchroSummon { target, materials } => {
+            let targets = resolve_v2_selector(target, rt, player);
+            let mats = materials.as_ref().map(|m| resolve_v2_selector(m, rt, player)).unwrap_or_default();
+            if let Some(&card_id) = targets.first() {
+                rt.synchro_summon(card_id, player, &mats);
+            }
+        }
+        Action::XyzSummon { target, materials } => {
+            let targets = resolve_v2_selector(target, rt, player);
+            let mats = materials.as_ref().map(|m| resolve_v2_selector(m, rt, player)).unwrap_or_default();
+            if let Some(&card_id) = targets.first() {
+                rt.xyz_summon(card_id, player, &mats);
+            }
+        }
     }
 }
 
@@ -1742,5 +1774,37 @@ card "Level Changer" {
                 panic!("Level Change effect missing operation callback");
             }
         }
+    }
+
+    #[test]
+    fn test_ritual_summon_action_parses_and_executes() {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        let source = r#"
+            card "Test Ritual" {
+                id: 12345
+                type: Ritual Spell
+
+                effect "Summon" {
+                    speed: 1
+                    resolve {
+                        ritual_summon (1, monster) using (1+, monster, you control) where total_level >= 8
+                    }
+                }
+            }
+        "#;
+        let file = parse_v2(source).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        assert_eq!(compiled.effects.len(), 1);
+        let mut rt = MockRuntime::new();
+        rt.effect_card_id = 12345;
+        rt.effect_player = 0;
+        // Provide a monster on the field so the selector can resolve something
+        rt.state.add_card(CardSnapshot::monster(12345, "Test Ritual", 0, 0, 8));
+        rt.state.players[0].field_monsters.push(12345);
+        if let Some(ref op) = compiled.effects[0].operation {
+            op(&mut rt);
+        }
+        let log = rt.dump_calls();
+        assert!(log.contains("ritual_summon"), "Expected ritual_summon, got: {}", log);
     }
 }

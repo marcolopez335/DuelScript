@@ -409,6 +409,10 @@ action = {
   | search_action
   | add_to_hand_action
   | special_summon_action
+  | ritual_summon_action
+  | fusion_summon_action
+  | synchro_summon_action
+  | xyz_summon_action
   | normal_summon_action
   | set_action
   | flip_down_action
@@ -458,6 +462,10 @@ deck_position         = { "top" | "bottom" | "shuffle" }
 search_action         = { "search" ~ selector ~ ("from" ~ zone)? }
 add_to_hand_action    = { "add_to_hand" ~ selector ~ ("from" ~ zone)? }
 special_summon_action = { "special_summon" ~ selector ~ ("from" ~ zone)? ~ ("in" ~ battle_position)? }
+ritual_summon_action  = { "ritual_summon" ~ selector ~ ("using" ~ selector)? ~ ("where" ~ "total_level" ~ compare_op ~ expr)? }
+fusion_summon_action  = { "fusion_summon" ~ selector ~ ("using" ~ selector)? }
+synchro_summon_action = { "synchro_summon" ~ selector ~ ("using" ~ selector)? }
+xyz_summon_action     = { "xyz_summon" ~ selector ~ ("using" ~ selector)? }
 normal_summon_action  = { "normal_summon" ~ selector }
 set_action            = { "set" ~ selector ~ ("from" ~ zone)? }
 flip_down_action      = { "flip_down" ~ selector }

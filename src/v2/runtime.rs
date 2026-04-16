@@ -183,6 +183,12 @@ pub trait DuelScriptRuntime {
     fn normal_summon(&mut self, _card_id: u32, _player: u8) -> bool { true }
     fn set_card(&mut self, _card_id: u32, _player: u8) -> bool { true }
 
+    // ── Extra Deck Summons ───────────────────────────────────────────
+    fn ritual_summon(&mut self, _card_id: u32, _player: u8, _material_ids: &[u32]) -> bool { true }
+    fn fusion_summon(&mut self, _card_id: u32, _player: u8, _material_ids: &[u32]) -> bool { true }
+    fn synchro_summon(&mut self, _card_id: u32, _player: u8, _material_ids: &[u32]) -> bool { true }
+    fn xyz_summon(&mut self, _card_id: u32, _player: u8, _material_ids: &[u32]) -> bool { true }
+
     // ── Equip ────────────────────────────────────────────────────────
     fn equip_card(&mut self, _equip_id: u32, _target_id: u32) {}
 

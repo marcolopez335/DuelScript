@@ -611,6 +611,28 @@ impl DuelScriptRuntime for MockRuntime {
         true
     }
 
+    // ── Extra Deck Summons ────────────────────────────────────
+    fn ritual_summon(&mut self, card_id: u32, player: u8, material_ids: &[u32]) -> bool {
+        self.record("ritual_summon", format!("card={} player={} materials={:?}", card_id, player, material_ids));
+        self.state.players[player as usize].field_monsters.push(card_id);
+        true
+    }
+    fn fusion_summon(&mut self, card_id: u32, player: u8, material_ids: &[u32]) -> bool {
+        self.record("fusion_summon", format!("card={} player={} materials={:?}", card_id, player, material_ids));
+        self.state.players[player as usize].field_monsters.push(card_id);
+        true
+    }
+    fn synchro_summon(&mut self, card_id: u32, player: u8, material_ids: &[u32]) -> bool {
+        self.record("synchro_summon", format!("card={} player={} materials={:?}", card_id, player, material_ids));
+        self.state.players[player as usize].field_monsters.push(card_id);
+        true
+    }
+    fn xyz_summon(&mut self, card_id: u32, player: u8, material_ids: &[u32]) -> bool {
+        self.record("xyz_summon", format!("card={} player={} materials={:?}", card_id, player, material_ids));
+        self.state.players[player as usize].field_monsters.push(card_id);
+        true
+    }
+
     // ── Equip ─────────────────────────────────────────────────
     fn equip_card(&mut self, equip_id: u32, target_id: u32) {
         self.record("equip_card", format!("equip={} target={}", equip_id, target_id));

@@ -1327,6 +1327,59 @@ fn parse_action(pair: Pair<Rule>) -> Result<Action, V2ParseError> {
             }
             Ok(Action::SpecialSummon(sel, zone, pos))
         }
+        Rule::ritual_summon_action => {
+            let mut target: Option<Selector> = None;
+            let mut materials: Option<Selector> = None;
+            let mut level_op: Option<CompareOp> = None;
+            let mut level_expr: Option<Expr> = None;
+            for p in inner.into_inner() {
+                match p.as_rule() {
+                    Rule::selector => {
+                        if target.is_none() {
+                            target = Some(parse_selector(p)?);
+                        } else {
+                            materials = Some(parse_selector(p)?);
+                        }
+                    }
+                    Rule::compare_op => level_op = Some(parse_compare_op(p.as_str().trim())?),
+                    Rule::expr => level_expr = Some(parse_expr(p)?),
+                    _ => {}
+                }
+            }
+            Ok(Action::RitualSummon {
+                target: target.ok_or(V2ParseError::MissingField("ritual_summon target"))?,
+                materials,
+                level_op,
+                level_expr,
+            })
+        }
+        Rule::fusion_summon_action => {
+            let mut it = inner.into_inner();
+            let target = parse_selector(it.next().ok_or(V2ParseError::MissingField("fusion_summon target"))?)?;
+            let materials = it.next()
+                .filter(|p| p.as_rule() == Rule::selector)
+                .map(|p| parse_selector(p))
+                .transpose()?;
+            Ok(Action::FusionSummon { target, materials })
+        }
+        Rule::synchro_summon_action => {
+            let mut it = inner.into_inner();
+            let target = parse_selector(it.next().ok_or(V2ParseError::MissingField("synchro_summon target"))?)?;
+            let materials = it.next()
+                .filter(|p| p.as_rule() == Rule::selector)
+                .map(|p| parse_selector(p))
+                .transpose()?;
+            Ok(Action::SynchroSummon { target, materials })
+        }
+        Rule::xyz_summon_action => {
+            let mut it = inner.into_inner();
+            let target = parse_selector(it.next().ok_or(V2ParseError::MissingField("xyz_summon target"))?)?;
+            let materials = it.next()
+                .filter(|p| p.as_rule() == Rule::selector)
+                .map(|p| parse_selector(p))
+                .transpose()?;
+            Ok(Action::XyzSummon { target, materials })
+        }
         Rule::normal_summon_action => {
             let sel = parse_selector(inner.into_inner().next().unwrap())?;
             Ok(Action::NormalSummon(sel))
