@@ -19,7 +19,7 @@
 // ============================================================
 
 use std::collections::HashMap;
-use super::runtime::{CardFilter, DamageType, Stat, DuelScriptRuntime};
+use super::runtime::{CardFilter, DamageType, Stat, TokenSpec, DuelScriptRuntime};
 
 // ── Recorded call types ──────────────────────────────────────
 
@@ -482,6 +482,18 @@ impl DuelScriptRuntime for MockRuntime {
     // ── Battle ───────────────────────────────────────────────
     fn change_position(&mut self, card_id: u32) {
         self.record("change_position", format!("card={}", card_id));
+    }
+
+    // ── Token creation ───────────────────────────────────────
+    fn create_token(&mut self, player: u8, spec: &TokenSpec) {
+        self.record(
+            "create_token",
+            format!(
+                "player={} name={:?} atk={} def={} level={} attribute={:#x} race={:#x} position={:#x} count={}",
+                player, spec.name, spec.atk, spec.def, spec.level,
+                spec.attribute, spec.race, spec.position, spec.count,
+            ),
+        );
     }
 
     // ── Xyz materials ────────────────────────────────────────

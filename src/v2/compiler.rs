@@ -11,7 +11,7 @@
 use std::sync::Arc;
 use super::ast::*;
 use super::constants as tm;
-use super::runtime::{DamageType, DuelScriptRuntime, CardFilter as RuntimeCardFilter, Stat};
+use super::runtime::{DamageType, DuelScriptRuntime, CardFilter as RuntimeCardFilter, Stat, TokenSpec};
 
 // ── Output Types ────────────────────────────────────────────
 
@@ -1220,6 +1220,21 @@ fn race_to_engine(race: &Race) -> u32 {
     }
 }
 
+/// Maps an optional BattlePosition to the EDOPro POS_* code used across the
+/// engine (`POS_FACEUP_ATTACK = 0x1`, `POS_FACEUP_DEFENSE = 0x4`,
+/// `POS_FACEDOWN_DEFENSE = 0x8`). Defaults to face-up attack (0x1) when the
+/// DSL omits a position — matches the existing default in the
+/// `special_summon` call site at line 234. Mirrors the pattern seen inline
+/// at compiler.rs:1699-1701 (ChangePosition) but reusable for other arms.
+fn position_to_code(pos: &Option<BattlePosition>) -> u32 {
+    match pos {
+        Some(BattlePosition::Attack) => 0x1,
+        Some(BattlePosition::Defense) => 0x4,
+        Some(BattlePosition::FaceDownDefense) => 0x8,
+        None => 0x1,
+    }
+}
+
 // ── Callback Generation ─────────────────────────────────────
 
 /// Generate a condition closure directly from an `Option<Condition>`, without
@@ -1801,7 +1816,17 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
         Action::CreateToken(spec) => {
             let atk = match &spec.atk { StatVal::Number(n) => *n, _ => 0 };
             let def = match &spec.def { StatVal::Number(n) => *n, _ => 0 };
-            rt.create_token(player, atk, def, spec.count);
+            let runtime_spec = TokenSpec {
+                name: spec.name.clone().unwrap_or_else(|| "Token".to_string()),
+                atk,
+                def,
+                level: spec.level.unwrap_or(1),
+                attribute: spec.attribute.as_ref().map(attribute_to_engine).unwrap_or(0),
+                race: spec.race.as_ref().map(race_to_engine).unwrap_or(0),
+                position: position_to_code(&spec.position),
+                count: spec.count,
+            };
+            rt.create_token(player, &runtime_spec);
         }
         Action::Return(sel, dest) => {
             let cards = resolve_v2_selector(sel, rt, player);

@@ -541,8 +541,34 @@ retroactively change `get_card_stat` Original variants.
   `new_controller` (0 or 1). The card moves to the new controller's field zone.
   Default: no-op.
 
-- `create_token(player, atk, def, count)` — Create `count` Token monsters on
-  `player`'s field, each with the given `atk` and `def` values. Default: no-op.
+- `create_token(player, spec)` — Create `spec.count` Token monsters on
+  `player`'s field. `spec` is a `TokenSpec` struct (defined in
+  `src/v2/runtime.rs`) carrying the full token definition:
+
+  ```rust
+  pub struct TokenSpec {
+      pub name: String,       // display name, defaults to "Token"
+      pub atk: i32,
+      pub def: i32,
+      pub level: u32,         // defaults to 1
+      pub attribute: u32,     // code from attribute_to_engine (0x10=LIGHT … 0x400=DIVINE)
+      pub race: u32,          // bitmask from race_to_engine (e.g. 0x4000=Beast)
+      pub position: u32,      // POS_* code (0x1=attack, 0x4=face-up defense, 0x8=face-down defense); default 0x1
+      pub count: u32,
+  }
+  ```
+
+  Compiler emission: the `Action::CreateToken` arm builds a `TokenSpec` from
+  the parsed `ast::TokenSpec`, evaluating `StatVal` literals for atk/def,
+  defaulting `name`/`level`/`position`, and mapping optional enums through
+  `attribute_to_engine` / `race_to_engine` / `position_to_code` (0 when the
+  DSL omits attribute or race). The `restriction` field of
+  `ast::TokenSpec` is not mirrored on the runtime surface — continuous-effect
+  territory, deferred (see `decisions-2.md` entry A-II).
+
+  Signature widened in T17 (`decisions-2.md` B-II). Prior signature
+  `(player, atk, def, count)` dropped name/attribute/race/level/position.
+  Default: no-op.
 
 ---
 

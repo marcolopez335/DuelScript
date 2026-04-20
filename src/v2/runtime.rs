@@ -32,6 +32,41 @@ pub enum DamageType {
     Battle,
 }
 
+/// Runtime-surface token definition passed to `create_token`.
+///
+/// The compiler converts `ast::TokenSpec` into this struct, evaluating `StatVal`
+/// literals, defaulting optional fields (`name` → `"Token"`, `level` → `1`,
+/// `position` → face-up attack), and mapping `Attribute`/`Race`/`BattlePosition`
+/// enums to the numeric codes the engine consumes.
+///
+/// Fields:
+/// - `name`: display name for the token (e.g. `"Sheep Token"`).
+/// - `atk` / `def`: flat stat values (DSL stat expressions are evaluated at
+///   compile time for tokens — no runtime references into the spec).
+/// - `level`: monster level. Defaults to 1 when the DSL omits it.
+/// - `attribute`: Attribute code. Matches the duelscript compiler's
+///   `attribute_to_engine` mapping — `0x10`=LIGHT, `0x20`=DARK, `0x40`=FIRE,
+///   `0x80`=WATER, `0x100`=EARTH, `0x200`=WIND, `0x400`=DIVINE.
+/// - `race`: Race bitmask (matches `race_to_engine` — e.g. `0x4000`=Beast).
+/// - `position`: EDOPro `POS_*` code (`0x1`=face-up attack, `0x4`=face-up defense,
+///   `0x8`=face-down defense). Defaults to `0x1`.
+/// - `count`: number of tokens to create in one call.
+///
+/// The `restriction` field of `ast::TokenSpec` is intentionally NOT mirrored here
+/// — applying token movement restrictions requires the continuous-effect
+/// machinery and is deferred (see decisions-2.md entry A-II).
+#[derive(Clone, Debug, PartialEq)]
+pub struct TokenSpec {
+    pub name: String,
+    pub atk: i32,
+    pub def: i32,
+    pub level: u32,
+    pub attribute: u32, // code matching `attribute_to_engine` / ygobeetle `Card.attribute` (u32, not u8 — see B-II note)
+    pub race: u32,      // bitmask matching `race_to_engine`
+    pub position: u32,  // EDOPro POS_* code (0x1=attack, 0x4=face-up defense, 0x8=face-down defense)
+    pub count: u32,
+}
+
 // ── Runtime Abstraction ───────────────────────────────────────
 
 /// Trait that engines implement to expose game state and operations
@@ -676,16 +711,23 @@ pub trait DuelScriptRuntime {
 
     // ── Sprint 67: Token creation ────────────────────────────
 
-    /// Create `count` Token monsters on `player`'s field with the given stats.
+    /// Create `spec.count` Token monsters on `player`'s field using the fields
+    /// carried in [`TokenSpec`] (name, attribute, race, level, atk, def,
+    /// position, count).
+    ///
+    /// Signature widened in T17 (decision `B-II` in `decisions-2.md`). Prior
+    /// signature `(player, atk, def, count)` dropped `name`, `attribute`,
+    /// `race`, `level`, and `position` — tokens lost their identity in the
+    /// engine. The struct-based arg keeps call sites terse and the runtime
+    /// surface decoupled from AST internals.
     ///
     /// # Args
-    /// - `atk`: ATK value of each created token.
-    /// - `def`: DEF value of each created token.
-    /// - `count`: Number of tokens to create.
+    /// - `player`: 0 or 1 — which player's field the tokens land on.
+    /// - `spec`: token definition (see [`TokenSpec`] for field semantics).
     ///
     /// # Default
     /// No-op.
-    fn create_token(&mut self, _player: u8, _atk: i32, _def: i32, _count: u32) {}
+    fn create_token(&mut self, _player: u8, _spec: &TokenSpec) {}
 
     // ── Sprint 67: Cross-phase state ─────────────────────────
 
