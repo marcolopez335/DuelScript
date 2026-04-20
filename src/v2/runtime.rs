@@ -19,6 +19,19 @@ pub enum Stat {
     Atk, Def, Level, Rank, BaseAtk, BaseDef, OriginalAtk, OriginalDef,
 }
 
+/// Reason bit for `damage` dispatch. Engines that distinguish damage sources
+/// (for reason flags, triggers, negation, etc.) consume this to route the
+/// right `REASON_*` bit. Compiler emits `Cost` for PayLp call sites and
+/// `Effect` for direct effect-damage call sites. `Battle` is included for
+/// completeness though the compiler never emits it — battle damage is
+/// engine-internal and never routed from DSL.
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum DamageType {
+    Effect,
+    Cost,
+    Battle,
+}
+
 // ── Runtime Abstraction ───────────────────────────────────────
 
 /// Trait that engines implement to expose game state and operations
@@ -272,12 +285,19 @@ pub trait DuelScriptRuntime {
 
     /// Inflict `amount` points of damage to `player`'s life points.
     ///
+    /// # Args
+    /// - `damage_type`: reason classification (`Effect`, `Cost`, or `Battle`).
+    ///   Engines map this to the corresponding `REASON_*` bit for triggers,
+    ///   negation filters, and event logging. Compiler emits `Cost` for
+    ///   `PayLp` call sites and `Effect` for direct damage sites; `Battle`
+    ///   is never emitted from DSL (battle damage is engine-internal).
+    ///
     /// # Returns
     /// `true` if the damage was applied; `false` if it was negated or
     /// redirected by the engine.
     ///
     /// **Required to override.**
-    fn damage(&mut self, player: u8, amount: i32) -> bool;
+    fn damage(&mut self, player: u8, amount: i32, damage_type: DamageType) -> bool;
 
     /// Restore `amount` life points to `player`.
     ///

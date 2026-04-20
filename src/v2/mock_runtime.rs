@@ -19,7 +19,7 @@
 // ============================================================
 
 use std::collections::HashMap;
-use super::runtime::{CardFilter, Stat, DuelScriptRuntime};
+use super::runtime::{CardFilter, DamageType, Stat, DuelScriptRuntime};
 
 // ── Recorded call types ──────────────────────────────────────
 
@@ -396,8 +396,9 @@ impl DuelScriptRuntime for MockRuntime {
     }
 
     // ── LP ───────────────────────────────────────────────────
-    fn damage(&mut self, player: u8, amount: i32) -> bool {
-        self.record("damage", format!("player={} amount={}", player, amount));
+    fn damage(&mut self, player: u8, amount: i32, damage_type: DamageType) -> bool {
+        self.record("damage",
+            format!("player={} amount={} type={:?}", player, amount, damage_type));
         self.state.players[player as usize].lp -= amount;
         true
     }
@@ -816,7 +817,7 @@ mod tests {
     #[test]
     fn damage_reduces_lp_and_records() {
         let mut rt = MockRuntime::fresh();
-        rt.damage(1, 1500);
+        rt.damage(1, 1500, DamageType::Effect);
         assert_eq!(rt.get_lp(1), 6500);
         assert_eq!(rt.call_count("damage"), 1);
     }

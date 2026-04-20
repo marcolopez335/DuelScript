@@ -202,8 +202,20 @@ negates the operation (for example, if a continuous effect prevents LP changes).
 `amount` parameter is always a positive integer; the method name conveys the
 direction.
 
-- `damage(player, amount) -> bool` — Inflict `amount` LP damage to `player`. Returns
-  `false` if the damage was negated or redirected. **(Required)**
+- `damage(player, amount, damage_type) -> bool` — Inflict `amount` LP damage to
+  `player`. `damage_type` is a `DamageType` enum variant (`Effect`, `Cost`, or
+  `Battle`) that engines map to the corresponding `REASON_*` bit for triggers,
+  negation filters, and event logging. Returns `false` if the damage was negated
+  or redirected. **(Required)**
+
+  ```rust
+  pub enum DamageType { Effect, Cost, Battle }
+  ```
+
+  The compiler emits `Cost` for `PayLp` call sites (cost-phase LP payments) and
+  `Effect` for direct `Action::Damage` / `Action::PayLp` effect sites. `Battle`
+  is never emitted from DSL — battle damage is engine-internal — but is present
+  in the enum so engine-side consumers can share one type.
 
 - `recover(player, amount) -> bool` — Restore `amount` LP to `player`. Returns
   `false` if the recovery was negated. **(Required)**

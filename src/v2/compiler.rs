@@ -11,7 +11,7 @@
 use std::sync::Arc;
 use super::ast::*;
 use super::constants as tm;
-use super::runtime::{DuelScriptRuntime, CardFilter as RuntimeCardFilter, Stat};
+use super::runtime::{DamageType, DuelScriptRuntime, CardFilter as RuntimeCardFilter, Stat};
 
 // ── Output Types ────────────────────────────────────────────
 
@@ -1484,7 +1484,7 @@ fn gen_cost(costs: &[CostAction], card_id: u64) -> Option<Arc<dyn Fn(&mut dyn Du
                     if check_only {
                         if rt.get_lp(player) < amount { return false; }
                     } else {
-                        rt.damage(player, amount);
+                        rt.damage(player, amount, DamageType::Cost);
                     }
                 }
                 CostAction::Discard(sel, binding) => {
@@ -1729,7 +1729,7 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
         Action::Damage(who, expr) => {
             let amount = eval_v2_expr(expr, rt);
             let target = player_who_to_idx(who, player);
-            rt.damage(target, amount);
+            rt.damage(target, amount, DamageType::Effect);
         }
         Action::GainLp(expr) => {
             // Action::GainLp has no PlayerWho discriminator — always recovers to
@@ -1744,7 +1744,7 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
         }
         Action::PayLp(expr) => {
             let amount = eval_v2_expr(expr, rt);
-            rt.damage(player, amount);
+            rt.damage(player, amount, DamageType::Cost);
         }
         Action::FlipDown(sel) => {
             let cards = resolve_v2_selector(sel, rt, player);
