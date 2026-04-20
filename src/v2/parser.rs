@@ -333,6 +333,7 @@ fn parse_effect_block(pair: Pair<Rule>) -> Result<Effect, V2ParseError> {
         speed: None,
         frequency: None,
         mandatory: false,
+        simultaneous: false,
         timing: None,
         trigger: None,
         who: None,
@@ -359,6 +360,9 @@ fn parse_effect_block(pair: Pair<Rule>) -> Result<Effect, V2ParseError> {
             }
             Rule::mandatory_decl => {
                 effect.mandatory = true;
+            }
+            Rule::simultaneous_decl => {
+                effect.simultaneous = true;
             }
             Rule::timing_decl => {
                 let text = item.as_str().trim();
@@ -534,8 +538,19 @@ fn parse_restriction_block(pair: Pair<Rule>) -> Result<Restriction, V2ParseError
                 restriction.trigger = Some(parse_trigger(p.clone())?);
             }
         } else if text.starts_with("condition") {
+            // T9 (LLL-I) fix closing backlog item 5: unwrap the inner
+            // `condition_expr` from `condition_decl` before handing to
+            // `parse_condition`, matching the parallel `parse_effect_block`
+            // site at parser.rs:383-386. Pre-fix the code was passing
+            // `condition_decl` itself and `parse_condition` parsed no
+            // operand, silently yielding `And([])` (always-true).
             if let Some(p) = item_inner.first() {
-                restriction.condition = Some(parse_condition(p.clone())?);
+                let inner_expr = match p.as_rule() {
+                    Rule::condition_expr => p.clone(),
+                    _ => p.clone().into_inner().next()
+                        .ok_or_else(|| V2ParseError::InvalidValue("empty condition_decl in restriction".into()))?,
+                };
+                restriction.condition = Some(parse_condition(inner_expr)?);
             }
         } else {
             // Try as grant_ability

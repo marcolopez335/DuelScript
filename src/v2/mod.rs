@@ -7,5 +7,6 @@ pub mod compiler;
 pub mod constants;
 pub mod runtime;
 pub mod mock_runtime;
+pub mod segoc;
 #[cfg(feature = "lsp")]
 pub mod lsp;

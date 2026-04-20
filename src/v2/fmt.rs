@@ -193,6 +193,9 @@ fn format_effect(e: &Effect, out: &mut String) {
     if e.mandatory {
         writeln!(out, "        mandatory").unwrap();
     }
+    if e.simultaneous {
+        writeln!(out, "        simultaneous").unwrap();
+    }
     if let Some(timing) = &e.timing {
         let t = match timing {
             Timing::When => "when",

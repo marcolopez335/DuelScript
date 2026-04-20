@@ -105,6 +105,15 @@ impl CardSnapshot {
         self.archetypes.push(name.to_string());
         self
     }
+    /// T7 (exotic predicate atoms) builder: overwrite the type bitmask
+    /// entirely. Use when testing `IsTuner` / `IsFusion` / `IsSynchro` /
+    /// etc. where the default `monster(...)` type_bits (TYPE_MONSTER |
+    /// TYPE_EFFECT = 0x1 | 0x20) must be replaced with a specific
+    /// sub-type mask.
+    pub fn with_type(mut self, type_bits: u64) -> Self {
+        self.type_bits = type_bits;
+        self
+    }
 }
 
 // ── Player state ─────────────────────────────────────────────
@@ -278,6 +287,11 @@ impl DuelScriptRuntime for MockRuntime {
             Stat::Atk | Stat::BaseAtk | Stat::OriginalAtk => card.atk,
             Stat::Def | Stat::BaseDef | Stat::OriginalDef => card.def,
             Stat::Level => card.level as i32,
+            // Stat::Rank intentionally maps to `card.level` — Xyz rank is
+            // stored in the `level` slot by engine convention (see the
+            // YgobeetleRuntimeAdapter mirror at ds_runtime_adapter.rs).
+            // Backlog item 2 originally flagged this as a naming concern;
+            // T9 (LLL-I) resolves as "working-as-intended; convention doc-locked."
             Stat::Rank  => card.level as i32,
         }
     }
@@ -410,9 +424,6 @@ impl DuelScriptRuntime for MockRuntime {
     }
 
     // ── Metadata ─────────────────────────────────────────────
-    fn set_operation_info(&mut self, category: u32, count: u32) {
-        self.record("set_operation_info", format!("category=0x{:x} count={}", category, count));
-    }
     fn set_targets(&mut self, card_ids: &[u32]) {
         self.record("set_targets", format!("ids={:?}", card_ids));
         self.state.last_selection = card_ids.to_vec();
@@ -468,10 +479,6 @@ impl DuelScriptRuntime for MockRuntime {
     }
 
     // ── Battle ───────────────────────────────────────────────
-    fn negate_attack(&mut self) -> bool {
-        self.record("negate_attack", "");
-        true
-    }
     fn change_position(&mut self, card_id: u32) {
         self.record("change_position", format!("card={}", card_id));
     }
@@ -519,11 +526,6 @@ impl DuelScriptRuntime for MockRuntime {
         // Return the top N cards (end of vec) without removing them.
         let n = (count as usize).min(deck.len());
         deck[deck.len() - n..].to_vec()
-    }
-
-    // ── Counting ─────────────────────────────────────────────
-    fn count_matching(&self, player: u8, _location: u32, _filter: &CardFilter) -> usize {
-        self.get_field_cards(player, 0).len()
     }
 
     // ── Phase 2: custom events ───────────────────────────────

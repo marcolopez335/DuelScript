@@ -145,6 +145,11 @@ pub struct Effect {
     pub speed: Option<u8>,          // 1, 2, or 3
     pub frequency: Option<Frequency>,
     pub mandatory: bool,
+    /// SEGOC flag — when true, this trigger participates in the
+    /// Simultaneous Effects Go On Chain collection pass. Corresponds
+    /// to Lua's `EFFECT_FLAG2_CHECK_SIMULTANEOUS`. Optional triggers
+    /// that can fire alongside other triggers should set this.
+    pub simultaneous: bool,
     pub timing: Option<Timing>,
     pub trigger: Option<Trigger>,
     pub who: Option<PlayerWho>,

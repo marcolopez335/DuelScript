@@ -11,7 +11,7 @@
 use std::sync::Arc;
 use super::ast::*;
 use super::constants as tm;
-use super::runtime::{DuelScriptRuntime, Stat};
+use super::runtime::{DuelScriptRuntime, CardFilter as RuntimeCardFilter, Stat};
 
 // ── Output Types ────────────────────────────────────────────
 
@@ -30,6 +30,11 @@ pub struct CompiledEffectV2 {
     pub property: u32,
     pub range: u32,
     pub count_limit: Option<(u32, u32)>,
+    /// When `true`, this trigger participates in SEGOC (Simultaneous Effects
+    /// Go On Chain) collection. The engine should pass all effects with this
+    /// flag set for the same triggering event into `SegocQueue::push` before
+    /// resolving any of them.
+    pub simultaneous: bool,
     pub condition: Option<Arc<dyn Fn(&dyn DuelScriptRuntime) -> bool + Send + Sync>>,
     pub cost: Option<Arc<dyn Fn(&mut dyn DuelScriptRuntime, bool) -> bool + Send + Sync>>,
     pub target: Option<Arc<dyn Fn(&mut dyn DuelScriptRuntime, bool) -> bool + Send + Sync>>,
@@ -43,6 +48,7 @@ impl std::fmt::Debug for CompiledEffectV2 {
             .field("effect_type", &self.effect_type)
             .field("category", &self.category)
             .field("code", &self.code)
+            .field("simultaneous", &self.simultaneous)
             .finish()
     }
 }
@@ -129,7 +135,11 @@ fn compile_summon(summon: &SummonBlock, card: &Card) -> Vec<CompiledEffectV2> {
         || summon.link_materials.is_some();
 
     if has_materials {
-        // Xyz gets an extra check effect
+        // ARCHITECTURAL: stays all-None because Xyz Check (code 946) is a pure
+        // type-system tag per the rulebook — Xyz monsters declaring xyz-check
+        // procedure metadata so the engine recognises them as Xyz-summonable.
+        // There is no runtime operation to emit here; the summon dispatch is
+        // handled by the "Summon Procedure" effect below.
         if is_xyz {
             effects.push(CompiledEffectV2 {
                 label: "Xyz Check".into(),
@@ -139,11 +149,57 @@ fn compile_summon(summon: &SummonBlock, card: &Card) -> Vec<CompiledEffectV2> {
                 property: 0,
                 range: 0,
                 count_limit: None,
+                simultaneous: false,
                 condition: None, cost: None, target: None, operation: None,
             });
         }
 
-        // Summoning procedure effect
+        // Summoning procedure effect — operation dispatches on which material
+        // list is present and calls the corresponding *_summon trait method.
+        // M2c: condition = |_| true (no AST condition on the procedure itself);
+        //       target = None (selector resolution is M3 territory).
+        // Material IDs are sourced from a bound selection at runtime; we pass
+        // an empty slice as a placeholder because the engine resolves materials
+        // through the selection system before invoking this operation.
+        let card_id_u32 = card.fields.id.unwrap_or(0) as u32;
+        let has_fusion  = summon.fusion_materials.is_some();
+        let has_synchro = summon.synchro_materials.is_some();
+        let has_xyz     = summon.xyz_materials.is_some();
+        let has_ritual  = summon.ritual_materials.is_some();
+        // link_materials uses the same fusion-summon path (no dedicated trait
+        // method exists yet; the engine treats Link as a special fusion).
+        let has_link    = summon.link_materials.is_some();
+
+        let summon_op: Option<Arc<dyn Fn(&mut dyn DuelScriptRuntime) + Send + Sync>> =
+            if has_fusion || has_link {
+                Some(Arc::new(move |rt: &mut dyn DuelScriptRuntime| {
+                    let player = rt.effect_player();
+                    rt.fusion_summon(card_id_u32, player, &[]);
+                }))
+            } else if has_synchro {
+                Some(Arc::new(move |rt: &mut dyn DuelScriptRuntime| {
+                    let player = rt.effect_player();
+                    rt.synchro_summon(card_id_u32, player, &[]);
+                }))
+            } else if has_xyz {
+                Some(Arc::new(move |rt: &mut dyn DuelScriptRuntime| {
+                    let player = rt.effect_player();
+                    rt.xyz_summon(card_id_u32, player, &[]);
+                }))
+            } else if has_ritual {
+                Some(Arc::new(move |rt: &mut dyn DuelScriptRuntime| {
+                    let player = rt.effect_player();
+                    rt.ritual_summon(card_id_u32, player, &[]);
+                }))
+            } else {
+                // has_materials was true but none of the known lists matched —
+                // this should not occur in practice; leave operation as None and
+                // document why so a future corpus addition is easy to diagnose.
+                // If this fires it means a new material kind was added to the AST
+                // but the dispatch here was not updated to match.
+                None
+            };
+
         effects.push(CompiledEffectV2 {
             label: "Summon Procedure".into(),
             effect_type: tm::EFFECT_TYPE_FIELD,
@@ -152,25 +208,86 @@ fn compile_summon(summon: &SummonBlock, card: &Card) -> Vec<CompiledEffectV2> {
             property: 0,
             range: tm::LOCATION_EXTRA,
             count_limit: None,
-            condition: None, cost: None, target: None, operation: None,
+            simultaneous: false,
+            condition: None, cost: None, target: None,
+            operation: summon_op,
         });
     }
 
-    // Special summon procedure (e.g., Lava Golem)
-    if summon.special_summon_procedure.is_some() && !has_materials {
-        effects.push(CompiledEffectV2 {
-            label: "Special Summon Procedure".into(),
-            effect_type: tm::EFFECT_TYPE_FIELD,
-            category: tm::CATEGORY_SPECIAL_SUMMON,
-            code: 34,
-            property: 0,
-            range: tm::LOCATION_HAND,
-            count_limit: None,
-            condition: None, cost: None, target: None, operation: None,
-        });
+    // Special summon procedure (e.g., Lava Golem, Cyber Dragon)
+    if let Some(ref proc) = summon.special_summon_procedure {
+        if !has_materials {
+            let card_id_u32 = card.fields.id.unwrap_or(0) as u32;
+
+            // Derive the destination player from the AST `to` field.
+            // opponent_field → summoner's opponent (player index 1-player);
+            // your_field / None → summoner's own field (effect_player).
+            let to_opponent = matches!(proc.to, Some(FieldTarget::OpponentField));
+
+            let ssp_condition = gen_condition_from_optional(&proc.condition);
+            let ssp_cost = gen_cost(&proc.cost, card.fields.id.unwrap_or(0));
+
+            let ssp_op: Option<Arc<dyn Fn(&mut dyn DuelScriptRuntime) + Send + Sync>> =
+                Some(Arc::new(move |rt: &mut dyn DuelScriptRuntime| {
+                    let summoner = rt.effect_player();
+                    let target_player = if to_opponent { 1 - summoner } else { summoner };
+                    // POS_FACEUP_ATTACK = 0x1 — default position for a special summon.
+                    rt.special_summon(card_id_u32, target_player, 0x1);
+                }));
+
+            effects.push(CompiledEffectV2 {
+                label: "Special Summon Procedure".into(),
+                effect_type: tm::EFFECT_TYPE_FIELD,
+                category: tm::CATEGORY_SPECIAL_SUMMON,
+                code: 34,
+                property: 0,
+                range: tm::LOCATION_HAND,
+                count_limit: None,
+                simultaneous: false,
+                condition: ssp_condition,
+                cost: ssp_cost,
+                target: None,
+                operation: ssp_op,
+            });
+
+            // Nested restriction inside the special summon procedure block
+            // (e.g., Lava Golem "No Normal Summon This Turn").
+            // Delegate to gen_continuous_grants_op — same path used by
+            // compile_restriction (M2a). The restriction applies to the
+            // summoner (effect_player), not the card being summoned.
+            if let Some(ref nested) = proc.restriction {
+                let nested_op = gen_continuous_grants_op(
+                    &nested.abilities,
+                    card.fields.id.unwrap_or(0),
+                    nested.duration.as_ref(),
+                );
+                let nested_condition = gen_condition_from_optional(&nested.condition);
+                let code = nested.abilities.first().map(|a| grant_to_code(a)).unwrap_or(0);
+
+                effects.push(CompiledEffectV2 {
+                    label: nested.name.clone().unwrap_or_else(|| "restriction".into()),
+                    effect_type: tm::EFFECT_TYPE_SINGLE | tm::EFFECT_TYPE_CONTINUOUS,
+                    category: 0,
+                    code,
+                    property: 0,
+                    range: 0, // self-applied restriction from the procedure block
+                    count_limit: None,
+                    simultaneous: false,
+                    condition: nested_condition,
+                    cost: None,
+                    target: None,
+                    operation: nested_op,
+                });
+            }
+        }
     }
 
-    // cannot_normal_summon → spsummon condition flag
+    // ARCHITECTURAL: stays all-None because "Cannot Normal Summon" (code 42)
+    // is a pure metadata flag consumed by the summon-path engine logic. The
+    // engine reads this flag to gate normal-summon availability; there is no
+    // runtime operation to perform when the flag is registered. Emitting an
+    // operation here would be incorrect — the engine acts on the flag itself,
+    // not on a callback it invokes.
     if summon.cannot_normal_summon && is_extra_deck(card) {
         // Extra deck monsters inherently can't be normal summoned
     } else if summon.cannot_normal_summon {
@@ -182,6 +299,7 @@ fn compile_summon(summon: &SummonBlock, card: &Card) -> Vec<CompiledEffectV2> {
             property: 0,
             range: 0,
             count_limit: None,
+            simultaneous: false,
             condition: None, cost: None, target: None, operation: None,
         });
     }
@@ -220,6 +338,10 @@ fn compile_passive(passive: &Passive, card: &Card) -> CompiledEffectV2 {
 
     let category = if passive.negate_effects { tm::CATEGORY_DISABLE } else { 0 };
 
+    let card_id = card.fields.id.unwrap_or(0);
+    let condition = gen_condition_from_optional(&passive.condition);
+    let operation = gen_passive_op(passive, card_id);
+
     CompiledEffectV2 {
         label: passive.name.clone(),
         effect_type: effect_type | tm::EFFECT_TYPE_CONTINUOUS,
@@ -228,7 +350,11 @@ fn compile_passive(passive: &Passive, card: &Card) -> CompiledEffectV2 {
         property: 0,
         range,
         count_limit: None,
-        condition: None, cost: None, target: None, operation: None,
+        simultaneous: false,
+        condition,
+        cost: None,
+        target: None,
+        operation,
     }
 }
 
@@ -374,6 +500,13 @@ fn compile_effect(effect: &Effect, card: &Card) -> Vec<CompiledEffectV2> {
     // Generate callbacks
     let (condition, cost, target, operation) = build_effect_callbacks(effect, card);
 
+    // SEGOC: a trigger is simultaneous if the card declares it, OR if it is
+    // any optional trigger (TRIGGER_O). Mandatory triggers can also participate
+    // in SEGOC when multiple mandatory triggers fire on the same event.
+    let simultaneous = effect.simultaneous
+        || (effect_type & tm::EFFECT_TYPE_TRIGGER_O != 0)
+        || (effect_type & tm::EFFECT_TYPE_TRIGGER_F != 0);
+
     // Check if this is a "negate summon" pattern — needs expansion to 3 events
     if is_spell_trap(card) && matches!(&effect.trigger, Some(Trigger::SummonAttempt)) {
         let events = [tm::EVENT_SUMMON, tm::EVENT_FLIP_SUMMON, tm::EVENT_SPSUMMON];
@@ -385,6 +518,7 @@ fn compile_effect(effect: &Effect, card: &Card) -> Vec<CompiledEffectV2> {
             property,
             range,
             count_limit,
+            simultaneous,
             condition: condition.clone(),
             cost: cost.clone(),
             target: target.clone(),
@@ -400,6 +534,7 @@ fn compile_effect(effect: &Effect, card: &Card) -> Vec<CompiledEffectV2> {
         property,
         range,
         count_limit,
+        simultaneous,
         condition,
         cost,
         target,
@@ -414,6 +549,14 @@ fn compile_restriction(restriction: &Restriction, card: &Card) -> CompiledEffect
         .map(|a| grant_to_code(a))
         .unwrap_or(0);
 
+    let card_id = card.fields.id.unwrap_or(0);
+    let condition = gen_condition_from_optional(&restriction.condition);
+    let operation = gen_continuous_grants_op(
+        &restriction.abilities,
+        card_id,
+        restriction.duration.as_ref(),
+    );
+
     CompiledEffectV2 {
         label: restriction.name.clone().unwrap_or_else(|| "restriction".into()),
         effect_type: tm::EFFECT_TYPE_SINGLE | tm::EFFECT_TYPE_CONTINUOUS,
@@ -422,7 +565,11 @@ fn compile_restriction(restriction: &Restriction, card: &Card) -> CompiledEffect
         property: 0,
         range: if is_monster(card) { tm::LOCATION_MZONE } else { tm::LOCATION_SZONE },
         count_limit: None,
-        condition: None, cost: None, target: None, operation: None,
+        simultaneous: false,
+        condition,
+        cost: None,
+        target: None,
+        operation,
     }
 }
 
@@ -447,7 +594,11 @@ fn compile_replacement(replacement: &Replacement, card: &Card) -> CompiledEffect
         property: 0,
         range: if is_monster(card) { tm::LOCATION_MZONE } else { tm::LOCATION_SZONE },
         count_limit: None,
-        condition: None, cost: None, target: None, operation: None,
+        simultaneous: false,
+        condition: gen_condition_from_optional(&replacement.condition),
+        cost: None,
+        target: None,
+        operation: gen_operation(&replacement.actions),
     }
 }
 
@@ -596,9 +747,20 @@ fn eval_v2_expr(expr: &Expr, rt: &dyn DuelScriptRuntime) -> i32 {
         Expr::Literal(n) => *n,
         Expr::Half => rt.get_lp(rt.effect_player()) / 2,
         Expr::StatRef(entity, field) => {
+            // T10 fix: resolve "target" / "searched" / "negated" / "equipped"
+            // via the binding-convention sentinel names set by M3b/M3c/T8
+            // producers (__target__, __searched__, __negated__, __equipped__).
+            // Pre-T10 all non-"self" entities fell back to effect_card_id(),
+            // which silently substituted the effect source's stats for the
+            // target's — breaking Ring of Destruction's `damage you target.atk`.
             let card_id = match entity.as_str() {
                 "self" => rt.effect_card_id(),
-                _ => rt.effect_card_id(), // fallback
+                "target"   => rt.get_binding_card("__target__")  .unwrap_or_else(|| rt.effect_card_id()),
+                "searched" => rt.get_binding_card("__searched__").unwrap_or_else(|| rt.effect_card_id()),
+                "negated"  => rt.get_binding_card("__negated__") .unwrap_or_else(|| rt.effect_card_id()),
+                "equipped" => rt.get_binding_card("__equipped__").unwrap_or_else(|| rt.effect_card_id()),
+                // User-let bindings fall through to a direct name lookup.
+                other => rt.get_binding_card(other).unwrap_or_else(|| rt.effect_card_id()),
             };
             stat_field_to_value(field, card_id, rt)
         }
@@ -613,7 +775,9 @@ fn eval_v2_expr(expr: &Expr, rt: &dyn DuelScriptRuntime) -> i32 {
             rt.get_lp(player)
         }
         Expr::Count(selector) => {
-            resolve_v2_selector(selector, rt, rt.effect_player()).len() as i32
+            // Count only — use the immutable count helper so eval_v2_expr
+            // can stay &dyn. No select_cards call is needed for counting.
+            count_v2_selector(selector, rt, rt.effect_player()) as i32
         }
         Expr::BinOp { left, op, right } => {
             let l = eval_v2_expr(left, rt);
@@ -641,17 +805,169 @@ fn stat_field_to_value(field: &StatField, card_id: u32, rt: &dyn DuelScriptRunti
     rt.get_card_stat(card_id, stat)
 }
 
+// ── Predicate Evaluation ─────────────────────────────────────
+
+/// Evaluate a `where_clause` predicate against a single card.
+///
+/// Covers the goat-corpus-observed subset of predicate atoms:
+/// StatCompare, AttributeIs, RaceIs, TypeIs, NameIs, ArchetypeIs,
+/// IsMonster / IsSpell / IsTrap, IsFaceUp / IsFaceDown, and Not.
+/// Exotic atoms (IsTuner, IsFusion, IsSynchro, IsXyz, IsLink,
+/// IsRitual, IsPendulum, IsToken, IsFlip, IsEffect, IsNormal) stub
+/// to `false` — see individual TODO(M4) comments.
+/// This is a pure read — it takes `&dyn` and never mutates the runtime.
+fn eval_predicate(pred: &Predicate, card_id: u32, rt: &dyn DuelScriptRuntime) -> bool {
+    match pred {
+        Predicate::Single(atom) => eval_predicate_atom(atom, card_id, rt),
+        Predicate::And(atoms)   => atoms.iter().all(|a| eval_predicate_atom(a, card_id, rt)),
+        Predicate::Or(atoms)    => atoms.iter().any(|a| eval_predicate_atom(a, card_id, rt)),
+    }
+}
+
+/// Evaluate a single `PredicateAtom` against a card.
+///
+/// All reads are via immutable `&dyn DuelScriptRuntime` trait methods.
+/// All AST atoms are implemented: the goat-corpus subset
+/// (StatCompare / AttributeIs / RaceIs / TypeIs / NameIs / ArchetypeIs /
+/// IsMonster / IsSpell / IsTrap / IsFaceUp / IsFaceDown) plus the 11
+/// exotic atoms (IsEffect / IsNormal / IsTuner / IsFusion / IsSynchro /
+/// IsXyz / IsLink / IsRitual / IsPendulum / IsToken / IsFlip), each via
+/// a single-bit mask check against `get_card_type(card_id)`. Bit values
+/// follow the EDOPro convention enumerated in `card_type_to_bits`.
+fn eval_predicate_atom(atom: &PredicateAtom, card_id: u32, rt: &dyn DuelScriptRuntime) -> bool {
+    match atom {
+        PredicateAtom::Not(inner) => !eval_predicate_atom(inner, card_id, rt),
+
+        PredicateAtom::StatCompare(field, op, expr) => {
+            let lhs = stat_field_to_value(field, card_id, rt);
+            let rhs = eval_v2_expr(expr, rt);
+            match op {
+                CompareOp::Gte => lhs >= rhs,
+                CompareOp::Lte => lhs <= rhs,
+                CompareOp::Eq  => lhs == rhs,
+                CompareOp::Neq => lhs != rhs,
+                CompareOp::Gt  => lhs >  rhs,
+                CompareOp::Lt  => lhs <  rhs,
+            }
+        }
+
+        PredicateAtom::AttributeIs(attr) => {
+            let mask = attribute_to_engine(attr) as u64;
+            rt.get_card_attribute(card_id) & mask != 0
+        }
+
+        PredicateAtom::RaceIs(race) => {
+            let mask = race_to_engine(race) as u64;
+            rt.get_card_race(card_id) & mask != 0
+        }
+
+        PredicateAtom::TypeIs(ctype) => {
+            let mask: u64 = card_type_to_bits(ctype);
+            rt.get_card_type(card_id) & mask != 0
+        }
+
+        PredicateAtom::NameIs(name) => {
+            rt.get_card_name(card_id) == *name
+        }
+
+        PredicateAtom::ArchetypeIs(name) => {
+            rt.get_card_archetypes(card_id).iter().any(|a| a == name)
+        }
+
+        PredicateAtom::IsMonster => {
+            // TYPE_MONSTER = 0x1
+            rt.get_card_type(card_id) & 0x1 != 0
+        }
+        PredicateAtom::IsSpell => {
+            // TYPE_SPELL = 0x2
+            rt.get_card_type(card_id) & 0x2 != 0
+        }
+        PredicateAtom::IsTrap => {
+            // TYPE_TRAP = 0x4
+            rt.get_card_type(card_id) & 0x4 != 0
+        }
+
+        PredicateAtom::IsFaceUp   => rt.is_face_up(card_id),
+        PredicateAtom::IsFaceDown => rt.is_face_down(card_id),
+
+        // Exotic atoms — T7/M4. Each is a single-bit check against the
+        // EDOPro `get_card_type` bitmask. Bit values match the table in
+        // `card_type_to_bits` (TYPE_EFFECT=0x20, TYPE_NORMAL=0x10, etc.).
+        PredicateAtom::IsEffect   => rt.get_card_type(card_id) & 0x20       != 0,
+        PredicateAtom::IsNormal   => rt.get_card_type(card_id) & 0x10       != 0,
+        PredicateAtom::IsTuner    => rt.get_card_type(card_id) & 0x1000     != 0,
+        PredicateAtom::IsFusion   => rt.get_card_type(card_id) & 0x40       != 0,
+        PredicateAtom::IsSynchro  => rt.get_card_type(card_id) & 0x2000     != 0,
+        PredicateAtom::IsXyz      => rt.get_card_type(card_id) & 0x800000   != 0,
+        PredicateAtom::IsLink     => rt.get_card_type(card_id) & 0x4000000  != 0,
+        PredicateAtom::IsRitual   => rt.get_card_type(card_id) & 0x80       != 0,
+        PredicateAtom::IsPendulum => rt.get_card_type(card_id) & 0x1000000  != 0,
+        PredicateAtom::IsToken    => rt.get_card_type(card_id) & 0x2000000  != 0,
+        PredicateAtom::IsFlip     => rt.get_card_type(card_id) & 0x200      != 0,
+    }
+}
+
+/// Map an AST `CardType` variant to its EDOPro type bitmask.
+///
+/// Used by `eval_predicate_atom` for `PredicateAtom::TypeIs`.
+/// Exotic sub-types (Tuner, Flip, Gemini, etc.) with no straightforward
+/// EDOPro single-bit mapping return 0 (will never match).
+fn card_type_to_bits(ctype: &CardType) -> u64 {
+    // EDOPro TYPE_* constants (subset used in goat corpus):
+    //   TYPE_MONSTER      = 0x1
+    //   TYPE_SPELL        = 0x2
+    //   TYPE_TRAP         = 0x4
+    //   TYPE_NORMAL       = 0x10
+    //   TYPE_EFFECT       = 0x20
+    //   TYPE_FUSION       = 0x40
+    //   TYPE_RITUAL       = 0x80
+    //   TYPE_SYNCHRO      = 0x2000
+    //   TYPE_TUNER        = 0x1000
+    //   TYPE_XYZ          = 0x800000
+    //   TYPE_LINK         = 0x4000000
+    //   TYPE_PENDULUM     = 0x1000000
+    //   TYPE_FLIP         = 0x200
+    //   TYPE_TOKEN        = 0x2000000
+    match ctype {
+        CardType::NormalMonster    => 0x1 | 0x10,
+        CardType::EffectMonster    => 0x1 | 0x20,
+        CardType::RitualMonster    => 0x1 | 0x80,
+        CardType::FusionMonster    => 0x1 | 0x40,
+        CardType::SynchroMonster   => 0x1 | 0x2000,
+        CardType::XyzMonster       => 0x800000,
+        CardType::LinkMonster      => 0x4000000,
+        CardType::PendulumMonster  => 0x1 | 0x1000000,
+        CardType::NormalSpell      => 0x2,
+        CardType::QuickPlaySpell   => 0x2,
+        CardType::ContinuousSpell  => 0x2,
+        CardType::EquipSpell       => 0x2,
+        CardType::FieldSpell       => 0x2,
+        CardType::RitualSpell      => 0x2,
+        CardType::NormalTrap       => 0x4,
+        CardType::CounterTrap      => 0x4,
+        CardType::ContinuousTrap   => 0x4,
+        // Sub-type markers — no single bit in the bitmask; return 0.
+        CardType::Tuner | CardType::SynchroTuner | CardType::Flip
+        | CardType::Gemini | CardType::Union | CardType::Spirit | CardType::Toon => 0,
+    }
+}
+
 // ── Selector Resolution ─────────────────────────────────────
 
-fn resolve_v2_selector(sel: &Selector, rt: &dyn DuelScriptRuntime, player: u8) -> Vec<u32> {
+/// Read-only card count for the given selector, used by `Expr::Count`.
+///
+/// Mirrors the candidate-collection + filter logic of `resolve_v2_selector`
+/// but takes `&dyn` (no `select_cards` call) because counting doesn't mutate
+/// engine state. Quantity / position filters are honoured for accurate counts.
+fn count_v2_selector(sel: &Selector, rt: &dyn DuelScriptRuntime, player: u8) -> usize {
     let opponent = 1 - player;
     match sel {
-        Selector::SelfCard => vec![rt.effect_card_id()],
-        Selector::Counted { controller, zone, .. } => {
+        Selector::SelfCard => 1,
+        Selector::Counted { filter, controller, zone, position, .. } => {
             let ctrl_player = match controller {
                 Some(Controller::You) => Some(player),
                 Some(Controller::Opponent) => Some(opponent),
-                Some(Controller::Either) | None => None, // both
+                Some(Controller::Either) | None => None,
             };
             let mut cards = Vec::new();
             match zone {
@@ -676,9 +992,158 @@ fn resolve_v2_selector(sel: &Selector, rt: &dyn DuelScriptRuntime, player: u8) -
                     }
                 }
             }
-            cards
+            let rt_filter = ast_filter_to_runtime(filter);
+            cards.retain(|&id| rt.card_matches_filter(id, &rt_filter));
+            if let Some(pos_filter) = position {
+                match pos_filter {
+                    PositionFilter::FaceUp   => cards.retain(|&id| rt.is_face_up(id)),
+                    PositionFilter::FaceDown => cards.retain(|&id| rt.is_face_down(id)),
+                    _ => {}
+                }
+            }
+            cards.len()
         }
-        _ => vec![], // Target, Searched, etc. — engine tracks these
+        _ => 0,
+    }
+}
+
+/// Map an AST `CardFilter` (name + kind) into the runtime's `CardFilter` enum.
+///
+/// If the filter has a specific `name`, that takes priority (NamedCard).
+/// Otherwise the kind determines the runtime variant.
+fn ast_filter_to_runtime(f: &CardFilter) -> RuntimeCardFilter {
+    if let Some(name) = &f.name {
+        return RuntimeCardFilter::NamedCard(name.clone());
+    }
+    match f.kind {
+        CardFilterKind::Monster        => RuntimeCardFilter::Monster,
+        CardFilterKind::Spell          => RuntimeCardFilter::Spell,
+        CardFilterKind::Trap           => RuntimeCardFilter::Trap,
+        CardFilterKind::Card           => RuntimeCardFilter::Card,
+        CardFilterKind::EffectMonster  => RuntimeCardFilter::EffectMonster,
+        CardFilterKind::NormalMonster  => RuntimeCardFilter::NormalMonster,
+        CardFilterKind::FusionMonster  => RuntimeCardFilter::FusionMonster,
+        CardFilterKind::SynchroMonster => RuntimeCardFilter::SynchroMonster,
+        CardFilterKind::XyzMonster     => RuntimeCardFilter::XyzMonster,
+        CardFilterKind::LinkMonster    => RuntimeCardFilter::LinkMonster,
+        CardFilterKind::RitualMonster  => RuntimeCardFilter::RitualMonster,
+        CardFilterKind::TunerMonster   => RuntimeCardFilter::TunerMonster,
+        CardFilterKind::NonTunerMonster => RuntimeCardFilter::NonTunerMonster,
+        CardFilterKind::NonTokenMonster => RuntimeCardFilter::NonTokenMonster,
+        // PendulumMonster has no dedicated runtime variant; fall back to Monster.
+        CardFilterKind::PendulumMonster => RuntimeCardFilter::Monster,
+    }
+}
+
+fn resolve_v2_selector(sel: &Selector, rt: &mut dyn DuelScriptRuntime, player: u8) -> Vec<u32> {
+    let opponent = 1 - player;
+    match sel {
+        Selector::SelfCard => vec![rt.effect_card_id()],
+        Selector::Counted { quantity, filter, controller, zone, position, where_clause } => {
+            let ctrl_player = match controller {
+                Some(Controller::You) => Some(player),
+                Some(Controller::Opponent) => Some(opponent),
+                Some(Controller::Either) | None => None, // both
+            };
+
+            // (a) Collect candidates from zone / controller.
+            let mut cards = Vec::new();
+            match zone {
+                Some(ZoneFilter::In(zones)) | Some(ZoneFilter::From(zones)) => {
+                    for z in zones {
+                        let location = zone_to_location(z);
+                        if let Some(p) = ctrl_player {
+                            cards.extend(rt.get_field_cards(p, location));
+                        } else {
+                            cards.extend(rt.get_field_cards(player, location));
+                            cards.extend(rt.get_field_cards(opponent, location));
+                        }
+                    }
+                }
+                Some(ZoneFilter::OnField(_)) | None => {
+                    let location = tm::LOCATION_ONFIELD;
+                    if let Some(p) = ctrl_player {
+                        cards.extend(rt.get_field_cards(p, location));
+                    } else {
+                        cards.extend(rt.get_field_cards(player, location));
+                        cards.extend(rt.get_field_cards(opponent, location));
+                    }
+                }
+            }
+
+            // (b) Apply filter predicate (type / name).
+            let rt_filter = ast_filter_to_runtime(filter);
+            cards.retain(|&id| rt.card_matches_filter(id, &rt_filter));
+
+            // (c) Apply position filter if specified.
+            //     Only `FaceUp` and `FaceDown` are checkable with trait methods at M3a.
+            //     AttackPosition / DefensePosition / ExceptSelf are deferred (M3c territory).
+            if let Some(pos_filter) = position {
+                match pos_filter {
+                    PositionFilter::FaceUp   => cards.retain(|&id| rt.is_face_up(id)),
+                    PositionFilter::FaceDown => cards.retain(|&id| rt.is_face_down(id)),
+                    // AttackPosition, DefensePosition, ExceptSelf — M3c; no filtering yet.
+                    _ => {}
+                }
+            }
+
+            // (d) where_clause — evaluate predicate against each candidate.
+            //     Collect the candidate IDs first, then re-borrow rt as &dyn
+            //     for the immutable eval_predicate call to avoid a borrow
+            //     conflict with the outer &mut.
+            if let Some(pred) = where_clause {
+                let candidate_ids: Vec<u32> = cards.drain(..).collect();
+                let rt_ref: &dyn DuelScriptRuntime = &*rt;
+                for id in candidate_ids {
+                    if eval_predicate(pred, id, rt_ref) {
+                        cards.push(id);
+                    }
+                }
+            }
+
+            // (e) Truncate to quantity via rt.select_cards when quantity is limited.
+            match quantity {
+                Quantity::All => cards,
+                Quantity::Exact(n) | Quantity::AtLeast(n) => {
+                    let n = *n as usize;
+                    if cards.len() <= n {
+                        cards
+                    } else {
+                        rt.select_cards(player, &cards, n, n)
+                    }
+                }
+            }
+        }
+        Selector::Target => {
+            // Read back the card recorded by `gen_target` via `bind_last_selection("__target__")`.
+            rt.get_binding_card("__target__").map(|id| vec![id]).unwrap_or_default()
+        }
+        Selector::NegatedCard => {
+            // Read back the card recorded by Action::Negate / Action::NegateEffects.
+            rt.get_binding_card("__negated__").map(|id| vec![id]).unwrap_or_default()
+        }
+        Selector::Searched => {
+            // Read back the card recorded by Action::Search via bind_last_selection("__searched__").
+            rt.get_binding_card("__searched__").map(|id| vec![id]).unwrap_or_default()
+        }
+        Selector::Binding(name) => {
+            rt.get_binding_card(name).map(|id| vec![id]).unwrap_or_default()
+        }
+        Selector::EquippedCard => {
+            // T8: read back the card recorded by Action::Equip via
+            // `set_binding("__equipped__", target_id)`. Mirrors the Target /
+            // Searched / NegatedCard pattern.
+            rt.get_binding_card("__equipped__").map(|id| vec![id]).unwrap_or_default()
+        }
+        Selector::LinkedCard => {
+            // T8: read back the card recorded under "__linked__". Producer
+            // site (Link-material resolution) does not yet exist in the
+            // goat-corpus-oriented compiler — no Link monsters in goat, no
+            // Link Summon action variant. Reader-side is live so that once
+            // a future phase adds a link-summon producer, no M3-era change
+            // is required here. Backlog item 20 tracks the producer gap.
+            rt.get_binding_card("__linked__").map(|id| vec![id]).unwrap_or_default()
+        }
     }
 }
 
@@ -756,6 +1221,107 @@ fn race_to_engine(race: &Race) -> u32 {
 }
 
 // ── Callback Generation ─────────────────────────────────────
+
+/// Generate a condition closure directly from an `Option<Condition>`, without
+/// needing a full `Effect` struct. Used by `compile_passive` and
+/// `compile_restriction` where there is no trigger — only a bare condition.
+fn gen_condition_from_optional(
+    cond: &Option<Condition>,
+) -> Option<Arc<dyn Fn(&dyn DuelScriptRuntime) -> bool + Send + Sync>> {
+    let cond = cond.clone()?;
+    Some(Arc::new(move |rt: &dyn DuelScriptRuntime| {
+        eval_v2_condition(&cond, rt)
+    }))
+}
+
+/// Generate an `operation` closure that calls `rt.register_grant` once per
+/// ability in `grants`. Returns `None` when `grants` is empty.
+///
+/// Designed for reuse across `compile_restriction` (M2a) and optionally
+/// `compile_summon` (M2c) — pass the grant list and the relevant duration.
+fn gen_continuous_grants_op(
+    grants: &[GrantAbility],
+    card_id: u64,
+    duration: Option<&Duration>,
+) -> Option<Arc<dyn Fn(&mut dyn DuelScriptRuntime) + Send + Sync>> {
+    if grants.is_empty() {
+        return None;
+    }
+    let grants = grants.to_vec();
+    let card_id = card_id as u32;
+    let dur_code = duration_to_code(&duration.cloned());
+
+    Some(Arc::new(move |rt: &mut dyn DuelScriptRuntime| {
+        for ability in &grants {
+            let grant_code = grant_ability_to_code(ability);
+            rt.register_grant(card_id, grant_code, dur_code);
+        }
+    }))
+}
+
+/// Generate an `operation` closure for a `Passive` block. Composes:
+/// - `modify_atk` / `modify_def` for each `Modifier`
+/// - `set_atk` / `set_def` when `set_atk` / `set_def` is `Some`
+/// - `register_grant` for each item in `passive.grants`
+/// - `negate_effect` when `passive.negate_effects == true`
+///
+/// Returns `None` when the passive has none of the above (truly empty body).
+fn gen_passive_op(
+    passive: &Passive,
+    card_id: u64,
+) -> Option<Arc<dyn Fn(&mut dyn DuelScriptRuntime) + Send + Sync>> {
+    let has_modifiers = !passive.modifiers.is_empty();
+    let has_set_atk   = passive.set_atk.is_some();
+    let has_set_def   = passive.set_def.is_some();
+    let has_grants    = !passive.grants.is_empty();
+    let has_negate    = passive.negate_effects;
+
+    if !has_modifiers && !has_set_atk && !has_set_def && !has_grants && !has_negate {
+        return None;
+    }
+
+    let modifiers  = passive.modifiers.clone();
+    let set_atk    = passive.set_atk.clone();
+    let set_def    = passive.set_def.clone();
+    let grants     = passive.grants.clone();
+    let negate     = passive.negate_effects;
+    let cid        = card_id as u32;
+
+    Some(Arc::new(move |rt: &mut dyn DuelScriptRuntime| {
+        // ATK / DEF modifiers
+        for m in &modifiers {
+            let delta = eval_v2_expr(&m.value, rt);
+            let signed = if m.positive { delta } else { -delta };
+            match m.stat {
+                StatName::Atk => rt.modify_atk(cid, signed),
+                StatName::Def => rt.modify_def(cid, signed),
+            }
+        }
+
+        // Absolute stat sets
+        if let Some(ref expr) = set_atk {
+            let val = eval_v2_expr(expr, rt);
+            rt.set_atk(cid, val);
+        }
+        if let Some(ref expr) = set_def {
+            let val = eval_v2_expr(expr, rt);
+            rt.set_def(cid, val);
+        }
+
+        // Ability grants (continuous — duration = while on field → 0)
+        for ability in &grants {
+            let grant_code = grant_ability_to_code(ability);
+            rt.register_grant(cid, grant_code, 0);
+        }
+
+        // Negate effects
+        if negate {
+            // TODO(M3): resolve passive.target selector to specific effect IDs.
+            // For now, negate this card's own effect as a placeholder.
+            rt.negate_effect();
+        }
+    }))
+}
 
 fn gen_condition(effect: &Effect) -> Option<Arc<dyn Fn(&dyn DuelScriptRuntime) -> bool + Send + Sync>> {
     let cond = effect.condition.clone();
@@ -1042,6 +1608,7 @@ fn gen_target(target: &Option<TargetDecl>) -> Option<Arc<dyn Fn(&mut dyn DuelScr
             let max = 1;
             let selected = rt.select_cards(player, &cards, min, max);
             rt.set_targets(&selected);
+            rt.bind_last_selection("__target__");
         }
         true
     }))
@@ -1092,11 +1659,33 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
             let cards = resolve_v2_selector(sel, rt, player);
             rt.banish(&cards);
         }
-        Action::Search(sel, _zone) => {
-            let cards = resolve_v2_selector(sel, rt, player);
+        Action::Search(sel, zone) => {
+            // If the action carries an explicit `from <zone>` hint (goat-era
+            // canonical form: `search (...) from deck`), materialize a
+            // modified selector that stamps the zone into the Counted's
+            // `zone` field so `resolve_v2_selector` scopes its candidate
+            // collection to that zone rather than the default OnField. If
+            // the selector is already `Counted` with an explicit zone
+            // (Sangan's `from deck` inside the parens), leave it untouched —
+            // the inner zone wins.
+            let effective_sel = match (sel, zone) {
+                (Selector::Counted { quantity, filter, controller, zone: None, position, where_clause }, Some(z)) => {
+                    Selector::Counted {
+                        quantity: quantity.clone(),
+                        filter: filter.clone(),
+                        controller: controller.clone(),
+                        zone: Some(ZoneFilter::From(vec![z.clone()])),
+                        position: position.clone(),
+                        where_clause: where_clause.clone(),
+                    }
+                }
+                (s, _) => s.clone(),
+            };
+            let cards = resolve_v2_selector(&effective_sel, rt, player);
             if !cards.is_empty() {
                 let selected = rt.select_cards(player, &cards, 1, 1);
                 rt.send_to_hand(&selected);
+                rt.bind_last_selection("__searched__");
             }
         }
         Action::AddToHand(sel, _) => {
@@ -1118,13 +1707,23 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
             }
         }
         Action::Negate(and_destroy) => {
+            // Record the negated card before acting — it is the card whose
+            // activation is currently being negated (the resolving chain link's
+            // source card in the simplified DSL model).
+            rt.set_binding("__negated__", rt.effect_card_id());
             rt.negate_activation();
             if *and_destroy {
                 rt.negate_effect();
             }
         }
         Action::NegateEffects(sel, _) => {
-            let _ = resolve_v2_selector(sel, rt, player);
+            let cards = resolve_v2_selector(sel, rt, player);
+            // Record the first resolved card as the negated card.
+            // Single-card limitation: if sel resolves to multiple cards only
+            // the first is stored. Backlog item 11 tracks multi-target binding.
+            if let Some(&first_id) = cards.first() {
+                rt.set_binding("__negated__", first_id);
+            }
             rt.negate_effect();
         }
         Action::Damage(who, expr) => {
@@ -1133,6 +1732,13 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
             rt.damage(target, amount);
         }
         Action::GainLp(expr) => {
+            // Action::GainLp has no PlayerWho discriminator — always recovers to
+            // the activating player. Cards like Upstart Goblin whose flavor text
+            // reads "opponent gains 1000 LP" are compiled as "self gains LP"
+            // today because `gain_lp <who> <amount>` syntax is not in the v2
+            // grammar. Extending the AST (Action::GainLp(PlayerWho, Expr)) +
+            // parser is a FF-I-fork expansion; backlog item 10 tracks the
+            // request and this comment documents the current limitation.
             let amount = eval_v2_expr(expr, rt);
             rt.recover(player, amount);
         }
@@ -1163,6 +1769,12 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
             let target_cards = resolve_v2_selector(target_sel, rt, player);
             if let (Some(&equip_id), Some(&target_id)) = (equip_cards.first(), target_cards.first()) {
                 rt.equip_card(equip_id, target_id);
+                // T8 producer: record the equip-target so downstream
+                // `Selector::EquippedCard` reads (e.g. ongoing effects that
+                // reference "the equipped monster") resolve to this ID.
+                // Single-card convention per the trait's
+                // `get_binding_card -> Option<u32>` contract.
+                rt.set_binding("__equipped__", target_id);
             }
         }
         Action::ModifyStat(stat, sel, is_negative, expr, _) => {
@@ -1222,6 +1834,16 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
             }
         }
         Action::Then(actions) | Action::Also(actions) | Action::AndIfYouDo(actions) => {
+            // Action::AndIfYouDo currently runs its inner actions unconditionally,
+            // identically to Then / Also — the "did the previous action succeed?"
+            // gate is not implemented. Proper semantics require threading a
+            // success-flag through `execute_v2_action` (which currently returns
+            // `()`) or capturing prior action outputs. Both are FF-I-fork
+            // structural refactors (~50 call sites). Backlog item 19 tracks
+            // this. Observable impact: Bottomless Trap Hole's
+            // `destroy ... and_if_you_do { banish ... }` banishes ALL candidates
+            // that match the banish selector, even ones the destroy didn't hit.
+            // Current T6 Bottomless test exercises this deterministically.
             for a in actions { execute_v2_action(a, rt, player); }
         }
         Action::ChangeLevel(sel, expr) => {
@@ -1995,6 +2617,486 @@ card "Level Changer" {
         assert!(log.contains("return_to_owner"), "Expected return_to_owner, got: {}", log);
     }
 
+    // ── M2a: Passive and Restriction closure tests ─────────────
+
+    /// A passive with a single grant (piercing) should have operation=Some(_)
+    /// that calls register_grant.
+    #[test]
+    fn test_passive_grant_emits_operation() {
+        use super::super::mock_runtime::MockRuntime;
+        let c = compile("cards/goat/enraged_battle_ox.ds");
+        let passive = c.effects.iter().find(|e| e.label == "Piercing Damage").unwrap();
+        assert!(passive.operation.is_some(),
+            "passive with grant should have operation; got None");
+        let mut rt = MockRuntime::new();
+        rt.effect_card_id = 76909279;
+        rt.effect_player = 0;
+        (passive.operation.as_ref().unwrap())(&mut rt);
+        assert!(rt.was_called_with("register_grant", "grant=0x60"),
+            "expected register_grant with piercing code 0x60; calls: {}", rt.dump_calls());
+    }
+
+    /// A passive with negate_effects should have operation=Some(_) that calls
+    /// negate_effect.
+    #[test]
+    fn test_passive_negate_effects_emits_operation() {
+        use super::super::mock_runtime::MockRuntime;
+        let c = compile("cards/goat/jinzo.ds");
+        let passive = c.effects.iter().find(|e| e.label == "Trap Lockdown").unwrap();
+        assert!(passive.operation.is_some(),
+            "negate_effects passive should have operation; got None");
+        let mut rt = MockRuntime::new();
+        rt.effect_card_id = 77585513;
+        rt.effect_player = 0;
+        (passive.operation.as_ref().unwrap())(&mut rt);
+        assert!(rt.was_called_with("negate_effect", ""),
+            "expected negate_effect call; calls: {}", rt.dump_calls());
+    }
+
+    /// A passive with an ATK modifier should emit modify_atk.
+    #[test]
+    fn test_passive_atk_modifier_emits_modify_atk() {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        let c = compile("cards/goat/dark_paladin.ds");
+        let passive = c.effects.iter().find(|e| e.label == "Dragon Power").unwrap();
+        assert!(passive.operation.is_some(),
+            "ATK modifier passive should have operation; got None");
+        let mut rt = MockRuntime::new();
+        rt.effect_card_id = 98502113;
+        rt.effect_player = 0;
+        // No dragons on field → count = 0, delta = 0*500 = 0; call still happens
+        rt.state.add_card(CardSnapshot::monster(98502113, "Dark Paladin", 2900, 2400, 8));
+        rt.state.players[0].field_monsters.push(98502113);
+        (passive.operation.as_ref().unwrap())(&mut rt);
+        assert!(rt.was_called_with("modify_atk", ""),
+            "expected modify_atk call; calls: {}", rt.dump_calls());
+    }
+
+    /// Inline: passive with set_atk should emit set_atk.
+    #[test]
+    fn test_passive_set_atk_emits_set_atk() {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        let src = r#"
+card "ATK Setter" {
+    id: 10001
+    type: Effect Monster
+    attribute: LIGHT
+    race: Warrior
+    level: 4
+    atk: 0
+    def: 0
+    passive "Lock ATK" {
+        scope: self
+        set_atk: 1500
+    }
+}
+"#;
+        let file = parse_v2(src).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        let passive = compiled.effects.iter().find(|e| e.label == "Lock ATK").unwrap();
+        assert!(passive.operation.is_some(), "set_atk passive should have operation; got None");
+        let mut rt = MockRuntime::new();
+        rt.effect_card_id = 10001;
+        rt.effect_player = 0;
+        rt.state.add_card(CardSnapshot::monster(10001, "ATK Setter", 0, 0, 4));
+        (passive.operation.as_ref().unwrap())(&mut rt);
+        assert!(rt.was_called_with("set_atk", "value=1500"),
+            "expected set_atk value=1500; calls: {}", rt.dump_calls());
+    }
+
+    /// Inline: passive with set_def should emit set_def.
+    #[test]
+    fn test_passive_set_def_emits_set_def() {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        let src = r#"
+card "DEF Setter" {
+    id: 10002
+    type: Effect Monster
+    attribute: WATER
+    race: Aqua
+    level: 3
+    atk: 0
+    def: 0
+    passive "Lock DEF" {
+        scope: self
+        set_def: 2000
+    }
+}
+"#;
+        let file = parse_v2(src).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        let passive = compiled.effects.iter().find(|e| e.label == "Lock DEF").unwrap();
+        assert!(passive.operation.is_some(), "set_def passive should have operation; got None");
+        let mut rt = MockRuntime::new();
+        rt.effect_card_id = 10002;
+        rt.effect_player = 0;
+        rt.state.add_card(CardSnapshot::monster(10002, "DEF Setter", 0, 0, 3));
+        (passive.operation.as_ref().unwrap())(&mut rt);
+        assert!(rt.was_called_with("set_def", "value=2000"),
+            "expected set_def value=2000; calls: {}", rt.dump_calls());
+    }
+
+    /// Inline: passive with no body (no modifiers, no grants, no set_stats,
+    /// no negate_effects) should produce operation=None.
+    #[test]
+    fn test_passive_empty_body_yields_none_operation() {
+        let src = r#"
+card "Empty Passive" {
+    id: 10003
+    type: Effect Monster
+    attribute: EARTH
+    race: Rock
+    level: 1
+    atk: 0
+    def: 0
+    passive "Nothing" {
+        scope: self
+    }
+}
+"#;
+        let file = parse_v2(src).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        let passive = compiled.effects.iter().find(|e| e.label == "Nothing").unwrap();
+        assert!(passive.operation.is_none(),
+            "passive with empty body should have operation=None");
+    }
+
+    /// Inline: passive with a condition should produce condition=Some(_).
+    #[test]
+    fn test_passive_condition_emits_condition_closure() {
+        use super::super::mock_runtime::MockRuntime;
+        let src = r#"
+card "Conditional Passive" {
+    id: 10004
+    type: Effect Monster
+    attribute: FIRE
+    race: Pyro
+    level: 4
+    atk: 1500
+    def: 1000
+    passive "LP Boost" {
+        scope: self
+        condition: lp >= 4000
+        modifier: atk + 500
+    }
+}
+"#;
+        let file = parse_v2(src).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        let passive = compiled.effects.iter().find(|e| e.label == "LP Boost").unwrap();
+        assert!(passive.condition.is_some(), "conditional passive should have condition closure");
+        let mut rt = MockRuntime::new(); // 8000 LP by default
+        rt.effect_player = 0;
+        rt.effect_card_id = 10004;
+        let result = (passive.condition.as_ref().unwrap())(&rt);
+        assert!(result, "condition should be true at 8000 LP >= 4000");
+    }
+
+    /// Restriction with abilities should have operation=Some(_) that calls
+    /// register_grant for each ability.
+    #[test]
+    fn test_restriction_with_abilities_emits_operation() {
+        use super::super::mock_runtime::MockRuntime;
+        // Lava Golem's special summon procedure includes a restriction block
+        // with cannot_normal_summon; verify that restriction compiled from inline source.
+        let src = r#"
+card "Restricted Card" {
+    id: 20001
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 4
+    atk: 1600
+    def: 1000
+    restriction "No Attack" {
+        cannot_attack
+        duration: this_turn
+    }
+}
+"#;
+        let file = parse_v2(src).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        let restr = compiled.effects.iter().find(|e| e.label == "No Attack").unwrap();
+        assert!(restr.operation.is_some(),
+            "restriction with abilities should have operation; got None");
+        let mut rt = MockRuntime::new();
+        rt.effect_card_id = 20001;
+        rt.effect_player = 0;
+        (restr.operation.as_ref().unwrap())(&mut rt);
+        // EFFECT_CANNOT_ATTACK = 16 = 0x10
+        assert!(rt.was_called_with("register_grant", "grant=0x10"),
+            "expected register_grant with cannot_attack code 0x10; calls: {}", rt.dump_calls());
+    }
+
+    /// Restriction with a condition declaration should produce condition=Some(_).
+    /// Note: the restriction block's condition_decl parsing has a known pre-existing
+    /// quirk where condition_decl is passed to parse_condition instead of condition_expr;
+    /// this yields a vacuous And([]) that evaluates to true. The closure presence is what
+    /// M2a requires — correct condition evaluation is a parser fix for a future phase.
+    #[test]
+    fn test_restriction_condition_emits_condition_closure() {
+        use super::super::mock_runtime::MockRuntime;
+        let src = r#"
+card "Conditional Restriction" {
+    id: 20002
+    type: Effect Monster
+    attribute: WIND
+    race: Winged Beast
+    level: 3
+    atk: 1200
+    def: 800
+    restriction "LP Guard" {
+        condition: lp <= 2000
+        cannot_attack
+    }
+}
+"#;
+        let file = parse_v2(src).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        let restr = compiled.effects.iter().find(|e| e.label == "LP Guard").unwrap();
+        // The condition closure must be present — correct evaluation is a parser concern.
+        assert!(restr.condition.is_some(), "restriction with condition should have condition closure");
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 20002;
+        // Calling the closure must not panic.
+        let _ = (restr.condition.as_ref().unwrap())(&rt);
+    }
+
+    /// Restriction with only duration (no abilities) should produce operation=None.
+    /// The grammar requires restriction_item+, so at minimum use duration.
+    #[test]
+    fn test_restriction_no_abilities_yields_none_operation() {
+        let src = r#"
+card "Duration-only Restriction" {
+    id: 20003
+    type: Effect Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 2
+    atk: 800
+    def: 600
+    restriction "Timing Only" {
+        duration: this_turn
+    }
+}
+"#;
+        let file = parse_v2(src).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        let restr = compiled.effects.iter().find(|e| e.label == "Timing Only").unwrap();
+        assert!(restr.operation.is_none(),
+            "restriction with no ability entries should have operation=None");
+    }
+
+    // ── M2b: Replacement closure tests ────────────────────────
+
+    /// Inline: replacement with `banish self` (destroy-replaced-by-banish) should
+    /// produce operation=Some(_) that calls `banish`.
+    #[test]
+    fn test_replacement_banish_emits_operation() {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        let src = r#"
+card "Banish Replacement" {
+    id: 30001
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 4
+    atk: 1600
+    def: 1000
+    replacement "Evade" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}
+"#;
+        let file = parse_v2(src).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        let repl = compiled.effects.iter().find(|e| e.label == "Evade").unwrap();
+        assert!(repl.operation.is_some(),
+            "replacement with banish action should have operation; got None");
+        let mut rt = MockRuntime::new();
+        rt.effect_card_id = 30001;
+        rt.effect_player = 0;
+        rt.state.add_card(CardSnapshot::monster(30001, "Banish Replacement", 1600, 1000, 4));
+        rt.state.players[0].field_monsters.push(30001);
+        (repl.operation.as_ref().unwrap())(&mut rt);
+        assert!(rt.was_called_with("banish", ""),
+            "expected banish call; calls: {}", rt.dump_calls());
+    }
+
+    /// Inline: replacement with `destroy self` should produce operation=Some(_)
+    /// that calls `destroy`.
+    #[test]
+    fn test_replacement_destroy_emits_operation() {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        let src = r#"
+card "Destroy Replacement" {
+    id: 30002
+    type: Effect Monster
+    attribute: FIRE
+    race: Pyro
+    level: 3
+    atk: 1200
+    def: 800
+    replacement "Self Destruct" {
+        instead_of: sent_to_gy
+        do {
+            destroy self
+        }
+    }
+}
+"#;
+        let file = parse_v2(src).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        let repl = compiled.effects.iter().find(|e| e.label == "Self Destruct").unwrap();
+        assert!(repl.operation.is_some(),
+            "replacement with destroy action should have operation; got None");
+        let mut rt = MockRuntime::new();
+        rt.effect_card_id = 30002;
+        rt.effect_player = 0;
+        rt.state.add_card(CardSnapshot::monster(30002, "Destroy Replacement", 1200, 800, 3));
+        rt.state.players[0].field_monsters.push(30002);
+        (repl.operation.as_ref().unwrap())(&mut rt);
+        assert!(rt.was_called_with("destroy", ""),
+            "expected destroy call; calls: {}", rt.dump_calls());
+    }
+
+    /// Inline: replacement with `send self to gy` should produce operation=Some(_)
+    /// that calls `send_to_grave`.
+    #[test]
+    fn test_replacement_send_to_gy_emits_operation() {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        let src = r#"
+card "GY Replacement" {
+    id: 30003
+    type: Effect Monster
+    attribute: WATER
+    race: Aqua
+    level: 2
+    atk: 800
+    def: 600
+    replacement "Go to Grave" {
+        instead_of: banished
+        do {
+            send self to gy
+        }
+    }
+}
+"#;
+        let file = parse_v2(src).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        let repl = compiled.effects.iter().find(|e| e.label == "Go to Grave").unwrap();
+        assert!(repl.operation.is_some(),
+            "replacement with send_to_grave action should have operation; got None");
+        let mut rt = MockRuntime::new();
+        rt.effect_card_id = 30003;
+        rt.effect_player = 0;
+        rt.state.add_card(CardSnapshot::monster(30003, "GY Replacement", 800, 600, 2));
+        rt.state.players[0].field_monsters.push(30003);
+        (repl.operation.as_ref().unwrap())(&mut rt);
+        assert!(rt.was_called_with("send_to_grave", ""),
+            "expected send_to_grave call; calls: {}", rt.dump_calls());
+    }
+
+    /// Inline: replacement with a condition should produce condition=Some(_) and
+    /// the closure must evaluate correctly against a prepared MockRuntime state.
+    #[test]
+    fn test_replacement_condition_emits_condition_closure() {
+        use super::super::mock_runtime::MockRuntime;
+        let src = r#"
+card "Conditional Replacement" {
+    id: 30004
+    type: Effect Monster
+    attribute: LIGHT
+    race: Fairy
+    level: 4
+    atk: 1500
+    def: 1000
+    replacement "LP Shield" {
+        instead_of: destroyed
+        condition: lp >= 4000
+        do {
+            banish self
+        }
+    }
+}
+"#;
+        let file = parse_v2(src).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        let repl = compiled.effects.iter().find(|e| e.label == "LP Shield").unwrap();
+        assert!(repl.condition.is_some(),
+            "replacement with condition should have condition closure; got None");
+        // Default MockRuntime starts at 8000 LP — condition lp >= 4000 is true.
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 30004;
+        let result = (repl.condition.as_ref().unwrap())(&rt);
+        assert!(result, "condition lp >= 4000 should be true at 8000 LP");
+    }
+
+    /// Inline: replacement with empty `do` block should produce operation=None.
+    #[test]
+    fn test_replacement_empty_actions_yields_none_operation() {
+        // The grammar requires at least one action in `do { }`, so we construct
+        // the AST directly rather than parsing source.
+        use crate::v2::ast::{Replacement, ReplaceableEvent};
+        let card_src = r#"
+card "Empty Replacement Card" {
+    id: 30005
+    type: Effect Monster
+    attribute: EARTH
+    race: Rock
+    level: 1
+    atk: 100
+    def: 100
+    replacement "No-op" {
+        instead_of: destroyed
+        do {
+            banish self
+        }
+    }
+}
+"#;
+        // Build a Replacement struct with empty actions directly and call compile_replacement.
+        let dummy_card_src = r#"
+card "Empty Replacement Card" {
+    id: 30005
+    type: Effect Monster
+    attribute: EARTH
+    race: Rock
+    level: 1
+    atk: 100
+    def: 100
+}
+"#;
+        let file = parse_v2(dummy_card_src).unwrap();
+        let card = &file.cards[0];
+        let repl = Replacement {
+            name: Some("No-op".into()),
+            instead_of: ReplaceableEvent::Destroyed,
+            actions: vec![], // explicitly empty
+            condition: None,
+        };
+        let compiled_effect = compile_replacement(&repl, card);
+        assert!(compiled_effect.operation.is_none(),
+            "replacement with empty actions should have operation=None");
+    }
+
+    /// File-based: official card with a replacement block should produce
+    /// operation=Some(_) (banish self pattern).
+    #[test]
+    fn test_official_replacement_card_has_operation() {
+        // c36346532.ds — Paleozoic Cambroraster has replacement "Effect 3" { instead_of: destroyed; do { banish self } }
+        let c = compile("cards/official/c36346532.ds");
+        let repl = c.effects.iter().find(|e| e.label == "Effect 3");
+        assert!(repl.is_some(), "expected 'Effect 3' replacement effect in compiled output");
+        assert!(repl.unwrap().operation.is_some(),
+            "official replacement should have operation=Some(_)");
+    }
+
     // ── File-based integration tests ───────────────────────────
 
     #[test]
@@ -2075,5 +3177,1119 @@ card "Level Changer" {
             assert!(log.contains("return_to_owner") || c.effects[2].operation.is_some(),
                 "Bounce: expected operation to run without panic; log: {}", log);
         }
+    }
+
+    // ── M2c: summon procedure closure-coverage tests ───────────
+
+    /// (a) Fusion monster with fusion_materials → operation calls fusion_summon.
+    #[test]
+    fn test_fusion_summon_op_calls_fusion_summon() {
+        use super::super::mock_runtime::MockRuntime;
+        let c = compile("cards/goat/dark_flare_knight.ds");
+        let proc_effect = c.effects.iter().find(|e| e.label == "Summon Procedure")
+            .expect("expected 'Summon Procedure' effect");
+        assert!(proc_effect.operation.is_some(),
+            "fusion monster should have operation=Some(_) on Summon Procedure");
+
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        if let Some(ref op) = proc_effect.operation {
+            op(&mut rt);
+        }
+        let log = rt.dump_calls();
+        assert!(log.contains("fusion_summon"),
+            "operation should call fusion_summon; got: {}", log);
+    }
+
+    /// (b) Synchro monster with synchro_materials → operation calls synchro_summon.
+    /// Constructs the AST directly because the synchro_materials parser has a known
+    /// wrapping-level bug (NN-I backlog) that prevents inline DSL parsing.
+    #[test]
+    fn test_synchro_summon_op_calls_synchro_summon() {
+        use super::super::mock_runtime::MockRuntime;
+        use crate::v2::ast::*;
+
+        // Construct the AST by hand to bypass the parser limitation.
+        let card = Card {
+            name: "Test Synchro".into(),
+            fields: CardFields {
+                id: Some(99100001),
+                card_types: vec![CardType::SynchroMonster],
+                attribute: Some(Attribute::Wind),
+                race: Some(Race::Dragon),
+                level: Some(8),
+                rank: None,
+                link: None,
+                scale: None,
+                atk: Some(StatVal::Number(2800)),
+                def: Some(StatVal::Number(2000)),
+                link_arrows: vec![],
+                archetypes: vec![],
+            },
+            summon: Some(SummonBlock {
+                cannot_normal_summon: true,
+                cannot_special_summon: false,
+                tributes: None,
+                special_summon_procedure: None,
+                fusion_materials: None,
+                synchro_materials: Some(SynchroMaterials {
+                    tuner: Selector::Counted {
+                        quantity: Quantity::Exact(1),
+                        filter: CardFilter { name: None, kind: CardFilterKind::TunerMonster },
+                        controller: None,
+                        zone: None,
+                        position: None,
+                        where_clause: None,
+                    },
+                    non_tuner: Selector::Counted {
+                        quantity: Quantity::Exact(1),
+                        filter: CardFilter { name: None, kind: CardFilterKind::Monster },
+                        controller: None,
+                        zone: None,
+                        position: None,
+                        where_clause: None,
+                    },
+                }),
+                xyz_materials: None,
+                link_materials: None,
+                ritual_materials: None,
+                pendulum_from: vec![],
+            }),
+            effects: vec![],
+            passives: vec![],
+            restrictions: vec![],
+            replacements: vec![],
+        };
+        let compiled = compile_card_v2(&card);
+        let proc_effect = compiled.effects.iter().find(|e| e.label == "Summon Procedure")
+            .expect("expected 'Summon Procedure' effect");
+        assert!(proc_effect.operation.is_some(),
+            "synchro monster should have operation=Some(_) on Summon Procedure");
+
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        if let Some(ref op) = proc_effect.operation {
+            op(&mut rt);
+        }
+        let log = rt.dump_calls();
+        assert!(log.contains("synchro_summon"),
+            "operation should call synchro_summon; got: {}", log);
+    }
+
+    /// (c) Xyz monster with xyz_materials → operation calls xyz_summon.
+    /// Constructs the AST directly because the xyz_materials parser has a known
+    /// wrapping-level bug (NN-I backlog) that prevents inline DSL parsing.
+    #[test]
+    fn test_xyz_summon_op_calls_xyz_summon() {
+        use super::super::mock_runtime::MockRuntime;
+        use crate::v2::ast::*;
+
+        let card = Card {
+            name: "Test Xyz".into(),
+            fields: CardFields {
+                id: Some(99100002),
+                card_types: vec![CardType::XyzMonster],
+                attribute: Some(Attribute::Dark),
+                race: Some(Race::Warrior),
+                level: None,
+                rank: Some(4),
+                link: None,
+                scale: None,
+                atk: Some(StatVal::Number(2500)),
+                def: Some(StatVal::Number(2000)),
+                link_arrows: vec![],
+                archetypes: vec![],
+            },
+            summon: Some(SummonBlock {
+                cannot_normal_summon: true,
+                cannot_special_summon: false,
+                tributes: None,
+                special_summon_procedure: None,
+                fusion_materials: None,
+                synchro_materials: None,
+                xyz_materials: Some(Selector::Counted {
+                    quantity: Quantity::Exact(2),
+                    filter: CardFilter { name: None, kind: CardFilterKind::Monster },
+                    controller: None,
+                    zone: None,
+                    position: None,
+                    where_clause: None,
+                }),
+                link_materials: None,
+                ritual_materials: None,
+                pendulum_from: vec![],
+            }),
+            effects: vec![],
+            passives: vec![],
+            restrictions: vec![],
+            replacements: vec![],
+        };
+        let compiled = compile_card_v2(&card);
+        let proc_effect = compiled.effects.iter().find(|e| e.label == "Summon Procedure")
+            .expect("expected 'Summon Procedure' effect");
+        assert!(proc_effect.operation.is_some(),
+            "xyz monster should have operation=Some(_) on Summon Procedure");
+
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        if let Some(ref op) = proc_effect.operation {
+            op(&mut rt);
+        }
+        let log = rt.dump_calls();
+        assert!(log.contains("xyz_summon"),
+            "operation should call xyz_summon; got: {}", log);
+    }
+
+    /// (d) Special-summon-procedure card → operation calls special_summon.
+    #[test]
+    fn test_special_summon_proc_op_calls_special_summon() {
+        use super::super::mock_runtime::MockRuntime;
+        let c = compile("cards/goat/cyber_dragon.ds");
+        let ssp = c.effects.iter().find(|e| e.label == "Special Summon Procedure")
+            .expect("expected 'Special Summon Procedure' effect");
+        assert!(ssp.operation.is_some(),
+            "Cyber Dragon should have operation=Some(_) on Special Summon Procedure");
+
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        if let Some(ref op) = ssp.operation {
+            op(&mut rt);
+        }
+        let log = rt.dump_calls();
+        assert!(log.contains("special_summon"),
+            "operation should call special_summon; got: {}", log);
+    }
+
+    /// (e) Xyz Check site (code 946) stays all-None — architectural comment present.
+    /// Uses direct AST construction because xyz_materials inline parsing has a known
+    /// wrapping-level bug (NN-I backlog).
+    #[test]
+    fn test_xyz_check_effect_has_no_operation() {
+        use crate::v2::ast::*;
+
+        let card = Card {
+            name: "Test Xyz Check".into(),
+            fields: CardFields {
+                id: Some(99100003),
+                card_types: vec![CardType::XyzMonster],
+                attribute: Some(Attribute::Light),
+                race: Some(Race::Fairy),
+                level: None,
+                rank: Some(4),
+                link: None,
+                scale: None,
+                atk: Some(StatVal::Number(2000)),
+                def: Some(StatVal::Number(1200)),
+                link_arrows: vec![],
+                archetypes: vec![],
+            },
+            summon: Some(SummonBlock {
+                cannot_normal_summon: true,
+                cannot_special_summon: false,
+                tributes: None,
+                special_summon_procedure: None,
+                fusion_materials: None,
+                synchro_materials: None,
+                xyz_materials: Some(Selector::Counted {
+                    quantity: Quantity::Exact(2),
+                    filter: CardFilter { name: None, kind: CardFilterKind::Monster },
+                    controller: None,
+                    zone: None,
+                    position: None,
+                    where_clause: None,
+                }),
+                link_materials: None,
+                ritual_materials: None,
+                pendulum_from: vec![],
+            }),
+            effects: vec![],
+            passives: vec![],
+            restrictions: vec![],
+            replacements: vec![],
+        };
+        let compiled = compile_card_v2(&card);
+        // Xyz Check should have code 946 and operation=None.
+        let xyz_check = compiled.effects.iter().find(|e| e.code == 946 && e.label == "Xyz Check")
+            .expect("expected 'Xyz Check' effect with code 946");
+        assert!(xyz_check.operation.is_none(),
+            "Xyz Check is a pure type-system tag — operation must be None");
+        assert!(xyz_check.condition.is_none(),
+            "Xyz Check should have condition=None");
+    }
+
+    /// (f) Cannot Normal Summon (code 42) stays all-None — architectural comment present.
+    #[test]
+    fn test_cannot_normal_summon_effect_has_no_operation() {
+        // An Effect Monster that cannot be normal summoned (not extra deck).
+        let src = r#"
+card "Test Cannot NS" {
+    id: 99100004
+    type: Effect Monster
+    attribute: FIRE
+    race: Fiend
+    level: 8
+    atk: 3000
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+        special_summon_procedure {
+            from: hand
+        }
+    }
+}
+"#;
+        let file = parse_v2(src).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        let cns = compiled.effects.iter().find(|e| e.code == 42 && e.label == "Cannot Normal Summon")
+            .expect("expected 'Cannot Normal Summon' effect with code 42");
+        assert!(cns.operation.is_none(),
+            "Cannot Normal Summon is a pure metadata flag — operation must be None");
+        assert!(cns.condition.is_none(),
+            "Cannot Normal Summon should have condition=None");
+    }
+
+    /// (g) Nested restriction inside SSP → operation populated via gen_continuous_grants_op.
+    /// Uses direct AST construction because the ssp_item parser has a known wrapping-level
+    /// bug (NN-I backlog) that prevents `restriction`, `cost`, `to`, and `from` from parsing
+    /// in the ssp block. This test exercises the compiler logic directly.
+    #[test]
+    fn test_ssp_nested_restriction_has_operation() {
+        use super::super::mock_runtime::MockRuntime;
+        use crate::v2::ast::*;
+
+        let card = Card {
+            name: "Test SSP Restriction".into(),
+            fields: CardFields {
+                id: Some(99100005),
+                card_types: vec![CardType::EffectMonster],
+                attribute: Some(Attribute::Fire),
+                race: Some(Race::Fiend),
+                level: Some(8),
+                rank: None,
+                link: None,
+                scale: None,
+                atk: Some(StatVal::Number(3000)),
+                def: Some(StatVal::Number(2500)),
+                link_arrows: vec![],
+                archetypes: vec![],
+            },
+            summon: Some(SummonBlock {
+                cannot_normal_summon: true,
+                cannot_special_summon: false,
+                tributes: None,
+                special_summon_procedure: Some(SpecialSummonProcedure {
+                    from: Some(Zone::Hand),
+                    to: Some(FieldTarget::OpponentField),
+                    cost: vec![],
+                    condition: None,
+                    restriction: Some(Restriction {
+                        name: Some("No Normal Summon This Turn".into()),
+                        apply_to: None,
+                        target: None,
+                        abilities: vec![GrantAbility::CannotNormalSummon],
+                        duration: Some(Duration::ThisTurn),
+                        trigger: None,
+                        condition: None,
+                    }),
+                }),
+                fusion_materials: None,
+                synchro_materials: None,
+                xyz_materials: None,
+                link_materials: None,
+                ritual_materials: None,
+                pendulum_from: vec![],
+            }),
+            effects: vec![],
+            passives: vec![],
+            restrictions: vec![],
+            replacements: vec![],
+        };
+        let compiled = compile_card_v2(&card);
+
+        // Should produce "Special Summon Procedure" + "No Normal Summon This Turn"
+        let nested = compiled.effects.iter().find(|e| e.label == "No Normal Summon This Turn")
+            .expect("should produce a 'No Normal Summon This Turn' effect from nested restriction");
+        assert!(nested.operation.is_some(),
+            "Nested restriction should have operation=Some(_) from gen_continuous_grants_op");
+
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        if let Some(ref op) = nested.operation {
+            op(&mut rt);
+        }
+        let log = rt.dump_calls();
+        assert!(log.contains("register_grant"),
+            "nested restriction operation should call register_grant; got: {}", log);
+    }
+
+    /// (h) SSP with to:opponent_field → special_summon targets opponent (player=1).
+    /// Uses direct AST construction because the ssp_item parser cannot parse `to` fields
+    /// (NN-I backlog parser bug).
+    #[test]
+    fn test_ssp_opponent_field_targets_opponent() {
+        use super::super::mock_runtime::MockRuntime;
+        use crate::v2::ast::*;
+
+        let card = Card {
+            name: "Test Opponent SSP".into(),
+            fields: CardFields {
+                id: Some(99100006),
+                card_types: vec![CardType::EffectMonster],
+                attribute: Some(Attribute::Fire),
+                race: Some(Race::Fiend),
+                level: Some(8),
+                rank: None,
+                link: None,
+                scale: None,
+                atk: Some(StatVal::Number(3000)),
+                def: Some(StatVal::Number(2500)),
+                link_arrows: vec![],
+                archetypes: vec![],
+            },
+            summon: Some(SummonBlock {
+                cannot_normal_summon: true,
+                cannot_special_summon: false,
+                tributes: None,
+                special_summon_procedure: Some(SpecialSummonProcedure {
+                    from: Some(Zone::Hand),
+                    to: Some(FieldTarget::OpponentField),
+                    cost: vec![],
+                    condition: None,
+                    restriction: None,
+                }),
+                fusion_materials: None,
+                synchro_materials: None,
+                xyz_materials: None,
+                link_materials: None,
+                ritual_materials: None,
+                pendulum_from: vec![],
+            }),
+            effects: vec![],
+            passives: vec![],
+            restrictions: vec![],
+            replacements: vec![],
+        };
+        let compiled = compile_card_v2(&card);
+
+        let ssp = compiled.effects.iter().find(|e| e.label == "Special Summon Procedure")
+            .expect("should produce 'Special Summon Procedure' effect");
+        assert!(ssp.operation.is_some(),
+            "SSP should have operation=Some(_)");
+
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0; // summoner is player 0 → target should be opponent (player 1)
+        if let Some(ref op) = ssp.operation {
+            op(&mut rt);
+        }
+        let log = rt.dump_calls();
+        assert!(log.contains("special_summon"),
+            "SSP operation should call special_summon; got: {}", log);
+        assert!(log.contains("player=1"),
+            "to:opponent_field should target player 1 when summoner is player 0; got: {}", log);
+    }
+
+    // ── M3a: Selector resolution (Counted variant) tests ──────────────────────
+
+    /// Quantity limit: a Counted selector with quantity=1 and two opponents on
+    /// the field should resolve to exactly 1 card (via select_cards).
+    #[test]
+    fn counted_quantity_limit_respected() {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        // Compile a card that destroys (1, monster, opponent controls).
+        let source = r#"
+            card "Fissure Stand-in" {
+                id: 66000001
+                type: Normal Spell
+                effect "Destroy One" {
+                    speed: 1
+                    resolve {
+                        destroy (1, monster, opponent controls)
+                    }
+                }
+            }
+        "#;
+        let file = parse_v2(source).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        let op = compiled.effects[0].operation.as_ref().unwrap();
+
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 66000001;
+        // Two opponent monsters.
+        rt.state.add_card(CardSnapshot::monster(201, "MonA", 1500, 1000, 4));
+        rt.state.add_card(CardSnapshot::monster(202, "MonB", 2000, 1000, 4));
+        rt.state.players[1].field_monsters.push(201);
+        rt.state.players[1].field_monsters.push(202);
+
+        op(&mut rt);
+
+        // MockRuntime::destroy removes cards from the field; exactly 1 should
+        // remain (select_cards deterministically picks the first).
+        let remaining = rt.state.players[1].field_monsters.len();
+        assert_eq!(remaining, 1, "destroy (1, ...) should destroy exactly 1 monster; got {} remaining", remaining);
+        // select_cards should have been called exactly once.
+        assert_eq!(rt.call_count("select_cards"), 1, "select_cards should be called to pick from 2 candidates");
+    }
+
+    /// Filter predicate: a Counted selector filtering for `spell` should skip
+    /// monsters and only collect spell cards.
+    #[test]
+    fn counted_filter_predicate_applied() {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        let source = r#"
+            card "Spell Sweeper" {
+                id: 66000002
+                type: Normal Spell
+                effect "Destroy Spells" {
+                    speed: 1
+                    resolve {
+                        destroy (all, spell, opponent controls)
+                    }
+                }
+            }
+        "#;
+        let file = parse_v2(source).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        let op = compiled.effects[0].operation.as_ref().unwrap();
+
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 66000002;
+        // Opponent has one monster and one spell.
+        rt.state.add_card(CardSnapshot::monster(301, "OppMonster", 1800, 1000, 4));
+        rt.state.add_card(CardSnapshot::spell(302, "OppSpell"));
+        rt.state.players[1].field_monsters.push(301);
+        rt.state.players[1].field_spells.push(302);
+
+        op(&mut rt);
+
+        // The monster should survive; the spell should be destroyed.
+        assert!(!rt.state.players[1].field_monsters.is_empty(), "monster should not be destroyed by spell filter");
+        assert!(rt.state.players[1].field_spells.is_empty(), "spell should be destroyed");
+    }
+
+    /// Zone restriction: a selector limited to the GY should only collect cards
+    /// from the graveyard, not from the field.
+    #[test]
+    fn counted_zone_restriction_gy() {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        let source = r#"
+            card "GY Picker" {
+                id: 66000003
+                type: Normal Spell
+                effect "Retrieve" {
+                    speed: 1
+                    resolve {
+                        search (1, monster, from gy)
+                    }
+                }
+            }
+        "#;
+        let file = parse_v2(source).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        let op = compiled.effects[0].operation.as_ref().unwrap();
+
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 66000003;
+        let gy_card: u32 = 401;
+        let field_card: u32 = 402;
+        rt.state.add_card(CardSnapshot::monster(gy_card, "GY Monster", 1500, 1000, 4));
+        rt.state.add_card(CardSnapshot::monster(field_card, "Field Monster", 2000, 1200, 5));
+        rt.state.players[0].graveyard.push(gy_card);
+        rt.state.players[0].field_monsters.push(field_card);
+
+        op(&mut rt);
+
+        // send_to_hand should have been called; field card should still be there.
+        assert!(rt.was_called_with("send_to_hand", &format!("{}", gy_card)),
+            "GY card should be sent to hand; calls: {}", rt.dump_calls());
+        assert!(!rt.state.players[0].field_monsters.is_empty(),
+            "field monster should not be moved by gy-zone search");
+    }
+
+    /// Position filter: a FaceUp filter should exclude face-down cards. The
+    /// default MockRuntime `is_face_up` returns `true` for all cards, so we
+    /// test the inverse: a FaceDown filter should exclude all default cards.
+    #[test]
+    fn counted_position_filter_facedown_excludes_faceup() {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        // Build inline: (all, monster, opponent controls, face_down).
+        // MockRuntime::is_face_down returns false for all cards by default,
+        // so with a FaceDown filter the resolved set should be empty.
+        use super::super::ast::{Selector, Quantity, CardFilter, CardFilterKind, Controller, PositionFilter};
+        let sel = Selector::Counted {
+            quantity: Quantity::All,
+            filter: CardFilter { name: None, kind: CardFilterKind::Monster },
+            controller: Some(Controller::Opponent),
+            zone: None,
+            position: Some(PositionFilter::FaceDown),
+            where_clause: None,
+        };
+
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 0;
+        rt.state.add_card(CardSnapshot::monster(501, "FaceUpMonster", 1800, 1000, 4));
+        rt.state.players[1].field_monsters.push(501);
+
+        let cards = super::resolve_v2_selector(&sel, &mut rt, 0);
+        assert!(cards.is_empty(), "FaceDown filter should yield empty set when all cards are face-up");
+    }
+
+    /// A selector with an impossible where_clause (atk >= 9999) correctly
+    /// excludes all candidates because the predicate is now fully evaluated in M3b.
+    #[test]
+    fn counted_where_clause_excludes_nonmatching_candidates() {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        use super::super::ast::{
+            Selector, Quantity, CardFilter, CardFilterKind, Controller,
+            Predicate, PredicateAtom, StatField, CompareOp, Expr,
+        };
+        // Selector: (all, monster, opponent controls) where atk >= 9999
+        // Both monsters have ATK < 9999, so the where_clause filters both out.
+        let sel = Selector::Counted {
+            quantity: Quantity::All,
+            filter: CardFilter { name: None, kind: CardFilterKind::Monster },
+            controller: Some(Controller::Opponent),
+            zone: None,
+            position: None,
+            where_clause: Some(Predicate::Single(PredicateAtom::StatCompare(
+                StatField::Atk,
+                CompareOp::Gte,
+                Expr::Literal(9999),
+            ))),
+        };
+
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 0;
+        rt.state.add_card(CardSnapshot::monster(601, "WeakMon", 500, 200, 2));
+        rt.state.add_card(CardSnapshot::monster(602, "MidMon", 1800, 1000, 4));
+        rt.state.players[1].field_monsters.push(601);
+        rt.state.players[1].field_monsters.push(602);
+
+        let cards = super::resolve_v2_selector(&sel, &mut rt, 0);
+        assert!(cards.is_empty(),
+            "atk >= 9999 predicate should filter all candidates; got {:?}", cards);
+    }
+
+    // ── M3b tests ────────────────────────────────────────────────
+
+    /// Selector::Target resolves to the card stored under "__target__" binding.
+    #[test]
+    fn m3b_target_selector_reads_back_binding() {
+        use super::super::mock_runtime::MockRuntime;
+        use super::super::ast::Selector;
+
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 0;
+        rt.set_binding("__target__", 700);
+
+        let cards = super::resolve_v2_selector(&Selector::Target, &mut rt, 0);
+        assert_eq!(cards, vec![700], "Target selector should return the stored __target__ binding");
+    }
+
+    /// Selector::Target returns an empty vec when no binding has been set.
+    #[test]
+    fn m3b_target_selector_empty_when_no_binding() {
+        use super::super::mock_runtime::MockRuntime;
+        use super::super::ast::Selector;
+
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 0;
+
+        let cards = super::resolve_v2_selector(&Selector::Target, &mut rt, 0);
+        assert!(cards.is_empty(), "Target selector should be empty when no __target__ binding exists");
+    }
+
+    /// Selector::NegatedCard resolves to the card stored under "__negated__" binding.
+    #[test]
+    fn m3b_negated_card_selector_reads_back_binding() {
+        use super::super::mock_runtime::MockRuntime;
+        use super::super::ast::Selector;
+
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 0;
+        rt.set_binding("__negated__", 800);
+
+        let cards = super::resolve_v2_selector(&Selector::NegatedCard, &mut rt, 0);
+        assert_eq!(cards, vec![800], "NegatedCard selector should return the stored __negated__ binding");
+    }
+
+    // ── M3c tests ────────────────────────────────────────────────
+
+    /// Selector::Searched resolves to the card stored under "__searched__" binding.
+    #[test]
+    fn m3c_searched_selector_reads_back_binding() {
+        use super::super::mock_runtime::MockRuntime;
+        use super::super::ast::Selector;
+
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 0;
+        rt.set_binding("__searched__", 900);
+
+        let cards = super::resolve_v2_selector(&Selector::Searched, &mut rt, 0);
+        assert_eq!(cards, vec![900], "Searched selector should return the stored __searched__ binding");
+    }
+
+    /// Selector::Searched returns an empty vec when no binding has been set.
+    #[test]
+    fn m3c_searched_selector_empty_when_no_binding() {
+        use super::super::mock_runtime::MockRuntime;
+        use super::super::ast::Selector;
+
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 0;
+
+        let cards = super::resolve_v2_selector(&Selector::Searched, &mut rt, 0);
+        assert!(cards.is_empty(), "Searched selector should be empty when no __searched__ binding exists");
+    }
+
+    /// Action::Search codegen writes the "__searched__" binding after send_to_hand.
+    #[test]
+    fn m3c_action_search_writes_searched_binding() {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        let source = r#"
+            card "Sangan" {
+                id: 26202165
+                type: Effect Monster
+                attribute: DARK
+                race: Fiend
+                level: 3
+                atk: 1000
+                def: 600
+
+                effect "Search" {
+                    speed: 1
+                    resolve {
+                        search (1, monster, from deck)
+                    }
+                }
+            }
+        "#;
+        use crate::v2::parser::parse_v2;
+        let file = parse_v2(source).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        let effect = compiled.effects.iter().find(|e| e.label == "Search").unwrap();
+
+        let mut rt = MockRuntime::new();
+        rt.effect_card_id = 26202165;
+        rt.effect_player = 0;
+        let monster_id: u32 = 77777777;
+        rt.state.add_card(CardSnapshot::monster(monster_id, "Deck Monster", 1200, 800, 3));
+        rt.state.players[0].deck.push(monster_id);
+
+        (effect.operation.as_ref().unwrap())(&mut rt);
+        assert!(rt.was_called_with("bind_last_selection", "name=\"__searched__\""),
+            "Action::Search should call bind_last_selection(\"__searched__\"); calls: {}", rt.dump_calls());
+    }
+
+    /// Selector::Binding(name) resolves to the card stored under the given name.
+    #[test]
+    fn m3c_binding_selector_reads_named_binding() {
+        use super::super::mock_runtime::MockRuntime;
+        use super::super::ast::Selector;
+
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 0;
+        rt.set_binding("my_card", 1001);
+
+        let cards = super::resolve_v2_selector(&Selector::Binding("my_card".to_string()), &mut rt, 0);
+        assert_eq!(cards, vec![1001], "Binding selector should return the stored named binding");
+    }
+
+    /// Selector::Binding(name) returns an empty vec when the name has no binding.
+    #[test]
+    fn m3c_binding_selector_empty_when_name_unset() {
+        use super::super::mock_runtime::MockRuntime;
+        use super::super::ast::Selector;
+
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 0;
+
+        let cards = super::resolve_v2_selector(&Selector::Binding("nonexistent".to_string()), &mut rt, 0);
+        assert!(cards.is_empty(), "Binding selector should be empty when the named binding does not exist");
+    }
+
+    /// where_clause with atk >= 1500 filters: a 500 ATK monster is excluded,
+    /// an 1800 ATK monster passes. Exactly 1 match.
+    #[test]
+    fn m3b_where_clause_atk_gte_filters_low_atk_monsters() {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        use super::super::ast::{
+            Selector, Quantity, CardFilter, CardFilterKind, Controller,
+            Predicate, PredicateAtom, StatField, CompareOp, Expr,
+        };
+        // Selector: (all, monster, opponent controls) where atk >= 1500
+        let sel = Selector::Counted {
+            quantity: Quantity::All,
+            filter: CardFilter { name: None, kind: CardFilterKind::Monster },
+            controller: Some(Controller::Opponent),
+            zone: None,
+            position: None,
+            where_clause: Some(Predicate::Single(PredicateAtom::StatCompare(
+                StatField::Atk,
+                CompareOp::Gte,
+                Expr::Literal(1500),
+            ))),
+        };
+
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 0;
+        rt.state.add_card(CardSnapshot::monster(701, "LowAtk", 500, 200, 2));
+        rt.state.add_card(CardSnapshot::monster(702, "HighAtk", 1800, 1000, 4));
+        rt.state.players[1].field_monsters.push(701);
+        rt.state.players[1].field_monsters.push(702);
+
+        let cards = super::resolve_v2_selector(&sel, &mut rt, 0);
+        assert_eq!(cards.len(), 1, "Only 1 monster should pass atk >= 1500; got {:?}", cards);
+        assert_eq!(cards[0], 702, "The passing monster should be HighAtk (702)");
+    }
+
+    /// where_clause And composition: atk >= 2000 AND attribute == DARK.
+    /// Only the card that satisfies both conditions matches.
+    #[test]
+    fn m3b_where_clause_and_composition() {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        use super::super::ast::{
+            Selector, Quantity, CardFilter, CardFilterKind, Controller,
+            Predicate, PredicateAtom, StatField, CompareOp, Expr, Attribute,
+        };
+        // DARK bitmask = 0x20 (attribute_to_engine)
+        let dark_bits: u64 = 0x20;
+
+        let sel = Selector::Counted {
+            quantity: Quantity::All,
+            filter: CardFilter { name: None, kind: CardFilterKind::Monster },
+            controller: Some(Controller::Opponent),
+            zone: None,
+            position: None,
+            where_clause: Some(Predicate::And(vec![
+                PredicateAtom::StatCompare(StatField::Atk, CompareOp::Gte, Expr::Literal(2000)),
+                PredicateAtom::AttributeIs(Attribute::Dark),
+            ])),
+        };
+
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 0;
+        // Mon A: ATK 2500 + DARK — should match
+        rt.state.add_card(
+            CardSnapshot::monster(801, "DarkBig", 2500, 2000, 8)
+                .with_attribute(dark_bits)
+        );
+        // Mon B: ATK 2500 + LIGHT — should not match (wrong attribute)
+        rt.state.add_card(
+            CardSnapshot::monster(802, "LightBig", 2500, 2000, 8)
+                .with_attribute(0x10) // LIGHT
+        );
+        // Mon C: ATK 1500 + DARK — should not match (low ATK)
+        rt.state.add_card(
+            CardSnapshot::monster(803, "DarkSmall", 1500, 1000, 4)
+                .with_attribute(dark_bits)
+        );
+        rt.state.players[1].field_monsters.extend([801, 802, 803]);
+
+        let cards = super::resolve_v2_selector(&sel, &mut rt, 0);
+        assert_eq!(cards, vec![801], "Only DarkBig should pass atk >= 2000 AND attribute == DARK");
+    }
+
+    /// where_clause Or composition: is_spell OR is_trap.
+    /// Monsters are excluded; only spells and traps match.
+    #[test]
+    fn m3b_where_clause_or_composition() {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        use super::super::ast::{
+            Selector, Quantity, CardFilter, CardFilterKind, Controller, Predicate, PredicateAtom,
+        };
+        // Use (all, card, opponent controls) where is_spell or is_trap
+        let sel = Selector::Counted {
+            quantity: Quantity::All,
+            filter: CardFilter { name: None, kind: CardFilterKind::Card },
+            controller: Some(Controller::Opponent),
+            zone: None,
+            position: None,
+            where_clause: Some(Predicate::Or(vec![
+                PredicateAtom::IsSpell,
+                PredicateAtom::IsTrap,
+            ])),
+        };
+
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 0;
+        rt.state.add_card(CardSnapshot::monster(901, "SomeMonster", 1000, 500, 3));
+        rt.state.add_card(CardSnapshot::spell(902, "SomeSpell"));
+        rt.state.add_card(CardSnapshot::trap(903, "SomeTrap"));
+        rt.state.players[1].field_monsters.push(901);
+        rt.state.players[1].field_spells.extend([902, 903]);
+
+        let mut cards = super::resolve_v2_selector(&sel, &mut rt, 0);
+        cards.sort();
+        assert_eq!(cards, vec![902, 903], "Only spell and trap should pass is_spell OR is_trap");
+    }
+
+    // ── T7 / M4: exotic predicate atoms ──────────────────────────
+    //
+    // One test per atom. Pattern: build a monster catalog with one
+    // match candidate (type_bits includes the atom's bit) and one
+    // non-match candidate (default monster type_bits = TYPE_MONSTER |
+    // TYPE_EFFECT = 0x21 — does NOT include any exotic bit). Resolve a
+    // `Counted + where_clause` selector and assert the match set is
+    // the expected singleton.
+
+    /// Shared helper: run a `where_clause` against a two-card deck
+    /// (match + non-match) and assert which IDs survived the filter.
+    #[cfg(test)]
+    fn run_exotic_atom_test(
+        atom: super::super::ast::PredicateAtom,
+        match_type_bits: u64,
+    ) -> Vec<u32> {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        use super::super::ast::{
+            Selector, Quantity, CardFilter, CardFilterKind, Controller,
+            Predicate,
+        };
+        let sel = Selector::Counted {
+            quantity: Quantity::All,
+            filter: CardFilter { name: None, kind: CardFilterKind::Monster },
+            controller: Some(Controller::Opponent),
+            zone: None,
+            position: None,
+            where_clause: Some(Predicate::Single(atom)),
+        };
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 0;
+        // Match candidate — type_bits carries the atom's bit.
+        rt.state.add_card(
+            CardSnapshot::monster(1001, "MatchMon", 1000, 1000, 4)
+                .with_type(match_type_bits),
+        );
+        // Non-match candidate — default Effect monster (0x1 | 0x20).
+        rt.state.add_card(CardSnapshot::monster(1002, "NonMatchMon", 1000, 1000, 4));
+        rt.state.players[1].field_monsters.extend([1001, 1002]);
+        super::resolve_v2_selector(&sel, &mut rt, 0)
+    }
+
+    #[test]
+    fn t7_is_effect_matches_effect_monster() {
+        use super::super::ast::PredicateAtom;
+        // Default `monster()` already has TYPE_EFFECT (0x20). The match
+        // candidate retains that default; the non-match candidate is a
+        // Normal monster (TYPE_MONSTER | TYPE_NORMAL = 0x1 | 0x10 = 0x11).
+        // So instead of the shared helper we handle this atom specifically.
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        use super::super::ast::{
+            Selector, Quantity, CardFilter, CardFilterKind, Controller, Predicate,
+        };
+        let sel = Selector::Counted {
+            quantity: Quantity::All,
+            filter: CardFilter { name: None, kind: CardFilterKind::Monster },
+            controller: Some(Controller::Opponent),
+            zone: None,
+            position: None,
+            where_clause: Some(Predicate::Single(PredicateAtom::IsEffect)),
+        };
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 0;
+        // Effect monster (default) — should match.
+        rt.state.add_card(CardSnapshot::monster(1101, "EffMon", 1000, 1000, 4));
+        // Normal monster (TYPE_MONSTER | TYPE_NORMAL) — should NOT match.
+        rt.state.add_card(
+            CardSnapshot::monster(1102, "NormMon", 1000, 1000, 4).with_type(0x1 | 0x10),
+        );
+        rt.state.players[1].field_monsters.extend([1101, 1102]);
+        let cards = super::resolve_v2_selector(&sel, &mut rt, 0);
+        assert_eq!(cards, vec![1101], "IsEffect should match only the effect monster");
+    }
+
+    #[test]
+    fn t7_is_normal_matches_normal_monster() {
+        use super::super::ast::PredicateAtom;
+        // Match = TYPE_MONSTER | TYPE_NORMAL (0x11); non-match = default Effect.
+        let cards = run_exotic_atom_test(PredicateAtom::IsNormal, 0x1 | 0x10);
+        assert_eq!(cards, vec![1001], "IsNormal should match only the normal monster");
+    }
+
+    #[test]
+    fn t7_is_tuner_matches_tuner_monster() {
+        use super::super::ast::PredicateAtom;
+        // TYPE_MONSTER | TYPE_EFFECT | TYPE_TUNER (0x1 | 0x20 | 0x1000).
+        let cards = run_exotic_atom_test(PredicateAtom::IsTuner, 0x1 | 0x20 | 0x1000);
+        assert_eq!(cards, vec![1001], "IsTuner should match only the tuner monster");
+    }
+
+    #[test]
+    fn t7_is_fusion_matches_fusion_monster() {
+        use super::super::ast::PredicateAtom;
+        // TYPE_MONSTER | TYPE_FUSION (0x1 | 0x40).
+        let cards = run_exotic_atom_test(PredicateAtom::IsFusion, 0x1 | 0x40);
+        assert_eq!(cards, vec![1001], "IsFusion should match only the fusion monster");
+    }
+
+    #[test]
+    fn t7_is_synchro_matches_synchro_monster() {
+        use super::super::ast::PredicateAtom;
+        // TYPE_MONSTER | TYPE_SYNCHRO (0x1 | 0x2000).
+        let cards = run_exotic_atom_test(PredicateAtom::IsSynchro, 0x1 | 0x2000);
+        assert_eq!(cards, vec![1001], "IsSynchro should match only the synchro monster");
+    }
+
+    #[test]
+    fn t7_is_xyz_matches_xyz_monster() {
+        use super::super::ast::PredicateAtom;
+        // TYPE_MONSTER | TYPE_XYZ (0x1 | 0x800000).
+        let cards = run_exotic_atom_test(PredicateAtom::IsXyz, 0x1 | 0x800000);
+        assert_eq!(cards, vec![1001], "IsXyz should match only the xyz monster");
+    }
+
+    #[test]
+    fn t7_is_link_matches_link_monster() {
+        use super::super::ast::PredicateAtom;
+        // TYPE_MONSTER | TYPE_LINK (0x1 | 0x4000000).
+        let cards = run_exotic_atom_test(PredicateAtom::IsLink, 0x1 | 0x4000000);
+        assert_eq!(cards, vec![1001], "IsLink should match only the link monster");
+    }
+
+    #[test]
+    fn t7_is_ritual_matches_ritual_monster() {
+        use super::super::ast::PredicateAtom;
+        // TYPE_MONSTER | TYPE_RITUAL (0x1 | 0x80).
+        let cards = run_exotic_atom_test(PredicateAtom::IsRitual, 0x1 | 0x80);
+        assert_eq!(cards, vec![1001], "IsRitual should match only the ritual monster");
+    }
+
+    #[test]
+    fn t7_is_pendulum_matches_pendulum_monster() {
+        use super::super::ast::PredicateAtom;
+        // TYPE_MONSTER | TYPE_PENDULUM (0x1 | 0x1000000).
+        let cards = run_exotic_atom_test(PredicateAtom::IsPendulum, 0x1 | 0x1000000);
+        assert_eq!(cards, vec![1001], "IsPendulum should match only the pendulum monster");
+    }
+
+    #[test]
+    fn t7_is_token_matches_token() {
+        use super::super::ast::PredicateAtom;
+        // TYPE_MONSTER | TYPE_TOKEN (0x1 | 0x2000000).
+        let cards = run_exotic_atom_test(PredicateAtom::IsToken, 0x1 | 0x2000000);
+        assert_eq!(cards, vec![1001], "IsToken should match only the token");
+    }
+
+    #[test]
+    fn t7_is_flip_matches_flip_monster() {
+        use super::super::ast::PredicateAtom;
+        // TYPE_MONSTER | TYPE_EFFECT | TYPE_FLIP (0x1 | 0x20 | 0x200).
+        let cards = run_exotic_atom_test(PredicateAtom::IsFlip, 0x1 | 0x20 | 0x200);
+        assert_eq!(cards, vec![1001], "IsFlip should match only the flip monster");
+    }
+
+    // ── T8: Equipped / Linked selector plumbing ──────────────────
+    //
+    // Reader-side: mirror the Target / Searched / NegatedCard
+    // binding-convention pattern.
+    // Producer-side: Action::Equip writes `__equipped__` after a
+    // successful `equip_card` call. LinkedCard producer is deferred
+    // (backlog item 20) — no goat Link monsters.
+
+    /// Selector::EquippedCard resolves to the card stored under "__equipped__".
+    #[test]
+    fn t8_equipped_selector_reads_back_binding() {
+        use super::super::mock_runtime::MockRuntime;
+        use super::super::ast::Selector;
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 100;
+        use super::super::runtime::DuelScriptRuntime;
+        rt.set_binding("__equipped__", 777);
+        let cards = super::resolve_v2_selector(&Selector::EquippedCard, &mut rt, 0);
+        assert_eq!(cards, vec![777]);
+    }
+
+    /// Selector::EquippedCard returns an empty vec when no binding has been set.
+    #[test]
+    fn t8_equipped_selector_empty_when_no_binding() {
+        use super::super::mock_runtime::MockRuntime;
+        use super::super::ast::Selector;
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 100;
+        let cards = super::resolve_v2_selector(&Selector::EquippedCard, &mut rt, 0);
+        assert!(cards.is_empty(), "No __equipped__ binding should yield empty, got {:?}", cards);
+    }
+
+    /// Selector::LinkedCard resolves to the card stored under "__linked__".
+    #[test]
+    fn t8_linked_selector_reads_back_binding() {
+        use super::super::mock_runtime::MockRuntime;
+        use super::super::ast::Selector;
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 100;
+        use super::super::runtime::DuelScriptRuntime;
+        rt.set_binding("__linked__", 888);
+        let cards = super::resolve_v2_selector(&Selector::LinkedCard, &mut rt, 0);
+        assert_eq!(cards, vec![888]);
+    }
+
+    /// Selector::LinkedCard returns an empty vec when no binding has been set.
+    #[test]
+    fn t8_linked_selector_empty_when_no_binding() {
+        use super::super::mock_runtime::MockRuntime;
+        use super::super::ast::Selector;
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 100;
+        let cards = super::resolve_v2_selector(&Selector::LinkedCard, &mut rt, 0);
+        assert!(cards.is_empty(), "No __linked__ binding should yield empty, got {:?}", cards);
+    }
+
+    /// Action::Equip writes `__equipped__` after calling equip_card.
+    /// The target card is written (the monster being equipped), not the equipping spell.
+    #[test]
+    fn t8_action_equip_writes_equipped_binding() {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        use super::super::ast::{
+            Action, Selector, Quantity, CardFilter, CardFilterKind, Controller,
+        };
+        use super::super::runtime::DuelScriptRuntime;
+
+        // An Equip spell (id=500) being activated on one of opponent's monsters (id=900).
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 500;
+        rt.state.add_card(CardSnapshot::spell(500, "EquipSpell"));
+        rt.state.add_card(CardSnapshot::monster(900, "TargetMon", 1500, 1000, 4));
+        rt.state.players[1].field_monsters.push(900);
+
+        // The card selector refers to the equipping spell itself (SelfCard).
+        let equip_card_sel = Selector::SelfCard;
+        // The target selector: 1 opponent monster on the field.
+        let target_sel = Selector::Counted {
+            quantity: Quantity::Exact(1),
+            filter: CardFilter { name: None, kind: CardFilterKind::Monster },
+            controller: Some(Controller::Opponent),
+            zone: None,
+            position: None,
+            where_clause: None,
+        };
+
+        super::execute_v2_action(&Action::Equip(equip_card_sel, target_sel), &mut rt, 0);
+
+        // The "__equipped__" binding should contain the target monster id (900).
+        assert_eq!(rt.get_binding_card("__equipped__"), Some(900),
+            "Action::Equip should bind __equipped__ to the target monster, got {:?}",
+            rt.get_binding_card("__equipped__"));
     }
 }

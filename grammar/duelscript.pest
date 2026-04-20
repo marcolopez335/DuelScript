@@ -163,6 +163,7 @@ effect_item = {
     speed_decl
   | frequency_decl
   | mandatory_decl
+  | simultaneous_decl
   | trigger_decl
   | who_decl
   | condition_decl
@@ -182,6 +183,10 @@ frequency_decl = {
   | "twice_per_turn"
 }
 mandatory_decl    = { "mandatory" }
+// SEGOC flag: declares that this trigger participates in Simultaneous Effects
+// Go On Chain collection when multiple triggers meet their condition at the
+// same timing. Equivalent to Lua's EFFECT_FLAG2_CHECK_SIMULTANEOUS.
+simultaneous_decl = { "simultaneous" }
 timing_decl       = { "timing" ~ ":" ~ ("when" | "if") }
 who_decl          = { "who" ~ ":" ~ player_who }
 activate_from_decl = { "activate_from" ~ ":" ~ "[" ~ zone ~ ("," ~ zone)* ~ "]" }

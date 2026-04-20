@@ -608,6 +608,7 @@ mod tests {
                     speed: Some(2), // wrong — should be 3
                     frequency: None,
                     mandatory: false,
+                    simultaneous: false,
                     timing: None,
                     trigger: None,
                     who: None,
@@ -676,6 +677,7 @@ mod tests {
                     speed: Some(1),
                     frequency: None,
                     mandatory: false,
+                    simultaneous: false,
                     timing: None,
                     trigger: None,
                     who: None,
