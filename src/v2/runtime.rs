@@ -316,6 +316,45 @@ pub trait DuelScriptRuntime {
     /// Default returns `0`; real engines override.
     fn current_reason(&self) -> u32 { 0 }
 
+    /// Previous-event zone snapshot for `card_id` — where was this card
+    /// immediately before the current event moved it? Maps to Lua's
+    /// `IsPreviousLocation(LOCATION_*)`.
+    ///
+    /// Used by the DSL `previous_location == <zone>` condition. Canonical
+    /// use: "if this card was on the field before being sent to GY,
+    /// then ..." — distinguishes *where it came from* from *where it
+    /// is now*, which is what `on_field` / `in_gy` etc. already answer.
+    ///
+    /// # Returns
+    /// EDOPro LOCATION_* bitmask for the previous zone. Returns `0`
+    /// when no history is tracked for that card (default) — the DSL
+    /// `==` operator correctly rejects that case because `0 & mask == 0`.
+    ///
+    /// Default returns `0`; real engines override using their
+    /// CardState history snapshot.
+    fn previous_location(&self, _card_id: u32) -> u32 { 0 }
+
+    /// Previous-event controller of `card_id` (player 0 or 1). Maps to
+    /// Lua's `IsPreviousControler`. Used by the DSL
+    /// `previous_controller == <player>` condition — canonical for
+    /// "detect control swaps" patterns (Creature Swap cascade,
+    /// Snatch Steal cleanup, Change of Heart follow-ups).
+    ///
+    /// # Returns
+    /// `0` or `1`. Returns `0` when no history is tracked. Default `0`.
+    fn previous_controller(&self, _card_id: u32) -> u8 { 0 }
+
+    /// Previous-event position of `card_id`. Maps to Lua's
+    /// `IsPreviousPosition`. Used by the DSL
+    /// `previous_position == <position>` condition — canonical for
+    /// flip effects distinguishing "was face-down before this flip"
+    /// from "was already face-up".
+    ///
+    /// # Returns
+    /// EDOPro POS_* bitmask (`POS_FACEUP_ATTACK`, `POS_FACEDOWN_DEFENSE`,
+    /// etc.). Returns `0` when no history is tracked. Default `0`.
+    fn previous_position(&self, _card_id: u32) -> u32 { 0 }
+
     // ── Card Movement / Actions ──────────────────────────────
 
     /// Draw `count` cards from the top of `player`'s deck into their hand.
@@ -687,25 +726,10 @@ pub trait DuelScriptRuntime {
     fn has_flag(&self, _card_id: u32, _name: &str) -> bool { false }
 
     // ── Phase 1B: History queries ────────────────────────────
-
-    /// Location bitmask where `card_id` was before its most recent move.
-    ///
-    /// # Returns
-    /// EDOPro location bitmask; `0` if unknown or not yet moved.
-    ///
-    /// # Default
-    /// Returns `0`.
-    fn previous_location(&self, _card_id: u32) -> u32 { 0 }
-
-    /// Position (face-up/face-down/attack/defense) of `card_id` before its
-    /// most recent position change.
-    ///
-    /// # Returns
-    /// EDOPro position constant; `0` if unknown.
-    ///
-    /// # Default
-    /// Returns `0`.
-    fn previous_position(&self, _card_id: u32) -> u32 { 0 }
+    // (The T28 `previous_location` / `previous_controller` /
+    // `previous_position` methods were moved up alongside
+    // `event_player` / `current_reason` earlier in this trait so that
+    // all the per-event context queries sit together.)
 
     /// Reason bitmask describing why `card_id` was sent to the Graveyard (or other zone).
     ///

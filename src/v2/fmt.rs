@@ -1016,7 +1016,32 @@ fn format_condition_atom(atom: &ConditionAtom) -> String {
                 format!("reason {} [{}]", op_s, fs.join(", "))
             }
         }
+        ConditionAtom::PreviousLocationIs(op, zone) => {
+            format!("previous_location {} {}", format_eq_op(op), format_zone(zone))
+        }
+        ConditionAtom::PreviousControllerIs(op, who) => {
+            let who_s = match who {
+                PrevControllerRef::You => "you",
+                PrevControllerRef::Opponent => "opponent",
+                PrevControllerRef::Controller => "controller",
+                PrevControllerRef::Owner => "owner",
+            };
+            format!("previous_controller {} {}", format_eq_op(op), who_s)
+        }
+        ConditionAtom::PreviousPositionIs(op, pos) => {
+            let pos_s = match pos {
+                PrevPositionValue::FaceUp => "face_up",
+                PrevPositionValue::FaceDown => "face_down",
+                PrevPositionValue::AttackPosition => "attack_position",
+                PrevPositionValue::DefensePosition => "defense_position",
+            };
+            format!("previous_position {} {}", format_eq_op(op), pos_s)
+        }
     }
+}
+
+fn format_eq_op(op: &EqOp) -> &'static str {
+    match op { EqOp::Eq => "==", EqOp::Neq => "!=" }
 }
 
 fn format_reason_filter(f: &ReasonFilter) -> &'static str {

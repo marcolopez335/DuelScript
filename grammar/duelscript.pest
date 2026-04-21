@@ -287,6 +287,18 @@ condition_atom = {
   | "has_counter" ~ string ~ (compare_op ~ expr)? ~ "on" ~ ("self" | selector)
   | "has_flag" ~ string
   | "reason" ~ reason_op ~ (reason_filter | reason_filter_list)
+  | "previous_location"   ~ prev_eq_op ~ zone
+  | "previous_controller" ~ prev_eq_op ~ prev_controller_value
+  | "previous_position"   ~ prev_eq_op ~ prev_position_value
+}
+
+prev_eq_op = { "==" | "!=" }
+prev_controller_value = { "you" | "opponent" | "controller" | "owner" }
+prev_position_value = {
+    "face_up"
+  | "face_down"
+  | "attack_position"
+  | "defense_position"
 }
 
 reason_op = { "includes" | "==" | "!=" }

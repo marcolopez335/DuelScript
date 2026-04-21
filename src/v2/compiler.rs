@@ -1500,6 +1500,65 @@ fn eval_v2_condition_atom(atom: &ConditionAtom, rt: &dyn DuelScriptRuntime) -> b
                 ReasonOp::Neq      => reason & mask == 0,
             }
         }
+        ConditionAtom::PreviousLocationIs(op, zone) => {
+            let prev = rt.previous_location(rt.effect_card_id());
+            let mask = zone_to_location_mask(zone);
+            match op {
+                EqOp::Eq  => prev & mask != 0,
+                EqOp::Neq => prev & mask == 0,
+            }
+        }
+        ConditionAtom::PreviousControllerIs(op, who) => {
+            let prev = rt.previous_controller(rt.effect_card_id());
+            let us = rt.effect_player();
+            let target = match who {
+                PrevControllerRef::You        => us,
+                PrevControllerRef::Controller => us,
+                PrevControllerRef::Opponent   => 1 - us,
+                PrevControllerRef::Owner      => us, // mock-equivalent; engines distinguish
+            };
+            match op {
+                EqOp::Eq  => prev == target,
+                EqOp::Neq => prev != target,
+            }
+        }
+        ConditionAtom::PreviousPositionIs(op, pos) => {
+            let prev = rt.previous_position(rt.effect_card_id());
+            let mask = match pos {
+                PrevPositionValue::FaceUp           => tm::POS_FACEUP,
+                PrevPositionValue::FaceDown         => tm::POS_FACEDOWN,
+                PrevPositionValue::AttackPosition   => tm::POS_ATTACK,
+                PrevPositionValue::DefensePosition  => tm::POS_DEFENSE,
+            };
+            match op {
+                EqOp::Eq  => prev & mask != 0,
+                EqOp::Neq => prev & mask == 0,
+            }
+        }
+    }
+}
+
+fn zone_to_location_mask(zone: &Zone) -> u32 {
+    match zone {
+        Zone::Hand              => tm::LOCATION_HAND,
+        Zone::Deck              => tm::LOCATION_DECK,
+        Zone::Gy                => tm::LOCATION_GRAVE,
+        Zone::Banished          => tm::LOCATION_REMOVED,
+        Zone::Field             => tm::LOCATION_ONFIELD,
+        Zone::ExtraDeck
+        | Zone::ExtraDeckFaceUp => tm::LOCATION_EXTRA,
+        Zone::MonsterZone       => tm::LOCATION_MZONE,
+        Zone::SpellTrapZone     => tm::LOCATION_SZONE,
+        Zone::FieldZone         => tm::LOCATION_FZONE,
+        Zone::PendulumZone      => tm::LOCATION_PZONE,
+        Zone::ExtraMonsterZone  => tm::LOCATION_MZONE,
+        // Overlay / Equipped / TopOfDeck / BottomOfDeck are not direct
+        // location bits — collapse to 0 so the predicate rejects
+        // rather than matching accidentally.
+        Zone::Overlay
+        | Zone::Equipped
+        | Zone::TopOfDeck
+        | Zone::BottomOfDeck    => 0,
     }
 }
 
@@ -4671,6 +4730,181 @@ card "T27 Test" {{
             .current_reason(tm::REASON_COST)
             .build();
         assert!(!cond(&rt), "battle_or_effect must miss pure COST");
+    }
+
+    // ── T28: previous_* predicates (W-II) ──────────────────────
+
+    /// Helper: compile a card with a `condition: <prev_expr>` on its
+    /// lone effect; return the condition closure.
+    fn compile_prev_condition(
+        prev_expr: &str,
+    ) -> Arc<dyn Fn(&dyn DuelScriptRuntime) -> bool + Send + Sync> {
+        let src = format!(r#"
+card "T28 Test" {{
+    id: 99998201
+    type: Effect Monster
+    attribute: DARK
+    race: Zombie
+    level: 1
+    atk: 0
+    def: 0
+    effect "R" {{
+        speed: 1
+        condition: {prev_expr}
+        trigger: sent_to gy
+        resolve {{
+            draw 1
+        }}
+    }}
+}}
+"#);
+        let file = parse_v2(&src).expect("parse");
+        let compiled = compile_card_v2(&file.cards[0]);
+        compiled.effects.into_iter().next().unwrap().condition.expect("cond")
+    }
+
+    #[test]
+    fn t28_previous_location_matches_snapshot_bitmask() {
+        let cond = compile_prev_condition("previous_location == field");
+
+        // Card was previously on the field (MZONE) → match.
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .activated_by(0, 99998201)
+            .previous_location(99998201, tm::LOCATION_MZONE)
+            .build();
+        assert!(cond(&rt), "previous_location == field should match LOCATION_MZONE");
+
+        // Card was previously in hand → miss.
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .activated_by(0, 99998201)
+            .previous_location(99998201, tm::LOCATION_HAND)
+            .build();
+        assert!(!cond(&rt), "previous_location == field should miss LOCATION_HAND");
+
+        // No history snapshot → miss (0 & mask == 0).
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .activated_by(0, 99998201)
+            .build();
+        assert!(!cond(&rt), "previous_location == field should miss when no history");
+    }
+
+    #[test]
+    fn t28_previous_location_neq_rejects_matching_passes_other() {
+        let cond = compile_prev_condition("previous_location != hand");
+
+        // Card was in hand → miss (the negation).
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .activated_by(0, 99998201)
+            .previous_location(99998201, tm::LOCATION_HAND)
+            .build();
+        assert!(!cond(&rt));
+
+        // Card was on field → match (not hand).
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .activated_by(0, 99998201)
+            .previous_location(99998201, tm::LOCATION_MZONE)
+            .build();
+        assert!(cond(&rt));
+    }
+
+    #[test]
+    fn t28_previous_controller_compares_against_effect_player() {
+        let cond_you = compile_prev_condition("previous_controller == you");
+        let cond_opp = compile_prev_condition("previous_controller == opponent");
+
+        // Effect player = 0, prev controller = 0 → `== you` matches, `== opponent` misses.
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .activated_by(0, 99998201)
+            .previous_controller(99998201, 0)
+            .build();
+        assert!(cond_you(&rt),  "prev_controller == you: eff_p=0, prev=0 → match");
+        assert!(!cond_opp(&rt), "prev_controller == opponent: eff_p=0, prev=0 → miss");
+
+        // Swap: prev controller was opponent (1). eff_p=0.
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .activated_by(0, 99998201)
+            .previous_controller(99998201, 1)
+            .build();
+        assert!(!cond_you(&rt));
+        assert!(cond_opp(&rt));
+    }
+
+    #[test]
+    fn t28_previous_position_face_up_matches_either_attack_or_defense() {
+        // `face_up` is a compound: POS_FACEUP_ATTACK | POS_FACEUP_DEFENSE.
+        let cond = compile_prev_condition("previous_position == face_up");
+
+        for pos in [tm::POS_FACEUP_ATTACK, tm::POS_FACEUP_DEFENSE] {
+            let rt = crate::v2::mock_runtime::DuelScenario::new()
+                .activated_by(0, 99998201)
+                .previous_position(99998201, pos)
+                .build();
+            assert!(cond(&rt), "face_up should match POS=0x{pos:x}");
+        }
+        for pos in [tm::POS_FACEDOWN_ATTACK, tm::POS_FACEDOWN_DEFENSE] {
+            let rt = crate::v2::mock_runtime::DuelScenario::new()
+                .activated_by(0, 99998201)
+                .previous_position(99998201, pos)
+                .build();
+            assert!(!cond(&rt), "face_up should miss POS=0x{pos:x}");
+        }
+    }
+
+    #[test]
+    fn t28_previous_position_attack_vs_defense_discriminate() {
+        let cond_atk = compile_prev_condition("previous_position == attack_position");
+        let cond_def = compile_prev_condition("previous_position == defense_position");
+
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .activated_by(0, 99998201)
+            .previous_position(99998201, tm::POS_FACEUP_ATTACK)
+            .build();
+        assert!(cond_atk(&rt), "attack_position matches POS_FACEUP_ATTACK");
+        assert!(!cond_def(&rt), "defense_position misses POS_FACEUP_ATTACK");
+
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .activated_by(0, 99998201)
+            .previous_position(99998201, tm::POS_FACEDOWN_DEFENSE)
+            .build();
+        assert!(!cond_atk(&rt), "attack_position misses POS_FACEDOWN_DEFENSE");
+        assert!(cond_def(&rt), "defense_position matches POS_FACEDOWN_DEFENSE");
+    }
+
+    #[test]
+    fn t28_previous_predicates_fmt_roundtrip() {
+        for expr in [
+            "previous_location == field",
+            "previous_location != hand",
+            "previous_controller == you",
+            "previous_controller != opponent",
+            "previous_position == face_up",
+            "previous_position != attack_position",
+        ] {
+            let src = format!(r#"
+card "T28 Fmt" {{
+    id: 99998202
+    type: Effect Monster
+    attribute: DARK
+    race: Zombie
+    level: 1
+    atk: 0
+    def: 0
+    effect "R" {{
+        speed: 1
+        condition: {expr}
+        trigger: sent_to gy
+        resolve {{ draw 1 }}
+    }}
+}}
+"#);
+            let file = parse_v2(&src)
+                .unwrap_or_else(|e| panic!("parse failed for `{expr}`: {e}"));
+            let printed = crate::v2::fmt::format_file(&file);
+            let reparsed = parse_v2(&printed)
+                .unwrap_or_else(|e| panic!("round-trip failed for `{expr}`: {e}\n{printed}"));
+            let reprinted = crate::v2::fmt::format_file(&reparsed);
+            assert_eq!(printed, reprinted, "fmt idempotence broken for `{expr}`");
+        }
     }
 
     #[test]

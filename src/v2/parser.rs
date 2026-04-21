@@ -1109,6 +1109,20 @@ fn parse_condition_atom(pair: Pair<Rule>) -> Result<ConditionAtom, V2ParseError>
         return Ok(ConditionAtom::HasFlag(flag));
     }
 
+    // previous_location / previous_controller / previous_position (== | !=)
+    if text.starts_with("previous_location") {
+        let (op, zone) = parse_prev_eq_zone(&inner)?;
+        return Ok(ConditionAtom::PreviousLocationIs(op, zone));
+    }
+    if text.starts_with("previous_controller") {
+        let (op, who) = parse_prev_eq_controller(&inner)?;
+        return Ok(ConditionAtom::PreviousControllerIs(op, who));
+    }
+    if text.starts_with("previous_position") {
+        let (op, pos) = parse_prev_eq_position(&inner)?;
+        return Ok(ConditionAtom::PreviousPositionIs(op, pos));
+    }
+
     // reason (== | != | includes) <filter(s)>
     if text.starts_with("reason") {
         let mut op: Option<ReasonOp> = None;
@@ -2272,6 +2286,80 @@ fn parse_phase_name(text: &str) -> Result<PhaseName, V2ParseError> {
         "damage_calculation" => Ok(PhaseName::DamageCalculation),
         _ => Err(V2ParseError::UnknownRule(format!("phase_name: {}", text))),
     }
+}
+
+fn parse_prev_eq_op(text: &str) -> Result<EqOp, V2ParseError> {
+    match text {
+        "==" => Ok(EqOp::Eq),
+        "!=" => Ok(EqOp::Neq),
+        _ => Err(V2ParseError::UnknownRule(format!("prev_eq_op: {}", text))),
+    }
+}
+
+fn parse_prev_eq_zone(inner: &[Pair<Rule>]) -> Result<(EqOp, Zone), V2ParseError> {
+    let mut op: Option<EqOp> = None;
+    let mut zone: Option<Zone> = None;
+    for p in inner {
+        match p.as_rule() {
+            Rule::prev_eq_op => op = Some(parse_prev_eq_op(p.as_str().trim())?),
+            Rule::zone       => zone = Some(parse_zone(p.as_str().trim())?),
+            _ => {}
+        }
+    }
+    Ok((
+        op.ok_or_else(|| V2ParseError::UnknownRule("previous_location: missing op".into()))?,
+        zone.ok_or_else(|| V2ParseError::UnknownRule("previous_location: missing zone".into()))?,
+    ))
+}
+
+fn parse_prev_eq_controller(
+    inner: &[Pair<Rule>],
+) -> Result<(EqOp, PrevControllerRef), V2ParseError> {
+    let mut op: Option<EqOp> = None;
+    let mut who: Option<PrevControllerRef> = None;
+    for p in inner {
+        match p.as_rule() {
+            Rule::prev_eq_op => op = Some(parse_prev_eq_op(p.as_str().trim())?),
+            Rule::prev_controller_value => who = Some(match p.as_str().trim() {
+                "you"        => PrevControllerRef::You,
+                "opponent"   => PrevControllerRef::Opponent,
+                "controller" => PrevControllerRef::Controller,
+                "owner"      => PrevControllerRef::Owner,
+                other => return Err(V2ParseError::UnknownRule(
+                    format!("prev_controller_value: {}", other))),
+            }),
+            _ => {}
+        }
+    }
+    Ok((
+        op.ok_or_else(|| V2ParseError::UnknownRule("previous_controller: missing op".into()))?,
+        who.ok_or_else(|| V2ParseError::UnknownRule("previous_controller: missing value".into()))?,
+    ))
+}
+
+fn parse_prev_eq_position(
+    inner: &[Pair<Rule>],
+) -> Result<(EqOp, PrevPositionValue), V2ParseError> {
+    let mut op: Option<EqOp> = None;
+    let mut pos: Option<PrevPositionValue> = None;
+    for p in inner {
+        match p.as_rule() {
+            Rule::prev_eq_op => op = Some(parse_prev_eq_op(p.as_str().trim())?),
+            Rule::prev_position_value => pos = Some(match p.as_str().trim() {
+                "face_up"           => PrevPositionValue::FaceUp,
+                "face_down"         => PrevPositionValue::FaceDown,
+                "attack_position"   => PrevPositionValue::AttackPosition,
+                "defense_position"  => PrevPositionValue::DefensePosition,
+                other => return Err(V2ParseError::UnknownRule(
+                    format!("prev_position_value: {}", other))),
+            }),
+            _ => {}
+        }
+    }
+    Ok((
+        op.ok_or_else(|| V2ParseError::UnknownRule("previous_position: missing op".into()))?,
+        pos.ok_or_else(|| V2ParseError::UnknownRule("previous_position: missing value".into()))?,
+    ))
 }
 
 fn parse_reason_filter(text: &str) -> Result<ReasonFilter, V2ParseError> {
