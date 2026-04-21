@@ -3115,24 +3115,6 @@ card "Conditional Replacement" {
         // The grammar requires at least one action in `do { }`, so we construct
         // the AST directly rather than parsing source.
         use crate::v2::ast::{Replacement, ReplaceableEvent};
-        let card_src = r#"
-card "Empty Replacement Card" {
-    id: 30005
-    type: Effect Monster
-    attribute: EARTH
-    race: Rock
-    level: 1
-    atk: 100
-    def: 100
-    replacement "No-op" {
-        instead_of: destroyed
-        do {
-            banish self
-        }
-    }
-}
-"#;
-        // Build a Replacement struct with empty actions directly and call compile_replacement.
         let dummy_card_src = r#"
 card "Empty Replacement Card" {
     id: 30005
