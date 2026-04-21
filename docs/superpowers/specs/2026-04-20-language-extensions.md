@@ -393,13 +393,370 @@ Expected aggregate state:
 - Trait-seam FF-I crossed: intentional for T27 + T28; T26 is
   additive-only (grammar widen, no trait change).
 
-Follow-up phases (not specced here, but natural next moves):
-- **T29 candidate**: `EVENT_CHAIN_SOLVED` + `EVENT_CHAIN_SOLVING`
-  triggers (chain-end delayed effects). 296 call sites.
-- **T30 candidate**: `EVENT_BE_MATERIAL` trigger ("used as Xyz/Synchro
-  material"). 240 call sites.
-- **T31 candidate**: `EFFECT_LEAVE_FIELD_REDIRECT` — the existing H3
-  gap (`EFFECT_TO_GRAVE_REDIRECT` and related). 274 call sites.
-- **Migration M-phase** (after T26+T27+T28 land): re-run semantic
-  migrator using the new grammar to fill empty effect bodies in the
-  official corpus.
+The T29 / T30 / T31 pre-specs below continue the language-extension
+sequence, each scoped narrowly enough to land in a single phase.
+
+---
+
+## Y-II (2026-04-20, T29 pre-spec) — chain-end triggers: `chain_solved`, `chain_solving`
+
+**Rule ID:** Y-II. Compact.
+
+**Purpose:** 296 Lua call sites use `EVENT_CHAIN_SOLVED` (155) or
+`EVENT_CHAIN_SOLVING` (141). These are the triggers that fire "when
+a chain ends" and "while a chain is resolving" respectively —
+essential for delayed effects like *Battle Fader* (return-to-hand
+after damage step), *Infinite Impermanence* (cleanup on chain end),
+*Fire Formation - Tenki* (stat re-check after chain resolves), and
+*Artifact* cards (return-to-hand cleanup).
+
+DSL currently has `trigger: end_phase` and event-specific triggers
+but no general "chain ended" or "chain is mid-resolve" primitive.
+
+**Grep verification (plan-time):**
+
+- `grep -c "EVENT_CHAIN_SOLVED" CardScripts/official/*.lua` → **155**
+- `grep -c "EVENT_CHAIN_SOLVING" CardScripts/official/*.lua` → **141**
+- Current trigger alternation at grammar/duelscript.pest lines
+  230–234 (Chain triggers section) — add two new tokens.
+- No existing DSL equivalent — both triggers are net-new.
+
+**Design (locked):**
+
+1. **Grammar** (`grammar/duelscript.pest`, in the `trigger` rule):
+   ```
+   // Chain triggers
+   | "chain_solved"
+   | "chain_solving"
+   ```
+2. **AST** (`src/v2/ast.rs`): two new `Trigger` variants:
+   `ChainSolved`, `ChainSolving`.
+3. **Parser** (`src/v2/parser.rs`): two new match arms in the
+   bare-trigger keyword matcher.
+4. **Compiler** (`src/v2/compiler.rs`):
+   - `Trigger::ChainSolved`  → `tm::EVENT_CHAIN_SOLVED`
+   - `Trigger::ChainSolving` → `tm::EVENT_CHAIN_SOLVING`
+   - Confirm both constants exist in `src/v2/constants.rs`; add if
+     missing (they're standard EDOPro event codes 1121 / 1122).
+5. **Runtime trait**: **no new method.** These are pure trigger
+   codes; the existing `event_categories` / `event_player` / etc.
+   already cover the data the condition closure needs.
+6. **fmt** (`src/v2/fmt.rs`): two new match arms.
+7. **Validator**: no new rules — same speed/timing rules as other
+   chain triggers.
+8. **Tests** — 3 inline tests:
+   - `t29_chain_solved_parses_and_compiles_to_correct_event`
+   - `t29_chain_solving_parses_and_compiles_to_correct_event`
+   - `t29_fmt_roundtrip_both`
+
+**Migration surface:**
+- duelscript only. No trait widen. No adapter changes.
+- ygobeetle: the engine already fires these events via the chain
+  infrastructure; the adapter simply routes them (no code changes
+  needed if the engine already wires EVENT_CHAIN_SOLVED/SOLVING
+  through the same channel as other events — verify at close).
+
+**Expected deltas:**
+- duelscript lib: **+3 tests**.
+- Trait method count: **unchanged**.
+- FF-I: **not crossed** (additive grammar only).
+- Corpus: unchanged by T29 alone; payoff comes when a follow-up
+  migration pass uses the new triggers. Estimated ~100–200 cards
+  could get semantic bodies once a pattern-based pass combines
+  these with T26's chain-activation primitives.
+
+**Scope discipline:**
+- **No** chain-link-count condition (that's a separate extension).
+- **No** new event_player routing — reuse what T26 added.
+- **No** adapter method additions.
+
+**Risks & alternatives considered:**
+- *Alt A (rejected):* fold both into a single `chain_end` trigger
+  with an optional qualifier. Rejected: `EVENT_CHAIN_SOLVED` and
+  `EVENT_CHAIN_SOLVING` are semantically distinct (solved = after
+  resolution, solving = mid-resolution), and the Lua corpus uses
+  both separately. Keeping them separate mirrors the engine.
+- *Alt B (rejected):* a single `chain_ended` with a phase discriminator.
+  Rejected for the same semantic-distinctness reason.
+
+**Dispatch path:** admin → backend-dev (duelscript grammar + ast +
+compiler + tests). No integrator hop. Close with **Z-II**.
+
+**Letter sequencing:** **Y-II** (plan) + **Z-II** (close).
+
+---
+
+## AA-II (2026-04-20, T30 pre-spec) — `used_as_material` trigger refinement
+
+**Rule ID:** AA-II. Compact. Starts the double-letter cycle of the
+`-II` series (Z-II is T29's close).
+
+**Purpose:** 240 Lua call sites use `EVENT_BE_MATERIAL` — the
+"when this card is used as Xyz/Synchro/Link/Fusion/Ritual material"
+trigger. Covers *Instant Fusion* fusion-material-side-effects,
+*Tuner Warrior* synchro-material cascades, *Xyz Material* GY
+cascades (Evilswarm Nightmare, Number 101: Silent Honor ARK), and
+most "if this card was used as material" archetypal mechanics.
+
+DSL has `trigger: used_as_material ("for" summon_method)?` at
+grammar line 242 — **partial coverage.** The gap:
+
+1. The existing trigger fires regardless of how the card was used
+   (no distinction between "used as Xyz material" vs "used as
+   Synchro material" even though Lua distinguishes them).
+2. No data passthrough on *which* summoned card consumed this one
+   (needed for cascades like "if I was material for X, add X to
+   hand").
+3. No filter by *material role* (Xyz-attached vs tributed vs fused).
+
+**Grep verification (plan-time):**
+
+- `grep -c "EVENT_BE_MATERIAL" CardScripts/official/*.lua` → **240**
+- `grep -n "used_as_material" grammar/duelscript.pest` → line **242**
+- Existing AST variant: `Trigger::UsedAsMaterial(Option<SummonMethod>)`.
+
+**Design (locked):**
+
+1. **Grammar** — widen the existing `used_as_material` trigger to
+   optionally accept a `role` qualifier and a `by` selector for the
+   summoned-card binding:
+   ```
+   | "used_as_material" ~ ("as" ~ material_role)?
+                       ~ ("for" ~ summon_method)?
+                       ~ ("by" ~ "as" ~ ident)?
+   material_role = { "xyz_attached" | "tributed" | "fused"
+                   | "synchro" | "link" | "ritual" }
+   ```
+2. **AST** — upgrade variant to struct form:
+   ```rust
+   Trigger::UsedAsMaterial {
+       role: Option<MaterialRole>,
+       method: Option<SummonMethod>,
+       summoned_by_binding: Option<String>,  // e.g. "as summoner"
+   }
+   ```
+3. **Parser**: widen existing `starts_with("used_as_material")`
+   branch to parse all three optional clauses.
+4. **Compiler**:
+   - All variants map to `tm::EVENT_BE_MATERIAL` (existing).
+   - Role filter in the condition closure via a new runtime method
+     (see #5).
+   - Binding write: when the trigger fires, the compiler emits a
+     binding write `rt.set_binding("<name>", material_summoner_id)`
+     so `resolve { ... target }` can reference the summoning card.
+5. **Runtime trait**: **two new methods** (FF-I crossed
+   intentionally):
+   - `fn material_role(&self) -> u32 { 0 }` — returns a bitmask for
+     the role (Xyz-attached / tributed / fused / …).
+   - `fn material_summoner_id(&self) -> u32 { 0 }` — the card that
+     was summoned using this material.
+   Both default to 0 so engines that haven't wired material metadata
+   don't crash.
+6. **MockRuntime**: two new fields + builder methods.
+7. **fmt**: updated formatter.
+8. **Tests** — 4 inline tests covering role filter, method filter,
+   binding passthrough, and format round-trip.
+
+**Migration surface:**
+- duelscript: grammar, ast, parser, compiler, runtime trait (+2),
+  mock_runtime, fmt, 4 tests.
+- ygobeetle: **2 new adapter methods** — both straight reads from
+  the engine's existing `EventMaterial` payload on `EVENT_BE_MATERIAL`.
+- duelfield: none.
+
+**Expected deltas:**
+- duelscript lib: **+4 tests**.
+- Trait method count: **+2** (FF-I crossed).
+- Corpus: unchanged by T30 alone; enables ~100–150 cards once a
+  migration pass uses the role filter.
+
+**Scope discipline:**
+- **No** per-material-type cascades for equip-swap-style patterns
+  (those are a separate concern — the current binding passthrough
+  only covers "who summoned me").
+- **No** counter-based material tracking (e.g., "this card gets a
+  counter each time it's been used as material") — that's a
+  continuous-effect concern, not a trigger concern.
+
+**Risks & alternatives considered:**
+- *Alt A (rejected):* three separate triggers —
+  `used_as_xyz_material`, `used_as_tribute`, `used_as_fusion_material`.
+  Rejected: O(n) trigger explosion; the role discriminator is
+  cleaner.
+- *Alt B (rejected):* move the binding into `resolve` via an
+  implicit `material_summoner` expression. Rejected: surprises
+  authors who expect bindings to be explicit.
+
+**Dispatch path:** admin → backend-dev (duelscript grammar + ast +
+compiler + mock + fmt + tests) || integrator (ygobeetle adapter: 2
+methods). Close with **BB-II**.
+
+**Letter sequencing:** **AA-II** (plan) + **BB-II** (close).
+
+---
+
+## CC-II (2026-04-20, T31 pre-spec) — leave-field redirects (H3 gap)
+
+**Rule ID:** CC-II. Compact. Closes EXPRESSIVENESS_GAPS.md gap
+**H3** (the third and last of the audited-at-v0.8 gaps).
+
+**Purpose:** 274 Lua call sites use `EFFECT_LEAVE_FIELD_REDIRECT`.
+This is the primitive behind *Macro Cosmos*, *Dimensional Fissure*,
+*D.D. Crow* targets, *Banisher of the Radiance*, *Skill Drain*-style
+redirect effects, and any card that says "instead of being sent to
+the Graveyard, banish it." Also covers destination redirects to
+hand (bounced instead of destroyed) and to deck (shuffled instead).
+
+DSL has `replacement { instead_of: destroyed; do { banish self } }`
+as a partial model — but only for *destruction* replacement, not
+general *destination redirection*, and only on the affected card
+itself (not as a global floodgate from a different card).
+
+**Grep verification (plan-time):**
+
+- `grep -c "EFFECT_LEAVE_FIELD_REDIRECT" CardScripts/official/*.lua`
+  → **274**
+- Existing replacement block grammar: grep for `replacement_block`
+  in `grammar/duelscript.pest` — extend to support redirects.
+
+**Design (locked):**
+
+1. **Grammar** — new passive-effect block:
+   ```
+   redirect_block = { "redirect" ~ "{"
+                     ~ redirect_scope
+                     ~ redirect_source
+                     ~ redirect_destination
+                     ~ redirect_filter?
+                  ~ "}" }
+   redirect_scope       = { "scope:" ~ ("self" | "field" | "opponent_field" | "both_fields") }
+   redirect_source      = { "from:" ~ zone }
+   redirect_destination = { "to:" ~ zone }
+   redirect_filter      = { "when:" ~ selector }
+   ```
+2. **AST**: new `Redirect` block type on `Card`, parallel to
+   `Replacement`. Fields: scope, source, destination, filter.
+3. **Parser**: parse the new block under `card_item` alternation.
+4. **Compiler**: emit as a passive continuous effect with
+   `EFFECT_LEAVE_FIELD_REDIRECT` effect code.
+5. **Runtime trait**: **one new method:**
+   ```rust
+   fn register_redirect(&mut self, source_card: u32,
+                        from_zone: u32, to_zone: u32,
+                        scope_mask: u32) { /* default no-op */ }
+   ```
+   Defaults to no-op so engines that don't support redirects skip
+   silently.
+6. **MockRuntime**: record redirects; expose via `dump_calls()` for
+   test verification.
+7. **fmt**: pretty-print the new block.
+8. **Validator**: check (a) `from` and `to` zones are distinct, (b)
+   scope matches the source (`scope: self` + `from: field` is
+   nonsensical if the card isn't on the field — warn).
+9. **Tests** — 5 inline tests:
+   - `t31_macro_cosmos_pattern_redirect_to_banished`
+   - `t31_field_scope_affects_both_players`
+   - `t31_self_scope_only_affects_own_card`
+   - `t31_bad_zone_combo_fails_validator`
+   - `t31_fmt_roundtrip`
+
+**Migration surface:**
+- duelscript: grammar, ast, parser, compiler, validator, mock,
+  fmt, 5 tests, TRAIT_REFERENCE.md.
+- ygobeetle: **1 new adapter method**. The engine already has
+  `ContinuousEffect::Redirect { source_zone, dest_zone, filter }`
+  via its continuous-effect manager (used for Macro Cosmos
+  internally — verify at plan time). Adapter wires
+  `register_redirect` to that machinery.
+- duelfield: none.
+
+**Expected deltas:**
+- duelscript lib: **+5 tests**.
+- Trait method count: **+1** (FF-I crossed).
+- Corpus: unchanged by T31 alone; enables ~50–100 cards in a
+  follow-up migration pass.
+
+**Scope discipline:**
+- **One destination per redirect block** — no "either GY or banished
+  depending on a filter" (that's a replacement block's job).
+- **No** redirect activation triggers (triggered-only redirects
+  use the existing replacement block). T31 is for *continuous*
+  floodgate-style redirects.
+- **No** conditional destinations beyond a simple `when:` selector.
+
+**Risks & alternatives considered:**
+- *Alt A (rejected):* model as an extension to the existing
+  `replacement` block. Rejected: replacement is event-triggered
+  (at the moment of an attempted move) and fires per-event;
+  redirect is continuous (active while the source card is on the
+  field). Conflating them loses the continuous semantics the engine
+  needs.
+- *Alt B (rejected):* use passive/grant system (`grant:
+  redirect_to banished`). Rejected: grant is self-scoped, but
+  Macro Cosmos redirects *all* cards' GY moves to banished —
+  needs field scope that the grant system doesn't model.
+
+**Dispatch path:** admin → backend-dev (duelscript grammar + ast +
+parser + compiler + mock + fmt + tests) || integrator (ygobeetle
+adapter: 1 method, route to existing ContinuousEffect manager).
+Close with **DD-II**.
+
+**Letter sequencing:** **CC-II** (plan) + **DD-II** (close).
+
+---
+
+## Aggregate projection after T26 + T27 + T28 + T29 + T30 + T31
+
+If all six phases land:
+
+- Lua-call-weighted coverage: **~85% → ~95%**.
+- Empty-effect validation errors: **5,387 → ~3,000** (after a
+  mini-migrator pass uses the new grammar to fill hand-trap /
+  reason / history / chain-end / material / redirect effect
+  bodies — the language extensions themselves don't translate
+  cards, they *enable* translation).
+- `DuelScriptRuntime` method count: **98 → 104** (+1 T27, +3 T28,
+  +2 T30, +1 T31; T26 and T29 don't add methods).
+- Trait-seam FF-I crossed in T27, T28, T30, T31. T26 and T29 are
+  additive-only.
+
+The ~5% long tail after these six phases is dominated by:
+
+- `Duel.BreakEffect` (1,889 calls) — continuous-effect chain break
+  patterns.
+- `EFFECT_FLAG_CANNOT_DISABLE` (3,143 calls) — a metadata-only flag;
+  requires a DSL effect-metadata mechanism.
+- `EFFECT_COUNT_CODE_OATH` (1,103 calls) — once-per-name-oath
+  semantics; currently partial via `once_per_turn: hard`.
+- `aux.GlobalCheck` + `EVENT_CUSTOM` (424 calls) — B3/C1 gaps
+  (shared state across card instances).
+
+These four represent the genuine end-of-roadmap — each is a deep
+design question, not an additive grammar tweak. Beyond that point,
+`raw_effect` Lua fallback is the pragmatic answer for the remaining
+<1% of cards with uniquely weird mechanics.
+
+---
+
+## Migration M-phase (follow-up to language extensions)
+
+After T26+T27+T28 (minimum) land, a migrator pass can re-run over
+the 13,298-card corpus using the richer grammar to fill empty effect
+bodies. Three migration-pass strategies, any or all of which can
+be used:
+
+1. **Pattern-based** — detect common Lua skeletons (recruit-on-destroy,
+   search-on-summon, destroy-on-tribute) and emit canonical DSL.
+2. **CDB-bitmask decode** — deterministically extract materials for
+   Xyz/Synchro/Fusion/Link/Ritual monsters and link arrows for Link
+   monsters from the BabelCdb `def` field (the data is already on
+   disk, just not extracted).
+3. **LLM-assisted** — for the long tail of one-off cards, feed the
+   Lua + card text + current .ds + language reference to an LLM
+   and accept the diff.
+
+Strategy #2 closes all 452 "Link monster must declare link_arrows"
+errors and a large chunk of the 2,106 "Extra deck monster should
+declare materials" warnings in a single deterministic pass without
+needing any language-extension prerequisites — it's the cheapest
+win and can land independently of the T-series.
