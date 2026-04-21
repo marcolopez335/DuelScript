@@ -209,7 +209,7 @@ pub enum Trigger {
     BattlePhase,
     SummonAttempt,
     SpellTrapActivated,
-    OpponentActivates(Vec<Category>),
+    Activates { subject: ActivatesSubject, categories: Vec<Category> },
     ChainLink,
     Targeted,
     PositionChanged,
@@ -239,7 +239,23 @@ pub enum Category {
     ActivateSpell, ActivateTrap, ActivateMonsterEffect,
     NormalSummon, FusionSummon, SynchroSummon,
     XyzSummon, LinkSummon, RitualSummon,
+    Discard, ReturnToDeck, Equip,
     AttackDeclared,
+}
+
+/// Subject filter for chain-activation triggers (`opponent_activates`,
+/// `you_activates`, `any_activates`). Compiler converts this into a
+/// runtime `event_player()` vs. `effect_player()` comparison.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ActivatesSubject {
+    /// The chain was activated by the opposing player.
+    /// Matches when `event_player != effect_player`.
+    Opponent,
+    /// The chain was activated by the controller of this card.
+    /// Matches when `event_player == effect_player`.
+    You,
+    /// Either player — no subject filter.
+    Any,
 }
 
 // ── Conditions ───────────────────────────────────────────────

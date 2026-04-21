@@ -1093,10 +1093,18 @@ fn format_trigger(trigger: &Trigger) -> String {
         Trigger::BattlePhase => "battle_phase".to_string(),
         Trigger::SummonAttempt => "summon_attempt".to_string(),
         Trigger::SpellTrapActivated => "spell_trap_activated".to_string(),
-        Trigger::OpponentActivates(cats) if cats.is_empty() => "opponent_activates".to_string(),
-        Trigger::OpponentActivates(cats) => {
-            let cat_strs: Vec<&str> = cats.iter().map(format_category).collect();
-            format!("opponent_activates [{}]", cat_strs.join(", "))
+        Trigger::Activates { subject, categories } => {
+            let keyword = match subject {
+                ActivatesSubject::Opponent => "opponent_activates",
+                ActivatesSubject::You      => "you_activates",
+                ActivatesSubject::Any      => "any_activates",
+            };
+            if categories.is_empty() {
+                keyword.to_string()
+            } else {
+                let cat_strs: Vec<&str> = categories.iter().map(format_category).collect();
+                format!("{} [{}]", keyword, cat_strs.join(", "))
+            }
         }
         Trigger::ChainLink => "chain_link".to_string(),
         Trigger::Targeted => "targeted".to_string(),
@@ -1414,6 +1422,9 @@ fn format_category(cat: &Category) -> &'static str {
         Category::XyzSummon => "xyz_summon",
         Category::LinkSummon => "link_summon",
         Category::RitualSummon => "ritual_summon",
+        Category::Discard => "discard",
+        Category::ReturnToDeck => "return_to_deck",
+        Category::Equip => "equip",
         Category::AttackDeclared => "attack_declared",
     }
 }

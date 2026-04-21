@@ -182,7 +182,7 @@ fn hover_help(word: &str) -> Option<String> {
         "speed" => Some("**speed** — Spell speed.\n\n- `1` — Ignition/Trigger (Normal Spells)\n- `2` — Quick (Traps, Quick-Play)\n- `3` — Counter Traps only".into()),
         "mandatory" => Some("**mandatory** — This effect must activate when triggered.".into()),
         "once_per_turn" => Some("**once_per_turn: hard | soft**\n\n- `hard` — tied to card name, can't retry if negated\n- `soft` — can retry if negated".into()),
-        "trigger" => Some("**trigger** — What activates this effect.\n\nExamples: `summoned`, `destroyed_by_battle`, `end_phase`, `opponent_activates [negate]`".into()),
+        "trigger" => Some("**trigger** — What activates this effect.\n\nExamples: `summoned`, `destroyed_by_battle`, `end_phase`, `opponent_activates [negate]`, `you_activates [discard]`, `any_activates [equip]`".into()),
         "condition" => Some("**condition** — Must be true to activate.\n\nExamples: `lp >= 1000`, `cards_in_gy >= 5`, `on_field`".into()),
         "cost" => Some("**cost** — Paid on activation.\n\nExamples: `pay_lp 1000`, `discard (1, card)`, `tribute self`".into()),
         "resolve" => Some("**resolve** — Actions performed when effect resolves.".into()),

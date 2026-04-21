@@ -650,7 +650,7 @@ fn trigger_to_event_code(trigger: &Option<Trigger>) -> u32 {
             Trigger::MainPhase => tm::EVENT_PHASE | tm::PHASE_MAIN1,
             Trigger::BattlePhase => tm::EVENT_PHASE | tm::PHASE_BATTLE,
             Trigger::SummonAttempt => tm::EVENT_SUMMON,
-            Trigger::SpellTrapActivated | Trigger::OpponentActivates(_)
+            Trigger::SpellTrapActivated | Trigger::Activates { .. }
                 => tm::EVENT_CHAINING,
             Trigger::ChainLink => tm::EVENT_CHAINING,
             Trigger::Targeted => 0, // special engine handling
@@ -1384,11 +1384,25 @@ fn gen_condition(effect: &Effect) -> Option<Arc<dyn Fn(&dyn DuelScriptRuntime) -
                 return false;
             }
         }
-        // Trigger-based conditions (e.g., opponent_activates checks event categories)
-        if let Some(Trigger::OpponentActivates(ref cats)) = trigger {
-            if !cats.is_empty() {
+        // Trigger-based conditions (e.g., opponent_activates checks the
+        // activating player and event categories)
+        if let Some(Trigger::Activates { ref subject, ref categories }) = trigger {
+            // Subject filter: compare the activating player (event_player)
+            // against the responder's controller (effect_player).
+            match subject {
+                ActivatesSubject::Opponent => {
+                    if rt.event_player() == rt.effect_player() { return false; }
+                }
+                ActivatesSubject::You => {
+                    if rt.event_player() != rt.effect_player() { return false; }
+                }
+                ActivatesSubject::Any => {}
+            }
+            // Category filter: at least one of the listed categories must
+            // be present in the activating event's category bitmask.
+            if !categories.is_empty() {
                 let event_cats = rt.event_categories();
-                let matched = cats.iter().any(|cat| {
+                let matched = categories.iter().any(|cat| {
                     let engine_cat = category_to_engine(cat);
                     event_cats & engine_cat != 0
                 });
@@ -1511,6 +1525,9 @@ fn category_to_engine(cat: &Category) -> u32 {
         | Category::XyzSummon
         | Category::LinkSummon
         | Category::RitualSummon       => tm::CATEGORY_SPECIAL_SUMMON,
+        Category::Discard              => tm::CATEGORY_HANDES,
+        Category::ReturnToDeck         => tm::CATEGORY_TODECK,
+        Category::Equip                => tm::CATEGORY_EQUIP,
         Category::AttackDeclared       => 0,
     }
 }
@@ -2259,7 +2276,7 @@ mod tests {
     #[test]
     fn test_dark_paladin_compile() {
         let c = compile("cards/goat/dark_paladin.ds");
-        // summon proc + passive + negate effect
+        // summon proc + passive + negate
         let negate = c.effects.iter().find(|e| e.label == "Negate Spell").unwrap();
         assert_eq!(negate.effect_type, tm::EFFECT_TYPE_QUICK_O); // speed 2 monster = Quick Effect
         assert_eq!(negate.code, tm::EVENT_CHAINING);
@@ -4345,5 +4362,181 @@ card "Test Cannot NS" {
         assert_eq!(rt.get_binding_card("__equipped__"), Some(900),
             "Action::Equip should bind __equipped__ to the target monster, got {:?}",
             rt.get_binding_card("__equipped__"));
+    }
+
+    // ── T26: EVENT_CHAINING extensions (S-II) ──────────────────
+
+    /// Helper: compile a minimal hand-trap-shaped card with the given
+    /// activates-trigger source string, return its first effect's
+    /// condition closure.
+    fn compile_activates_trigger(trigger_text: &str) -> CompiledEffectV2 {
+        let src = format!(r#"
+card "T26 Test" {{
+    id: 99998001
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 3
+    atk: 0
+    def: 1800
+    effect "Respond" {{
+        speed: 2
+        {trigger_text}
+        resolve {{
+            negate
+        }}
+    }}
+}}
+"#);
+        let file = parse_v2(&src).expect("parse");
+        let compiled = compile_card_v2(&file.cards[0]);
+        compiled.effects.into_iter().next().expect("one effect")
+    }
+
+    #[test]
+    fn t26_you_activates_parses_and_matches() {
+        // `you_activates [draw]` should fire when the responder's
+        // controller equals the activating player and CATEGORY_DRAW is set.
+        let e = compile_activates_trigger("trigger: you_activates [draw]");
+        assert_eq!(e.code, tm::EVENT_CHAINING, "must map to EVENT_CHAINING");
+        let cond = e.condition.as_ref().expect("condition closure exists");
+
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .activated_by(0, 99998001)
+            .event_player(0)
+            .event_categories(tm::CATEGORY_DRAW)
+            .build();
+        assert!(cond(&rt), "you_activates matches when event_player == effect_player");
+
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .activated_by(0, 99998001)
+            .event_player(1)
+            .event_categories(tm::CATEGORY_DRAW)
+            .build();
+        assert!(!cond(&rt), "you_activates rejects when event_player != effect_player");
+    }
+
+    #[test]
+    fn t26_any_activates_ignores_ep() {
+        // `any_activates [draw]` must match regardless of event_player.
+        let e = compile_activates_trigger("trigger: any_activates [draw]");
+        let cond = e.condition.as_ref().expect("condition closure exists");
+
+        for (eff_p, evt_p) in [(0u8, 0u8), (0, 1), (1, 0), (1, 1)] {
+            let rt = crate::v2::mock_runtime::DuelScenario::new()
+                .activated_by(eff_p, 99998001)
+                .event_player(evt_p)
+                .event_categories(tm::CATEGORY_DRAW)
+                .build();
+            assert!(cond(&rt),
+                "any_activates must match for any (effect_player, event_player) — got ({eff_p}, {evt_p})");
+        }
+    }
+
+    #[test]
+    fn t26_new_categories_parse() {
+        // `discard`, `return_to_deck`, `equip` are new categories added in T26.
+        let e = compile_activates_trigger(
+            "trigger: opponent_activates [discard, return_to_deck, equip]"
+        );
+        let cond = e.condition.as_ref().expect("condition closure exists");
+
+        // Opponent activates a discard effect → match.
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .activated_by(0, 99998001)
+            .event_player(1)
+            .event_categories(tm::CATEGORY_HANDES)
+            .build();
+        assert!(cond(&rt), "discard category must map to CATEGORY_HANDES");
+
+        // Opponent activates a return-to-deck effect → match.
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .activated_by(0, 99998001)
+            .event_player(1)
+            .event_categories(tm::CATEGORY_TODECK)
+            .build();
+        assert!(cond(&rt), "return_to_deck → CATEGORY_TODECK");
+
+        // Opponent activates an equip-category effect → match.
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .activated_by(0, 99998001)
+            .event_player(1)
+            .event_categories(tm::CATEGORY_EQUIP)
+            .build();
+        assert!(cond(&rt), "equip → CATEGORY_EQUIP");
+    }
+
+    #[test]
+    fn t26_opponent_activates_filters_by_subject() {
+        // Post-T26, `opponent_activates` actually filters by player
+        // (pre-T26 the subject filter was absent and this was effectively
+        // `any_activates`). Two matching categories, flip ep: only ep != us
+        // should fire.
+        let e = compile_activates_trigger("trigger: opponent_activates [search]");
+        let cond = e.condition.as_ref().expect("condition closure exists");
+
+        // Opponent (ep=1) activates a search → match.
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .activated_by(0, 99998001)
+            .event_player(1)
+            .event_categories(tm::CATEGORY_SEARCH)
+            .build();
+        assert!(cond(&rt), "ep != us with matching category → fire");
+
+        // We (ep=0) activate the search → skip (own chain).
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .activated_by(0, 99998001)
+            .event_player(0)
+            .event_categories(tm::CATEGORY_SEARCH)
+            .build();
+        assert!(!cond(&rt), "ep == us → opponent_activates rejects own chain");
+    }
+
+    #[test]
+    fn t26_fmt_roundtrip_three_subjects() {
+        // Formatter must emit all three keywords; re-parsing must round-trip.
+        for (subject_kw, subject_variant) in [
+            ("opponent_activates", ActivatesSubject::Opponent),
+            ("you_activates",      ActivatesSubject::You),
+            ("any_activates",      ActivatesSubject::Any),
+        ] {
+            let src = format!(r#"
+card "T26 Fmt" {{
+    id: 99998002
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 1
+    atk: 0
+    def: 0
+    effect "R" {{
+        speed: 2
+        trigger: {subject_kw} [negate]
+        resolve {{ negate }}
+    }}
+}}
+"#);
+            let file = parse_v2(&src).expect("parse");
+            let trig = file.cards[0].effects[0].trigger.as_ref().expect("trigger");
+            match trig {
+                Trigger::Activates { subject, categories } => {
+                    assert_eq!(*subject, subject_variant, "subject mismatch for {subject_kw}");
+                    assert_eq!(categories.len(), 1);
+                }
+                other => panic!("expected Activates, got {:?}", other),
+            }
+
+            let printed = crate::v2::fmt::format_file(&file);
+            assert!(printed.contains(subject_kw),
+                "fmt must emit keyword `{subject_kw}`; full output:\n{printed}");
+            // Round-trip: re-parse the pretty-printed source.
+            let reparsed = parse_v2(&printed).expect("round-trip parse");
+            let trig2 = reparsed.cards[0].effects[0].trigger.as_ref().expect("trigger");
+            assert_eq!(
+                format!("{:?}", trig),
+                format!("{:?}", trig2),
+                "round-trip must preserve trigger exactly for {subject_kw}",
+            );
+        }
     }
 }
