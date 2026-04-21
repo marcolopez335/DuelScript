@@ -230,7 +230,7 @@ trigger_expr = {
     // Chain triggers
   | "summon_attempt"
   | "spell_trap_activated"
-  | "opponent_activates" ~ category_list?
+  | ("opponent_activates" | "you_activates" | "any_activates") ~ category_list?
   | "chain_link"
     // Status triggers
   | "targeted"
@@ -258,6 +258,7 @@ category = {
   | "activate_spell" | "activate_trap" | "activate_monster_effect"
   | "normal_summon" | "fusion_summon" | "synchro_summon"
   | "xyz_summon" | "link_summon" | "ritual_summon"
+  | "discard" | "return_to_deck" | "equip"
   | "attack_declared"
 }
 

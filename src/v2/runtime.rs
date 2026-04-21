@@ -281,6 +281,25 @@ pub trait DuelScriptRuntime {
     /// **Required to override.**
     fn event_categories(&self) -> u32;
 
+    /// Player index (0 or 1) of the effect that caused the current event.
+    ///
+    /// Specifically: during an `EVENT_CHAINING` check, this is the player
+    /// activating the chain link being considered for response. This is
+    /// distinct from [`effect_player`](Self::effect_player), which returns
+    /// the controller of the effect currently being evaluated (i.e., our
+    /// own card). The distinction matters for chain-activation triggers —
+    /// `opponent_activates [...]` needs both values to determine "am I
+    /// responding to the opponent or myself?".
+    ///
+    /// # Returns
+    /// `0` or `1`. Returns `0` if the event has no identifiable source
+    /// player (e.g., rule-based events, phase transitions).
+    ///
+    /// Default returns `0`, which matches the pre-T26 behaviour where no
+    /// subject filter was applied. Real engines should override this to
+    /// route the chain-triggering player through.
+    fn event_player(&self) -> u8 { 0 }
+
     // ── Card Movement / Actions ──────────────────────────────
 
     /// Draw `count` cards from the top of `player`'s deck into their hand.

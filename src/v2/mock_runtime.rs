@@ -182,6 +182,10 @@ pub struct MockRuntime {
     pub effect_card_id: u32,
     /// Categories present on the chain link being checked (for hand traps).
     pub event_categories: u32,
+    /// Player index of the effect causing the current event (e.g., who's
+    /// activating the chain link being responded to). Distinct from
+    /// `effect_player` (the responder's controller).
+    pub event_player: u8,
 }
 
 impl MockRuntime {
@@ -192,6 +196,7 @@ impl MockRuntime {
             effect_player: 0,
             effect_card_id: 0,
             event_categories: 0,
+            event_player: 0,
         }
     }
 
@@ -315,6 +320,7 @@ impl DuelScriptRuntime for MockRuntime {
     fn effect_card_id(&self) -> u32 { self.effect_card_id }
     fn effect_player(&self) -> u8 { self.effect_player }
     fn event_categories(&self) -> u32 { self.event_categories }
+    fn event_player(&self) -> u8 { self.event_player }
 
     // ── Card movement ────────────────────────────────────────
     fn draw(&mut self, player: u8, count: u32) -> u32 {
@@ -791,6 +797,14 @@ impl DuelScenario {
     /// Set the chain-link event categories (used by hand traps).
     pub fn event_categories(mut self, mask: u32) -> Self {
         self.rt.event_categories = mask;
+        self
+    }
+
+    /// Set the chain-triggering player (the player activating the event
+    /// being responded to). Used by `opponent_activates` / `you_activates`
+    /// subject-filter tests.
+    pub fn event_player(mut self, player: u8) -> Self {
+        self.rt.event_player = player;
         self
     }
 

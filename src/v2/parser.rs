@@ -1153,7 +1153,18 @@ fn parse_trigger(pair: Pair<Rule>) -> Result<Trigger, V2ParseError> {
             "battle_phase" => Ok(Trigger::BattlePhase),
             "summon_attempt" => Ok(Trigger::SummonAttempt),
             "spell_trap_activated" => Ok(Trigger::SpellTrapActivated),
-            "opponent_activates" => Ok(Trigger::OpponentActivates(vec![])),
+            "opponent_activates" => Ok(Trigger::Activates {
+                subject: ActivatesSubject::Opponent,
+                categories: vec![],
+            }),
+            "you_activates" => Ok(Trigger::Activates {
+                subject: ActivatesSubject::You,
+                categories: vec![],
+            }),
+            "any_activates" => Ok(Trigger::Activates {
+                subject: ActivatesSubject::Any,
+                categories: vec![],
+            }),
             "chain_link" => Ok(Trigger::ChainLink),
             "targeted" => Ok(Trigger::Targeted),
             "position_changed" => Ok(Trigger::PositionChanged),
@@ -1236,18 +1247,28 @@ fn parse_trigger(pair: Pair<Rule>) -> Result<Trigger, V2ParseError> {
         return Ok(Trigger::StandbyPhase(owner));
     }
 
-    if text.starts_with("opponent_activates") {
-        let mut cats = Vec::new();
+    if text.starts_with("opponent_activates")
+        || text.starts_with("you_activates")
+        || text.starts_with("any_activates")
+    {
+        let subject = if text.starts_with("opponent_activates") {
+            ActivatesSubject::Opponent
+        } else if text.starts_with("you_activates") {
+            ActivatesSubject::You
+        } else {
+            ActivatesSubject::Any
+        };
+        let mut categories = Vec::new();
         for p in &inner {
             if p.as_rule() == Rule::category_list {
                 for c in p.clone().into_inner() {
                     if c.as_rule() == Rule::category {
-                        cats.push(parse_category(c.as_str().trim())?);
+                        categories.push(parse_category(c.as_str().trim())?);
                     }
                 }
             }
         }
-        return Ok(Trigger::OpponentActivates(cats));
+        return Ok(Trigger::Activates { subject, categories });
     }
 
     if text.starts_with("used_as_material") {
@@ -2238,6 +2259,9 @@ fn parse_category(text: &str) -> Result<Category, V2ParseError> {
         "xyz_summon" => Ok(Category::XyzSummon),
         "link_summon" => Ok(Category::LinkSummon),
         "ritual_summon" => Ok(Category::RitualSummon),
+        "discard" => Ok(Category::Discard),
+        "return_to_deck" => Ok(Category::ReturnToDeck),
+        "equip" => Ok(Category::Equip),
         "attack_declared" => Ok(Category::AttackDeclared),
         _ => Err(V2ParseError::UnknownRule(format!("category: {}", text))),
     }
