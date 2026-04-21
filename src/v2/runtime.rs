@@ -736,14 +736,19 @@ pub trait DuelScriptRuntime {
 
     // ── Sprint 67: Control change ────────────────────────────
 
-    /// Transfer control of `card_id` to `new_controller`.
+    /// Transfer control of `card_id` to `new_controller` for the given
+    /// `duration`. Engines supporting time-bounded control transfers should
+    /// snapshot the card's origin state at call time and reverse the
+    /// physical move when the duration expires. `Duration::Permanently` is
+    /// the opt-out (no registration; permanent control change).
     ///
     /// # Args
     /// - `new_controller`: 0 or 1.
+    /// - `duration`: when the transfer reverts. See T22 / K-II.
     ///
     /// # Default
     /// No-op.
-    fn take_control(&mut self, _card_id: u32, _new_controller: u8) {}
+    fn take_control(&mut self, _card_id: u32, _new_controller: u8, _duration: Duration) {}
 
     // ── Sprint 67: Token creation ────────────────────────────
 

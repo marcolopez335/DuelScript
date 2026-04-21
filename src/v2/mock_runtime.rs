@@ -470,6 +470,9 @@ impl DuelScriptRuntime for MockRuntime {
         self.record("modify_def", format!("card={} delta={} dur={:?}", card_id, delta, duration));
         if let Some(c) = self.state.cards.get_mut(&card_id) { c.def += delta; }
     }
+    fn take_control(&mut self, card_id: u32, new_controller: u8, duration: Duration) {
+        self.record("take_control", format!("card={} new_ctrl={} dur={:?}", card_id, new_controller, duration));
+    }
     fn set_atk(&mut self, card_id: u32, value: i32) {
         self.record("set_atk", format!("card={} value={}", card_id, value));
         if let Some(c) = self.state.cards.get_mut(&card_id) { c.atk = value; }

@@ -1805,10 +1805,16 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
                 rt.change_position(card_id);
             }
         }
-        Action::TakeControl(sel, _) => {
+        Action::TakeControl(sel, duration) => {
             let cards = resolve_v2_selector(sel, rt, player);
+            // T22 / K-II: pass duration through so the engine can register a
+            // time-bounded control transfer and roll back on expiration.
+            // `None` on the AST side means "no duration clause" → Permanently.
+            let rt_duration = duration.as_ref()
+                .map(ast_duration_to_runtime)
+                .unwrap_or(RuntimeDuration::Permanently);
             for card_id in cards {
-                rt.take_control(card_id, player);
+                rt.take_control(card_id, player, rt_duration);
             }
         }
         Action::Equip(card_sel, target_sel) => {
