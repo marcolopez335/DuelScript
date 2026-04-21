@@ -197,54 +197,57 @@ impl CdbCard {
 
         out.push_str(&format!("// Generated from BabelCdb passcode {}\n", self.id));
         out.push_str(&format!("// {}\n", self.region().label()));
-        out.push_str("// Effects require manual scripting — see LANGUAGE_REFERENCE.md\n\n");
+        out.push_str("// Effects require manual scripting — see docs/V2_LANGUAGE_REFERENCE.md\n\n");
 
         out.push_str(&format!("card \"{}\" {{\n", self.name));
-        out.push_str(&format!("  password: {}\n\n", self.id));
+        out.push_str(&format!("    id: {}\n\n", self.id));
 
         // Type line
         let types = self.ds_type_line();
-        out.push_str(&format!("  type: {}\n", types));
+        out.push_str(&format!("    type: {}\n", types));
 
         // Monster fields
         if self.is_monster() {
-            out.push_str(&format!("  attribute: {}\n", self.attribute_name()));
-            out.push_str(&format!("  race:      {}\n", self.race_name()));
+            out.push_str(&format!("    attribute: {}\n", self.attribute_name()));
+            out.push_str(&format!("    race: {}\n", self.race_name()));
 
             if self.is_xyz() {
-                out.push_str(&format!("  rank:  {}\n", self.actual_level()));
+                out.push_str(&format!("    rank: {}\n", self.actual_level()));
             } else if self.is_link() {
-                out.push_str(&format!("  link:  {}\n", self.actual_level()));
+                out.push_str(&format!("    link: {}\n", self.actual_level()));
             } else {
-                out.push_str(&format!("  level: {}\n", self.actual_level()));
+                out.push_str(&format!("    level: {}\n", self.actual_level()));
             }
 
             if self.is_pendulum() {
-                out.push_str(&format!("  scale: {}\n", self.pendulum_scale()));
+                out.push_str(&format!("    scale: {}\n", self.pendulum_scale()));
             }
 
-            out.push_str(&format!("  atk: {}\n", self.atk_str()));
+            out.push_str(&format!("    atk: {}\n", self.atk_str()));
             if !self.is_link() {
-                out.push_str(&format!("  def: {}\n", self.def_str()));
+                out.push_str(&format!("    def: {}\n", self.def_str()));
             }
         }
 
-        // Flavor for normal monsters
+        // Flavor for normal monsters — v2 has no `flavor:` field, so emit as comments.
         if self.is_normal() && !self.desc.is_empty() {
-            let flavor = self.desc.replace('"', "'");
-            out.push_str(&format!("\n  flavor: \"{}\"\n", flavor));
+            out.push_str("\n    // Flavor text:\n");
+            for line in self.desc.lines() {
+                out.push_str(&format!("    // {}\n", line));
+            }
         }
 
-        // Effect stub
+        // Effect stub — v2 requires a labeled effect block.
         if self.is_effect() || (!self.is_monster() && !self.is_normal()) {
-            out.push_str("\n  // TODO: translate effect\n");
-            out.push_str("  // Original text:\n");
+            out.push_str("\n    // TODO: translate effect\n");
+            out.push_str("    // Original text:\n");
             for line in self.desc.lines() {
-                out.push_str(&format!("  // {}\n", line));
+                out.push_str(&format!("    // {}\n", line));
             }
-            out.push_str("\n  effect {\n");
-            out.push_str("    // ...\n");
-            out.push_str("  }\n");
+            out.push_str("\n    effect \"Effect 1\" {\n");
+            out.push_str("        speed: 1\n");
+            out.push_str("        // TODO: add condition / cost / resolve\n");
+            out.push_str("    }\n");
         }
 
         out.push_str("}\n");
@@ -543,6 +546,57 @@ impl std::fmt::Display for CdbError {
             CdbError::FileNotFound(p) => write!(f, "CDB file not found: {}", p),
             CdbError::FeatureNotEnabled => write!(f, "Enable the 'cdb' feature in Cargo.toml: rusqlite = {{ version = \"0.31\", features = [\"bundled\"] }}"),
         }
+    }
+}
+
+// ── Tests ─────────────────────────────────────────────────────
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::v2::parser::parse_v2;
+
+    fn bare_card(card_type: u64) -> CdbCard {
+        CdbCard {
+            id:        12345,
+            name:      "Test Card".to_string(),
+            desc:      "Some flavor text.\nSecond line.".to_string(),
+            atk:       1500,
+            def:       1200,
+            level:     4,
+            race:      0x1, // Warrior
+            attribute: 0x20, // DARK
+            card_type,
+            ot:        0x1,
+            alias:     0,
+            setcode:   0,
+            category:  0,
+            strings:   Vec::new(),
+        }
+    }
+
+    #[test]
+    fn skeleton_parses_normal_monster() {
+        // type bits: monster (0x1) | normal (0x10)
+        let card = bare_card(0x1 | 0x10);
+        let src = card.to_ds_skeleton();
+        parse_v2(&src).unwrap_or_else(|e| panic!("skeleton did not parse:\n{src}\n\nerror: {e}"));
+    }
+
+    #[test]
+    fn skeleton_parses_effect_monster() {
+        // type bits: monster (0x1) | effect (0x20)
+        let card = bare_card(0x1 | 0x20);
+        let src = card.to_ds_skeleton();
+        parse_v2(&src).unwrap_or_else(|e| panic!("skeleton did not parse:\n{src}\n\nerror: {e}"));
+    }
+
+    #[test]
+    fn skeleton_parses_spell() {
+        // type bits: spell (0x2)
+        let card = bare_card(0x2);
+        let src = card.to_ds_skeleton();
+        parse_v2(&src).unwrap_or_else(|e| panic!("skeleton did not parse:\n{src}\n\nerror: {e}"));
     }
 }
 

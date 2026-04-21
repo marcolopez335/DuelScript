@@ -4,7 +4,7 @@ Recipes for writing common card archetypes by hand. Each recipe shows
 the canonical `.ds` source, what it compiles to, and which runtime
 hooks the engine needs to honor.
 
-For the language reference, see `LANGUAGE_REFERENCE.md`.
+For the language reference, see `V2_LANGUAGE_REFERENCE.md`.
 For engine integration, see `ENGINE_INTEGRATION.md`.
 
 ---
