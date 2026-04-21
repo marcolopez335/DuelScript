@@ -1109,6 +1109,41 @@ fn parse_condition_atom(pair: Pair<Rule>) -> Result<ConditionAtom, V2ParseError>
         return Ok(ConditionAtom::HasFlag(flag));
     }
 
+    // reason (== | != | includes) <filter(s)>
+    if text.starts_with("reason") {
+        let mut op: Option<ReasonOp> = None;
+        let mut filters: Vec<ReasonFilter> = Vec::new();
+        for p in &inner {
+            match p.as_rule() {
+                Rule::reason_op => {
+                    op = Some(match p.as_str().trim() {
+                        "==" => ReasonOp::Eq,
+                        "!=" => ReasonOp::Neq,
+                        "includes" => ReasonOp::Includes,
+                        other => return Err(V2ParseError::UnknownRule(
+                            format!("reason_op: {}", other)
+                        )),
+                    });
+                }
+                Rule::reason_filter => {
+                    filters.push(parse_reason_filter(p.as_str().trim())?);
+                }
+                Rule::reason_filter_list => {
+                    for f in p.clone().into_inner() {
+                        if f.as_rule() == Rule::reason_filter {
+                            filters.push(parse_reason_filter(f.as_str().trim())?);
+                        }
+                    }
+                }
+                _ => {}
+            }
+        }
+        let op = op.ok_or_else(|| V2ParseError::UnknownRule(
+            "reason condition missing operator".to_string()
+        ))?;
+        return Ok(ConditionAtom::Reason(op, filters));
+    }
+
     // Simple location checks
     match text.as_str() {
         "on_field" => Ok(ConditionAtom::OnField),
@@ -2236,6 +2271,23 @@ fn parse_phase_name(text: &str) -> Result<PhaseName, V2ParseError> {
         "damage" => Ok(PhaseName::Damage),
         "damage_calculation" => Ok(PhaseName::DamageCalculation),
         _ => Err(V2ParseError::UnknownRule(format!("phase_name: {}", text))),
+    }
+}
+
+fn parse_reason_filter(text: &str) -> Result<ReasonFilter, V2ParseError> {
+    match text {
+        "battle"           => Ok(ReasonFilter::Battle),
+        "effect"           => Ok(ReasonFilter::Effect),
+        "cost"             => Ok(ReasonFilter::Cost),
+        "material"         => Ok(ReasonFilter::Material),
+        "release"          => Ok(ReasonFilter::Release),
+        "rule"             => Ok(ReasonFilter::Rule),
+        "discard"          => Ok(ReasonFilter::Discard),
+        "return"           => Ok(ReasonFilter::Return),
+        "summon"           => Ok(ReasonFilter::Summon),
+        "destroy"          => Ok(ReasonFilter::Destroy),
+        "battle_or_effect" => Ok(ReasonFilter::BattleOrEffect),
+        _ => Err(V2ParseError::UnknownRule(format!("reason_filter: {}", text))),
     }
 }
 

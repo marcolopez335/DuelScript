@@ -1003,6 +1003,35 @@ fn format_condition_atom(atom: &ConditionAtom) -> String {
             s
         }
         ConditionAtom::HasFlag(name) => format!("has_flag \"{}\"", name),
+        ConditionAtom::Reason(op, filters) => {
+            let op_s = match op {
+                ReasonOp::Eq => "==",
+                ReasonOp::Neq => "!=",
+                ReasonOp::Includes => "includes",
+            };
+            if filters.len() == 1 {
+                format!("reason {} {}", op_s, format_reason_filter(&filters[0]))
+            } else {
+                let fs: Vec<&str> = filters.iter().map(format_reason_filter).collect();
+                format!("reason {} [{}]", op_s, fs.join(", "))
+            }
+        }
+    }
+}
+
+fn format_reason_filter(f: &ReasonFilter) -> &'static str {
+    match f {
+        ReasonFilter::Battle         => "battle",
+        ReasonFilter::Effect         => "effect",
+        ReasonFilter::Cost           => "cost",
+        ReasonFilter::Material       => "material",
+        ReasonFilter::Release        => "release",
+        ReasonFilter::Rule           => "rule",
+        ReasonFilter::Discard        => "discard",
+        ReasonFilter::Return         => "return",
+        ReasonFilter::Summon         => "summon",
+        ReasonFilter::Destroy        => "destroy",
+        ReasonFilter::BattleOrEffect => "battle_or_effect",
     }
 }
 

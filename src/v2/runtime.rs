@@ -300,6 +300,22 @@ pub trait DuelScriptRuntime {
     /// route the chain-triggering player through.
     fn event_player(&self) -> u8 { 0 }
 
+    /// `REASON_*` bitmask for the current event — why did this happen?
+    ///
+    /// Used by the DSL `reason == ...` / `reason != ...` / `reason includes [...]`
+    /// condition primitive (T27). For instance, a trigger that fires when
+    /// a card is sent to the GY can filter by `reason includes [battle, effect]`
+    /// to distinguish "sent to GY by battle/effect" from "sent to GY as a
+    /// cost" or "as a material".
+    ///
+    /// # Returns
+    /// EDOPro-style REASON_* bitmask union of all reasons that caused the
+    /// current event. Returns `0` when no reason is tracked (rule events,
+    /// phase transitions, etc.).
+    ///
+    /// Default returns `0`; real engines override.
+    fn current_reason(&self) -> u32 { 0 }
+
     // ── Card Movement / Actions ──────────────────────────────
 
     /// Draw `count` cards from the top of `player`'s deck into their hand.
