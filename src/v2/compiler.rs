@@ -11,7 +11,7 @@
 use std::sync::Arc;
 use super::ast::*;
 use super::constants as tm;
-use super::runtime::{DamageType, DuelScriptRuntime, CardFilter as RuntimeCardFilter, Stat, TokenSpec};
+use super::runtime::{DamageType, Duration as RuntimeDuration, DuelScriptRuntime, CardFilter as RuntimeCardFilter, Stat, TokenSpec};
 
 // ── Output Types ────────────────────────────────────────────
 
@@ -391,6 +391,25 @@ fn grant_to_code(grant: &GrantAbility) -> u32 {
 }
 
 /// Maps GrantAbility to an engine effect code, used for runtime grant actions.
+/// T21 / I-II: translate `ast::Duration` → `runtime::Duration` at compiler emit
+/// time. The two enums are structurally identical (9 variants); the split keeps
+/// the trait surface independent of the AST graph so non-compiler runtimes
+/// (mocks, embedded hosts) don't need to depend on the full AST. Same pattern
+/// as T16 (DamageType) and T17 (TokenSpec).
+fn ast_duration_to_runtime(d: &Duration) -> RuntimeDuration {
+    match d {
+        Duration::Permanently      => RuntimeDuration::Permanently,
+        Duration::ThisTurn         => RuntimeDuration::ThisTurn,
+        Duration::EndOfTurn        => RuntimeDuration::EndOfTurn,
+        Duration::EndPhase         => RuntimeDuration::EndPhase,
+        Duration::EndOfDamageStep  => RuntimeDuration::EndOfDamageStep,
+        Duration::NextStandbyPhase => RuntimeDuration::NextStandbyPhase,
+        Duration::WhileOnField     => RuntimeDuration::WhileOnField,
+        Duration::WhileFaceUp      => RuntimeDuration::WhileFaceUp,
+        Duration::NTurns(n)        => RuntimeDuration::NTurns(*n),
+    }
+}
+
 fn grant_ability_to_code(ability: &GrantAbility) -> u32 {
     grant_to_code(ability)
 }
@@ -1317,8 +1336,12 @@ fn gen_passive_op(
             let delta = eval_v2_expr(&m.value, rt);
             let signed = if m.positive { delta } else { -delta };
             match m.stat {
-                StatName::Atk => rt.modify_atk(cid, signed),
-                StatName::Def => rt.modify_def(cid, signed),
+                // Passive modifiers run on every `refresh_continuous`; registering a
+                // duration-bound effect here would compound deltas. Emit `Permanently`
+                // so the adapter applies the delta directly and relies on the passive
+                // re-invocation model for lifetime management. See decisions-2.md I-II.
+                StatName::Atk => rt.modify_atk(cid, signed, RuntimeDuration::Permanently),
+                StatName::Def => rt.modify_def(cid, signed, RuntimeDuration::Permanently),
             }
         }
 
@@ -1801,14 +1824,23 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
                 rt.set_binding("__equipped__", target_id);
             }
         }
-        Action::ModifyStat(stat, sel, is_negative, expr, _) => {
+        Action::ModifyStat(stat, sel, is_negative, expr, duration) => {
             let cards = resolve_v2_selector(sel, rt, player);
             let val = eval_v2_expr(expr, rt);
             let delta = if *is_negative { -val } else { val };
+            // T21 / I-II: translate ast::Duration → runtime::Duration so the
+            // adapter can register time-bounded deltas via the engine's
+            // continuous-effect machinery. Mirror map (9 variants). `None` on
+            // the AST side means "no duration clause was written" — treated as
+            // `Permanently` (direct-apply, no registration) to preserve
+            // pre-T21 semantics for DSL sources that omit the duration.
+            let rt_duration = duration.as_ref()
+                .map(ast_duration_to_runtime)
+                .unwrap_or(RuntimeDuration::Permanently);
             for card_id in cards {
                 match stat {
-                    StatName::Atk => rt.modify_atk(card_id, delta),
-                    StatName::Def => rt.modify_def(card_id, delta),
+                    StatName::Atk => rt.modify_atk(card_id, delta, rt_duration),
+                    StatName::Def => rt.modify_def(card_id, delta, rt_duration),
                 }
             }
         }

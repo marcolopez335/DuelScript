@@ -72,6 +72,30 @@ pub struct TokenSpec {
     pub count: u32,
 }
 
+/// Duration for time-bounded effect registration on `modify_atk` / `modify_def`.
+///
+/// Runtime-surface mirror of `ast::Duration`; decouples the trait from the AST
+/// so non-compiler runtimes (mocks, embedded hosts) don't need to depend on the
+/// full AST graph. Same pattern as `DamageType` (T16) and `TokenSpec` (T17).
+///
+/// Engines that support duration-bounded continuous effects should register the
+/// delta with the appropriate reset semantics; the trait contract guarantees
+/// `Permanently` is always the opt-out for direct-apply semantics.
+///
+/// See decisions-2.md I-II for mapping to ygobeetle's `reset_flags` bitmask.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Duration {
+    Permanently,
+    ThisTurn,
+    EndOfTurn,
+    EndPhase,
+    EndOfDamageStep,
+    NextStandbyPhase,
+    WhileOnField,
+    WhileFaceUp,
+    NTurns(u32),
+}
+
 // ── Runtime Abstraction ───────────────────────────────────────
 
 /// Trait that engines implement to expose game state and operations
@@ -459,13 +483,20 @@ pub trait DuelScriptRuntime {
     /// Negative `delta` reduces ATK. The modification is relative to the
     /// card's current ATK. See `set_atk` for absolute assignment.
     ///
+    /// `duration` indicates how long the delta persists. Engines supporting
+    /// time-bounded continuous effects should register the delta with the
+    /// appropriate lifetime; `Duration::Permanently` is the opt-out
+    /// (direct-apply semantics, no registration). See decisions-2.md I-II.
+    ///
     /// **Required to override.**
-    fn modify_atk(&mut self, card_id: u32, delta: i32);
+    fn modify_atk(&mut self, card_id: u32, delta: i32, duration: Duration);
 
     /// Increase or decrease `card_id`'s current DEF by `delta`.
     ///
+    /// See `modify_atk` for `duration` semantics.
+    ///
     /// **Required to override.**
-    fn modify_def(&mut self, card_id: u32, delta: i32);
+    fn modify_def(&mut self, card_id: u32, delta: i32, duration: Duration);
 
     /// Set `card_id`'s current ATK to an absolute `value`.
     ///

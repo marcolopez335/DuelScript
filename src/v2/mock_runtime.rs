@@ -19,7 +19,7 @@
 // ============================================================
 
 use std::collections::HashMap;
-use super::runtime::{CardFilter, DamageType, Stat, TokenSpec, DuelScriptRuntime};
+use super::runtime::{CardFilter, DamageType, Duration, Stat, TokenSpec, DuelScriptRuntime};
 
 // ── Recorded call types ──────────────────────────────────────
 
@@ -462,12 +462,12 @@ impl DuelScriptRuntime for MockRuntime {
     }
 
     // ── Stat mods ────────────────────────────────────────────
-    fn modify_atk(&mut self, card_id: u32, delta: i32) {
-        self.record("modify_atk", format!("card={} delta={}", card_id, delta));
+    fn modify_atk(&mut self, card_id: u32, delta: i32, duration: Duration) {
+        self.record("modify_atk", format!("card={} delta={} dur={:?}", card_id, delta, duration));
         if let Some(c) = self.state.cards.get_mut(&card_id) { c.atk += delta; }
     }
-    fn modify_def(&mut self, card_id: u32, delta: i32) {
-        self.record("modify_def", format!("card={} delta={}", card_id, delta));
+    fn modify_def(&mut self, card_id: u32, delta: i32, duration: Duration) {
+        self.record("modify_def", format!("card={} delta={} dur={:?}", card_id, delta, duration));
         if let Some(c) = self.state.cards.get_mut(&card_id) { c.def += delta; }
     }
     fn set_atk(&mut self, card_id: u32, value: i32) {
