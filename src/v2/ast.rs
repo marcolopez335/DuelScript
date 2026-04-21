@@ -210,6 +210,13 @@ pub enum Trigger {
     SummonAttempt,
     SpellTrapActivated,
     Activates { subject: ActivatesSubject, categories: Vec<Category> },
+    /// `EVENT_CHAIN_SOLVED` — fires after the entire chain has fully
+    /// resolved. Used by chain-end cleanup (Infinite Impermanence,
+    /// Artifact return-to-hand, stat re-check). T29 / Y-II.
+    ChainSolved,
+    /// `EVENT_CHAIN_SOLVING` — fires while the chain is resolving,
+    /// between links. T29 / Y-II.
+    ChainSolving,
     ChainLink,
     Targeted,
     PositionChanged,

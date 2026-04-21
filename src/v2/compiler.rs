@@ -652,6 +652,8 @@ fn trigger_to_event_code(trigger: &Option<Trigger>) -> u32 {
             Trigger::SummonAttempt => tm::EVENT_SUMMON,
             Trigger::SpellTrapActivated | Trigger::Activates { .. }
                 => tm::EVENT_CHAINING,
+            Trigger::ChainSolved  => tm::EVENT_CHAIN_SOLVED,
+            Trigger::ChainSolving => tm::EVENT_CHAIN_SOLVING,
             Trigger::ChainLink => tm::EVENT_CHAINING,
             Trigger::Targeted => 0, // special engine handling
             Trigger::UsedAsMaterial(_) => tm::EVENT_RELEASE,
@@ -4730,6 +4732,77 @@ card "T27 Test" {{
             .current_reason(tm::REASON_COST)
             .build();
         assert!(!cond(&rt), "battle_or_effect must miss pure COST");
+    }
+
+    // ── T29: chain_solved / chain_solving triggers (Y-II) ─────
+
+    fn compile_bare_trigger(trigger_kw: &str) -> CompiledEffectV2 {
+        let src = format!(r#"
+card "T29 Test" {{
+    id: 99998301
+    type: Effect Monster
+    attribute: DARK
+    race: Zombie
+    level: 1
+    atk: 0
+    def: 0
+    effect "R" {{
+        speed: 1
+        mandatory
+        trigger: {trigger_kw}
+        resolve {{
+            draw 1
+        }}
+    }}
+}}
+"#);
+        let file = parse_v2(&src).expect("parse");
+        let compiled = compile_card_v2(&file.cards[0]);
+        compiled.effects.into_iter().next().expect("one effect")
+    }
+
+    #[test]
+    fn t29_chain_solved_parses_and_compiles_to_correct_event() {
+        let e = compile_bare_trigger("chain_solved");
+        assert_eq!(e.code, tm::EVENT_CHAIN_SOLVED,
+            "chain_solved must map to EVENT_CHAIN_SOLVED");
+    }
+
+    #[test]
+    fn t29_chain_solving_parses_and_compiles_to_correct_event() {
+        let e = compile_bare_trigger("chain_solving");
+        assert_eq!(e.code, tm::EVENT_CHAIN_SOLVING,
+            "chain_solving must map to EVENT_CHAIN_SOLVING");
+    }
+
+    #[test]
+    fn t29_chain_triggers_fmt_roundtrip() {
+        for kw in ["chain_solved", "chain_solving"] {
+            let src = format!(r#"
+card "T29 Fmt" {{
+    id: 99998302
+    type: Effect Monster
+    attribute: DARK
+    race: Zombie
+    level: 1
+    atk: 0
+    def: 0
+    effect "R" {{
+        speed: 1
+        mandatory
+        trigger: {kw}
+        resolve {{ draw 1 }}
+    }}
+}}
+"#);
+            let file = parse_v2(&src).expect("parse");
+            let printed = crate::v2::fmt::format_file(&file);
+            assert!(printed.contains(kw),
+                "fmt must emit keyword `{kw}`:\n{printed}");
+            let reparsed = parse_v2(&printed).expect("round-trip");
+            let reprinted = crate::v2::fmt::format_file(&reparsed);
+            assert_eq!(printed, reprinted, "fmt idempotence broken for `{kw}`");
+        }
     }
 
     // ── T28: previous_* predicates (W-II) ──────────────────────
