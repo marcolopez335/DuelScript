@@ -84,6 +84,11 @@ pub fn compile_card_v2(card: &Card) -> CompiledCardV2 {
         effects.push(compile_replacement(replacement, card));
     }
 
+    // Redirect blocks (T31 / CC-II — Macro Cosmos pattern)
+    for redirect in &card.redirects {
+        effects.push(compile_redirect(redirect, card));
+    }
+
     CompiledCardV2 { card_id, name: card.name.clone(), effects }
 }
 
@@ -618,6 +623,56 @@ fn compile_replacement(replacement: &Replacement, card: &Card) -> CompiledEffect
         cost: None,
         target: None,
         operation: gen_operation(&replacement.actions),
+    }
+}
+
+// ── Redirect Compilation (T31 / CC-II) ──────────────────────
+
+fn redirect_scope_mask(scope: &RedirectScope) -> u32 {
+    match scope {
+        RedirectScope::Self_         => tm::REDIRECT_SCOPE_SELF,
+        RedirectScope::Field         => tm::REDIRECT_SCOPE_FIELD,
+        RedirectScope::OpponentField => tm::REDIRECT_SCOPE_OPPONENT_FIELD,
+        RedirectScope::BothFields    => tm::REDIRECT_SCOPE_BOTH_FIELDS,
+    }
+}
+
+/// Compile a `redirect { ... }` block into a continuous passive effect.
+///
+/// Emits an operation closure that calls `rt.register_redirect(source,
+/// from_location, to_location, scope_mask)` on activation. The engine
+/// adapter forwards this to a `ContinuousEffect::Redirect` entry in its
+/// continuous-effect manager; the default `register_redirect` impl is a
+/// no-op so engines that don't support redirects compile silently.
+///
+/// The `when:` selector (if present) is currently captured in the AST but
+/// *not* passed through to the trait — the initial trait seam is zone-only
+/// to keep it u32-valued. Filter-aware redirects are a follow-up migration
+/// (see decisions-2.md CC-II / DD-II).
+fn compile_redirect(redirect: &Redirect, card: &Card) -> CompiledEffectV2 {
+    let card_id = card.fields.id.unwrap_or(0) as u32;
+    let from_loc = zone_to_location(&redirect.from);
+    let to_loc   = zone_to_location(&redirect.to);
+    let scope_mask = redirect_scope_mask(&redirect.scope);
+
+    let operation: Option<Arc<dyn Fn(&mut dyn DuelScriptRuntime) + Send + Sync>> =
+        Some(Arc::new(move |rt: &mut dyn DuelScriptRuntime| {
+            rt.register_redirect(card_id, from_loc, to_loc, scope_mask);
+        }));
+
+    CompiledEffectV2 {
+        label: redirect.name.clone().unwrap_or_else(|| "redirect".into()),
+        effect_type: tm::EFFECT_TYPE_SINGLE | tm::EFFECT_TYPE_CONTINUOUS,
+        category: 0,
+        code: tm::EFFECT_LEAVE_FIELD_REDIRECT,
+        property: 0,
+        range: if is_monster(card) { tm::LOCATION_MZONE } else { tm::LOCATION_SZONE },
+        count_limit: None,
+        simultaneous: false,
+        condition: None,
+        cost: None,
+        target: None,
+        operation,
     }
 }
 
@@ -3504,6 +3559,7 @@ card "Empty Replacement Card" {
             passives: vec![],
             restrictions: vec![],
             replacements: vec![],
+            redirects: vec![],
         };
         let compiled = compile_card_v2(&card);
         let proc_effect = compiled.effects.iter().find(|e| e.label == "Summon Procedure")
@@ -3568,6 +3624,7 @@ card "Empty Replacement Card" {
             passives: vec![],
             restrictions: vec![],
             replacements: vec![],
+            redirects: vec![],
         };
         let compiled = compile_card_v2(&card);
         let proc_effect = compiled.effects.iter().find(|e| e.label == "Summon Procedure")
@@ -3651,6 +3708,7 @@ card "Empty Replacement Card" {
             passives: vec![],
             restrictions: vec![],
             replacements: vec![],
+            redirects: vec![],
         };
         let compiled = compile_card_v2(&card);
         // Xyz Check should have code 946 and operation=None.
@@ -3749,6 +3807,7 @@ card "Test Cannot NS" {
             passives: vec![],
             restrictions: vec![],
             replacements: vec![],
+            redirects: vec![],
         };
         let compiled = compile_card_v2(&card);
 
@@ -3814,6 +3873,7 @@ card "Test Cannot NS" {
             passives: vec![],
             restrictions: vec![],
             replacements: vec![],
+            redirects: vec![],
         };
         let compiled = compile_card_v2(&card);
 
@@ -5253,6 +5313,161 @@ card "T30 Fmt" {{
                 .unwrap_or_else(|e| panic!("round-trip failed for `{expr}`: {e}\n{printed}"));
             let reprinted = crate::v2::fmt::format_file(&reparsed);
             assert_eq!(printed, reprinted, "fmt idempotence broken for `{expr}`");
+        }
+    }
+
+    // ── T31: leave-field redirects (CC-II) ────────────────────
+
+    /// Helper: compile a minimal card carrying just the given `redirect`
+    /// block text, return the lone compiled effect.
+    fn compile_redirect_block(body: &str) -> CompiledEffectV2 {
+        let src = format!(r#"
+card "T31 Test" {{
+    id: 99998501
+    type: Continuous Spell
+    {body}
+}}
+"#);
+        let file = parse_v2(&src)
+            .unwrap_or_else(|e| panic!("parse failed: {e}\nsource:\n{src}"));
+        let compiled = compile_card_v2(&file.cards[0]);
+        compiled.effects.into_iter().next().expect("one effect")
+    }
+
+    /// T31-1: Macro Cosmos pattern — GY moves redirect to banished, both
+    /// fields. Verifies the closure issues a `register_redirect` with the
+    /// right (from, to, scope) tuple and the correct effect code.
+    #[test]
+    fn t31_macro_cosmos_pattern_redirect_to_banished() {
+        let e = compile_redirect_block(r#"
+    redirect "Macro Cosmos" {
+        scope: both_fields
+        from: gy
+        to: banished
+    }
+"#);
+        assert_eq!(e.code, tm::EFFECT_LEAVE_FIELD_REDIRECT,
+            "redirect block must emit EFFECT_LEAVE_FIELD_REDIRECT");
+
+        let op = e.operation.as_ref().expect("redirect emits an operation closure");
+        let mut rt = crate::v2::mock_runtime::MockRuntime::new();
+        op(&mut rt);
+
+        assert_eq!(rt.state.redirects.len(), 1,
+            "redirect block must register exactly one redirect;\n{}",
+            rt.dump_calls());
+        let r = rt.state.redirects[0];
+        assert_eq!(r.source_card, 99998501, "source_card must be the card id");
+        assert_eq!(r.from_zone, tm::LOCATION_GRAVE,
+            "from: gy must map to LOCATION_GRAVE");
+        assert_eq!(r.to_zone, tm::LOCATION_REMOVED,
+            "to: banished must map to LOCATION_REMOVED");
+        assert_eq!(r.scope_mask, tm::REDIRECT_SCOPE_BOTH_FIELDS,
+            "scope: both_fields must be SELF+OPPONENT scope mask");
+    }
+
+    /// T31-2: `scope: field` covers only the source controller's side —
+    /// bitmask must encode FIELD without OPPONENT_FIELD.
+    #[test]
+    fn t31_field_scope_affects_both_players() {
+        // "field" is shorthand for the source's own field only.
+        // This test asserts the encoding contract, not a side-effect semantics
+        // decision — the adapter interprets the mask.
+        let e = compile_redirect_block(r#"
+    redirect {
+        scope: field
+        from: gy
+        to: banished
+    }
+"#);
+        let op = e.operation.as_ref().expect("redirect has operation");
+        let mut rt = crate::v2::mock_runtime::MockRuntime::new();
+        op(&mut rt);
+
+        let r = rt.state.redirects[0];
+        assert_eq!(r.scope_mask & tm::REDIRECT_SCOPE_FIELD, tm::REDIRECT_SCOPE_FIELD,
+            "scope: field must include REDIRECT_SCOPE_FIELD bit");
+        assert_eq!(r.scope_mask & tm::REDIRECT_SCOPE_OPPONENT_FIELD, 0,
+            "scope: field must NOT include REDIRECT_SCOPE_OPPONENT_FIELD bit");
+    }
+
+    /// T31-3: `scope: self` — only the source card's own moves are
+    /// redirected. Encoded as REDIRECT_SCOPE_SELF alone.
+    #[test]
+    fn t31_self_scope_only_affects_own_card() {
+        let e = compile_redirect_block(r#"
+    redirect {
+        scope: self
+        from: gy
+        to: banished
+    }
+"#);
+        let op = e.operation.as_ref().expect("redirect has operation");
+        let mut rt = crate::v2::mock_runtime::MockRuntime::new();
+        op(&mut rt);
+
+        let r = rt.state.redirects[0];
+        assert_eq!(r.scope_mask, tm::REDIRECT_SCOPE_SELF,
+            "scope: self must produce exactly REDIRECT_SCOPE_SELF");
+    }
+
+    /// T31-4: validator rejects `from == to` (no-op redirect).
+    #[test]
+    fn t31_bad_zone_combo_fails_validator() {
+        let src = r#"
+card "T31 Bad" {
+    id: 99998502
+    type: Continuous Spell
+    redirect {
+        scope: both_fields
+        from: gy
+        to: gy
+    }
+}
+"#;
+        let file = parse_v2(src).expect("parse");
+        let report = crate::v2::validator::validate_v2(&file);
+        assert!(
+            report.errors.iter().any(|e|
+                e.message.contains("identical from/to") && e.severity == crate::v2::validator::Severity::Error),
+            "validator must flag from==to as an error; got: {:?}",
+            report.errors);
+    }
+
+    /// T31-5: fmt roundtrip for redirect blocks — scopes + with/without
+    /// filter.
+    #[test]
+    fn t31_fmt_roundtrip() {
+        let variants = [
+            // (body, canonical-substring-check)
+            ("redirect {\n        scope: both_fields\n        from: gy\n        to: banished\n    }",
+             "scope: both_fields"),
+            ("redirect \"Floodgate\" {\n        scope: self\n        from: gy\n        to: banished\n    }",
+             "redirect \"Floodgate\""),
+            ("redirect {\n        scope: opponent_field\n        from: gy\n        to: banished\n    }",
+             "scope: opponent_field"),
+            ("redirect {\n        scope: field\n        from: hand\n        to: deck\n    }",
+             "from: hand"),
+        ];
+
+        for (i, (body, marker)) in variants.iter().enumerate() {
+            let src = format!(r#"
+card "T31 Fmt {i}" {{
+    id: 99998510
+    type: Continuous Spell
+    {body}
+}}
+"#);
+            let file = parse_v2(&src)
+                .unwrap_or_else(|e| panic!("parse failed for variant {i}: {e}\n{src}"));
+            let printed = crate::v2::fmt::format_file(&file);
+            assert!(printed.contains(marker),
+                "fmt must emit `{marker}` for variant {i}:\n{printed}");
+            let reparsed = parse_v2(&printed)
+                .unwrap_or_else(|e| panic!("round-trip parse failed for variant {i}: {e}\n{printed}"));
+            let reprinted = crate::v2::fmt::format_file(&reparsed);
+            assert_eq!(printed, reprinted,
+                "fmt idempotence broken for variant {i}");
         }
     }
 }

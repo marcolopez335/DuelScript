@@ -29,6 +29,7 @@ pub fn validate_card(card: &Card, errors: &mut Vec<ValidationError>) {
     check_passive_blocks(&ctx, errors);
     check_restriction_blocks(&ctx, errors);
     check_replacement_blocks(&ctx, errors);
+    check_redirect_blocks(&ctx, errors);
 }
 
 // ── Types ───────────────────────────────────────────────────
@@ -510,6 +511,36 @@ fn check_replacement_blocks(ctx: &Ctx, errors: &mut Vec<ValidationError>) {
     }
 }
 
+// T31 / CC-II — redirect block semantic checks.
+//
+// (a) `from` and `to` zones must be distinct — redirecting GY → GY is a
+//     no-op and almost certainly a typo.
+// (b) `scope: self` + `from: field` is nonsensical (the card is the
+//     *source* of the redirect; "self moving off the field" is the event
+//     the replacement block models, not this block). Warn.
+fn check_redirect_blocks(ctx: &Ctx, errors: &mut Vec<ValidationError>) {
+    for redirect in &ctx.card.redirects {
+        let name = redirect.name.as_deref().unwrap_or("unnamed");
+
+        if redirect.from == redirect.to {
+            errors.push(err(ctx.name(), &format!(
+                "Redirect '{}' has identical from/to zones ({:?}) — no-op",
+                name, redirect.from
+            )));
+        }
+
+        if matches!(redirect.scope, RedirectScope::Self_)
+            && matches!(redirect.from, Zone::Field)
+        {
+            errors.push(warn(ctx.name(), &format!(
+                "Redirect '{}' uses `scope: self` with `from: field` — \
+                 use a `replacement` block for per-card leave-field events",
+                name
+            )));
+        }
+    }
+}
+
 // ── Tests ───────────────────────────────────────────────────
 
 #[cfg(test)]
@@ -574,6 +605,7 @@ mod tests {
                 passives: vec![],
                 restrictions: vec![],
                 replacements: vec![],
+                redirects: vec![],
             }],
         };
         let report = validate_v2(&file);
@@ -595,6 +627,7 @@ mod tests {
                 passives: vec![],
                 restrictions: vec![],
                 replacements: vec![],
+                redirects: vec![],
             }],
         };
         let report = validate_v2(&file);
@@ -631,6 +664,7 @@ mod tests {
                 passives: vec![],
                 restrictions: vec![],
                 replacements: vec![],
+                redirects: vec![],
             }],
         };
         let report = validate_v2(&file);
@@ -700,6 +734,7 @@ mod tests {
                 passives: vec![],
                 restrictions: vec![],
                 replacements: vec![],
+                redirects: vec![],
             }],
         };
         let report = validate_v2(&file);

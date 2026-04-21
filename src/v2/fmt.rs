@@ -38,6 +38,9 @@ fn format_card(card: &Card, out: &mut String) {
     for r in &card.replacements {
         format_replacement(r, out);
     }
+    for r in &card.redirects {
+        format_redirect(r, out);
+    }
     for e in &card.effects {
         format_effect(e, out);
     }
@@ -346,6 +349,29 @@ fn format_replaceable_event(ev: &ReplaceableEvent) -> &'static str {
         ReplaceableEvent::ReturnedToHand => "returned_to_hand",
         ReplaceableEvent::ReturnedToDeck => "returned_to_deck",
         ReplaceableEvent::LeavesField => "leaves_field",
+    }
+}
+
+// ── Redirect Block (T31 / CC-II) ──────────────────────────────
+
+fn format_redirect(r: &Redirect, out: &mut String) {
+    let name_part = r.name.as_deref().map(|n| format!(" \"{}\"", n)).unwrap_or_default();
+    writeln!(out, "\n    redirect{} {{", name_part).unwrap();
+    writeln!(out, "        scope: {}", format_redirect_scope(&r.scope)).unwrap();
+    writeln!(out, "        from: {}", format_zone(&r.from)).unwrap();
+    writeln!(out, "        to: {}", format_zone(&r.to)).unwrap();
+    if let Some(sel) = &r.filter {
+        writeln!(out, "        when: {}", format_selector(sel)).unwrap();
+    }
+    writeln!(out, "    }}").unwrap();
+}
+
+fn format_redirect_scope(s: &RedirectScope) -> &'static str {
+    match s {
+        RedirectScope::Self_         => "self",
+        RedirectScope::Field         => "field",
+        RedirectScope::OpponentField => "opponent_field",
+        RedirectScope::BothFields    => "both_fields",
     }
 }
 

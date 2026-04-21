@@ -134,6 +134,27 @@ pub const REASON_XYZ:      u32 = 0x200000;
 /// Reason: consumed as Link material. EDOPro `REASON_LINK`.
 pub const REASON_LINK:     u32 = 0x10000000;
 
+// ── T31 / CC-II: leave-field redirect (Macro Cosmos pattern) ──
+
+/// Effect code for continuous leave-field destination redirects
+/// (Macro Cosmos, Dimensional Fissure, Banisher of the Radiance, …).
+/// EDOPro constant `EFFECT_LEAVE_FIELD_REDIRECT` (0x1000018). Distinct
+/// from the `EFFECT_DESTROY_REPLACE` family used by event-triggered
+/// replacement blocks — redirect is a *continuous* floodgate that
+/// retargets leave-field moves while the source card is on the field.
+pub const EFFECT_LEAVE_FIELD_REDIRECT: u32 = 0x1000018;
+
+/// Redirect affects only the source card's own moves.
+/// Encoded as a bitmask so the adapter can OR multiple flags if a
+/// future design wants a redirect that covers several scopes at once.
+pub const REDIRECT_SCOPE_SELF:           u32 = 0x1;
+/// Redirect affects all cards on the source controller's side.
+pub const REDIRECT_SCOPE_FIELD:          u32 = 0x2;
+/// Redirect affects all cards on the opposing side.
+pub const REDIRECT_SCOPE_OPPONENT_FIELD: u32 = 0x4;
+/// Redirect affects all cards on both fields (Macro Cosmos default).
+pub const REDIRECT_SCOPE_BOTH_FIELDS:    u32 = REDIRECT_SCOPE_FIELD | REDIRECT_SCOPE_OPPONENT_FIELD;
+
 /// Count limit for effect activation frequency.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CountLimit {

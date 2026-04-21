@@ -78,6 +78,7 @@ fn parse_card(pair: Pair<Rule>) -> Result<Card, V2ParseError> {
     let mut passives = Vec::new();
     let mut restrictions = Vec::new();
     let mut replacements = Vec::new();
+    let mut redirects = Vec::new();
 
     for card_item in card_body.into_inner() {
         let item = card_item.into_inner().next().unwrap();
@@ -88,11 +89,12 @@ fn parse_card(pair: Pair<Rule>) -> Result<Card, V2ParseError> {
             Rule::passive_block => passives.push(parse_passive_block(item)?),
             Rule::restriction_block => restrictions.push(parse_restriction_block(item)?),
             Rule::replacement_block => replacements.push(parse_replacement_block(item)?),
+            Rule::redirect_block => redirects.push(parse_redirect_block(item)?),
             _ => {}
         }
     }
 
-    Ok(Card { name, fields, summon, effects, passives, restrictions, replacements })
+    Ok(Card { name, fields, summon, effects, passives, restrictions, replacements, redirects })
 }
 
 // ── Field Declarations ──────────────────────────────────────
@@ -606,6 +608,73 @@ fn parse_replacement_block(pair: Pair<Rule>) -> Result<Replacement, V2ParseError
         actions,
         condition,
     })
+}
+
+// ── Redirect Block ──────────────────────────────────────────
+
+fn parse_redirect_block(pair: Pair<Rule>) -> Result<Redirect, V2ParseError> {
+    let inner: Vec<Pair<Rule>> = pair.into_inner().collect();
+
+    let mut name = None;
+    let mut start = 0;
+
+    if !inner.is_empty() && inner[0].as_rule() == Rule::string {
+        name = Some(strip_quotes(inner[0].as_str()));
+        start = 1;
+    }
+
+    let mut scope = None;
+    let mut from = None;
+    let mut to = None;
+    let mut filter = None;
+
+    for item in &inner[start..] {
+        // Each redirect_item wraps exactly one sub-rule (scope / source /
+        // destination / filter); unwrap it.
+        let sub = item.clone().into_inner().next()
+            .ok_or_else(|| V2ParseError::UnknownRule("empty redirect_item".into()))?;
+        match sub.as_rule() {
+            Rule::redirect_scope => {
+                let val = sub.into_inner().next()
+                    .ok_or_else(|| V2ParseError::MissingField("redirect scope value"))?;
+                scope = Some(parse_redirect_scope(val.as_str().trim())?);
+            }
+            Rule::redirect_source => {
+                let z = sub.into_inner().next()
+                    .ok_or_else(|| V2ParseError::MissingField("redirect source zone"))?;
+                from = Some(parse_zone(z.as_str().trim())?);
+            }
+            Rule::redirect_destination => {
+                let z = sub.into_inner().next()
+                    .ok_or_else(|| V2ParseError::MissingField("redirect destination zone"))?;
+                to = Some(parse_zone(z.as_str().trim())?);
+            }
+            Rule::redirect_filter => {
+                let sel = sub.into_inner().next()
+                    .ok_or_else(|| V2ParseError::MissingField("redirect filter selector"))?;
+                filter = Some(parse_selector(sel)?);
+            }
+            _ => {}
+        }
+    }
+
+    Ok(Redirect {
+        name,
+        scope: scope.ok_or(V2ParseError::MissingField("scope"))?,
+        from: from.ok_or(V2ParseError::MissingField("from"))?,
+        to: to.ok_or(V2ParseError::MissingField("to"))?,
+        filter,
+    })
+}
+
+fn parse_redirect_scope(text: &str) -> Result<RedirectScope, V2ParseError> {
+    match text {
+        "self" => Ok(RedirectScope::Self_),
+        "field" => Ok(RedirectScope::Field),
+        "opponent_field" => Ok(RedirectScope::OpponentField),
+        "both_fields" => Ok(RedirectScope::BothFields),
+        _ => Err(V2ParseError::UnknownRule(format!("redirect scope: {}", text))),
+    }
 }
 
 // ── Choose Block ────────────────────────────────────────────
