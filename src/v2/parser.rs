@@ -1202,6 +1202,8 @@ fn parse_trigger(pair: Pair<Rule>) -> Result<Trigger, V2ParseError> {
             "battle_phase" => Ok(Trigger::BattlePhase),
             "summon_attempt" => Ok(Trigger::SummonAttempt),
             "spell_trap_activated" => Ok(Trigger::SpellTrapActivated),
+            "chain_solved" => Ok(Trigger::ChainSolved),
+            "chain_solving" => Ok(Trigger::ChainSolving),
             "opponent_activates" => Ok(Trigger::Activates {
                 subject: ActivatesSubject::Opponent,
                 categories: vec![],

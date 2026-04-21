@@ -1160,6 +1160,8 @@ fn format_trigger(trigger: &Trigger) -> String {
                 format!("{} [{}]", keyword, cat_strs.join(", "))
             }
         }
+        Trigger::ChainSolved => "chain_solved".to_string(),
+        Trigger::ChainSolving => "chain_solving".to_string(),
         Trigger::ChainLink => "chain_link".to_string(),
         Trigger::Targeted => "targeted".to_string(),
         Trigger::PositionChanged => "position_changed".to_string(),
