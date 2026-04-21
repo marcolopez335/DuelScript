@@ -3158,14 +3158,14 @@ card "Empty Replacement Card" {
         use super::super::mock_runtime::{MockRuntime, CardSnapshot};
         let c = compile("cards/goat/test_ritual_spell.ds");
         assert!(c.effects.len() >= 1, "Expected at least 1 effect, got {}", c.effects.len());
-        assert_eq!(c.card_id, 55761792);
+        assert_eq!(c.card_id, 99999997);
 
         let mut rt = MockRuntime::new();
-        rt.effect_card_id = 55761792;
+        rt.effect_card_id = 99999997;
         rt.effect_player = 0;
         // Provide a monster on the field with enough level so the materials selector resolves
-        rt.state.add_card(CardSnapshot::monster(55761792, "Test Ritual Spell", 0, 0, 8));
-        rt.state.players[0].field_monsters.push(55761792);
+        rt.state.add_card(CardSnapshot::monster(99999997, "Test Ritual Spell", 0, 0, 8));
+        rt.state.players[0].field_monsters.push(99999997);
 
         if let Some(ref op) = c.effects[0].operation {
             op(&mut rt);
