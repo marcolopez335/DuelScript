@@ -1222,6 +1222,11 @@ fn parse_trigger(pair: Pair<Rule>) -> Result<Trigger, V2ParseError> {
             "control_changed" => Ok(Trigger::ControlChanged),
             "equipped" => Ok(Trigger::Equipped),
             "unequipped" => Ok(Trigger::Unequipped),
+            "used_as_material" => Ok(Trigger::UsedAsMaterial {
+                role: None,
+                method: None,
+                summoned_by_binding: None,
+            }),
             _ => Err(V2ParseError::UnknownRule(format!("trigger: {}", text))),
         };
     }
@@ -1323,11 +1328,29 @@ fn parse_trigger(pair: Pair<Rule>) -> Result<Trigger, V2ParseError> {
     }
 
     if text.starts_with("used_as_material") {
-        let method = inner.into_iter()
-            .find(|p| p.as_rule() == Rule::summon_method)
-            .map(|sm| parse_summon_method(sm.as_str().trim()))
-            .transpose()?;
-        return Ok(Trigger::UsedAsMaterial(method));
+        // T30 / AA-II: three optional clauses — role, method, binding.
+        let mut role: Option<MaterialRole> = None;
+        let mut method: Option<SummonMethod> = None;
+        let mut summoned_by_binding: Option<String> = None;
+        for p in inner {
+            match p.as_rule() {
+                Rule::material_role => {
+                    role = Some(parse_material_role(p.as_str().trim())?);
+                }
+                Rule::summon_method => {
+                    method = Some(parse_summon_method(p.as_str().trim())?);
+                }
+                Rule::material_by_binding => {
+                    // `by as <ident>`
+                    let name = p.into_inner()
+                        .find(|q| q.as_rule() == Rule::ident)
+                        .map(|q| q.as_str().trim().to_string());
+                    summoned_by_binding = name;
+                }
+                _ => {}
+            }
+        }
+        return Ok(Trigger::UsedAsMaterial { role, method, summoned_by_binding });
     }
 
     // Custom trigger
@@ -2422,6 +2445,19 @@ fn parse_summon_method(text: &str) -> Result<SummonMethod, V2ParseError> {
         "ritual" => Ok(SummonMethod::Ritual),
         "pendulum" => Ok(SummonMethod::Pendulum),
         _ => Err(V2ParseError::UnknownRule(format!("summon_method: {}", text))),
+    }
+}
+
+/// T30 / AA-II: parse the `material_role` rule into the AST enum.
+fn parse_material_role(text: &str) -> Result<MaterialRole, V2ParseError> {
+    match text {
+        "xyz_attached" => Ok(MaterialRole::XyzAttached),
+        "tributed"     => Ok(MaterialRole::Tributed),
+        "fused"        => Ok(MaterialRole::Fused),
+        "synchro"      => Ok(MaterialRole::Synchro),
+        "link"         => Ok(MaterialRole::Link),
+        "ritual"       => Ok(MaterialRole::Ritual),
+        _ => Err(V2ParseError::UnknownRule(format!("material_role: {}", text))),
     }
 }
 

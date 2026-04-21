@@ -1168,8 +1168,22 @@ fn format_trigger(trigger: &Trigger) -> String {
         Trigger::ControlChanged => "control_changed".to_string(),
         Trigger::Equipped => "equipped".to_string(),
         Trigger::Unequipped => "unequipped".to_string(),
-        Trigger::UsedAsMaterial(None) => "used_as_material".to_string(),
-        Trigger::UsedAsMaterial(Some(m)) => format!("used_as_material for {}", format_summon_method(m)),
+        Trigger::UsedAsMaterial { role, method, summoned_by_binding } => {
+            let mut out = String::from("used_as_material");
+            if let Some(r) = role {
+                out.push_str(" as ");
+                out.push_str(format_material_role(r));
+            }
+            if let Some(m) = method {
+                out.push_str(" for ");
+                out.push_str(format_summon_method(m));
+            }
+            if let Some(name) = summoned_by_binding {
+                out.push_str(" by as ");
+                out.push_str(name);
+            }
+            out
+        }
         Trigger::Custom(s) => format!("custom \"{}\"", s),
     }
 }
@@ -1186,6 +1200,18 @@ fn format_summon_method(m: &SummonMethod) -> &'static str {
         SummonMethod::Link => "link",
         SummonMethod::Ritual => "ritual",
         SummonMethod::Pendulum => "pendulum",
+    }
+}
+
+/// T30 / AA-II: format a MaterialRole AST variant back to its grammar keyword.
+fn format_material_role(r: &MaterialRole) -> &'static str {
+    match r {
+        MaterialRole::XyzAttached => "xyz_attached",
+        MaterialRole::Tributed    => "tributed",
+        MaterialRole::Fused       => "fused",
+        MaterialRole::Synchro     => "synchro",
+        MaterialRole::Link        => "link",
+        MaterialRole::Ritual      => "ritual",
     }
 }
 
