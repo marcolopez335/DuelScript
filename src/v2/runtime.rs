@@ -1128,4 +1128,38 @@ pub trait DuelScriptRuntime {
     /// # Default
     /// No-op.
     fn register_grant(&mut self, _card_id: u32, _grant_code: u32, _duration: u32) {}
+
+    // ── Leave-field Redirect (T31 / CC-II) ───────────────────────────
+
+    /// Register a continuous leave-field destination redirect on the field
+    /// while `source_card` is on the field.
+    ///
+    /// This is the primitive behind Macro Cosmos, Dimensional Fissure,
+    /// Banisher of the Radiance, and any card that reads "instead of being
+    /// sent to the Graveyard, banish it" — or the mirror patterns for hand
+    /// (bounced instead of destroyed) and deck (shuffled instead).
+    ///
+    /// # Args
+    /// - `source_card`: Passcode of the card whose presence enables the
+    ///   redirect. When this card leaves the field, the engine drops the
+    ///   entry.
+    /// - `from_zone`: EDOPro `LOCATION_*` bitmask naming the original
+    ///   leave-field destination (e.g., `LOCATION_GRAVE`).
+    /// - `to_zone`: EDOPro `LOCATION_*` bitmask naming the replacement
+    ///   destination (e.g., `LOCATION_REMOVED`).
+    /// - `scope_mask`: `REDIRECT_SCOPE_*` bitmask naming which side(s) of
+    ///   the field the redirect applies to (self-only, own side, opponent
+    ///   side, both).
+    ///
+    /// Filter-aware redirects (restricting by card type, attribute, etc.)
+    /// are a follow-up — the initial trait seam is zone-only so the u32
+    /// signature stays minimal.
+    ///
+    /// # Default
+    /// No-op. Engines that don't support leave-field redirects skip
+    /// silently; compiled cards with `redirect` blocks parse and compile
+    /// without the behavior taking effect.
+    fn register_redirect(&mut self, _source_card: u32,
+                         _from_zone: u32, _to_zone: u32,
+                         _scope_mask: u32) {}
 }

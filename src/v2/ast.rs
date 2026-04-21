@@ -21,6 +21,7 @@ pub struct Card {
     pub passives: Vec<Passive>,
     pub restrictions: Vec<Restriction>,
     pub replacements: Vec<Replacement>,
+    pub redirects: Vec<Redirect>,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -684,6 +685,32 @@ pub enum ReplaceableEvent {
     DestroyedByBattle, DestroyedByEffect, Destroyed,
     SentToGy, Banished,
     ReturnedToHand, ReturnedToDeck, LeavesField,
+}
+
+// ── Redirect Block ───────────────────────────────────────────
+// Continuous leave-field destination redirect (Macro Cosmos pattern).
+// T31 / CC-II — parallel to Replacement but for *continuous*
+// floodgate-style "instead of to X, to Y" redirection.
+
+#[derive(Debug, Clone)]
+pub struct Redirect {
+    pub name: Option<String>,
+    pub scope: RedirectScope,
+    pub from: Zone,
+    pub to: Zone,
+    pub filter: Option<Selector>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RedirectScope {
+    /// Affects only the source card's own moves.
+    Self_,
+    /// Affects all moves on the source card's controller's side.
+    Field,
+    /// Affects all moves on the opposing side.
+    OpponentField,
+    /// Affects all moves on both fields (Macro Cosmos default).
+    BothFields,
 }
 
 // ── Choose Block ─────────────────────────────────────────────

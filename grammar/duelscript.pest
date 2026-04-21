@@ -50,6 +50,7 @@ card_item = {
   | passive_block
   | restriction_block
   | replacement_block
+  | redirect_block
 }
 
 // ── Card Fields ──────────────────────────────────────────────
@@ -654,6 +655,27 @@ replaceable_event = {
   | "returned_to_deck"
   | "leaves_field"
 }
+
+// ══════════════════════════════════════════════════════════════
+// REDIRECT BLOCK — continuous leave-field destination redirect
+// (Macro Cosmos pattern: "instead of to X, to Y")
+// ══════════════════════════════════════════════════════════════
+
+redirect_block = { "redirect" ~ string?
+                   ~ "{"
+                   ~ redirect_item+
+                   ~ "}" }
+redirect_item = {
+    redirect_scope
+  | redirect_source
+  | redirect_destination
+  | redirect_filter
+}
+redirect_scope       = { "scope" ~ ":" ~ redirect_scope_value }
+redirect_scope_value = { "self" | "opponent_field" | "both_fields" | "field" }
+redirect_source      = { "from" ~ ":" ~ zone }
+redirect_destination = { "to" ~ ":" ~ zone }
+redirect_filter      = { "when" ~ ":" ~ selector }
 
 // ── Zones ────────────────────────────────────────────────────
 zone = {

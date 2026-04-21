@@ -150,6 +150,20 @@ pub struct MockState {
     pub bindings: HashMap<String, Vec<u32>>,
     /// The "last selected" group, used by bind_last_selection
     pub last_selection: Vec<u32>,
+    /// Leave-field redirects registered via `register_redirect`
+    /// (T31 / CC-II). Each entry is
+    /// `(source_card, from_zone, to_zone, scope_mask)` — the raw u32
+    /// tuple passed through the trait seam, stored in registration order.
+    pub redirects: Vec<MockRedirect>,
+}
+
+/// Recorded leave-field redirect registration — see `MockState::redirects`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct MockRedirect {
+    pub source_card: u32,
+    pub from_zone: u32,
+    pub to_zone: u32,
+    pub scope_mask: u32,
 }
 
 impl Default for MockState {
@@ -161,6 +175,7 @@ impl Default for MockState {
             counters: HashMap::new(),
             bindings: HashMap::new(),
             last_selection: Vec::new(),
+            redirects: Vec::new(),
         }
     }
 }
@@ -602,6 +617,21 @@ impl DuelScriptRuntime for MockRuntime {
         0xA55E_2700
     }
     fn get_announcement(&self, _token: u32) -> u32 { 0 }
+
+    // ── T31 / CC-II: leave-field redirect ────────────────────
+    fn register_redirect(&mut self, source_card: u32,
+                         from_zone: u32, to_zone: u32,
+                         scope_mask: u32) {
+        self.record("register_redirect",
+            format!("source={} from=0x{:x} to=0x{:x} scope=0x{:x}",
+                    source_card, from_zone, to_zone, scope_mask));
+        self.state.redirects.push(MockRedirect {
+            source_card,
+            from_zone,
+            to_zone,
+            scope_mask,
+        });
+    }
 
     // ── Phase 1A: flags ──────────────────────────────────────
     fn register_flag(&mut self, card_id: u32, name: &str, survives: u32, resets: u32) {
