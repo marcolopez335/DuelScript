@@ -244,7 +244,9 @@ trigger_expr = {
   | "equipped"
   | "unequipped"
     // Material triggers
-  | "used_as_material" ~ ("for" ~ summon_method)?
+  | "used_as_material" ~ ("as" ~ material_role)?
+                      ~ ("for" ~ summon_method)?
+                      ~ material_by_binding?
     // Custom
   | "custom" ~ string
 }
@@ -252,6 +254,9 @@ trigger_expr = {
 summon_qualifier  = { "by" ~ summon_method }
 summon_method     = { "normal" | "special" | "flip" | "tribute"
                     | "fusion" | "synchro" | "xyz" | "link" | "ritual" | "pendulum" }
+material_role     = { "xyz_attached" | "tributed" | "fused"
+                    | "synchro" | "link" | "ritual" }
+material_by_binding = { "by" ~ "as" ~ ident }
 destroy_qualifier = { "by" ~ ("battle" | "effect" | "card_effect") }
 from_qualifier    = { "from" ~ zone }
 damage_qualifier  = { "to" ~ ("you" | "opponent" | "controller" | "either") }

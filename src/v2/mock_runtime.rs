@@ -194,6 +194,13 @@ pub struct MockRuntime {
     pub prev_locations:   std::collections::HashMap<u32, u32>,
     pub prev_controllers: std::collections::HashMap<u32, u8>,
     pub prev_positions:   std::collections::HashMap<u32, u32>,
+    /// REASON_* bitmask describing *how* this card was consumed as
+    /// material for an `EVENT_BE_MATERIAL` firing. Set via
+    /// `DuelScenario::material_role(...)` (T30 / AA-II).
+    pub material_role: u32,
+    /// Card ID of the monster summoned using this card as material.
+    /// Set via `DuelScenario::material_summoner_id(...)` (T30 / AA-II).
+    pub material_summoner_id: u32,
 }
 
 impl MockRuntime {
@@ -209,6 +216,8 @@ impl MockRuntime {
             prev_locations: std::collections::HashMap::new(),
             prev_controllers: std::collections::HashMap::new(),
             prev_positions: std::collections::HashMap::new(),
+            material_role: 0,
+            material_summoner_id: 0,
         }
     }
 
@@ -343,6 +352,8 @@ impl DuelScriptRuntime for MockRuntime {
     fn previous_position(&self, card_id: u32) -> u32 {
         self.prev_positions.get(&card_id).copied().unwrap_or(0)
     }
+    fn material_role(&self) -> u32 { self.material_role }
+    fn material_summoner_id(&self) -> u32 { self.material_summoner_id }
 
     // ── Card movement ────────────────────────────────────────
     fn draw(&mut self, player: u8, count: u32) -> u32 {
@@ -855,6 +866,23 @@ impl DuelScenario {
     /// EDOPro `POS_*` bitmask.
     pub fn previous_position(mut self, card_id: u32, mask: u32) -> Self {
         self.rt.prev_positions.insert(card_id, mask);
+        self
+    }
+
+    /// Set the REASON_* bitmask for the current `EVENT_BE_MATERIAL`
+    /// firing — describes how this card was used as material
+    /// (T30 / AA-II). Accepts any combination of `REASON_XYZ`,
+    /// `REASON_FUSION`, `REASON_SYNCHRO`, `REASON_LINK`, `REASON_RITUAL`,
+    /// `REASON_RELEASE`, or `REASON_MATERIAL`.
+    pub fn material_role(mut self, mask: u32) -> Self {
+        self.rt.material_role = mask;
+        self
+    }
+
+    /// Set the card ID of the monster summoned using this card as
+    /// material (T30 / AA-II).
+    pub fn material_summoner_id(mut self, card_id: u32) -> Self {
+        self.rt.material_summoner_id = card_id;
         self
     }
 

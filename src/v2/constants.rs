@@ -56,6 +56,13 @@ pub const EVENT_RELEASE:           u32 = 1017;
 pub const EVENT_CHAINING:          u32 = 1027;
 pub const EVENT_CHAIN_SOLVING:     u32 = 1028;
 pub const EVENT_CHAIN_SOLVED:      u32 = 1030;
+/// Fires when a card is used as a material — Xyz attached, tributed,
+/// fused, Synchro/Link/Ritual material. EDOPro code 1108 (see
+/// `grammar/edopro_constants.lua:669`). Distinct from `EVENT_RELEASE`
+/// (1017), which fires for any `Duel.Release` regardless of reason.
+/// Pre-T30, `Trigger::UsedAsMaterial` routed to EVENT_RELEASE; fixed
+/// in T30 / AA-II.
+pub const EVENT_BE_MATERIAL:       u32 = 1108;
 pub const EVENT_DESTROYED:         u32 = 1029;
 pub const EVENT_SUMMON_SUCCESS:    u32 = 1100;
 pub const EVENT_FLIP_SUMMON_SUCCESS: u32 = 1101;
@@ -116,6 +123,16 @@ pub const REASON_COST:     u32 = 0x80;
 pub const REASON_RULE:     u32 = 0x400;
 pub const REASON_DISCARD:  u32 = 0x4000;
 pub const REASON_RETURN:   u32 = 0x20000;
+/// Reason: consumed as Fusion material. EDOPro `REASON_FUSION`.
+pub const REASON_FUSION:   u32 = 0x40000;
+/// Reason: consumed as Synchro material. EDOPro `REASON_SYNCHRO`.
+pub const REASON_SYNCHRO:  u32 = 0x80000;
+/// Reason: consumed as Ritual material. EDOPro `REASON_RITUAL`.
+pub const REASON_RITUAL:   u32 = 0x100000;
+/// Reason: consumed as Xyz material (overlaid). EDOPro `REASON_XYZ`.
+pub const REASON_XYZ:      u32 = 0x200000;
+/// Reason: consumed as Link material. EDOPro `REASON_LINK`.
+pub const REASON_LINK:     u32 = 0x10000000;
 
 /// Count limit for effect activation frequency.
 #[derive(Debug, Clone, PartialEq, Eq)]

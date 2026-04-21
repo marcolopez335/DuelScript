@@ -656,7 +656,7 @@ fn trigger_to_event_code(trigger: &Option<Trigger>) -> u32 {
             Trigger::ChainSolving => tm::EVENT_CHAIN_SOLVING,
             Trigger::ChainLink => tm::EVENT_CHAINING,
             Trigger::Targeted => 0, // special engine handling
-            Trigger::UsedAsMaterial(_) => tm::EVENT_RELEASE,
+            Trigger::UsedAsMaterial { .. } => tm::EVENT_BE_MATERIAL,
             Trigger::PositionChanged => 0, // engine-specific; no standard event
             Trigger::ControlChanged  => 0, // engine-specific
             Trigger::Equipped        => 0, // engine-specific
@@ -1411,8 +1411,60 @@ fn gen_condition(effect: &Effect) -> Option<Arc<dyn Fn(&dyn DuelScriptRuntime) -
                 if !matched { return false; }
             }
         }
+        // T30 / AA-II: `used_as_material as <role> for <method>` — role
+        // filter checked against the engine's `material_role()` bitmask.
+        // Method filter reuses the same bitmask, mapping SummonMethod to
+        // the corresponding REASON_* bit. The `by as <binding>` clause
+        // is handled on the producer side (operation closure), not here.
+        if let Some(Trigger::UsedAsMaterial { ref role, ref method, .. }) = trigger {
+            if let Some(role) = role {
+                let mask = material_role_to_mask(role);
+                if rt.material_role() & mask == 0 { return false; }
+            }
+            if let Some(method) = method {
+                let mask = summon_method_to_material_mask(method);
+                // Skip the filter entirely for methods with no natural
+                // REASON_* mapping (Normal/Flip/Special/Pendulum): any
+                // firing of EVENT_BE_MATERIAL already implies some form
+                // of material consumption.
+                if mask != 0 && rt.material_role() & mask == 0 { return false; }
+            }
+        }
         true
     }))
+}
+
+/// T30 / AA-II: map a `MaterialRole` AST variant to the REASON_* bit
+/// the runtime reports via `material_role()`.
+fn material_role_to_mask(role: &MaterialRole) -> u32 {
+    match role {
+        MaterialRole::XyzAttached => tm::REASON_XYZ,
+        MaterialRole::Tributed    => tm::REASON_RELEASE,
+        MaterialRole::Fused       => tm::REASON_FUSION,
+        MaterialRole::Synchro     => tm::REASON_SYNCHRO,
+        MaterialRole::Link        => tm::REASON_LINK,
+        MaterialRole::Ritual      => tm::REASON_RITUAL,
+    }
+}
+
+/// T30 / AA-II: map a `SummonMethod` (from `used_as_material for <m>`)
+/// to the corresponding REASON_* bit in `material_role()`. Returns `0`
+/// for methods that don't have a natural material-reason mapping
+/// (Normal/Flip/Special/Pendulum don't consume material through a
+/// REASON_* bit; the trigger simply wouldn't fire in those cases).
+fn summon_method_to_material_mask(m: &SummonMethod) -> u32 {
+    match m {
+        SummonMethod::Xyz     => tm::REASON_XYZ,
+        SummonMethod::Fusion  => tm::REASON_FUSION,
+        SummonMethod::Synchro => tm::REASON_SYNCHRO,
+        SummonMethod::Link    => tm::REASON_LINK,
+        SummonMethod::Ritual  => tm::REASON_RITUAL,
+        SummonMethod::Tribute => tm::REASON_RELEASE,
+        SummonMethod::Normal
+        | SummonMethod::Special
+        | SummonMethod::Flip
+        | SummonMethod::Pendulum => 0,
+    }
 }
 
 fn eval_v2_condition(cond: &Condition, rt: &dyn DuelScriptRuntime) -> bool {
@@ -2244,8 +2296,44 @@ fn build_effect_callbacks(effect: &Effect, card: &Card) -> (
         gen_condition(effect),
         gen_cost(&effect.cost, card_id),
         gen_target(&effect.target),
-        gen_operation(&effect.resolve),
+        gen_operation_with_binding_prologue(&effect.resolve, &effect.trigger),
     )
+}
+
+/// T30 / AA-II: wraps `gen_operation` so that if the effect's trigger
+/// is `used_as_material ... by as <name>`, we emit a
+/// `set_binding(<name>, material_summoner_id())` call *before* the
+/// resolve actions run. Lets `resolve { ... target <name> }` reference
+/// the summoning card.
+fn gen_operation_with_binding_prologue(
+    actions: &[Action],
+    trigger: &Option<Trigger>,
+) -> Option<Arc<dyn Fn(&mut dyn DuelScriptRuntime) + Send + Sync>> {
+    let binding_name = match trigger {
+        Some(Trigger::UsedAsMaterial { summoned_by_binding: Some(n), .. }) => {
+            Some(n.clone())
+        }
+        _ => None,
+    };
+    let inner = gen_operation(actions);
+    match (binding_name, inner) {
+        // No binding + no actions → no-op.
+        (None, None) => None,
+        // No binding → pass-through.
+        (None, Some(op)) => Some(op),
+        // Binding + actions → prologue then body.
+        (Some(name), Some(op)) => Some(Arc::new(move |rt: &mut dyn DuelScriptRuntime| {
+            let summoner = rt.material_summoner_id();
+            rt.set_binding(&name, summoner);
+            op(rt);
+        })),
+        // Binding but no actions → still emit the binding write so
+        // downstream continuous effects on the same card can read it.
+        (Some(name), None) => Some(Arc::new(move |rt: &mut dyn DuelScriptRuntime| {
+            let summoner = rt.material_summoner_id();
+            rt.set_binding(&name, summoner);
+        })),
+    }
 }
 
 // ── Tests ───────────────────────────────────────────────────
@@ -5015,6 +5103,156 @@ card "T27 Fmt" {{
             // AST round-trip — normalise by re-formatting both.
             let reprinted = crate::v2::fmt::format_file(&reparsed);
             assert_eq!(printed, reprinted, "format must be idempotent for `{expr}`");
+        }
+    }
+
+    // ── T30: used_as_material refinement (AA-II) ──────────────
+
+    /// Helper: compile a card with `trigger: <expr>` using the
+    /// `used_as_material` family on the sole effect. Returns the
+    /// (condition, operation) pair.
+    #[allow(clippy::type_complexity)]
+    fn compile_material_trigger(
+        trigger_expr: &str,
+    ) -> (
+        CompiledEffectV2,
+    ) {
+        let src = format!(r#"
+card "T30 Test" {{
+    id: 99998401
+    type: Effect Monster
+    attribute: DARK
+    race: Zombie
+    level: 4
+    atk: 1500
+    def: 1000
+    effect "R" {{
+        speed: 1
+        mandatory
+        trigger: {trigger_expr}
+        resolve {{
+            draw 1
+        }}
+    }}
+}}
+"#);
+        let file = parse_v2(&src).expect("parse");
+        let compiled = compile_card_v2(&file.cards[0]);
+        (compiled.effects.into_iter().next().expect("one effect"),)
+    }
+
+    #[test]
+    fn t30_used_as_material_routes_to_event_be_material() {
+        // Bug fix in AA-II: pre-T30, UsedAsMaterial(_) routed to
+        // EVENT_RELEASE (1017). Must now route to EVENT_BE_MATERIAL (1108).
+        let (e,) = compile_material_trigger("used_as_material");
+        assert_eq!(e.code, tm::EVENT_BE_MATERIAL,
+            "used_as_material must map to EVENT_BE_MATERIAL (1108), not EVENT_RELEASE");
+    }
+
+    #[test]
+    fn t30_material_role_filter_xyz_attached_matches_reason_xyz() {
+        let (e,) = compile_material_trigger("used_as_material as xyz_attached");
+        let cond = e.condition.as_ref().expect("role filter adds a closure");
+
+        // Role = XYZ → match.
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .material_role(tm::REASON_XYZ)
+            .build();
+        assert!(cond(&rt), "role=xyz_attached must match REASON_XYZ");
+
+        // Role = FUSION → miss.
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .material_role(tm::REASON_FUSION)
+            .build();
+        assert!(!cond(&rt), "role=xyz_attached must miss REASON_FUSION");
+
+        // Role = 0 (engine not wired) → miss (no role recorded).
+        let rt = crate::v2::mock_runtime::DuelScenario::new().build();
+        assert!(!cond(&rt), "role filter must miss when material_role() == 0");
+    }
+
+    #[test]
+    fn t30_material_method_filter_for_fusion_matches_reason_fusion() {
+        let (e,) = compile_material_trigger("used_as_material for fusion");
+        let cond = e.condition.as_ref().expect("method filter adds a closure");
+
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .material_role(tm::REASON_FUSION)
+            .build();
+        assert!(cond(&rt), "method=fusion must match REASON_FUSION");
+
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .material_role(tm::REASON_SYNCHRO)
+            .build();
+        assert!(!cond(&rt), "method=fusion must miss REASON_SYNCHRO");
+    }
+
+    #[test]
+    fn t30_material_by_as_binding_writes_summoner_id() {
+        // `by as summoner` should emit a `set_binding("summoner", <id>)`
+        // call before the resolve actions run. We use MockRuntime's
+        // recorded call log to verify.
+        let (e,) = compile_material_trigger(
+            "used_as_material as xyz_attached by as summoner",
+        );
+        let op = e.operation.as_ref().expect("operation closure exists");
+
+        let mut rt = crate::v2::mock_runtime::DuelScenario::new()
+            .material_role(tm::REASON_XYZ)
+            .material_summoner_id(42424242)
+            .build();
+        op(&mut rt);
+
+        assert!(
+            rt.was_called_with("set_binding", r#"name="summoner""#),
+            "binding prologue must write the `summoner` name;\n{}",
+            rt.dump_calls(),
+        );
+        assert!(
+            rt.was_called_with("set_binding", "card=42424242"),
+            "binding prologue must pass through material_summoner_id;\n{}",
+            rt.dump_calls(),
+        );
+        // And the resolve actions still run.
+        assert_eq!(rt.call_count("draw"), 1, "resolve body must still execute");
+    }
+
+    #[test]
+    fn t30_used_as_material_fmt_roundtrip() {
+        for expr in [
+            "used_as_material",
+            "used_as_material as xyz_attached",
+            "used_as_material as fused for fusion",
+            "used_as_material for synchro by as summoner",
+            "used_as_material as xyz_attached by as host",
+        ] {
+            let src = format!(r#"
+card "T30 Fmt" {{
+    id: 99998402
+    type: Effect Monster
+    attribute: DARK
+    race: Zombie
+    level: 4
+    atk: 1500
+    def: 1000
+    effect "R" {{
+        speed: 1
+        mandatory
+        trigger: {expr}
+        resolve {{ draw 1 }}
+    }}
+}}
+"#);
+            let file = parse_v2(&src)
+                .unwrap_or_else(|e| panic!("parse failed for `{expr}`: {e}"));
+            let printed = crate::v2::fmt::format_file(&file);
+            assert!(printed.contains(expr),
+                "fmt must emit the trigger verbatim for `{expr}`:\n{printed}");
+            let reparsed = parse_v2(&printed)
+                .unwrap_or_else(|e| panic!("round-trip failed for `{expr}`: {e}\n{printed}"));
+            let reprinted = crate::v2::fmt::format_file(&reparsed);
+            assert_eq!(printed, reprinted, "fmt idempotence broken for `{expr}`");
         }
     }
 }

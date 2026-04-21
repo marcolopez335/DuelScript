@@ -355,6 +355,27 @@ pub trait DuelScriptRuntime {
     /// etc.). Returns `0` when no history is tracked. Default `0`.
     fn previous_position(&self, _card_id: u32) -> u32 { 0 }
 
+    /// Role bitmask describing *how* this card was consumed as material
+    /// during an `EVENT_BE_MATERIAL` firing. Used by the DSL
+    /// `used_as_material as <role>` trigger refinement (T30 / AA-II).
+    ///
+    /// # Returns
+    /// REASON_* bitmask where at least one of `REASON_XYZ`, `REASON_FUSION`,
+    /// `REASON_SYNCHRO`, `REASON_LINK`, `REASON_RITUAL`, `REASON_RELEASE`,
+    /// or `REASON_MATERIAL` is set depending on role. Returns `0` when no
+    /// material context is active or the engine has not wired material
+    /// metadata. Default `0`.
+    fn material_role(&self) -> u32 { 0 }
+    /// Card ID of the monster that was summoned using this card as
+    /// material. Used by `used_as_material ... by as <binding>` to
+    /// expose the summoning card to `resolve { ... target }`.
+    /// T30 / AA-II.
+    ///
+    /// # Returns
+    /// The summoner's card ID, or `0` when no material context is active
+    /// or the engine has not wired material metadata. Default `0`.
+    fn material_summoner_id(&self) -> u32 { 0 }
+
     // ── Card Movement / Actions ──────────────────────────────
 
     /// Draw `count` cards from the top of `player`'s deck into their hand.

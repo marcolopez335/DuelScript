@@ -223,8 +223,43 @@ pub enum Trigger {
     ControlChanged,
     Equipped,
     Unequipped,
-    UsedAsMaterial(Option<SummonMethod>),
+    /// `used_as_material` — fires when this card is consumed as a
+    /// material (Xyz-attached, tributed, fused, Synchro/Link/Ritual
+    /// material). Maps to EDOPro `EVENT_BE_MATERIAL` (1108). T30 / AA-II.
+    ///
+    /// Three optional clauses:
+    /// - `role`: filter by how the card was used (Xyz-attached vs
+    ///   tributed vs fused). If `None`, fire regardless.
+    /// - `method`: filter by which summon method consumed it
+    ///   (`for fusion`, `for synchro`, etc.). If `None`, fire regardless.
+    /// - `summoned_by_binding`: optional binding name that the compiler
+    ///   emits a `set_binding(name, material_summoner_id)` call for when
+    ///   the trigger fires — lets `resolve { ... target }` reference the
+    ///   summoning card by that name.
+    UsedAsMaterial {
+        role: Option<MaterialRole>,
+        method: Option<SummonMethod>,
+        summoned_by_binding: Option<String>,
+    },
     Custom(String),
+}
+
+/// Material-role filter for `used_as_material` trigger (T30 / AA-II).
+/// Maps to a bitmask via `material_role()` runtime method.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum MaterialRole {
+    /// Attached as Xyz material (EDOPro `MATERIAL_XYZ` / overlay).
+    XyzAttached,
+    /// Tributed (for Tribute Summon or as cost).
+    Tributed,
+    /// Sent as Fusion material.
+    Fused,
+    /// Sent as Synchro material.
+    Synchro,
+    /// Sent as Link material.
+    Link,
+    /// Sent as Ritual material.
+    Ritual,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
