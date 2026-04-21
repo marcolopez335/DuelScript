@@ -444,13 +444,21 @@ fn check_spell_speeds(ctx: &Ctx, errors: &mut Vec<ValidationError>) {
             )));
         }
 
-        // Negate at speed 1 is suspicious
-        for action in &effect.resolve {
-            if let Action::Negate(_) = action {
-                if speed == 1 {
-                    errors.push(warn(ctx.name(), &format!(
-                        "Effect '{}': negate at speed 1 — should be speed 2+", effect.name
-                    )));
+        // Negate at speed 1 is suspicious — but only for card types where
+        // speed 2+ is actually permitted. Non-Quick-Play Spells are locked
+        // to speed 1 by the rule above, so a negate on them is a migration
+        // signal (the real card is probably mis-typed) rather than a speed
+        // bug we can fix here. Keep the warning off those to avoid the
+        // contradictory "raise to 2+" / "must be 1" pairing.
+        let can_be_quick = !ctx.is_spell || ctx.is_quickplay;
+        if can_be_quick {
+            for action in &effect.resolve {
+                if let Action::Negate(_) = action {
+                    if speed == 1 {
+                        errors.push(warn(ctx.name(), &format!(
+                            "Effect '{}': negate at speed 1 — should be speed 2+", effect.name
+                        )));
+                    }
                 }
             }
         }
