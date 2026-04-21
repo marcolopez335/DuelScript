@@ -189,6 +189,11 @@ pub struct MockRuntime {
     /// REASON_* bitmask for why the current event is happening.
     /// See `runtime::DuelScriptRuntime::current_reason`.
     pub current_reason: u32,
+    /// Per-card history snapshots for T28 `previous_*` predicates.
+    /// Populated via `DuelScenario::previous_*(...)` helpers.
+    pub prev_locations:   std::collections::HashMap<u32, u32>,
+    pub prev_controllers: std::collections::HashMap<u32, u8>,
+    pub prev_positions:   std::collections::HashMap<u32, u32>,
 }
 
 impl MockRuntime {
@@ -201,6 +206,9 @@ impl MockRuntime {
             event_categories: 0,
             event_player: 0,
             current_reason: 0,
+            prev_locations: std::collections::HashMap::new(),
+            prev_controllers: std::collections::HashMap::new(),
+            prev_positions: std::collections::HashMap::new(),
         }
     }
 
@@ -326,6 +334,15 @@ impl DuelScriptRuntime for MockRuntime {
     fn event_categories(&self) -> u32 { self.event_categories }
     fn event_player(&self) -> u8 { self.event_player }
     fn current_reason(&self) -> u32 { self.current_reason }
+    fn previous_location(&self, card_id: u32) -> u32 {
+        self.prev_locations.get(&card_id).copied().unwrap_or(0)
+    }
+    fn previous_controller(&self, card_id: u32) -> u8 {
+        self.prev_controllers.get(&card_id).copied().unwrap_or(0)
+    }
+    fn previous_position(&self, card_id: u32) -> u32 {
+        self.prev_positions.get(&card_id).copied().unwrap_or(0)
+    }
 
     // ── Card movement ────────────────────────────────────────
     fn draw(&mut self, player: u8, count: u32) -> u32 {
@@ -591,8 +608,9 @@ impl DuelScriptRuntime for MockRuntime {
     }
 
     // ── Phase 1A: history queries (stubs) ────────────────────
-    fn previous_location(&self, _card_id: u32) -> u32 { 0 }
-    fn previous_position(&self, _card_id: u32) -> u32 { 0 }
+    // Note: `previous_location` and `previous_position` are now real
+    // impls above (T28). `sent_by_reason` remains a stub until a
+    // follow-up phase wires it through.
     fn sent_by_reason(&self, _card_id: u32) -> u32 { 0 }
 
     // ── Phase 1D: bindings ───────────────────────────────────
@@ -817,6 +835,26 @@ impl DuelScenario {
     /// condition tests — T27).
     pub fn current_reason(mut self, mask: u32) -> Self {
         self.rt.current_reason = mask;
+        self
+    }
+
+    /// Set the per-card previous-location snapshot (T28). `mask` is an
+    /// EDOPro `LOCATION_*` bitmask.
+    pub fn previous_location(mut self, card_id: u32, mask: u32) -> Self {
+        self.rt.prev_locations.insert(card_id, mask);
+        self
+    }
+
+    /// Set the per-card previous-controller snapshot (T28).
+    pub fn previous_controller(mut self, card_id: u32, player: u8) -> Self {
+        self.rt.prev_controllers.insert(card_id, player);
+        self
+    }
+
+    /// Set the per-card previous-position snapshot (T28). `mask` is an
+    /// EDOPro `POS_*` bitmask.
+    pub fn previous_position(mut self, card_id: u32, mask: u32) -> Self {
+        self.rt.prev_positions.insert(card_id, mask);
         self
     }
 

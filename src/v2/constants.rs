@@ -93,6 +93,16 @@ pub const EFFECT_FLAG_DAMAGE_STEP:   u32 = 0x4000;
 pub const EFFECT_FLAG_DELAY:         u32 = 0x10000;
 pub const EFFECT_FLAG_SINGLE_RANGE:  u32 = 0x20000;
 
+// Battle-position bitmask (EDOPro POS_*)
+pub const POS_FACEUP_ATTACK:    u32 = 0x1;
+pub const POS_FACEDOWN_ATTACK:  u32 = 0x2;
+pub const POS_FACEUP_DEFENSE:   u32 = 0x4;
+pub const POS_FACEDOWN_DEFENSE: u32 = 0x8;
+pub const POS_FACEUP:           u32 = POS_FACEUP_ATTACK  | POS_FACEUP_DEFENSE;
+pub const POS_FACEDOWN:         u32 = POS_FACEDOWN_ATTACK | POS_FACEDOWN_DEFENSE;
+pub const POS_ATTACK:           u32 = POS_FACEUP_ATTACK   | POS_FACEDOWN_ATTACK;
+pub const POS_DEFENSE:          u32 = POS_FACEUP_DEFENSE  | POS_FACEDOWN_DEFENSE;
+
 // Reason flags (REASON_* bitmask; `IsReason(REASON_BATTLE|REASON_EFFECT)`)
 pub const REASON_DESTROY:  u32 = 0x1;
 pub const REASON_RELEASE:  u32 = 0x2;

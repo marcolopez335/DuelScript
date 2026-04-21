@@ -295,7 +295,27 @@ pub enum ConditionAtom {
     /// `includes` → at least one of the listed reasons must be present
     ///              (AND-mask non-zero).
     Reason(ReasonOp, Vec<ReasonFilter>),
+    /// `previous_location (==|!=) <zone>` — was this card's last known
+    /// location in the queried zone before the current event moved it?
+    /// Maps to Lua's `IsPreviousLocation`. B4 gap closure.
+    PreviousLocationIs(EqOp, Zone),
+    /// `previous_controller (==|!=) <you|opponent|controller|owner>`.
+    /// Maps to Lua's `IsPreviousControler`. B4 gap closure.
+    PreviousControllerIs(EqOp, PrevControllerRef),
+    /// `previous_position (==|!=) <face_up|face_down|attack_position|
+    /// defense_position>`. Maps to Lua's `IsPreviousPosition`. B4
+    /// gap closure.
+    PreviousPositionIs(EqOp, PrevPositionValue),
 }
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum EqOp { Eq, Neq }
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum PrevControllerRef { You, Opponent, Controller, Owner }
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum PrevPositionValue { FaceUp, FaceDown, AttackPosition, DefensePosition }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ReasonOp { Eq, Neq, Includes }
