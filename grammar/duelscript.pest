@@ -90,9 +90,12 @@ race = {
 }
 
 arrow = {
-    "top_left" | "top" | "top_right"
+    // PEG is ordered-choice: longer matches must come before shorter
+    // prefixes (e.g., "top_right" before "top"), otherwise the short
+    // prefix consumes and leaves the suffix dangling.
+    "top_left" | "top_right" | "top"
+  | "bottom_left" | "bottom_right" | "bottom"
   | "left" | "right"
-  | "bottom_left" | "bottom" | "bottom_right"
 }
 
 // ══════════════════════════════════════════════════════════════
