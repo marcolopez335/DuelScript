@@ -45,8 +45,13 @@ pub enum DamageType {
 ///   compile time for tokens — no runtime references into the spec).
 /// - `level`: monster level. Defaults to 1 when the DSL omits it.
 /// - `attribute`: Attribute code. Matches the duelscript compiler's
-///   `attribute_to_engine` mapping — `0x10`=LIGHT, `0x20`=DARK, `0x40`=FIRE,
-///   `0x80`=WATER, `0x100`=EARTH, `0x200`=WIND, `0x400`=DIVINE.
+///   `attribute_to_engine` mapping, which as of T19 is aligned with ygobeetle's
+///   `engine/constants.rs::ATTRIBUTE_*` (and EDOPro's `constant.lua`):
+///   `0x01`=EARTH, `0x02`=WATER, `0x04`=FIRE, `0x08`=WIND, `0x10`=LIGHT,
+///   `0x20`=DARK, `0x40`=DIVINE. (Pre-T19 these were LIGHT=0x10, DARK=0x20,
+///   FIRE=0x40, WATER=0x80, EARTH=0x100, WIND=0x200, DIVINE=0x400 — a distinct
+///   convention that caused `PredicateAtom::AttributeIs` to silently fail on
+///   the ygobeetle adapter for 5 of 7 attributes. See decisions-2.md F-II.)
 /// - `race`: Race bitmask (matches `race_to_engine` — e.g. `0x4000`=Beast).
 /// - `position`: EDOPro `POS_*` code (`0x1`=face-up attack, `0x4`=face-up defense,
 ///   `0x8`=face-down defense). Defaults to `0x1`.

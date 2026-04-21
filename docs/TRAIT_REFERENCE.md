@@ -102,7 +102,7 @@ to call from both predicate (condition) closures and action (resolve) closures.
   Default: `0`.
 
 - `get_card_attribute(card_id) -> u64` — EDOPro attribute bitmask for `card_id`
-  (e.g., `ATTRIBUTE_DARK = 0x2`). Returns `0` for unknown cards or non-monsters.
+  (e.g., `ATTRIBUTE_DARK = 0x20`). Returns `0` for unknown cards or non-monsters.
   Default: `0`.
 
 - `get_card_type(card_id) -> u64` — EDOPro type bitmask for `card_id`
@@ -522,7 +522,7 @@ retroactively change `get_card_stat` Original variants.
 - `change_level(card_id, level)` — Set `card_id`'s level to `level`. Default: no-op.
 
 - `change_attribute(card_id, attribute)` — Set `card_id`'s attribute to the given
-  EDOPro bitmask (e.g., `ATTRIBUTE_DARK = 0x2`). Default: no-op.
+  EDOPro bitmask (e.g., `ATTRIBUTE_DARK = 0x20`). Default: no-op.
 
 - `change_race(card_id, race)` — Set `card_id`'s race to the given EDOPro bitmask
   (e.g., `RACE_WARRIOR = 0x1`). Default: no-op.
@@ -551,7 +551,7 @@ retroactively change `get_card_stat` Original variants.
       pub atk: i32,
       pub def: i32,
       pub level: u32,         // defaults to 1
-      pub attribute: u32,     // code from attribute_to_engine (0x10=LIGHT … 0x400=DIVINE)
+      pub attribute: u32,     // code from attribute_to_engine (0x01=EARTH, 0x02=WATER, 0x04=FIRE, 0x08=WIND, 0x10=LIGHT, 0x20=DARK, 0x40=DIVINE — aligned with ygobeetle constants.rs per T19/F-II)
       pub race: u32,          // bitmask from race_to_engine (e.g. 0x4000=Beast)
       pub position: u32,      // POS_* code (0x1=attack, 0x4=face-up defense, 0x8=face-down defense); default 0x1
       pub count: u32,

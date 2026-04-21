@@ -1179,14 +1179,23 @@ fn player_who_to_idx(who: &PlayerWho, player: u8) -> u8 {
 }
 
 fn attribute_to_engine(attr: &Attribute) -> u32 {
+    // Aligned with ygobeetle's `engine/constants.rs::ATTRIBUTE_*` convention
+    // (which matches EDOPro's `constant.lua`). Pre-T19 this function emitted
+    // a distinct bitmask layout (LIGHT=0x10, DARK=0x20, FIRE=0x40, WATER=0x80,
+    // EARTH=0x100, WIND=0x200, DIVINE=0x400). `PredicateAtom::AttributeIs`
+    // (above, line ~855) ANDs this mask against `get_card_attribute(id)`;
+    // under the old layout the AND was always 0 for EARTH/WATER/FIRE/WIND/DIVINE
+    // on the ygobeetle adapter (LIGHT/DARK coincided by accident at 0x10/0x20).
+    // See decisions-2.md entries E-II (plan) and F-II (close) for the
+    // alignment rationale and backlog #23 closure.
     match attr {
+        Attribute::Earth  => 0x01,
+        Attribute::Water  => 0x02,
+        Attribute::Fire   => 0x04,
+        Attribute::Wind   => 0x08,
         Attribute::Light  => 0x10,
         Attribute::Dark   => 0x20,
-        Attribute::Fire   => 0x40,
-        Attribute::Water  => 0x80,
-        Attribute::Earth  => 0x100,
-        Attribute::Wind   => 0x200,
-        Attribute::Divine => 0x400,
+        Attribute::Divine => 0x40,
     }
 }
 
