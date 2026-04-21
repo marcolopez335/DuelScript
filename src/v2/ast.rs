@@ -286,6 +286,27 @@ pub enum ConditionAtom {
     ChainIncludes(Vec<Category>),
     HasCounter(String, Option<CompareOp>, Option<Expr>, CounterTarget),
     HasFlag(String),
+    /// `reason (== | != | includes) <filter>` — query the cause of the
+    /// current event. Maps to Lua's `IsReason(REASON_*)` pattern.
+    ///
+    /// `==`       → all listed reasons must match the current reason exactly
+    ///              (by OR-mask equality).
+    /// `!=`       → none of the listed reasons may match.
+    /// `includes` → at least one of the listed reasons must be present
+    ///              (AND-mask non-zero).
+    Reason(ReasonOp, Vec<ReasonFilter>),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ReasonOp { Eq, Neq, Includes }
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ReasonFilter {
+    Battle, Effect, Cost, Material, Release,
+    Rule, Discard, Return, Summon, Destroy,
+    /// Convenience alias for `battle | effect` — the single most common
+    /// combination in the corpus.
+    BattleOrEffect,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

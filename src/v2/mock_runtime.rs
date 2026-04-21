@@ -186,6 +186,9 @@ pub struct MockRuntime {
     /// activating the chain link being responded to). Distinct from
     /// `effect_player` (the responder's controller).
     pub event_player: u8,
+    /// REASON_* bitmask for why the current event is happening.
+    /// See `runtime::DuelScriptRuntime::current_reason`.
+    pub current_reason: u32,
 }
 
 impl MockRuntime {
@@ -197,6 +200,7 @@ impl MockRuntime {
             effect_card_id: 0,
             event_categories: 0,
             event_player: 0,
+            current_reason: 0,
         }
     }
 
@@ -321,6 +325,7 @@ impl DuelScriptRuntime for MockRuntime {
     fn effect_player(&self) -> u8 { self.effect_player }
     fn event_categories(&self) -> u32 { self.event_categories }
     fn event_player(&self) -> u8 { self.event_player }
+    fn current_reason(&self) -> u32 { self.current_reason }
 
     // ── Card movement ────────────────────────────────────────
     fn draw(&mut self, player: u8, count: u32) -> u32 {
@@ -805,6 +810,13 @@ impl DuelScenario {
     /// subject-filter tests.
     pub fn event_player(mut self, player: u8) -> Self {
         self.rt.event_player = player;
+        self
+    }
+
+    /// Set the REASON_* bitmask for the current event (used by `reason`
+    /// condition tests — T27).
+    pub fn current_reason(mut self, mask: u32) -> Self {
+        self.rt.current_reason = mask;
         self
     }
 

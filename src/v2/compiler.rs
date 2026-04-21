@@ -1491,6 +1491,31 @@ fn eval_v2_condition_atom(atom: &ConditionAtom, rt: &dyn DuelScriptRuntime) -> b
             let card_id = rt.effect_card_id();
             rt.has_flag(card_id, name)
         }
+        ConditionAtom::Reason(op, filters) => {
+            let reason = rt.current_reason();
+            let mask: u32 = filters.iter().map(reason_filter_to_mask).fold(0, |a, b| a | b);
+            match op {
+                ReasonOp::Includes => reason & mask != 0,
+                ReasonOp::Eq       => reason & mask == mask && mask != 0,
+                ReasonOp::Neq      => reason & mask == 0,
+            }
+        }
+    }
+}
+
+fn reason_filter_to_mask(f: &ReasonFilter) -> u32 {
+    match f {
+        ReasonFilter::Battle         => tm::REASON_BATTLE,
+        ReasonFilter::Effect         => tm::REASON_EFFECT,
+        ReasonFilter::Cost           => tm::REASON_COST,
+        ReasonFilter::Material       => tm::REASON_MATERIAL,
+        ReasonFilter::Release        => tm::REASON_RELEASE,
+        ReasonFilter::Rule           => tm::REASON_RULE,
+        ReasonFilter::Discard        => tm::REASON_DISCARD,
+        ReasonFilter::Return         => tm::REASON_RETURN,
+        ReasonFilter::Summon         => tm::REASON_SUMMON,
+        ReasonFilter::Destroy        => tm::REASON_DESTROY,
+        ReasonFilter::BattleOrEffect => tm::REASON_BATTLE | tm::REASON_EFFECT,
     }
 }
 
@@ -4537,6 +4562,152 @@ card "T26 Fmt" {{
                 format!("{:?}", trig2),
                 "round-trip must preserve trigger exactly for {subject_kw}",
             );
+        }
+    }
+
+    // ── T27: reason predicate (U-II) ───────────────────────────
+
+    /// Helper: compile a card with a `condition: <reason_expr>` on its
+    /// lone effect; return the condition closure.
+    fn compile_reason_condition(
+        reason_expr: &str,
+    ) -> Arc<dyn Fn(&dyn DuelScriptRuntime) -> bool + Send + Sync> {
+        let src = format!(r#"
+card "T27 Test" {{
+    id: 99998101
+    type: Effect Monster
+    attribute: DARK
+    race: Zombie
+    level: 1
+    atk: 0
+    def: 0
+    effect "R" {{
+        speed: 1
+        condition: {reason_expr}
+        trigger: sent_to gy
+        resolve {{
+            draw 1
+        }}
+    }}
+}}
+"#);
+        let file = parse_v2(&src).expect("parse");
+        let compiled = compile_card_v2(&file.cards[0]);
+        compiled.effects.into_iter().next().unwrap().condition.expect("cond")
+    }
+
+    #[test]
+    fn t27_reason_includes_matches_any_listed_flag() {
+        let cond = compile_reason_condition("reason includes [battle, effect]");
+
+        // Reason = battle → match (bit set in the mask).
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .current_reason(tm::REASON_BATTLE)
+            .build();
+        assert!(cond(&rt), "battle alone should match `includes [battle, effect]`");
+
+        // Reason = effect → match.
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .current_reason(tm::REASON_EFFECT)
+            .build();
+        assert!(cond(&rt), "effect alone should match");
+
+        // Reason = cost → miss (not in the list).
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .current_reason(tm::REASON_COST)
+            .build();
+        assert!(!cond(&rt), "cost should miss `includes [battle, effect]`");
+
+        // Reason = battle|effect → match.
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .current_reason(tm::REASON_BATTLE | tm::REASON_EFFECT)
+            .build();
+        assert!(cond(&rt), "battle|effect should match");
+    }
+
+    #[test]
+    fn t27_reason_eq_requires_exact_mask_and_rejects_no_reason() {
+        let cond = compile_reason_condition("reason == battle");
+        // Reason set includes battle bit → match.
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .current_reason(tm::REASON_BATTLE)
+            .build();
+        assert!(cond(&rt));
+        // Reason = 0 → `==` requires bits present, rejects.
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .current_reason(0)
+            .build();
+        assert!(!cond(&rt), "`reason == battle` must reject zero-reason (no reason tracked)");
+    }
+
+    #[test]
+    fn t27_reason_neq_rejects_listed_rejects_empty_passes() {
+        let cond = compile_reason_condition("reason != cost");
+        // Reason includes cost → miss.
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .current_reason(tm::REASON_COST)
+            .build();
+        assert!(!cond(&rt), "`reason != cost` must reject reason=cost");
+        // Reason = battle (not cost) → pass.
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .current_reason(tm::REASON_BATTLE)
+            .build();
+        assert!(cond(&rt), "`reason != cost` must pass reason=battle");
+    }
+
+    #[test]
+    fn t27_reason_battle_or_effect_alias_matches_either() {
+        // Convenience alias — the most common combination in the corpus.
+        let cond = compile_reason_condition("reason includes battle_or_effect");
+
+        for r in [tm::REASON_BATTLE, tm::REASON_EFFECT,
+                  tm::REASON_BATTLE | tm::REASON_EFFECT] {
+            let rt = crate::v2::mock_runtime::DuelScenario::new()
+                .current_reason(r)
+                .build();
+            assert!(cond(&rt), "battle_or_effect alias must match 0x{r:x}");
+        }
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .current_reason(tm::REASON_COST)
+            .build();
+        assert!(!cond(&rt), "battle_or_effect must miss pure COST");
+    }
+
+    #[test]
+    fn t27_reason_fmt_roundtrip() {
+        for expr in [
+            "reason includes [battle, effect]",
+            "reason == cost",
+            "reason != material",
+            "reason includes battle_or_effect",
+        ] {
+            let src = format!(r#"
+card "T27 Fmt" {{
+    id: 99998102
+    type: Effect Monster
+    attribute: DARK
+    race: Zombie
+    level: 1
+    atk: 0
+    def: 0
+    effect "R" {{
+        speed: 1
+        condition: {expr}
+        trigger: sent_to gy
+        resolve {{ draw 1 }}
+    }}
+}}
+"#);
+            let file = parse_v2(&src)
+                .unwrap_or_else(|e| panic!("parse failed for `{expr}`: {e}"));
+            let printed = crate::v2::fmt::format_file(&file);
+            assert!(printed.contains("reason "),
+                "fmt must emit reason predicate for `{expr}`:\n{printed}");
+            let reparsed = parse_v2(&printed)
+                .unwrap_or_else(|e| panic!("round-trip parse failed for `{expr}`: {e}\nprinted:\n{printed}"));
+            // AST round-trip — normalise by re-formatting both.
+            let reprinted = crate::v2::fmt::format_file(&reparsed);
+            assert_eq!(printed, reprinted, "format must be idempotent for `{expr}`");
         }
     }
 }

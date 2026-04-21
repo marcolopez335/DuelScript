@@ -286,6 +286,15 @@ condition_atom = {
   | "chain_includes" ~ category_list
   | "has_counter" ~ string ~ (compare_op ~ expr)? ~ "on" ~ ("self" | selector)
   | "has_flag" ~ string
+  | "reason" ~ reason_op ~ (reason_filter | reason_filter_list)
+}
+
+reason_op = { "includes" | "==" | "!=" }
+reason_filter_list = { "[" ~ reason_filter ~ ("," ~ reason_filter)* ~ "]" }
+reason_filter = {
+    "battle_or_effect"
+  | "battle" | "effect" | "cost" | "material" | "release"
+  | "rule"   | "discard" | "return" | "summon"   | "destroy"
 }
 
 card_state = {

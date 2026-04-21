@@ -93,6 +93,18 @@ pub const EFFECT_FLAG_DAMAGE_STEP:   u32 = 0x4000;
 pub const EFFECT_FLAG_DELAY:         u32 = 0x10000;
 pub const EFFECT_FLAG_SINGLE_RANGE:  u32 = 0x20000;
 
+// Reason flags (REASON_* bitmask; `IsReason(REASON_BATTLE|REASON_EFFECT)`)
+pub const REASON_DESTROY:  u32 = 0x1;
+pub const REASON_RELEASE:  u32 = 0x2;
+pub const REASON_MATERIAL: u32 = 0x8;
+pub const REASON_SUMMON:   u32 = 0x10;
+pub const REASON_BATTLE:   u32 = 0x20;
+pub const REASON_EFFECT:   u32 = 0x40;
+pub const REASON_COST:     u32 = 0x80;
+pub const REASON_RULE:     u32 = 0x400;
+pub const REASON_DISCARD:  u32 = 0x4000;
+pub const REASON_RETURN:   u32 = 0x20000;
+
 /// Count limit for effect activation frequency.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CountLimit {
