@@ -5592,8 +5592,85 @@ card "T31 Bad" {
             "when: (all, card, ...) must set only HAS_FILTER — card is universal");
     }
 
+    // ── CCC-II: non-banish dest zones (Task #17) ───────────────
+
+    /// CCC-II-1: `to: hand` redirect (GY → HAND) maps to LOCATION_HAND.
+    /// Pattern: "Card can't be sent to the GY; it returns to the hand
+    /// instead" (several rulings-level cards use this shape).
+    #[test]
+    fn ccc_ii_redirect_to_hand_maps_to_location_hand() {
+        let e = compile_redirect_block(r#"
+    redirect "Return to Hand" {
+        scope: both_fields
+        from: gy
+        to: hand
+    }
+"#);
+        let op = e.operation.as_ref().expect("redirect emits operation");
+        let mut rt = crate::v2::mock_runtime::MockRuntime::new();
+        op(&mut rt);
+
+        assert_eq!(rt.state.redirects.len(), 1, "exactly one redirect");
+        let r = rt.state.redirects[0];
+        assert_eq!(r.from_zone, tm::LOCATION_GRAVE,
+            "from: gy must map to LOCATION_GRAVE");
+        assert_eq!(r.to_zone, tm::LOCATION_HAND,
+            "to: hand must map to LOCATION_HAND");
+    }
+
+    /// CCC-II-2: `to: deck` redirect (GY → DECK) maps to LOCATION_DECK.
+    /// Pattern: "shuffled into the Deck instead of sent to the GY".
+    #[test]
+    fn ccc_ii_redirect_to_deck_maps_to_location_deck() {
+        let e = compile_redirect_block(r#"
+    redirect "Shuffle Into Deck" {
+        scope: both_fields
+        from: gy
+        to: deck
+    }
+"#);
+        let op = e.operation.as_ref().expect("redirect emits operation");
+        let mut rt = crate::v2::mock_runtime::MockRuntime::new();
+        op(&mut rt);
+
+        assert_eq!(rt.state.redirects.len(), 1, "exactly one redirect");
+        let r = rt.state.redirects[0];
+        assert_eq!(r.from_zone, tm::LOCATION_GRAVE,
+            "from: gy must map to LOCATION_GRAVE");
+        assert_eq!(r.to_zone, tm::LOCATION_DECK,
+            "to: deck must map to LOCATION_DECK");
+    }
+
+    /// CCC-II-3: Validator rejects non-terminal destinations like
+    /// `to: monster_zone` — a leave-field redirect's destination must
+    /// be one of the terminal card-location zones (hand/deck/gy/banished).
+    /// Zones like monster_zone/spell_trap_zone/field/pendulum_zone
+    /// describe on-field placement, not routing targets for a card
+    /// leaving the field.
+    #[test]
+    fn ccc_ii_validator_rejects_non_terminal_dest() {
+        let src = r#"
+card "T31 Bad Dest" {
+    id: 99998503
+    type: Continuous Spell
+    redirect {
+        scope: both_fields
+        from: gy
+        to: monster_zone
+    }
+}
+"#;
+        let file = parse_v2(src).expect("parse");
+        let report = crate::v2::validator::validate_v2(&file);
+        assert!(
+            report.errors.iter().any(|e|
+                e.message.contains("non-terminal") && e.severity == crate::v2::validator::Severity::Error),
+            "validator must flag non-terminal dest as an error; got: {:?}",
+            report.errors);
+    }
+
     /// T31-5: fmt roundtrip for redirect blocks — scopes + with/without
-    /// filter.
+    /// filter + CCC-II hand/deck destinations.
     #[test]
     fn t31_fmt_roundtrip() {
         let variants = [
@@ -5606,6 +5683,11 @@ card "T31 Bad" {
              "scope: opponent_field"),
             ("redirect {\n        scope: field\n        from: hand\n        to: deck\n    }",
              "from: hand"),
+            // CCC-II: new dest zones.
+            ("redirect {\n        scope: both_fields\n        from: gy\n        to: hand\n    }",
+             "to: hand"),
+            ("redirect {\n        scope: both_fields\n        from: gy\n        to: deck\n    }",
+             "to: deck"),
         ];
 
         for (i, (body, marker)) in variants.iter().enumerate() {
