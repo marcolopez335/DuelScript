@@ -1,25 +1,16 @@
 card "Solemn Report" {
     id: 78114463
-    type: Effect Monster
-    attribute: DARK
-    race: Fiend
-    level: 1
-    atk: 0
-    def: 0
+    type: Counter Trap
 
-    passive "Effect 3" {
-        scope: self
-        grant: cannot_activate effects
-    }
-
-    effect "Effect 2" {
-        speed: 1
+    effect "Negate Spell/Trap Activation" {
+        speed: 3
         mandatory
-        trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        trigger: opponent_activates [activate_spell, activate_trap]
+        cost {
+            pay_lp 1500
+        }
         resolve {
-            negate
-            negate
-            banish (all, card, either controls)
+            negate and destroy
         }
     }
 }
