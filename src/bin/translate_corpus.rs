@@ -152,6 +152,12 @@ CLUSTERS:
     recruiter_battle_damage_named
         same trigger shape; single named monster (self or other):
         'Special Summon 1 \"Hydrogeddon\" from your Deck'.
+    recruiter_destroyed_archetype_nostat
+        trigger: destroyed + placeholder special_summon body;
+        archetype-locked without stat cap, broader trigger-anchor
+        (accepts 'is destroyed by battle or card effect' etc.);
+        descs like 'Special Summon 1 \"Lunalight\" monster from
+        your Deck'.
 ");
     }
 
@@ -359,13 +365,15 @@ CLUSTERS:
 
     fn build_clusters(filter: &Option<String>) -> Vec<Box<dyn Cluster>> {
         // Order matters: the canonical M.0 cluster runs first; M.1
-        // sub-clusters follow. One rewrite per file (see `break` in
-        // `run`), so an earlier cluster wins any overlap.
+        // sub-clusters follow; M.2 destroyed-trigger sub-cluster last.
+        // One rewrite per file (see `break` in `run`), so an earlier
+        // cluster wins any overlap.
         let all: Vec<Box<dyn Cluster>> = vec![
             Box::new(RecruiterBattleDamage),
             Box::new(RecruiterBattleDamageArchetype),
             Box::new(RecruiterBattleDamageArchetypeNoStat),
             Box::new(RecruiterBattleDamageNamed),
+            Box::new(RecruiterDestroyedArchetypeNoStat),
         ];
         match filter {
             None        => all,
@@ -806,11 +814,124 @@ CLUSTERS:
         }
     }
 
+    // ── Cluster: recruiter_destroyed_archetype_nostat (M.2) ──────
+    //
+    // Shape to hit:
+    //   effect "X" {
+    //       speed: 1
+    //       [mandatory | timing: ... | once_per_turn: ...]  (any)
+    //       trigger: destroyed
+    //       resolve {
+    //           special_summon (all, card, either controls)
+    //       }
+    //   }
+    //
+    //   desc: 'Special Summon 1 "<Archetype>" monster from your Deck'
+    //   (no stat cap)
+    //
+    //   Anchor (broader than M.1's trigger_anchor_before): the sentence
+    //   must be preceded in the desc by a destroyed-trigger clause such
+    //   as "is destroyed by battle", "is destroyed by battle or card
+    //   effect", "is destroyed by card effect", or "is destroyed by an
+    //   opponent's card".
+    //
+    // Rewrite: identical to M.1's archetype_nostat cluster —
+    //   special_summon (1, monster, where archetype == "<Archetype>")
+    //     from deck in <position>
+
+    struct RecruiterDestroyedArchetypeNoStat;
+
+    fn destroyed_trigger_anchor_before(desc: &str, cursor: usize) -> bool {
+        let prefix = &desc[..cursor];
+        let lower  = prefix.to_lowercase();
+        // Canonical destroyed-trigger phrasings. Accept any occurrence of
+        // "is destroyed" followed by one of the destroy-source phrases
+        // within a short radius. We do this by checking for a few
+        // pre-composed substrings — robust enough without parsing.
+        if lower.contains("is destroyed by battle") { return true; }
+        if lower.contains("is destroyed by card effect") { return true; }
+        if lower.contains("is destroyed by an opponent's card") { return true; }
+        // Common variant without explicit source: "this card is destroyed:"
+        // (matches "this card is destroyed and sent", "this card, when
+        // destroyed").
+        if lower.contains("this card is destroyed") { return true; }
+        if lower.contains("card you control is destroyed") { return true; }
+        if lower.contains("card on the field is destroyed") { return true; }
+        if lower.contains("card in its owner's possession is destroyed") { return true; }
+        false
+    }
+
+    /// Same regex as M.1's `match_archetype_nostat_desc`, but uses the
+    /// broader destroyed-trigger anchor. Returns (filter_expr, position,
+    /// sentence_start).
+    fn match_archetype_nostat_desc_for_destroyed(
+        desc: &str,
+    ) -> Option<(String, &'static str, usize)> {
+        let needle_head = "Special Summon 1 \"";
+        let mut cursor = 0;
+        while let Some(off) = desc[cursor..].find(needle_head) {
+            let start = cursor + off;
+            let after_head = start + needle_head.len();
+            let rest = &desc[after_head..];
+            let Some(q_end) = rest.find('"') else { break };
+            let arch = &rest[..q_end];
+            let tail = &rest[q_end + 1..];
+            // Expect " monster from your Deck" literally (no "with <N>").
+            if tail.starts_with(" monster from your Deck") {
+                if destroyed_trigger_anchor_before(desc, start) {
+                    let segment = &desc[start..];
+                    let position = pick_position(segment);
+                    let expr = format!("archetype == \"{arch}\"");
+                    return Some((expr, position, start));
+                }
+            }
+            cursor = start + needle_head.len();
+        }
+        None
+    }
+
+    impl Cluster for RecruiterDestroyedArchetypeNoStat {
+        fn name(&self) -> &'static str { "recruiter_destroyed_archetype_nostat" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if !has_placeholder_with_trigger(src, "destroyed") { return false; }
+            match_archetype_nostat_desc_for_destroyed(&cdb_row.desc).is_some()
+        }
+
+        fn rewrite(&self, src: &str, cdb_row: &CdbCard) -> Result<String, String> {
+            let (filter_expr, position, _) =
+                match_archetype_nostat_desc_for_destroyed(&cdb_row.desc)
+                    .ok_or_else(|| "desc no longer matches".to_string())?;
+            let new_line = format!(
+                "            special_summon (1, monster, where {filter_expr}) from deck in {position}"
+            );
+            let old_line = "            special_summon (all, card, either controls)";
+            if !src.contains(old_line) {
+                return Err("expected placeholder line not found".into());
+            }
+            Ok(src.replacen(old_line, &new_line, 1))
+        }
+    }
+
     /// Return true if `src` contains an effect block with:
     ///   - trigger: battle_damage
     ///   - single-line resolve body exactly
     ///     `special_summon (all, card, either controls)`
+    ///
+    /// Thin wrapper for backward compat with M.0/M.1 call sites. Prefer
+    /// `has_placeholder_with_trigger` for new clusters.
     fn has_battle_damage_placeholder(src: &str) -> bool {
+        has_placeholder_with_trigger(src, "battle_damage")
+    }
+
+    /// Generalised form: return true if `src` contains an effect block with:
+    ///   - trigger: <trigger_value>
+    ///   - single-line resolve body exactly
+    ///     `special_summon (all, card, either controls)`
+    ///
+    /// The trigger value is matched by prefix (matches M.0/M.1 semantics
+    /// where `body_has_line_starting_with` is also prefix-based).
+    fn has_placeholder_with_trigger(src: &str, trigger_value: &str) -> bool {
         // Cheap text scan: find each effect block, check trigger + body.
         // We walk effect by effect using brace matching.
         let bytes = src.as_bytes();
@@ -827,8 +948,8 @@ CLUSTERS:
             let body = &src[body_start..body_end];
             i = body_end + 1;
 
-            // Must have trigger: battle_damage.
-            if !body_has_line_starting_with(body, "trigger:", "battle_damage") {
+            // Must have the requested trigger.
+            if !body_has_line_starting_with(body, "trigger:", trigger_value) {
                 continue;
             }
             // Find resolve { ... } inside body.
