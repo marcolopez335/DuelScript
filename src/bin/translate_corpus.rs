@@ -158,6 +158,14 @@ CLUSTERS:
         (accepts 'is destroyed by battle or card effect' etc.);
         descs like 'Special Summon 1 \"Lunalight\" monster from
         your Deck'.
+    search_battle_damage_archetype_monster
+        trigger: battle_damage + placeholder add_to_hand body;
+        archetype-locked monster search:
+        'add 1 \"Beetrooper\" monster from your Deck to your hand'.
+    search_battle_damage_archetype_card
+        trigger: battle_damage + placeholder add_to_hand body;
+        archetype-locked card (not monster-restricted) search:
+        'add 1 \"Archfiend\" card from your Deck to your hand'.
 ");
     }
 
@@ -364,16 +372,21 @@ CLUSTERS:
     }
 
     fn build_clusters(filter: &Option<String>) -> Vec<Box<dyn Cluster>> {
-        // Order matters: the canonical M.0 cluster runs first; M.1
-        // sub-clusters follow; M.2 destroyed-trigger sub-cluster last.
-        // One rewrite per file (see `break` in `run`), so an earlier
-        // cluster wins any overlap.
+        // Order matters: M.0 recruiter_battle_damage first; M.1
+        // sub-clusters (archetype stat/nostat/named); M.2 destroyed-
+        // trigger; M.3 search-placeholder clusters last. One rewrite
+        // per file (see `break` in `run`), so an earlier cluster wins
+        // any overlap. The monster-search variant runs before the card-
+        // search variant so "X" monster" desc shapes get the tighter
+        // rewrite.
         let all: Vec<Box<dyn Cluster>> = vec![
             Box::new(RecruiterBattleDamage),
             Box::new(RecruiterBattleDamageArchetype),
             Box::new(RecruiterBattleDamageArchetypeNoStat),
             Box::new(RecruiterBattleDamageNamed),
             Box::new(RecruiterDestroyedArchetypeNoStat),
+            Box::new(SearchBattleDamageArchetypeMonster),
+            Box::new(SearchBattleDamageArchetypeCard),
         ];
         match filter {
             None        => all,
@@ -913,6 +926,151 @@ CLUSTERS:
         }
     }
 
+    // ── Cluster: search_battle_damage_archetype_monster (M.3) ────────
+    //
+    // Shape to hit:
+    //   effect "X" {
+    //       trigger: battle_damage
+    //       resolve {
+    //           add_to_hand (all, card, either controls)
+    //       }
+    //   }
+    //
+    //   desc: 'add 1 "<Archetype>" monster from your Deck to your hand'
+    //
+    // Rewrite:
+    //   add_to_hand (1, monster, where archetype == "<Archetype>") from deck
+
+    struct SearchBattleDamageArchetypeMonster;
+
+    /// Find "add 1 \"<Arch>\" monster from your Deck [to your hand]" and
+    /// require the battle-trigger anchor before it.
+    fn match_search_archetype_monster_desc(desc: &str) -> Option<(String, usize)> {
+        let needle_head_caps = "Add 1 \"";
+        let needle_head_low  = "add 1 \"";
+        let mut cursor = 0;
+        while cursor < desc.len() {
+            // Case-insensitive find by trying both casings.
+            let off_caps = desc[cursor..].find(needle_head_caps);
+            let off_low  = desc[cursor..].find(needle_head_low);
+            let (off, needle_head) = match (off_caps, off_low) {
+                (Some(a), Some(b)) if a < b => (a, needle_head_caps),
+                (_, Some(b))                => (b, needle_head_low),
+                (Some(a), None)             => (a, needle_head_caps),
+                (None, None)                => break,
+            };
+            let start = cursor + off;
+            let after_head = start + needle_head.len();
+            let rest = &desc[after_head..];
+            let Some(q_end) = rest.find('"') else { break };
+            let arch = &rest[..q_end];
+            let tail = &rest[q_end + 1..];
+            if tail.starts_with(" monster from your Deck") {
+                if trigger_anchor_before(desc, start) {
+                    let expr = format!("archetype == \"{arch}\"");
+                    return Some((expr, start));
+                }
+            }
+            cursor = start + needle_head.len();
+        }
+        None
+    }
+
+    impl Cluster for SearchBattleDamageArchetypeMonster {
+        fn name(&self) -> &'static str { "search_battle_damage_archetype_monster" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if !has_placeholder_with_trigger_and_body(
+                src, "battle_damage", "add_to_hand (all, card, either controls)"
+            ) { return false; }
+            match_search_archetype_monster_desc(&cdb_row.desc).is_some()
+        }
+
+        fn rewrite(&self, src: &str, cdb_row: &CdbCard) -> Result<String, String> {
+            let (filter_expr, _) =
+                match_search_archetype_monster_desc(&cdb_row.desc)
+                    .ok_or_else(|| "desc no longer matches".to_string())?;
+            let new_line = format!(
+                "            add_to_hand (1, monster, where {filter_expr}) from deck"
+            );
+            let old_line = "            add_to_hand (all, card, either controls)";
+            if !src.contains(old_line) {
+                return Err("expected placeholder line not found".into());
+            }
+            Ok(src.replacen(old_line, &new_line, 1))
+        }
+    }
+
+    // ── Cluster: search_battle_damage_archetype_card (M.3) ──────────
+    //
+    // Same shape as the monster variant, but desc says "add 1 \"<Arch>\"
+    // card from your Deck". We use `card` (not `monster`) as the card
+    // filter since the desc explicitly allows Spell/Trap archetype
+    // members (e.g. "Archfiend" cards spans monsters + Spells/Traps).
+    //
+    // Rewrite:
+    //   add_to_hand (1, card, where archetype == "<Archetype>") from deck
+
+    struct SearchBattleDamageArchetypeCard;
+
+    fn match_search_archetype_card_desc(desc: &str) -> Option<(String, usize)> {
+        let needle_head_caps = "Add 1 \"";
+        let needle_head_low  = "add 1 \"";
+        let mut cursor = 0;
+        while cursor < desc.len() {
+            let off_caps = desc[cursor..].find(needle_head_caps);
+            let off_low  = desc[cursor..].find(needle_head_low);
+            let (off, needle_head) = match (off_caps, off_low) {
+                (Some(a), Some(b)) if a < b => (a, needle_head_caps),
+                (_, Some(b))                => (b, needle_head_low),
+                (Some(a), None)             => (a, needle_head_caps),
+                (None, None)                => break,
+            };
+            let start = cursor + off;
+            let after_head = start + needle_head.len();
+            let rest = &desc[after_head..];
+            let Some(q_end) = rest.find('"') else { break };
+            let arch = &rest[..q_end];
+            let tail = &rest[q_end + 1..];
+            if tail.starts_with(" card from your Deck") {
+                if trigger_anchor_before(desc, start) {
+                    let expr = format!("archetype == \"{arch}\"");
+                    return Some((expr, start));
+                }
+            }
+            cursor = start + needle_head.len();
+        }
+        None
+    }
+
+    impl Cluster for SearchBattleDamageArchetypeCard {
+        fn name(&self) -> &'static str { "search_battle_damage_archetype_card" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if !has_placeholder_with_trigger_and_body(
+                src, "battle_damage", "add_to_hand (all, card, either controls)"
+            ) { return false; }
+            // The other cluster runs first (registered earlier). If the desc
+            // matches a "monster" variant, skip here — one-rewrite-per-file
+            // semantics handle it.
+            match_search_archetype_card_desc(&cdb_row.desc).is_some()
+        }
+
+        fn rewrite(&self, src: &str, cdb_row: &CdbCard) -> Result<String, String> {
+            let (filter_expr, _) =
+                match_search_archetype_card_desc(&cdb_row.desc)
+                    .ok_or_else(|| "desc no longer matches".to_string())?;
+            let new_line = format!(
+                "            add_to_hand (1, card, where {filter_expr}) from deck"
+            );
+            let old_line = "            add_to_hand (all, card, either controls)";
+            if !src.contains(old_line) {
+                return Err("expected placeholder line not found".into());
+            }
+            Ok(src.replacen(old_line, &new_line, 1))
+        }
+    }
+
     /// Return true if `src` contains an effect block with:
     ///   - trigger: battle_damage
     ///   - single-line resolve body exactly
@@ -921,7 +1079,10 @@ CLUSTERS:
     /// Thin wrapper for backward compat with M.0/M.1 call sites. Prefer
     /// `has_placeholder_with_trigger` for new clusters.
     fn has_battle_damage_placeholder(src: &str) -> bool {
-        has_placeholder_with_trigger(src, "battle_damage")
+        has_placeholder_with_trigger_and_body(
+            src, "battle_damage",
+            "special_summon (all, card, either controls)",
+        )
     }
 
     /// Generalised form: return true if `src` contains an effect block with:
@@ -929,9 +1090,27 @@ CLUSTERS:
     ///   - single-line resolve body exactly
     ///     `special_summon (all, card, either controls)`
     ///
-    /// The trigger value is matched by prefix (matches M.0/M.1 semantics
-    /// where `body_has_line_starting_with` is also prefix-based).
+    /// Thin wrapper for `has_placeholder_with_trigger_and_body` with the
+    /// M.0/M.1/M.2 canonical placeholder body. M.3+ uses the more general
+    /// form.
     fn has_placeholder_with_trigger(src: &str, trigger_value: &str) -> bool {
+        has_placeholder_with_trigger_and_body(
+            src, trigger_value,
+            "special_summon (all, card, either controls)",
+        )
+    }
+
+    /// Fully generalised form: return true if `src` contains an effect
+    /// block with:
+    ///   - trigger: <trigger_value>
+    ///   - single-line resolve body exactly equal to `body_value`
+    ///
+    /// The trigger value is matched by prefix (matches M.0/M.1 semantics
+    /// where `body_has_line_starting_with` is also prefix-based). The
+    /// body value is matched literally after trimming.
+    fn has_placeholder_with_trigger_and_body(
+        src: &str, trigger_value: &str, body_value: &str,
+    ) -> bool {
         // Cheap text scan: find each effect block, check trigger + body.
         // We walk effect by effect using brace matching.
         let bytes = src.as_bytes();
@@ -958,7 +1137,7 @@ CLUSTERS:
             let rb_start = r_brace + r_brace_open + 1;
             let Some(rb_end) = match_brace(body, rb_start) else { continue };
             let rbody = body[rb_start..rb_end].trim();
-            if rbody == "special_summon (all, card, either controls)" {
+            if rbody == body_value {
                 return true;
             }
         }
