@@ -166,6 +166,19 @@ CLUSTERS:
         trigger: battle_damage + placeholder add_to_hand body;
         archetype-locked card (not monster-restricted) search:
         'add 1 \"Archfiend\" card from your Deck to your hand'.
+    search_destroyed_archetype_monster
+        trigger: destroyed + placeholder add_to_hand body;
+        archetype-locked monster search variant.
+    search_destroyed_archetype_card
+        trigger: destroyed + placeholder add_to_hand body;
+        archetype-locked card (spans S/T) variant.
+    search_sent_to_gy_archetype_monster
+        trigger: sent_to gy + placeholder add_to_hand body;
+        archetype-locked monster search with sent-to-GY /
+        tributed anchor in desc text.
+    search_sent_to_gy_archetype_card
+        trigger: sent_to gy + placeholder add_to_hand body;
+        archetype-locked card (spans S/T) variant.
 ");
     }
 
@@ -389,6 +402,8 @@ CLUSTERS:
             Box::new(SearchBattleDamageArchetypeCard),
             Box::new(SearchDestroyedArchetypeMonster),
             Box::new(SearchDestroyedArchetypeCard),
+            Box::new(SearchSentToGyArchetypeMonster),
+            Box::new(SearchSentToGyArchetypeCard),
         ];
         match filter {
             None        => all,
@@ -1229,6 +1244,185 @@ CLUSTERS:
             let old_line = "            add_to_hand (all, card, either controls)";
             let range = find_placeholder_body_range(
                 src, "destroyed",
+                "add_to_hand (all, card, either controls)",
+            ).ok_or_else(|| "matched effect block no longer found".to_string())?;
+            splice_block_scoped(src, range, old_line, &new_line)
+        }
+    }
+
+    // ── Cluster: search_sent_to_gy_archetype_monster (M.5 / YY-II) ──
+    //
+    // Same shape as M.3/M.4 search clusters, but with `trigger:
+    // sent_to gy` in the .ds file and a tributed / sent-to-GY
+    // anchor in the BabelCdb desc.
+    //
+    // Shape to hit:
+    //   effect "X" {
+    //       trigger: sent_to gy
+    //       resolve {
+    //           add_to_hand (all, card, either controls)
+    //       }
+    //   }
+    //
+    //   desc anchor (any of): "if this card is tributed", "if this
+    //   card is sent to the gy", "if this card is tributed and sent
+    //   to the gy", "if this card is tributed by a card effect",
+    //   "if this card is tributed for".
+    //
+    //   desc search phrase: 'Add 1 "<Arch>" monster from your Deck'.
+    //
+    // Rewrite:
+    //   add_to_hand (1, monster, where archetype == "<Arch>") from deck
+
+    struct SearchSentToGyArchetypeMonster;
+
+    fn sent_to_gy_trigger_anchor_before(desc: &str, cursor: usize) -> bool {
+        let prefix = &desc[..cursor];
+        let lower  = prefix.to_lowercase();
+        // "Tributed" is the dominant surface form for sent-to-GY-
+        // triggered effects in BabelCdb desc text. "Sent to the GY"
+        // is the explicit form. Both compile to `trigger: sent_to gy`
+        // in the .ds effect block.
+        if lower.contains("if this card is tributed") { return true; }
+        if lower.contains("if this card is sent to the gy") { return true; }
+        if lower.contains("if this card is sent to the graveyard") { return true; }
+        // Less common but in-scope: tributed for X (ritual / tribute
+        // summon) — still a `sent_to gy` event producer.
+        if lower.contains("when this card is tributed") { return true; }
+        if lower.contains("this card is tributed") { return true; }
+        // "this card on the field is Tributed and sent to the GY"
+        // (Evoltile Elginero pattern — qualifier between "card" and
+        // "is tributed"). Only fire if BOTH "this card" and "tributed"
+        // appear with "tributed" strictly after the "this card" start.
+        if let Some(card_off) = lower.find("this card") {
+            let after = &lower[card_off..];
+            // Search within a short radius (avoid cross-paragraph).
+            let radius = std::cmp::min(after.len(), 80);
+            if after[..radius].contains("tributed") {
+                return true;
+            }
+        }
+        false
+    }
+
+    fn match_search_archetype_monster_desc_for_sent_to_gy(
+        desc: &str,
+    ) -> Option<(String, usize)> {
+        let needle_head_caps = "Add 1 \"";
+        let needle_head_low  = "add 1 \"";
+        let mut cursor = 0;
+        while cursor < desc.len() {
+            let off_caps = desc[cursor..].find(needle_head_caps);
+            let off_low  = desc[cursor..].find(needle_head_low);
+            let (off, needle_head) = match (off_caps, off_low) {
+                (Some(a), Some(b)) if a < b => (a, needle_head_caps),
+                (_, Some(b))                => (b, needle_head_low),
+                (Some(a), None)             => (a, needle_head_caps),
+                (None, None)                => break,
+            };
+            let start = cursor + off;
+            let after_head = start + needle_head.len();
+            let rest = &desc[after_head..];
+            let Some(q_end) = rest.find('"') else { break };
+            let arch = &rest[..q_end];
+            let tail = &rest[q_end + 1..];
+            if tail.starts_with(" monster from your Deck") {
+                if sent_to_gy_trigger_anchor_before(desc, start) {
+                    let expr = format!("archetype == \"{arch}\"");
+                    return Some((expr, start));
+                }
+            }
+            cursor = start + needle_head.len();
+        }
+        None
+    }
+
+    impl Cluster for SearchSentToGyArchetypeMonster {
+        fn name(&self) -> &'static str { "search_sent_to_gy_archetype_monster" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if !has_placeholder_with_trigger_and_body(
+                src, "sent_to gy", "add_to_hand (all, card, either controls)"
+            ) { return false; }
+            match_search_archetype_monster_desc_for_sent_to_gy(&cdb_row.desc).is_some()
+        }
+
+        fn rewrite(&self, src: &str, cdb_row: &CdbCard) -> Result<String, String> {
+            let (filter_expr, _) =
+                match_search_archetype_monster_desc_for_sent_to_gy(&cdb_row.desc)
+                    .ok_or_else(|| "desc no longer matches".to_string())?;
+            let new_line = format!(
+                "            add_to_hand (1, monster, where {filter_expr}) from deck"
+            );
+            let old_line = "            add_to_hand (all, card, either controls)";
+            let range = find_placeholder_body_range(
+                src, "sent_to gy",
+                "add_to_hand (all, card, either controls)",
+            ).ok_or_else(|| "matched effect block no longer found".to_string())?;
+            splice_block_scoped(src, range, old_line, &new_line)
+        }
+    }
+
+    // ── Cluster: search_sent_to_gy_archetype_card (M.5 / YY-II) ─────
+    //
+    // Same shape as the monster variant, but desc says "add 1 \"<Arch>\"
+    // card from your Deck" (card, not monster — spans Spell/Trap
+    // archetype members).
+
+    struct SearchSentToGyArchetypeCard;
+
+    fn match_search_archetype_card_desc_for_sent_to_gy(
+        desc: &str,
+    ) -> Option<(String, usize)> {
+        let needle_head_caps = "Add 1 \"";
+        let needle_head_low  = "add 1 \"";
+        let mut cursor = 0;
+        while cursor < desc.len() {
+            let off_caps = desc[cursor..].find(needle_head_caps);
+            let off_low  = desc[cursor..].find(needle_head_low);
+            let (off, needle_head) = match (off_caps, off_low) {
+                (Some(a), Some(b)) if a < b => (a, needle_head_caps),
+                (_, Some(b))                => (b, needle_head_low),
+                (Some(a), None)             => (a, needle_head_caps),
+                (None, None)                => break,
+            };
+            let start = cursor + off;
+            let after_head = start + needle_head.len();
+            let rest = &desc[after_head..];
+            let Some(q_end) = rest.find('"') else { break };
+            let arch = &rest[..q_end];
+            let tail = &rest[q_end + 1..];
+            if tail.starts_with(" card from your Deck") {
+                if sent_to_gy_trigger_anchor_before(desc, start) {
+                    let expr = format!("archetype == \"{arch}\"");
+                    return Some((expr, start));
+                }
+            }
+            cursor = start + needle_head.len();
+        }
+        None
+    }
+
+    impl Cluster for SearchSentToGyArchetypeCard {
+        fn name(&self) -> &'static str { "search_sent_to_gy_archetype_card" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if !has_placeholder_with_trigger_and_body(
+                src, "sent_to gy", "add_to_hand (all, card, either controls)"
+            ) { return false; }
+            match_search_archetype_card_desc_for_sent_to_gy(&cdb_row.desc).is_some()
+        }
+
+        fn rewrite(&self, src: &str, cdb_row: &CdbCard) -> Result<String, String> {
+            let (filter_expr, _) =
+                match_search_archetype_card_desc_for_sent_to_gy(&cdb_row.desc)
+                    .ok_or_else(|| "desc no longer matches".to_string())?;
+            let new_line = format!(
+                "            add_to_hand (1, card, where {filter_expr}) from deck"
+            );
+            let old_line = "            add_to_hand (all, card, either controls)";
+            let range = find_placeholder_body_range(
+                src, "sent_to gy",
                 "add_to_hand (all, card, either controls)",
             ).ok_or_else(|| "matched effect block no longer found".to_string())?;
             splice_block_scoped(src, range, old_line, &new_line)
