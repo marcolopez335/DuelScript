@@ -581,10 +581,11 @@ CLUSTERS:
             );
             let old_line = "            special_summon (all, card, either controls)";
 
-            if !src.contains(old_line) {
-                return Err("expected placeholder line not found".into());
-            }
-            Ok(src.replacen(old_line, &new_line, 1))
+            let range = find_placeholder_body_range(
+                src, "battle_damage",
+                "special_summon (all, card, either controls)",
+            ).ok_or_else(|| "matched effect block no longer found".to_string())?;
+            splice_block_scoped(src, range, old_line, &new_line)
         }
     }
 
@@ -702,10 +703,11 @@ CLUSTERS:
                 "            special_summon (1, monster, where {filter_expr}) from deck in {position}"
             );
             let old_line = "            special_summon (all, card, either controls)";
-            if !src.contains(old_line) {
-                return Err("expected placeholder line not found".into());
-            }
-            Ok(src.replacen(old_line, &new_line, 1))
+            let range = find_placeholder_body_range(
+                src, "battle_damage",
+                "special_summon (all, card, either controls)",
+            ).ok_or_else(|| "matched effect block no longer found".to_string())?;
+            splice_block_scoped(src, range, old_line, &new_line)
         }
     }
 
@@ -761,10 +763,11 @@ CLUSTERS:
                 "            special_summon (1, monster, where {filter_expr}) from deck in {position}"
             );
             let old_line = "            special_summon (all, card, either controls)";
-            if !src.contains(old_line) {
-                return Err("expected placeholder line not found".into());
-            }
-            Ok(src.replacen(old_line, &new_line, 1))
+            let range = find_placeholder_body_range(
+                src, "battle_damage",
+                "special_summon (all, card, either controls)",
+            ).ok_or_else(|| "matched effect block no longer found".to_string())?;
+            splice_block_scoped(src, range, old_line, &new_line)
         }
     }
 
@@ -820,10 +823,11 @@ CLUSTERS:
                 "            special_summon (1, monster, where {filter_expr}) from deck in {position}"
             );
             let old_line = "            special_summon (all, card, either controls)";
-            if !src.contains(old_line) {
-                return Err("expected placeholder line not found".into());
-            }
-            Ok(src.replacen(old_line, &new_line, 1))
+            let range = find_placeholder_body_range(
+                src, "battle_damage",
+                "special_summon (all, card, either controls)",
+            ).ok_or_else(|| "matched effect block no longer found".to_string())?;
+            splice_block_scoped(src, range, old_line, &new_line)
         }
     }
 
@@ -919,10 +923,11 @@ CLUSTERS:
                 "            special_summon (1, monster, where {filter_expr}) from deck in {position}"
             );
             let old_line = "            special_summon (all, card, either controls)";
-            if !src.contains(old_line) {
-                return Err("expected placeholder line not found".into());
-            }
-            Ok(src.replacen(old_line, &new_line, 1))
+            let range = find_placeholder_body_range(
+                src, "destroyed",
+                "special_summon (all, card, either controls)",
+            ).ok_or_else(|| "matched effect block no longer found".to_string())?;
+            splice_block_scoped(src, range, old_line, &new_line)
         }
     }
 
@@ -994,10 +999,11 @@ CLUSTERS:
                 "            add_to_hand (1, monster, where {filter_expr}) from deck"
             );
             let old_line = "            add_to_hand (all, card, either controls)";
-            if !src.contains(old_line) {
-                return Err("expected placeholder line not found".into());
-            }
-            Ok(src.replacen(old_line, &new_line, 1))
+            let range = find_placeholder_body_range(
+                src, "battle_damage",
+                "add_to_hand (all, card, either controls)",
+            ).ok_or_else(|| "matched effect block no longer found".to_string())?;
+            splice_block_scoped(src, range, old_line, &new_line)
         }
     }
 
@@ -1064,10 +1070,11 @@ CLUSTERS:
                 "            add_to_hand (1, card, where {filter_expr}) from deck"
             );
             let old_line = "            add_to_hand (all, card, either controls)";
-            if !src.contains(old_line) {
-                return Err("expected placeholder line not found".into());
-            }
-            Ok(src.replacen(old_line, &new_line, 1))
+            let range = find_placeholder_body_range(
+                src, "battle_damage",
+                "add_to_hand (all, card, either controls)",
+            ).ok_or_else(|| "matched effect block no longer found".to_string())?;
+            splice_block_scoped(src, range, old_line, &new_line)
         }
     }
 
@@ -1111,19 +1118,35 @@ CLUSTERS:
     fn has_placeholder_with_trigger_and_body(
         src: &str, trigger_value: &str, body_value: &str,
     ) -> bool {
-        // Cheap text scan: find each effect block, check trigger + body.
-        // We walk effect by effect using brace matching.
+        find_placeholder_body_range(src, trigger_value, body_value).is_some()
+    }
+
+    /// Block-scoped locator: find the first effect block in `src`
+    /// whose trigger matches `trigger_value` AND whose resolve body
+    /// (trimmed) equals `body_value`. Returns the absolute byte
+    /// range `(rb_start, rb_end)` of that resolve body's inner
+    /// content (the span between the resolve `{` and matching `}`).
+    ///
+    /// QQ-II: cluster `rewrite()` uses this range to scope
+    /// `replacen` to the matched effect block — the bare
+    /// `src.replacen(old, new, 1)` previously used was a latent
+    /// multi-effect bug (replaced first textual occurrence across
+    /// the whole file, not the occurrence inside the matched effect
+    /// block).
+    fn find_placeholder_body_range(
+        src: &str, trigger_value: &str, body_value: &str,
+    ) -> Option<(usize, usize)> {
         let bytes = src.as_bytes();
 
         let mut i = 0;
         while i < bytes.len() {
             // Find next "effect \"" start.
-            let Some(start) = find_from(src, i, "effect \"") else { break };
+            let start = find_from(src, i, "effect \"")?;
             // Advance past the name + opening brace.
-            let Some(brace) = src[start..].find('{') else { break };
+            let brace = src[start..].find('{')?;
             let body_start = start + brace + 1;
             // Match the brace.
-            let Some(body_end) = match_brace(src, body_start) else { break };
+            let body_end = match_brace(src, body_start)?;
             let body = &src[body_start..body_end];
             i = body_end + 1;
 
@@ -1134,14 +1157,48 @@ CLUSTERS:
             // Find resolve { ... } inside body.
             let Some(r_brace) = body.find("resolve") else { continue };
             let Some(r_brace_open) = body[r_brace..].find('{') else { continue };
-            let rb_start = r_brace + r_brace_open + 1;
-            let Some(rb_end) = match_brace(body, rb_start) else { continue };
-            let rbody = body[rb_start..rb_end].trim();
+            let rb_start_rel = r_brace + r_brace_open + 1;
+            let Some(rb_end_rel) = match_brace(body, rb_start_rel) else { continue };
+            let rbody = body[rb_start_rel..rb_end_rel].trim();
             if rbody == body_value {
-                return true;
+                // Convert to absolute range in `src`.
+                let abs_start = body_start + rb_start_rel;
+                let abs_end   = body_start + rb_end_rel;
+                return Some((abs_start, abs_end));
             }
         }
-        false
+        None
+    }
+
+    /// Helper used by every cluster `rewrite()` to splice a new
+    /// resolve-body line into the specific effect block that matched.
+    ///
+    /// Given a `src`, the absolute byte range `(body_start, body_end)`
+    /// of the matched resolve body (from
+    /// `find_placeholder_body_range`), and the `old_line` /
+    /// `new_line` pair, this performs `replacen(old_line, new_line,
+    /// 1)` ONLY within `src[body_start..body_end]`, preserving
+    /// bytes outside that range verbatim.
+    ///
+    /// Returns `Err` if `old_line` doesn't appear within the matched
+    /// body (which would indicate a logic bug in the caller).
+    fn splice_block_scoped(
+        src: &str,
+        body_range: (usize, usize),
+        old_line: &str,
+        new_line: &str,
+    ) -> Result<String, String> {
+        let (body_start, body_end) = body_range;
+        let body = &src[body_start..body_end];
+        if !body.contains(old_line) {
+            return Err("expected placeholder line not found in matched block".into());
+        }
+        let replaced = body.replacen(old_line, new_line, 1);
+        let mut out = String::with_capacity(src.len() + new_line.len());
+        out.push_str(&src[..body_start]);
+        out.push_str(&replaced);
+        out.push_str(&src[body_end..]);
+        Ok(out)
     }
 
     fn find_from(src: &str, start: usize, needle: &str) -> Option<usize> {
