@@ -387,6 +387,8 @@ CLUSTERS:
             Box::new(RecruiterDestroyedArchetypeNoStat),
             Box::new(SearchBattleDamageArchetypeMonster),
             Box::new(SearchBattleDamageArchetypeCard),
+            Box::new(SearchDestroyedArchetypeMonster),
+            Box::new(SearchDestroyedArchetypeCard),
         ];
         match filter {
             None        => all,
@@ -1072,6 +1074,161 @@ CLUSTERS:
             let old_line = "            add_to_hand (all, card, either controls)";
             let range = find_placeholder_body_range(
                 src, "battle_damage",
+                "add_to_hand (all, card, either controls)",
+            ).ok_or_else(|| "matched effect block no longer found".to_string())?;
+            splice_block_scoped(src, range, old_line, &new_line)
+        }
+    }
+
+    // ── Cluster: search_destroyed_archetype_monster (M.4 / WW-II) ───
+    //
+    // Mirror of SearchBattleDamageArchetypeMonster but uses the broader
+    // `destroyed_trigger_anchor_before` anchor (from M.2) instead of
+    // `trigger_anchor_before` (M.1). Handles cards like Raidraptors and
+    // Fire King recursion search-on-destroy effects whose BabelCdb desc
+    // reads: 'When this card is destroyed, ... add 1 "X" monster from
+    // your Deck to your hand.'
+    //
+    // Shape to hit:
+    //   effect "X" {
+    //       trigger: destroyed
+    //       resolve {
+    //           add_to_hand (all, card, either controls)
+    //       }
+    //   }
+    //
+    // Rewrite:
+    //   add_to_hand (1, monster, where archetype == "<Archetype>") from deck
+
+    struct SearchDestroyedArchetypeMonster;
+
+    /// Analogue of `match_search_archetype_monster_desc` with the
+    /// destroyed-trigger anchor. Returns (filter_expr, position).
+    fn match_search_archetype_monster_desc_for_destroyed(
+        desc: &str,
+    ) -> Option<(String, usize)> {
+        let needle_head_caps = "Add 1 \"";
+        let needle_head_low  = "add 1 \"";
+        let mut cursor = 0;
+        while cursor < desc.len() {
+            let off_caps = desc[cursor..].find(needle_head_caps);
+            let off_low  = desc[cursor..].find(needle_head_low);
+            let (off, needle_head) = match (off_caps, off_low) {
+                (Some(a), Some(b)) if a < b => (a, needle_head_caps),
+                (_, Some(b))                => (b, needle_head_low),
+                (Some(a), None)             => (a, needle_head_caps),
+                (None, None)                => break,
+            };
+            let start = cursor + off;
+            let after_head = start + needle_head.len();
+            let rest = &desc[after_head..];
+            let Some(q_end) = rest.find('"') else { break };
+            let arch = &rest[..q_end];
+            let tail = &rest[q_end + 1..];
+            if tail.starts_with(" monster from your Deck") {
+                if destroyed_trigger_anchor_before(desc, start) {
+                    let expr = format!("archetype == \"{arch}\"");
+                    return Some((expr, start));
+                }
+            }
+            cursor = start + needle_head.len();
+        }
+        None
+    }
+
+    impl Cluster for SearchDestroyedArchetypeMonster {
+        fn name(&self) -> &'static str { "search_destroyed_archetype_monster" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if !has_placeholder_with_trigger_and_body(
+                src, "destroyed", "add_to_hand (all, card, either controls)"
+            ) { return false; }
+            match_search_archetype_monster_desc_for_destroyed(&cdb_row.desc).is_some()
+        }
+
+        fn rewrite(&self, src: &str, cdb_row: &CdbCard) -> Result<String, String> {
+            let (filter_expr, _) =
+                match_search_archetype_monster_desc_for_destroyed(&cdb_row.desc)
+                    .ok_or_else(|| "desc no longer matches".to_string())?;
+            let new_line = format!(
+                "            add_to_hand (1, monster, where {filter_expr}) from deck"
+            );
+            let old_line = "            add_to_hand (all, card, either controls)";
+            let range = find_placeholder_body_range(
+                src, "destroyed",
+                "add_to_hand (all, card, either controls)",
+            ).ok_or_else(|| "matched effect block no longer found".to_string())?;
+            splice_block_scoped(src, range, old_line, &new_line)
+        }
+    }
+
+    // ── Cluster: search_destroyed_archetype_card (M.4 / WW-II) ──────
+    //
+    // Same shape as the monster variant, but desc says "add 1 \"<Arch>\"
+    // card from your Deck" (card, not monster — spans Spell/Trap
+    // archetype members).
+    //
+    // Rewrite:
+    //   add_to_hand (1, card, where archetype == "<Archetype>") from deck
+
+    struct SearchDestroyedArchetypeCard;
+
+    fn match_search_archetype_card_desc_for_destroyed(
+        desc: &str,
+    ) -> Option<(String, usize)> {
+        let needle_head_caps = "Add 1 \"";
+        let needle_head_low  = "add 1 \"";
+        let mut cursor = 0;
+        while cursor < desc.len() {
+            let off_caps = desc[cursor..].find(needle_head_caps);
+            let off_low  = desc[cursor..].find(needle_head_low);
+            let (off, needle_head) = match (off_caps, off_low) {
+                (Some(a), Some(b)) if a < b => (a, needle_head_caps),
+                (_, Some(b))                => (b, needle_head_low),
+                (Some(a), None)             => (a, needle_head_caps),
+                (None, None)                => break,
+            };
+            let start = cursor + off;
+            let after_head = start + needle_head.len();
+            let rest = &desc[after_head..];
+            let Some(q_end) = rest.find('"') else { break };
+            let arch = &rest[..q_end];
+            let tail = &rest[q_end + 1..];
+            if tail.starts_with(" card from your Deck") {
+                if destroyed_trigger_anchor_before(desc, start) {
+                    let expr = format!("archetype == \"{arch}\"");
+                    return Some((expr, start));
+                }
+            }
+            cursor = start + needle_head.len();
+        }
+        None
+    }
+
+    impl Cluster for SearchDestroyedArchetypeCard {
+        fn name(&self) -> &'static str { "search_destroyed_archetype_card" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if !has_placeholder_with_trigger_and_body(
+                src, "destroyed", "add_to_hand (all, card, either controls)"
+            ) { return false; }
+            // Monster variant runs first (registered earlier). If the desc
+            // matches a "monster" variant, this cluster's matches() will
+            // still fire, but one-rewrite-per-file semantics let the
+            // monster cluster's earlier-registered rewrite win.
+            match_search_archetype_card_desc_for_destroyed(&cdb_row.desc).is_some()
+        }
+
+        fn rewrite(&self, src: &str, cdb_row: &CdbCard) -> Result<String, String> {
+            let (filter_expr, _) =
+                match_search_archetype_card_desc_for_destroyed(&cdb_row.desc)
+                    .ok_or_else(|| "desc no longer matches".to_string())?;
+            let new_line = format!(
+                "            add_to_hand (1, card, where {filter_expr}) from deck"
+            );
+            let old_line = "            add_to_hand (all, card, either controls)";
+            let range = find_placeholder_body_range(
+                src, "destroyed",
                 "add_to_hand (all, card, either controls)",
             ).ok_or_else(|| "matched effect block no longer found".to_string())?;
             splice_block_scoped(src, range, old_line, &new_line)
