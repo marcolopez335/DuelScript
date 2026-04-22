@@ -155,6 +155,27 @@ pub const REDIRECT_SCOPE_OPPONENT_FIELD: u32 = 0x4;
 /// Redirect affects all cards on both fields (Macro Cosmos default).
 pub const REDIRECT_SCOPE_BOTH_FIELDS:    u32 = REDIRECT_SCOPE_FIELD | REDIRECT_SCOPE_OPPONENT_FIELD;
 
+// ── Redirect filter flags (NN-II) ────────────────────────────────
+//
+// Compact u32 summary of the `when:` selector on a `redirect {}` block.
+// The adapter stores these flags on its `ContinuousEffect::Redirect`
+// entry so the engine can scope the redirect to a card class (Monster-
+// only redirects ignore Spell/Trap leave-field events, etc.).
+//
+// Bit 0 indicates any non-default filter is present. Bits 1-3 identify
+// the filter's card class. Future extensions can claim bits 4-31 for
+// attribute / race / predicate summaries without breaking the seam.
+
+/// Set if any non-default `when:` filter is specified. Zero when the
+/// redirect applies universally (no `when:` clause).
+pub const REDIRECT_FILTER_HAS_FILTER: u32 = 0x1;
+/// Set when the filter restricts to Monster cards.
+pub const REDIRECT_FILTER_MONSTER:    u32 = 0x2;
+/// Set when the filter restricts to Spell cards.
+pub const REDIRECT_FILTER_SPELL:      u32 = 0x4;
+/// Set when the filter restricts to Trap cards.
+pub const REDIRECT_FILTER_TRAP:       u32 = 0x8;
+
 /// Count limit for effect activation frequency.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CountLimit {

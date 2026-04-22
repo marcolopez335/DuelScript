@@ -1151,9 +1151,22 @@ pub trait DuelScriptRuntime {
     ///   the field the redirect applies to (self-only, own side, opponent
     ///   side, both).
     ///
-    /// Filter-aware redirects (restricting by card type, attribute, etc.)
-    /// are a follow-up — the initial trait seam is zone-only so the u32
-    /// signature stays minimal.
+    /// `filter_flags`: bitmask encoding the `when:` selector's card-class
+    /// filter. Bit layout (NN-II / OO-II):
+    /// - bit 0 (`REDIRECT_FILTER_HAS_FILTER`) set if any non-default
+    ///   filter was specified. Zero when the redirect applies
+    ///   universally (Macro Cosmos default).
+    /// - bit 1 (`REDIRECT_FILTER_MONSTER`) set if the filter restricts to
+    ///   Monster cards (CardFilterKind::Monster or more specific variants
+    ///   like EffectMonster / NormalMonster).
+    /// - bit 2 (`REDIRECT_FILTER_SPELL`) set for Spell-only filters.
+    /// - bit 3 (`REDIRECT_FILTER_TRAP`) set for Trap-only filters.
+    ///
+    /// Engines with leave-field redirects that care about filtering
+    /// consult these bits to scope the redirect; zero-valued engines
+    /// ignore them and behave as if the redirect applies universally.
+    /// Future extensions may add bits 4–31 (attribute / race / custom
+    /// predicate summary) without breaking the seam.
     ///
     /// # Default
     /// No-op. Engines that don't support leave-field redirects skip
@@ -1161,5 +1174,6 @@ pub trait DuelScriptRuntime {
     /// without the behavior taking effect.
     fn register_redirect(&mut self, _source_card: u32,
                          _from_zone: u32, _to_zone: u32,
-                         _scope_mask: u32) {}
+                         _scope_mask: u32,
+                         _filter_flags: u32) {}
 }
