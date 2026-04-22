@@ -142,6 +142,16 @@ CLUSTERS:
         trigger: battle_damage + placeholder special_summon body;
         matches descs like 'Special Summon 1 FIRE monster with
         1500 or less ATK from your Deck'.
+    recruiter_battle_damage_archetype
+        same trigger shape; archetype-locked variant:
+        'Special Summon 1 \"Blackwing\" monster with 1500 or less
+        ATK from your Deck'.
+    recruiter_battle_damage_archetype_nostat
+        same trigger shape; archetype-locked without stat cap:
+        'Special Summon 1 \"Melodious\" monster from your Deck'.
+    recruiter_battle_damage_named
+        same trigger shape; single named monster (self or other):
+        'Special Summon 1 \"Hydrogeddon\" from your Deck'.
 ");
     }
 
@@ -348,8 +358,14 @@ CLUSTERS:
     }
 
     fn build_clusters(filter: &Option<String>) -> Vec<Box<dyn Cluster>> {
+        // Order matters: the canonical M.0 cluster runs first; M.1
+        // sub-clusters follow. One rewrite per file (see `break` in
+        // `run`), so an earlier cluster wins any overlap.
         let all: Vec<Box<dyn Cluster>> = vec![
             Box::new(RecruiterBattleDamage),
+            Box::new(RecruiterBattleDamageArchetype),
+            Box::new(RecruiterBattleDamageArchetypeNoStat),
+            Box::new(RecruiterBattleDamageNamed),
         ];
         match filter {
             None        => all,
@@ -544,6 +560,245 @@ CLUSTERS:
             );
             let old_line = "            special_summon (all, card, either controls)";
 
+            if !src.contains(old_line) {
+                return Err("expected placeholder line not found".into());
+            }
+            Ok(src.replacen(old_line, &new_line, 1))
+        }
+    }
+
+    // ── Shared helpers for M.1 sub-clusters ─────────────────────
+    //
+    // `trigger_anchor_before` checks that one of the canonical
+    // battle-trigger phrases appears in the desc before `cursor`.
+    // This guards against cards like Tanngnjostr where a placeholder
+    // battle_damage effect in the .ds file is unrelated to the
+    // "Special Summon 1 \"X\" ..." sentence elsewhere in the desc.
+
+    fn trigger_anchor_before(desc: &str, cursor: usize) -> bool {
+        // The canonical battle triggers for classic-recruiter-shaped
+        // effects. Match any of these occurring before `cursor`.
+        //
+        // We check for a small family of phrasings — "this card is
+        // destroyed by battle", "this card destroys ... by battle",
+        // "this face-up Attack Position card ... destroyed by battle",
+        // "this card you control is destroyed by battle", etc.
+        // All variants share "this" + "card" + "by battle".
+        //
+        // Kept deliberately conservative: we scan the prefix for one
+        // of the substrings "card is destroyed by battle",
+        // "card you control is destroyed by battle",
+        // "card destroys an opponent" (+"by battle"),
+        // "card destroys a monster" (+"by battle"),
+        // "card, when destroyed by battle".
+        let prefix = &desc[..cursor];
+        let lower = prefix.to_lowercase();
+        // Common destroyed-by-battle phrasings.
+        if lower.contains("card is destroyed by battle") { return true; }
+        if lower.contains("card you control is destroyed by battle") { return true; }
+        if lower.contains("card, when destroyed by battle") { return true; }
+        // Destroys-by-battle phrasings.
+        if lower.contains("card destroys an opponent") && lower.contains("by battle") { return true; }
+        if lower.contains("card destroys a monster") && lower.contains("by battle") { return true; }
+        // "this face-up Attack Position card you control is destroyed by battle"
+        if lower.contains("attack position card you control is destroyed by battle") { return true; }
+        false
+    }
+
+    // ── Cluster: recruiter_battle_damage_archetype ──────────────
+    //
+    // Shape to hit:
+    //   same effect-block shape as M.0.
+    //   desc: 'Special Summon 1 "<Archetype>" monster with <N>
+    //          or less (ATK|DEF) from your Deck'
+    //
+    // Rewrite:
+    //   special_summon (1, monster, where archetype == "<Archetype>"
+    //     and (atk|def) <= <N>) from deck in <position>
+
+    struct RecruiterBattleDamageArchetype;
+
+    /// Find the canonical archetype+stat recruiter sentence.
+    /// Returns (filter_expr, position, sentence_start).
+    fn match_archetype_stat_desc(desc: &str) -> Option<(String, &'static str, usize)> {
+        let needle_head = "Special Summon 1 \"";
+        let mut cursor = 0;
+        while let Some(off) = desc[cursor..].find(needle_head) {
+            let start = cursor + off;
+            let after_head = start + needle_head.len();
+            // Extract the quoted archetype.
+            let rest = &desc[after_head..];
+            let Some(q_end) = rest.find('"') else { break };
+            let arch = &rest[..q_end];
+            let tail = &rest[q_end + 1..];
+            // Expect " monster with <N> or less (ATK|DEF) from your Deck"
+            let after_quote = tail;
+            let with_head = " monster with ";
+            if let Some(ws) = after_quote.find(with_head) {
+                let after_with = &after_quote[ws + with_head.len()..];
+                // Extract number up to space.
+                let num_end = after_with.find(' ').unwrap_or(after_with.len());
+                let num_s = &after_with[..num_end];
+                if let Ok(n) = num_s.parse::<u32>() {
+                    let rest2 = &after_with[num_end..];
+                    // " or less ATK from your Deck" or DEF variant.
+                    let stat = if rest2.starts_with(" or less ATK from your Deck") {
+                        Some("atk")
+                    } else if rest2.starts_with(" or less DEF from your Deck") {
+                        Some("def")
+                    } else {
+                        None
+                    };
+                    if let Some(st) = stat {
+                        // Trigger anchor guard.
+                        if trigger_anchor_before(desc, start) {
+                            // Position: look at the sentence after "from your Deck".
+                            let segment = &desc[start..];
+                            let position = pick_position(segment);
+                            let expr = format!("archetype == \"{arch}\" and {st} <= {n}");
+                            return Some((expr, position, start));
+                        }
+                    }
+                }
+            }
+            cursor = start + needle_head.len();
+        }
+        None
+    }
+
+    impl Cluster for RecruiterBattleDamageArchetype {
+        fn name(&self) -> &'static str { "recruiter_battle_damage_archetype" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if !has_battle_damage_placeholder(src) { return false; }
+            match_archetype_stat_desc(&cdb_row.desc).is_some()
+        }
+
+        fn rewrite(&self, src: &str, cdb_row: &CdbCard) -> Result<String, String> {
+            let (filter_expr, position, _) = match_archetype_stat_desc(&cdb_row.desc)
+                .ok_or_else(|| "desc no longer matches".to_string())?;
+            let new_line = format!(
+                "            special_summon (1, monster, where {filter_expr}) from deck in {position}"
+            );
+            let old_line = "            special_summon (all, card, either controls)";
+            if !src.contains(old_line) {
+                return Err("expected placeholder line not found".into());
+            }
+            Ok(src.replacen(old_line, &new_line, 1))
+        }
+    }
+
+    // ── Cluster: recruiter_battle_damage_archetype_nostat ───────
+    //
+    // Shape to hit:
+    //   same effect-block shape.
+    //   desc: 'Special Summon 1 "<Archetype>" monster from your Deck'
+    //   (no stat cap)
+    //
+    // Rewrite:
+    //   special_summon (1, monster, where archetype == "<Archetype>")
+    //     from deck in <position>
+
+    struct RecruiterBattleDamageArchetypeNoStat;
+
+    fn match_archetype_nostat_desc(desc: &str) -> Option<(String, &'static str, usize)> {
+        let needle_head = "Special Summon 1 \"";
+        let mut cursor = 0;
+        while let Some(off) = desc[cursor..].find(needle_head) {
+            let start = cursor + off;
+            let after_head = start + needle_head.len();
+            let rest = &desc[after_head..];
+            let Some(q_end) = rest.find('"') else { break };
+            let arch = &rest[..q_end];
+            let tail = &rest[q_end + 1..];
+            // Expect " monster from your Deck" literally (no "with <N>").
+            if tail.starts_with(" monster from your Deck") {
+                if trigger_anchor_before(desc, start) {
+                    let segment = &desc[start..];
+                    let position = pick_position(segment);
+                    let expr = format!("archetype == \"{arch}\"");
+                    return Some((expr, position, start));
+                }
+            }
+            cursor = start + needle_head.len();
+        }
+        None
+    }
+
+    impl Cluster for RecruiterBattleDamageArchetypeNoStat {
+        fn name(&self) -> &'static str { "recruiter_battle_damage_archetype_nostat" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if !has_battle_damage_placeholder(src) { return false; }
+            match_archetype_nostat_desc(&cdb_row.desc).is_some()
+        }
+
+        fn rewrite(&self, src: &str, cdb_row: &CdbCard) -> Result<String, String> {
+            let (filter_expr, position, _) = match_archetype_nostat_desc(&cdb_row.desc)
+                .ok_or_else(|| "desc no longer matches".to_string())?;
+            let new_line = format!(
+                "            special_summon (1, monster, where {filter_expr}) from deck in {position}"
+            );
+            let old_line = "            special_summon (all, card, either controls)";
+            if !src.contains(old_line) {
+                return Err("expected placeholder line not found".into());
+            }
+            Ok(src.replacen(old_line, &new_line, 1))
+        }
+    }
+
+    // ── Cluster: recruiter_battle_damage_named ──────────────────
+    //
+    // Shape to hit:
+    //   same effect-block shape.
+    //   desc: 'Special Summon 1 "<Name>" from your Deck'
+    //   (no "monster" token between the quote and "from")
+    //
+    // Rewrite:
+    //   special_summon (1, monster, where name == "<Name>")
+    //     from deck in <position>
+
+    struct RecruiterBattleDamageNamed;
+
+    fn match_named_desc(desc: &str) -> Option<(String, &'static str, usize)> {
+        let needle_head = "Special Summon 1 \"";
+        let mut cursor = 0;
+        while let Some(off) = desc[cursor..].find(needle_head) {
+            let start = cursor + off;
+            let after_head = start + needle_head.len();
+            let rest = &desc[after_head..];
+            let Some(q_end) = rest.find('"') else { break };
+            let name = &rest[..q_end];
+            let tail = &rest[q_end + 1..];
+            // Expect " from your Deck" literally (no "monster " in between).
+            if tail.starts_with(" from your Deck") {
+                if trigger_anchor_before(desc, start) {
+                    let segment = &desc[start..];
+                    let position = pick_position(segment);
+                    let expr = format!("name == \"{name}\"");
+                    return Some((expr, position, start));
+                }
+            }
+            cursor = start + needle_head.len();
+        }
+        None
+    }
+
+    impl Cluster for RecruiterBattleDamageNamed {
+        fn name(&self) -> &'static str { "recruiter_battle_damage_named" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if !has_battle_damage_placeholder(src) { return false; }
+            match_named_desc(&cdb_row.desc).is_some()
+        }
+
+        fn rewrite(&self, src: &str, cdb_row: &CdbCard) -> Result<String, String> {
+            let (filter_expr, position, _) = match_named_desc(&cdb_row.desc)
+                .ok_or_else(|| "desc no longer matches".to_string())?;
+            let new_line = format!(
+                "            special_summon (1, monster, where {filter_expr}) from deck in {position}"
+            );
+            let old_line = "            special_summon (all, card, either controls)";
             if !src.contains(old_line) {
                 return Err("expected placeholder line not found".into());
             }
