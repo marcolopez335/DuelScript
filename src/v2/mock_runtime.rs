@@ -164,6 +164,9 @@ pub struct MockRedirect {
     pub from_zone: u32,
     pub to_zone: u32,
     pub scope_mask: u32,
+    /// NN-II: `when:` selector summary; see
+    /// `constants.rs::REDIRECT_FILTER_*` for bit layout.
+    pub filter_flags: u32,
 }
 
 impl Default for MockState {
@@ -618,18 +621,20 @@ impl DuelScriptRuntime for MockRuntime {
     }
     fn get_announcement(&self, _token: u32) -> u32 { 0 }
 
-    // ── T31 / CC-II: leave-field redirect ────────────────────
+    // ── T31 / CC-II: leave-field redirect (NN-II filter-aware) ──────
     fn register_redirect(&mut self, source_card: u32,
                          from_zone: u32, to_zone: u32,
-                         scope_mask: u32) {
+                         scope_mask: u32,
+                         filter_flags: u32) {
         self.record("register_redirect",
-            format!("source={} from=0x{:x} to=0x{:x} scope=0x{:x}",
-                    source_card, from_zone, to_zone, scope_mask));
+            format!("source={} from=0x{:x} to=0x{:x} scope=0x{:x} filter=0x{:x}",
+                    source_card, from_zone, to_zone, scope_mask, filter_flags));
         self.state.redirects.push(MockRedirect {
             source_card,
             from_zone,
             to_zone,
             scope_mask,
+            filter_flags,
         });
     }
 

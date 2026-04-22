@@ -637,27 +637,71 @@ fn redirect_scope_mask(scope: &RedirectScope) -> u32 {
     }
 }
 
+/// Summarise a `when:` selector into a compact `filter_flags` bitmask
+/// for `register_redirect`. Returns 0 when no filter is present, or when
+/// the filter is the pass-through "any card" form.
+///
+/// Bit layout matches `REDIRECT_FILTER_*` constants — bit 0 is the
+/// has-filter sentinel; bits 1-3 identify Monster/Spell/Trap. Predicate-
+/// level filters (`where atk >= 1500`) set only the sentinel bit; the
+/// engine must fall back to "any class" for those until a richer
+/// summary is designed.
+fn redirect_filter_flags(filter: Option<&Selector>) -> u32 {
+    use crate::v2::ast::{CardFilterKind, Selector as Sel};
+
+    let Some(sel) = filter else { return 0 };
+    let counted = match sel {
+        Sel::Counted { filter, .. } => filter,
+        // All other Selector variants (Target / Searched / binding refs)
+        // are semantically "the card that was selected earlier" — they
+        // don't carry a class filter. Set only the has-filter sentinel.
+        _ => return tm::REDIRECT_FILTER_HAS_FILTER,
+    };
+    let mut flags = tm::REDIRECT_FILTER_HAS_FILTER;
+    flags |= match counted.kind {
+        CardFilterKind::Monster
+        | CardFilterKind::EffectMonster
+        | CardFilterKind::NormalMonster
+        | CardFilterKind::FusionMonster
+        | CardFilterKind::SynchroMonster
+        | CardFilterKind::XyzMonster
+        | CardFilterKind::LinkMonster
+        | CardFilterKind::RitualMonster
+        | CardFilterKind::PendulumMonster
+        | CardFilterKind::TunerMonster
+        | CardFilterKind::NonTunerMonster
+        | CardFilterKind::NonTokenMonster => tm::REDIRECT_FILTER_MONSTER,
+        CardFilterKind::Spell             => tm::REDIRECT_FILTER_SPELL,
+        CardFilterKind::Trap              => tm::REDIRECT_FILTER_TRAP,
+        CardFilterKind::Card              => 0,
+    };
+    flags
+}
+
 /// Compile a `redirect { ... }` block into a continuous passive effect.
 ///
 /// Emits an operation closure that calls `rt.register_redirect(source,
-/// from_location, to_location, scope_mask)` on activation. The engine
-/// adapter forwards this to a `ContinuousEffect::Redirect` entry in its
-/// continuous-effect manager; the default `register_redirect` impl is a
-/// no-op so engines that don't support redirects compile silently.
+/// from_location, to_location, scope_mask, filter_flags)` on activation.
+/// The engine adapter forwards this to a `ContinuousEffect::Redirect`
+/// entry in its continuous-effect manager; the default
+/// `register_redirect` impl is a no-op so engines that don't support
+/// redirects compile silently.
 ///
-/// The `when:` selector (if present) is currently captured in the AST but
-/// *not* passed through to the trait — the initial trait seam is zone-only
-/// to keep it u32-valued. Filter-aware redirects are a follow-up migration
-/// (see decisions-2.md CC-II / DD-II).
+/// The `when:` selector's card-class filter is summarised into the
+/// `filter_flags` bitmask (see `REDIRECT_FILTER_*` constants). Predicate-
+/// level filters (`where atk >= 1500` etc.) are still dropped at the
+/// seam — extending the summary to cover predicates is a future
+/// migration (see decisions-2.md CC-II / DD-II / NN-II).
 fn compile_redirect(redirect: &Redirect, card: &Card) -> CompiledEffectV2 {
     let card_id = card.fields.id.unwrap_or(0) as u32;
     let from_loc = zone_to_location(&redirect.from);
     let to_loc   = zone_to_location(&redirect.to);
     let scope_mask = redirect_scope_mask(&redirect.scope);
+    let filter_flags = redirect_filter_flags(redirect.filter.as_ref());
 
     let operation: Option<Arc<dyn Fn(&mut dyn DuelScriptRuntime) + Send + Sync>> =
         Some(Arc::new(move |rt: &mut dyn DuelScriptRuntime| {
-            rt.register_redirect(card_id, from_loc, to_loc, scope_mask);
+            rt.register_redirect(card_id, from_loc, to_loc, scope_mask, filter_flags);
         }));
 
     CompiledEffectV2 {
@@ -5432,6 +5476,120 @@ card "T31 Bad" {
                 e.message.contains("identical from/to") && e.severity == crate::v2::validator::Severity::Error),
             "validator must flag from==to as an error; got: {:?}",
             report.errors);
+    }
+
+    // ── NN-II: filter-aware redirects (Task #9) ─────────────────
+
+    /// NN-II-1: redirect without `when:` clause emits filter_flags = 0.
+    /// Pre-NN-II all redirects had filter_flags implicitly 0 (the trait
+    /// sig didn't carry the flag); this test locks in that the zero
+    /// value is surfaced through the new signature.
+    #[test]
+    fn nn_ii_no_filter_emits_zero_flags() {
+        let e = compile_redirect_block(r#"
+    redirect {
+        scope: both_fields
+        from: gy
+        to: banished
+    }
+"#);
+        let op = e.operation.as_ref().expect("redirect has operation");
+        let mut rt = crate::v2::mock_runtime::MockRuntime::new();
+        op(&mut rt);
+
+        let r = rt.state.redirects[0];
+        assert_eq!(r.filter_flags, 0,
+            "no when: clause must emit filter_flags = 0 (universal);\n{}",
+            rt.dump_calls());
+    }
+
+    /// NN-II-2: `when: (all, monster, either controls)` sets
+    /// HAS_FILTER + MONSTER bits.
+    #[test]
+    fn nn_ii_monster_filter_sets_monster_bit() {
+        let e = compile_redirect_block(r#"
+    redirect {
+        scope: both_fields
+        from: gy
+        to: banished
+        when: (all, monster, either controls)
+    }
+"#);
+        let op = e.operation.as_ref().expect("redirect has operation");
+        let mut rt = crate::v2::mock_runtime::MockRuntime::new();
+        op(&mut rt);
+
+        let r = rt.state.redirects[0];
+        assert_eq!(r.filter_flags,
+            tm::REDIRECT_FILTER_HAS_FILTER | tm::REDIRECT_FILTER_MONSTER,
+            "when: (all, monster, ...) must set HAS_FILTER | MONSTER;\nactual=0x{:x}\n{}",
+            r.filter_flags, rt.dump_calls());
+    }
+
+    /// NN-II-3: `when: (all, spell, either controls)` sets
+    /// HAS_FILTER + SPELL bits.
+    #[test]
+    fn nn_ii_spell_filter_sets_spell_bit() {
+        let e = compile_redirect_block(r#"
+    redirect {
+        scope: both_fields
+        from: gy
+        to: banished
+        when: (all, spell, either controls)
+    }
+"#);
+        let op = e.operation.as_ref().expect("redirect has operation");
+        let mut rt = crate::v2::mock_runtime::MockRuntime::new();
+        op(&mut rt);
+
+        let r = rt.state.redirects[0];
+        assert_eq!(r.filter_flags,
+            tm::REDIRECT_FILTER_HAS_FILTER | tm::REDIRECT_FILTER_SPELL,
+            "when: (all, spell, ...) must set HAS_FILTER | SPELL;\nactual=0x{:x}",
+            r.filter_flags);
+    }
+
+    /// NN-II-4: `when: (all, trap, either controls)` sets
+    /// HAS_FILTER + TRAP bits.
+    #[test]
+    fn nn_ii_trap_filter_sets_trap_bit() {
+        let e = compile_redirect_block(r#"
+    redirect {
+        scope: both_fields
+        from: gy
+        to: banished
+        when: (all, trap, either controls)
+    }
+"#);
+        let op = e.operation.as_ref().expect("redirect has operation");
+        let mut rt = crate::v2::mock_runtime::MockRuntime::new();
+        op(&mut rt);
+
+        let r = rt.state.redirects[0];
+        assert_eq!(r.filter_flags,
+            tm::REDIRECT_FILTER_HAS_FILTER | tm::REDIRECT_FILTER_TRAP,
+            "when: (all, trap, ...) must set HAS_FILTER | TRAP");
+    }
+
+    /// NN-II-5: `when: (all, card, either controls)` sets HAS_FILTER
+    /// only — no class bit, because `card` is the universal class.
+    #[test]
+    fn nn_ii_card_filter_sets_only_has_filter_bit() {
+        let e = compile_redirect_block(r#"
+    redirect {
+        scope: both_fields
+        from: gy
+        to: banished
+        when: (all, card, either controls)
+    }
+"#);
+        let op = e.operation.as_ref().expect("redirect has operation");
+        let mut rt = crate::v2::mock_runtime::MockRuntime::new();
+        op(&mut rt);
+
+        let r = rt.state.redirects[0];
+        assert_eq!(r.filter_flags, tm::REDIRECT_FILTER_HAS_FILTER,
+            "when: (all, card, ...) must set only HAS_FILTER — card is universal");
     }
 
     /// T31-5: fmt roundtrip for redirect blocks — scopes + with/without
