@@ -518,6 +518,12 @@ fn check_replacement_blocks(ctx: &Ctx, errors: &mut Vec<ValidationError>) {
 // (b) `scope: self` + `from: field` is nonsensical (the card is the
 //     *source* of the redirect; "self moving off the field" is the event
 //     the replacement block models, not this block). Warn.
+// (c) CCC-II: `from:` and `to:` must be terminal card-location zones —
+//     hand / deck / gy / banished / extra_deck. On-field placement zones
+//     (monster_zone, spell_trap_zone, field, pendulum_zone, etc.) and
+//     the overlay zone describe in-play state, not leave-field routing
+//     endpoints. The engine consumer only honours the terminal set; any
+//     other value stays latent and silently mismatches.
 fn check_redirect_blocks(ctx: &Ctx, errors: &mut Vec<ValidationError>) {
     for redirect in &ctx.card.redirects {
         let name = redirect.name.as_deref().unwrap_or("unnamed");
@@ -538,7 +544,34 @@ fn check_redirect_blocks(ctx: &Ctx, errors: &mut Vec<ValidationError>) {
                 name
             )));
         }
+
+        if !is_terminal_redirect_zone(&redirect.from) {
+            errors.push(err(ctx.name(), &format!(
+                "Redirect '{}' has non-terminal `from:` zone ({:?}) — \
+                 must be one of hand/deck/gy/banished/extra_deck",
+                name, redirect.from
+            )));
+        }
+        if !is_terminal_redirect_zone(&redirect.to) {
+            errors.push(err(ctx.name(), &format!(
+                "Redirect '{}' has non-terminal `to:` zone ({:?}) — \
+                 must be one of hand/deck/gy/banished/extra_deck",
+                name, redirect.to
+            )));
+        }
     }
+}
+
+/// CCC-II: a redirect's `from:` and `to:` must describe terminal card
+/// locations (where a card "lives" once routed), not on-field placement
+/// zones or the overlay/equipped anchors. This keeps the grammar aligned
+/// with the engine consumer which only understands these five targets.
+fn is_terminal_redirect_zone(zone: &Zone) -> bool {
+    matches!(
+        zone,
+        Zone::Hand | Zone::Deck | Zone::Gy | Zone::Banished
+        | Zone::ExtraDeck | Zone::ExtraDeckFaceUp
+    )
 }
 
 // ── Tests ───────────────────────────────────────────────────

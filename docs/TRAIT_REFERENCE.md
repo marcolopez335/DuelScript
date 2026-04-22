@@ -509,21 +509,34 @@ implemented these features compile and run correctly against cards that do not u
   `GRANT_CANNOT_BE_DESTROYED`), lasting for the phase/event mask `duration`.
   Default: no-op.
 
-- `register_redirect(source_card, from_zone, to_zone, scope_mask)` — Register a
-  continuous leave-field destination redirect (Macro Cosmos, Dimensional Fissure,
-  Banisher of the Radiance, and every "instead of being sent to the Graveyard,
-  banish it" pattern). While `source_card` is on the field, cards on sides
-  covered by `scope_mask` whose leave-field destination is `from_zone` are
-  instead sent to `to_zone`. Added in T31 / CC-II.
+- `register_redirect(source_card, from_zone, to_zone, scope_mask, filter_flags)` —
+  Register a continuous leave-field destination redirect (Macro Cosmos, Dimensional
+  Fissure, Banisher of the Radiance, and every "instead of being sent to the
+  Graveyard, banish it" pattern). While `source_card` is on the field, cards on
+  sides covered by `scope_mask` whose leave-field destination is `from_zone` are
+  instead sent to `to_zone`. Added in T31 / CC-II; filter added NN-II; hand/deck
+  destinations wired CCC-II.
   - `source_card`: passcode of the redirecting card.
   - `from_zone`, `to_zone`: EDOPro `LOCATION_*` bitmasks for the overridden
-    destination and its replacement (e.g., `LOCATION_GRAVE` → `LOCATION_REMOVED`).
+    destination and its replacement. Supported terminal zones: `LOCATION_HAND`
+    (grammar `hand`), `LOCATION_DECK` (grammar `deck`), `LOCATION_GRAVE`
+    (grammar `gy`), `LOCATION_REMOVED` (grammar `banished`), `LOCATION_EXTRA`
+    (grammar `extra_deck`). On-field placement zones (monster_zone,
+    spell_trap_zone, pendulum_zone, field, overlay) are rejected by the
+    validator as non-terminal. Canonical examples:
+    - `LOCATION_GRAVE` → `LOCATION_REMOVED` — Macro Cosmos, Banisher of the
+      Radiance, Dimensional Fissure.
+    - `LOCATION_GRAVE` → `LOCATION_HAND` — "returns to the hand instead of
+      being sent to the GY".
+    - `LOCATION_GRAVE` → `LOCATION_DECK` — "shuffled into the Deck instead
+      of being sent to the GY".
   - `scope_mask`: `REDIRECT_SCOPE_*` bitmask naming which side(s) of the field
     the redirect covers (`SELF` / `FIELD` / `OPPONENT_FIELD` / `BOTH_FIELDS`).
-  Filter-aware redirects (restricting by card type, attribute, etc.) are a
-  follow-up; the initial trait seam is zone-only so the u32 signature stays
-  minimal. Default: no-op — engines without leave-field redirect support
-  compile silently.
+  - `filter_flags`: `REDIRECT_FILTER_*` bitmask summarising the `when:`
+    selector (HAS_FILTER sentinel + MONSTER/SPELL/TRAP class bit). Zero means
+    no filter (universal).
+  Default: no-op — engines without leave-field redirect support compile
+  silently.
 
 ---
 
