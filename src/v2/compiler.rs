@@ -2045,10 +2045,10 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
         }
         Action::SpecialSummon(sel, _, pos) => {
             let pos_val = match pos {
-                Some(BattlePosition::Attack) => 0x1,
-                Some(BattlePosition::Defense) => 0x2,
-                Some(BattlePosition::FaceDownDefense) => 0xA,
-                None => 0x1,
+                Some(BattlePosition::Attack)          => tm::POS_FACEUP_ATTACK,   // 0x1
+                Some(BattlePosition::Defense)         => tm::POS_FACEUP_DEFENSE,  // 0x4 (was 0x2 = POS_FACEDOWN_ATTACK)
+                Some(BattlePosition::FaceDownDefense) => tm::POS_FACEDOWN_DEFENSE, // 0x8 (was 0xA = FACEDOWN-any)
+                None => tm::POS_FACEUP_ATTACK,
             };
             let cards = resolve_v2_selector(sel, rt, player);
             for card_id in cards {
