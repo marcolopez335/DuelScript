@@ -432,6 +432,7 @@ card "Solemn Judgment" {
 | `trigger: targeted` | When this card is targeted |
 | `trigger: position_changed` | When battle position changes |
 | `trigger: control_changed` | When control changes |
+| `trigger: ignition` | Player-activated Main-Phase effect (tagging-only; identical to omitting `trigger` on a monster effect) |
 
 ### Who
 | Syntax | Meaning |

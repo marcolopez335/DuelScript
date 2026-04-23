@@ -1296,6 +1296,7 @@ fn parse_trigger(pair: Pair<Rule>) -> Result<Trigger, V2ParseError> {
                 method: None,
                 summoned_by_binding: None,
             }),
+            "ignition" => Ok(Trigger::Ignition),
             _ => Err(V2ParseError::UnknownRule(format!("trigger: {}", text))),
         };
     }
