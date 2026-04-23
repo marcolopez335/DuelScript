@@ -184,6 +184,14 @@ CLUSTERS:
         monster search. Matches descs like:
         'Add 1 Warrior \"Nekroz\" Ritual Monster from your Deck'.
         Emits: `where archetype == X and race == Warrior and is_ritual`.
+    search_archetype_spell_trap
+        M.5-ext / OOO-II: Spell/Trap type-predicate variant of the
+        archetype search family. Trigger-agnostic: fires on any
+        supported trigger block that contains the canonical
+        add_to_hand placeholder AND whose desc phrases the search
+        as `Add 1 \"<Arch>\" Spell/Trap from your Deck`.
+        Emits: `where archetype == X and not is_monster` (the
+        grammar-supported equivalent — see parser.rs comment).
 ");
     }
 
@@ -410,6 +418,7 @@ CLUSTERS:
             Box::new(SearchSentToGyArchetypeMonster),
             Box::new(SearchSentToGyArchetypeCard),
             Box::new(SearchSentToGySubtypeArchetypeMonster),
+            Box::new(SearchArchetypeSpellTrap),
         ];
         match filter {
             None        => all,
@@ -1684,6 +1693,117 @@ CLUSTERS:
         }
     }
 
+    // ── Cluster: search_archetype_spell_trap (M.5-ext / OOO-II) ──
+    //
+    // Extends the M.5 archetype-search family to cover descs that
+    // phrase the search target as `Add 1 \"<Arch>\" Spell/Trap from
+    // your Deck` (i.e. a type-restricted search covering BOTH
+    // Spell-type and Trap-type archetype members). Grammar has no
+    // bare `Spell` / `Trap` card-type literal — `parse_card_type`
+    // only accepts subtype-qualified forms (Normal Spell, Counter
+    // Trap, etc.). The correct predicate is the parenthesised
+    // disjunction `(is_spell or is_trap)`, which grammar supports
+    // via `pred_atom = "(" ~ predicate ~ ")"`.
+    //
+    // Trigger-agnostic: fires on any of a set of supported trigger
+    // values (sent_to gy, destroyed, battle_damage, summoned,
+    // `summoned by special`, standby_phase, leaves_field,
+    // destroyed_by_battle) that has the canonical placeholder.
+    // Tries each trigger in order and takes the first match.
+    //
+    // Rewrite:
+    //   add_to_hand (1, card,
+    //       where archetype == \"<Arch>\" and (is_spell or is_trap))
+    //       from deck
+
+    struct SearchArchetypeSpellTrap;
+
+    /// Match `Add 1 "<Arch>" Spell/Trap from your Deck` in desc.
+    /// Returns the extracted archetype string. No trigger-anchor
+    /// gate because the desc phrasing is highly specific
+    /// (appears only in sentences that describe exactly this
+    /// search mode).
+    fn match_archetype_spell_trap_desc(desc: &str) -> Option<String> {
+        let heads = ["Add 1 \"", "add 1 \""];
+        let mut cursor = 0;
+        while cursor < desc.len() {
+            let hits: Vec<(usize, &str)> = heads.iter()
+                .filter_map(|h| desc[cursor..].find(h).map(|o| (o, *h)))
+                .collect();
+            let (off, head) = *hits.iter().min_by_key(|(o, _)| *o)?;
+            let start = cursor + off;
+            let after_head = start + head.len();
+            let rest = &desc[after_head..];
+            let Some(q_end) = rest.find('"') else { break };
+            let arch = &rest[..q_end];
+            let tail = &rest[q_end + 1..];
+            if tail.starts_with(" Spell/Trap from your Deck") {
+                return Some(arch.to_string());
+            }
+            cursor = after_head;
+        }
+        None
+    }
+
+    /// Trigger values that the Spell/Trap cluster will probe for
+    /// a canonical placeholder. Order matters: earlier triggers
+    /// win on first-match. `sent_to gy` first (highest-fidelity
+    /// anchor signal in the pool), then summon-family, then the
+    /// battle family. The rewriter checks each trigger until it
+    /// finds a placeholder line to replace.
+    const SPELL_TRAP_TRIGGERS: &[&str] = &[
+        "sent_to gy",
+        "summoned by special",
+        "summoned",
+        "destroyed_by_battle",
+        "destroyed",
+        "battle_damage",
+        "standby_phase",
+        "leaves_field",
+    ];
+
+    impl Cluster for SearchArchetypeSpellTrap {
+        fn name(&self) -> &'static str { "search_archetype_spell_trap" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if match_archetype_spell_trap_desc(&cdb_row.desc).is_none() {
+                return false;
+            }
+            // Need at least one supported trigger with the placeholder.
+            SPELL_TRAP_TRIGGERS.iter().any(|t| {
+                has_placeholder_line_for_trigger(
+                    src, t, "add_to_hand (all, card, either controls)",
+                )
+            })
+        }
+
+        fn rewrite(&self, src: &str, cdb_row: &CdbCard) -> Result<String, String> {
+            let arch = match_archetype_spell_trap_desc(&cdb_row.desc)
+                .ok_or_else(|| "desc no longer matches".to_string())?;
+            // Grammar has no bare `Spell` / `Trap` card-type literal,
+            // AND the parser rejects nested OR-predicates (parser.rs
+            // `parse_pred_atom` accepts `(predicate)` only when it
+            // flattens to a single atom or pure AND conjunction — see
+            // FF-I fork rule; grammar tweak is out of M-phase scope).
+            // `not is_monster` is the grammar-supported equivalent
+            // under the closed-world assumption that every .cdb card
+            // row is monster, spell, or trap.
+            let new_line = format!(
+                "            add_to_hand (1, card, where archetype == \"{arch}\" and not is_monster) from deck"
+            );
+            // Find the first supported trigger with the placeholder
+            // and splice there.
+            for trig in SPELL_TRAP_TRIGGERS {
+                if let Some(range) = find_placeholder_line_range(
+                    src, trig, "add_to_hand (all, card, either controls)",
+                ) {
+                    return Ok(splice_placeholder_line(src, range, &new_line));
+                }
+            }
+            Err("no supported trigger block with canonical placeholder".to_string())
+        }
+    }
+
     /// Return true if `src` contains an effect block with:
     ///   - trigger: battle_damage
     ///   - single-line resolve body exactly
@@ -2098,6 +2218,36 @@ card \"X\" {
             let (expr, _) = match_subtype_archetype_monster_desc_for_sent_to_gy(desc)
                 .expect("should match");
             assert_eq!(expr, "archetype == \"Foo\" and race == Winged Beast");
+        }
+    }
+
+    // ── M.5-ext / OOO-II inline tests for Spell/Trap matcher ──
+    #[cfg(test)]
+    mod archetype_spell_trap_matcher_tests {
+        use super::*;
+
+        #[test]
+        fn matches_simple_archetype_spell_trap() {
+            let desc = "If this card is sent to the GY: You can add 1 \"Vendread\" Spell/Trap from your Deck to the hand.";
+            assert_eq!(match_archetype_spell_trap_desc(desc).as_deref(), Some("Vendread"));
+        }
+
+        #[test]
+        fn matches_lowercase_add() {
+            let desc = "When summoned: You can add 1 \"Mitsurugi\" Spell/Trap from your Deck to your hand.";
+            assert_eq!(match_archetype_spell_trap_desc(desc).as_deref(), Some("Mitsurugi"));
+        }
+
+        #[test]
+        fn rejects_monster_suffix() {
+            let desc = "You can add 1 \"Foo\" monster from your Deck to your hand.";
+            assert!(match_archetype_spell_trap_desc(desc).is_none());
+        }
+
+        #[test]
+        fn rejects_card_suffix() {
+            let desc = "You can add 1 \"Foo\" card from your Deck to your hand.";
+            assert!(match_archetype_spell_trap_desc(desc).is_none());
         }
     }
 }
