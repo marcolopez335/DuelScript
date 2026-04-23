@@ -54,8 +54,8 @@ pub const EVENT_TO_HAND:           u32 = 1012;
 pub const EVENT_TO_GRAVE:          u32 = 1014;
 pub const EVENT_RELEASE:           u32 = 1017;
 pub const EVENT_CHAINING:          u32 = 1027;
-pub const EVENT_CHAIN_SOLVING:     u32 = 1028;
-pub const EVENT_CHAIN_SOLVED:      u32 = 1030;
+pub const EVENT_CHAIN_SOLVING:     u32 = 1020;
+pub const EVENT_CHAIN_SOLVED:      u32 = 1022;
 /// Fires when a card is used as a material — Xyz attached, tributed,
 /// fused, Synchro/Link/Ritual material. EDOPro code 1108 (see
 /// `grammar/edopro_constants.lua:669`). Distinct from `EVENT_RELEASE`
