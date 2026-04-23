@@ -364,27 +364,30 @@ fn compile_passive(passive: &Passive, card: &Card) -> CompiledEffectV2 {
 }
 
 fn grant_to_code(grant: &GrantAbility) -> u32 {
+    // EDOPro EFFECT_* codes per grammar/edopro_constants.lua. All values
+    // cross-checked during task #29 seam audit; prior table had ~12 wrong
+    // values that silently never matched engine-side handlers.
     match grant {
-        GrantAbility::CannotBeDestroyed(Some(DestroyBy::Battle))      => 30, // EFFECT_INDESTRUCTABLE_BATTLE
-        GrantAbility::CannotBeDestroyed(Some(DestroyBy::Effect))       => 31, // EFFECT_INDESTRUCTABLE_EFFECT
-        GrantAbility::CannotBeDestroyed(Some(DestroyBy::CardEffect))   => 31,
-        GrantAbility::CannotBeDestroyed(None)                          => 30,
-        GrantAbility::CannotBeTargeted(_)                              => 8,  // EFFECT_CANNOT_BE_EFFECT_TARGET
-        GrantAbility::CannotAttack                                     => 16, // EFFECT_CANNOT_ATTACK
-        GrantAbility::CannotAttackDirectly                             => 18, // EFFECT_CANNOT_ATTACK_ANNOUNCE
-        GrantAbility::CannotChangePosition                             => 20, // EFFECT_CANNOT_CHANGE_POSITION
-        GrantAbility::CannotBeTributed                                 => 24, // EFFECT_CANNOT_BE_TRIBUTE
-        GrantAbility::CannotBeUsedAsMaterial                           => 25, // EFFECT_CANNOT_BE_SYNCHRO_MATERIAL (approx)
+        GrantAbility::CannotBeDestroyed(Some(DestroyBy::Battle))      => 42, // EFFECT_INDESTRUCTABLE_BATTLE
+        GrantAbility::CannotBeDestroyed(Some(DestroyBy::Effect))       => 41, // EFFECT_INDESTRUCTABLE_EFFECT
+        GrantAbility::CannotBeDestroyed(Some(DestroyBy::CardEffect))   => 41,
+        GrantAbility::CannotBeDestroyed(None)                          => 40, // EFFECT_INDESTRUCTABLE
+        GrantAbility::CannotBeTargeted(_)                              => 71, // EFFECT_CANNOT_BE_EFFECT_TARGET
+        GrantAbility::CannotAttack                                     => 85, // EFFECT_CANNOT_ATTACK
+        GrantAbility::CannotAttackDirectly                             => 86, // EFFECT_CANNOT_ATTACK_ANNOUNCE
+        GrantAbility::CannotChangePosition                             => 14, // EFFECT_CANNOT_CHANGE_POSITION
+        GrantAbility::CannotBeTributed                                 => 43, // EFFECT_UNRELEASABLE_SUM (closest to "cannot be tributed for summon")
+        GrantAbility::CannotBeUsedAsMaterial                           => 236, // EFFECT_CANNOT_BE_SYNCHRO_MATERIAL
         GrantAbility::CannotActivate(_)                                => 2,  // EFFECT_DISABLE
-        GrantAbility::CannotNormalSummon                               => 52, // EFFECT_CANNOT_SUMMON
-        GrantAbility::CannotSpecialSummon                              => 56, // EFFECT_CANNOT_SPECIAL_SUMMON
-        GrantAbility::Piercing                                         => 96, // EFFECT_PIERCE
-        GrantAbility::DirectAttack                                     => 17, // EFFECT_DIRECT_ATTACK
-        GrantAbility::DoubleAttack                                     => 19, // EFFECT_DOUBLE_ATTACK
-        GrantAbility::TripleAttack                                     => 19, // no separate triple in EDOPro; use DOUBLE_ATTACK code
-        GrantAbility::AttackAllMonsters                                => 21, // EFFECT_ATTACK_ALL
-        GrantAbility::MustAttack                                       => 22, // EFFECT_MUST_ATTACK
-        GrantAbility::ImmuneToTargeting                                => 8,  // shares EFFECT_CANNOT_BE_EFFECT_TARGET
+        GrantAbility::CannotNormalSummon                               => 20, // EFFECT_CANNOT_SUMMON
+        GrantAbility::CannotSpecialSummon                              => 22, // EFFECT_CANNOT_SPECIAL_SUMMON
+        GrantAbility::Piercing                                         => 203, // EFFECT_PIERCE
+        GrantAbility::DirectAttack                                     => 74, // EFFECT_DIRECT_ATTACK
+        GrantAbility::DoubleAttack                                     => 194, // EFFECT_EXTRA_ATTACK (edopro doesn't separate double/triple)
+        GrantAbility::TripleAttack                                     => 194, // ditto
+        GrantAbility::AttackAllMonsters                                => 193, // EFFECT_ATTACK_ALL
+        GrantAbility::MustAttack                                       => 191, // EFFECT_MUST_ATTACK
+        GrantAbility::ImmuneToTargeting                                => 71,  // shares EFFECT_CANNOT_BE_EFFECT_TARGET
         GrantAbility::UnaffectedBy(src) => match src {
             UnaffectedSource::Spells         => 32,
             UnaffectedSource::Traps          => 33,
@@ -1326,7 +1329,7 @@ fn zone_to_location(zone: &Zone) -> u32 {
         Zone::FieldZone      => tm::LOCATION_FZONE,
         Zone::PendulumZone   => tm::LOCATION_PZONE,
         Zone::ExtraMonsterZone => tm::LOCATION_MZONE, // extra monster zone is still a monster zone
-        Zone::Overlay        => 0, // overlay/xyz materials have no location constant
+        Zone::Overlay        => tm::LOCATION_OVERLAY,
         Zone::Equipped       => tm::LOCATION_SZONE, // equipped cards live in spell/trap zone
         Zone::TopOfDeck
         | Zone::BottomOfDeck => tm::LOCATION_DECK,
@@ -1750,13 +1753,13 @@ fn zone_to_location_mask(zone: &Zone) -> u32 {
         Zone::FieldZone         => tm::LOCATION_FZONE,
         Zone::PendulumZone      => tm::LOCATION_PZONE,
         Zone::ExtraMonsterZone  => tm::LOCATION_MZONE,
-        // Overlay / Equipped / TopOfDeck / BottomOfDeck are not direct
-        // location bits — collapse to 0 so the predicate rejects
-        // rather than matching accidentally.
-        Zone::Overlay
-        | Zone::Equipped
-        | Zone::TopOfDeck
-        | Zone::BottomOfDeck    => 0,
+        Zone::Overlay           => tm::LOCATION_OVERLAY,
+        // Equipped cards sit in a controller's Spell/Trap zone engine-side.
+        Zone::Equipped          => tm::LOCATION_SZONE,
+        // TopOfDeck / BottomOfDeck are deck positions (not distinct locations);
+        // collapse to LOCATION_DECK so zone predicates still match the deck.
+        Zone::TopOfDeck
+        | Zone::BottomOfDeck    => tm::LOCATION_DECK,
     }
 }
 
@@ -2611,7 +2614,7 @@ mod tests {
         // passive (indestructible) + 2 triggered effects
         let passive = c.effects.iter().find(|e| e.label == "Indestructible").unwrap();
         assert_ne!(passive.effect_type & tm::EFFECT_TYPE_SINGLE, 0);
-        assert_eq!(passive.code, 30); // EFFECT_INDESTRUCTABLE_BATTLE
+        assert_eq!(passive.code, 42); // EFFECT_INDESTRUCTABLE_BATTLE (fixed from 30)
 
         let selfdestruct = c.effects.iter().find(|e| e.label == "Self-Destruct").unwrap();
         assert_ne!(selfdestruct.effect_type & tm::EFFECT_TYPE_TRIGGER_F, 0); // mandatory
@@ -3039,8 +3042,9 @@ card "Level Changer" {
         rt.effect_card_id = 76909279;
         rt.effect_player = 0;
         (passive.operation.as_ref().unwrap())(&mut rt);
-        assert!(rt.was_called_with("register_grant", "grant=0x60"),
-            "expected register_grant with piercing code 0x60; calls: {}", rt.dump_calls());
+        // EFFECT_PIERCE = 203 = 0xcb per edopro spec.
+        assert!(rt.was_called_with("register_grant", "grant=0xcb"),
+            "expected register_grant with piercing code 0xcb (203); calls: {}", rt.dump_calls());
     }
 
     /// A passive with negate_effects should have operation=Some(_) that calls
@@ -3230,9 +3234,9 @@ card "Restricted Card" {
         rt.effect_card_id = 20001;
         rt.effect_player = 0;
         (restr.operation.as_ref().unwrap())(&mut rt);
-        // EFFECT_CANNOT_ATTACK = 16 = 0x10
-        assert!(rt.was_called_with("register_grant", "grant=0x10"),
-            "expected register_grant with cannot_attack code 0x10; calls: {}", rt.dump_calls());
+        // EFFECT_CANNOT_ATTACK = 85 = 0x55 per edopro spec.
+        assert!(rt.was_called_with("register_grant", "grant=0x55"),
+            "expected register_grant with cannot_attack code 0x55 (85); calls: {}", rt.dump_calls());
     }
 
     /// Restriction with a condition declaration should produce condition=Some(_).

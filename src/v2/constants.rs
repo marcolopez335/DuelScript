@@ -101,6 +101,7 @@ pub const LOCATION_SZONE:   u32 = 0x8;
 pub const LOCATION_GRAVE:   u32 = 0x10;
 pub const LOCATION_REMOVED: u32 = 0x20;
 pub const LOCATION_EXTRA:   u32 = 0x40;
+pub const LOCATION_OVERLAY: u32 = 0x80;
 pub const LOCATION_FZONE:   u32 = 0x100;
 pub const LOCATION_PZONE:   u32 = 0x200;
 pub const LOCATION_ONFIELD: u32 = LOCATION_MZONE | LOCATION_SZONE;
