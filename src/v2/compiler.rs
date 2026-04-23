@@ -1039,8 +1039,8 @@ fn eval_predicate_atom(atom: &PredicateAtom, card_id: u32, rt: &dyn DuelScriptRu
         PredicateAtom::IsLink     => rt.get_card_type(card_id) & 0x4000000  != 0,
         PredicateAtom::IsRitual   => rt.get_card_type(card_id) & 0x80       != 0,
         PredicateAtom::IsPendulum => rt.get_card_type(card_id) & 0x1000000  != 0,
-        PredicateAtom::IsToken    => rt.get_card_type(card_id) & 0x2000000  != 0,
-        PredicateAtom::IsFlip     => rt.get_card_type(card_id) & 0x200      != 0,
+        PredicateAtom::IsToken    => rt.get_card_type(card_id) & 0x4000     != 0,
+        PredicateAtom::IsFlip     => rt.get_card_type(card_id) & 0x200000   != 0,
     }
 }
 
@@ -1065,27 +1065,55 @@ fn card_type_to_bits(ctype: &CardType) -> u64 {
     //   TYPE_PENDULUM     = 0x1000000
     //   TYPE_FLIP         = 0x200
     //   TYPE_TOKEN        = 0x2000000
+    // TYPE_* constants per grammar/edopro_constants.lua
+    const T_MONSTER:    u64 = 0x1;
+    const T_SPELL:      u64 = 0x2;
+    const T_TRAP:       u64 = 0x4;
+    const T_NORMAL:     u64 = 0x10;
+    const T_EFFECT:     u64 = 0x20;
+    const T_FUSION:     u64 = 0x40;
+    const T_RITUAL:     u64 = 0x80;
+    const T_SPIRIT:     u64 = 0x200;
+    const T_UNION:      u64 = 0x400;
+    const T_GEMINI:     u64 = 0x800;
+    const T_TUNER:      u64 = 0x1000;
+    const T_SYNCHRO:    u64 = 0x2000;
+    const T_QUICKPLAY:  u64 = 0x10000;
+    const T_CONTINUOUS: u64 = 0x20000;
+    const T_EQUIP:      u64 = 0x40000;
+    const T_FIELD:      u64 = 0x80000;
+    const T_COUNTER:    u64 = 0x100000;
+    const T_FLIP:       u64 = 0x200000;
+    const T_TOON:       u64 = 0x400000;
+    const T_XYZ:        u64 = 0x800000;
+    const T_PENDULUM:   u64 = 0x1000000;
+    const T_LINK:       u64 = 0x4000000;
+
     match ctype {
-        CardType::NormalMonster    => 0x1 | 0x10,
-        CardType::EffectMonster    => 0x1 | 0x20,
-        CardType::RitualMonster    => 0x1 | 0x80,
-        CardType::FusionMonster    => 0x1 | 0x40,
-        CardType::SynchroMonster   => 0x1 | 0x2000,
-        CardType::XyzMonster       => 0x800000,
-        CardType::LinkMonster      => 0x4000000,
-        CardType::PendulumMonster  => 0x1 | 0x1000000,
-        CardType::NormalSpell      => 0x2,
-        CardType::QuickPlaySpell   => 0x2,
-        CardType::ContinuousSpell  => 0x2,
-        CardType::EquipSpell       => 0x2,
-        CardType::FieldSpell       => 0x2,
-        CardType::RitualSpell      => 0x2,
-        CardType::NormalTrap       => 0x4,
-        CardType::CounterTrap      => 0x4,
-        CardType::ContinuousTrap   => 0x4,
-        // Sub-type markers — no single bit in the bitmask; return 0.
-        CardType::Tuner | CardType::SynchroTuner | CardType::Flip
-        | CardType::Gemini | CardType::Union | CardType::Spirit | CardType::Toon => 0,
+        CardType::NormalMonster    => T_MONSTER | T_NORMAL,
+        CardType::EffectMonster    => T_MONSTER | T_EFFECT,
+        CardType::RitualMonster    => T_MONSTER | T_RITUAL,
+        CardType::FusionMonster    => T_MONSTER | T_FUSION,
+        CardType::SynchroMonster   => T_MONSTER | T_SYNCHRO,
+        CardType::XyzMonster       => T_MONSTER | T_XYZ,
+        CardType::LinkMonster      => T_MONSTER | T_LINK,
+        CardType::PendulumMonster  => T_MONSTER | T_PENDULUM,
+        CardType::NormalSpell      => T_SPELL,
+        CardType::QuickPlaySpell   => T_SPELL | T_QUICKPLAY,
+        CardType::ContinuousSpell  => T_SPELL | T_CONTINUOUS,
+        CardType::EquipSpell       => T_SPELL | T_EQUIP,
+        CardType::FieldSpell       => T_SPELL | T_FIELD,
+        CardType::RitualSpell      => T_SPELL | T_RITUAL,
+        CardType::NormalTrap       => T_TRAP,
+        CardType::CounterTrap      => T_TRAP | T_COUNTER,
+        CardType::ContinuousTrap   => T_TRAP | T_CONTINUOUS,
+        CardType::Tuner            => T_TUNER,
+        CardType::SynchroTuner     => T_TUNER | T_SYNCHRO,
+        CardType::Flip             => T_FLIP,
+        CardType::Gemini           => T_GEMINI,
+        CardType::Union            => T_UNION,
+        CardType::Spirit           => T_SPIRIT,
+        CardType::Toon             => T_TOON,
     }
 }
 
@@ -4548,16 +4576,16 @@ card "Test Cannot NS" {
     #[test]
     fn t7_is_token_matches_token() {
         use super::super::ast::PredicateAtom;
-        // TYPE_MONSTER | TYPE_TOKEN (0x1 | 0x2000000).
-        let cards = run_exotic_atom_test(PredicateAtom::IsToken, 0x1 | 0x2000000);
+        // TYPE_MONSTER | TYPE_TOKEN (0x1 | 0x4000) per edopro spec.
+        let cards = run_exotic_atom_test(PredicateAtom::IsToken, 0x1 | 0x4000);
         assert_eq!(cards, vec![1001], "IsToken should match only the token");
     }
 
     #[test]
     fn t7_is_flip_matches_flip_monster() {
         use super::super::ast::PredicateAtom;
-        // TYPE_MONSTER | TYPE_EFFECT | TYPE_FLIP (0x1 | 0x20 | 0x200).
-        let cards = run_exotic_atom_test(PredicateAtom::IsFlip, 0x1 | 0x20 | 0x200);
+        // TYPE_MONSTER | TYPE_EFFECT | TYPE_FLIP (0x1 | 0x20 | 0x200000) per edopro spec.
+        let cards = run_exotic_atom_test(PredicateAtom::IsFlip, 0x1 | 0x20 | 0x200000);
         assert_eq!(cards, vec![1001], "IsFlip should match only the flip monster");
     }
 
