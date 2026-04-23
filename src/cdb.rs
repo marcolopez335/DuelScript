@@ -66,11 +66,11 @@ impl CdbCard {
     pub fn is_link(&self)     -> bool { self.card_type & 0x4000000 != 0 }
     pub fn is_pendulum(&self) -> bool { self.card_type & 0x1000000 != 0 }
     pub fn is_normal(&self)   -> bool { self.card_type & 0x10   != 0 }
-    pub fn is_flip(&self)     -> bool { self.card_type & 0x200  != 0 }
-    pub fn is_gemini(&self)   -> bool { self.card_type & 0x400  != 0 }
-    pub fn is_union(&self)    -> bool { self.card_type & 0x800  != 0 }
-    pub fn is_spirit(&self)   -> bool { self.card_type & 0x2000000 != 0 }
-    pub fn is_toon(&self)     -> bool { self.card_type & 0x8000 != 0 }
+    pub fn is_spirit(&self)   -> bool { self.card_type & 0x200    != 0 } // TYPE_SPIRIT
+    pub fn is_union(&self)    -> bool { self.card_type & 0x400    != 0 } // TYPE_UNION
+    pub fn is_gemini(&self)   -> bool { self.card_type & 0x800    != 0 } // TYPE_GEMINI
+    pub fn is_flip(&self)     -> bool { self.card_type & 0x200000 != 0 } // TYPE_FLIP
+    pub fn is_toon(&self)     -> bool { self.card_type & 0x400000 != 0 } // TYPE_TOON
     pub fn is_counter_trap(&self) -> bool { self.card_type & 0x1000000 != 0 && self.is_trap() }
     pub fn is_quick_play(&self)   -> bool { self.card_type & 0x10000  != 0 }
     pub fn is_continuous(&self)   -> bool { self.card_type & 0x20000  != 0 }
