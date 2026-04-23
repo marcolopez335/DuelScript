@@ -448,7 +448,11 @@ fn duration_to_code(dur: &Option<Duration>) -> u32 {
 
 fn compile_effect(effect: &Effect, card: &Card) -> Vec<CompiledEffectV2> {
     let speed = effect.speed.unwrap_or(1);
-    let has_trigger = effect.trigger.is_some();
+    // T32 / GGG-II: `trigger: ignition` is a tagging-only trigger that
+    // compiles identically to a missing trigger — collapse it here so
+    // the rest of the function treats it as "no real trigger".
+    let is_ignition_tag = matches!(effect.trigger, Some(Trigger::Ignition));
+    let has_trigger = effect.trigger.is_some() && !is_ignition_tag;
 
     // Determine effect_type
     let effect_type = if is_spell_trap(card) {
@@ -760,6 +764,14 @@ fn trigger_to_event_code(trigger: &Option<Trigger>) -> u32 {
             Trigger::ControlChanged  => 0, // engine-specific
             Trigger::Equipped        => 0, // engine-specific
             Trigger::Unequipped      => 0, // engine-specific
+            // T32 / GGG-II: `trigger: ignition` is a tagging-only marker —
+            // it never reaches this branch in practice (compile_effect
+            // short-circuits Ignition before calling trigger_to_event_code
+            // when producing EFFECT_TYPE_IGNITION, and spell/trap paths
+            // ignore the trigger entirely). Returning 0 here is
+            // belt-and-braces for any future caller that routes an
+            // Ignition trigger to this function directly.
+            Trigger::Ignition        => 0,
             Trigger::Custom(_)       => 0, // user-defined event
         }
     }
@@ -5709,5 +5721,105 @@ card "T31 Fmt {i}" {{
             assert_eq!(printed, reprinted,
                 "fmt idempotence broken for variant {i}");
         }
+    }
+
+    // ── T32: `trigger: ignition` explicit tag (GGG-II) ────────
+    //
+    // Tagging-only trigger: parses to `Trigger::Ignition`, compiles
+    // identically to a monster effect with no trigger (speed default
+    // 1, no speed override) — same EFFECT_TYPE_IGNITION, code=0,
+    // category=0, fmt round-trips.
+
+    fn compile_ignition_effect() -> CompiledEffectV2 {
+        let src = r#"
+card "T32 Ignition" {
+    id: 99998601
+    type: Effect Monster
+    attribute: DARK
+    race: Zombie
+    level: 1
+    atk: 0
+    def: 0
+    effect "R" {
+        speed: 1
+        trigger: ignition
+        resolve {
+            draw 1
+        }
+    }
+}
+"#;
+        let file = parse_v2(src).expect("parse");
+        let compiled = compile_card_v2(&file.cards[0]);
+        compiled.effects.into_iter().next().expect("one effect")
+    }
+
+    #[test]
+    fn t32_ignition_trigger_parses_to_variant() {
+        let src = r#"
+card "T32 Parse" {
+    id: 99998602
+    type: Effect Monster
+    attribute: DARK
+    race: Zombie
+    level: 1
+    atk: 0
+    def: 0
+    effect "R" {
+        speed: 1
+        trigger: ignition
+        resolve {
+            draw 1
+        }
+    }
+}
+"#;
+        let file = parse_v2(src).expect("parse");
+        let effect = &file.cards[0].effects[0];
+        assert!(matches!(effect.trigger, Some(crate::v2::ast::Trigger::Ignition)),
+            "`trigger: ignition` must parse to Trigger::Ignition");
+    }
+
+    #[test]
+    fn t32_ignition_compiles_to_effect_type_ignition() {
+        let e = compile_ignition_effect();
+        assert_eq!(e.effect_type, tm::EFFECT_TYPE_IGNITION,
+            "`trigger: ignition` must produce EFFECT_TYPE_IGNITION");
+    }
+
+    #[test]
+    fn t32_ignition_code_is_zero() {
+        let e = compile_ignition_effect();
+        assert_eq!(e.code, 0,
+            "ignition effects have code=0 regardless of tagging form");
+        assert_eq!(e.category, 0,
+            "ignition effects have category=0 (engine fills dynamically)");
+    }
+
+    #[test]
+    fn t32_ignition_fmt_roundtrip() {
+        let src = r#"
+card "T32 Fmt" {
+    id: 99998603
+    type: Effect Monster
+    attribute: DARK
+    race: Zombie
+    level: 1
+    atk: 0
+    def: 0
+    effect "R" {
+        speed: 1
+        trigger: ignition
+        resolve { draw 1 }
+    }
+}
+"#;
+        let file = parse_v2(src).expect("parse");
+        let printed = crate::v2::fmt::format_file(&file);
+        assert!(printed.contains("trigger: ignition"),
+            "fmt must emit `trigger: ignition`:\n{printed}");
+        let reparsed = parse_v2(&printed).expect("round-trip parse");
+        let reprinted = crate::v2::fmt::format_file(&reparsed);
+        assert_eq!(printed, reprinted, "fmt idempotence broken for ignition");
     }
 }

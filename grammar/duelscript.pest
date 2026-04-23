@@ -248,6 +248,9 @@ trigger_expr = {
   | "used_as_material" ~ ("as" ~ material_role)?
                       ~ ("for" ~ summon_method)?
                       ~ material_by_binding?
+    // Ignition (explicit tag for player-activated main-phase effects;
+    // see ast.rs::Trigger::Ignition — tagging-only, not an event)
+  | "ignition"
     // Custom
   | "custom" ~ string
 }

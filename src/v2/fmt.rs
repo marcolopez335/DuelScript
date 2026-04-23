@@ -1210,6 +1210,7 @@ fn format_trigger(trigger: &Trigger) -> String {
             }
             out
         }
+        Trigger::Ignition => "ignition".to_string(),
         Trigger::Custom(s) => format!("custom \"{}\"", s),
     }
 }

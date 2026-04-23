@@ -242,6 +242,23 @@ pub enum Trigger {
         method: Option<SummonMethod>,
         summoned_by_binding: Option<String>,
     },
+    /// Explicit tag for a player-activated ignition effect (Main Phase
+    /// 1/2 activation from hand or field, Spell Speed 1). This is a
+    /// **tagging-only** variant: the compiler treats
+    /// `Some(Trigger::Ignition)` on a monster identically to `None`,
+    /// producing `EFFECT_TYPE_IGNITION` with code=0 and dynamic
+    /// category. Rationale: ignition effects are not event-driven —
+    /// they are player-activated once-per-turn style activations — so
+    /// there is no event code to map to. The explicit form exists so
+    /// the M.6+ corpus translator can match / emit the pattern and so
+    /// fmt round-trips cleanly.
+    ///
+    /// On spells/traps this trigger is accepted silently and has no
+    /// effect (spell/trap effects compile to `EFFECT_TYPE_ACTIVATE`
+    /// unconditionally).
+    ///
+    /// T32 / GGG-II.
+    Ignition,
     Custom(String),
 }
 
