@@ -738,10 +738,15 @@ fn trigger_to_event_code(trigger: &Option<Trigger>) -> u32 {
                 => tm::EVENT_DESTROYED,
             Trigger::DestroysByBattle => tm::EVENT_ATTACK_ANNOUNCE,
             Trigger::SentTo(Zone::Gy, _) => tm::EVENT_TO_GRAVE,
+            Trigger::SentTo(Zone::Hand, _) => tm::EVENT_TO_HAND,
+            Trigger::SentTo(Zone::Deck, _) => tm::EVENT_TO_DECK,
+            Trigger::SentTo(Zone::Banished, _) => tm::EVENT_REMOVE,
             Trigger::SentTo(_, _) => 0,
-            Trigger::LeavesField => tm::EVENT_TO_GRAVE,
+            Trigger::LeavesField => tm::EVENT_LEAVE_FIELD,
             Trigger::Banished => tm::EVENT_REMOVE,
-            Trigger::ReturnedTo(_) => tm::EVENT_TO_HAND,
+            Trigger::ReturnedTo(Zone::Hand) => tm::EVENT_TO_HAND,
+            Trigger::ReturnedTo(Zone::Deck) => tm::EVENT_TO_DECK,
+            Trigger::ReturnedTo(_) => 0,
             Trigger::AttackDeclared | Trigger::OpponentAttackDeclared
                 => tm::EVENT_ATTACK_ANNOUNCE,
             Trigger::Attacked => tm::EVENT_BE_BATTLE_TARGET,
@@ -5840,5 +5845,37 @@ card "T32 Fmt" {
         let code = super::trigger_to_event_code(&Some(Trigger::DirectAttackDamage));
         assert_eq!(code, tm::EVENT_BATTLE_DAMAGE,
             "direct_attack_damage trigger must register on EVENT_BATTLE_DAMAGE");
+    }
+
+    #[test]
+    fn leaves_field_trigger_maps_to_event_leave_field_1015() {
+        let code = super::trigger_to_event_code(&Some(Trigger::LeavesField));
+        assert_eq!(code, tm::EVENT_LEAVE_FIELD,
+            "leaves_field trigger must register on EVENT_LEAVE_FIELD (1015)");
+        assert_eq!(code, 1015);
+    }
+
+    #[test]
+    fn returned_to_deck_maps_to_event_to_deck_1013() {
+        let code = super::trigger_to_event_code(&Some(Trigger::ReturnedTo(Zone::Deck)));
+        assert_eq!(code, tm::EVENT_TO_DECK,
+            "returned_to deck must register on EVENT_TO_DECK (1013)");
+        assert_eq!(code, 1013);
+    }
+
+    #[test]
+    fn returned_to_hand_maps_to_event_to_hand_1012() {
+        let code = super::trigger_to_event_code(&Some(Trigger::ReturnedTo(Zone::Hand)));
+        assert_eq!(code, tm::EVENT_TO_HAND,
+            "returned_to hand must register on EVENT_TO_HAND (1012)");
+        assert_eq!(code, 1012);
+    }
+
+    #[test]
+    fn sent_to_banished_maps_to_event_remove_1011() {
+        let code = super::trigger_to_event_code(&Some(Trigger::SentTo(Zone::Banished, None)));
+        assert_eq!(code, tm::EVENT_REMOVE,
+            "sent_to banished must register on EVENT_REMOVE (1011)");
+        assert_eq!(code, 1011);
     }
 }
