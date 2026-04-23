@@ -75,6 +75,8 @@ pub const EVENT_SPSUMMON:          u32 = 1105;
 pub const EVENT_ATTACK_ANNOUNCE:   u32 = 1130;
 pub const EVENT_BE_BATTLE_TARGET:  u32 = 1131;
 pub const EVENT_PRE_DAMAGE_CALCULATE: u32 = 1134;
+pub const EVENT_BATTLE_DESTROYING: u32 = 1139;
+pub const EVENT_BATTLE_DESTROYED:  u32 = 1140;
 pub const EVENT_BATTLE_DAMAGE:     u32 = 1143;
 pub const EVENT_PREDRAW:           u32 = 1113;
 

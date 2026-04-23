@@ -736,7 +736,7 @@ fn trigger_to_event_code(trigger: &Option<Trigger>) -> u32 {
             Trigger::Flipped => tm::EVENT_FLIP,
             Trigger::Destroyed(_) | Trigger::DestroyedByBattle | Trigger::DestroyedByEffect
                 => tm::EVENT_DESTROYED,
-            Trigger::DestroysByBattle => tm::EVENT_ATTACK_ANNOUNCE,
+            Trigger::DestroysByBattle => tm::EVENT_BATTLE_DESTROYING,
             Trigger::SentTo(Zone::Gy, _) => tm::EVENT_TO_GRAVE,
             Trigger::SentTo(Zone::Hand, _) => tm::EVENT_TO_HAND,
             Trigger::SentTo(Zone::Deck, _) => tm::EVENT_TO_DECK,
@@ -5869,6 +5869,14 @@ card "T32 Fmt" {
         assert_eq!(code, tm::EVENT_TO_HAND,
             "returned_to hand must register on EVENT_TO_HAND (1012)");
         assert_eq!(code, 1012);
+    }
+
+    #[test]
+    fn destroys_by_battle_maps_to_event_battle_destroying_1139() {
+        let code = super::trigger_to_event_code(&Some(Trigger::DestroysByBattle));
+        assert_eq!(code, tm::EVENT_BATTLE_DESTROYING,
+            "destroys_by_battle must register on EVENT_BATTLE_DESTROYING (1139), matching ygobeetle dispatch");
+        assert_eq!(code, 1139);
     }
 
     #[test]
