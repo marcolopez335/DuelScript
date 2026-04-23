@@ -4970,6 +4970,8 @@ card "T29 Test" {{
         let e = compile_bare_trigger("chain_solved");
         assert_eq!(e.code, tm::EVENT_CHAIN_SOLVED,
             "chain_solved must map to EVENT_CHAIN_SOLVED");
+        assert_eq!(e.code, 1022,
+            "EVENT_CHAIN_SOLVED literal sanity check — ygobeetle dispatches at 1022");
     }
 
     #[test]
@@ -4977,6 +4979,8 @@ card "T29 Test" {{
         let e = compile_bare_trigger("chain_solving");
         assert_eq!(e.code, tm::EVENT_CHAIN_SOLVING,
             "chain_solving must map to EVENT_CHAIN_SOLVING");
+        assert_eq!(e.code, 1020,
+            "EVENT_CHAIN_SOLVING literal sanity check — edopro spec");
     }
 
     #[test]
