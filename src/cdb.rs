@@ -71,7 +71,7 @@ impl CdbCard {
     pub fn is_gemini(&self)   -> bool { self.card_type & 0x800    != 0 } // TYPE_GEMINI
     pub fn is_flip(&self)     -> bool { self.card_type & 0x200000 != 0 } // TYPE_FLIP
     pub fn is_toon(&self)     -> bool { self.card_type & 0x400000 != 0 } // TYPE_TOON
-    pub fn is_counter_trap(&self) -> bool { self.card_type & 0x1000000 != 0 && self.is_trap() }
+    pub fn is_counter_trap(&self) -> bool { self.card_type & 0x100000 != 0 && self.is_trap() } // TYPE_COUNTER (was 0x1000000 = TYPE_PENDULUM)
     pub fn is_quick_play(&self)   -> bool { self.card_type & 0x10000  != 0 }
     pub fn is_continuous(&self)   -> bool { self.card_type & 0x20000  != 0 }
     pub fn is_equip(&self)        -> bool { self.card_type & 0x40000  != 0 }
