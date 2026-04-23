@@ -72,6 +72,8 @@ pub const EVENT_FLIP_SUMMON:       u32 = 1104;
 pub const EVENT_SPSUMMON:          u32 = 1105;
 pub const EVENT_ATTACK_ANNOUNCE:   u32 = 1130;
 pub const EVENT_BE_BATTLE_TARGET:  u32 = 1131;
+pub const EVENT_PRE_DAMAGE_CALCULATE: u32 = 1134;
+pub const EVENT_BATTLE_DAMAGE:     u32 = 1143;
 pub const EVENT_PREDRAW:           u32 = 1113;
 
 // Phase events: EVENT_PHASE + PHASE_*

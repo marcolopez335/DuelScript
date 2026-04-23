@@ -745,8 +745,8 @@ fn trigger_to_event_code(trigger: &Option<Trigger>) -> u32 {
             Trigger::AttackDeclared | Trigger::OpponentAttackDeclared
                 => tm::EVENT_ATTACK_ANNOUNCE,
             Trigger::Attacked => tm::EVENT_BE_BATTLE_TARGET,
-            Trigger::BattleDamage(_) | Trigger::DirectAttackDamage => 1132, // EVENT_BATTLE_DAMAGE
-            Trigger::DamageCalculation => 1134, // EVENT_DAMAGE_CALCULATING
+            Trigger::BattleDamage(_) | Trigger::DirectAttackDamage => tm::EVENT_BATTLE_DAMAGE,
+            Trigger::DamageCalculation => tm::EVENT_PRE_DAMAGE_CALCULATE,
             Trigger::StandbyPhase(_) => tm::EVENT_PHASE | tm::PHASE_STANDBY,
             Trigger::EndPhase => tm::EVENT_PHASE | tm::PHASE_END,
             Trigger::DrawPhase => tm::EVENT_PHASE | tm::PHASE_DRAW,
@@ -5821,5 +5821,20 @@ card "T32 Fmt" {
         let reparsed = parse_v2(&printed).expect("round-trip parse");
         let reprinted = crate::v2::fmt::format_file(&reparsed);
         assert_eq!(printed, reprinted, "fmt idempotence broken for ignition");
+    }
+
+    #[test]
+    fn battle_damage_trigger_maps_to_event_battle_damage_1143() {
+        let code = super::trigger_to_event_code(&Some(Trigger::BattleDamage(None)));
+        assert_eq!(code, tm::EVENT_BATTLE_DAMAGE,
+            "battle_damage trigger must register on EVENT_BATTLE_DAMAGE");
+        assert_eq!(code, 1143, "EVENT_BATTLE_DAMAGE literal sanity check");
+    }
+
+    #[test]
+    fn direct_attack_damage_trigger_maps_to_event_battle_damage_1143() {
+        let code = super::trigger_to_event_code(&Some(Trigger::DirectAttackDamage));
+        assert_eq!(code, tm::EVENT_BATTLE_DAMAGE,
+            "direct_attack_damage trigger must register on EVENT_BATTLE_DAMAGE");
     }
 }
