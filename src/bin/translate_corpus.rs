@@ -192,6 +192,18 @@ CLUSTERS:
         as `Add 1 \"<Arch>\" Spell/Trap from your Deck`.
         Emits: `where archetype == X and not is_monster` (the
         grammar-supported equivalent — see parser.rs comment).
+    search_archetype_monster_any_trigger
+        M.8 / TTT-II: trigger-agnostic variant of the archetype-
+        monster search family. Desc shape
+        `Add 1 \"<Arch>\" monster from your Deck`. Registered
+        AFTER the anchor-gated per-trigger clusters; sweeps
+        residual summoned / summoned-by-special / standby_phase /
+        leaves_field / destroyed_by_battle blocks.
+        Emits: `where archetype == X`.
+    search_archetype_card_any_trigger
+        M.8 / TTT-II: same as above for the `card` target shape
+        `Add 1 \"<Arch>\" card from your Deck`.
+        Emits: `where archetype == X`.
 ");
     }
 
@@ -419,6 +431,8 @@ CLUSTERS:
             Box::new(SearchSentToGyArchetypeCard),
             Box::new(SearchSentToGySubtypeArchetypeMonster),
             Box::new(SearchArchetypeSpellTrap),
+            Box::new(SearchArchetypeMonsterAnyTrigger),
+            Box::new(SearchArchetypeCardAnyTrigger),
         ];
         match filter {
             None        => all,
@@ -1804,6 +1818,177 @@ CLUSTERS:
         }
     }
 
+    // ── Cluster: search_archetype_monster_any_trigger (M.8 / TTT-II) ──
+    //
+    // Trigger-agnostic variant of the archetype-monster search family.
+    // Mirrors `SearchArchetypeSpellTrap` (OOO-II) for the `monster`
+    // target. Fires on any supported trigger block carrying the
+    // canonical placeholder when the desc phrases the search as
+    // `Add 1 "<Arch>" monster from your Deck`.
+    //
+    // Rationale (M.8 residual audit / Task #28):
+    //   Cards like "Mitsurugi no Mikoto, Aramasa" have a compound
+    //   trigger ("If this card is Normal or Special Summoned, or if
+    //   this card is Tributed") that lands as separate effect blocks
+    //   with triggers `summoned`, `summoned by special`, and
+    //   `sent_to gy`. The existing sent_to_gy variant
+    //   (YY-II / ZZ-II) catches the third block; the summoned blocks
+    //   need this trigger-agnostic variant.
+    //
+    // Order: registered AFTER the anchor-gated monster clusters
+    // (search_{battle_damage,destroyed,sent_to_gy}_archetype_monster)
+    // so those win first on their respective triggers. This cluster
+    // sweeps the residual summoned / summoned-by-special /
+    // standby_phase / leaves_field / destroyed_by_battle blocks that
+    // would otherwise remain placeholders.
+    //
+    // Rewrite:
+    //   add_to_hand (1, monster, where archetype == "<Arch>") from deck
+
+    struct SearchArchetypeMonsterAnyTrigger;
+
+    /// Match `Add 1 "<Arch>" monster from your Deck` in desc, with no
+    /// trigger anchor (the tight `monster from your Deck` suffix is
+    /// specific enough to stand alone — same anchor-free reasoning as
+    /// `match_archetype_spell_trap_desc`).
+    fn match_archetype_monster_any_desc(desc: &str) -> Option<String> {
+        let heads = ["Add 1 \"", "add 1 \""];
+        let mut cursor = 0;
+        while cursor < desc.len() {
+            let hits: Vec<(usize, &str)> = heads.iter()
+                .filter_map(|h| desc[cursor..].find(h).map(|o| (o, *h)))
+                .collect();
+            let (off, head) = *hits.iter().min_by_key(|(o, _)| *o)?;
+            let start = cursor + off;
+            let after_head = start + head.len();
+            let rest = &desc[after_head..];
+            let Some(q_end) = rest.find('"') else { break };
+            let arch = &rest[..q_end];
+            let tail = &rest[q_end + 1..];
+            if tail.starts_with(" monster from your Deck") {
+                return Some(arch.to_string());
+            }
+            cursor = after_head;
+        }
+        None
+    }
+
+    /// Trigger set probed by the trigger-agnostic clusters. Identical
+    /// to `SPELL_TRAP_TRIGGERS` (same supported set). `sent_to gy`
+    /// listed first for source-order-consistent sweep; earlier
+    /// trigger-anchored clusters in `build_clusters` will have already
+    /// claimed that block before this cluster fires.
+    const ANY_TRIGGER_SET: &[&str] = &[
+        "sent_to gy",
+        "summoned by special",
+        "summoned",
+        "destroyed_by_battle",
+        "destroyed",
+        "battle_damage",
+        "standby_phase",
+        "leaves_field",
+    ];
+
+    impl Cluster for SearchArchetypeMonsterAnyTrigger {
+        fn name(&self) -> &'static str { "search_archetype_monster_any_trigger" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if match_archetype_monster_any_desc(&cdb_row.desc).is_none() {
+                return false;
+            }
+            ANY_TRIGGER_SET.iter().any(|t| {
+                has_placeholder_line_for_trigger(
+                    src, t, "add_to_hand (all, card, either controls)",
+                )
+            })
+        }
+
+        fn rewrite(&self, src: &str, cdb_row: &CdbCard) -> Result<String, String> {
+            let arch = match_archetype_monster_any_desc(&cdb_row.desc)
+                .ok_or_else(|| "desc no longer matches".to_string())?;
+            let new_line = format!(
+                "            add_to_hand (1, monster, where archetype == \"{arch}\") from deck"
+            );
+            for trig in ANY_TRIGGER_SET {
+                if let Some(range) = find_placeholder_line_range(
+                    src, trig, "add_to_hand (all, card, either controls)",
+                ) {
+                    return Ok(splice_placeholder_line(src, range, &new_line));
+                }
+            }
+            Err("no supported trigger block with canonical placeholder".to_string())
+        }
+    }
+
+    // ── Cluster: search_archetype_card_any_trigger (M.8 / TTT-II) ──
+    //
+    // Same structure as the monster variant, but for the `card` target
+    // phrasing `Add 1 "<Arch>" card from your Deck`. Mirrors the
+    // M.5 sent_to_gy card variant trigger-agnostically. Emits:
+    //   add_to_hand (1, card, where archetype == "<Arch>") from deck
+    //
+    // Note: the card-target desc shape also covers spell/trap members
+    // by name, but this emits no `not is_monster` predicate — the
+    // BabelCdb phrasing `"<Arch>" card` (not `"<Arch>" Spell/Trap`)
+    // denotes a cross-type search permitting monster too, so the
+    // unconstrained `archetype == X` predicate is correct.
+
+    struct SearchArchetypeCardAnyTrigger;
+
+    /// Match `Add 1 "<Arch>" card from your Deck` in desc.
+    fn match_archetype_card_any_desc(desc: &str) -> Option<String> {
+        let heads = ["Add 1 \"", "add 1 \""];
+        let mut cursor = 0;
+        while cursor < desc.len() {
+            let hits: Vec<(usize, &str)> = heads.iter()
+                .filter_map(|h| desc[cursor..].find(h).map(|o| (o, *h)))
+                .collect();
+            let (off, head) = *hits.iter().min_by_key(|(o, _)| *o)?;
+            let start = cursor + off;
+            let after_head = start + head.len();
+            let rest = &desc[after_head..];
+            let Some(q_end) = rest.find('"') else { break };
+            let arch = &rest[..q_end];
+            let tail = &rest[q_end + 1..];
+            if tail.starts_with(" card from your Deck") {
+                return Some(arch.to_string());
+            }
+            cursor = after_head;
+        }
+        None
+    }
+
+    impl Cluster for SearchArchetypeCardAnyTrigger {
+        fn name(&self) -> &'static str { "search_archetype_card_any_trigger" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if match_archetype_card_any_desc(&cdb_row.desc).is_none() {
+                return false;
+            }
+            ANY_TRIGGER_SET.iter().any(|t| {
+                has_placeholder_line_for_trigger(
+                    src, t, "add_to_hand (all, card, either controls)",
+                )
+            })
+        }
+
+        fn rewrite(&self, src: &str, cdb_row: &CdbCard) -> Result<String, String> {
+            let arch = match_archetype_card_any_desc(&cdb_row.desc)
+                .ok_or_else(|| "desc no longer matches".to_string())?;
+            let new_line = format!(
+                "            add_to_hand (1, card, where archetype == \"{arch}\") from deck"
+            );
+            for trig in ANY_TRIGGER_SET {
+                if let Some(range) = find_placeholder_line_range(
+                    src, trig, "add_to_hand (all, card, either controls)",
+                ) {
+                    return Ok(splice_placeholder_line(src, range, &new_line));
+                }
+            }
+            Err("no supported trigger block with canonical placeholder".to_string())
+        }
+    }
+
     /// Return true if `src` contains an effect block with:
     ///   - trigger: battle_damage
     ///   - single-line resolve body exactly
@@ -2248,6 +2433,75 @@ card \"X\" {
         fn rejects_card_suffix() {
             let desc = "You can add 1 \"Foo\" card from your Deck to your hand.";
             assert!(match_archetype_spell_trap_desc(desc).is_none());
+        }
+    }
+
+    // ── M.8 / TTT-II inline tests for trigger-agnostic archetype
+    //    monster + card matchers ──
+    #[cfg(test)]
+    mod archetype_any_trigger_matcher_tests {
+        use super::*;
+
+        #[test]
+        fn monster_matches_simple_archetype() {
+            let desc = "If this card is Tributed: You can add 1 \"Mitsurugi\" monster from your Deck to your hand.";
+            assert_eq!(
+                match_archetype_monster_any_desc(desc).as_deref(),
+                Some("Mitsurugi")
+            );
+        }
+
+        #[test]
+        fn monster_matches_compound_trigger_anchor() {
+            // Aramasa-style compound trigger: anchor-free, so this
+            // matches regardless of the particular trigger phrase.
+            let desc = "If this card is Normal or Special Summoned, or if this card is Tributed: You can add 1 \"Mitsurugi\" monster from your Deck to your hand.";
+            assert_eq!(
+                match_archetype_monster_any_desc(desc).as_deref(),
+                Some("Mitsurugi")
+            );
+        }
+
+        #[test]
+        fn monster_rejects_spell_trap_suffix() {
+            let desc = "You can add 1 \"Foo\" Spell/Trap from your Deck to your hand.";
+            assert!(match_archetype_monster_any_desc(desc).is_none());
+        }
+
+        #[test]
+        fn monster_rejects_card_suffix() {
+            let desc = "You can add 1 \"Foo\" card from your Deck to your hand.";
+            assert!(match_archetype_monster_any_desc(desc).is_none());
+        }
+
+        #[test]
+        fn card_matches_simple_archetype() {
+            let desc = "When this card is Normal Summoned: You can add 1 \"Archfiend\" card from your Deck to your hand.";
+            assert_eq!(
+                match_archetype_card_any_desc(desc).as_deref(),
+                Some("Archfiend")
+            );
+        }
+
+        #[test]
+        fn card_rejects_monster_suffix() {
+            let desc = "You can add 1 \"Foo\" monster from your Deck to your hand.";
+            assert!(match_archetype_card_any_desc(desc).is_none());
+        }
+
+        #[test]
+        fn card_rejects_spell_trap_suffix() {
+            let desc = "You can add 1 \"Foo\" Spell/Trap from your Deck to your hand.";
+            assert!(match_archetype_card_any_desc(desc).is_none());
+        }
+
+        #[test]
+        fn monster_lowercase_add_ok() {
+            let desc = "When summoned: You can add 1 \"Foo\" monster from your Deck to your hand.";
+            assert_eq!(
+                match_archetype_monster_any_desc(desc).as_deref(),
+                Some("Foo")
+            );
         }
     }
 }
