@@ -179,6 +179,11 @@ CLUSTERS:
     search_sent_to_gy_archetype_card
         trigger: sent_to gy + placeholder add_to_hand body;
         archetype-locked card (spans S/T) variant.
+    search_sent_to_gy_subtype_archetype_monster
+        M.7 / MMM-II: subtype-adjective variant of the archetype
+        monster search. Matches descs like:
+        'Add 1 Warrior \"Nekroz\" Ritual Monster from your Deck'.
+        Emits: `where archetype == X and race == Warrior and is_ritual`.
 ");
     }
 
@@ -404,6 +409,7 @@ CLUSTERS:
             Box::new(SearchDestroyedArchetypeCard),
             Box::new(SearchSentToGyArchetypeMonster),
             Box::new(SearchSentToGyArchetypeCard),
+            Box::new(SearchSentToGySubtypeArchetypeMonster),
         ];
         match filter {
             None        => all,
@@ -1432,6 +1438,252 @@ CLUSTERS:
         }
     }
 
+    // ── Cluster: search_sent_to_gy_subtype_archetype_monster (M.7 / MMM-II) ──
+    //
+    // Same trigger+placeholder shape as M.5's archetype-monster variant,
+    // but BabelCdb desc includes a race/type subtype adjective before
+    // the archetype quote AND/OR a monster-subtype keyword (Ritual /
+    // Fusion / Synchro / Xyz / Pendulum / Link) after it.
+    //
+    // Shape to hit:
+    //   Add 1 <Race>[-Type]? \"<Arch>\" [Ritual|Fusion|Synchro|Xyz|
+    //       Pendulum|Link]? Monster from your Deck
+    //
+    // Concrete examples (sent_to_gy trigger anchor required):
+    //   "add 1 Warrior \"Nekroz\" Ritual Monster from your Deck"    — Shurit
+    //   "add 1 Dragon-Type \"Nekroz\" Ritual Monster from your Deck" — Exa
+    //   "add 1 Spellcaster-Type \"Nekroz\" Ritual Monster from
+    //    your Deck"                                                 — Great Sorcerer
+    //
+    // Rewrite:
+    //   add_to_hand (1, monster, where archetype == \"<Arch>\" and
+    //       race == <Race>[ and is_ritual][ and is_fusion]…) from deck
+    //
+    // The RACE token is reused from the DRY grammar-aligned helper
+    // `desc_race_to_predicate_token` below; monster-subtype keywords
+    // map to predicate atoms `is_ritual`/`is_fusion`/etc.
+
+    /// Map a BabelCdb race adjective to the grammar-exact DuelScript
+    /// `race == X` literal. Returns `None` if the text is not a
+    /// recognised race. Distinct from the buggy `ds_race_token`
+    /// helper (which hyphenates "Winged Beast" / "Sea Serpent" —
+    /// grammar requires the space form).
+    fn desc_race_to_predicate_token(human: &str) -> Option<&'static str> {
+        match human {
+            "Dragon"        => Some("Dragon"),
+            "Spellcaster"   => Some("Spellcaster"),
+            "Zombie"        => Some("Zombie"),
+            "Warrior"       => Some("Warrior"),
+            "Beast-Warrior" => Some("Beast-Warrior"),
+            "Beast"         => Some("Beast"),
+            "Winged Beast"  => Some("Winged Beast"),
+            "Fiend"         => Some("Fiend"),
+            "Fairy"         => Some("Fairy"),
+            "Insect"        => Some("Insect"),
+            "Dinosaur"      => Some("Dinosaur"),
+            "Reptile"       => Some("Reptile"),
+            "Fish"          => Some("Fish"),
+            "Sea Serpent"   => Some("Sea Serpent"),
+            "Aqua"          => Some("Aqua"),
+            "Pyro"          => Some("Pyro"),
+            "Thunder"       => Some("Thunder"),
+            "Rock"          => Some("Rock"),
+            "Plant"         => Some("Plant"),
+            "Machine"       => Some("Machine"),
+            "Psychic"       => Some("Psychic"),
+            "Divine-Beast"  => Some("Divine-Beast"),
+            "Wyrm"          => Some("Wyrm"),
+            "Cyberse"       => Some("Cyberse"),
+            "Illusion"      => Some("Illusion"),
+            _ => None,
+        }
+    }
+
+    /// Strip an optional trailing "-Type" suffix (common BabelCdb
+    /// phrasing, e.g. "Dragon-Type" → "Dragon").
+    fn strip_type_suffix(s: &str) -> &str {
+        s.strip_suffix("-Type").unwrap_or(s)
+    }
+
+    /// Try to match a race adjective ending at byte offset `end`
+    /// in `desc`, scanning backwards. Returns `(grammar_race_token,
+    /// adj_start_offset)` on success. Only fires when a grammar-valid
+    /// race is present — callers must still verify the adjective is
+    /// bracketed by the expected surrounding text.
+    fn match_race_adjective_before(
+        desc: &str, end: usize,
+    ) -> Option<(&'static str, usize)> {
+        // Try multi-word races first (grammar ordered-choice analog).
+        const MULTI: &[&str] = &[
+            "Winged Beast", "Beast-Warrior", "Sea Serpent", "Divine-Beast",
+        ];
+        const MULTI_WITH_TYPE: &[&str] = &[
+            "Winged Beast-Type", "Beast-Warrior-Type",
+            "Sea Serpent-Type", "Divine-Beast-Type",
+        ];
+        for m in MULTI_WITH_TYPE {
+            let len = m.len();
+            if end >= len && &desc[end - len..end] == *m {
+                let bare = strip_type_suffix(m);
+                if let Some(tok) = desc_race_to_predicate_token(bare) {
+                    return Some((tok, end - len));
+                }
+            }
+        }
+        for m in MULTI {
+            let len = m.len();
+            if end >= len && &desc[end - len..end] == *m {
+                if let Some(tok) = desc_race_to_predicate_token(m) {
+                    return Some((tok, end - len));
+                }
+            }
+        }
+        // Single-word races: walk back over word chars and an optional
+        // "-Type" suffix.
+        let bytes = desc.as_bytes();
+        let mut i = end;
+        // Optional "-Type" suffix.
+        if i >= 5 && &desc[i - 5..i] == "-Type" {
+            i -= 5;
+        }
+        // Walk back over [A-Za-z] for a single word.
+        let word_end = i;
+        while i > 0 {
+            let c = bytes[i - 1] as char;
+            if c.is_ascii_alphabetic() { i -= 1; } else { break; }
+        }
+        if i == word_end { return None; }
+        let word = &desc[i..word_end];
+        desc_race_to_predicate_token(word).map(|tok| (tok, i))
+    }
+
+    /// Monster-subtype keyword after the archetype quote.
+    /// Returns `(is_atom, keyword_len_incl_space)` if found.
+    fn match_monster_subtype_kw(tail: &str) -> Option<(&'static str, usize)> {
+        const KEYS: &[(&str, &str)] = &[
+            ("Ritual",   "is_ritual"),
+            ("Fusion",   "is_fusion"),
+            ("Synchro",  "is_synchro"),
+            ("Xyz",      "is_xyz"),
+            ("Pendulum", "is_pendulum"),
+            ("Link",     "is_link"),
+        ];
+        // `tail` starts immediately after the closing quote.
+        // Accept forms like ` Ritual Monster from your Deck`.
+        let stripped = tail.strip_prefix(' ')?;
+        for (kw, atom) in KEYS {
+            if let Some(rest) = stripped.strip_prefix(kw) {
+                if rest.starts_with(" Monster from your Deck") {
+                    return Some((atom, 1 + kw.len()));
+                }
+            }
+        }
+        None
+    }
+
+    struct SearchSentToGySubtypeArchetypeMonster;
+
+    fn match_subtype_archetype_monster_desc_for_sent_to_gy(
+        desc: &str,
+    ) -> Option<(String, usize)> {
+        let needle_head_caps = "Add 1 ";
+        let needle_head_low  = "add 1 ";
+        let mut cursor = 0;
+        while cursor < desc.len() {
+            let off_caps = desc[cursor..].find(needle_head_caps);
+            let off_low  = desc[cursor..].find(needle_head_low);
+            let (off, needle_head) = match (off_caps, off_low) {
+                (Some(a), Some(b)) if a < b => (a, needle_head_caps),
+                (_, Some(b))                => (b, needle_head_low),
+                (Some(a), None)             => (a, needle_head_caps),
+                (None, None)                => break,
+            };
+            let start = cursor + off;
+            let after_head = start + needle_head.len();
+            // Look for the opening quote of the archetype name.
+            let rest = &desc[after_head..];
+            let Some(q_open_rel) = rest.find('"') else { break };
+            // Slice between `after_head` and the quote — must be a
+            // valid race adjective (with optional -Type and trailing
+            // space).
+            let adj_end = after_head + q_open_rel;
+            // Expect exactly one trailing space between adjective and quote.
+            if adj_end == 0 || desc.as_bytes()[adj_end - 1] as char != ' ' {
+                cursor = after_head;
+                continue;
+            }
+            let (race_tok, _adj_start) = match match_race_adjective_before(
+                desc, adj_end - 1,
+            ) {
+                Some(v) => v,
+                None => { cursor = after_head; continue; }
+            };
+            // Extract archetype inside quotes.
+            let arch_start = adj_end + 1;
+            let rest_after_q = &desc[arch_start..];
+            let Some(q_close_rel) = rest_after_q.find('"') else { break };
+            let arch = &rest_after_q[..q_close_rel];
+            let tail = &rest_after_q[q_close_rel + 1..];
+            // Match optional " <Subtype> Monster from your Deck" or
+            // " Monster from your Deck".
+            let subtype_atom = match match_monster_subtype_kw(tail) {
+                Some((atom, _)) => Some(atom),
+                None => {
+                    // Bare " Monster from your Deck" (no subtype kw).
+                    if tail.starts_with(" Monster from your Deck") {
+                        None
+                    } else {
+                        cursor = after_head;
+                        continue;
+                    }
+                }
+            };
+            // Trigger anchor must be before `start` in desc.
+            if !sent_to_gy_trigger_anchor_before(desc, start) {
+                cursor = after_head;
+                continue;
+            }
+            // Build predicate expression.
+            let expr = match subtype_atom {
+                Some(atom) => format!(
+                    "archetype == \"{arch}\" and race == {race_tok} and {atom}"
+                ),
+                None => format!(
+                    "archetype == \"{arch}\" and race == {race_tok}"
+                ),
+            };
+            return Some((expr, start));
+        }
+        None
+    }
+
+    impl Cluster for SearchSentToGySubtypeArchetypeMonster {
+        fn name(&self) -> &'static str {
+            "search_sent_to_gy_subtype_archetype_monster"
+        }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if !has_placeholder_line_for_trigger(
+                src, "sent_to gy", "add_to_hand (all, card, either controls)"
+            ) { return false; }
+            match_subtype_archetype_monster_desc_for_sent_to_gy(&cdb_row.desc).is_some()
+        }
+
+        fn rewrite(&self, src: &str, cdb_row: &CdbCard) -> Result<String, String> {
+            let (filter_expr, _) =
+                match_subtype_archetype_monster_desc_for_sent_to_gy(&cdb_row.desc)
+                    .ok_or_else(|| "desc no longer matches".to_string())?;
+            let new_line = format!(
+                "            add_to_hand (1, monster, where {filter_expr}) from deck"
+            );
+            let range = find_placeholder_line_range(
+                src, "sent_to gy",
+                "add_to_hand (all, card, either controls)",
+            ).ok_or_else(|| "matched effect block no longer found".to_string())?;
+            Ok(splice_placeholder_line(src, range, &new_line))
+        }
+    }
+
     /// Return true if `src` contains an effect block with:
     ///   - trigger: battle_damage
     ///   - single-line resolve body exactly
@@ -1784,6 +2036,68 @@ card \"X\" {
             assert!(out.contains("destroy (all, card, either controls)"));
             assert!(out.contains("where archetype == \"Foo\""));
             assert!(!out.contains("add_to_hand (all, card, either controls)"));
+        }
+    }
+
+    // ── M.7 / MMM-II inline tests for subtype-archetype matcher ──
+    #[cfg(test)]
+    mod subtype_archetype_matcher_tests {
+        use super::*;
+
+        #[test]
+        fn matches_warrior_nekroz_ritual() {
+            let desc = "If this card is Tributed by a card effect: You can add 1 Warrior \"Nekroz\" Ritual Monster from your Deck to your hand.";
+            let (expr, _) = match_subtype_archetype_monster_desc_for_sent_to_gy(desc)
+                .expect("should match");
+            assert_eq!(expr, "archetype == \"Nekroz\" and race == Warrior and is_ritual");
+        }
+
+        #[test]
+        fn matches_dragon_type_nekroz_ritual() {
+            let desc = "If this card is Tributed by a card effect: You can add 1 Dragon-Type \"Nekroz\" Ritual Monster from your Deck to your hand.";
+            let (expr, _) = match_subtype_archetype_monster_desc_for_sent_to_gy(desc)
+                .expect("should match");
+            assert_eq!(expr, "archetype == \"Nekroz\" and race == Dragon and is_ritual");
+        }
+
+        #[test]
+        fn matches_spellcaster_type_nekroz_ritual() {
+            let desc = "If this card is Tributed by a card effect: You can add 1 Spellcaster-Type \"Nekroz\" Ritual Monster from your Deck to your hand.";
+            let (expr, _) = match_subtype_archetype_monster_desc_for_sent_to_gy(desc)
+                .expect("should match");
+            assert_eq!(expr, "archetype == \"Nekroz\" and race == Spellcaster and is_ritual");
+        }
+
+        #[test]
+        fn matches_bare_race_no_subtype() {
+            // Race adjective + archetype quote + bare " Monster from your Deck"
+            // (no Ritual/Fusion/etc. keyword).
+            let desc = "If this card is Tributed: You can add 1 Warrior \"Foo\" Monster from your Deck to your hand.";
+            let (expr, _) = match_subtype_archetype_monster_desc_for_sent_to_gy(desc)
+                .expect("should match");
+            assert_eq!(expr, "archetype == \"Foo\" and race == Warrior");
+        }
+
+        #[test]
+        fn rejects_missing_anchor() {
+            // No sent_to_gy anchor; must not match.
+            let desc = "You can add 1 Warrior \"Nekroz\" Ritual Monster from your Deck to your hand.";
+            assert!(match_subtype_archetype_monster_desc_for_sent_to_gy(desc).is_none());
+        }
+
+        #[test]
+        fn rejects_unknown_race_adjective() {
+            // "Angelic" is not a grammar race token.
+            let desc = "If this card is Tributed: You can add 1 Angelic \"Foo\" Ritual Monster from your Deck to your hand.";
+            assert!(match_subtype_archetype_monster_desc_for_sent_to_gy(desc).is_none());
+        }
+
+        #[test]
+        fn matches_winged_beast_multiword_race() {
+            let desc = "If this card is Tributed: You can add 1 Winged Beast \"Foo\" Monster from your Deck to your hand.";
+            let (expr, _) = match_subtype_archetype_monster_desc_for_sent_to_gy(desc)
+                .expect("should match");
+            assert_eq!(expr, "archetype == \"Foo\" and race == Winged Beast");
         }
     }
 }
