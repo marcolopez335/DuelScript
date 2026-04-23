@@ -763,12 +763,12 @@ fn trigger_to_event_code(trigger: &Option<Trigger>) -> u32 {
             Trigger::ChainSolved  => tm::EVENT_CHAIN_SOLVED,
             Trigger::ChainSolving => tm::EVENT_CHAIN_SOLVING,
             Trigger::ChainLink => tm::EVENT_CHAINING,
-            Trigger::Targeted => 0, // special engine handling
+            Trigger::Targeted => tm::EVENT_BECOME_TARGET,
             Trigger::UsedAsMaterial { .. } => tm::EVENT_BE_MATERIAL,
-            Trigger::PositionChanged => 0, // engine-specific; no standard event
-            Trigger::ControlChanged  => 0, // engine-specific
-            Trigger::Equipped        => 0, // engine-specific
-            Trigger::Unequipped      => 0, // engine-specific
+            Trigger::PositionChanged => tm::EVENT_CHANGE_POS,
+            Trigger::ControlChanged  => tm::EVENT_CONTROL_CHANGED,
+            Trigger::Equipped        => tm::EVENT_EQUIP,
+            Trigger::Unequipped      => tm::EVENT_EQUIP, // same event; filter on unequip sub-reason at runtime
             // T32 / GGG-II: `trigger: ignition` is a tagging-only marker —
             // it never reaches this branch in practice (compile_effect
             // short-circuits Ignition before calling trigger_to_event_code
@@ -5869,6 +5869,34 @@ card "T32 Fmt" {
         assert_eq!(code, tm::EVENT_TO_HAND,
             "returned_to hand must register on EVENT_TO_HAND (1012)");
         assert_eq!(code, 1012);
+    }
+
+    #[test]
+    fn targeted_trigger_maps_to_event_become_target_1028() {
+        let code = super::trigger_to_event_code(&Some(Trigger::Targeted));
+        assert_eq!(code, tm::EVENT_BECOME_TARGET);
+        assert_eq!(code, 1028);
+    }
+
+    #[test]
+    fn position_changed_trigger_maps_to_event_change_pos_1016() {
+        let code = super::trigger_to_event_code(&Some(Trigger::PositionChanged));
+        assert_eq!(code, tm::EVENT_CHANGE_POS);
+        assert_eq!(code, 1016);
+    }
+
+    #[test]
+    fn control_changed_trigger_maps_to_event_control_changed_1120() {
+        let code = super::trigger_to_event_code(&Some(Trigger::ControlChanged));
+        assert_eq!(code, tm::EVENT_CONTROL_CHANGED);
+        assert_eq!(code, 1120);
+    }
+
+    #[test]
+    fn equipped_trigger_maps_to_event_equip_1121() {
+        let code = super::trigger_to_event_code(&Some(Trigger::Equipped));
+        assert_eq!(code, tm::EVENT_EQUIP);
+        assert_eq!(code, 1121);
     }
 
     #[test]
