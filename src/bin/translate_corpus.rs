@@ -1341,7 +1341,11 @@ CLUSTERS:
         fn name(&self) -> &'static str { "search_sent_to_gy_archetype_monster" }
 
         fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
-            if !has_placeholder_with_trigger_and_body(
+            // M.6 / III-II: line-scoped locator allows multi-line
+            // resolve bodies (e.g. placeholder stacks like
+            // take_control → add_to_hand → destroy). The trigger +
+            // line presence check is the only structural gate.
+            if !has_placeholder_line_for_trigger(
                 src, "sent_to gy", "add_to_hand (all, card, either controls)"
             ) { return false; }
             match_search_archetype_monster_desc_for_sent_to_gy(&cdb_row.desc).is_some()
@@ -1354,12 +1358,11 @@ CLUSTERS:
             let new_line = format!(
                 "            add_to_hand (1, monster, where {filter_expr}) from deck"
             );
-            let old_line = "            add_to_hand (all, card, either controls)";
-            let range = find_placeholder_body_range(
+            let range = find_placeholder_line_range(
                 src, "sent_to gy",
                 "add_to_hand (all, card, either controls)",
             ).ok_or_else(|| "matched effect block no longer found".to_string())?;
-            splice_block_scoped(src, range, old_line, &new_line)
+            Ok(splice_placeholder_line(src, range, &new_line))
         }
     }
 
@@ -1407,7 +1410,8 @@ CLUSTERS:
         fn name(&self) -> &'static str { "search_sent_to_gy_archetype_card" }
 
         fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
-            if !has_placeholder_with_trigger_and_body(
+            // M.6 / III-II: multi-line resolve bodies allowed.
+            if !has_placeholder_line_for_trigger(
                 src, "sent_to gy", "add_to_hand (all, card, either controls)"
             ) { return false; }
             match_search_archetype_card_desc_for_sent_to_gy(&cdb_row.desc).is_some()
@@ -1420,12 +1424,11 @@ CLUSTERS:
             let new_line = format!(
                 "            add_to_hand (1, card, where {filter_expr}) from deck"
             );
-            let old_line = "            add_to_hand (all, card, either controls)";
-            let range = find_placeholder_body_range(
+            let range = find_placeholder_line_range(
                 src, "sent_to gy",
                 "add_to_hand (all, card, either controls)",
             ).ok_or_else(|| "matched effect block no longer found".to_string())?;
-            splice_block_scoped(src, range, old_line, &new_line)
+            Ok(splice_placeholder_line(src, range, &new_line))
         }
     }
 
@@ -1589,5 +1592,198 @@ CLUSTERS:
             }
         }
         false
+    }
+
+    // ── M.6 / III-II: line-scoped locator for multi-line resolve bodies ──
+    //
+    // `find_placeholder_body_range` requires the resolve body (trimmed)
+    // to equal `body_value` verbatim — one action, nothing else. That
+    // skips 34 sent_to_gy files whose resolve body stacks multiple
+    // placeholder actions (e.g. take_control → add_to_hand → destroy)
+    // even though the target line itself is present.
+    //
+    // `find_placeholder_line_range` is the generalised form. It walks
+    // effect blocks, checks the trigger, then scans the resolve body
+    // line-by-line looking for a line whose *trimmed* content equals
+    // `placeholder_line.trim()`. On hit it returns the absolute byte
+    // range `(line_start, line_end_exclusive)` where `line_end_exclusive`
+    // points to the start of the next line (i.e. just past the trailing
+    // '\n'). Splicing this range with `new_line + "\n"` preserves every
+    // sibling line in the resolve body.
+
+    /// Find the absolute byte range of a specific line within an
+    /// effect block's resolve body. Returns `(line_start,
+    /// line_end_exclusive)`; `line_end_exclusive` is the index just
+    /// past the line's trailing '\n' (or == `src.len()` for the
+    /// unterminated final line).
+    fn find_placeholder_line_range(
+        src: &str, trigger_value: &str, placeholder_line: &str,
+    ) -> Option<(usize, usize)> {
+        let bytes = src.as_bytes();
+        let needle = placeholder_line.trim();
+
+        let mut i = 0;
+        while i < bytes.len() {
+            let start = find_from(src, i, "effect \"")?;
+            let brace = src[start..].find('{')?;
+            let body_start = start + brace + 1;
+            let body_end = match_brace(src, body_start)?;
+            let body = &src[body_start..body_end];
+            i = body_end + 1;
+
+            if !body_has_line_starting_with(body, "trigger:", trigger_value) {
+                continue;
+            }
+            let Some(r_at) = body.find("resolve") else { continue };
+            let Some(r_open_rel) = body[r_at..].find('{') else { continue };
+            let rb_start_rel = r_at + r_open_rel + 1;
+            let Some(rb_end_rel) = match_brace(body, rb_start_rel) else { continue };
+            let rbody_abs_start = body_start + rb_start_rel;
+            let rbody_abs_end   = body_start + rb_end_rel;
+
+            // Scan lines in the resolve body (by absolute byte offsets
+            // so we can return a range usable against `src`).
+            let mut line_start = rbody_abs_start;
+            while line_start < rbody_abs_end {
+                // Find end of this line (either newline or rbody end).
+                let mut line_end = line_start;
+                while line_end < rbody_abs_end && bytes[line_end] as char != '\n' {
+                    line_end += 1;
+                }
+                // `line_end_exclusive` includes the newline if present.
+                let line_end_exclusive = if line_end < rbody_abs_end {
+                    line_end + 1
+                } else {
+                    line_end
+                };
+                let line = &src[line_start..line_end];
+                if line.trim() == needle {
+                    return Some((line_start, line_end_exclusive));
+                }
+                line_start = line_end_exclusive;
+            }
+        }
+        None
+    }
+
+    /// True iff the file contains an effect block with `trigger:
+    /// <trigger_value>` whose resolve body contains a line equal to
+    /// `placeholder_line` (trimmed). Multi-line resolve bodies allowed.
+    fn has_placeholder_line_for_trigger(
+        src: &str, trigger_value: &str, placeholder_line: &str,
+    ) -> bool {
+        find_placeholder_line_range(src, trigger_value, placeholder_line).is_some()
+    }
+
+    /// Splice a `new_line` into a line range produced by
+    /// `find_placeholder_line_range`. `new_line` must NOT include a
+    /// trailing '\n' — the helper re-attaches one only if the replaced
+    /// line had one (preserves the "final line has no newline"
+    /// edge case).
+    fn splice_placeholder_line(
+        src: &str, line_range: (usize, usize), new_line: &str,
+    ) -> String {
+        let (ls, le) = line_range;
+        let had_newline = le > ls && src.as_bytes()[le - 1] == b'\n';
+        let mut out = String::with_capacity(src.len() + new_line.len());
+        out.push_str(&src[..ls]);
+        out.push_str(new_line);
+        if had_newline {
+            out.push('\n');
+        }
+        out.push_str(&src[le..]);
+        out
+    }
+
+    // ── Inline tests for the new locator ─────────────────────────
+    #[cfg(test)]
+    mod line_locator_tests {
+        use super::*;
+
+        const MULTI_BODY: &str = "\
+card \"X\" {
+    id: 1
+    type: Spell
+
+    effect \"Effect 1\" {
+        trigger: sent_to gy
+        resolve {
+            take_control (all, card, either controls)
+            add_to_hand (all, card, either controls)
+            destroy (all, card, either controls)
+        }
+    }
+}
+";
+
+        const SINGLE_BODY: &str = "\
+card \"X\" {
+    id: 1
+    type: Spell
+
+    effect \"Effect 1\" {
+        trigger: sent_to gy
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+}
+";
+
+        #[test]
+        fn finds_line_in_multi_line_resolve_body() {
+            let r = find_placeholder_line_range(
+                MULTI_BODY, "sent_to gy",
+                "add_to_hand (all, card, either controls)",
+            );
+            assert!(r.is_some(), "should locate line in multi-line body");
+            let (ls, le) = r.unwrap();
+            let span = &MULTI_BODY[ls..le];
+            assert!(span.contains("add_to_hand"), "span = {:?}", span);
+            assert!(span.ends_with('\n'), "must include trailing newline");
+        }
+
+        #[test]
+        fn finds_line_in_single_line_resolve_body() {
+            let r = find_placeholder_line_range(
+                SINGLE_BODY, "sent_to gy",
+                "add_to_hand (all, card, either controls)",
+            );
+            assert!(r.is_some());
+        }
+
+        #[test]
+        fn returns_none_when_trigger_mismatches() {
+            let r = find_placeholder_line_range(
+                MULTI_BODY, "destroyed",
+                "add_to_hand (all, card, either controls)",
+            );
+            assert!(r.is_none());
+        }
+
+        #[test]
+        fn returns_none_when_line_absent() {
+            let r = find_placeholder_line_range(
+                MULTI_BODY, "sent_to gy",
+                "banish (all, card, either controls)",
+            );
+            assert!(r.is_none());
+        }
+
+        #[test]
+        fn splice_preserves_sibling_lines() {
+            let range = find_placeholder_line_range(
+                MULTI_BODY, "sent_to gy",
+                "add_to_hand (all, card, either controls)",
+            ).unwrap();
+            let out = splice_placeholder_line(
+                MULTI_BODY, range,
+                "            add_to_hand (1, monster, where archetype == \"Foo\") from deck",
+            );
+            assert!(out.contains("take_control (all, card, either controls)"));
+            assert!(out.contains("destroy (all, card, either controls)"));
+            assert!(out.contains("where archetype == \"Foo\""));
+            assert!(!out.contains("add_to_hand (all, card, either controls)"));
+        }
     }
 }
