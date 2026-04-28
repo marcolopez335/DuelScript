@@ -42,7 +42,12 @@ pub const CATEGORY_RECOVER:        u32 = 0x100000;
 pub const CATEGORY_ATKCHANGE:      u32 = 0x200000;
 pub const CATEGORY_DEFCHANGE:      u32 = 0x400000;
 pub const CATEGORY_COUNTER:        u32 = 0x800000;
+pub const CATEGORY_COIN:           u32 = 0x1000000;
+pub const CATEGORY_DICE:           u32 = 0x2000000;
+pub const CATEGORY_LEAVE_GRAVE:    u32 = 0x4000000;
+pub const CATEGORY_LVCHANGE:       u32 = 0x8000000;
 pub const CATEGORY_NEGATE:         u32 = 0x10000000;
+pub const CATEGORY_ANNOUNCE:       u32 = 0x20000000;
 pub const CATEGORY_FUSION_SUMMON:  u32 = 0x40000000;
 
 // Events
@@ -105,7 +110,7 @@ pub const LOCATION_OVERLAY: u32 = 0x80;
 
 pub const CATEGORY_TOEXTRA: u32 = 0x80000000;
 pub const CATEGORY_FLIP:    u32 = 0x800;
-pub const CATEGORY_LVCHANGE: u32 = 0x800000; // was 0x400000 (collided with CATEGORY_DEFCHANGE); per edopro spec
+// CATEGORY_LVCHANGE moved up to its proper sequence position (0x8000000).
 pub const LOCATION_FZONE:   u32 = 0x100;
 pub const LOCATION_PZONE:   u32 = 0x200;
 pub const LOCATION_ONFIELD: u32 = LOCATION_MZONE | LOCATION_SZONE;
