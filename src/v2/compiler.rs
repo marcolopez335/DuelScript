@@ -2038,8 +2038,17 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
                 _ => {}
             }
         }
-        Action::Banish(sel, _, _) => {
-            let cards = resolve_v2_selector(sel, rt, player);
+        Action::Banish(sel, source_zone, _face_down) => {
+            // Same source-zone scoping as SpecialSummon (PR #35) and
+            // AddToHand. Cards with `banish (1, monster, where ...) from
+            // deck` parse with `zone: None` on the selector — source zone
+            // lives on the action.
+            let scoped_sel = if let Some(z) = source_zone {
+                inject_zone_into_selector(sel, z.clone())
+            } else {
+                sel.clone()
+            };
+            let cards = resolve_v2_selector(&scoped_sel, rt, player);
             rt.banish(&cards);
         }
         Action::Search(sel, zone) => {
@@ -2071,8 +2080,19 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
                 rt.bind_last_selection("__searched__");
             }
         }
-        Action::AddToHand(sel, _) => {
-            let cards = resolve_v2_selector(sel, rt, player);
+        Action::AddToHand(sel, source_zone) => {
+            // Same source-zone scoping fix as SpecialSummon (PR #35).
+            // Cards like Dinowrestler Martial Ampelo with `add_to_hand (1,
+            // monster, where archetype == "X") from deck` parse with
+            // `zone: None` on the selector — the source zone lives on the
+            // action itself. Without scoping the selector defaults to
+            // ONFIELD and never finds the deck card.
+            let scoped_sel = if let Some(z) = source_zone {
+                inject_zone_into_selector(sel, z.clone())
+            } else {
+                sel.clone()
+            };
+            let cards = resolve_v2_selector(&scoped_sel, rt, player);
             if !cards.is_empty() {
                 rt.send_to_hand(&cards);
             }
