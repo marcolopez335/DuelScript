@@ -1610,4 +1610,62 @@ mod tests {
             panic!("First failure on {}:\n{}", path, details);
         }
     }
+
+    /// Round-trip M-phase translated cards. Exercises T26-T32 grammar
+    /// in production: battle_damage/destroyed/sent_to_gy triggers,
+    /// archetype/race/name predicates, in_attack_position/from deck
+    /// argument syntax. A regression in fmt.rs for any T26+ construct
+    /// would surface here on cards that hand-written goat corpus
+    /// doesn't exercise.
+    #[test]
+    fn test_m_phase_translated_cards_roundtrip() {
+        // Sample 30 cards from the official corpus: any with a non-empty
+        // resolve body (heuristic = any of the M-phase clusters' rewrites).
+        let dir = std::fs::read_dir("cards/official").unwrap();
+        let mut translated_paths: Vec<std::path::PathBuf> = dir.flatten()
+            .map(|e| e.path())
+            .filter(|p| p.extension().map_or(false, |e| e == "ds"))
+            .filter(|p| {
+                std::fs::read_to_string(p)
+                    .map(|s| s.contains("special_summon (1, monster, where")
+                          || s.contains("add_to_hand (1, monster, where")
+                          || s.contains("add_to_hand (1, card, where"))
+                    .unwrap_or(false)
+            })
+            .collect();
+        translated_paths.sort();
+        translated_paths.truncate(30);
+
+        assert!(translated_paths.len() >= 10,
+            "expected at least 10 M-phase translated cards in corpus; got {}",
+            translated_paths.len());
+
+        let mut ok = 0;
+        let mut fail = 0;
+        let mut first_failure: Option<(String, String)> = None;
+        for path in &translated_paths {
+            let source = std::fs::read_to_string(path).unwrap();
+            let file = match parse_v2(&source) {
+                Ok(f) => f,
+                Err(_) => continue,
+            };
+            let formatted = format_file(&file);
+            match parse_v2(&formatted) {
+                Ok(_) => ok += 1,
+                Err(e) => {
+                    fail += 1;
+                    if first_failure.is_none() {
+                        first_failure = Some((path.display().to_string(),
+                            format!("{}\n---\n{}", e, formatted)));
+                    }
+                }
+            }
+        }
+        println!("M-phase roundtrip: {} ok, {} fail (over {} translated cards)",
+            ok, fail, translated_paths.len());
+        if let Some((path, details)) = first_failure {
+            panic!("First M-phase fmt-roundtrip failure on {}:\n{}", path, details);
+        }
+        assert_eq!(fail, 0, "all sampled M-phase cards must roundtrip cleanly");
+    }
 }
