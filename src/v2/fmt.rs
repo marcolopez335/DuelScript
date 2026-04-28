@@ -1619,8 +1619,9 @@ mod tests {
     /// doesn't exercise.
     #[test]
     fn test_m_phase_translated_cards_roundtrip() {
-        // Sample 30 cards from the official corpus: any with a non-empty
-        // resolve body (heuristic = any of the M-phase clusters' rewrites).
+        // ALL cards in the official corpus with a non-empty resolve body
+        // matching any of the M-phase clusters' rewrites. Was 30 cards
+        // post-PR #34; expanded to full corpus for stronger guarantee.
         let dir = std::fs::read_dir("cards/official").unwrap();
         let mut translated_paths: Vec<std::path::PathBuf> = dir.flatten()
             .map(|e| e.path())
@@ -1634,10 +1635,9 @@ mod tests {
             })
             .collect();
         translated_paths.sort();
-        translated_paths.truncate(30);
 
-        assert!(translated_paths.len() >= 10,
-            "expected at least 10 M-phase translated cards in corpus; got {}",
+        assert!(translated_paths.len() >= 100,
+            "expected at least 100 M-phase translated cards in corpus; got {}",
             translated_paths.len());
 
         let mut ok = 0;
