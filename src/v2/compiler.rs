@@ -1207,6 +1207,36 @@ fn ast_filter_to_runtime(f: &CardFilter) -> RuntimeCardFilter {
     }
 }
 
+/// Inject `zone` into the selector's zone field if the selector is a
+/// `Counted` and its zone is None. Used by `Action::SpecialSummon` to
+/// scope the selector to the source zone (e.g. `from deck`) when the
+/// selector itself doesn't carry a zone constraint.
+///
+/// Why this is needed: the parser puts `from <zone>` into the
+/// SpecialSummon action's source-zone arg, not the selector's zone
+/// field. M-phase recruiter cards like Mecha Bunny default the
+/// selector's zone to None (= ONFIELD), so without this scoping the
+/// recruiter searches the field, finds itself, and special_summons
+/// itself — instead of pulling a card from the source deck.
+fn inject_zone_into_selector(sel: &Selector, zone: Zone) -> Selector {
+    use crate::v2::ast::ZoneFilter;
+    if let Selector::Counted {
+        quantity, filter, controller, zone: existing_zone, position, where_clause,
+    } = sel {
+        if existing_zone.is_none() {
+            return Selector::Counted {
+                quantity: quantity.clone(),
+                filter: filter.clone(),
+                controller: controller.clone(),
+                zone: Some(ZoneFilter::From(vec![zone])),
+                position: position.clone(),
+                where_clause: where_clause.clone(),
+            };
+        }
+    }
+    sel.clone()
+}
+
 fn resolve_v2_selector(sel: &Selector, rt: &mut dyn DuelScriptRuntime, player: u8) -> Vec<u32> {
     let opponent = 1 - player;
     match sel {
@@ -2047,14 +2077,24 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
                 rt.send_to_hand(&cards);
             }
         }
-        Action::SpecialSummon(sel, _, pos) => {
+        Action::SpecialSummon(sel, source_zone, pos) => {
             let pos_val = match pos {
                 Some(BattlePosition::Attack)          => tm::POS_FACEUP_ATTACK,   // 0x1
                 Some(BattlePosition::Defense)         => tm::POS_FACEUP_DEFENSE,  // 0x4 (was 0x2 = POS_FACEDOWN_ATTACK)
                 Some(BattlePosition::FaceDownDefense) => tm::POS_FACEDOWN_DEFENSE, // 0x8 (was 0xA = FACEDOWN-any)
                 None => tm::POS_FACEUP_ATTACK,
             };
-            let cards = resolve_v2_selector(sel, rt, player);
+            // Restrict the selector to the source zone if specified.
+            // Without this, M-phase recruiter cards like Mecha Bunny — which
+            // have selectors with `zone: None` (defaults to ONFIELD) but the
+            // SpecialSummon action carries `Some(Zone::Deck)` — search the
+            // wrong location and never pull the target from deck.
+            let scoped_sel = if let Some(z) = source_zone {
+                inject_zone_into_selector(sel, z.clone())
+            } else {
+                sel.clone()
+            };
+            let cards = resolve_v2_selector(&scoped_sel, rt, player);
             for card_id in cards {
                 rt.special_summon(card_id, player, pos_val);
             }
