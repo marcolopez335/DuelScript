@@ -204,6 +204,12 @@ CLUSTERS:
         M.8 / TTT-II: same as above for the `card` target shape
         `Add 1 \"<Arch>\" card from your Deck`.
         Emits: `where archetype == X`.
+    destroy_all_opponent_monsters_any_trigger
+        P3 prototype: first non-search/non-recruiter cluster. Trigger-
+        agnostic destroy variant. Matches canonical phrase
+        \"Destroy all monsters your opponent controls\" + placeholder
+        body `destroy (all, card, either controls)`.
+        Emits: `destroy (all, monster, opponent controls)`.
 ");
     }
 
@@ -433,6 +439,7 @@ CLUSTERS:
             Box::new(SearchArchetypeSpellTrap),
             Box::new(SearchArchetypeMonsterAnyTrigger),
             Box::new(SearchArchetypeCardAnyTrigger),
+            Box::new(DestroyAllOpponentMonstersAnyTrigger),
         ];
         match filter {
             None        => all,
@@ -1983,6 +1990,62 @@ CLUSTERS:
                     src, trig, "add_to_hand (all, card, either controls)",
                 ) {
                     return Ok(splice_placeholder_line(src, range, &new_line));
+                }
+            }
+            Err("no supported trigger block with canonical placeholder".to_string())
+        }
+    }
+
+    // ── Cluster: destroy_all_opponent_monsters_any_trigger (P3) ──
+    //
+    // First non-search/non-recruiter cluster — proves the existing
+    // translator architecture extends cleanly to the destroy family
+    // (~2,300 placeholder hits in the corpus pre-translation).
+    //
+    // Shape to hit:
+    //   trigger: <any of supported set>
+    //   resolve { destroy (all, card, either controls) }
+    //   desc: "Destroy all monsters your opponent controls"
+    //         (case-insensitive, exact phrase match)
+    //
+    // Rewrite:
+    //   destroy (all, monster, opponent controls)
+    //
+    // Conservative match: requires the exact canonical phrase. Cards
+    // with conditional language ("If <cond>, destroy ...") still match
+    // because the rewrite ignores the trigger condition — that lives in
+    // the existing `trigger:` line, not in the resolve body.
+
+    struct DestroyAllOpponentMonstersAnyTrigger;
+
+    /// Match the canonical "Destroy all monsters your opponent controls"
+    /// phrase, case-insensitive. Returns true if found.
+    fn match_destroy_all_opp_monsters_desc(desc: &str) -> bool {
+        let lower = desc.to_lowercase();
+        lower.contains("destroy all monsters your opponent controls")
+    }
+
+    impl Cluster for DestroyAllOpponentMonstersAnyTrigger {
+        fn name(&self) -> &'static str { "destroy_all_opponent_monsters_any_trigger" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if !match_destroy_all_opp_monsters_desc(&cdb_row.desc) {
+                return false;
+            }
+            ANY_TRIGGER_SET.iter().any(|t| {
+                has_placeholder_line_for_trigger(
+                    src, t, "destroy (all, card, either controls)",
+                )
+            })
+        }
+
+        fn rewrite(&self, src: &str, _cdb_row: &CdbCard) -> Result<String, String> {
+            let new_line = "            destroy (all, monster, opponent controls)";
+            for trig in ANY_TRIGGER_SET {
+                if let Some(range) = find_placeholder_line_range(
+                    src, trig, "destroy (all, card, either controls)",
+                ) {
+                    return Ok(splice_placeholder_line(src, range, new_line));
                 }
             }
             Err("no supported trigger block with canonical placeholder".to_string())
