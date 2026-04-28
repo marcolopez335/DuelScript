@@ -105,7 +105,7 @@ pub const LOCATION_OVERLAY: u32 = 0x80;
 
 pub const CATEGORY_TOEXTRA: u32 = 0x80000000;
 pub const CATEGORY_FLIP:    u32 = 0x800;
-pub const CATEGORY_LVCHANGE: u32 = 0x400000;
+pub const CATEGORY_LVCHANGE: u32 = 0x800000; // was 0x400000 (collided with CATEGORY_DEFCHANGE); per edopro spec
 pub const LOCATION_FZONE:   u32 = 0x100;
 pub const LOCATION_PZONE:   u32 = 0x200;
 pub const LOCATION_ONFIELD: u32 = LOCATION_MZONE | LOCATION_SZONE;
