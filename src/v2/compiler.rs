@@ -2070,26 +2070,14 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
             rt.banish(&cards);
         }
         Action::Search(sel, zone) => {
-            // If the action carries an explicit `from <zone>` hint (goat-era
-            // canonical form: `search (...) from deck`), materialize a
-            // modified selector that stamps the zone into the Counted's
-            // `zone` field so `resolve_v2_selector` scopes its candidate
-            // collection to that zone rather than the default OnField. If
-            // the selector is already `Counted` with an explicit zone
-            // (Sangan's `from deck` inside the parens), leave it untouched —
-            // the inner zone wins.
-            let effective_sel = match (sel, zone) {
-                (Selector::Counted { quantity, filter, controller, zone: None, position, where_clause }, Some(z)) => {
-                    Selector::Counted {
-                        quantity: quantity.clone(),
-                        filter: filter.clone(),
-                        controller: controller.clone(),
-                        zone: Some(ZoneFilter::From(vec![z.clone()])),
-                        position: position.clone(),
-                        where_clause: where_clause.clone(),
-                    }
-                }
-                (s, _) => s.clone(),
+            // Stamp the action's `from <zone>` hint into the selector when
+            // the selector itself doesn't carry a zone. Mirrors the same
+            // pattern as Action::SpecialSummon / AddToHand / Banish (PRs
+            // #35 and #36) — unified via inject_zone_into_selector.
+            let effective_sel = if let Some(z) = zone {
+                inject_zone_into_selector(sel, z.clone())
+            } else {
+                sel.clone()
             };
             let cards = resolve_v2_selector(&effective_sel, rt, player);
             if !cards.is_empty() {
