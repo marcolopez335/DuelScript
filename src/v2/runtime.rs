@@ -610,6 +610,18 @@ pub trait DuelScriptRuntime {
     /// **Required to override.**
     fn change_position(&mut self, card_id: u32);
 
+    /// Change `card_id` to the explicit target position encoded as the
+    /// EDOPro POS_* flag (POS_FACEUP_ATTACK=0x1, POS_FACEUP_DEFENSE=0x4,
+    /// POS_FACEDOWN_ATTACK=0x2, POS_FACEDOWN_DEFENSE=0x8). Used by
+    /// `Action::ChangePosition(sel, Some(BattlePosition))` so cards like
+    /// "switch this to defense position" land at the requested position
+    /// instead of cycling through the toggle. Default delegates to
+    /// `change_position` (toggle) for runtimes that haven't implemented
+    /// targeted position changes — preserves backward compatibility.
+    fn change_position_to(&mut self, card_id: u32, _target_pos: u32) {
+        self.change_position(card_id);
+    }
+
     // ── Xyz Materials ────────────────────────────────────────
 
     /// Detach `count` Xyz Materials from `card_id` and send them to the Graveyard.

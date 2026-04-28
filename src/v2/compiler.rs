@@ -2180,10 +2180,25 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
                 rt.change_position(card_id);
             }
         }
-        Action::ChangePosition(sel, _) => {
+        Action::ChangePosition(sel, target_pos) => {
             let cards = resolve_v2_selector(sel, rt, player);
-            for card_id in cards {
-                rt.change_position(card_id);
+            match target_pos {
+                Some(bp) => {
+                    let pos_code = match bp {
+                        BattlePosition::Attack          => tm::POS_FACEUP_ATTACK,
+                        BattlePosition::Defense         => tm::POS_FACEUP_DEFENSE,
+                        BattlePosition::FaceDownDefense => tm::POS_FACEDOWN_DEFENSE,
+                    };
+                    for card_id in cards {
+                        rt.change_position_to(card_id, pos_code);
+                    }
+                }
+                None => {
+                    // No target specified — toggle (legacy behavior).
+                    for card_id in cards {
+                        rt.change_position(card_id);
+                    }
+                }
             }
         }
         Action::TakeControl(sel, duration) => {
