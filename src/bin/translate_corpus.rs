@@ -440,6 +440,9 @@ CLUSTERS:
             Box::new(SearchArchetypeMonsterAnyTrigger),
             Box::new(SearchArchetypeCardAnyTrigger),
             Box::new(DestroyAllOpponentMonstersAnyTrigger),
+            Box::new(SendAllOpponentMonstersToGyAnyTrigger),
+            Box::new(BanishAllOpponentMonstersAnyTrigger),
+            Box::new(ReturnAllOpponentMonstersToHandAnyTrigger),
         ];
         match filter {
             None        => all,
@@ -2044,6 +2047,139 @@ CLUSTERS:
             for trig in ANY_TRIGGER_SET {
                 if let Some(range) = find_placeholder_line_range(
                     src, trig, "destroy (all, card, either controls)",
+                ) {
+                    return Ok(splice_placeholder_line(src, range, new_line));
+                }
+            }
+            Err("no supported trigger block with canonical placeholder".to_string())
+        }
+    }
+
+    // ── Cluster: send_all_opponent_monsters_to_gy_any_trigger (P3) ──
+    //
+    // Sister cluster to destroy_all_opponent_monsters. Same architecture,
+    // different action (`send ... to gy` vs `destroy`).
+    //
+    // Shape:
+    //   resolve { send (all, card, either controls) to gy }
+    //   desc: "Send all monsters your opponent controls to the (Graveyard|GY)"
+    //
+    // Rewrite:
+    //   send (all, monster, opponent controls) to gy
+
+    struct SendAllOpponentMonstersToGyAnyTrigger;
+
+    fn match_send_all_opp_monsters_to_gy_desc(desc: &str) -> bool {
+        let lower = desc.to_lowercase();
+        lower.contains("send all monsters your opponent controls to the graveyard")
+            || lower.contains("send all monsters your opponent controls to the gy")
+    }
+
+    impl Cluster for SendAllOpponentMonstersToGyAnyTrigger {
+        fn name(&self) -> &'static str { "send_all_opponent_monsters_to_gy_any_trigger" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if !match_send_all_opp_monsters_to_gy_desc(&cdb_row.desc) {
+                return false;
+            }
+            ANY_TRIGGER_SET.iter().any(|t| {
+                has_placeholder_line_for_trigger(
+                    src, t, "send (all, card, either controls) to gy",
+                )
+            })
+        }
+
+        fn rewrite(&self, src: &str, _cdb_row: &CdbCard) -> Result<String, String> {
+            let new_line = "            send (all, monster, opponent controls) to gy";
+            for trig in ANY_TRIGGER_SET {
+                if let Some(range) = find_placeholder_line_range(
+                    src, trig, "send (all, card, either controls) to gy",
+                ) {
+                    return Ok(splice_placeholder_line(src, range, new_line));
+                }
+            }
+            Err("no supported trigger block with canonical placeholder".to_string())
+        }
+    }
+
+    // ── Cluster: banish_all_opponent_monsters_any_trigger (P3) ──
+    //
+    // Sister cluster — banish action variant.
+    //
+    // Shape:
+    //   resolve { banish (all, card, either controls) }
+    //   desc: "Banish all monsters your opponent controls"
+
+    struct BanishAllOpponentMonstersAnyTrigger;
+
+    fn match_banish_all_opp_monsters_desc(desc: &str) -> bool {
+        let lower = desc.to_lowercase();
+        lower.contains("banish all monsters your opponent controls")
+    }
+
+    impl Cluster for BanishAllOpponentMonstersAnyTrigger {
+        fn name(&self) -> &'static str { "banish_all_opponent_monsters_any_trigger" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if !match_banish_all_opp_monsters_desc(&cdb_row.desc) {
+                return false;
+            }
+            ANY_TRIGGER_SET.iter().any(|t| {
+                has_placeholder_line_for_trigger(
+                    src, t, "banish (all, card, either controls)",
+                )
+            })
+        }
+
+        fn rewrite(&self, src: &str, _cdb_row: &CdbCard) -> Result<String, String> {
+            let new_line = "            banish (all, monster, opponent controls)";
+            for trig in ANY_TRIGGER_SET {
+                if let Some(range) = find_placeholder_line_range(
+                    src, trig, "banish (all, card, either controls)",
+                ) {
+                    return Ok(splice_placeholder_line(src, range, new_line));
+                }
+            }
+            Err("no supported trigger block with canonical placeholder".to_string())
+        }
+    }
+
+    // ── Cluster: return_all_opponent_monsters_to_hand_any_trigger (P3) ──
+    //
+    // "Bounce" cluster — return monsters to hand.
+    //
+    // Shape:
+    //   resolve { return (all, card, either controls) to hand }
+    //   desc: "Return all monsters your opponent controls to the hand"
+
+    struct ReturnAllOpponentMonstersToHandAnyTrigger;
+
+    fn match_return_all_opp_monsters_to_hand_desc(desc: &str) -> bool {
+        let lower = desc.to_lowercase();
+        lower.contains("return all monsters your opponent controls to the hand")
+            || lower.contains("return all monsters your opponent controls to their hand")
+            || lower.contains("return all monsters your opponent controls to the owner")
+    }
+
+    impl Cluster for ReturnAllOpponentMonstersToHandAnyTrigger {
+        fn name(&self) -> &'static str { "return_all_opponent_monsters_to_hand_any_trigger" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if !match_return_all_opp_monsters_to_hand_desc(&cdb_row.desc) {
+                return false;
+            }
+            ANY_TRIGGER_SET.iter().any(|t| {
+                has_placeholder_line_for_trigger(
+                    src, t, "return (all, card, either controls) to hand",
+                )
+            })
+        }
+
+        fn rewrite(&self, src: &str, _cdb_row: &CdbCard) -> Result<String, String> {
+            let new_line = "            return (all, monster, opponent controls) to hand";
+            for trig in ANY_TRIGGER_SET {
+                if let Some(range) = find_placeholder_line_range(
+                    src, trig, "return (all, card, either controls) to hand",
                 ) {
                     return Ok(splice_placeholder_line(src, range, new_line));
                 }
