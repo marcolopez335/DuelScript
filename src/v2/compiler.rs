@@ -1180,10 +1180,13 @@ fn count_v2_selector(sel: &Selector, rt: &dyn DuelScriptRuntime, player: u8) -> 
             let rt_filter = ast_filter_to_runtime(filter);
             cards.retain(|&id| rt.card_matches_filter(id, &rt_filter));
             if let Some(pos_filter) = position {
+                let self_id = rt.effect_card_id();
                 match pos_filter {
-                    PositionFilter::FaceUp   => cards.retain(|&id| rt.is_face_up(id)),
-                    PositionFilter::FaceDown => cards.retain(|&id| rt.is_face_down(id)),
-                    _ => {}
+                    PositionFilter::FaceUp           => cards.retain(|&id| rt.is_face_up(id)),
+                    PositionFilter::FaceDown         => cards.retain(|&id| rt.is_face_down(id)),
+                    PositionFilter::AttackPosition   => cards.retain(|&id| rt.is_attack_position(id)),
+                    PositionFilter::DefensePosition  => cards.retain(|&id| rt.is_defense_position(id)),
+                    PositionFilter::ExceptSelf       => cards.retain(|&id| id != self_id),
                 }
             }
             cards.len()
@@ -1291,14 +1294,14 @@ fn resolve_v2_selector(sel: &Selector, rt: &mut dyn DuelScriptRuntime, player: u
             cards.retain(|&id| rt.card_matches_filter(id, &rt_filter));
 
             // (c) Apply position filter if specified.
-            //     Only `FaceUp` and `FaceDown` are checkable with trait methods at M3a.
-            //     AttackPosition / DefensePosition / ExceptSelf are deferred (M3c territory).
             if let Some(pos_filter) = position {
+                let self_id = rt.effect_card_id();
                 match pos_filter {
-                    PositionFilter::FaceUp   => cards.retain(|&id| rt.is_face_up(id)),
-                    PositionFilter::FaceDown => cards.retain(|&id| rt.is_face_down(id)),
-                    // AttackPosition, DefensePosition, ExceptSelf — M3c; no filtering yet.
-                    _ => {}
+                    PositionFilter::FaceUp           => cards.retain(|&id| rt.is_face_up(id)),
+                    PositionFilter::FaceDown         => cards.retain(|&id| rt.is_face_down(id)),
+                    PositionFilter::AttackPosition   => cards.retain(|&id| rt.is_attack_position(id)),
+                    PositionFilter::DefensePosition  => cards.retain(|&id| rt.is_defense_position(id)),
+                    PositionFilter::ExceptSelf       => cards.retain(|&id| id != self_id),
                 }
             }
 
@@ -1918,12 +1921,19 @@ fn gen_cost(costs: &[CostAction], card_id: u64) -> Option<Arc<dyn Fn(&mut dyn Du
                     let card_id = rt.effect_card_id();
                     rt.detach_material(card_id, *count as u32);
                 }
-                CostAction::Banish(sel, _zone, binding) => {
+                CostAction::Banish(sel, source_zone, binding) => {
                     if check_only { return true; }
                     let player = rt.effect_player();
-                    // Gather candidates from hand and field
-                    let mut candidates = rt.get_field_cards(player, tm::LOCATION_HAND);
-                    candidates.extend(rt.get_field_cards(player, tm::LOCATION_MZONE));
+                    // Honor the source zone if specified — `cost { banish (1, ...) from gy }`
+                    // must banish from grave, not from hand+field. Defaults to
+                    // hand+field if zone is None (the historical behavior).
+                    let candidates: Vec<u32> = if let Some(z) = source_zone {
+                        rt.get_field_cards(player, zone_to_location(z))
+                    } else {
+                        let mut c = rt.get_field_cards(player, tm::LOCATION_HAND);
+                        c.extend(rt.get_field_cards(player, tm::LOCATION_MZONE));
+                        c
+                    };
                     let _ = sel; // filter hint for engine-level use
                     if !candidates.is_empty() {
                         let selected = rt.select_cards(player, &candidates, 1, 1);
@@ -2411,15 +2421,28 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
                 rt.normal_summon(card_id, player);
             }
         }
-        Action::Set(sel, _zone) => {
-            let cards = resolve_v2_selector(sel, rt, player);
+        Action::Set(sel, source_zone) => {
+            // Same source-zone scoping fix as SpecialSummon (PR #35) /
+            // AddToHand (PR #36) / Banish / Search. M-phase corpus cards
+            // with `set (1, monster, where ...) from <zone>` parse with
+            // `zone: None` on the selector — the source zone lives on the
+            // action. Without scoping the selector defaults to ONFIELD.
+            let scoped_sel = if let Some(z) = source_zone {
+                inject_zone_into_selector(sel, z.clone())
+            } else {
+                sel.clone()
+            };
+            let cards = resolve_v2_selector(&scoped_sel, rt, player);
             for card_id in cards {
                 rt.set_card(card_id, player);
             }
         }
-        Action::ForEach { selector, zone: _, body } => {
-            // Resolve the set of cards and iterate; execute body for each
-            let cards = resolve_v2_selector(selector, rt, player);
+        Action::ForEach { selector, zone, body } => {
+            // ForEach's zone is mandatory in the AST — always scope the
+            // selector to it so `for_each (sel) in <zone>: { body }`
+            // iterates the correct location, not the ONFIELD default.
+            let scoped_sel = inject_zone_into_selector(selector, zone.clone());
+            let cards = resolve_v2_selector(&scoped_sel, rt, player);
             for card_id in cards {
                 // Set the card as the current target so body actions can reference it
                 rt.set_targets(&[card_id]);
