@@ -2032,9 +2032,13 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
         Action::Send(sel, zone) => {
             let cards = resolve_v2_selector(sel, rt, player);
             match zone {
-                Zone::Gy => { rt.send_to_grave(&cards); }
-                Zone::Hand => { rt.send_to_hand(&cards); }
-                Zone::Deck => { rt.send_to_deck(&cards, true); }
+                Zone::Gy       => { rt.send_to_grave(&cards); }
+                Zone::Hand     => { rt.send_to_hand(&cards); }
+                Zone::Deck     => { rt.send_to_deck(&cards, true); }
+                Zone::Banished => { rt.banish(&cards); }
+                // ExtraDeck / Field / sub-zones — no canonical trait method;
+                // silent skip preserves prior behavior. Most M-phase cards
+                // use one of the four explicit destinations.
                 _ => {}
             }
         }
