@@ -236,8 +236,7 @@ fn compile_summon(summon: &SummonBlock, card: &Card) -> Vec<CompiledEffectV2> {
                 Some(Arc::new(move |rt: &mut dyn DuelScriptRuntime| {
                     let summoner = rt.effect_player();
                     let target_player = if to_opponent { 1 - summoner } else { summoner };
-                    // POS_FACEUP_ATTACK = 0x1 — default position for a special summon.
-                    rt.special_summon(card_id_u32, target_player, 0x1);
+                    rt.special_summon(card_id_u32, target_player, tm::POS_FACEUP_ATTACK);
                 }));
 
             effects.push(CompiledEffectV2 {
