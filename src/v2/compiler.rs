@@ -1015,7 +1015,21 @@ fn eval_predicate_atom(atom: &PredicateAtom, card_id: u32, rt: &dyn DuelScriptRu
         }
 
         PredicateAtom::ArchetypeIs(name) => {
-            rt.get_card_archetypes(card_id).iter().any(|a| a == name)
+            // Primary: setcode→archetype-name lookup via runtime trait.
+            // Fallback: substring match on card name for runtimes that
+            // haven't wired the setcode lookup yet (ygobeetle adapter
+            // returns Vec::new() for get_card_archetypes — no
+            // strings.conf mapping). Mirrors the same fallback that
+            // ygobeetle's card_matches_filter already uses for
+            // CardFilter::ArchetypeMonster / ArchetypeCard.
+            let archetypes = rt.get_card_archetypes(card_id);
+            if archetypes.iter().any(|a| a == name) {
+                return true;
+            }
+            // Substring fallback: a card named "Madolche Magileine" matches
+            // ArchetypeIs("Madolche"). False positives are rare in practice
+            // since archetypes are almost always a name prefix or token.
+            rt.get_card_name(card_id).contains(name.as_str())
         }
 
         PredicateAtom::IsMonster => {
