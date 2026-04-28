@@ -443,6 +443,7 @@ CLUSTERS:
             Box::new(SendAllOpponentMonstersToGyAnyTrigger),
             Box::new(BanishAllOpponentMonstersAnyTrigger),
             Box::new(ReturnAllOpponentMonstersToHandAnyTrigger),
+            Box::new(SpecialSummonArchetypeFromGyAnyTrigger),
         ];
         match filter {
             None        => all,
@@ -2049,6 +2050,75 @@ CLUSTERS:
                     src, trig, "destroy (all, card, either controls)",
                 ) {
                     return Ok(splice_placeholder_line(src, range, new_line));
+                }
+            }
+            Err("no supported trigger block with canonical placeholder".to_string())
+        }
+    }
+
+    // ── Cluster: special_summon_archetype_from_gy_any_trigger (P3) ──
+    //
+    // Recruiter variant — pulls from GY instead of Deck. Common late-game
+    // pattern: "Special Summon 1 \"<Arch>\" monster from your GY".
+    //
+    // Shape:
+    //   resolve { special_summon (all, card, either controls) }
+    //   desc:  Special Summon 1 "<Arch>" monster from your GY/Graveyard
+    //
+    // Rewrite:
+    //   special_summon (1, monster, where archetype == "<Arch>") from gy in attack_position
+
+    struct SpecialSummonArchetypeFromGyAnyTrigger;
+
+    fn match_ss_archetype_from_gy_desc(desc: &str) -> Option<String> {
+        let heads = ["Special Summon 1 \"", "special summon 1 \""];
+        let mut cursor = 0;
+        while cursor < desc.len() {
+            let hits: Vec<(usize, &str)> = heads.iter()
+                .filter_map(|h| desc[cursor..].find(h).map(|o| (o, *h)))
+                .collect();
+            let (off, head) = *hits.iter().min_by_key(|(o, _)| *o)?;
+            let start = cursor + off;
+            let after_head = start + head.len();
+            let rest = &desc[after_head..];
+            let Some(q_end) = rest.find('"') else { break };
+            let arch = &rest[..q_end];
+            let tail = &rest[q_end + 1..];
+            if tail.starts_with(" monster from your GY")
+                || tail.starts_with(" monster from your Graveyard")
+            {
+                return Some(arch.to_string());
+            }
+            cursor = after_head;
+        }
+        None
+    }
+
+    impl Cluster for SpecialSummonArchetypeFromGyAnyTrigger {
+        fn name(&self) -> &'static str { "special_summon_archetype_from_gy_any_trigger" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if match_ss_archetype_from_gy_desc(&cdb_row.desc).is_none() {
+                return false;
+            }
+            ANY_TRIGGER_SET.iter().any(|t| {
+                has_placeholder_line_for_trigger(
+                    src, t, "special_summon (all, card, either controls)",
+                )
+            })
+        }
+
+        fn rewrite(&self, src: &str, cdb_row: &CdbCard) -> Result<String, String> {
+            let arch = match_ss_archetype_from_gy_desc(&cdb_row.desc)
+                .ok_or_else(|| "desc no longer matches".to_string())?;
+            let new_line = format!(
+                "            special_summon (1, monster, where archetype == \"{arch}\") from gy in attack_position"
+            );
+            for trig in ANY_TRIGGER_SET {
+                if let Some(range) = find_placeholder_line_range(
+                    src, trig, "special_summon (all, card, either controls)",
+                ) {
+                    return Ok(splice_placeholder_line(src, range, &new_line));
                 }
             }
             Err("no supported trigger block with canonical placeholder".to_string())
