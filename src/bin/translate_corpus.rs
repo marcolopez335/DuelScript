@@ -444,6 +444,9 @@ CLUSTERS:
             Box::new(BanishAllOpponentMonstersAnyTrigger),
             Box::new(ReturnAllOpponentMonstersToHandAnyTrigger),
             Box::new(SpecialSummonArchetypeFromGyAnyTrigger),
+            Box::new(SpecialSummonArchetypeFromHandAnyTrigger),
+            Box::new(DestroyOneOpponentMonsterAnyTrigger),
+            Box::new(DestroyAllOpponentSpellsTrapsAnyTrigger),
         ];
         match filter {
             None        => all,
@@ -2119,6 +2122,161 @@ CLUSTERS:
                     src, trig, "special_summon (all, card, either controls)",
                 ) {
                     return Ok(splice_placeholder_line(src, range, &new_line));
+                }
+            }
+            Err("no supported trigger block with canonical placeholder".to_string())
+        }
+    }
+
+    // ── Cluster: special_summon_archetype_from_hand_any_trigger (P3) ──
+    //
+    // Combo extender pattern: "Special Summon 1 \"<Arch>\" monster from
+    // your hand". Same architecture as the from-gy variant.
+    //
+    // Rewrite:
+    //   special_summon (1, monster, where archetype == "<Arch>") from hand in attack_position
+
+    struct SpecialSummonArchetypeFromHandAnyTrigger;
+
+    fn match_ss_archetype_from_hand_desc(desc: &str) -> Option<String> {
+        let heads = ["Special Summon 1 \"", "special summon 1 \""];
+        let mut cursor = 0;
+        while cursor < desc.len() {
+            let hits: Vec<(usize, &str)> = heads.iter()
+                .filter_map(|h| desc[cursor..].find(h).map(|o| (o, *h)))
+                .collect();
+            let (off, head) = *hits.iter().min_by_key(|(o, _)| *o)?;
+            let start = cursor + off;
+            let after_head = start + head.len();
+            let rest = &desc[after_head..];
+            let Some(q_end) = rest.find('"') else { break };
+            let arch = &rest[..q_end];
+            let tail = &rest[q_end + 1..];
+            if tail.starts_with(" monster from your hand")
+                || tail.starts_with(" monster from your Hand")
+            {
+                return Some(arch.to_string());
+            }
+            cursor = after_head;
+        }
+        None
+    }
+
+    impl Cluster for SpecialSummonArchetypeFromHandAnyTrigger {
+        fn name(&self) -> &'static str { "special_summon_archetype_from_hand_any_trigger" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if match_ss_archetype_from_hand_desc(&cdb_row.desc).is_none() {
+                return false;
+            }
+            ANY_TRIGGER_SET.iter().any(|t| {
+                has_placeholder_line_for_trigger(
+                    src, t, "special_summon (all, card, either controls)",
+                )
+            })
+        }
+
+        fn rewrite(&self, src: &str, cdb_row: &CdbCard) -> Result<String, String> {
+            let arch = match_ss_archetype_from_hand_desc(&cdb_row.desc)
+                .ok_or_else(|| "desc no longer matches".to_string())?;
+            let new_line = format!(
+                "            special_summon (1, monster, where archetype == \"{arch}\") from hand in attack_position"
+            );
+            for trig in ANY_TRIGGER_SET {
+                if let Some(range) = find_placeholder_line_range(
+                    src, trig, "special_summon (all, card, either controls)",
+                ) {
+                    return Ok(splice_placeholder_line(src, range, &new_line));
+                }
+            }
+            Err("no supported trigger block with canonical placeholder".to_string())
+        }
+    }
+
+    // ── Cluster: destroy_one_opponent_monster_any_trigger (P3) ──
+    //
+    // Single-target destroy. Common removal pattern:
+    // "destroy 1 monster your opponent controls".
+    //
+    // Stub body matched: `destroy (all, card, either controls)`.
+    //
+    // Rewrite:
+    //   destroy (1, monster, opponent controls)
+
+    struct DestroyOneOpponentMonsterAnyTrigger;
+
+    fn match_destroy_one_opp_monster_desc(desc: &str) -> bool {
+        let lower = desc.to_lowercase();
+        lower.contains("destroy 1 monster your opponent controls")
+            || lower.contains("destroy 1 face-up monster your opponent controls")
+    }
+
+    impl Cluster for DestroyOneOpponentMonsterAnyTrigger {
+        fn name(&self) -> &'static str { "destroy_one_opponent_monster_any_trigger" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if !match_destroy_one_opp_monster_desc(&cdb_row.desc) {
+                return false;
+            }
+            ANY_TRIGGER_SET.iter().any(|t| {
+                has_placeholder_line_for_trigger(
+                    src, t, "destroy (all, card, either controls)",
+                )
+            })
+        }
+
+        fn rewrite(&self, src: &str, _cdb_row: &CdbCard) -> Result<String, String> {
+            let new_line = "            destroy (1, monster, opponent controls)";
+            for trig in ANY_TRIGGER_SET {
+                if let Some(range) = find_placeholder_line_range(
+                    src, trig, "destroy (all, card, either controls)",
+                ) {
+                    return Ok(splice_placeholder_line(src, range, new_line));
+                }
+            }
+            Err("no supported trigger block with canonical placeholder".to_string())
+        }
+    }
+
+    // ── Cluster: destroy_all_opponent_spells_traps_any_trigger (P3) ──
+    //
+    // Mass S/T removal:
+    // "Destroy all Spells/Traps your opponent controls".
+
+    struct DestroyAllOpponentSpellsTrapsAnyTrigger;
+
+    fn match_destroy_all_opp_st_desc(desc: &str) -> bool {
+        let lower = desc.to_lowercase();
+        lower.contains("destroy all spells and traps your opponent controls")
+            || lower.contains("destroy all spell and trap cards your opponent controls")
+            || lower.contains("destroy all spells/traps your opponent controls")
+    }
+
+    impl Cluster for DestroyAllOpponentSpellsTrapsAnyTrigger {
+        fn name(&self) -> &'static str { "destroy_all_opponent_spells_traps_any_trigger" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if !match_destroy_all_opp_st_desc(&cdb_row.desc) {
+                return false;
+            }
+            ANY_TRIGGER_SET.iter().any(|t| {
+                has_placeholder_line_for_trigger(
+                    src, t, "destroy (all, card, either controls)",
+                )
+            })
+        }
+
+        fn rewrite(&self, src: &str, _cdb_row: &CdbCard) -> Result<String, String> {
+            // Grammar lacks bare Spell/Trap card-type literal; use
+            // `not is_monster` (same workaround as SearchArchetypeSpellTrap).
+            // Argument order: (qty, kind, controller, where_clause) — controller
+            // before where_clause matches working syntax in corpus.
+            let new_line = "            destroy (all, card, opponent controls, where not is_monster)";
+            for trig in ANY_TRIGGER_SET {
+                if let Some(range) = find_placeholder_line_range(
+                    src, trig, "destroy (all, card, either controls)",
+                ) {
+                    return Ok(splice_placeholder_line(src, range, new_line));
                 }
             }
             Err("no supported trigger block with canonical placeholder".to_string())
