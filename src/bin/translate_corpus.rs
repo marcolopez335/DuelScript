@@ -453,6 +453,9 @@ CLUSTERS:
             Box::new(SpecialSummonOneMonsterFromGyAnyTrigger),
             Box::new(SpecialSummonOneMonsterFromHandAnyTrigger),
             Box::new(SendArchetypeFromDeckToGyAnyTrigger),
+            Box::new(DamageOpponentNumericAnyTrigger),
+            Box::new(DrawNumericAnyTrigger),
+            Box::new(GainLpNumericAnyTrigger),
         ];
         match filter {
             None        => all,
@@ -2632,6 +2635,191 @@ CLUSTERS:
             for trig in ANY_TRIGGER_SET {
                 if let Some(range) = find_placeholder_line_range(
                     src, trig, "send (all, card, either controls) to gy",
+                ) {
+                    return Ok(splice_placeholder_line(src, range, &new_line));
+                }
+            }
+            Err("no supported trigger block with canonical placeholder".to_string())
+        }
+    }
+
+    // ── Cluster: damage_opponent_numeric_any_trigger (P3) ──
+    //
+    // Numeric-extract pattern. Stub `damage opponent 1000` is a fixed
+    // placeholder; the real number comes from the desc:
+    // "Inflict <N> damage to your opponent".
+
+    struct DamageOpponentNumericAnyTrigger;
+
+    /// Find "Inflict <N> damage to your opponent" in desc, return N.
+    fn match_damage_opponent_desc(desc: &str) -> Option<u32> {
+        let heads = ["Inflict ", "inflict "];
+        let mut cursor = 0;
+        while cursor < desc.len() {
+            let hits: Vec<(usize, &str)> = heads.iter()
+                .filter_map(|h| desc[cursor..].find(h).map(|o| (o, *h)))
+                .collect();
+            let (off, head) = *hits.iter().min_by_key(|(o, _)| *o)?;
+            let start = cursor + off;
+            let after_head = start + head.len();
+            let rest = &desc[after_head..];
+            // Number followed by " damage to your opponent".
+            let num_end = rest.find(' ').unwrap_or(rest.len());
+            if let Ok(n) = rest[..num_end].parse::<u32>() {
+                let tail = &rest[num_end..];
+                if tail.starts_with(" damage to your opponent")
+                    || tail.starts_with(" points of damage to your opponent")
+                {
+                    return Some(n);
+                }
+            }
+            cursor = after_head;
+        }
+        None
+    }
+
+    impl Cluster for DamageOpponentNumericAnyTrigger {
+        fn name(&self) -> &'static str { "damage_opponent_numeric_any_trigger" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if match_damage_opponent_desc(&cdb_row.desc).is_none() {
+                return false;
+            }
+            ANY_TRIGGER_SET.iter().any(|t| {
+                has_placeholder_line_for_trigger(
+                    src, t, "damage opponent 1000",
+                )
+            })
+        }
+
+        fn rewrite(&self, src: &str, cdb_row: &CdbCard) -> Result<String, String> {
+            let n = match_damage_opponent_desc(&cdb_row.desc)
+                .ok_or_else(|| "desc no longer matches".to_string())?;
+            let new_line = format!("            damage opponent {n}");
+            for trig in ANY_TRIGGER_SET {
+                if let Some(range) = find_placeholder_line_range(
+                    src, trig, "damage opponent 1000",
+                ) {
+                    return Ok(splice_placeholder_line(src, range, &new_line));
+                }
+            }
+            Err("no supported trigger block with canonical placeholder".to_string())
+        }
+    }
+
+    // ── Cluster: draw_numeric_any_trigger (P3) ──
+    //
+    // Replaces `draw 1` placeholder when the desc says
+    // "draw <N> cards" with N != 1. (N=1 cases need no rewrite —
+    // the placeholder already says draw 1.)
+
+    struct DrawNumericAnyTrigger;
+
+    fn match_draw_numeric_desc(desc: &str) -> Option<u32> {
+        let heads = ["draw ", "Draw "];
+        let mut cursor = 0;
+        while cursor < desc.len() {
+            let hits: Vec<(usize, &str)> = heads.iter()
+                .filter_map(|h| desc[cursor..].find(h).map(|o| (o, *h)))
+                .collect();
+            let (off, head) = *hits.iter().min_by_key(|(o, _)| *o)?;
+            let start = cursor + off;
+            let after_head = start + head.len();
+            let rest = &desc[after_head..];
+            let num_end = rest.find(' ').unwrap_or(rest.len());
+            if let Ok(n) = rest[..num_end].parse::<u32>() {
+                if n >= 2 && n <= 5 {
+                    let tail = &rest[num_end..];
+                    if tail.starts_with(" cards") {
+                        return Some(n);
+                    }
+                }
+            }
+            cursor = after_head;
+        }
+        None
+    }
+
+    impl Cluster for DrawNumericAnyTrigger {
+        fn name(&self) -> &'static str { "draw_numeric_any_trigger" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if match_draw_numeric_desc(&cdb_row.desc).is_none() {
+                return false;
+            }
+            ANY_TRIGGER_SET.iter().any(|t| {
+                has_placeholder_line_for_trigger(
+                    src, t, "draw 1",
+                )
+            })
+        }
+
+        fn rewrite(&self, src: &str, cdb_row: &CdbCard) -> Result<String, String> {
+            let n = match_draw_numeric_desc(&cdb_row.desc)
+                .ok_or_else(|| "desc no longer matches".to_string())?;
+            let new_line = format!("            draw {n}");
+            for trig in ANY_TRIGGER_SET {
+                if let Some(range) = find_placeholder_line_range(
+                    src, trig, "draw 1",
+                ) {
+                    return Ok(splice_placeholder_line(src, range, &new_line));
+                }
+            }
+            Err("no supported trigger block with canonical placeholder".to_string())
+        }
+    }
+
+    // ── Cluster: gain_lp_numeric_any_trigger (P3) ──
+    //
+    // Replaces `gain_lp 1000` placeholder when desc says
+    // "gain <N> LP" with N != 1000.
+
+    struct GainLpNumericAnyTrigger;
+
+    fn match_gain_lp_desc(desc: &str) -> Option<u32> {
+        let heads = ["gain ", "Gain ", "regain ", "Regain "];
+        let mut cursor = 0;
+        while cursor < desc.len() {
+            let hits: Vec<(usize, &str)> = heads.iter()
+                .filter_map(|h| desc[cursor..].find(h).map(|o| (o, *h)))
+                .collect();
+            let (off, head) = *hits.iter().min_by_key(|(o, _)| *o)?;
+            let start = cursor + off;
+            let after_head = start + head.len();
+            let rest = &desc[after_head..];
+            let num_end = rest.find(' ').unwrap_or(rest.len());
+            if let Ok(n) = rest[..num_end].parse::<u32>() {
+                let tail = &rest[num_end..];
+                if tail.starts_with(" LP") || tail.starts_with(" Life Points") {
+                    return Some(n);
+                }
+            }
+            cursor = after_head;
+        }
+        None
+    }
+
+    impl Cluster for GainLpNumericAnyTrigger {
+        fn name(&self) -> &'static str { "gain_lp_numeric_any_trigger" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if match_gain_lp_desc(&cdb_row.desc).is_none() {
+                return false;
+            }
+            ANY_TRIGGER_SET.iter().any(|t| {
+                has_placeholder_line_for_trigger(
+                    src, t, "gain_lp 1000",
+                )
+            })
+        }
+
+        fn rewrite(&self, src: &str, cdb_row: &CdbCard) -> Result<String, String> {
+            let n = match_gain_lp_desc(&cdb_row.desc)
+                .ok_or_else(|| "desc no longer matches".to_string())?;
+            let new_line = format!("            gain_lp {n}");
+            for trig in ANY_TRIGGER_SET {
+                if let Some(range) = find_placeholder_line_range(
+                    src, trig, "gain_lp 1000",
                 ) {
                     return Ok(splice_placeholder_line(src, range, &new_line));
                 }
