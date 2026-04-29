@@ -556,6 +556,37 @@ fn compile_effect(effect: &Effect, card: &Card) -> Vec<CompiledEffectV2> {
         }).collect();
     }
 
+    // Bare `trigger: summoned` (no method qualifier) is the catch-all
+    // "any summon" trigger — fires on Normal Summon, Flip Summon, AND
+    // Special Summon. The single-code mapping (EVENT_SPSUMMON_SUCCESS)
+    // only catches Special Summons, missing Normal/Flip. Expand to all
+    // three success events so unqualified `summoned` matches the card-text
+    // semantics.
+    //
+    // Qualified forms (`summoned by special`, `summoned by flip`, etc.)
+    // carry a non-None method and fall through to the single-code path.
+    if matches!(&effect.trigger, Some(Trigger::Summoned(None))) {
+        let events = [
+            tm::EVENT_SUMMON_SUCCESS,
+            tm::EVENT_FLIP_SUMMON_SUCCESS,
+            tm::EVENT_SPSUMMON_SUCCESS,
+        ];
+        return events.iter().map(|&evt| CompiledEffectV2 {
+            label: effect.name.clone(),
+            effect_type,
+            category,
+            code: evt,
+            property,
+            range,
+            count_limit,
+            simultaneous,
+            condition: condition.clone(),
+            cost: cost.clone(),
+            target: target.clone(),
+            operation: operation.clone(),
+        }).collect();
+    }
+
     vec![CompiledEffectV2 {
         label: effect.name.clone(),
         effect_type,
