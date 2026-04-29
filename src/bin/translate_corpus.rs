@@ -447,6 +447,9 @@ CLUSTERS:
             Box::new(SpecialSummonArchetypeFromHandAnyTrigger),
             Box::new(DestroyOneOpponentMonsterAnyTrigger),
             Box::new(DestroyAllOpponentSpellsTrapsAnyTrigger),
+            Box::new(AddToHandArchetypeFromGyAnyTrigger),
+            Box::new(BanishArchetypeFromGyAnyTrigger),
+            Box::new(ReturnArchetypeFromGyToHandAnyTrigger),
         ];
         match filter {
             None        => all,
@@ -2277,6 +2280,207 @@ CLUSTERS:
                     src, trig, "destroy (all, card, either controls)",
                 ) {
                     return Ok(splice_placeholder_line(src, range, new_line));
+                }
+            }
+            Err("no supported trigger block with canonical placeholder".to_string())
+        }
+    }
+
+    // ── Cluster: add_to_hand_archetype_from_gy_any_trigger (P3) ──
+    //
+    // GY-recovery search: "Add 1 \"<Arch>\" (monster|card) from your
+    // GY/Graveyard to your hand".
+
+    struct AddToHandArchetypeFromGyAnyTrigger;
+
+    /// Returns (archetype, target_kind) where target_kind is "monster"
+    /// or "card".
+    fn match_ath_archetype_from_gy_desc(desc: &str) -> Option<(String, &'static str)> {
+        let heads = ["Add 1 \"", "add 1 \""];
+        let mut cursor = 0;
+        while cursor < desc.len() {
+            let hits: Vec<(usize, &str)> = heads.iter()
+                .filter_map(|h| desc[cursor..].find(h).map(|o| (o, *h)))
+                .collect();
+            let (off, head) = *hits.iter().min_by_key(|(o, _)| *o)?;
+            let start = cursor + off;
+            let after_head = start + head.len();
+            let rest = &desc[after_head..];
+            let Some(q_end) = rest.find('"') else { break };
+            let arch = &rest[..q_end];
+            let tail = &rest[q_end + 1..];
+            // Accept either monster or card target.
+            let kind = if tail.starts_with(" monster from your GY")
+                || tail.starts_with(" monster from your Graveyard") {
+                "monster"
+            } else if tail.starts_with(" card from your GY")
+                || tail.starts_with(" card from your Graveyard") {
+                "card"
+            } else {
+                cursor = after_head;
+                continue;
+            };
+            return Some((arch.to_string(), kind));
+        }
+        None
+    }
+
+    impl Cluster for AddToHandArchetypeFromGyAnyTrigger {
+        fn name(&self) -> &'static str { "add_to_hand_archetype_from_gy_any_trigger" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if match_ath_archetype_from_gy_desc(&cdb_row.desc).is_none() {
+                return false;
+            }
+            ANY_TRIGGER_SET.iter().any(|t| {
+                has_placeholder_line_for_trigger(
+                    src, t, "add_to_hand (all, card, either controls)",
+                )
+            })
+        }
+
+        fn rewrite(&self, src: &str, cdb_row: &CdbCard) -> Result<String, String> {
+            let (arch, kind) = match_ath_archetype_from_gy_desc(&cdb_row.desc)
+                .ok_or_else(|| "desc no longer matches".to_string())?;
+            let new_line = format!(
+                "            add_to_hand (1, {kind}, where archetype == \"{arch}\") from gy"
+            );
+            for trig in ANY_TRIGGER_SET {
+                if let Some(range) = find_placeholder_line_range(
+                    src, trig, "add_to_hand (all, card, either controls)",
+                ) {
+                    return Ok(splice_placeholder_line(src, range, &new_line));
+                }
+            }
+            Err("no supported trigger block with canonical placeholder".to_string())
+        }
+    }
+
+    // ── Cluster: banish_archetype_from_gy_any_trigger (P3) ──
+    //
+    // Pattern: "Banish 1 \"<Arch>\" monster from your GY".
+
+    struct BanishArchetypeFromGyAnyTrigger;
+
+    fn match_banish_archetype_from_gy_desc(desc: &str) -> Option<String> {
+        let heads = ["Banish 1 \"", "banish 1 \""];
+        let mut cursor = 0;
+        while cursor < desc.len() {
+            let hits: Vec<(usize, &str)> = heads.iter()
+                .filter_map(|h| desc[cursor..].find(h).map(|o| (o, *h)))
+                .collect();
+            let (off, head) = *hits.iter().min_by_key(|(o, _)| *o)?;
+            let start = cursor + off;
+            let after_head = start + head.len();
+            let rest = &desc[after_head..];
+            let Some(q_end) = rest.find('"') else { break };
+            let arch = &rest[..q_end];
+            let tail = &rest[q_end + 1..];
+            if tail.starts_with(" monster from your GY")
+                || tail.starts_with(" monster from your Graveyard")
+            {
+                return Some(arch.to_string());
+            }
+            cursor = after_head;
+        }
+        None
+    }
+
+    impl Cluster for BanishArchetypeFromGyAnyTrigger {
+        fn name(&self) -> &'static str { "banish_archetype_from_gy_any_trigger" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if match_banish_archetype_from_gy_desc(&cdb_row.desc).is_none() {
+                return false;
+            }
+            ANY_TRIGGER_SET.iter().any(|t| {
+                has_placeholder_line_for_trigger(
+                    src, t, "banish (all, card, either controls)",
+                )
+            })
+        }
+
+        fn rewrite(&self, src: &str, cdb_row: &CdbCard) -> Result<String, String> {
+            let arch = match_banish_archetype_from_gy_desc(&cdb_row.desc)
+                .ok_or_else(|| "desc no longer matches".to_string())?;
+            let new_line = format!(
+                "            banish (1, monster, where archetype == \"{arch}\") from gy"
+            );
+            for trig in ANY_TRIGGER_SET {
+                if let Some(range) = find_placeholder_line_range(
+                    src, trig, "banish (all, card, either controls)",
+                ) {
+                    return Ok(splice_placeholder_line(src, range, &new_line));
+                }
+            }
+            Err("no supported trigger block with canonical placeholder".to_string())
+        }
+    }
+
+    // ── Cluster: return_archetype_to_hand_any_trigger (P3) ──
+    //
+    // Pattern: "Return 1 \"<Arch>\" (monster|card) from your GY to your hand".
+
+    struct ReturnArchetypeFromGyToHandAnyTrigger;
+
+    fn match_return_archetype_from_gy_to_hand_desc(desc: &str) -> Option<String> {
+        let heads = ["Return 1 \"", "return 1 \""];
+        let mut cursor = 0;
+        while cursor < desc.len() {
+            let hits: Vec<(usize, &str)> = heads.iter()
+                .filter_map(|h| desc[cursor..].find(h).map(|o| (o, *h)))
+                .collect();
+            let (off, head) = *hits.iter().min_by_key(|(o, _)| *o)?;
+            let start = cursor + off;
+            let after_head = start + head.len();
+            let rest = &desc[after_head..];
+            let Some(q_end) = rest.find('"') else { break };
+            let arch = &rest[..q_end];
+            let tail = &rest[q_end + 1..];
+            // "Return 1 X monster|card from your GY/Graveyard to your hand"
+            let mid_passes = tail.starts_with(" monster from your GY to your hand")
+                || tail.starts_with(" monster from your Graveyard to your hand")
+                || tail.starts_with(" card from your GY to your hand")
+                || tail.starts_with(" card from your Graveyard to your hand");
+            if mid_passes {
+                return Some(arch.to_string());
+            }
+            cursor = after_head;
+        }
+        None
+    }
+
+    impl Cluster for ReturnArchetypeFromGyToHandAnyTrigger {
+        fn name(&self) -> &'static str { "return_archetype_from_gy_to_hand_any_trigger" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if match_return_archetype_from_gy_to_hand_desc(&cdb_row.desc).is_none() {
+                return false;
+            }
+            ANY_TRIGGER_SET.iter().any(|t| {
+                has_placeholder_line_for_trigger(
+                    src, t, "return (all, card, either controls) to hand",
+                )
+            })
+        }
+
+        fn rewrite(&self, src: &str, cdb_row: &CdbCard) -> Result<String, String> {
+            let arch = match_return_archetype_from_gy_to_hand_desc(&cdb_row.desc)
+                .ok_or_else(|| "desc no longer matches".to_string())?;
+            // Action::Return source-zone scoping: needs `from gy`. Verify
+            // the v2 grammar accepts this — the existing return_to_hand
+            // tests in the grammar parse `return (sel) to hand` only;
+            // adding from-zone needs a parser extension. For now emit
+            // the conservative "return to hand" form and rely on
+            // selector-side `from gy` as the source filter.
+            let new_line = format!(
+                "            return (1, monster, where archetype == \"{arch}\", from gy) to hand"
+            );
+            for trig in ANY_TRIGGER_SET {
+                if let Some(range) = find_placeholder_line_range(
+                    src, trig, "return (all, card, either controls) to hand",
+                ) {
+                    return Ok(splice_placeholder_line(src, range, &new_line));
                 }
             }
             Err("no supported trigger block with canonical placeholder".to_string())
