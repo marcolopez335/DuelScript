@@ -456,6 +456,9 @@ CLUSTERS:
             Box::new(DamageOpponentNumericAnyTrigger),
             Box::new(DrawNumericAnyTrigger),
             Box::new(GainLpNumericAnyTrigger),
+            Box::new(DamageSelfNumericAnyTrigger),
+            Box::new(MillNumericAnyTrigger),
+            Box::new(SpecialSummonArchetypeLevelBoundAnyTrigger),
         ];
         match filter {
             None        => all,
@@ -2820,6 +2823,213 @@ CLUSTERS:
             for trig in ANY_TRIGGER_SET {
                 if let Some(range) = find_placeholder_line_range(
                     src, trig, "gain_lp 1000",
+                ) {
+                    return Ok(splice_placeholder_line(src, range, &new_line));
+                }
+            }
+            Err("no supported trigger block with canonical placeholder".to_string())
+        }
+    }
+
+    // ── Cluster: damage_self_numeric_any_trigger (P3) ──
+    //
+    // Self-damage variant: "Inflict <N> damage to yourself" /
+    // "you take <N> damage". Maps to `damage you <N>`.
+
+    struct DamageSelfNumericAnyTrigger;
+
+    fn match_damage_self_desc(desc: &str) -> Option<u32> {
+        let phrases = [
+            ("Inflict ", " damage to yourself"),
+            ("inflict ", " damage to yourself"),
+            ("Take ", " damage"),
+            ("take ", " damage"),
+        ];
+        for (head, suffix) in &phrases {
+            let mut cursor = 0;
+            while cursor < desc.len() {
+                let Some(off) = desc[cursor..].find(head) else { break };
+                let start = cursor + off;
+                let after_head = start + head.len();
+                let rest = &desc[after_head..];
+                let num_end = rest.find(' ').unwrap_or(rest.len());
+                if let Ok(n) = rest[..num_end].parse::<u32>() {
+                    let tail = &rest[num_end..];
+                    if tail.starts_with(suffix) {
+                        // For "Take N damage" require explicit "you take"
+                        // prefix on the matched site to avoid false-matches
+                        // on "the opponent takes".
+                        if *head == "Take " || *head == "take " {
+                            let prefix_start = start.saturating_sub(8);
+                            let prefix = &desc[prefix_start..start];
+                            if !prefix.contains("you ") && !prefix.contains("You ") {
+                                cursor = after_head;
+                                continue;
+                            }
+                        }
+                        return Some(n);
+                    }
+                }
+                cursor = after_head;
+            }
+        }
+        None
+    }
+
+    impl Cluster for DamageSelfNumericAnyTrigger {
+        fn name(&self) -> &'static str { "damage_self_numeric_any_trigger" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if match_damage_self_desc(&cdb_row.desc).is_none() {
+                return false;
+            }
+            ANY_TRIGGER_SET.iter().any(|t| {
+                has_placeholder_line_for_trigger(
+                    src, t, "damage opponent 1000",
+                )
+            })
+        }
+
+        fn rewrite(&self, src: &str, cdb_row: &CdbCard) -> Result<String, String> {
+            let n = match_damage_self_desc(&cdb_row.desc)
+                .ok_or_else(|| "desc no longer matches".to_string())?;
+            let new_line = format!("            damage you {n}");
+            for trig in ANY_TRIGGER_SET {
+                if let Some(range) = find_placeholder_line_range(
+                    src, trig, "damage opponent 1000",
+                ) {
+                    return Ok(splice_placeholder_line(src, range, &new_line));
+                }
+            }
+            Err("no supported trigger block with canonical placeholder".to_string())
+        }
+    }
+
+    // ── Cluster: mill_numeric_any_trigger (P3) ──
+    //
+    // Pattern: "send the top <N> cards from (your|the) Deck to the GY".
+    // Stub line:  `send (all, card, either controls) to gy`.
+    // Rewrite:    `mill <N>`.
+
+    struct MillNumericAnyTrigger;
+
+    fn match_mill_numeric_desc(desc: &str) -> Option<u32> {
+        let lower = desc.to_lowercase();
+        for head in ["send the top ", "mill the top "] {
+            let mut cursor = 0;
+            while cursor < lower.len() {
+                let Some(off) = lower[cursor..].find(head) else { break };
+                let start = cursor + off;
+                let after_head = start + head.len();
+                let rest = &lower[after_head..];
+                let num_end = rest.find(' ').unwrap_or(rest.len());
+                if let Ok(n) = rest[..num_end].parse::<u32>() {
+                    let tail = &rest[num_end..];
+                    if tail.starts_with(" cards from your deck to the gy")
+                        || tail.starts_with(" cards from your deck to the graveyard")
+                        || tail.starts_with(" cards of your deck to the gy")
+                        || tail.starts_with(" cards of your deck to the graveyard")
+                    {
+                        return Some(n);
+                    }
+                }
+                cursor = after_head;
+            }
+        }
+        None
+    }
+
+    impl Cluster for MillNumericAnyTrigger {
+        fn name(&self) -> &'static str { "mill_numeric_any_trigger" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if match_mill_numeric_desc(&cdb_row.desc).is_none() {
+                return false;
+            }
+            ANY_TRIGGER_SET.iter().any(|t| {
+                has_placeholder_line_for_trigger(
+                    src, t, "send (all, card, either controls) to gy",
+                )
+            })
+        }
+
+        fn rewrite(&self, src: &str, cdb_row: &CdbCard) -> Result<String, String> {
+            let n = match_mill_numeric_desc(&cdb_row.desc)
+                .ok_or_else(|| "desc no longer matches".to_string())?;
+            let new_line = format!("            mill {n}");
+            for trig in ANY_TRIGGER_SET {
+                if let Some(range) = find_placeholder_line_range(
+                    src, trig, "send (all, card, either controls) to gy",
+                ) {
+                    return Ok(splice_placeholder_line(src, range, &new_line));
+                }
+            }
+            Err("no supported trigger block with canonical placeholder".to_string())
+        }
+    }
+
+    // ── Cluster: special_summon_archetype_level_bound_any_trigger (P3) ──
+    //
+    // Recruiter with level cap:
+    // "Special Summon 1 \"<Arch>\" monster with level <N> or lower
+    //  from your Deck".
+
+    struct SpecialSummonArchetypeLevelBoundAnyTrigger;
+
+    /// Returns (archetype, max_level).
+    fn match_ss_archetype_level_bound_desc(desc: &str) -> Option<(String, u32)> {
+        let heads = ["Special Summon 1 \"", "special summon 1 \""];
+        let mut cursor = 0;
+        while cursor < desc.len() {
+            let hits: Vec<(usize, &str)> = heads.iter()
+                .filter_map(|h| desc[cursor..].find(h).map(|o| (o, *h)))
+                .collect();
+            let (off, head) = *hits.iter().min_by_key(|(o, _)| *o)?;
+            let start = cursor + off;
+            let after_head = start + head.len();
+            let rest = &desc[after_head..];
+            let Some(q_end) = rest.find('"') else { break };
+            let arch = &rest[..q_end];
+            let tail = &rest[q_end + 1..];
+            // " monster with Level <N> or lower from your Deck"
+            let with_lvl = " monster with Level ";
+            if let Some(t) = tail.strip_prefix(with_lvl) {
+                let num_end = t.find(' ').unwrap_or(t.len());
+                if let Ok(n) = t[..num_end].parse::<u32>() {
+                    let after_n = &t[num_end..];
+                    if after_n.starts_with(" or lower from your Deck") {
+                        return Some((arch.to_string(), n));
+                    }
+                }
+            }
+            cursor = after_head;
+        }
+        None
+    }
+
+    impl Cluster for SpecialSummonArchetypeLevelBoundAnyTrigger {
+        fn name(&self) -> &'static str { "special_summon_archetype_level_bound_any_trigger" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if match_ss_archetype_level_bound_desc(&cdb_row.desc).is_none() {
+                return false;
+            }
+            ANY_TRIGGER_SET.iter().any(|t| {
+                has_placeholder_line_for_trigger(
+                    src, t, "special_summon (all, card, either controls)",
+                )
+            })
+        }
+
+        fn rewrite(&self, src: &str, cdb_row: &CdbCard) -> Result<String, String> {
+            let (arch, n) = match_ss_archetype_level_bound_desc(&cdb_row.desc)
+                .ok_or_else(|| "desc no longer matches".to_string())?;
+            let new_line = format!(
+                "            special_summon (1, monster, where archetype == \"{arch}\" and level <= {n}) from deck in attack_position"
+            );
+            for trig in ANY_TRIGGER_SET {
+                if let Some(range) = find_placeholder_line_range(
+                    src, trig, "special_summon (all, card, either controls)",
                 ) {
                     return Ok(splice_placeholder_line(src, range, &new_line));
                 }
