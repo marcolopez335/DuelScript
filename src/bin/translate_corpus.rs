@@ -450,6 +450,9 @@ CLUSTERS:
             Box::new(AddToHandArchetypeFromGyAnyTrigger),
             Box::new(BanishArchetypeFromGyAnyTrigger),
             Box::new(ReturnArchetypeFromGyToHandAnyTrigger),
+            Box::new(SpecialSummonOneMonsterFromGyAnyTrigger),
+            Box::new(SpecialSummonOneMonsterFromHandAnyTrigger),
+            Box::new(SendArchetypeFromDeckToGyAnyTrigger),
         ];
         match filter {
             None        => all,
@@ -2479,6 +2482,156 @@ CLUSTERS:
             for trig in ANY_TRIGGER_SET {
                 if let Some(range) = find_placeholder_line_range(
                     src, trig, "return (all, card, either controls) to hand",
+                ) {
+                    return Ok(splice_placeholder_line(src, range, &new_line));
+                }
+            }
+            Err("no supported trigger block with canonical placeholder".to_string())
+        }
+    }
+
+    // ── Cluster: special_summon_one_monster_from_gy_any_trigger (P3) ──
+    //
+    // Non-archetype GY revival: "Special Summon 1 monster from your GY"
+    // (no quoted archetype). Common on generic revival effects.
+
+    struct SpecialSummonOneMonsterFromGyAnyTrigger;
+
+    fn match_ss_one_monster_from_gy_desc(desc: &str) -> bool {
+        let lower = desc.to_lowercase();
+        // Avoid the archetype-quoted form already handled by
+        // SpecialSummonArchetypeFromGyAnyTrigger.
+        if lower.contains("special summon 1 \"") { return false; }
+        lower.contains("special summon 1 monster from your gy")
+            || lower.contains("special summon 1 monster from your graveyard")
+    }
+
+    impl Cluster for SpecialSummonOneMonsterFromGyAnyTrigger {
+        fn name(&self) -> &'static str { "special_summon_one_monster_from_gy_any_trigger" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if !match_ss_one_monster_from_gy_desc(&cdb_row.desc) {
+                return false;
+            }
+            ANY_TRIGGER_SET.iter().any(|t| {
+                has_placeholder_line_for_trigger(
+                    src, t, "special_summon (all, card, either controls)",
+                )
+            })
+        }
+
+        fn rewrite(&self, src: &str, _cdb_row: &CdbCard) -> Result<String, String> {
+            let new_line = "            special_summon (1, monster) from gy in attack_position";
+            for trig in ANY_TRIGGER_SET {
+                if let Some(range) = find_placeholder_line_range(
+                    src, trig, "special_summon (all, card, either controls)",
+                ) {
+                    return Ok(splice_placeholder_line(src, range, new_line));
+                }
+            }
+            Err("no supported trigger block with canonical placeholder".to_string())
+        }
+    }
+
+    // ── Cluster: special_summon_one_monster_from_hand_any_trigger (P3) ──
+    //
+    // Non-archetype hand revival: "Special Summon 1 monster from your hand".
+
+    struct SpecialSummonOneMonsterFromHandAnyTrigger;
+
+    fn match_ss_one_monster_from_hand_desc(desc: &str) -> bool {
+        let lower = desc.to_lowercase();
+        if lower.contains("special summon 1 \"") { return false; }
+        lower.contains("special summon 1 monster from your hand")
+    }
+
+    impl Cluster for SpecialSummonOneMonsterFromHandAnyTrigger {
+        fn name(&self) -> &'static str { "special_summon_one_monster_from_hand_any_trigger" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if !match_ss_one_monster_from_hand_desc(&cdb_row.desc) {
+                return false;
+            }
+            ANY_TRIGGER_SET.iter().any(|t| {
+                has_placeholder_line_for_trigger(
+                    src, t, "special_summon (all, card, either controls)",
+                )
+            })
+        }
+
+        fn rewrite(&self, src: &str, _cdb_row: &CdbCard) -> Result<String, String> {
+            let new_line = "            special_summon (1, monster) from hand in attack_position";
+            for trig in ANY_TRIGGER_SET {
+                if let Some(range) = find_placeholder_line_range(
+                    src, trig, "special_summon (all, card, either controls)",
+                ) {
+                    return Ok(splice_placeholder_line(src, range, new_line));
+                }
+            }
+            Err("no supported trigger block with canonical placeholder".to_string())
+        }
+    }
+
+    // ── Cluster: send_archetype_from_deck_to_gy_any_trigger (P3) ──
+    //
+    // Mill-archetype pattern: "Send 1 \"<Arch>\" monster from your Deck
+    // to the GY/Graveyard".
+
+    struct SendArchetypeFromDeckToGyAnyTrigger;
+
+    fn match_send_archetype_from_deck_to_gy_desc(desc: &str) -> Option<String> {
+        let heads = ["Send 1 \"", "send 1 \""];
+        let mut cursor = 0;
+        while cursor < desc.len() {
+            let hits: Vec<(usize, &str)> = heads.iter()
+                .filter_map(|h| desc[cursor..].find(h).map(|o| (o, *h)))
+                .collect();
+            let (off, head) = *hits.iter().min_by_key(|(o, _)| *o)?;
+            let start = cursor + off;
+            let after_head = start + head.len();
+            let rest = &desc[after_head..];
+            let Some(q_end) = rest.find('"') else { break };
+            let arch = &rest[..q_end];
+            let tail = &rest[q_end + 1..];
+            // " monster from your Deck to the GY/Graveyard"
+            let mid_passes = tail.starts_with(" monster from your Deck to the GY")
+                || tail.starts_with(" monster from your Deck to the Graveyard");
+            if mid_passes {
+                return Some(arch.to_string());
+            }
+            cursor = after_head;
+        }
+        None
+    }
+
+    impl Cluster for SendArchetypeFromDeckToGyAnyTrigger {
+        fn name(&self) -> &'static str { "send_archetype_from_deck_to_gy_any_trigger" }
+
+        fn matches(&self, src: &str, cdb_row: &CdbCard) -> bool {
+            if match_send_archetype_from_deck_to_gy_desc(&cdb_row.desc).is_none() {
+                return false;
+            }
+            ANY_TRIGGER_SET.iter().any(|t| {
+                has_placeholder_line_for_trigger(
+                    src, t, "send (all, card, either controls) to gy",
+                )
+            })
+        }
+
+        fn rewrite(&self, src: &str, cdb_row: &CdbCard) -> Result<String, String> {
+            let arch = match_send_archetype_from_deck_to_gy_desc(&cdb_row.desc)
+                .ok_or_else(|| "desc no longer matches".to_string())?;
+            // Source-zone scoping: selector carries `from deck` to inform the
+            // engine's source. Action's destination is `to gy`. Argument
+            // order in selectors: qty, kind, controller?, from_zone?, where_clause?
+            // (controller before from_zone, from_zone before where_clause —
+            // matches working corpus syntax: `(1, monster, you control, from deck, where atk <= 1500)`).
+            let new_line = format!(
+                "            send (1, monster, from deck, where archetype == \"{arch}\") to gy"
+            );
+            for trig in ANY_TRIGGER_SET {
+                if let Some(range) = find_placeholder_line_range(
+                    src, trig, "send (all, card, either controls) to gy",
                 ) {
                     return Ok(splice_placeholder_line(src, range, &new_line));
                 }
