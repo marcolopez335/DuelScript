@@ -1799,13 +1799,14 @@ fn eval_v2_condition_atom(atom: &ConditionAtom, rt: &dyn DuelScriptRuntime) -> b
             }
         }
         ConditionAtom::PreviousControllerIs(op, who) => {
-            let prev = rt.previous_controller(rt.effect_card_id());
+            let card_id = rt.effect_card_id();
+            let prev = rt.previous_controller(card_id);
             let us = rt.effect_player();
             let target = match who {
                 PrevControllerRef::You        => us,
                 PrevControllerRef::Controller => us,
                 PrevControllerRef::Opponent   => 1 - us,
-                PrevControllerRef::Owner      => us, // mock-equivalent; engines distinguish
+                PrevControllerRef::Owner      => rt.get_card_owner(card_id),
             };
             match op {
                 EqOp::Eq  => prev == target,
@@ -5291,6 +5292,50 @@ card "T28 Test" {{
             .build();
         assert!(!cond_you(&rt));
         assert!(cond_opp(&rt));
+    }
+
+    #[test]
+    fn previous_controller_owner_routes_through_get_card_owner() {
+        // `previous_controller == owner` must compare prev-controller to
+        // the card's owner (set independently of effect_player), not to
+        // effect_player. Pre-fix this routed through `effect_player`,
+        // making the predicate equivalent to `== you` and silently wrong
+        // for cards under opponent control whose owner is still us.
+        let cond = compile_prev_condition("previous_controller == owner");
+
+        // Scenario: I (player 0) own card 99998201. Opponent took control
+        // (Change of Heart-style), then card returns. prev_controller = 1
+        // (was opponent). Owner = 0 (me). Effect_player = 0.
+        // Pre-fix: target = effect_player = 0, prev=1 → cond returns false (WRONG).
+        // Post-fix: target = owner = 0, prev=1 → cond returns false (correct, control did NOT return to owner).
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .activated_by(0, 99998201)
+            .card_owner(99998201, 0)
+            .previous_controller(99998201, 1)
+            .build();
+        assert!(!cond(&rt),
+            "prev=opp, owner=us → control was with opponent, did NOT match owner");
+
+        // Distinguishing case: card owned by player 1, controlled by us
+        // (we stole it). prev_controller = 0 (us). owner = 1.
+        // Pre-fix: target = effect_player = 0, prev=0 → cond returns true (WRONG).
+        // Post-fix: target = owner = 1, prev=0 → cond returns false (correct, prev controller was thief, not owner).
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .activated_by(0, 99998201)
+            .card_owner(99998201, 1)
+            .previous_controller(99998201, 0)
+            .build();
+        assert!(!cond(&rt),
+            "prev=thief(us), owner=opp → control was with thief, did NOT match owner");
+
+        // Positive case: card returned to its owner. prev = owner.
+        let rt = crate::v2::mock_runtime::DuelScenario::new()
+            .activated_by(0, 99998201)
+            .card_owner(99998201, 1)
+            .previous_controller(99998201, 1)
+            .build();
+        assert!(cond(&rt),
+            "prev=opp, owner=opp → control was with owner, matches");
     }
 
     #[test]
