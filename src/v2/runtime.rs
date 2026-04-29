@@ -355,6 +355,21 @@ pub trait DuelScriptRuntime {
     /// etc.). Returns `0` when no history is tracked. Default `0`.
     fn previous_position(&self, _card_id: u32) -> u32 { 0 }
 
+    /// Owner (not controller) of `card_id`. Maps to Lua's `GetOwner`.
+    /// Distinct from `previous_controller`: a card's owner never changes
+    /// during a duel (set at deck-build time), but its controller can be
+    /// swapped by Change of Heart, Snatch Steal, Creature Swap, etc.
+    ///
+    /// Used by the DSL `previous_controller == owner` condition — i.e.
+    /// "the controller before the event matched the card's owner". This
+    /// is the canonical shape for detecting "control was returned to me"
+    /// vs "I just took control."
+    ///
+    /// # Returns
+    /// `0` or `1`. Default `0` for engines that don't track ownership
+    /// distinctly from controller.
+    fn get_card_owner(&self, _card_id: u32) -> u8 { 0 }
+
     /// Role bitmask describing *how* this card was consumed as material
     /// during an `EVENT_BE_MATERIAL` firing. Used by the DSL
     /// `used_as_material as <role>` trigger refinement (T30 / AA-II).

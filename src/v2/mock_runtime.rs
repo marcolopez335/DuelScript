@@ -219,6 +219,9 @@ pub struct MockRuntime {
     /// Card ID of the monster summoned using this card as material.
     /// Set via `DuelScenario::material_summoner_id(...)` (T30 / AA-II).
     pub material_summoner_id: u32,
+    /// Per-card owner table — distinct from controller. Set via
+    /// `DuelScenario::card_owner(...)`. Defaults to 0 when unset.
+    pub card_owners: std::collections::HashMap<u32, u8>,
 }
 
 impl MockRuntime {
@@ -236,6 +239,7 @@ impl MockRuntime {
             prev_positions: std::collections::HashMap::new(),
             material_role: 0,
             material_summoner_id: 0,
+            card_owners: std::collections::HashMap::new(),
         }
     }
 
@@ -372,6 +376,9 @@ impl DuelScriptRuntime for MockRuntime {
     }
     fn material_role(&self) -> u32 { self.material_role }
     fn material_summoner_id(&self) -> u32 { self.material_summoner_id }
+    fn get_card_owner(&self, card_id: u32) -> u8 {
+        self.card_owners.get(&card_id).copied().unwrap_or(0)
+    }
 
     // ── Card movement ────────────────────────────────────────
     fn draw(&mut self, player: u8, count: u32) -> u32 {
@@ -918,6 +925,15 @@ impl DuelScenario {
     /// material (T30 / AA-II).
     pub fn material_summoner_id(mut self, card_id: u32) -> Self {
         self.rt.material_summoner_id = card_id;
+        self
+    }
+
+    /// Set the per-card owner. Distinct from controller — a card's owner
+    /// never changes during a duel, but its controller can be swapped by
+    /// Change of Heart, Snatch Steal, etc. Used by the
+    /// `previous_controller == owner` predicate.
+    pub fn card_owner(mut self, card_id: u32, player: u8) -> Self {
+        self.rt.card_owners.insert(card_id, player);
         self
     }
 
