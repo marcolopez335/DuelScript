@@ -1122,8 +1122,8 @@ fn card_type_to_bits(ctype: &CardType) -> u64 {
     //   TYPE_XYZ          = 0x800000
     //   TYPE_LINK         = 0x4000000
     //   TYPE_PENDULUM     = 0x1000000
-    //   TYPE_FLIP         = 0x200
-    //   TYPE_TOKEN        = 0x2000000
+    //   TYPE_FLIP         = 0x200000
+    //   TYPE_TOKEN        = 0x4000
     // TYPE_* constants per grammar/edopro_constants.lua
     const T_MONSTER:    u64 = 0x1;
     const T_SPELL:      u64 = 0x2;
