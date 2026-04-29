@@ -763,6 +763,14 @@ fn trigger_to_event_code(trigger: &Option<Trigger>) -> u32 {
     match trigger {
         None => tm::EVENT_FREE_CHAIN,
         Some(t) => match t {
+            // `summoned by flip` / `special_summoned by flip` map to the
+            // dedicated flip-summon success event. Bare `summoned` (None)
+            // is handled by the multi-emit expansion in compile_effect
+            // before this lookup runs; if it reaches here, fall back to
+            // SPSUMMON_SUCCESS as a defensive default.
+            Trigger::Summoned(Some(SummonMethod::Flip))
+                | Trigger::SpecialSummoned(Some(SummonMethod::Flip))
+                => tm::EVENT_FLIP_SUMMON_SUCCESS,
             Trigger::Summoned(_) | Trigger::SpecialSummoned(_) => tm::EVENT_SPSUMMON_SUCCESS,
             Trigger::NormalSummoned | Trigger::TributeSummoned => tm::EVENT_SUMMON_SUCCESS,
             Trigger::FlipSummoned => tm::EVENT_FLIP_SUMMON_SUCCESS,
