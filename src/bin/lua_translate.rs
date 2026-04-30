@@ -56,8 +56,8 @@ fn main() {
             for (i, eff) in walk.effects.iter().enumerate() {
                 println!("// effect[{}] binding={}", i, eff.binding);
                 if let Some(handler) = &eff.operation_handler {
-                    if let Some(calls) = walk.functions.get(handler.trim()) {
-                        let lines = lua_ast::translate_calls(calls);
+                    if let Some(body) = walk.functions.get(handler.trim()) {
+                        let lines = lua_ast::translate_body(body);
                         println!("resolve {{");
                         for l in lines {
                             println!("{}", l.into_string("    "));
@@ -154,11 +154,11 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
                 Some(h) => h.trim().to_string(),
                 None => { r.effects_no_handler += 1; continue; }
             };
-            let calls = match walk.functions.get(&handler) {
+            let body = match walk.functions.get(&handler) {
                 Some(c) => c,
                 None => { r.effects_no_handler += 1; continue; }
             };
-            let lines = lua_ast::translate_calls(calls);
+            let lines = lua_ast::translate_body(body);
             // Skip if no real ACTION line — only TODOs are not safe to inject
             if !lines.iter().any(|l| l.is_action()) {
                 r.effects_todo_only += 1;
