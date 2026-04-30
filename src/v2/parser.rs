@@ -200,11 +200,21 @@ fn parse_summon_block(pair: Pair<Rule>) -> Result<SummonBlock, V2ParseError> {
             sb.synchro_materials = Some(parse_synchro_materials(item_inner)?);
         } else if text.starts_with("xyz") {
             if let Some(p) = item_inner.next() {
-                sb.xyz_materials = Some(parse_selector(p)?);
+                let sel = match p.as_rule() {
+                    Rule::selector => p,
+                    _ => p.into_inner().next()
+                        .ok_or(V2ParseError::MissingField("xyz materials selector"))?,
+                };
+                sb.xyz_materials = Some(parse_selector(sel)?);
             }
         } else if text.starts_with("link materials") {
             if let Some(p) = item_inner.next() {
-                sb.link_materials = Some(parse_selector(p)?);
+                let sel = match p.as_rule() {
+                    Rule::selector => p,
+                    _ => p.into_inner().next()
+                        .ok_or(V2ParseError::MissingField("link materials selector"))?,
+                };
+                sb.link_materials = Some(parse_selector(sel)?);
             }
         } else if text.starts_with("ritual") {
             sb.ritual_materials = Some(parse_ritual_materials(item_inner)?);
@@ -283,16 +293,27 @@ fn parse_material_list(pairs: pest::iterators::Pairs<Rule>) -> Result<MaterialLi
 fn parse_synchro_materials(pairs: pest::iterators::Pairs<Rule>) -> Result<SynchroMaterials, V2ParseError> {
     let mut tuner = None;
     let mut non_tuner = None;
-    for p in pairs {
+    // `pairs` are the children of summon_item — typically a single
+    // `synchro_materials` Pair wrapping the inner synchro_material_items.
+    // Descend through that wrapper if present, otherwise treat `pairs`
+    // themselves as the items.
+    let items: Vec<pest::iterators::Pair<Rule>> = pairs.flat_map(|p| {
+        if p.as_rule() == Rule::synchro_materials {
+            p.into_inner().collect::<Vec<_>>()
+        } else {
+            vec![p]
+        }
+    }).collect();
+    for p in items {
         let text = normalize_ws(p.as_str());
         let mut inner = p.into_inner();
-        if text.starts_with("tuner") && !text.starts_with("non_tuner") {
-            if let Some(sel) = inner.next() {
-                tuner = Some(parse_selector(sel)?);
-            }
-        } else if text.starts_with("non_tuner") {
+        if text.starts_with("non_tuner") {
             if let Some(sel) = inner.next() {
                 non_tuner = Some(parse_selector(sel)?);
+            }
+        } else if text.starts_with("tuner") {
+            if let Some(sel) = inner.next() {
+                tuner = Some(parse_selector(sel)?);
             }
         }
     }
@@ -2790,5 +2811,106 @@ mod tests {
         assert_eq!(card.effects.len(), 1);
         assert_eq!(card.passives.len(), 1);
         assert_eq!(card.effects[0].cost.len(), 1);
+    }
+
+    #[test]
+    fn xyz_materials_counted_selector_parses() {
+        let src = r#"
+card "Test Xyz" {
+    id: 99999301
+    type: Xyz Monster
+    attribute: FIRE
+    race: Dinosaur
+    rank: 4
+    atk: 2200
+    def: 2000
+
+    summon {
+        cannot_normal_summon
+        xyz materials: (2, monster, where level == 4)
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        resolve {
+            damage opponent 100
+        }
+    }
+}
+"#;
+        let file = parse_v2(src).expect("parse");
+        let card = &file.cards[0];
+        let s = card.summon.as_ref().expect("summon block");
+        assert!(s.xyz_materials.is_some(), "xyz_materials must populate");
+    }
+
+    #[test]
+    fn synchro_materials_block_parses() {
+        let src = r#"
+card "Test Synchro" {
+    id: 99999303
+    type: Synchro Monster
+    attribute: EARTH
+    race: Warrior
+    level: 5
+    atk: 1000
+    def: 1500
+
+    summon {
+        cannot_normal_summon
+        synchro materials {
+            tuner: (1, tuner monster)
+            non_tuner: (1+, non-tuner monster)
+        }
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        resolve {
+            damage opponent 100
+        }
+    }
+}
+"#;
+        let file = parse_v2(src).expect("parse");
+        let card = &file.cards[0];
+        let s = card.summon.as_ref().expect("summon block");
+        let sm = s.synchro_materials.as_ref().expect("synchro_materials populated");
+        assert!(matches!(sm.tuner, Selector::Counted { .. }));
+        assert!(matches!(sm.non_tuner, Selector::Counted { .. }));
+    }
+
+    #[test]
+    fn link_materials_counted_selector_parses() {
+        let src = r#"
+card "Test Link" {
+    id: 99999302
+    type: Link Monster
+    attribute: DARK
+    race: Cyberse
+    link: 2
+    atk: 1500
+    link_arrows: [bottom_left, bottom_right]
+
+    summon {
+        cannot_normal_summon
+        link materials: (2+, monster)
+    }
+
+    effect "Effect 1" {
+        speed: 1
+        mandatory
+        resolve {
+            damage opponent 100
+        }
+    }
+}
+"#;
+        let file = parse_v2(src).expect("parse");
+        let card = &file.cards[0];
+        let s = card.summon.as_ref().expect("summon block");
+        assert!(s.link_materials.is_some(), "link_materials must populate");
     }
 }
