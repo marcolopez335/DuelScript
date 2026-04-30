@@ -56,6 +56,12 @@ pub struct RegisterEffectChain {
     pub effect_type: Option<String>,
     pub register_target: String,
     pub multi_target: bool,
+    /// When the chain's `RegisterEffect` fired inside a `for tc in
+    /// aux.Next(g) do … end` loop, this carries the name of the source
+    /// group binding (`g`). The translator looks it up in
+    /// `FunctionBody::group_bindings` to render a real selector instead
+    /// of the bare `target` placeholder.
+    pub loop_source_group: Option<String>,
 }
 
 /// A statically-extracted selector intent — built from a single
@@ -515,19 +521,20 @@ fn zone_from_locations(my: &str, opp: &str) -> Option<String> {
 /// <recv>:RegisterEffect(eN)` chain. Bindings span the whole function
 /// scope (Lua does not re-scope `local` per inner block when the same
 /// name is reused), so a single `BTreeMap` is threaded through nested
-/// blocks. The `in_for_loop` flag flows down through `NumericFor` /
-/// `GenericFor` so each emitted chain knows if its `RegisterEffect`
-/// fired inside a per-target loop body.
+/// blocks. The `loop_source` parameter carries the source-group binding
+/// name when we're inside a `for tc in aux.Next(g)` loop — emitted
+/// chains then carry it as `loop_source_group` so the translator can
+/// look up the captured `SelectorSpec`.
 fn extract_register_chains(block: &Block) -> Vec<RegisterEffectChain> {
     let mut chains = Vec::new();
     let mut by_binding: BTreeMap<String, RegisterEffectChain> = BTreeMap::new();
-    collect_register_chains(block, false, &mut by_binding, &mut chains);
+    collect_register_chains(block, None, &mut by_binding, &mut chains);
     chains
 }
 
 fn collect_register_chains(
     block: &Block,
-    in_for_loop: bool,
+    loop_source: Option<&str>,
     by_binding: &mut BTreeMap<String, RegisterEffectChain>,
     out: &mut Vec<RegisterEffectChain>,
 ) {
@@ -542,8 +549,6 @@ fn collect_register_chains(
                         if expr_is_effect_createeffect(expr) {
                             by_binding.insert(name.clone(), RegisterEffectChain::default());
                         } else if let Some(src) = expr_clone_source(expr) {
-                            // `local e2 = e1:Clone()` — fork the existing
-                            // chain so subsequent overrides apply to e2 only.
                             if let Some(existing) = by_binding.get(&src).cloned() {
                                 by_binding.insert(name.clone(), existing);
                             }
@@ -566,34 +571,67 @@ fn collect_register_chains(
                 if let Some((receiver, args)) = try_register_effect_call(fc) {
                     if let Some(eff_name) = args.first() {
                         if let Some(chain) = by_binding.get(eff_name) {
-                            // Snapshot the current chain state — keep the
-                            // entry in the map so a subsequent `:Clone()`
-                            // can still read its values.
                             let mut emitted = chain.clone();
                             emitted.register_target = receiver;
-                            emitted.multi_target = in_for_loop;
+                            emitted.multi_target = loop_source.is_some();
+                            emitted.loop_source_group = loop_source.map(str::to_string);
                             out.push(emitted);
                         }
                     }
                 }
             }
             Stmt::If(if_stmt) => {
-                collect_register_chains(if_stmt.block(), in_for_loop, by_binding, out);
+                collect_register_chains(if_stmt.block(), loop_source, by_binding, out);
                 for ei in if_stmt.else_if().into_iter().flatten() {
-                    collect_register_chains(ei.block(), in_for_loop, by_binding, out);
+                    collect_register_chains(ei.block(), loop_source, by_binding, out);
                 }
                 if let Some(else_block) = if_stmt.else_block() {
-                    collect_register_chains(else_block, in_for_loop, by_binding, out);
+                    collect_register_chains(else_block, loop_source, by_binding, out);
                 }
             }
-            Stmt::While(w)       => collect_register_chains(w.block(), in_for_loop, by_binding, out),
-            Stmt::Repeat(r)      => collect_register_chains(r.block(), in_for_loop, by_binding, out),
-            Stmt::NumericFor(nf) => collect_register_chains(nf.block(), true, by_binding, out),
-            Stmt::GenericFor(gf) => collect_register_chains(gf.block(), true, by_binding, out),
-            Stmt::Do(d)          => collect_register_chains(d.block(), in_for_loop, by_binding, out),
+            Stmt::While(w)       => collect_register_chains(w.block(), loop_source, by_binding, out),
+            Stmt::Repeat(r)      => collect_register_chains(r.block(), loop_source, by_binding, out),
+            Stmt::NumericFor(nf) => collect_register_chains(nf.block(), Some(""), by_binding, out),
+            Stmt::GenericFor(gf) => {
+                let inner = aux_next_source_group(gf).map(|s| s.to_string());
+                let inner_ref = inner.as_deref().or(Some(""));
+                collect_register_chains(gf.block(), inner_ref, by_binding, out);
+            }
+            Stmt::Do(d)          => collect_register_chains(d.block(), loop_source, by_binding, out),
             _ => {}
         }
     }
+}
+
+/// Inspect a `for <names> in <exprs>` loop. If the iterator expression
+/// is `aux.Next(<group>)`, return the group binding name. Other shapes
+/// (`pairs`, `ipairs`, custom iterators) return None — caller still
+/// flags the loop as multi-target, but without a translatable source.
+fn aux_next_source_group(gf: &ast::GenericFor) -> Option<String> {
+    let expr = gf.expressions().iter().next()?;
+    let fc = match expr {
+        Expression::FunctionCall(fc) => fc,
+        _ => return None,
+    };
+    // Prefix must be `aux`
+    let prefix = match fc.prefix() {
+        ast::Prefix::Name(n) => n.token().to_string(),
+        _ => return None,
+    };
+    if prefix != "aux" { return None; }
+    // First suffix Index::Dot(Next), second suffix Call(group_name)
+    let suffixes: Vec<&Suffix> = fc.suffixes().collect();
+    if suffixes.len() < 2 { return None; }
+    let is_next = matches!(suffixes[0],
+        Suffix::Index(Index::Dot { name, .. })
+            if name.token().to_string() == "Next"
+    );
+    if !is_next { return None; }
+    let args = match suffixes[1] {
+        Suffix::Call(Call::AnonymousCall(a)) => call_args_to_strings(a),
+        _ => return None,
+    };
+    args.first().cloned()
 }
 
 /// True if `expr` is `<binding>:Clone()`. Returns `Some(binding)` so the
@@ -784,7 +822,7 @@ pub fn translate_body(body: &FunctionBody) -> Vec<DslLine> {
         }
     }
     for chain in &body.register_chains {
-        if let Some(line) = translate_register_chain(chain) {
+        if let Some(line) = translate_register_chain(chain, &body.group_bindings) {
             out.push(line);
         }
     }
@@ -793,9 +831,21 @@ pub fn translate_body(body: &FunctionBody) -> Vec<DslLine> {
 
 /// Map one `RegisterEffectChain` to a DSL action line. Returns None when
 /// the chain isn't one of the shapes Phase 4 covers (non-stat code,
-/// non-literal value, multi-target loop, unknown receiver).
-fn translate_register_chain(chain: &RegisterEffectChain) -> Option<DslLine> {
-    if chain.multi_target { return None; }
+/// non-literal value, unknown receiver, multi-target without a known
+/// source group).
+///
+/// Single-target shapes (`multi_target=false`):
+///   - `tc` / `tc:GetFirst()` / `g:GetFirst()` → `target`
+///   - `c` / `e:GetHandler()` → `self`
+///
+/// Multi-target shapes (`multi_target=true`):
+///   - `loop_source_group` names a binding whose `SelectorSpec` is in
+///     `bindings` → emit using the spec's DSL form.
+///   - Otherwise → None (Phase 4 fallback).
+fn translate_register_chain(
+    chain: &RegisterEffectChain,
+    bindings: &BTreeMap<String, SelectorSpec>,
+) -> Option<DslLine> {
     let code = chain.code.as_deref()?;
     let action = match code {
         "EFFECT_UPDATE_ATTACK"  => "modify_atk",
@@ -803,10 +853,16 @@ fn translate_register_chain(chain: &RegisterEffectChain) -> Option<DslLine> {
         _ => return None,
     };
     let value: i64 = chain.value.as_deref()?.parse().ok()?;
-    let selector = match chain.register_target.as_str() {
-        "tc" | "tc:GetFirst()" | "g:GetFirst()" => "target",
-        "c" | "e:GetHandler()" => "self",
-        _ => return None,
+    let selector = if chain.multi_target {
+        let group = chain.loop_source_group.as_deref()?;
+        let spec = bindings.get(group)?;
+        spec.to_dsl()
+    } else {
+        match chain.register_target.as_str() {
+            "tc" | "tc:GetFirst()" | "g:GetFirst()" => "target".to_string(),
+            "c" | "e:GetHandler()" => "self".to_string(),
+            _ => return None,
+        }
     };
     let (op, n) = if value < 0 { ("-", (-value) as u64) } else { ("+", value as u64) };
     let mut line = format!("{} {} {} {}", action, selector, op, n);
@@ -816,14 +872,16 @@ fn translate_register_chain(chain: &RegisterEffectChain) -> Option<DslLine> {
     Some(DslLine::Action(line))
 }
 
-/// Phase 4 maps any `SetReset` whose argument mentions `PHASE_END` (the
-/// edopro idiom for end-of-turn cleanup) to DSL `until end_of_turn`.
-/// Other reset shapes (BATTLE_PHASE_END, CHAIN, etc.) are deferred and
-/// emit no `until` clause — the engine treats that as until-the-card-leaves
-/// which is incorrect for some cases but keeps the corpus parseable.
+/// Phase 4 maps a `SetReset` argument to DSL `until end_of_turn` when it
+/// uses any of the standard end-of-turn idioms:
+///   - explicit `PHASE_END` token
+///   - `RESETS_STANDARD` bundle (expands to RESET_PHASE+PHASE_END+...)
+///
+/// Other reset shapes (battle-step only, chain-only, etc.) are deferred —
+/// no `until` clause emitted, leaving the engine's default behavior.
 fn reset_is_end_of_turn(reset: Option<&str>) -> bool {
     match reset {
-        Some(s) => s.contains("PHASE_END"),
+        Some(s) => s.contains("PHASE_END") || s.contains("RESETS_STANDARD"),
         None => false,
     }
 }
@@ -1185,15 +1243,52 @@ end
     }
 
     #[test]
-    fn register_chain_in_for_loop_marked_multi_target() {
-        // Daigusto Falcos: register inside `for tc in aux.Next(g)` →
-        // multi_target=true → translator skips emission.
+    fn register_chain_for_loop_uses_group_selector_spec() {
+        // Daigusto Falcos: `for tc in aux.Next(g)` where g is a known
+        // GetMatchingGroup binding → translator emits modify_atk using
+        // the captured SelectorSpec.
         let src = r#"
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
     local g=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
     for tc in aux.Next(g) do
         local e1=Effect.CreateEffect(e:GetHandler())
         e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_UPDATE_ATTACK)
+        e1:SetValue(600)
+        e1:SetReset(RESETS_STANDARD_PHASE_END)
+        tc:RegisterEffect(e1)
+    end
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.operation").expect("operation body");
+        assert_eq!(body.register_chains.len(), 1);
+        let chain = &body.register_chains[0];
+        assert!(chain.multi_target);
+        assert_eq!(chain.loop_source_group.as_deref(), Some("g"));
+        let lines = translate_body(body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) if s.starts_with("modify_atk") => Some(s.as_str()),
+            _ => None,
+        });
+        // Quantity is "all" since GetMatchingGroup is the unfiltered group.
+        // Both my_locs and opp_locs are LOCATION_MZONE (non-zero) → either controls.
+        assert_eq!(
+            action,
+            Some("modify_atk (all, card, either controls, from monster_zone) + 600 until end_of_turn"),
+            "got lines: {:?}", lines
+        );
+    }
+
+    #[test]
+    fn register_chain_for_loop_without_known_group_skipped() {
+        // for-loop iterating an unknown variable (no GetMatchingGroup binding) →
+        // multi_target=true but no source spec → translator skips.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    for tc in aux.Next(opaque) do
+        local e1=Effect.CreateEffect(e:GetHandler())
         e1:SetCode(EFFECT_UPDATE_ATTACK)
         e1:SetValue(600)
         tc:RegisterEffect(e1)
@@ -1203,12 +1298,9 @@ end
         let parsed = full_moon::parse(src).expect("parse");
         let report = walk(&parsed);
         let body = report.functions.get("s.operation").expect("operation body");
-        assert_eq!(body.register_chains.len(), 1);
-        assert!(body.register_chains[0].multi_target);
         let lines = translate_body(body);
-        // No modify_atk emission because multi-target.
         let has_modify = lines.iter().any(|l| matches!(l, DslLine::Action(s) if s.starts_with("modify_atk")));
-        assert!(!has_modify, "multi-target chains should not emit modify_atk");
+        assert!(!has_modify, "loop without known source should not emit modify_atk");
     }
 
     #[test]
