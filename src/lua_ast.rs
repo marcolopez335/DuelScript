@@ -42,6 +42,10 @@ pub struct FunctionBody {
     pub calls: Vec<DuelCall>,
     pub group_bindings: BTreeMap<String, SelectorSpec>,
     pub register_chains: Vec<RegisterEffectChain>,
+    /// Local-variable assignments keyed by name, value = RHS text.
+    /// Phase 4c uses this to resolve `SetValue(atk)` shapes where `atk`
+    /// is `local atk = c:GetAttack()` defined earlier in the handler.
+    pub value_bindings: BTreeMap<String, String>,
 }
 
 /// One `Effect.CreateEffect → SetX → <recv>:RegisterEffect(eN)` chain
@@ -283,11 +287,15 @@ fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
             let calls = extract_duel_calls(body_block);
             let group_bindings = extract_group_bindings(body_block);
             let register_chains = extract_register_chains(body_block);
-            if !calls.is_empty() || !group_bindings.is_empty() || !register_chains.is_empty() {
+            let value_bindings = extract_value_bindings(body_block);
+            if !calls.is_empty() || !group_bindings.is_empty()
+                || !register_chains.is_empty() || !value_bindings.is_empty()
+            {
                 report.functions.insert(name, FunctionBody {
                     calls,
                     group_bindings,
                     register_chains,
+                    value_bindings,
                 });
             }
         }
@@ -541,6 +549,51 @@ fn collect_group_bindings(block: &Block, out: &mut BTreeMap<String, SelectorSpec
             Stmt::NumericFor(nf)  => { collect_group_bindings(nf.block(), out); }
             Stmt::GenericFor(gf)  => { collect_group_bindings(gf.block(), out); }
             Stmt::Do(d)           => { collect_group_bindings(d.block(), out); }
+            _ => {}
+        }
+    }
+}
+
+/// Walk a function body and collect every `local <name> = <RHS>` whose
+/// RHS is *not* an Effect.CreateEffect or a Duel.Select* / GetMatching*
+/// call (those have their own walkers). Used by Phase 4c to resolve
+/// `SetValue(<name>)` shapes — the modifier value's source is whatever
+/// expression was assigned to that local.
+///
+/// RHS is captured as raw text. The Phase 4c `parse_lua_value` helper
+/// then attempts a recursive translation into DSL `expr` syntax.
+fn extract_value_bindings(block: &Block) -> BTreeMap<String, String> {
+    let mut out = BTreeMap::new();
+    collect_value_bindings(block, &mut out);
+    out
+}
+
+fn collect_value_bindings(block: &Block, out: &mut BTreeMap<String, String>) {
+    for stmt in block.stmts() {
+        match stmt {
+            Stmt::LocalAssignment(la) => {
+                let names: Vec<String> = la.names().iter()
+                    .map(|n| n.token().to_string()).collect();
+                let exprs: Vec<&Expression> = la.expressions().iter().collect();
+                for (i, name) in names.iter().enumerate() {
+                    if let Some(expr) = exprs.get(i) {
+                        // Skip the special-cased shapes — already tracked.
+                        if expr_is_effect_createeffect(expr) { continue; }
+                        if let Expression::FunctionCall(fc) = expr {
+                            if selector_spec_from_call(fc).is_some() { continue; }
+                        }
+                        let text = expr.to_string().trim().to_string();
+                        if !text.is_empty() {
+                            out.insert(name.clone(), text);
+                        }
+                    }
+                }
+            }
+            Stmt::If(if_stmt)     => { collect_value_bindings(if_stmt.block(), out); }
+            Stmt::While(w)        => { collect_value_bindings(w.block(), out); }
+            Stmt::NumericFor(nf)  => { collect_value_bindings(nf.block(), out); }
+            Stmt::GenericFor(gf)  => { collect_value_bindings(gf.block(), out); }
+            Stmt::Do(d)           => { collect_value_bindings(d.block(), out); }
             _ => {}
         }
     }
@@ -944,6 +997,7 @@ pub fn translate_calls(calls: &[DuelCall]) -> Vec<DslLine> {
         calls: calls.to_vec(),
         group_bindings: BTreeMap::new(),
         register_chains: Vec::new(),
+        value_bindings: BTreeMap::new(),
     })
 }
 
@@ -958,7 +1012,7 @@ pub fn translate_body(body: &FunctionBody) -> Vec<DslLine> {
         }
     }
     for chain in &body.register_chains {
-        if let Some(line) = translate_register_chain(chain, &body.group_bindings) {
+        if let Some(line) = translate_register_chain(chain, body) {
             out.push(line);
         }
     }
@@ -967,8 +1021,8 @@ pub fn translate_body(body: &FunctionBody) -> Vec<DslLine> {
 
 /// Map one `RegisterEffectChain` to a DSL action line. Returns None when
 /// the chain isn't one of the shapes Phase 4 covers (non-stat code,
-/// non-literal value, unknown receiver, multi-target without a known
-/// source group).
+/// non-translatable value, unknown receiver, multi-target without a
+/// known source group).
 ///
 /// Single-target shapes (`multi_target=false`):
 ///   - `tc` / `tc:GetFirst()` / `g:GetFirst()` → `target`
@@ -976,11 +1030,19 @@ pub fn translate_body(body: &FunctionBody) -> Vec<DslLine> {
 ///
 /// Multi-target shapes (`multi_target=true`):
 ///   - `loop_source_group` names a binding whose `SelectorSpec` is in
-///     `bindings` → emit using the spec's DSL form.
-///   - Otherwise → None (Phase 4 fallback).
+///     `body.group_bindings` → emit using the spec's DSL form.
+///   - Otherwise → None.
+///
+/// Value resolution (Phase 4c):
+///   - literal int → `+ N` / `- N`
+///   - method call `tc:GetAttack()` etc. → `+ target.atk`
+///   - method call `c:GetLevel()` etc.   → `+ self.level`
+///   - local-var ref → recurse on the binding's RHS
+///   - unary minus → flip sign
+///   - method-call * literal / method-call / literal → DSL math expr
 fn translate_register_chain(
     chain: &RegisterEffectChain,
-    bindings: &BTreeMap<String, SelectorSpec>,
+    body: &FunctionBody,
 ) -> Option<DslLine> {
     let code = chain.code.as_deref()?;
     let action = match code {
@@ -988,10 +1050,14 @@ fn translate_register_chain(
         "EFFECT_UPDATE_DEFENSE" => "modify_def",
         _ => return None,
     };
-    let value: i64 = chain.value.as_deref()?.parse().ok()?;
+    let parsed = parse_lua_value(chain.value.as_deref()?, &body.value_bindings)?;
+    // No-op modifier — local-var resolution often lands on `local atk=0`
+    // initialisers; the real value is reassigned later in branches we
+    // don't track. Skip rather than emit a useless `+ 0` line.
+    if parsed.expr == "0" { return None; }
     let selector = if chain.multi_target {
         let group = chain.loop_source_group.as_deref()?;
-        let spec = bindings.get(group)?;
+        let spec = body.group_bindings.get(group)?;
         spec.to_dsl()
     } else {
         match chain.register_target.as_str() {
@@ -1000,12 +1066,95 @@ fn translate_register_chain(
             _ => return None,
         }
     };
-    let (op, n) = if value < 0 { ("-", (-value) as u64) } else { ("+", value as u64) };
-    let mut line = format!("{} {} {} {}", action, selector, op, n);
+    let op = if parsed.negative { '-' } else { '+' };
+    let mut line = format!("{} {} {} {}", action, selector, op, parsed.expr);
     if reset_is_end_of_turn(chain.reset.as_deref()) {
         line.push_str(" until end_of_turn");
     }
     Some(DslLine::Action(line))
+}
+
+/// Parsed Lua expression as it maps to DSL `expr` syntax. `expr` is
+/// always non-negative; the directional sign is carried in `negative`
+/// so the caller can emit `+ <expr>` or `- <expr>` for `modify_*`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct ParsedValue {
+    expr: String,
+    negative: bool,
+}
+
+/// Recursively translate a Lua expression text into DSL `expr` form.
+/// Handles literal ints, method calls on `tc` / `c` (mapping to
+/// `target.<stat>` / `self.<stat>`), single-step math (`<m> * N`,
+/// `<m> / N`), unary minus, and local-variable substitution via
+/// `value_bindings`.
+fn parse_lua_value(arg: &str, bindings: &BTreeMap<String, String>) -> Option<ParsedValue> {
+    let arg = arg.trim();
+
+    // Unary minus — recurse and flip sign.
+    if let Some(rest) = arg.strip_prefix('-') {
+        let rest = rest.trim();
+        if !rest.is_empty() && !rest.starts_with('-') {
+            let inner = parse_lua_value(rest, bindings)?;
+            return Some(ParsedValue { expr: inner.expr, negative: !inner.negative });
+        }
+    }
+
+    // Literal integer.
+    if let Ok(n) = arg.parse::<i64>() {
+        return Some(ParsedValue {
+            expr: n.unsigned_abs().to_string(),
+            negative: n < 0,
+        });
+    }
+
+    // Identifier — resolve via local-var bindings (one level of indirection).
+    if arg.chars().all(|c| c.is_ascii_alphanumeric() || c == '_') && !arg.is_empty() {
+        if let Some(rhs) = bindings.get(arg) {
+            return parse_lua_value(rhs, bindings);
+        }
+    }
+
+    // Direct method calls on `tc` / `c` → DSL `target.<stat>` / `self.<stat>`.
+    if let Some(stat) = method_call_to_stat(arg) {
+        return Some(ParsedValue { expr: stat, negative: false });
+    }
+
+    // Single-step math: `<lhs> <op> <rhs>` where rhs is a literal int.
+    // Skip if there's nesting we can't statically split.
+    for op in ['*', '/'] {
+        if let Some((lhs, rhs)) = arg.rsplit_once(op) {
+            let lhs = lhs.trim();
+            let rhs = rhs.trim();
+            if let (Some(l), Ok(r)) = (method_call_to_stat(lhs), rhs.parse::<u64>()) {
+                if r > 0 {
+                    return Some(ParsedValue {
+                        expr: format!("{} {} {}", l, op, r),
+                        negative: false,
+                    });
+                }
+            }
+        }
+    }
+
+    None
+}
+
+/// `tc:GetAttack()` / `c:GetLevel()` → `target.atk` / `self.level`.
+fn method_call_to_stat(arg: &str) -> Option<String> {
+    let (recv, method) = match arg {
+        s if s.starts_with("tc:") => ("target", &s[3..]),
+        s if s.starts_with("c:") => ("self", &s[2..]),
+        _ => return None,
+    };
+    let stat = match method {
+        "GetAttack()" | "GetBaseAttack()"   => "atk",
+        "GetDefense()" | "GetBaseDefense()" => "def",
+        "GetLevel()"  => "level",
+        "GetRank()"   => "rank",
+        _ => return None,
+    };
+    Some(format!("{}.{}", recv, stat))
 }
 
 /// Phase 4 maps a `SetReset` argument to DSL `until end_of_turn` when it
@@ -1603,6 +1752,122 @@ end
         assert_eq!(spec.value, -200);
         let dsl = spec.to_dsl_block("Penalty", "    ");
         assert!(dsl.contains("modifier: def - 200"), "got:\n{}", dsl);
+    }
+
+    #[test]
+    fn phase4c_value_method_call_target_atk() {
+        // SetValue(tc:GetAttack()) → modify_atk target + target.atk.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(tc:GetAttack())
+    e1:SetReset(RESET_EVENT|RESETS_STANDARD)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let body = walk(&parsed).functions.remove("s.activate").expect("body");
+        let lines = translate_body(&body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()), _ => None
+        });
+        assert_eq!(action, Some("modify_atk target + target.atk until end_of_turn"));
+    }
+
+    #[test]
+    fn phase4c_value_method_div_literal() {
+        // SetValue(tc:GetAttack()/2) → modify_atk target + target.atk / 2.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(tc:GetAttack()/2)
+    e1:SetReset(RESETS_STANDARD)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let body = walk(&parsed).functions.remove("s.activate").expect("body");
+        let lines = translate_body(&body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()), _ => None
+        });
+        assert_eq!(action, Some("modify_atk target + target.atk / 2 until end_of_turn"));
+    }
+
+    #[test]
+    fn phase4c_value_local_var_resolved() {
+        // local atk = c:GetLevel() * 100; SetValue(atk) → resolves through binding.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local atk=tc:GetLevel()*100
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(atk)
+    e1:SetReset(RESETS_STANDARD)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let body = walk(&parsed).functions.remove("s.activate").expect("body");
+        assert!(body.value_bindings.contains_key("atk"),
+            "atk should be in value_bindings; got {:?}", body.value_bindings);
+        let lines = translate_body(&body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()), _ => None
+        });
+        assert_eq!(action, Some("modify_atk target + target.level * 100 until end_of_turn"));
+    }
+
+    #[test]
+    fn phase4c_value_negation() {
+        // SetValue(-atk) where atk = c:GetAttack() → modify_atk target - target.atk.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local atk=tc:GetAttack()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(-atk)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let body = walk(&parsed).functions.remove("s.activate").expect("body");
+        let lines = translate_body(&body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()), _ => None
+        });
+        assert_eq!(action, Some("modify_atk target - target.atk"));
+    }
+
+    #[test]
+    fn phase4c_value_unknown_skipped() {
+        // SetValue(s.atkval) — function ref. Phase 4c does not yet
+        // walk function bodies. Should skip emission, not panic.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(s.atkval)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let body = walk(&parsed).functions.remove("s.activate").expect("body");
+        let lines = translate_body(&body);
+        let has_modify = lines.iter().any(|l| matches!(l, DslLine::Action(s) if s.starts_with("modify_atk")));
+        assert!(!has_modify, "function-ref SetValue should not emit modify_atk");
     }
 
     #[test]
