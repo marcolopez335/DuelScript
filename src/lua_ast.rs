@@ -58,11 +58,16 @@ pub fn analyze(src: &str) -> String {
             return format!("parse error: {:?}", e);
         }
     };
+    render_report(&walk(&parsed))
+}
 
+/// Walk a parsed Lua AST and produce a `LuaReport` of effect skeletons +
+/// per-function `Duel.*` call sequences. Public so external bins can
+/// reuse the walker without going through the text-rendered `analyze`.
+pub fn walk(parsed: &full_moon::ast::Ast) -> LuaReport {
     let mut report = LuaReport::default();
     walk_block(parsed.nodes(), &mut report);
-
-    render_report(&report)
+    report
 }
 
 fn walk_block(block: &Block, report: &mut LuaReport) {
@@ -360,9 +365,255 @@ fn handler_to_fn_name(handler: &str) -> String {
     handler.trim().to_string()
 }
 
+// ============================================================
+// DSL emission — Phase 2
+//
+// Translate a `LuaReport`'s effect skeleton into draft DSL `resolve`
+// blocks by classifying each `Duel.X(...)` call in the operation
+// handler:
+//
+//   * ACTION calls (SpecialSummon, Destroy, SendtoGrave, Remove,
+//     SendtoHand, SendtoDeck, Damage, Recover, Draw, Release,
+//     DiscardHand, ConfirmCards, BreakEffect) → emit DSL action line.
+//   * SELECTOR calls (SelectTarget, SelectMatchingCard,
+//     GetMatchingGroup, GetFirstTarget, GetTargetCards) → bind the
+//     "current target group" used by following actions.
+//   * META calls (Hint, HintSelection, ConfirmCards, BreakEffect,
+//     RegisterEffect, SetOperationInfo) → skip.
+//
+// Phase 2 is deliberately conservative — actions whose arguments we
+// cannot statically interpret (custom Lua filter functions, dynamic
+// numeric expressions) emit a TODO line so the card is still
+// reviewable, never silently misinterpreted.
+// ============================================================
+
+#[derive(Debug, Clone)]
+pub enum DslLine {
+    /// A confidently-translated DSL action line, e.g.
+    /// `damage opponent 1000` or `draw 1`.
+    Action(String),
+    /// A `Duel.*` call we recognize but couldn't fully reduce.
+    /// Emitted as `# TODO: <description>` in DSL output.
+    Todo(String),
+}
+
+impl DslLine {
+    pub fn is_action(&self) -> bool { matches!(self, DslLine::Action(_)) }
+    pub fn into_string(self, indent: &str) -> String {
+        match self {
+            DslLine::Action(s) => format!("{}{}", indent, s),
+            DslLine::Todo(s)   => format!("{}# TODO(lua-ast): {}", indent, s),
+        }
+    }
+}
+
+/// Translate one operation-handler's `Duel.*` call sequence into draft
+/// DSL `resolve { ... }` lines. Returns one DslLine per recognized call.
+pub fn translate_calls(calls: &[DuelCall]) -> Vec<DslLine> {
+    let mut out = Vec::new();
+    for c in calls {
+        if let Some(line) = translate_call(c) {
+            out.push(line);
+        }
+    }
+    out
+}
+
+/// Map a single `Duel.X` call to a DSL line (or None for skip-class
+/// metadata).
+fn translate_call(c: &DuelCall) -> Option<DslLine> {
+    let m = c.method.as_str();
+    let a = &c.args;
+    match m {
+        // ── Skip: pure UI / control-flow / metadata ──────────
+        "Duel.Hint" | "Duel.HintSelection" | "Duel.ConfirmCards"
+        | "Duel.BreakEffect" | "Duel.SetOperationInfo"
+        | "Duel.SetPossibleOperationInfo" | "Duel.RegisterEffect"
+        | "Duel.SetTargetPlayer" | "Duel.SetTargetParam"
+        | "Duel.SetTargetCard" | "Duel.SetChainLimit"
+        => None,
+
+        // ── Skip: read-only queries (used as cond / target side) ─
+        "Duel.IsExistingMatchingCard" | "Duel.IsExistingTarget"
+        | "Duel.IsPlayerCanDraw" | "Duel.IsPlayerCanSpecialSummonMonster"
+        | "Duel.IsPlayerAffectedByEffect" | "Duel.IsTurnPlayer"
+        | "Duel.GetMatchingGroup" | "Duel.GetMatchingGroupCount"
+        | "Duel.GetLocationCount" | "Duel.GetFieldGroupCount"
+        | "Duel.GetTargetCards" | "Duel.GetFirstTarget"
+        | "Duel.GetChainInfo" | "Duel.GetAttacker" | "Duel.GetAttackTarget"
+        | "Duel.SelectTarget" | "Duel.SelectMatchingCard"
+        | "Duel.SelectYesNo"
+        => None,
+
+        // ── ACTIONS ──────────────────────────────────────────
+
+        // Duel.Damage(player, amount, reason)
+        "Duel.Damage" => Some(action_damage(a)),
+        // Duel.Recover(player, amount, reason) — DSL only models self-gain
+        // via `gain_lp <N>`; opponent-recover has no DSL form yet.
+        "Duel.Recover" => Some(action_recover(a)),
+
+        // Duel.Draw(player, count, reason)
+        "Duel.Draw" => Some(action_draw(a)),
+
+        // Duel.Destroy(target, reason)
+        "Duel.Destroy" => Some(DslLine::Action(
+            "destroy target".to_string()
+        )),
+
+        // Duel.SendtoGrave(target, reason)
+        "Duel.SendtoGrave" => Some(DslLine::Action(
+            "send target to gy".to_string()
+        )),
+
+        // Duel.SendtoHand(target, player, reason)
+        "Duel.SendtoHand" => Some(DslLine::Action(
+            "add_to_hand target".to_string()
+        )),
+
+        // Duel.SendtoDeck(target, player, sequence, reason)
+        "Duel.SendtoDeck" => Some(DslLine::Action(
+            "send target to deck".to_string()
+        )),
+
+        // Duel.Remove(target, pos, reason) — banish
+        "Duel.Remove" => Some(DslLine::Action(
+            "banish target".to_string()
+        )),
+
+        // Duel.Release(target, reason) — tribute. No DSL `tribute`
+        // action in resolve grammar (only `tribute self` in cost block).
+        // Released cards go to gy; closest semantic action is send-to-gy.
+        "Duel.Release" => Some(DslLine::Action(
+            "send target to gy".to_string()
+        )),
+
+        // Duel.SpecialSummon(target, sumtype, p1, p2, nocheck, nolimit, pos)
+        "Duel.SpecialSummon" => Some(DslLine::Action(
+            "special_summon target".to_string()
+        )),
+        "Duel.SpecialSummonStep" => Some(DslLine::Action(
+            "special_summon target".to_string()
+        )),
+        "Duel.SpecialSummonComplete" => None, // boundary marker
+
+        // Duel.DiscardHand(player, filter, min, max, reason)
+        "Duel.DiscardHand" => Some(DslLine::Action(
+            "discard (1+, card, you control, from hand)".to_string()
+        )),
+
+        // Anything else we recognize as a duel call but don't yet map.
+        _ => Some(DslLine::Todo(format!(
+            "{}({})", m, a.join(", ")
+        ))),
+    }
+}
+
+/// Translate `Duel.Damage(player, amount, reason)` to
+/// `damage opponent <N>` / `damage you <N>`.
+fn action_damage(args: &[String]) -> DslLine {
+    let player = args.first().map(String::as_str).unwrap_or("");
+    let amount = args.get(1).map(String::as_str).unwrap_or("?");
+    if amount.parse::<i64>().is_err() {
+        return DslLine::Todo(format!(
+            "Duel.Damage(player={}, amount={}, ...) — non-literal amount",
+            player, amount
+        ));
+    }
+    let player_d = match player {
+        "tp" => "you",
+        "1-tp" => "opponent",
+        _ => return DslLine::Todo(format!(
+            "Duel.Damage(player={}, amount={}) — non-canonical player",
+            player, amount
+        )),
+    };
+    DslLine::Action(format!("damage {} {}", player_d, amount))
+}
+
+/// Translate `Duel.Recover(player, amount, reason)` to `gain_lp <N>`.
+/// DSL has no opponent-recover form, so non-self-target → TODO.
+fn action_recover(args: &[String]) -> DslLine {
+    let player = args.first().map(String::as_str).unwrap_or("");
+    let amount = args.get(1).map(String::as_str).unwrap_or("?");
+    if amount.parse::<i64>().is_err() {
+        return DslLine::Todo(format!(
+            "Duel.Recover(player={}, amount={}) — non-literal amount",
+            player, amount
+        ));
+    }
+    if player == "tp" {
+        DslLine::Action(format!("gain_lp {}", amount))
+    } else {
+        DslLine::Todo(format!("Duel.Recover(player={}) — only self-recover supported", player))
+    }
+}
+
+/// Translate `Duel.Draw(player, count, reason)` to `draw <N>`.
+fn action_draw(args: &[String]) -> DslLine {
+    let count = args.get(1).map(String::as_str).unwrap_or("?");
+    if count.parse::<u32>().is_ok() {
+        DslLine::Action(format!("draw {}", count))
+    } else {
+        DslLine::Todo(format!("Duel.Draw(..., count={}) — non-literal count", count))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn translate_duel_damage() {
+        let calls = vec![
+            DuelCall { method: "Duel.Damage".to_string(), args: vec!["1-tp".into(), "1000".into(), "REASON_EFFECT".into()] },
+        ];
+        let lines = translate_calls(&calls);
+        assert_eq!(lines.len(), 1);
+        match &lines[0] {
+            DslLine::Action(s) => assert_eq!(s, "damage opponent 1000"),
+            DslLine::Todo(s) => panic!("expected action, got TODO: {}", s),
+        }
+    }
+
+    #[test]
+    fn translate_duel_draw() {
+        let calls = vec![
+            DuelCall { method: "Duel.Draw".to_string(), args: vec!["tp".into(), "2".into(), "REASON_EFFECT".into()] },
+        ];
+        let lines = translate_calls(&calls);
+        assert!(matches!(&lines[0], DslLine::Action(s) if s == "draw 2"));
+    }
+
+    #[test]
+    fn translate_duel_destroy_target() {
+        let calls = vec![
+            DuelCall { method: "Duel.Destroy".to_string(), args: vec!["g".into(), "REASON_EFFECT".into()] },
+        ];
+        let lines = translate_calls(&calls);
+        assert!(matches!(&lines[0], DslLine::Action(s) if s == "destroy target"));
+    }
+
+    #[test]
+    fn translate_skips_meta_calls() {
+        let calls = vec![
+            DuelCall { method: "Duel.Hint".to_string(), args: vec!["HINT_SELECTMSG".into()] },
+            DuelCall { method: "Duel.SetOperationInfo".to_string(), args: vec![] },
+            DuelCall { method: "Duel.BreakEffect".to_string(), args: vec![] },
+            DuelCall { method: "Duel.Damage".to_string(), args: vec!["1-tp".into(), "500".into(), "REASON_EFFECT".into()] },
+        ];
+        let lines = translate_calls(&calls);
+        assert_eq!(lines.len(), 1, "only the Damage call should produce a DSL line");
+    }
+
+    #[test]
+    fn translate_unknown_emits_todo() {
+        let calls = vec![
+            DuelCall { method: "Duel.SwapSequence".to_string(), args: vec!["a".into(), "b".into()] },
+        ];
+        let lines = translate_calls(&calls);
+        assert!(matches!(&lines[0], DslLine::Todo(_)));
+    }
 
     #[test]
     fn analyze_gravedigger_ghoul() {
