@@ -41,6 +41,21 @@ pub struct LuaReport {
 pub struct FunctionBody {
     pub calls: Vec<DuelCall>,
     pub group_bindings: BTreeMap<String, SelectorSpec>,
+    pub register_chains: Vec<RegisterEffectChain>,
+}
+
+/// One `Effect.CreateEffect → SetX → <recv>:RegisterEffect(eN)` chain
+/// extracted from a function body. Phase 4 uses this to translate
+/// continuous-modifier effects (ATK/DEF buffs) created at activation
+/// time into DSL `modify_atk` / `modify_def` lines.
+#[derive(Debug, Clone, Default)]
+pub struct RegisterEffectChain {
+    pub code: Option<String>,
+    pub value: Option<String>,
+    pub reset: Option<String>,
+    pub effect_type: Option<String>,
+    pub register_target: String,
+    pub multi_target: bool,
 }
 
 /// A statically-extracted selector intent — built from a single
@@ -125,8 +140,13 @@ fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
             let body_block = body.block();
             let calls = extract_duel_calls(body_block);
             let group_bindings = extract_group_bindings(body_block);
-            if !calls.is_empty() || !group_bindings.is_empty() {
-                report.functions.insert(name, FunctionBody { calls, group_bindings });
+            let register_chains = extract_register_chains(body_block);
+            if !calls.is_empty() || !group_bindings.is_empty() || !register_chains.is_empty() {
+                report.functions.insert(name, FunctionBody {
+                    calls,
+                    group_bindings,
+                    register_chains,
+                });
             }
         }
         Stmt::LocalAssignment(_) | Stmt::Assignment(_) => {
@@ -491,6 +511,158 @@ fn zone_from_locations(my: &str, opp: &str) -> Option<String> {
     Some(format!("from {}", zone))
 }
 
+/// Walk a function body and extract every `Effect.CreateEffect → Set* →
+/// <recv>:RegisterEffect(eN)` chain. Bindings span the whole function
+/// scope (Lua does not re-scope `local` per inner block when the same
+/// name is reused), so a single `BTreeMap` is threaded through nested
+/// blocks. The `in_for_loop` flag flows down through `NumericFor` /
+/// `GenericFor` so each emitted chain knows if its `RegisterEffect`
+/// fired inside a per-target loop body.
+fn extract_register_chains(block: &Block) -> Vec<RegisterEffectChain> {
+    let mut chains = Vec::new();
+    let mut by_binding: BTreeMap<String, RegisterEffectChain> = BTreeMap::new();
+    collect_register_chains(block, false, &mut by_binding, &mut chains);
+    chains
+}
+
+fn collect_register_chains(
+    block: &Block,
+    in_for_loop: bool,
+    by_binding: &mut BTreeMap<String, RegisterEffectChain>,
+    out: &mut Vec<RegisterEffectChain>,
+) {
+    for stmt in block.stmts() {
+        match stmt {
+            Stmt::LocalAssignment(la) => {
+                let names: Vec<String> = la.names().iter()
+                    .map(|n| n.token().to_string()).collect();
+                let exprs: Vec<&Expression> = la.expressions().iter().collect();
+                for (i, name) in names.iter().enumerate() {
+                    if let Some(expr) = exprs.get(i) {
+                        if expr_is_effect_createeffect(expr) {
+                            by_binding.insert(name.clone(), RegisterEffectChain::default());
+                        } else if let Some(src) = expr_clone_source(expr) {
+                            // `local e2 = e1:Clone()` — fork the existing
+                            // chain so subsequent overrides apply to e2 only.
+                            if let Some(existing) = by_binding.get(&src).cloned() {
+                                by_binding.insert(name.clone(), existing);
+                            }
+                        }
+                    }
+                }
+            }
+            Stmt::FunctionCall(fc) => {
+                if let Some((bind, method, args)) = method_call_on_binding(fc) {
+                    if let Some(chain) = by_binding.get_mut(&bind) {
+                        match method.as_str() {
+                            "SetCode"  => chain.code = args.first().cloned(),
+                            "SetValue" => chain.value = args.first().cloned(),
+                            "SetReset" => chain.reset = args.first().cloned(),
+                            "SetType"  => chain.effect_type = args.first().cloned(),
+                            _ => {}
+                        }
+                    }
+                }
+                if let Some((receiver, args)) = try_register_effect_call(fc) {
+                    if let Some(eff_name) = args.first() {
+                        if let Some(chain) = by_binding.get(eff_name) {
+                            // Snapshot the current chain state — keep the
+                            // entry in the map so a subsequent `:Clone()`
+                            // can still read its values.
+                            let mut emitted = chain.clone();
+                            emitted.register_target = receiver;
+                            emitted.multi_target = in_for_loop;
+                            out.push(emitted);
+                        }
+                    }
+                }
+            }
+            Stmt::If(if_stmt) => {
+                collect_register_chains(if_stmt.block(), in_for_loop, by_binding, out);
+                for ei in if_stmt.else_if().into_iter().flatten() {
+                    collect_register_chains(ei.block(), in_for_loop, by_binding, out);
+                }
+                if let Some(else_block) = if_stmt.else_block() {
+                    collect_register_chains(else_block, in_for_loop, by_binding, out);
+                }
+            }
+            Stmt::While(w)       => collect_register_chains(w.block(), in_for_loop, by_binding, out),
+            Stmt::Repeat(r)      => collect_register_chains(r.block(), in_for_loop, by_binding, out),
+            Stmt::NumericFor(nf) => collect_register_chains(nf.block(), true, by_binding, out),
+            Stmt::GenericFor(gf) => collect_register_chains(gf.block(), true, by_binding, out),
+            Stmt::Do(d)          => collect_register_chains(d.block(), in_for_loop, by_binding, out),
+            _ => {}
+        }
+    }
+}
+
+/// True if `expr` is `<binding>:Clone()`. Returns `Some(binding)` so the
+/// caller can copy the source chain into the new local.
+fn expr_clone_source(expr: &Expression) -> Option<String> {
+    let fc = match expr {
+        Expression::FunctionCall(fc) => fc,
+        _ => return None,
+    };
+    let prefix = match fc.prefix() {
+        ast::Prefix::Name(n) => n.token().to_string(),
+        _ => return None,
+    };
+    let mut suffixes = fc.suffixes();
+    let first = suffixes.next()?;
+    if let Suffix::Call(Call::MethodCall(mc)) = first {
+        if mc.name().token().to_string() == "Clone" {
+            return Some(prefix);
+        }
+    }
+    None
+}
+
+/// Match `<receiver>:RegisterEffect(<arg>)` where `<receiver>` may itself
+/// be a chained expression like `e:GetHandler()`. Returns the rendered
+/// receiver path and the call arguments so callers can identify which
+/// chain was committed and on what.
+fn try_register_effect_call(fc: &FunctionCall) -> Option<(String, Vec<String>)> {
+    let suffixes: Vec<&Suffix> = fc.suffixes().collect();
+    if suffixes.is_empty() { return None; }
+    let last = suffixes.last()?;
+    let last_args = match last {
+        Suffix::Call(Call::MethodCall(mc))
+            if mc.name().token().to_string() == "RegisterEffect" =>
+        {
+            call_args_to_strings(mc.args())
+        }
+        _ => return None,
+    };
+    let mut receiver = match fc.prefix() {
+        ast::Prefix::Name(n) => n.token().to_string(),
+        _ => fc.prefix().to_string().trim().to_string(),
+    };
+    for s in &suffixes[..suffixes.len() - 1] {
+        match s {
+            Suffix::Index(Index::Dot { name, .. }) => {
+                receiver.push('.');
+                receiver.push_str(&name.token().to_string());
+            }
+            Suffix::Call(Call::MethodCall(mc)) => {
+                receiver.push(':');
+                receiver.push_str(&mc.name().token().to_string());
+                let a = call_args_to_strings(mc.args());
+                receiver.push('(');
+                receiver.push_str(&a.join(","));
+                receiver.push(')');
+            }
+            Suffix::Call(Call::AnonymousCall(args)) => {
+                let a = call_args_to_strings(args);
+                receiver.push('(');
+                receiver.push_str(&a.join(","));
+                receiver.push(')');
+            }
+            _ => {}
+        }
+    }
+    Some((receiver, last_args))
+}
+
 fn duel_call_from_fc(fc: &FunctionCall) -> Option<DuelCall> {
     let head = call_head_string(fc);
     if !head.starts_with("Duel.") { return None; }
@@ -594,10 +766,16 @@ impl DslLine {
 /// (e.g. `Duel.SendtoGrave(g, ...)` after `local g = Duel.SelectMatchingCard(...)`),
 /// substitutes the bare `target` placeholder with the real selector spec.
 pub fn translate_calls(calls: &[DuelCall]) -> Vec<DslLine> {
-    translate_body(&FunctionBody { calls: calls.to_vec(), group_bindings: BTreeMap::new() })
+    translate_body(&FunctionBody {
+        calls: calls.to_vec(),
+        group_bindings: BTreeMap::new(),
+        register_chains: Vec::new(),
+    })
 }
 
-/// Selector-aware translator entry point.
+/// Selector-aware translator entry point. Emits Duel.* action lines first
+/// (Phase 2/3 behavior), then any continuous-modifier `RegisterEffect`
+/// chains the body created (Phase 4 — `modify_atk` / `modify_def`).
 pub fn translate_body(body: &FunctionBody) -> Vec<DslLine> {
     let mut out = Vec::new();
     for c in &body.calls {
@@ -605,7 +783,49 @@ pub fn translate_body(body: &FunctionBody) -> Vec<DslLine> {
             out.push(line);
         }
     }
+    for chain in &body.register_chains {
+        if let Some(line) = translate_register_chain(chain) {
+            out.push(line);
+        }
+    }
     out
+}
+
+/// Map one `RegisterEffectChain` to a DSL action line. Returns None when
+/// the chain isn't one of the shapes Phase 4 covers (non-stat code,
+/// non-literal value, multi-target loop, unknown receiver).
+fn translate_register_chain(chain: &RegisterEffectChain) -> Option<DslLine> {
+    if chain.multi_target { return None; }
+    let code = chain.code.as_deref()?;
+    let action = match code {
+        "EFFECT_UPDATE_ATTACK"  => "modify_atk",
+        "EFFECT_UPDATE_DEFENSE" => "modify_def",
+        _ => return None,
+    };
+    let value: i64 = chain.value.as_deref()?.parse().ok()?;
+    let selector = match chain.register_target.as_str() {
+        "tc" | "tc:GetFirst()" | "g:GetFirst()" => "target",
+        "c" | "e:GetHandler()" => "self",
+        _ => return None,
+    };
+    let (op, n) = if value < 0 { ("-", (-value) as u64) } else { ("+", value as u64) };
+    let mut line = format!("{} {} {} {}", action, selector, op, n);
+    if reset_is_end_of_turn(chain.reset.as_deref()) {
+        line.push_str(" until end_of_turn");
+    }
+    Some(DslLine::Action(line))
+}
+
+/// Phase 4 maps any `SetReset` whose argument mentions `PHASE_END` (the
+/// edopro idiom for end-of-turn cleanup) to DSL `until end_of_turn`.
+/// Other reset shapes (BATTLE_PHASE_END, CHAIN, etc.) are deferred and
+/// emit no `until` clause — the engine treats that as until-the-card-leaves
+/// which is incorrect for some cases but keeps the corpus parseable.
+fn reset_is_end_of_turn(reset: Option<&str>) -> bool {
+    match reset {
+        Some(s) => s.contains("PHASE_END"),
+        None => false,
+    }
 }
 
 /// Map a single `Duel.X` call to a DSL line (or None for skip-class
@@ -890,6 +1110,134 @@ mod tests {
         ];
         let lines = translate_calls(&calls);
         assert!(matches!(&lines[0], DslLine::Todo(_)));
+    }
+
+    #[test]
+    fn register_chain_simple_atk_buff_on_target() {
+        // Mask of Weakness shape: tc:RegisterEffect with literal value
+        // and a PHASE_END reset → modify_atk target -700 until end_of_turn.
+        let src = r#"
+local s,id=GetID()
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(-700)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.activate").expect("activate body");
+        assert_eq!(body.register_chains.len(), 1);
+        let lines = translate_body(body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()),
+            _ => None,
+        });
+        assert_eq!(action, Some("modify_atk target - 700 until end_of_turn"));
+    }
+
+    #[test]
+    fn register_chain_def_buff_on_self_no_reset() {
+        // Equip-style passive often has no SetReset and registers on `c`
+        // (the equipped card itself) → modify_def self + N (no until).
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_EQUIP)
+    e1:SetCode(EFFECT_UPDATE_DEFENSE)
+    e1:SetValue(300)
+    c:RegisterEffect(e1)
+end
+"#;
+        // Top-level Effect.CreateEffect is matched by the dedicated
+        // `extract_effects_from_block` path; we need a non-initial_effect
+        // function for the new chain extractor to fire.
+        let src2 = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_DEFENSE)
+    e1:SetValue(300)
+    c:RegisterEffect(e1)
+end
+"#;
+        let _ = src; // silence unused
+        let parsed = full_moon::parse(src2).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.activate").expect("activate body");
+        assert_eq!(body.register_chains.len(), 1);
+        let chain = &body.register_chains[0];
+        assert_eq!(chain.code.as_deref(), Some("EFFECT_UPDATE_DEFENSE"));
+        assert_eq!(chain.value.as_deref(), Some("300"));
+        assert_eq!(chain.register_target, "c");
+        assert!(!chain.multi_target);
+        let lines = translate_body(body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()),
+            _ => None,
+        });
+        assert_eq!(action, Some("modify_def self + 300"));
+    }
+
+    #[test]
+    fn register_chain_in_for_loop_marked_multi_target() {
+        // Daigusto Falcos: register inside `for tc in aux.Next(g)` →
+        // multi_target=true → translator skips emission.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
+    for tc in aux.Next(g) do
+        local e1=Effect.CreateEffect(e:GetHandler())
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_UPDATE_ATTACK)
+        e1:SetValue(600)
+        tc:RegisterEffect(e1)
+    end
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.operation").expect("operation body");
+        assert_eq!(body.register_chains.len(), 1);
+        assert!(body.register_chains[0].multi_target);
+        let lines = translate_body(body);
+        // No modify_atk emission because multi-target.
+        let has_modify = lines.iter().any(|l| matches!(l, DslLine::Action(s) if s.starts_with("modify_atk")));
+        assert!(!has_modify, "multi-target chains should not emit modify_atk");
+    }
+
+    #[test]
+    fn register_chain_clone_inherits_source_chain() {
+        // Laser Cannon Armor: e3 = e2:Clone() then e3:SetCode(...) →
+        // e3 inherits e2's value/reset, overrides code.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_SINGLE)
+    e2:SetCode(EFFECT_UPDATE_ATTACK)
+    e2:SetValue(300)
+    c:RegisterEffect(e2)
+    local e3=e2:Clone()
+    e3:SetCode(EFFECT_UPDATE_DEFENSE)
+    c:RegisterEffect(e3)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.activate").expect("activate body");
+        assert_eq!(body.register_chains.len(), 2);
+        let codes: Vec<_> = body.register_chains.iter()
+            .filter_map(|c| c.code.as_deref()).collect();
+        assert_eq!(codes, vec!["EFFECT_UPDATE_ATTACK", "EFFECT_UPDATE_DEFENSE"]);
+        let values: Vec<_> = body.register_chains.iter()
+            .filter_map(|c| c.value.as_deref()).collect();
+        assert_eq!(values, vec!["300", "300"]);
     }
 
     #[test]
