@@ -10,24 +10,26 @@ State as of 2026-04-30 — `cards/official/` parses 13,298 / 13,298, **3,539 err
 
 These reuse existing DSL syntax. Each is a single `lua-translator` PR.
 
-### Phase 4c — non-literal SetValue
-**Goal.** Translate `Effect.CreateEffect → SetValue(<non-literal>) → ... :RegisterEffect` chains where the `SetValue` argument is a function reference (`s.atkval`) or a simple expression (`atk/2`, `tc:GetAttack()`).
+### ~~Phase 4c — non-literal SetValue~~ ✓ shipped (PR #61)
+**Shipped.** -13 errors, -6 warnings. Direct method calls (\`tc:GetAttack()\` etc.), one-step math, unary minus, and local-var resolution covered. Function-refs and inline closures deferred to Phase 4d.
 
-**Yield estimate.** ~150 cards (97 function-refs + ~53 expressions per the audit in `project_session_handoff.md`).
+### Phase 4d — function-ref + closure SetValue (was 4c deferred)
+**Goal.** Inspect bodies of `s.atkval(e,c) return <expr> end` and `SetValue(function(e,c) return <expr> end)` to extract the same DSL stat-ref / math-expr forms Phase 4c handles.
+
+**Yield estimate.** ~62 function-refs + ~15 inline closures = ~77 cards (per the Phase 4c audit).
 
 **Approach.**
-- Extend `RegisterEffectChain::value` to optionally hold a parsed expression instead of just a literal string.
-- Add a tiny expression sub-translator: recognise `c:GetLevel() * N`, `tc:GetAttack()`, `atk + N`, function bodies of the shape `function(e,c) return <expr> end`.
-- Map to DSL expression grammar (`expr` rule already supports binary ops and method calls on selectors).
+- Phase 4c's `parse_lua_value` already handles the body shapes — just need to feed the right text in.
+- For `s.<name>` refs, look up `report.functions[s.<name>]` and find the `return <expr>` statement, then run Phase 4c's parser over `<expr>`.
+- For inline closures, parse the closure body directly.
 
 **Acceptance.**
-- New unit tests for each shape.
-- Apply produces ≥ 100 new modify_atk/def lines.
-- Zero regressions; tests + roundtrip pass.
+- ≥ 30 new modify_atk/def lines emitted.
+- Zero regressions.
 
 **Agent.** `lua-translator`.
 
-**Depends on.** Nothing — purely additive.
+**Depends on.** Phase 4c (✓ shipped).
 
 ---
 
