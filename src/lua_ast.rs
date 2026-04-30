@@ -1,0 +1,397 @@
+// ============================================================
+// lua_ast — Lua-script analyzer for Yu-Gi-Oh card scripts.
+//
+// Reads a .lua file, parses with `full_moon`, and extracts the
+// effect skeletons that `s.initial_effect(c)` registers via
+// `Effect.CreateEffect → Set* → c:RegisterEffect` chains.
+//
+// Each Effect.CreateEffect call introduces a local binding (e.g.
+// `local e1 = Effect.CreateEffect(c)`). Subsequent `e1:SetX(...)`
+// calls populate the effect's metadata. The final `c:RegisterEffect(e1)`
+// commits the effect.
+//
+// We extract:
+//   - which `Set*` calls were applied to each effect
+//   - the operation-handler name (passed to `SetOperation(s.X)`)
+//   - the chain of `Duel.*` calls inside that handler's function body
+//
+// This is the substrate for emitting DSL `effect { resolve { ... } }`
+// blocks.
+// ============================================================
+
+use std::collections::BTreeMap;
+use std::fmt::Write;
+
+use full_moon::ast;
+use full_moon::ast::{Stmt, Expression, FunctionCall, Suffix, Call, Index, Block};
+
+/// Top-level analysis report for one Lua file.
+#[derive(Debug, Default)]
+pub struct LuaReport {
+    pub effects: Vec<EffectSkeleton>,
+    pub functions: BTreeMap<String, Vec<DuelCall>>,
+    pub parse_error: Option<String>,
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct EffectSkeleton {
+    pub binding: String,                       // `e1`
+    pub set_calls: Vec<(String, Vec<String>)>, // (Set method, raw arg strings)
+    pub registered: bool,
+    pub operation_handler: Option<String>,     // `s.activate`
+    pub target_handler: Option<String>,
+    pub condition_handler: Option<String>,
+    pub cost_handler: Option<String>,
+}
+
+/// One `Duel.X(args...)` call extracted from a function body.
+#[derive(Debug, Clone)]
+pub struct DuelCall {
+    pub method: String,         // `Duel.Damage`
+    pub args: Vec<String>,      // raw text per top-level arg
+}
+
+pub fn analyze(src: &str) -> String {
+    let parsed = match full_moon::parse(src) {
+        Ok(ast) => ast,
+        Err(e) => {
+            return format!("parse error: {:?}", e);
+        }
+    };
+
+    let mut report = LuaReport::default();
+    walk_block(parsed.nodes(), &mut report);
+
+    render_report(&report)
+}
+
+fn walk_block(block: &Block, report: &mut LuaReport) {
+    for stmt in block.stmts() {
+        walk_stmt(stmt, report);
+    }
+    if let Some(last) = block.last_stmt() {
+        // currently nothing to extract from `return`/`break`
+        let _ = last;
+    }
+}
+
+fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
+    match stmt {
+        // `function s.initial_effect(c) ... end`
+        // `function s.activate(e,tp,...) ... end`
+        Stmt::FunctionDeclaration(decl) => {
+            let name = function_decl_name(decl);
+            let body = decl.body();
+            if name.ends_with("initial_effect") {
+                extract_effects_from_block(body.block(), report);
+            }
+            let calls = extract_duel_calls(body.block());
+            if !calls.is_empty() {
+                report.functions.insert(name, calls);
+            }
+        }
+        Stmt::LocalAssignment(_) | Stmt::Assignment(_) => {
+            // top-level assignments aren't typically effect-bearing
+        }
+        _ => {}
+    }
+}
+
+fn function_decl_name(decl: &ast::FunctionDeclaration) -> String {
+    let mut out = String::new();
+    let n = decl.name();
+    write!(out, "{}", n.names().to_string().trim()).ok();
+    if let Some(method) = n.method_name() {
+        write!(out, ":{}", method.token().to_string()).ok();
+    }
+    out
+}
+
+/// Walk an `s.initial_effect` body looking for `Effect.CreateEffect`
+/// chains. We track local bindings (`local e1 = Effect.CreateEffect(c)`)
+/// then attribute subsequent `e1:Set*` and `c:RegisterEffect(e1)` calls
+/// back to the binding.
+fn extract_effects_from_block(block: &Block, report: &mut LuaReport) {
+    let mut by_binding: BTreeMap<String, EffectSkeleton> = BTreeMap::new();
+
+    for stmt in block.stmts() {
+        match stmt {
+            Stmt::LocalAssignment(la) => {
+                let names: Vec<String> = la.names().iter()
+                    .map(|n| n.token().to_string()).collect();
+                let exprs: Vec<&Expression> = la.expressions().iter().collect();
+                for (i, name) in names.iter().enumerate() {
+                    let expr = exprs.get(i);
+                    if let Some(expr) = expr {
+                        if expr_is_effect_createeffect(expr) {
+                            by_binding.insert(name.clone(), EffectSkeleton {
+                                binding: name.clone(),
+                                ..Default::default()
+                            });
+                        }
+                    }
+                }
+            }
+            Stmt::FunctionCall(fc) => {
+                // `eN:SetX(...)` populates the effect named by binding.
+                if let Some((binding, method, args)) = method_call_on_binding(fc) {
+                    if let Some(skel) = by_binding.get_mut(&binding) {
+                        skel.set_calls.push((method.clone(), args.clone()));
+                        if method == "SetOperation" {
+                            skel.operation_handler = args.first().cloned();
+                        } else if method == "SetTarget" {
+                            skel.target_handler = args.first().cloned();
+                        } else if method == "SetCondition" {
+                            skel.condition_handler = args.first().cloned();
+                        } else if method == "SetCost" {
+                            skel.cost_handler = args.first().cloned();
+                        }
+                    }
+                }
+                // `c:RegisterEffect(eN)` commits the effect — independent
+                // path so it still registers when the prior `:Set*` matched
+                // a different binding (here the prefix is `c`, not `e1`).
+                if let Some(arg) = is_register_effect(fc) {
+                    if let Some(skel) = by_binding.get_mut(&arg) {
+                        skel.registered = true;
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+
+    for (_, skel) in by_binding {
+        if skel.registered {
+            report.effects.push(skel);
+        }
+    }
+}
+
+/// True if `expr` is the call `Effect.CreateEffect(c)` (we accept any
+/// argument list — we just need the call shape).
+fn expr_is_effect_createeffect(expr: &Expression) -> bool {
+    if let Expression::FunctionCall(fc) = expr {
+        let head = call_head_string(fc);
+        head == "Effect.CreateEffect"
+    } else {
+        false
+    }
+}
+
+/// Render a function-call's prefix as a dotted name string,
+/// e.g. `Effect.CreateEffect`, `Duel.SendtoGrave`, `c:RegisterEffect`.
+fn call_head_string(fc: &FunctionCall) -> String {
+    let prefix = fc.prefix();
+    let mut head = prefix.to_string().trim().to_string();
+    // Walk suffixes that aren't the final Call — they form the dotted
+    // / colon name (e.g. `e1:SetCategory(...)`).
+    for s in fc.suffixes() {
+        match s {
+            Suffix::Index(idx) => match idx {
+                Index::Dot { name, .. } => {
+                    head.push('.');
+                    head.push_str(&name.token().to_string());
+                }
+                Index::Brackets { .. } => {
+                    head.push_str("[?]");
+                }
+                _ => {}
+            },
+            Suffix::Call(c) => match c {
+                Call::MethodCall(mc) => {
+                    head.push(':');
+                    head.push_str(&mc.name().token().to_string());
+                    return head;
+                }
+                Call::AnonymousCall(_) => {
+                    return head;
+                }
+                _ => {}
+            },
+            _ => {}
+        }
+    }
+    head
+}
+
+/// If `fc` is `<bind>:<method>(args)`, return `(binding, method, args)`.
+fn method_call_on_binding(fc: &FunctionCall) -> Option<(String, String, Vec<String>)> {
+    let prefix = fc.prefix();
+    let binding = match prefix {
+        ast::Prefix::Name(n) => n.token().to_string(),
+        _ => return None,
+    };
+    let mut suffixes = fc.suffixes();
+    let first = suffixes.next()?;
+    if let Suffix::Call(Call::MethodCall(mc)) = first {
+        let method = mc.name().token().to_string();
+        let args = call_args_to_strings(mc.args());
+        Some((binding, method, args))
+    } else {
+        None
+    }
+}
+
+/// `c:RegisterEffect(eN)` → return Some("eN").
+fn is_register_effect(fc: &FunctionCall) -> Option<String> {
+    let prefix = fc.prefix();
+    if let ast::Prefix::Name(_) = prefix {
+        let mut suffixes = fc.suffixes();
+        if let Some(Suffix::Call(Call::MethodCall(mc))) = suffixes.next() {
+            if mc.name().token().to_string() == "RegisterEffect" {
+                let args = call_args_to_strings(mc.args());
+                return args.first().cloned();
+            }
+        }
+    }
+    None
+}
+
+fn call_args_to_strings(args: &ast::FunctionArgs) -> Vec<String> {
+    match args {
+        ast::FunctionArgs::Parentheses { arguments, .. } => {
+            arguments.iter().map(|e| e.to_string().trim().to_string()).collect()
+        }
+        ast::FunctionArgs::String(s) => {
+            vec![s.token().to_string()]
+        }
+        ast::FunctionArgs::TableConstructor(t) => {
+            vec![t.to_string()]
+        }
+        _ => vec![],
+    }
+}
+
+/// Extract every `Duel.X(...)` call from a function block (recursive
+/// — descends into `if`, `while`, `for`, blocks, etc.).
+fn extract_duel_calls(block: &Block) -> Vec<DuelCall> {
+    let mut out = Vec::new();
+    collect_duel_calls(block, &mut out);
+    out
+}
+
+fn collect_duel_calls(block: &Block, out: &mut Vec<DuelCall>) {
+    for stmt in block.stmts() {
+        match stmt {
+            Stmt::FunctionCall(fc) => {
+                if let Some(call) = duel_call_from_fc(fc) { out.push(call); }
+            }
+            Stmt::If(if_stmt) => {
+                collect_duel_calls(if_stmt.block(), out);
+                for ei in if_stmt.else_if().into_iter().flatten() {
+                    collect_duel_calls(ei.block(), out);
+                }
+                if let Some(else_block) = if_stmt.else_block() {
+                    collect_duel_calls(else_block, out);
+                }
+            }
+            Stmt::While(w) => collect_duel_calls(w.block(), out),
+            Stmt::Repeat(r) => collect_duel_calls(r.block(), out),
+            Stmt::NumericFor(nf) => collect_duel_calls(nf.block(), out),
+            Stmt::GenericFor(gf) => collect_duel_calls(gf.block(), out),
+            Stmt::Do(d) => collect_duel_calls(d.block(), out),
+            Stmt::LocalAssignment(la) => {
+                for e in la.expressions() {
+                    if let Expression::FunctionCall(fc) = e {
+                        if let Some(call) = duel_call_from_fc(fc) { out.push(call); }
+                    }
+                }
+            }
+            Stmt::Assignment(a) => {
+                for e in a.expressions() {
+                    if let Expression::FunctionCall(fc) = e {
+                        if let Some(call) = duel_call_from_fc(fc) { out.push(call); }
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+}
+
+fn duel_call_from_fc(fc: &FunctionCall) -> Option<DuelCall> {
+    let head = call_head_string(fc);
+    if !head.starts_with("Duel.") { return None; }
+    // Args are on the *last* Call suffix.
+    let mut last_args: Vec<String> = vec![];
+    for s in fc.suffixes() {
+        if let Suffix::Call(c) = s {
+            if let Call::AnonymousCall(args) = c {
+                last_args = call_args_to_strings(args);
+            }
+        }
+    }
+    Some(DuelCall { method: head, args: last_args })
+}
+
+fn render_report(r: &LuaReport) -> String {
+    let mut out = String::new();
+    if let Some(e) = &r.parse_error {
+        writeln!(out, "PARSE ERROR: {}", e).ok();
+        return out;
+    }
+    writeln!(out, "=== effects: {} ===", r.effects.len()).ok();
+    for (i, e) in r.effects.iter().enumerate() {
+        writeln!(out, "  [{}] binding={} ", i, e.binding).ok();
+        for (m, args) in &e.set_calls {
+            writeln!(out, "      {}({})", m, args.join(", ")).ok();
+        }
+        if let Some(op) = &e.operation_handler {
+            writeln!(out, "      → operation handler: {}", op).ok();
+            if let Some(calls) = r.functions.get(&handler_to_fn_name(op)) {
+                for c in calls {
+                    writeln!(out, "          {}({})", c.method, c.args.join(", ")).ok();
+                }
+            }
+        }
+    }
+    writeln!(out, "=== functions w/ Duel.* calls: {} ===", r.functions.len()).ok();
+    for (n, calls) in &r.functions {
+        writeln!(out, "  {} ({} duel calls)", n, calls.len()).ok();
+    }
+    out
+}
+
+/// `s.activate` (handler shorthand passed to SetOperation) maps to the
+/// declared function name `s.activate` — same string. Kept as an
+/// abstraction in case we extend to handle aliases.
+fn handler_to_fn_name(handler: &str) -> String {
+    handler.trim().to_string()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn analyze_gravedigger_ghoul() {
+        let src = r#"
+local s,id=GetID()
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetCategory(CATEGORY_REMOVE)
+    e1:SetType(EFFECT_TYPE_ACTIVATE)
+    e1:SetCode(EVENT_FREE_CHAIN)
+    e1:SetTarget(s.target)
+    e1:SetOperation(s.activate)
+    c:RegisterEffect(e1)
+end
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+    if chk==0 then return Duel.IsExistingTarget(s.filter,tp,0,LOCATION_MZONE,1,nil) end
+    Duel.SelectTarget(tp,s.filter,tp,0,LOCATION_MZONE,1,2,nil)
+end
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    Duel.Remove(g,POS_FACEUP,REASON_EFFECT)
+end
+"#;
+        let report = analyze(src);
+        // Effects discovered
+        assert!(report.contains("=== effects: 1 ==="), "expected 1 effect, got:\n{}", report);
+        assert!(report.contains("SetCategory"));
+        assert!(report.contains("SetOperation"));
+        assert!(report.contains("operation handler: s.activate"));
+        // Duel.* calls discovered for s.activate
+        assert!(report.contains("Duel.Remove"), "expected Duel.Remove, got:\n{}", report);
+    }
+}

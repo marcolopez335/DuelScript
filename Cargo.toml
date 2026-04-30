@@ -13,6 +13,8 @@ default = []
 cdb = ["rusqlite"]
 # Enable LSP server (tower-lsp + tokio)
 lsp = ["tower-lsp", "tokio", "serde_json", "serde"]
+# Enable Lua-AST translator (full-moon)
+lua_ast = ["full_moon"]
 
 [dependencies]
 pest        = "2.7"
@@ -25,6 +27,9 @@ tower-lsp   = { version = "0.20", optional = true }
 tokio       = { version = "1", features = ["io-std", "rt-multi-thread", "macros"], optional = true }
 serde       = { version = "1", features = ["derive"], optional = true }
 serde_json  = { version = "1", optional = true }
+# Optional — enable with: duelscript = { features = ["lua_ast"] }
+# `lua53` enables bitwise ops (|, &, ~, <<, >>) — EDOPro card scripts use them.
+full_moon   = { version = "2.2", optional = true, default-features = false, features = ["lua53"] }
 
 [lib]
 name = "duelscript"
@@ -47,3 +52,8 @@ required-features = ["lsp"]
 name = "translate_corpus"
 path = "src/bin/translate_corpus.rs"
 required-features = ["cdb"]
+
+[[bin]]
+name = "lua_translate"
+path = "src/bin/lua_translate.rs"
+required-features = ["lua_ast", "cdb"]
