@@ -96,6 +96,7 @@ fn main() {
             println!("  effects skipped (todo):  {}", report.effects_todo_only);
             println!("  effects skipped (no map): {}", report.effects_no_handler);
             println!("  effects skipped (no lua): {}", report.no_lua);
+            println!("  passives injected:       {}", report.passives_injected);
         }
         _ => {
             eprintln!("unknown mode: {}", mode);
@@ -112,6 +113,7 @@ struct ApplyReport {
     effects_filled: usize,
     effects_todo_only: usize,
     effects_no_handler: usize,
+    passives_injected: usize,
     no_lua: usize,
 }
 
@@ -129,15 +131,18 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             Ok(t) => t,
             Err(_) => continue,
         };
-        // Skip files without empty resolve blocks
-        if !has_empty_resolve(&txt) { continue; }
-        r.had_empty += 1;
+        let had_empty = has_empty_resolve(&txt);
+        if had_empty { r.had_empty += 1; }
+
         // Match to lua via filename stem (cXXXX.ds → cXXXX.lua)
         let stem = path.file_stem().and_then(|s| s.to_str()).unwrap_or("");
         let lua_path = Path::new(lua_dir).join(format!("{}.lua", stem));
         let lua_src = match fs::read_to_string(&lua_path) {
             Ok(s) => s,
-            Err(_) => { r.no_lua += 1; continue; }
+            Err(_) => {
+                if had_empty { r.no_lua += 1; }
+                continue;
+            }
         };
         let parsed = match full_moon::parse(&lua_src) {
             Ok(a) => a,
@@ -146,9 +151,11 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
         let walk = lua_ast::walk(&parsed);
         if walk.effects.is_empty() { continue; }
         r.translated += 1;
-        // Per effect, get translated lines
+
         let mut new_txt = txt.clone();
         let mut filled = 0usize;
+
+        // Pass A — fill empty resolve blocks via translated handler bodies.
         for eff in &walk.effects {
             let handler = match &eff.operation_handler {
                 Some(h) => h.trim().to_string(),
@@ -159,29 +166,99 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
                 None => { r.effects_no_handler += 1; continue; }
             };
             let lines = lua_ast::translate_body(body);
-            // Skip if no real ACTION line — only TODOs are not safe to inject
             if !lines.iter().any(|l| l.is_action()) {
                 r.effects_todo_only += 1;
                 continue;
             }
             let body = render_resolve_body(&lines);
-            // Replace ONE empty resolve block with the body (in declaration order)
             if let Some((lo, hi)) = first_empty_resolve(&new_txt) {
                 let injection = format!("resolve {{\n{}        }}", body);
                 new_txt = format!("{}{}{}", &new_txt[..lo], injection, &new_txt[hi..]);
                 filled += 1;
             } else {
-                break; // no more empty resolves to fill
+                break;
             }
         }
-        if filled > 0 {
+
+        // Pass B — Phase 5 passive injection. For every effect skeleton
+        // whose chain is a literal stat-modifier passive (no SetOperation
+        // / SetTarget / SetCondition / SetCost), emit a `passive { … }`
+        // block before the card's closing brace. Skips chains whose DSL
+        // text already exists in the file (avoids duplicate injection on
+        // re-runs of the apply tool).
+        let mut passives_added = 0usize;
+        let mut passive_idx = next_passive_index(&new_txt);
+        for eff in &walk.effects {
+            let Some(spec) = eff.passive_modifier_spec() else { continue };
+            let name = format!("Passive {}", passive_idx);
+            let block = spec.to_dsl_block(&name, "    ");
+            // Skip if a passive with the exact same modifier line already
+            // exists — prevents double-injection on re-runs.
+            let modifier_line = format!("modifier: {} {} {}",
+                spec.stat,
+                if spec.value < 0 { '-' } else { '+' },
+                spec.value.unsigned_abs(),
+            );
+            if new_txt.contains(&modifier_line) { continue; }
+            if let Some(pos) = card_close_brace(&new_txt) {
+                new_txt = format!("{}\n\n{}\n{}", &new_txt[..pos], block, &new_txt[pos..]);
+                passives_added += 1;
+                passive_idx += 1;
+            } else {
+                break;
+            }
+        }
+
+        if filled > 0 || passives_added > 0 {
             r.effects_filled += filled;
+            r.passives_injected += passives_added;
             if let Err(e) = fs::write(&path, new_txt) {
                 eprintln!("write {} failed: {}", path.display(), e);
             }
         }
     }
     r
+}
+
+/// Locate the closing brace of the top-level `card "<name>" { … }` block.
+/// We assume one card per file (true for cards/official/) and find the
+/// matching `}` by walking from the start counting `{`/`}` depth.
+fn card_close_brace(txt: &str) -> Option<usize> {
+    let start = txt.find("card ")?;
+    let mut depth = 0i32;
+    let mut in_string = false;
+    let mut chars = txt.char_indices().skip_while(|(i, _)| *i < start);
+    for (i, c) in chars.by_ref() {
+        match c {
+            '"' => in_string = !in_string,
+            '{' if !in_string => depth += 1,
+            '}' if !in_string => {
+                depth -= 1;
+                if depth == 0 { return Some(i); }
+            }
+            _ => {}
+        }
+    }
+    None
+}
+
+/// Inspect existing `passive "Passive N"` / `effect "Effect N"` titles
+/// and return the next free integer to avoid name collisions.
+fn next_passive_index(txt: &str) -> u32 {
+    let mut max = 0u32;
+    for marker in ["passive \"Passive ", "effect \"Effect "] {
+        let mut i = 0;
+        while let Some(p) = txt[i..].find(marker) {
+            let abs = i + p + marker.len();
+            let rest = &txt[abs..];
+            let end = rest.find('"').unwrap_or(0);
+            if let Ok(n) = rest[..end].parse::<u32>() {
+                if n > max { max = n; }
+            }
+            i = abs + end;
+        }
+    }
+    max + 1
 }
 
 fn has_empty_resolve(txt: &str) -> bool {
