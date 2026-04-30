@@ -502,6 +502,38 @@ fn translate_call(c: &DuelCall) -> Option<DslLine> {
             "discard (1+, card, you control, from hand)".to_string()
         )),
 
+        // Duel.ChangePosition(target, position) — change face-up/down
+        // attack/defense. We can't always extract position from args, but
+        // the DSL `change_position target` (no `to ...`) is valid: lets the
+        // engine pick. If we recognize a literal POS_*, we add `to`.
+        "Duel.ChangePosition" => Some(action_change_position(a)),
+
+        // Duel.Equip(player, equipper, target, ...) — equip self/target to
+        // another card. DSL: `equip <eq> to <target>`. We only handle the
+        // common shape `Duel.Equip(tp, c, target, ...)` → equip self to target.
+        "Duel.Equip" => Some(action_equip(a)),
+
+        // Duel.SSet(player, target) — set spell/trap face-down on field.
+        "Duel.SSet" => Some(DslLine::Action("set target".to_string())),
+
+        // Duel.ShuffleDeck(player) — shuffle. DSL has shuffle_deck with
+        // optional yours/opponents/both; default is implicit yours.
+        "Duel.ShuffleDeck" => Some(action_shuffle(a)),
+
+        // Duel.NegateAttack — DSL `negate` (no destroy variant).
+        "Duel.NegateAttack" => Some(DslLine::Action("negate".to_string())),
+        "Duel.NegateActivation" => Some(DslLine::Action("negate".to_string())),
+        "Duel.NegateEffect" => Some(DslLine::Action("negate".to_string())),
+
+        // Special-summon family that's not the basic SpecialSummon —
+        // engine handles them as variants of the same action.
+        "Duel.SynchroSummon" | "Duel.XyzSummon" | "Duel.LinkSummon"
+        | "Duel.FusionSummon" | "Duel.RitualSummon"
+        => Some(DslLine::Action("special_summon target".to_string())),
+
+        // Duel.Summon(player, target, ignore_count, e, min, max) — normal summon
+        "Duel.Summon" => Some(DslLine::Action("normal_summon target".to_string())),
+
         // Anything else we recognize as a duel call but don't yet map.
         _ => Some(DslLine::Todo(format!(
             "{}({})", m, a.join(", ")
@@ -529,6 +561,45 @@ fn action_damage(args: &[String]) -> DslLine {
         )),
     };
     DslLine::Action(format!("damage {} {}", player_d, amount))
+}
+
+/// `Duel.ChangePosition(target, pos)` → `change_position target [to <pos>]`.
+fn action_change_position(args: &[String]) -> DslLine {
+    let pos = args.get(1).map(String::as_str).unwrap_or("");
+    let to = match pos {
+        "POS_FACEUP_ATTACK"   => Some("attack_position"),
+        "POS_FACEUP_DEFENSE"  => Some("defense_position"),
+        // POS_FACEDOWN / POS_FACEDOWN_DEFENSE / mixed bitmasks fall through
+        _ => None,
+    };
+    match to {
+        Some(p) => DslLine::Action(format!("change_position target to {}", p)),
+        None    => DslLine::Action("change_position target".to_string()),
+    }
+}
+
+/// `Duel.Equip(player, eq, tar, ...)` → `equip self to target` for the
+/// canonical "equip this card to selected target" shape. Other shapes
+/// (equip group to single target, multi-target) → TODO.
+fn action_equip(args: &[String]) -> DslLine {
+    let eq = args.get(1).map(String::as_str).unwrap_or("");
+    let tar = args.get(2).map(String::as_str).unwrap_or("");
+    if eq == "c" && (tar == "tc" || tar == "g" || tar == "g:GetFirst()") {
+        DslLine::Action("equip self to target".to_string())
+    } else {
+        DslLine::Todo(format!("Duel.Equip(eq={}, tar={}) — non-canonical shape", eq, tar))
+    }
+}
+
+/// `Duel.ShuffleDeck(player)` → `shuffle_deck [yours|opponents]`.
+fn action_shuffle(args: &[String]) -> DslLine {
+    let player = args.first().map(String::as_str).unwrap_or("");
+    let who = match player {
+        "tp" => "yours",
+        "1-tp" => "opponents",
+        _ => return DslLine::Action("shuffle_deck".to_string()),
+    };
+    DslLine::Action(format!("shuffle_deck {}", who))
 }
 
 /// Translate `Duel.Recover(player, amount, reason)` to `gain_lp <N>`.
