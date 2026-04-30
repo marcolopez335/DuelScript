@@ -991,13 +991,9 @@ fn stat_field_to_value(field: &StatField, card_id: u32, rt: &dyn DuelScriptRunti
 
 /// Evaluate a `where_clause` predicate against a single card.
 ///
-/// Covers the goat-corpus-observed subset of predicate atoms:
-/// StatCompare, AttributeIs, RaceIs, TypeIs, NameIs, ArchetypeIs,
-/// IsMonster / IsSpell / IsTrap, IsFaceUp / IsFaceDown, and Not.
-/// Exotic atoms (IsTuner, IsFusion, IsSynchro, IsXyz, IsLink,
-/// IsRitual, IsPendulum, IsToken, IsFlip, IsEffect, IsNormal) stub
-/// to `false` — see individual TODO(M4) comments.
-/// This is a pure read — it takes `&dyn` and never mutates the runtime.
+/// All `PredicateAtom` variants are evaluated via single-bit mask
+/// checks against `get_card_type(card_id)` and trait reads. Pure
+/// — takes `&dyn` and never mutates the runtime.
 fn eval_predicate(pred: &Predicate, card_id: u32, rt: &dyn DuelScriptRuntime) -> bool {
     match pred {
         Predicate::Single(atom) => eval_predicate_atom(atom, card_id, rt),
