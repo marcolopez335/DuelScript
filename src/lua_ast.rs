@@ -97,6 +97,142 @@ pub struct EffectSkeleton {
     pub cost_handler: Option<String>,
 }
 
+impl EffectSkeleton {
+    /// First arg passed to `<binding>:<method>(...)`, or None if not called.
+    fn first_arg_of(&self, method: &str) -> Option<&str> {
+        self.set_calls.iter().find(|(m, _)| m == method)
+            .and_then(|(_, args)| args.first().map(String::as_str))
+    }
+
+    /// All args passed to `<binding>:<method>(...)`, or None if not called.
+    fn args_of(&self, method: &str) -> Option<&[String]> {
+        self.set_calls.iter().find(|(m, _)| m == method)
+            .map(|(_, args)| args.as_slice())
+    }
+
+    /// True when this skeleton has none of the activated-effect handlers
+    /// (`SetOperation` / `SetTarget` / `SetCondition` / `SetCost`). Such
+    /// chains are typically continuous modifiers registered on the card
+    /// itself in `s.initial_effect` and map to DSL `passive` blocks.
+    fn is_purely_passive(&self) -> bool {
+        self.operation_handler.is_none()
+            && self.target_handler.is_none()
+            && self.condition_handler.is_none()
+            && self.cost_handler.is_none()
+    }
+
+    /// If this skeleton is a literal stat-modifier passive
+    /// (`SetCode(EFFECT_UPDATE_ATTACK|DEFENSE)` + literal `SetValue`,
+    /// no activated-effect handlers), return the spec.
+    ///
+    /// Returns None for `EFFECT_TYPE_FIELD` chains whose `SetTargetRange`
+    /// is missing — without that arg we cannot know whether the modifier
+    /// applies to your monsters, opponent's, or both, and emitting a
+    /// default `scope: self` would misrepresent the semantics.
+    pub fn passive_modifier_spec(&self) -> Option<PassiveModifierSpec> {
+        if !self.registered { return None; }
+        if !self.is_purely_passive() { return None; }
+        let code = self.first_arg_of("SetCode")?;
+        let stat = match code {
+            "EFFECT_UPDATE_ATTACK"  => "atk",
+            "EFFECT_UPDATE_DEFENSE" => "def",
+            _ => return None,
+        };
+        let value: i64 = self.first_arg_of("SetValue")?.parse().ok()?;
+        let effect_type = self.first_arg_of("SetType").unwrap_or("").to_string();
+        let scope_target = derive_passive_scope_target(
+            &effect_type,
+            self.args_of("SetTargetRange"),
+        )?;
+        Some(PassiveModifierSpec {
+            stat: stat.to_string(),
+            value,
+            effect_type,
+            scope: scope_target.scope,
+            target: scope_target.target,
+        })
+    }
+}
+
+/// Derived scope/target pair for a passive's emit text. `None` means we
+/// don't have enough information to render it correctly — the spec is
+/// then dropped rather than mis-emitted.
+struct PassiveScopeTarget {
+    scope: Option<&'static str>,         // "self" | "field" | None (omit)
+    target: Option<&'static str>,        // selector text or None (omit)
+}
+
+fn derive_passive_scope_target(
+    effect_type: &str,
+    target_range: Option<&[String]>,
+) -> Option<PassiveScopeTarget> {
+    // EFFECT_TYPE_EQUIP: modifier applies to the monster the spell is
+    // equipped to. DSL → `target: equipped_card`.
+    if effect_type.contains("EFFECT_TYPE_EQUIP") {
+        return Some(PassiveScopeTarget {
+            scope: None,
+            target: Some("equipped_card"),
+        });
+    }
+    // EFFECT_TYPE_FIELD: continuous field-wide modifier. SetTargetRange
+    // determines whose monsters are affected. We map three common shapes
+    // and drop the rest (multi-zone OR-masks, custom locations, …).
+    if effect_type.contains("EFFECT_TYPE_FIELD") {
+        let args = target_range?;
+        if args.len() < 2 { return None; }
+        let my = args[0].trim();
+        let opp = args[1].trim();
+        return Some(PassiveScopeTarget {
+            scope: Some("field"),
+            target: Some(match (my, opp) {
+                ("LOCATION_MZONE", "0")              => "(all, monster, you control)",
+                ("0", "LOCATION_MZONE")              => "(all, monster, opponent controls)",
+                ("LOCATION_MZONE", "LOCATION_MZONE") => "(all, monster, either controls)",
+                _ => return None,
+            }),
+        });
+    }
+    // EFFECT_TYPE_SINGLE: modifier applies to the card itself. DSL
+    // default (no scope, no target) means self — leave both None.
+    if effect_type.contains("EFFECT_TYPE_SINGLE") {
+        return Some(PassiveScopeTarget { scope: None, target: None });
+    }
+    None
+}
+
+/// Spec for a literal stat-modifier passive — extracted from an
+/// `EffectSkeleton` whose chain is `SetType(EFFECT_TYPE_*) +
+/// SetCode(EFFECT_UPDATE_ATTACK|DEFENSE) + SetValue(<int>)` with no
+/// activated-effect handlers and a `c:RegisterEffect` commit.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PassiveModifierSpec {
+    pub stat: String,             // "atk" | "def"
+    pub value: i64,               // signed delta
+    pub effect_type: String,      // raw SetType arg
+    pub scope: Option<&'static str>,
+    pub target: Option<&'static str>,
+}
+
+impl PassiveModifierSpec {
+    /// Render to a DSL `passive "<name>" { … }` block. Emits a `scope:`
+    /// or `target:` line when needed so the modifier's reach matches
+    /// the underlying Lua chain (e.g. `target: equipped_card` for
+    /// `EFFECT_TYPE_EQUIP`).
+    pub fn to_dsl_block(&self, name: &str, indent: &str) -> String {
+        let op = if self.value < 0 { '-' } else { '+' };
+        let n = self.value.unsigned_abs();
+        let mut body = String::new();
+        if let Some(scope) = self.scope {
+            body.push_str(&format!("{indent}    scope: {scope}\n"));
+        }
+        if let Some(target) = self.target {
+            body.push_str(&format!("{indent}    target: {target}\n"));
+        }
+        body.push_str(&format!("{indent}    modifier: {} {} {}\n", self.stat, op, n));
+        format!("{indent}passive \"{name}\" {{\n{body}{indent}}}")
+    }
+}
+
 /// One `Duel.X(args...)` call extracted from a function body.
 #[derive(Debug, Clone)]
 pub struct DuelCall {
@@ -1330,6 +1466,143 @@ end
         let values: Vec<_> = body.register_chains.iter()
             .filter_map(|c| c.value.as_deref()).collect();
         assert_eq!(values, vec!["300", "300"]);
+    }
+
+    #[test]
+    fn passive_modifier_spec_extracted_from_equip_chain() {
+        // Laser Cannon Armor: e2 is EFFECT_TYPE_EQUIP + UPDATE_ATTACK +
+        // SetValue(300) registered on c with no SetOperation/Target.
+        let src = r#"
+function s.initial_effect(c)
+    aux.AddEquipProcedure(c,nil)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_EQUIP)
+    e2:SetCode(EFFECT_UPDATE_ATTACK)
+    e2:SetValue(300)
+    c:RegisterEffect(e2)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let skel = report.effects.iter().find(|s| s.binding == "e2").expect("e2 skel");
+        let spec = skel.passive_modifier_spec().expect("passive spec");
+        assert_eq!(spec.stat, "atk");
+        assert_eq!(spec.value, 300);
+        assert_eq!(spec.effect_type, "EFFECT_TYPE_EQUIP");
+        assert_eq!(spec.target, Some("equipped_card"));
+        let dsl = spec.to_dsl_block("Equip ATK", "    ");
+        assert_eq!(
+            dsl,
+            "    passive \"Equip ATK\" {\n\
+             \x20       target: equipped_card\n\
+             \x20       modifier: atk + 300\n\
+             \x20   }"
+        );
+    }
+
+    #[test]
+    fn passive_modifier_spec_field_with_target_range() {
+        // Threshold Borg: EFFECT_TYPE_FIELD with TargetRange(0, MZONE)
+        // → opponent monsters get -500 ATK.
+        let src = r#"
+function s.initial_effect(c)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_FIELD)
+    e2:SetRange(LOCATION_MZONE)
+    e2:SetTargetRange(0,LOCATION_MZONE)
+    e2:SetCode(EFFECT_UPDATE_ATTACK)
+    e2:SetValue(-500)
+    c:RegisterEffect(e2)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let skel = &report.effects[0];
+        let spec = skel.passive_modifier_spec().expect("passive spec");
+        assert_eq!(spec.scope, Some("field"));
+        assert_eq!(spec.target, Some("(all, monster, opponent controls)"));
+        let dsl = spec.to_dsl_block("Penalty", "    ");
+        assert!(dsl.contains("scope: field"), "got:\n{}", dsl);
+        assert!(dsl.contains("target: (all, monster, opponent controls)"));
+        assert!(dsl.contains("modifier: atk - 500"));
+    }
+
+    #[test]
+    fn passive_modifier_spec_field_without_target_range_skipped() {
+        let src = r#"
+function s.initial_effect(c)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_FIELD)
+    e2:SetRange(LOCATION_MZONE)
+    e2:SetCode(EFFECT_UPDATE_ATTACK)
+    e2:SetValue(100)
+    c:RegisterEffect(e2)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let skel = &report.effects[0];
+        assert!(skel.passive_modifier_spec().is_none(),
+            "FIELD chain without SetTargetRange should be skipped");
+    }
+
+    #[test]
+    fn passive_modifier_spec_skips_activated_effects() {
+        // Chain with SetOperation is an activated effect — not passive.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_ACTIVATE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(500)
+    e1:SetOperation(s.activate)
+    c:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let skel = &report.effects[0];
+        assert!(skel.passive_modifier_spec().is_none(),
+            "skeletons with SetOperation should not be passive candidates");
+    }
+
+    #[test]
+    fn passive_modifier_spec_skips_non_literal_value() {
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_EQUIP)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(s.atkval)
+    c:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let skel = &report.effects[0];
+        assert!(skel.passive_modifier_spec().is_none(),
+            "non-literal SetValue should not be passive candidate");
+    }
+
+    #[test]
+    fn passive_modifier_spec_negative_value() {
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_EQUIP)
+    e1:SetCode(EFFECT_UPDATE_DEFENSE)
+    e1:SetValue(-200)
+    c:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let skel = &report.effects[0];
+        let spec = skel.passive_modifier_spec().expect("passive spec");
+        assert_eq!(spec.stat, "def");
+        assert_eq!(spec.value, -200);
+        let dsl = spec.to_dsl_block("Penalty", "    ");
+        assert!(dsl.contains("modifier: def - 200"), "got:\n{}", dsl);
     }
 
     #[test]
