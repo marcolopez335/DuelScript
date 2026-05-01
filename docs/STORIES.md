@@ -2,7 +2,7 @@
 
 Active backlog of work items, ordered by yield. Each story states the goal, the agent, the acceptance criteria, and the dependency chain.
 
-State as of 2026-05-01 — `cards/official/` parses 13,298 / 13,298, **3,469 errors** / **585 warnings** remain (post-Phase 7).
+State as of 2026-05-01 — `cards/official/` parses 13,298 / 13,298, **3,469 errors** / **585 warnings** remain (post-Phase 8).
 
 ---
 
@@ -57,21 +57,8 @@ Lua-side: 951 candidate chains across 882 cards in `s.initial_effect`. After `is
 
 ---
 
-### Phase 8 — `s.target` body extraction
-**Goal.** Translate `s.target` handler bodies into DSL `target <selector>` declarations on the effect.
-
-**Yield estimate.** ~400 cards.
-
-**Approach.**
-- Reuse existing `SelectorSpec` extraction (Phase 3a/b already extracts `Duel.SelectTarget(...)` calls).
-- Promote it from "in-resolve binding" to "effect-level target" when the call appears in `s.target`.
-- Skip targets with custom Lua filter closures (deferred).
-
-**Acceptance.**
-- Apply emits ≥ 200 target lines.
-- Roundtrip + corpus check passes.
-
-**Agent.** `lua-translator`.
+### ~~Phase 8 — `s.target` body extraction~~ ✓ shipped (PR #70)
+**Shipped.** 0 errors delta, 0 warnings delta, 301 target declarations added across 301 cards. Two generic-filter shapes covered: `nil` filter (161 cards) and `aux.TRUE` filter (140 cards). `extract_target_decl` added to `lua_ast.rs`, reusing `spec_from_matching` / `SelectorSpec` from Phase 3a/b. Pass E added to `lua_translate apply`. 7 unit tests added (253 total lua_ast,cdb). `LOCATION_PZONE` → `pendulum_zone` and `LOCATION_MMZONE` → `extra_monster_zone` added to `zone_from_locations`; `LOCATION_FZONE` / `field_zone` omitted (PEG grammar ordered-choice conflict — "field" matches before "field_zone"). Custom named filters (~3,254 cards), variable quantities (28), and empty-resolve cards (33) deferred to Phase 8b.
 
 ---
 
