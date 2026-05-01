@@ -23,7 +23,7 @@ use std::collections::BTreeMap;
 use std::fmt::Write;
 
 use full_moon::ast;
-use full_moon::ast::{Stmt, Expression, FunctionCall, Suffix, Call, Index, Block};
+use full_moon::ast::{Stmt, Expression, FunctionCall, Suffix, Call, Index, Block, LastStmt};
 
 /// Top-level analysis report for one Lua file.
 #[derive(Debug, Default)]
@@ -46,6 +46,10 @@ pub struct FunctionBody {
     /// Phase 4c uses this to resolve `SetValue(atk)` shapes where `atk`
     /// is `local atk = c:GetAttack()` defined earlier in the handler.
     pub value_bindings: BTreeMap<String, String>,
+    /// The return expression text, when the function body is a single
+    /// `return <expr>` with no preceding statements. Phase 6 uses this to
+    /// extract DSL `condition: <expr>` from `s.condition` handler bodies.
+    pub return_expr: Option<String>,
 }
 
 /// One `Effect.CreateEffect → SetX → <recv>:RegisterEffect(eN)` chain
@@ -288,14 +292,17 @@ fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
             let group_bindings = extract_group_bindings(body_block);
             let register_chains = extract_register_chains(body_block);
             let value_bindings = extract_value_bindings(body_block);
+            let return_expr = extract_return_expr(body_block);
             if !calls.is_empty() || !group_bindings.is_empty()
                 || !register_chains.is_empty() || !value_bindings.is_empty()
+                || return_expr.is_some()
             {
                 report.functions.insert(name, FunctionBody {
                     calls,
                     group_bindings,
                     register_chains,
                     value_bindings,
+                    return_expr,
                 });
             }
         }
@@ -597,6 +604,231 @@ fn collect_value_bindings(block: &Block, out: &mut BTreeMap<String, String>) {
             _ => {}
         }
     }
+}
+
+/// Extract the return expression text from a block whose last statement is
+/// `return <expr>`. Only succeeds when the block has NO preceding statements
+/// (pure-predicate functions), ensuring we don't misread the expression for
+/// multi-statement bodies where local aliases would need substitution.
+fn extract_return_expr(block: &Block) -> Option<String> {
+    // Reject multi-statement bodies — local bindings before `return` would
+    // require alias substitution we don't do here.
+    if block.stmts().next().is_some() { return None; }
+    match block.last_stmt()? {
+        LastStmt::Return(ret) => {
+            let mut iter = ret.returns().iter();
+            let expr = iter.next()?;
+            if iter.next().is_some() { return None; } // multi-value return
+            let text = expr.to_string();
+            let text = text.trim();
+            if text.is_empty() { return None; }
+            Some(text.to_string())
+        }
+        _ => None,
+    }
+}
+
+// ── Phase 6: condition expression extraction ─────────────────────────────
+
+/// Translate a `s.condition` handler body into a DSL `condition: <expr>`
+/// string. Returns `None` when the body is complex (multi-line) or uses
+/// a predicate shape that has no grammar atom — skip-not-mis-emit.
+///
+/// Supported atoms (backed by the `condition_atom` grammar rule):
+/// - `phase == <phase>`      from `Duel.IsBattlePhase()` / `Duel.IsPhase(PHASE_*)`
+/// - `in_gy`                 from `e:GetHandler():IsLocation(LOCATION_GRAVE)`
+/// - `on_field`              from `e:GetHandler():IsLocation(LOCATION_MZONE/ONFIELD)`
+/// - `in_hand`               from `e:GetHandler():IsLocation(LOCATION_HAND)`
+/// - `in_banished`           from `e:GetHandler():IsLocation(LOCATION_REMOVED)`
+/// - `previous_location == <zone>` from `GetPreviousLocation()` / `IsPreviousLocation`
+/// - `reason == <filter>`    from `IsReason(REASON_*)` or `r==REASON_*`
+/// - `reason includes <filter>` from `(r&REASON_*)~=0`
+/// - `lp <op> N`             from `Duel.GetLP(tp) <op> N`
+/// - `opponent_lp <op> N`    from `Duel.GetLP(1-tp) <op> N`
+///
+/// Compound conditions (`A and B`, `A or B`) are supported when each atom
+/// translates — mirrors `condition_expr = condition_atom ~ (conjunction ~ condition_atom)*`.
+pub fn extract_condition_expr(body: &FunctionBody) -> Option<String> {
+    let ret = body.return_expr.as_deref()?;
+    let ret = ret.trim();
+    // Try single atom first.
+    if let Some(dsl) = cond_atom(ret) { return Some(dsl); }
+    // Try compound: split on " and " then " or ".
+    cond_compound(ret, " and ", " and ")
+        .or_else(|| cond_compound(ret, " or ", " or "))
+}
+
+/// Attempt to translate the compound expression `lhs <conj_lua> rhs` (split
+/// on `conj_lua`) into DSL atoms joined by `conj_dsl`. Returns None if any
+/// part fails to translate.
+fn cond_compound(ret: &str, conj_lua: &str, conj_dsl: &str) -> Option<String> {
+    let parts: Vec<&str> = ret.splitn(usize::MAX, conj_lua).collect();
+    if parts.len() < 2 { return None; }
+    let translated: Vec<String> = parts.iter()
+        .map(|p| cond_atom(p.trim()))
+        .collect::<Option<Vec<_>>>()?;
+    Some(translated.join(conj_dsl))
+}
+
+/// Map a single Lua return-expression to a DSL `condition_atom`. Returns None
+/// for any shape that lacks a grammar atom — the caller will skip the card.
+fn cond_atom(expr: &str) -> Option<String> {
+    let expr = expr.trim();
+
+    // "not <atom>"
+    if let Some(inner) = expr.strip_prefix("not ") {
+        return cond_atom(inner.trim()).map(|a| format!("not {a}"));
+    }
+
+    // Phase predicates
+    if expr == "Duel.IsBattlePhase()" {
+        return Some("phase == battle".to_string());
+    }
+    if let Some(rest) = expr.strip_prefix("Duel.IsPhase(") {
+        if let Some(phase) = rest.strip_suffix(')') {
+            if let Some(dsl) = phase_const_to_dsl(phase) {
+                return Some(format!("phase == {dsl}"));
+            }
+        }
+    }
+
+    // LP comparisons: Duel.GetLP(tp) <op> N
+    if let Some(rest) = expr.strip_prefix("Duel.GetLP(tp)") {
+        if let Some(dsl) = lp_cmp_to_dsl(rest.trim(), "lp") {
+            return Some(dsl);
+        }
+    }
+    if let Some(rest) = expr.strip_prefix("Duel.GetLP(1-tp)") {
+        if let Some(dsl) = lp_cmp_to_dsl(rest.trim(), "opponent_lp") {
+            return Some(dsl);
+        }
+    }
+
+    // Self-location: e:GetHandler():IsLocation(LOCATION_*)
+    if let Some(rest) = expr.strip_prefix("e:GetHandler():IsLocation(") {
+        if let Some(loc) = rest.strip_suffix(')') {
+            if let Some(dsl) = self_loc_to_dsl(loc) {
+                return Some(dsl.to_string());
+            }
+        }
+    }
+
+    // Previous location — two API variants
+    if let Some(rest) = expr.strip_prefix("e:GetHandler():GetPreviousLocation()==") {
+        if let Some(dsl) = zone_const_to_dsl(rest) {
+            return Some(format!("previous_location == {dsl}"));
+        }
+    }
+    if let Some(rest) = expr.strip_prefix("e:GetHandler():IsPreviousLocation(") {
+        if let Some(loc) = rest.strip_suffix(')') {
+            if let Some(dsl) = zone_const_to_dsl(loc) {
+                return Some(format!("previous_location == {dsl}"));
+            }
+        }
+    }
+
+    // Reason — via IsReason method
+    if let Some(rest) = expr.strip_prefix("e:GetHandler():IsReason(") {
+        if let Some(reason) = rest.strip_suffix(')') {
+            if let Some(dsl) = reason_const_to_dsl(reason) {
+                return Some(format!("reason == {dsl}"));
+            }
+        }
+    }
+    // Reason — via r==REASON_* (exact equality)
+    if let Some(rest) = expr.strip_prefix("r==") {
+        if let Some(dsl) = reason_const_to_dsl(rest) {
+            return Some(format!("reason == {dsl}"));
+        }
+    }
+    // Reason — via (r&REASON_*)~=0 (bit-flag membership)
+    if let (Some(inner), true) = (
+        expr.strip_prefix('(').and_then(|s| s.strip_suffix(")~=0")),
+        expr.ends_with(")~=0"),
+    ) {
+        if let Some(rest) = inner.strip_prefix("r&") {
+            if let Some(dsl) = reason_const_to_dsl(rest) {
+                return Some(format!("reason includes {dsl}"));
+            }
+        }
+    }
+
+    None
+}
+
+fn phase_const_to_dsl(c: &str) -> Option<&'static str> {
+    Some(match c {
+        "PHASE_DRAW"       => "draw",
+        "PHASE_STANDBY"    => "standby",
+        "PHASE_MAIN1"      => "main1",
+        "PHASE_BATTLE"     => "battle",
+        "PHASE_MAIN2"      => "main2",
+        "PHASE_END"        => "end",
+        "PHASE_DAMAGE"     => "damage",
+        "PHASE_DAMAGE_CAL" => "damage_calculation",
+        _ => return None,
+    })
+}
+
+fn self_loc_to_dsl(loc: &str) -> Option<&'static str> {
+    Some(match loc {
+        "LOCATION_GRAVE"   => "in_gy",
+        "LOCATION_MZONE"   => "on_field",
+        "LOCATION_ONFIELD" => "on_field",
+        "LOCATION_HAND"    => "in_hand",
+        "LOCATION_REMOVED" => "in_banished",
+        _ => return None,
+    })
+}
+
+fn zone_const_to_dsl(loc: &str) -> Option<&'static str> {
+    Some(match loc {
+        "LOCATION_GRAVE"   => "gy",
+        "LOCATION_MZONE"   => "field",
+        "LOCATION_ONFIELD" => "field",
+        "LOCATION_HAND"    => "hand",
+        "LOCATION_REMOVED" => "banished",
+        "LOCATION_DECK"    => "deck",
+        "LOCATION_EXTRA"   => "extra_deck",
+        "LOCATION_SZONE"   => "spell_trap_zone",
+        _ => return None,
+    })
+}
+
+fn reason_const_to_dsl(reason: &str) -> Option<&'static str> {
+    Some(match reason {
+        "REASON_EFFECT"   => "effect",
+        "REASON_BATTLE"   => "battle",
+        "REASON_COST"     => "cost",
+        "REASON_MATERIAL" => "material",
+        "REASON_RELEASE"  => "release",
+        "REASON_RULE"     => "rule",
+        "REASON_DISCARD"  => "discard",
+        "REASON_RETURN"   => "return",
+        "REASON_SUMMON"   => "summon",
+        "REASON_DESTROY"  => "destroy",
+        _ => return None,
+    })
+}
+
+/// Translate a LP-comparison suffix like `<=3000`, `>= 100` into DSL form.
+fn lp_cmp_to_dsl(rest: &str, prefix: &str) -> Option<String> {
+    let (op, num) = parse_cmp_suffix(rest)?;
+    // Validate it's a valid integer
+    num.parse::<u64>().ok()?;
+    Some(format!("{prefix} {op} {num}"))
+}
+
+/// Split a `<op><num>` string (e.g. `<=3000`, `>= 100`) into (op, num).
+fn parse_cmp_suffix(s: &str) -> Option<(&str, &str)> {
+    let s = s.trim();
+    for op in [">=", "<=", "==", "!=", ">", "<"] {
+        if let Some(rest) = s.strip_prefix(op) {
+            let num = rest.trim();
+            if !num.is_empty() { return Some((op, num)); }
+        }
+    }
+    None
 }
 
 /// If the call is one of the known selector-producing Duel.* methods,
@@ -998,6 +1230,7 @@ pub fn translate_calls(calls: &[DuelCall]) -> Vec<DslLine> {
         group_bindings: BTreeMap::new(),
         register_chains: Vec::new(),
         value_bindings: BTreeMap::new(),
+        return_expr: None,
     })
 }
 
@@ -2103,5 +2336,178 @@ end
         assert!(report.contains("operation handler: s.activate"));
         // Duel.* calls discovered for s.activate
         assert!(report.contains("Duel.Remove"), "expected Duel.Remove, got:\n{}", report);
+    }
+
+    // ── Phase 6 — condition extraction tests ──────────────────────────────
+
+    fn cond_expr_from_lua(src: &str, handler: &str) -> Option<String> {
+        let parsed = full_moon::parse(src).expect("lua parse");
+        let mut report = walk(&parsed);
+        let body = report.functions.remove(handler)?;
+        extract_condition_expr(&body)
+    }
+
+    #[test]
+    fn phase6_in_gy_and_reason_battle() {
+        // Most common shape (75 cards): self is in GY and was sent by battle.
+        let src = r#"
+function s.condition(e,tp,eg,ep,ev,re,r,rp)
+    return e:GetHandler():IsLocation(LOCATION_GRAVE) and e:GetHandler():IsReason(REASON_BATTLE)
+end
+"#;
+        assert_eq!(
+            cond_expr_from_lua(src, "s.condition"),
+            Some("in_gy and reason == battle".to_string()),
+        );
+    }
+
+    #[test]
+    fn phase6_phase_main1() {
+        // Phase predicate (19 cards).
+        let src = r#"
+function s.condition(e,tp,eg,ep,ev,re,r,rp)
+    return Duel.IsPhase(PHASE_MAIN1)
+end
+"#;
+        assert_eq!(
+            cond_expr_from_lua(src, "s.condition"),
+            Some("phase == main1".to_string()),
+        );
+    }
+
+    #[test]
+    fn phase6_previous_location_field() {
+        // Previous-location predicate via GetPreviousLocation (17 cards).
+        let src = r#"
+function s.condition(e,tp,eg,ep,ev,re,r,rp)
+    return e:GetHandler():GetPreviousLocation()==LOCATION_ONFIELD
+end
+"#;
+        assert_eq!(
+            cond_expr_from_lua(src, "s.condition"),
+            Some("previous_location == field".to_string()),
+        );
+    }
+
+    #[test]
+    fn phase6_previous_location_gy_is_method() {
+        // Previous-location via IsPreviousLocation (alternate API, 10 cards).
+        let src = r#"
+function s.condition(e,tp,eg,ep,ev,re,r,rp)
+    return e:GetHandler():IsPreviousLocation(LOCATION_GRAVE)
+end
+"#;
+        assert_eq!(
+            cond_expr_from_lua(src, "s.condition"),
+            Some("previous_location == gy".to_string()),
+        );
+    }
+
+    #[test]
+    fn phase6_in_gy() {
+        // Self-location single atom (8 cards).
+        let src = r#"
+function s.condition(e,tp,eg,ep,ev,re,r,rp)
+    return e:GetHandler():IsLocation(LOCATION_GRAVE)
+end
+"#;
+        assert_eq!(
+            cond_expr_from_lua(src, "s.condition"),
+            Some("in_gy".to_string()),
+        );
+    }
+
+    #[test]
+    fn phase6_phase_battle() {
+        // IsBattlePhase shorthand (5 cards).
+        let src = r#"
+function s.condition(e,tp,eg,ep,ev,re,r,rp)
+    return Duel.IsBattlePhase()
+end
+"#;
+        assert_eq!(
+            cond_expr_from_lua(src, "s.condition"),
+            Some("phase == battle".to_string()),
+        );
+    }
+
+    #[test]
+    fn phase6_lp_compare() {
+        // LP comparison (3 cards).
+        let src = r#"
+function s.condition(e,tp,eg,ep,ev,re,r,rp)
+    return Duel.GetLP(tp)<=3000
+end
+"#;
+        assert_eq!(
+            cond_expr_from_lua(src, "s.condition"),
+            Some("lp <= 3000".to_string()),
+        );
+    }
+
+    #[test]
+    fn phase6_opponent_lp_compare() {
+        // Opponent LP comparison (3 cards).
+        let src = r#"
+function s.condition(e,tp,eg,ep,ev,re,r,rp)
+    return Duel.GetLP(1-tp)>=4000
+end
+"#;
+        assert_eq!(
+            cond_expr_from_lua(src, "s.condition"),
+            Some("opponent_lp >= 4000".to_string()),
+        );
+    }
+
+    #[test]
+    fn phase6_reason_destroy_compound() {
+        // Compound: previous_location == field AND reason == destroy (3 cards).
+        let src = r#"
+function s.condition(e,tp,eg,ep,ev,re,r,rp)
+    return e:GetHandler():IsPreviousLocation(LOCATION_ONFIELD) and e:GetHandler():IsReason(REASON_DESTROY)
+end
+"#;
+        assert_eq!(
+            cond_expr_from_lua(src, "s.condition"),
+            Some("previous_location == field and reason == destroy".to_string()),
+        );
+    }
+
+    #[test]
+    fn phase6_not_reason_battle() {
+        // Negated atom: not reason == battle (1 card).
+        let src = r#"
+function s.condition(e,tp,eg,ep,ev,re,r,rp)
+    return not e:GetHandler():IsReason(REASON_BATTLE) and e:GetHandler():IsPreviousLocation(LOCATION_ONFIELD)
+end
+"#;
+        assert_eq!(
+            cond_expr_from_lua(src, "s.condition"),
+            Some("not reason == battle and previous_location == field".to_string()),
+        );
+    }
+
+    #[test]
+    fn phase6_multi_line_body_skipped() {
+        // Multi-line body should NOT be extracted (complex logic).
+        let src = r#"
+function s.condition(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    return c:IsLocation(LOCATION_GRAVE)
+end
+"#;
+        // Local binding before return → body.return_expr is None → no extraction.
+        assert_eq!(cond_expr_from_lua(src, "s.condition"), None);
+    }
+
+    #[test]
+    fn phase6_untranslatable_shape_skipped() {
+        // IsTurnPlayer has no grammar atom → should return None.
+        let src = r#"
+function s.condition(e,tp,eg,ep,ev,re,r,rp)
+    return Duel.IsTurnPlayer(tp)
+end
+"#;
+        assert_eq!(cond_expr_from_lua(src, "s.condition"), None);
     }
 }
