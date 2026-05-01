@@ -13,53 +13,39 @@ These reuse existing DSL syntax. Each is a single `lua-translator` PR.
 ### ~~Phase 4c — non-literal SetValue~~ ✓ shipped (PR #61)
 **Shipped.** -13 errors, -6 warnings. Direct method calls (\`tc:GetAttack()\` etc.), one-step math, unary minus, and local-var resolution covered. Function-refs and inline closures deferred to Phase 4d.
 
-### Phase 4d — function-ref + closure SetValue (was 4c deferred)
-**Goal.** Inspect bodies of `s.atkval(e,c) return <expr> end` and `SetValue(function(e,c) return <expr> end)` to extract the same DSL stat-ref / math-expr forms Phase 4c handles.
+### ~~Phase 4d — function-ref + closure SetValue~~ ✗ dropped (2026-04-30 audit)
+**Audit finding.** Re-audit at Phase 4d kickoff (2026-04-30) revealed the original 77-card estimate counted predicate filter function-refs (target/disable/replacement filters returning booleans like `c == e:GetLabelObject()`) as if they were numeric stat-value functions. Filtering to actual `EFFECT_UPDATE_ATTACK`/`EFFECT_UPDATE_DEFENSE` chains:
 
-**Yield estimate.** ~62 function-refs + ~15 inline closures = ~77 cards (per the Phase 4c audit).
+- Handler-body path (where `parse_lua_value` runs): **0 cards** with empty resolve and translatable function-ref / closure SetValue.
+- Passive path (`s.initial_effect` → `passive_modifier_spec`, different code path): ~3 cards (`c:GetBaseAttack()*2`, `c:GetLevel()*100` shapes) — below floor.
+- Passive path with stat extensions: ~10 cards using `c:GetCounter(...)*N` / `c:GetOverlayCount()*N` — needs DSL `self.counter` / `self.overlay_count` grammar additions first.
+- Passive path with `Duel.GetMatchingGroupCount(...)*N`: ~7 cards — needs DSL `count(<selector>)` integration in passive emit.
 
-**Approach.**
-- Phase 4c's `parse_lua_value` already handles the body shapes — just need to feed the right text in.
-- For `s.<name>` refs, look up `report.functions[s.<name>]` and find the `return <expr>` statement, then run Phase 4c's parser over `<expr>`.
-- For inline closures, parse the closure body directly.
-
-**Acceptance.**
-- ≥ 30 new modify_atk/def lines emitted.
-- Zero regressions.
-
-**Agent.** `lua-translator`.
-
-**Depends on.** Phase 4c (✓ shipped).
+**Decision.** Drop Phase 4d. The ~20 cards in the passive path can be revisited as a future "Phase 5e — non-literal passive modifier value" once stat-extension grammar (overlay_count / counter / count(selector)) is added. Tracked below in the grammar T-series.
 
 ---
 
-### Phase 5c — non-stat passive codes (grants)
-**Goal.** Translate `Effect.CreateEffect → SetCode(<non-update-stat>)` chains in `s.initial_effect` into DSL `passive { grant: ... }` lines.
+---
 
-**Code map (target the highest-frequency first):**
-| EFFECT_* code | DSL grant ability |
+### ~~Phase 5c — non-stat passive codes (grants)~~ ✗ shipped-by-history (2026-04-30 audit)
+**Audit finding.** Re-audit at Phase 5c kickoff revealed legacy v1-era sprints (Sprint 41 "grant-style continuous codes" + Sprint 68b "grant conversion") already populated the corpus with grant blocks before the v2 rewrite:
+
+| ability | existing `grant:` lines in corpus |
 |---|---|
-| `EFFECT_INDESTRUCTABLE_BATTLE` | `cannot_be_destroyed by battle` |
-| `EFFECT_INDESTRUCTABLE_EFFECT` | `cannot_be_destroyed by effect` |
-| `EFFECT_INDESTRUCTABLE` | `cannot_be_destroyed` |
-| `EFFECT_CANNOT_ATTACK` | `cannot_attack` |
-| `EFFECT_CANNOT_BE_EFFECT_TARGET` | `cannot_be_targeted` |
-| `EFFECT_IMMUNE_EFFECT` | (needs new grant — defer) |
+| `cannot_be_destroyed by battle` | 619 |
+| `cannot_be_destroyed by effect` | 446 |
+| `cannot_attack` | 642 |
+| `cannot_be_targeted` | 544 |
+| **total** | **2,251** |
 
-**Yield estimate.** ~100-200 cards.
+Lua-side: 951 candidate chains across 882 cards in `s.initial_effect`. After `is_purely_passive` gate + safe FIELD-shape whitelist: 285 chains / 269 cards. Per-card deficit check (lua-chain count > existing-grant count for same ability): **0 cards**. Yield = 0.
 
-**Approach.**
-- Extend `EffectSkeleton::passive_modifier_spec()` with sibling `passive_grant_spec()` returning a `GrantAbility` enum mirror.
-- Reuse the same Pass B injection path in `lua_translate.rs`.
+**Decision.** Mark shipped-by-history. STORIES estimate did not account for legacy translation passes; the only viable bucket is the in-resolve register-chain population (Phase 4e below).
 
-**Acceptance.**
-- ≥ 5 of the listed codes covered.
-- Zero regressions; tests + roundtrip pass.
-- Sample inspection: at least 5 cards spot-check semantically correct.
+---
 
-**Agent.** `lua-translator`.
-
-**Depends on.** Nothing.
+### ~~Phase 4e — in-resolve grant chains~~ ✓ shipped (PR #63)
+**Shipped.** -50 errors, -18 warnings, 61 grant lines added across 50 cards. Four ability codes covered (EFFECT_INDESTRUCTABLE_BATTLE / EFFECT_INDESTRUCTABLE_EFFECT / EFFECT_CANNOT_ATTACK / EFFECT_CANNOT_BE_EFFECT_TARGET). `translate_register_chain` split into stat-modifier vs grant paths sharing a `resolve_chain_selector` helper; reset gate mandatory for grants.
 
 ---
 
@@ -176,7 +162,21 @@ These cross the parse-to-runtime seam. Each is a `grammar-extender` PR.
 
 ---
 
-### T34 — `choose { ... }` block in resolve
+### T34 — `self.overlay_count` / `self.counter(name)` stats in passive expr
+**Goal.** Extend DSL `expr` grammar with stat-refs for overlay materials and named counters so the dropped Phase 4d's passive-path cards (~17) become translatable. Currently `passive_modifier_spec` bails on non-literal SetValue.
+
+**Yield (post-grammar).** ~10 overlay/counter cards + ~7 count(selector) cards = ~17 cards if combined with a follow-up translator extension to `passive_modifier_spec`.
+
+**Approach.**
+1. Add `self.overlay_count` and `self.counter(<name>)` to grammar `expr` rule.
+2. Wire AST + compiler (mock + DuelScriptRuntime trait method).
+3. Follow-up translator pass: extend `passive_modifier_spec` to handle non-literal SetValue with `c:GetOverlayCount()*N` / `c:GetCounter(0xN)*N` shapes.
+
+**Agent.** `grammar-extender` first; then `lua-translator` for the passive-side translator extension.
+
+---
+
+### T35 — `choose { ... }` block in resolve
 **Goal.** Translate `Duel.SelectOption(tp, ...)` UI choices into a `choose { ... }` block (already exists in grammar but is rarely used).
 
 **Pre-spec letter.** TBD.
