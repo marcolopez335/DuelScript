@@ -2,7 +2,7 @@
 
 Active backlog of work items, ordered by yield. Each story states the goal, the agent, the acceptance criteria, and the dependency chain.
 
-State as of 2026-04-30 — `cards/official/` parses 13,298 / 13,298, **3,539 errors** / **611 warnings** remain.
+State as of 2026-04-30 — `cards/official/` parses 13,298 / 13,298, **3,476 errors** / **587 warnings** remain (post-Phase 4e).
 
 ---
 
@@ -22,8 +22,6 @@ These reuse existing DSL syntax. Each is a single `lua-translator` PR.
 - Passive path with `Duel.GetMatchingGroupCount(...)*N`: ~7 cards — needs DSL `count(<selector>)` integration in passive emit.
 
 **Decision.** Drop Phase 4d. The ~20 cards in the passive path can be revisited as a future "Phase 5e — non-literal passive modifier value" once stat-extension grammar (overlay_count / counter / count(selector)) is added. Tracked below in the grammar T-series.
-
----
 
 ---
 
