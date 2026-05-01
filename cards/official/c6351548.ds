@@ -12,6 +12,7 @@ card "Dawn Knight" {
         once_per_turn: hard
         timing: if
         trigger: custom "chain_end"
+        condition: previous_location == field
         resolve {
             send (all, card, either controls) to gy
         }
@@ -22,6 +23,7 @@ card "Dawn Knight" {
         once_per_turn: hard
         mandatory
         trigger: custom "chain_end"
+        condition: previous_location == deck
         resolve {
             return (all, card, either controls) to deck
         }
