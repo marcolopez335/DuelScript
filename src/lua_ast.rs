@@ -816,6 +816,40 @@ fn extract_cost_from_body(body: &FunctionBody) -> Option<CostBlockSpec> {
     Some(CostBlockSpec { actions })
 }
 
+// ── Phase 8: target declaration extraction ───────────────────────────────
+
+/// Translate a `s.target` handler body into a `SelectorSpec` for the
+/// effect-level `target <selector>` declaration.
+///
+/// Returns `Some(SelectorSpec)` when:
+/// - The handler body contains a `Duel.SelectTarget` call.
+/// - The filter arg (index 1) is `nil` or `aux.TRUE` — generic selector,
+///   no custom predicate to mis-emit.
+/// - Both min and max quantity args are integer literals (fixed quantity).
+///
+/// Returns `None` when the filter is a custom function reference or the
+/// quantity is non-literal — skip-not-mis-emit per Phase 8 spec.
+pub fn extract_target_decl(
+    target_handler: &str,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Option<SelectorSpec> {
+    let handler = target_handler.trim();
+    let body = functions.get(handler)?;
+
+    // Find the first Duel.SelectTarget call in the handler body.
+    let call = body.calls.iter().find(|c| c.method == "Duel.SelectTarget")?;
+    let args = &call.args;
+    // args: 0=select_p, 1=filter, 2=scope_p, 3=my_locs, 4=opp_locs, 5=min, 6=max, [7=exception]
+    if args.len() < 7 { return None; }
+
+    // Filter must be nil or aux.TRUE — custom predicates are deferred.
+    let filter = args[1].trim();
+    if filter != "nil" && filter != "aux.TRUE" { return None; }
+
+    // Reuse the existing resolve-context extractor (same arg layout).
+    spec_from_matching(args, true, true)
+}
+
 // ── Phase 6: condition expression extraction ─────────────────────────────
 
 /// Translate a `s.condition` handler body into a DSL `condition: <expr>`
@@ -1121,6 +1155,8 @@ fn zone_from_locations(my: &str, opp: &str) -> Option<String> {
         "LOCATION_SZONE"    => Some("spell_trap_zone"),
         "LOCATION_EXTRA"    => Some("extra_deck"),
         "LOCATION_ONFIELD"  => Some("field"),
+        "LOCATION_PZONE"    => Some("pendulum_zone"),
+        "LOCATION_MMZONE"   => Some("extra_monster_zone"),
         _ => None, // OR'd locations or unknown
     }?;
     Some(format!("from {}", zone))
@@ -2865,5 +2901,116 @@ end
         let spec = cost_block_from_lua(src, "s.cost").expect("cost block");
         assert_eq!(spec.actions.len(), 1);
         assert_eq!(spec.actions[0], CostAction::PayLp("500".to_string()));
+    }
+
+    // ── Phase 8 — target declaration extraction tests ────────────────────
+
+    fn target_decl_from_lua(src: &str, handler: &str) -> Option<SelectorSpec> {
+        let parsed = full_moon::parse(src).expect("lua parse");
+        let report = walk(&parsed);
+        extract_target_decl(handler, &report.functions)
+    }
+
+    #[test]
+    fn phase8_nil_filter_either_field() {
+        // Most common shape: nil filter, both sides LOCATION_ONFIELD.
+        let src = r#"
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+    if chkc then return chkc:IsOnField() end
+    if chk==0 then return Duel.IsExistingTarget(nil,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
+    Duel.SelectTarget(tp,nil,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
+end
+"#;
+        let spec = target_decl_from_lua(src, "s.target").expect("spec");
+        assert_eq!(spec.quantity, "1");
+        assert_eq!(spec.controller, Some("either controls".to_string()));
+        assert_eq!(spec.zone, Some("from field".to_string()));
+        assert_eq!(spec.to_dsl(), "(1, card, either controls, from field)");
+    }
+
+    #[test]
+    fn phase8_nil_filter_opponent_mzone() {
+        // Opponent monster zone only — typical "destroy opponent monster" shape.
+        let src = r#"
+function s.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+    if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(1-tp) end
+    if chk==0 then return Duel.IsExistingTarget(nil,tp,0,LOCATION_MZONE,1,nil) end
+    Duel.SelectTarget(tp,nil,tp,0,LOCATION_MZONE,1,1,nil)
+end
+"#;
+        let spec = target_decl_from_lua(src, "s.destg").expect("spec");
+        assert_eq!(spec.quantity, "1");
+        assert_eq!(spec.controller, Some("opponent controls".to_string()));
+        assert_eq!(spec.zone, Some("from monster_zone".to_string()));
+        assert_eq!(spec.to_dsl(), "(1, card, opponent controls, from monster_zone)");
+    }
+
+    #[test]
+    fn phase8_aux_true_filter_opponent_field() {
+        // aux.TRUE is semantically equivalent to nil — also translatable.
+        let src = r#"
+function s.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+    if chkc then return chkc:IsOnField() and chkc:IsControler(1-tp) end
+    if chk==0 then return Duel.IsExistingTarget(aux.TRUE,tp,0,LOCATION_ONFIELD,1,nil) end
+    Duel.SelectTarget(tp,aux.TRUE,tp,0,LOCATION_ONFIELD,1,1,nil)
+end
+"#;
+        let spec = target_decl_from_lua(src, "s.destg").expect("spec");
+        assert_eq!(spec.to_dsl(), "(1, card, opponent controls, from field)");
+    }
+
+    #[test]
+    fn phase8_you_control_mzone() {
+        // Your own monster zone.
+        let src = r#"
+function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+    if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) end
+    if chk==0 then return Duel.IsExistingTarget(nil,tp,LOCATION_MZONE,0,1,nil) end
+    Duel.SelectTarget(tp,nil,tp,LOCATION_MZONE,0,1,1,nil)
+end
+"#;
+        let spec = target_decl_from_lua(src, "s.negtg").expect("spec");
+        assert_eq!(spec.to_dsl(), "(1, card, you control, from monster_zone)");
+    }
+
+    #[test]
+    fn phase8_custom_filter_skipped() {
+        // Named filter function → skip to avoid mis-emit.
+        let src = r#"
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+    if chkc then return chkc:IsLocation(LOCATION_MZONE) and s.filter(chkc) end
+    if chk==0 then return Duel.IsExistingTarget(s.filter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) end
+    Duel.SelectTarget(tp,s.filter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
+end
+"#;
+        assert_eq!(target_decl_from_lua(src, "s.target"), None);
+    }
+
+    #[test]
+    fn phase8_variable_quantity_skipped() {
+        // Non-literal max (variable ct) → skip.
+        let src = r#"
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+    local ct=3
+    if chk==0 then return Duel.IsExistingTarget(nil,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
+    Duel.SelectTarget(tp,nil,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,ct,nil)
+end
+"#;
+        assert_eq!(target_decl_from_lua(src, "s.target"), None);
+    }
+
+    #[test]
+    fn phase8_two_targets_fixed_qty() {
+        // Fixed quantity 2.
+        let src = r#"
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+    if chkc then return chkc:IsOnField() end
+    if chk==0 then return Duel.IsExistingTarget(nil,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,2,nil) end
+    Duel.SelectTarget(tp,nil,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,2,2,nil)
+end
+"#;
+        let spec = target_decl_from_lua(src, "s.target").expect("spec");
+        assert_eq!(spec.quantity, "2");
+        assert_eq!(spec.to_dsl(), "(2, card, either controls, from field)");
     }
 }

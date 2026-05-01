@@ -99,6 +99,7 @@ fn main() {
             println!("  passives injected:       {}", report.passives_injected);
             println!("  conditions injected:     {}", report.conditions_injected);
             println!("  costs injected:          {}", report.costs_injected);
+            println!("  targets injected:        {}", report.targets_injected);
         }
         _ => {
             eprintln!("unknown mode: {}", mode);
@@ -118,6 +119,7 @@ struct ApplyReport {
     passives_injected: usize,
     conditions_injected: usize,
     costs_injected: usize,
+    targets_injected: usize,
     no_lua: usize,
 }
 
@@ -279,11 +281,41 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             }
         }
 
-        if filled > 0 || passives_added > 0 || conditions_added > 0 || costs_added > 0 {
+        // Pass E — Phase 8 target injection. For each active effect (with an
+        // operation handler) that also has a translatable target handler, inject
+        // a `target <selector>` line before `cost {` or `resolve {` in the
+        // matching .ds block. Idempotent — skips blocks that already contain
+        // a target declaration.
+        let mut targets_added = 0usize;
+        let mut tgt_op_idx = 0usize;
+        for eff in &walk.effects {
+            if eff.operation_handler.is_none() {
+                continue; // purely passive — no effect block in .ds
+            }
+            let effect_block_idx = tgt_op_idx;
+            tgt_op_idx += 1;
+
+            let tgt_handler = match &eff.target_handler {
+                Some(h) => h.trim().to_string(),
+                None => continue,
+            };
+            let spec = match lua_ast::extract_target_decl(&tgt_handler, &walk.functions) {
+                Some(s) => s,
+                None => continue,
+            };
+            if let Some(pos) = target_inject_pos(&new_txt, effect_block_idx) {
+                let injection = format!("target {}\n        ", spec.to_dsl());
+                new_txt = format!("{}{}{}", &new_txt[..pos], injection, &new_txt[pos..]);
+                targets_added += 1;
+            }
+        }
+
+        if filled > 0 || passives_added > 0 || conditions_added > 0 || costs_added > 0 || targets_added > 0 {
             r.effects_filled += filled;
             r.passives_injected += passives_added;
             r.conditions_injected += conditions_added;
             r.costs_injected += costs_added;
+            r.targets_injected += targets_added;
             if let Err(e) = fs::write(&path, new_txt) {
                 eprintln!("write {} failed: {}", path.display(), e);
             }
@@ -417,6 +449,46 @@ fn cost_inject_pos(txt: &str, effect_idx: usize) -> Option<usize> {
             let inner = &txt[after_resolve..after_resolve + close];
             if inner.chars().all(|c| c.is_whitespace()) { return None; }
             return Some(resolve_pos);
+        }
+        count += 1;
+        search = eff_pos + "effect \"".len();
+    }
+}
+
+/// Find the byte offset to inject `target <sel>\n        ` in the
+/// `effect_idx`-th (0-based) `effect "..."` block, for target injection.
+/// Inserts before `cost {` when present, else before `resolve {`.
+/// Returns None when:
+/// - The block doesn't exist.
+/// - The block already contains a `target` declaration (idempotent).
+/// - Another `effect "` appears between the block opening and the injection
+///   point (mis-count guard).
+/// - The `resolve { }` block is empty (skip to avoid checker warnings).
+fn target_inject_pos(txt: &str, effect_idx: usize) -> Option<usize> {
+    let mut count = 0usize;
+    let mut search = 0usize;
+    loop {
+        let rel = txt[search..].find("effect \"")?;
+        let eff_pos = search + rel;
+        if count == effect_idx {
+            let after_eff = eff_pos + "effect \"".len();
+            // Prefer injecting before `cost {`, else before `resolve {`.
+            let resolve_rel = txt[after_eff..].find("resolve {")?;
+            let inject_rel = txt[after_eff..].find("cost {")
+                .filter(|&cr| cr < resolve_rel)
+                .unwrap_or(resolve_rel);
+            let inject_pos = after_eff + inject_rel;
+            // Safety: no other `effect "` block between opening and injection point.
+            if txt[after_eff..inject_pos].contains("effect \"") { return None; }
+            // Idempotent: skip if a target declaration already exists.
+            if txt[eff_pos..inject_pos].contains("\n        target ") { return None; }
+            // Skip empty resolve — would trigger "has target but no resolve" checker warning.
+            let resolve_pos = after_eff + resolve_rel;
+            let after_resolve = resolve_pos + "resolve {".len();
+            let close = txt[after_resolve..].find('}')?;
+            let inner = &txt[after_resolve..after_resolve + close];
+            if inner.chars().all(|c| c.is_whitespace()) { return None; }
+            return Some(inject_pos);
         }
         count += 1;
         search = eff_pos + "effect \"".len();
