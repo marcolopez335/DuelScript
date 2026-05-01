@@ -628,6 +628,194 @@ fn extract_return_expr(block: &Block) -> Option<String> {
     }
 }
 
+// ── Phase 7: cost block extraction ───────────────────────────────────────
+
+/// A single cost action atom extracted from a `s.cost` handler body.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum CostAction {
+    PayLp(String),      // pay_lp <N>
+    Discard(String),    // discard <selector>
+    Tribute(String),    // tribute <selector>
+    Banish(String),     // banish <selector>
+    SendToGy(String),   // send <selector> to gy
+}
+
+impl CostAction {
+    fn to_dsl(&self) -> String {
+        match self {
+            CostAction::PayLp(n)      => format!("pay_lp {}", n),
+            CostAction::Discard(sel)  => format!("discard {}", sel),
+            CostAction::Tribute(sel)  => format!("tribute {}", sel),
+            CostAction::Banish(sel)   => format!("banish {}", sel),
+            CostAction::SendToGy(sel) => format!("send {} to gy", sel),
+        }
+    }
+}
+
+/// A `cost { … }` block built from one or more cost actions.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CostBlockSpec {
+    pub actions: Vec<CostAction>,
+}
+
+impl CostBlockSpec {
+    /// Render to a `cost { … }` block string.
+    ///
+    /// The opening `cost {` has NO leading whitespace — the caller supplies the
+    /// indent from the surrounding text (e.g. the 8 spaces already present
+    /// before `resolve {` in the .ds file). `indent` controls the closing `}`
+    /// and action lines (= `indent` + 4 spaces).
+    pub fn to_dsl_block(&self, indent: &str) -> String {
+        let mut out = "cost {\n".to_string();
+        for action in &self.actions {
+            out.push_str(&format!("{}    {}\n", indent, action.to_dsl()));
+        }
+        out.push_str(&format!("{}}}", indent));
+        out
+    }
+}
+
+/// Known meta / check-only Duel calls that appear in cost function bodies
+/// but are not cost-payment actions. These are silently skipped so they
+/// don't trigger the "unknown action → bail" guard.
+fn is_cost_skip_call(method: &str) -> bool {
+    matches!(method,
+        "Duel.SetOperationInfo" | "Duel.SetPossibleOperationInfo"
+        | "Duel.Hint" | "Duel.HintSelection" | "Duel.BreakEffect"
+        | "Duel.SetTargetPlayer" | "Duel.SetTargetParam" | "Duel.SetChainLimit"
+        | "Duel.CheckLPCost" | "Duel.CheckReleaseGroupCost"
+        | "Duel.IsPlayerCanDraw"
+    )
+}
+
+/// Generic discard filters that map to an unspecified-card selector.
+/// Custom filters (s.cfilter etc.) require a DSL `where` clause we cannot
+/// derive statically, so they cause a bail-out.
+fn is_generic_discard_filter(filter: &str) -> bool {
+    matches!(filter, "nil" | "Card.IsDiscardable" | "Card.IsAbleToGraveAsCost")
+}
+
+/// Translate a `s.cost` / `Cost.PayLP(N)` handler into a `CostBlockSpec`.
+///
+/// `cost_handler` is the raw arg stored in `EffectSkeleton::cost_handler`
+/// — either a function name like `"s.cost"` or a built-in like
+/// `"Cost.PayLP(1000)"`.
+///
+/// Returns `None` when:
+/// - The handler is a `Cost.PayLP(…)` with a non-literal amount.
+/// - The function body contains Duel calls we can't map to cost actions
+///   (skip-not-mis-emit).
+/// - The function body yields no recognizable cost actions.
+pub fn extract_cost_block(
+    cost_handler: &str,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Option<CostBlockSpec> {
+    let handler = cost_handler.trim();
+
+    // Inline Cost.PayLP(N) built-in — no function body.
+    if let Some(rest) = handler.strip_prefix("Cost.PayLP(") {
+        if let Some(n_str) = rest.strip_suffix(')') {
+            let n_str = n_str.trim();
+            if !n_str.is_empty() && n_str.chars().all(|c| c.is_ascii_digit()) {
+                return Some(CostBlockSpec {
+                    actions: vec![CostAction::PayLp(n_str.to_string())],
+                });
+            }
+        }
+        return None;
+    }
+
+    // Named function — look up extracted body.
+    let body = functions.get(handler)?;
+    extract_cost_from_body(body)
+}
+
+/// Determine the DSL "self" argument from a Duel call's first arg string.
+/// Both `c` and `e:GetHandler()` refer to the effect's owning card.
+fn is_self_arg(arg: &str) -> bool {
+    let arg = arg.trim();
+    arg == "c" || arg == "e:GetHandler()"
+}
+
+fn extract_cost_from_body(body: &FunctionBody) -> Option<CostBlockSpec> {
+    let mut actions: Vec<CostAction> = Vec::new();
+
+    for call in &body.calls {
+        let m = call.method.as_str();
+        let a = &call.args;
+
+        if is_cost_skip_call(m) { continue; }
+
+        match m {
+            "Duel.PayLPCost" => {
+                let player = a.first().map(String::as_str).unwrap_or("");
+                let amount = a.get(1).map(String::as_str).unwrap_or("").trim();
+                if player != "tp" { return None; }
+                if amount.is_empty() || !amount.chars().all(|c| c.is_ascii_digit()) {
+                    return None;
+                }
+                actions.push(CostAction::PayLp(amount.to_string()));
+            }
+
+            "Duel.DiscardHand" => {
+                let player = a.first().map(String::as_str).unwrap_or("");
+                let filter = a.get(1).map(String::as_str).unwrap_or("").trim();
+                let min_s  = a.get(2).map(String::as_str).unwrap_or("1").trim();
+                let max_s  = a.get(3).map(String::as_str).unwrap_or("1").trim();
+                if player != "tp" { return None; }
+                if !is_generic_discard_filter(filter) { return None; }
+                let qty = if min_s == max_s {
+                    let n: u32 = min_s.parse().ok()?;
+                    n.to_string()
+                } else {
+                    let mn: u32 = min_s.parse().ok()?;
+                    format!("{}+", mn)
+                };
+                actions.push(CostAction::Discard(
+                    format!("({}, card, you control, from hand)", qty)
+                ));
+            }
+
+            "Duel.Release" => {
+                let card_arg = a.first().map(String::as_str).unwrap_or("");
+                if is_self_arg(card_arg) {
+                    actions.push(CostAction::Tribute("self".to_string()));
+                } else {
+                    return None;
+                }
+            }
+
+            "Duel.Remove" => {
+                let card_arg = a.first().map(String::as_str).unwrap_or("");
+                if is_self_arg(card_arg) {
+                    actions.push(CostAction::Banish("self".to_string()));
+                } else {
+                    return None;
+                }
+            }
+
+            "Duel.SendtoGrave" => {
+                let card_arg = a.first().map(String::as_str).unwrap_or("");
+                if is_self_arg(card_arg) {
+                    actions.push(CostAction::SendToGy("self".to_string()));
+                } else {
+                    return None;
+                }
+            }
+
+            _ if m.starts_with("Duel.") => {
+                // Unknown or unhandled Duel action in cost context → skip-not-mis-emit.
+                return None;
+            }
+
+            _ => {} // non-Duel call (aux.*, etc.) — ignore
+        }
+    }
+
+    if actions.is_empty() { return None; }
+    Some(CostBlockSpec { actions })
+}
+
 // ── Phase 6: condition expression extraction ─────────────────────────────
 
 /// Translate a `s.condition` handler body into a DSL `condition: <expr>`
@@ -2509,5 +2697,173 @@ function s.condition(e,tp,eg,ep,ev,re,r,rp)
 end
 "#;
         assert_eq!(cond_expr_from_lua(src, "s.condition"), None);
+    }
+
+    // ── Phase 7 — cost block extraction tests ────────────────────────────
+
+    fn cost_block_from_lua(src: &str, handler: &str) -> Option<CostBlockSpec> {
+        let parsed = full_moon::parse(src).expect("lua parse");
+        let report = walk(&parsed);
+        extract_cost_block(handler, &report.functions)
+    }
+
+    #[test]
+    fn phase7_discard_one_card() {
+        // Most common shape: discard 1 card from hand with generic filter.
+        let src = r#"
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return Duel.IsDiscardable(e:GetHandler()) end
+    Duel.DiscardHand(tp,Card.IsDiscardable,1,1,REASON_COST|REASON_DISCARD)
+end
+"#;
+        let spec = cost_block_from_lua(src, "s.cost").expect("cost block");
+        assert_eq!(spec.actions.len(), 1);
+        assert_eq!(spec.actions[0], CostAction::Discard("(1, card, you control, from hand)".to_string()));
+        // to_dsl_block has no leading indent on the opening line (caller supplies it).
+        assert_eq!(
+            spec.to_dsl_block("        "),
+            "cost {\n            discard (1, card, you control, from hand)\n        }"
+        );
+    }
+
+    #[test]
+    fn phase7_discard_two_cards() {
+        // Exact quantity 2.
+        let src = r#"
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return Duel.IsDiscardable(e:GetHandler()) end
+    Duel.DiscardHand(tp,Card.IsDiscardable,2,2,REASON_COST|REASON_DISCARD)
+end
+"#;
+        let spec = cost_block_from_lua(src, "s.cost").expect("cost block");
+        assert_eq!(spec.actions[0], CostAction::Discard("(2, card, you control, from hand)".to_string()));
+    }
+
+    #[test]
+    fn phase7_discard_custom_filter_skipped() {
+        // Custom filter (s.cfilter) → cannot derive generic selector → skip.
+        let src = r#"
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return Duel.IsDiscardable(e:GetHandler()) end
+    Duel.DiscardHand(tp,s.cfilter,1,1,REASON_COST|REASON_DISCARD)
+end
+"#;
+        assert_eq!(cost_block_from_lua(src, "s.cost"), None);
+    }
+
+    #[test]
+    fn phase7_pay_lp_literal() {
+        // Literal LP cost via Duel.PayLPCost.
+        let src = r#"
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return Duel.CheckLPCost(tp,1000) end
+    Duel.PayLPCost(tp,1000)
+end
+"#;
+        let spec = cost_block_from_lua(src, "s.cost").expect("cost block");
+        assert_eq!(spec.actions[0], CostAction::PayLp("1000".to_string()));
+    }
+
+    #[test]
+    fn phase7_pay_lp_computed_skipped() {
+        // Non-literal LP amount (variable) → bail.
+        let src = r#"
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+    local lp=Duel.GetLP(tp)-100
+    if chk==0 then return Duel.CheckLPCost(tp,lp) end
+    Duel.PayLPCost(tp,lp)
+end
+"#;
+        assert_eq!(cost_block_from_lua(src, "s.cost"), None);
+    }
+
+    #[test]
+    fn phase7_cost_pay_lp_inline() {
+        // Cost.PayLP(N) inline — stored directly in cost_handler, no body.
+        let parsed = full_moon::parse("function s.initial_effect(c) end").expect("parse");
+        let report = walk(&parsed);
+        let spec = extract_cost_block("Cost.PayLP(500)", &report.functions).expect("spec");
+        assert_eq!(spec.actions[0], CostAction::PayLp("500".to_string()));
+    }
+
+    #[test]
+    fn phase7_tribute_self() {
+        // Release self as cost → tribute self.
+        let src = r#"
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return e:GetHandler():IsRelateToEffect(e) end
+    Duel.Release(c,REASON_COST)
+end
+"#;
+        let spec = cost_block_from_lua(src, "s.cost").expect("cost block");
+        assert_eq!(spec.actions[0], CostAction::Tribute("self".to_string()));
+    }
+
+    #[test]
+    fn phase7_banish_self() {
+        // Remove self face-up as cost → banish self.
+        let src = r#"
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return e:GetHandler():IsRelateToEffect(e) end
+    Duel.Remove(c,POS_FACEUP,REASON_COST)
+end
+"#;
+        let spec = cost_block_from_lua(src, "s.cost").expect("cost block");
+        assert_eq!(spec.actions[0], CostAction::Banish("self".to_string()));
+    }
+
+    #[test]
+    fn phase7_send_self_to_gy() {
+        // SendtoGrave self as cost → send self to gy.
+        let src = r#"
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return e:GetHandler():IsRelateToEffect(e) end
+    Duel.SendtoGrave(c,REASON_COST)
+end
+"#;
+        let spec = cost_block_from_lua(src, "s.cost").expect("cost block");
+        assert_eq!(spec.actions[0], CostAction::SendToGy("self".to_string()));
+    }
+
+    #[test]
+    fn phase7_banish_self_via_get_handler() {
+        // e:GetHandler() is treated as self equivalent.
+        let src = r#"
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return e:GetHandler():IsRelateToEffect(e) end
+    Duel.Remove(e:GetHandler(),POS_FACEUP,REASON_COST)
+end
+"#;
+        let spec = cost_block_from_lua(src, "s.cost").expect("cost block");
+        assert_eq!(spec.actions[0], CostAction::Banish("self".to_string()));
+    }
+
+    #[test]
+    fn phase7_unknown_duel_call_bails() {
+        // Unknown Duel call as a top-level statement → None (skip-not-mis-emit).
+        // Duel.SelectMatchingCard is not a recognized cost action.
+        let src = r#"
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return false end
+    Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_HAND,0,1,1,nil)
+    Duel.DiscardHand(tp,Card.IsDiscardable,1,1,REASON_COST)
+end
+"#;
+        assert_eq!(cost_block_from_lua(src, "s.cost"), None);
+    }
+
+    #[test]
+    fn phase7_meta_calls_ignored() {
+        // SetOperationInfo is a meta call → ignored, cost block still emitted.
+        let src = r#"
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return Duel.CheckLPCost(tp,500) end
+    Duel.PayLPCost(tp,500)
+    Duel.SetOperationInfo(0,CATEGORY_COSTLP,nil,0,tp,500)
+end
+"#;
+        let spec = cost_block_from_lua(src, "s.cost").expect("cost block");
+        assert_eq!(spec.actions.len(), 1);
+        assert_eq!(spec.actions[0], CostAction::PayLp("500".to_string()));
     }
 }

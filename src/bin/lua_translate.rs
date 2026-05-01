@@ -98,6 +98,7 @@ fn main() {
             println!("  effects skipped (no lua): {}", report.no_lua);
             println!("  passives injected:       {}", report.passives_injected);
             println!("  conditions injected:     {}", report.conditions_injected);
+            println!("  costs injected:          {}", report.costs_injected);
         }
         _ => {
             eprintln!("unknown mode: {}", mode);
@@ -116,6 +117,7 @@ struct ApplyReport {
     effects_no_handler: usize,
     passives_injected: usize,
     conditions_injected: usize,
+    costs_injected: usize,
     no_lua: usize,
 }
 
@@ -247,10 +249,41 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             }
         }
 
-        if filled > 0 || passives_added > 0 || conditions_added > 0 {
+        // Pass D — Phase 7 cost injection. For each active effect (with an
+        // operation handler) that also has a translatable cost handler, inject
+        // a `cost { … }` block before `resolve {` in the matching .ds block.
+        // Inserts after any existing `condition:` line (Pass C already runs above).
+        // Idempotent — skips effects whose .ds block already contains `cost {`.
+        let mut costs_added = 0usize;
+        let mut cost_op_idx = 0usize;
+        for eff in &walk.effects {
+            if eff.operation_handler.is_none() {
+                continue; // purely passive — no effect block in .ds
+            }
+            let effect_block_idx = cost_op_idx;
+            cost_op_idx += 1;
+
+            let cost_handler = match &eff.cost_handler {
+                Some(h) => h.trim().to_string(),
+                None => continue,
+            };
+            let spec = match lua_ast::extract_cost_block(&cost_handler, &walk.functions) {
+                Some(s) => s,
+                None => continue,
+            };
+            if let Some(pos) = cost_inject_pos(&new_txt, effect_block_idx) {
+                let block = spec.to_dsl_block("        ");
+                let injection = format!("{}\n        ", block);
+                new_txt = format!("{}{}{}", &new_txt[..pos], injection, &new_txt[pos..]);
+                costs_added += 1;
+            }
+        }
+
+        if filled > 0 || passives_added > 0 || conditions_added > 0 || costs_added > 0 {
             r.effects_filled += filled;
             r.passives_injected += passives_added;
             r.conditions_injected += conditions_added;
+            r.costs_injected += costs_added;
             if let Err(e) = fs::write(&path, new_txt) {
                 eprintln!("write {} failed: {}", path.display(), e);
             }
@@ -350,6 +383,39 @@ fn condition_inject_pos(txt: &str, effect_idx: usize) -> Option<usize> {
             if txt[after_eff..resolve_pos].contains("effect \"") { return None; }
             // Idempotent: skip if already has condition: in this block.
             if txt[eff_pos..resolve_pos].contains("condition:") { return None; }
+            return Some(resolve_pos);
+        }
+        count += 1;
+        search = eff_pos + "effect \"".len();
+    }
+}
+
+/// Find the byte offset of `resolve {` inside the `effect_idx`-th (0-based)
+/// `effect "..."` block in `txt`, for cost injection. Returns None when:
+/// - The block doesn't exist.
+/// - The block already contains `cost {` (idempotent — no double-inject).
+/// - Another `effect "` appears between the block opening and `resolve {`.
+/// - The `resolve { }` block is empty — adding cost to an empty resolve
+///   would trigger "has cost but no resolve/choose" checker warnings.
+fn cost_inject_pos(txt: &str, effect_idx: usize) -> Option<usize> {
+    let mut count = 0usize;
+    let mut search = 0usize;
+    loop {
+        let rel = txt[search..].find("effect \"")?;
+        let eff_pos = search + rel;
+        if count == effect_idx {
+            let after_eff = eff_pos + "effect \"".len();
+            let rel_res = txt[after_eff..].find("resolve {")?;
+            let resolve_pos = after_eff + rel_res;
+            // Safety: no other `effect "` block between opening and resolve.
+            if txt[after_eff..resolve_pos].contains("effect \"") { return None; }
+            // Idempotent: skip if cost block already present in this effect.
+            if txt[eff_pos..resolve_pos].contains("cost {") { return None; }
+            // Skip empty resolve — would cause "has cost but no resolve" warning.
+            let after_resolve = resolve_pos + "resolve {".len();
+            let close = txt[after_resolve..].find('}')?;
+            let inner = &txt[after_resolve..after_resolve + close];
+            if inner.chars().all(|c| c.is_whitespace()) { return None; }
             return Some(resolve_pos);
         }
         count += 1;
