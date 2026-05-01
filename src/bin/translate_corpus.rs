@@ -210,6 +210,16 @@ CLUSTERS:
         \"Destroy all monsters your opponent controls\" + placeholder
         body `destroy (all, card, either controls)`.
         Emits: `destroy (all, monster, opponent controls)`.
+    drop_empty_field_type_stubs
+        Phase 5d: extends 9a1edeffc (Equip Spell hand-edit) into a
+        reusable cluster. Drops the entire `effect \"Effect N\" { ...
+        }` block from cards whose Phase 5 passive already captures
+        the chain. Filter (all required, AST-verified):
+            - card type: Effect Monster | Continuous Spell |
+              Continuous Trap (Equip Spell handled by 5b);
+            - has at least one `passive \"...\"` block;
+            - has exactly one `effect \"...\"` block;
+            - that effect has empty `resolve` and no `choose`.
 ");
     }
 
@@ -459,6 +469,7 @@ CLUSTERS:
             Box::new(DamageSelfNumericAnyTrigger),
             Box::new(MillNumericAnyTrigger),
             Box::new(SpecialSummonArchetypeLevelBoundAnyTrigger),
+            Box::new(DropEmptyFieldTypeStubs),
         ];
         match filter {
             None        => all,
@@ -3171,6 +3182,208 @@ CLUSTERS:
         }
     }
 
+    // ── Cluster: drop_empty_field_type_stubs (Phase 5d) ─────────
+    //
+    // Generalisation of the Phase 5b hand-edit (Equip Spell only,
+    // commit 9a1edeffc). For cards whose Phase 5 passive already
+    // captures the chain modelled by an empty `effect "Effect N" {
+    // ... }` block, the stub is redundant and is the only remaining
+    // source of "empty resolve" errors. Phase 5d extends 5b's
+    // filter to three more type families:
+    //
+    //   - Effect Monster
+    //   - Continuous Spell
+    //   - Continuous Trap
+    //
+    // Equip Spell is intentionally skipped — Phase 5b already
+    // covered it.
+    //
+    // Filter cascade (all required, AST-verified via `parse_v2`):
+    //   1. Card type is one of the three type families above.
+    //   2. Card has at least one `passive "..."` block.
+    //   3. Card has exactly one `effect "..."` block.
+    //   4. That effect's `resolve` is empty AND it has no `choose`
+    //      block (so it has no body — it's a pure stub).
+    //
+    // Rewrite: remove the entire `effect "..." { ... }` block from
+    // the source (including its surrounding blank lines so the
+    // remaining card body stays well-formatted).
+    //
+    // Unlike the M.x clusters this cluster doesn't splice a new
+    // line into a placeholder body — it deletes a redundant block.
+    // The post-rewrite parse-check in `run()` still applies.
+
+    struct DropEmptyFieldTypeStubs;
+
+    /// True if the AST flags this card as a Phase 5d candidate:
+    ///   - card_types contains one of EffectMonster / ContinuousSpell /
+    ///     ContinuousTrap (and NOT EquipSpell — Phase 5b's domain),
+    ///   - has at least one passive,
+    ///   - has exactly one effect,
+    ///   - that effect has no resolve actions and no choose block.
+    fn is_empty_field_type_stub(src: &str) -> bool {
+        use duelscript::ast::CardType;
+
+        let file = match parse_v2(src) {
+            Ok(f) => f,
+            Err(_) => return false,
+        };
+        let Some(card) = file.cards.first() else { return false };
+
+        // Phase 5b already swept Equip Spells; do not re-sweep.
+        if card.fields.card_types.contains(&CardType::EquipSpell) {
+            return false;
+        }
+
+        let target_type = card.fields.card_types.iter().any(|t| {
+            matches!(
+                t,
+                CardType::EffectMonster
+                    | CardType::ContinuousSpell
+                    | CardType::ContinuousTrap
+            )
+        });
+        if !target_type {
+            return false;
+        }
+
+        if card.passives.is_empty() {
+            return false;
+        }
+        if card.effects.len() != 1 {
+            return false;
+        }
+        let eff = &card.effects[0];
+        if !eff.resolve.is_empty() {
+            return false;
+        }
+        if eff.choose.is_some() {
+            return false;
+        }
+        true
+    }
+
+    /// Locate the absolute byte range of the *sole* `effect "..." {
+    /// ... }` block in `src` plus its bracketing whitespace.
+    ///
+    /// Returns `(cut_start, cut_end, replacement)` such that
+    /// `src[..cut_start] + replacement + src[cut_end..]` is a
+    /// fmt-clean card body with the effect block removed. The
+    /// replacement is `"\n"` when the block is sandwiched between
+    /// two non-blank lines (so we preserve the conventional single
+    /// blank line between sibling card-body blocks) and `""` when
+    /// the block is the last child of the card (so the closing `}`
+    /// of the card is not pushed away from its predecessor by an
+    /// orphan blank line).
+    ///
+    /// The cut absorbs:
+    ///   - all blank lines immediately preceding `effect "`,
+    ///   - the entire effect block (including the line of its
+    ///     opening `{` and the line of its closing `}`),
+    ///   - all blank lines immediately following.
+    /// The single inserted `"\n"` (when both neighbours are
+    /// non-blank) reinstates the one canonical blank line.
+    fn find_sole_effect_block_range(src: &str) -> Option<(usize, usize, &'static str)> {
+        let bytes = src.as_bytes();
+        let header_byte_off = src.find("effect \"")?;
+        // Walk back to start of line.
+        let mut line_start = header_byte_off;
+        while line_start > 0 && bytes[line_start - 1] != b'\n' {
+            line_start -= 1;
+        }
+        // Walk back over leading blank lines (lines with only whitespace).
+        let mut cut_start = line_start;
+        loop {
+            // cut_start points to start of a non-empty line currently.
+            // Look at the previous line, if any.
+            if cut_start == 0 {
+                break;
+            }
+            // Find start of previous line.
+            let prev_line_end = cut_start - 1; // index of '\n' separating the two lines.
+            if bytes[prev_line_end] != b'\n' {
+                break;
+            }
+            let mut prev_line_start = prev_line_end;
+            while prev_line_start > 0 && bytes[prev_line_start - 1] != b'\n' {
+                prev_line_start -= 1;
+            }
+            let prev_line = &src[prev_line_start..prev_line_end];
+            if prev_line.chars().all(|c| c.is_whitespace()) {
+                cut_start = prev_line_start;
+                continue;
+            }
+            break;
+        }
+
+        // Find matching '}' for the effect block.
+        let brace_off = src[header_byte_off..].find('{')?;
+        let body_start = header_byte_off + brace_off + 1;
+        let body_end = match_brace(src, body_start)?;
+        // body_end is the index of the closing '}'. Advance past EOL.
+        let mut after = body_end + 1;
+        while after < bytes.len() && bytes[after] != b'\n' {
+            after += 1;
+        }
+        if after < bytes.len() && bytes[after] == b'\n' {
+            after += 1;
+        }
+        // Eat any trailing blank lines.
+        loop {
+            if after >= bytes.len() {
+                break;
+            }
+            // Find end of next line.
+            let mut nl = after;
+            while nl < bytes.len() && bytes[nl] != b'\n' {
+                nl += 1;
+            }
+            let line = &src[after..nl];
+            if line.chars().all(|c| c.is_whitespace()) {
+                after = if nl < bytes.len() { nl + 1 } else { nl };
+                continue;
+            }
+            break;
+        }
+
+        // Decide replacement: "\n" iff there is non-blank context on both sides.
+        // If we cut all the way to the start of the card body (which is
+        // unlikely since `card "X" {` precedes), or right up to the card's
+        // closing `}` (which is the common end-of-card case), we must NOT
+        // re-insert a blank line.
+        let has_pred = cut_start > 0; // there's some prefix
+        // We have a non-blank successor iff the byte at `after` (skipping any
+        // leading whitespace on its line) is something other than '}'.
+        // The card's closing '}' is the one at top-level dedent.
+        let mut succ_check = after;
+        // Consume same-line leading whitespace.
+        while succ_check < bytes.len() && (bytes[succ_check] == b' ' || bytes[succ_check] == b'\t') {
+            succ_check += 1;
+        }
+        let has_succ = succ_check < bytes.len() && bytes[succ_check] != b'}';
+
+        let replacement: &'static str = if has_pred && has_succ { "\n" } else { "" };
+        Some((cut_start, after, replacement))
+    }
+
+    impl Cluster for DropEmptyFieldTypeStubs {
+        fn name(&self) -> &'static str { "drop_empty_field_type_stubs" }
+
+        fn matches(&self, src: &str, _cdb_row: &CdbCard) -> bool {
+            is_empty_field_type_stub(src)
+        }
+
+        fn rewrite(&self, src: &str, _cdb_row: &CdbCard) -> Result<String, String> {
+            let (cut_start, cut_end, replacement) = find_sole_effect_block_range(src)
+                .ok_or_else(|| "could not locate sole effect block".to_string())?;
+            let mut out = String::with_capacity(src.len());
+            out.push_str(&src[..cut_start]);
+            out.push_str(replacement);
+            out.push_str(&src[cut_end..]);
+            Ok(out)
+        }
+    }
+
     /// Return true if `src` contains an effect block with:
     ///   - trigger: battle_damage
     ///   - single-line resolve body exactly
@@ -3684,6 +3897,252 @@ card \"X\" {
                 match_archetype_monster_any_desc(desc).as_deref(),
                 Some("Foo")
             );
+        }
+    }
+
+    // ── Phase 5d inline tests for the empty-field-type-stub cluster ──
+    #[cfg(test)]
+    mod drop_empty_field_type_stub_tests {
+        use super::*;
+
+        const CONT_SPELL_STUB: &str = "\
+card \"X\" {
+    id: 1
+    type: Continuous Spell
+
+    effect \"Effect 4\" {
+        speed: 1
+        mandatory
+        resolve {
+        }
+    }
+
+
+    passive \"Passive 5\" {
+        target: equipped_card
+        modifier: atk + 200
+    }
+}
+";
+
+        const EFFECT_MON_STUB: &str = "\
+card \"X\" {
+    id: 1
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 4
+    atk: 1000
+    def: 1000
+
+    passive \"Effect 2\" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect \"Effect 1\" {
+        speed: 1
+        mandatory
+    }
+}
+";
+
+        const CONT_TRAP_STUB: &str = "\
+card \"X\" {
+    id: 1
+    type: Continuous Trap
+
+    passive \"Passive 1\" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect \"Effect 1\" {
+        speed: 2
+        mandatory
+    }
+}
+";
+
+        const EQUIP_STUB_PHASE_5B: &str = "\
+card \"X\" {
+    id: 1
+    type: Equip Spell
+
+    effect \"Effect 4\" {
+        speed: 1
+        mandatory
+        resolve {
+        }
+    }
+
+    passive \"Passive 5\" {
+        target: equipped_card
+        modifier: atk + 200
+    }
+}
+";
+
+        const NO_PASSIVE: &str = "\
+card \"X\" {
+    id: 1
+    type: Continuous Spell
+
+    effect \"Effect 1\" {
+        speed: 1
+        mandatory
+    }
+}
+";
+
+        const NON_EMPTY_RESOLVE: &str = "\
+card \"X\" {
+    id: 1
+    type: Continuous Spell
+
+    passive \"P\" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect \"Effect 1\" {
+        speed: 1
+        mandatory
+        resolve {
+            destroy (all, card, either controls)
+        }
+    }
+}
+";
+
+        const TWO_EFFECTS: &str = "\
+card \"X\" {
+    id: 1
+    type: Continuous Spell
+
+    passive \"P\" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect \"Effect 1\" {
+        speed: 1
+        mandatory
+    }
+
+    effect \"Effect 2\" {
+        speed: 1
+        mandatory
+    }
+}
+";
+
+        #[test]
+        fn matches_continuous_spell_stub() {
+            assert!(is_empty_field_type_stub(CONT_SPELL_STUB));
+        }
+
+        #[test]
+        fn matches_effect_monster_stub() {
+            assert!(is_empty_field_type_stub(EFFECT_MON_STUB));
+        }
+
+        #[test]
+        fn matches_continuous_trap_stub() {
+            assert!(is_empty_field_type_stub(CONT_TRAP_STUB));
+        }
+
+        #[test]
+        fn rejects_equip_spell_phase_5b_domain() {
+            assert!(!is_empty_field_type_stub(EQUIP_STUB_PHASE_5B));
+        }
+
+        #[test]
+        fn rejects_no_passive() {
+            assert!(!is_empty_field_type_stub(NO_PASSIVE));
+        }
+
+        #[test]
+        fn rejects_non_empty_resolve() {
+            assert!(!is_empty_field_type_stub(NON_EMPTY_RESOLVE));
+        }
+
+        #[test]
+        fn rejects_two_effects() {
+            assert!(!is_empty_field_type_stub(TWO_EFFECTS));
+        }
+
+        #[test]
+        fn rewrite_drops_effect_block_continuous_spell() {
+            let (cs, ce, repl) =
+                find_sole_effect_block_range(CONT_SPELL_STUB).expect("locator");
+            let mut out = String::new();
+            out.push_str(&CONT_SPELL_STUB[..cs]);
+            out.push_str(repl);
+            out.push_str(&CONT_SPELL_STUB[ce..]);
+            assert!(!out.contains("Effect 4"));
+            assert!(out.contains("Passive 5"));
+            // post-rewrite must parse cleanly.
+            parse_v2(&out).expect("rewritten card should parse");
+        }
+
+        #[test]
+        fn rewrite_drops_effect_block_effect_monster() {
+            let (cs, ce, repl) =
+                find_sole_effect_block_range(EFFECT_MON_STUB).expect("locator");
+            let mut out = String::new();
+            out.push_str(&EFFECT_MON_STUB[..cs]);
+            out.push_str(repl);
+            out.push_str(&EFFECT_MON_STUB[ce..]);
+            assert!(!out.contains("Effect 1"));
+            assert!(out.contains("Effect 2"));
+            parse_v2(&out).expect("rewritten card should parse");
+        }
+
+        #[test]
+        fn rewrite_last_block_no_orphan_blank() {
+            // When the effect block is the LAST child of the card,
+            // we must not leave an orphan blank line before the
+            // card's closing '}'. The replacement should be empty.
+            let (_, _, repl) =
+                find_sole_effect_block_range(CONT_TRAP_STUB).expect("locator");
+            assert_eq!(repl, "", "trailing-block cut should not reinsert blank");
+        }
+
+        #[test]
+        fn rewrite_middle_block_keeps_one_blank() {
+            // When the effect block is sandwiched between two non-blank
+            // sibling blocks, we must keep exactly one blank line.
+            const MIDDLE: &str = "\
+card \"X\" {
+    id: 1
+    type: Continuous Spell
+
+    passive \"P1\" {
+        scope: self
+        grant: cannot_attack
+    }
+
+    effect \"E\" {
+        speed: 1
+        mandatory
+    }
+
+    passive \"P2\" {
+        scope: self
+        grant: cannot_attack
+    }
+}
+";
+            let (cs, ce, repl) = find_sole_effect_block_range(MIDDLE).expect("locator");
+            assert_eq!(repl, "\n", "middle-block cut should reinsert one blank");
+            let mut out = String::new();
+            out.push_str(&MIDDLE[..cs]);
+            out.push_str(repl);
+            out.push_str(&MIDDLE[ce..]);
+            // Output should have exactly one blank line between the two passives.
+            assert!(out.contains("    }\n\n    passive \"P2\""));
+            parse_v2(&out).expect("rewritten card should parse");
         }
     }
 }
