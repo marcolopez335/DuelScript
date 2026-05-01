@@ -97,6 +97,7 @@ fn main() {
             println!("  effects skipped (no map): {}", report.effects_no_handler);
             println!("  effects skipped (no lua): {}", report.no_lua);
             println!("  passives injected:       {}", report.passives_injected);
+            println!("  conditions injected:     {}", report.conditions_injected);
         }
         _ => {
             eprintln!("unknown mode: {}", mode);
@@ -114,6 +115,7 @@ struct ApplyReport {
     effects_todo_only: usize,
     effects_no_handler: usize,
     passives_injected: usize,
+    conditions_injected: usize,
     no_lua: usize,
 }
 
@@ -209,9 +211,46 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             }
         }
 
-        if filled > 0 || passives_added > 0 {
+        // Pass C — Phase 6 condition injection. For each active effect (with an
+        // operation handler) that also has a translatable condition handler, inject
+        // `condition: <dsl_expr>` before `resolve {` in the matching .ds block.
+        // Effects are matched by their 0-based position among operation-handler
+        // effects in walk.effects (BTreeMap order = alphabetical by binding, which
+        // mirrors the .ds Effect 1 / Effect 2 / … ordering).
+        let mut conditions_added = 0usize;
+        let mut op_effect_idx = 0usize;
+        for eff in &walk.effects {
+            if eff.operation_handler.is_none() {
+                // Purely passive — no corresponding effect block in .ds.
+                continue;
+            }
+            let effect_block_idx = op_effect_idx;
+            op_effect_idx += 1;
+
+            let cond_handler = match &eff.condition_handler {
+                Some(h) => h.trim().to_string(),
+                None => continue,
+            };
+            let cond_body = match walk.functions.get(&cond_handler) {
+                Some(b) => b,
+                None => continue,
+            };
+            let dsl_expr = match lua_ast::extract_condition_expr(cond_body) {
+                Some(e) => e,
+                None => continue,
+            };
+            if let Some(pos) = condition_inject_pos(&new_txt, effect_block_idx) {
+                // Insert `condition: <expr>\n` with 8-space indent before `resolve {`.
+                let injection = format!("condition: {}\n        ", dsl_expr);
+                new_txt = format!("{}{}{}", &new_txt[..pos], injection, &new_txt[pos..]);
+                conditions_added += 1;
+            }
+        }
+
+        if filled > 0 || passives_added > 0 || conditions_added > 0 {
             r.effects_filled += filled;
             r.passives_injected += passives_added;
+            r.conditions_injected += conditions_added;
             if let Err(e) = fs::write(&path, new_txt) {
                 eprintln!("write {} failed: {}", path.display(), e);
             }
@@ -289,6 +328,33 @@ fn first_empty_resolve(txt: &str) -> Option<(usize, usize)> {
         i = abs_open + close + 1;
     }
     None
+}
+
+/// Find the byte offset of `resolve {` inside the `effect_idx`-th (0-based)
+/// `effect "..."` block in `txt`, for condition injection. Returns None when:
+/// - The block doesn't exist.
+/// - The block already contains `condition:` (idempotent — no double-inject).
+/// - Another `effect "` appears between the block opening and `resolve {`
+///   (which would indicate a nested or mis-counted block).
+fn condition_inject_pos(txt: &str, effect_idx: usize) -> Option<usize> {
+    let mut count = 0usize;
+    let mut search = 0usize;
+    loop {
+        let rel = txt[search..].find("effect \"")?;
+        let eff_pos = search + rel;
+        if count == effect_idx {
+            let after_eff = eff_pos + "effect \"".len();
+            let rel_res = txt[after_eff..].find("resolve {")?;
+            let resolve_pos = after_eff + rel_res;
+            // Safety: no other `effect "` block between opening and resolve.
+            if txt[after_eff..resolve_pos].contains("effect \"") { return None; }
+            // Idempotent: skip if already has condition: in this block.
+            if txt[eff_pos..resolve_pos].contains("condition:") { return None; }
+            return Some(resolve_pos);
+        }
+        count += 1;
+        search = eff_pos + "effect \"".len();
+    }
 }
 
 fn render_resolve_body(lines: &[lua_ast::DslLine]) -> String {
