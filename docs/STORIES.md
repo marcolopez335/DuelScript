@@ -2,7 +2,7 @@
 
 Active backlog of work items, ordered by yield. Each story states the goal, the agent, the acceptance criteria, and the dependency chain.
 
-State as of 2026-04-30 — `cards/official/` parses 13,298 / 13,298, **3,476 errors** / **587 warnings** remain (post-Phase 4e).
+State as of 2026-05-01 — `cards/official/` parses 13,298 / 13,298, **3,470 errors** / **585 warnings** remain (post-Phase 6).
 
 ---
 
@@ -47,24 +47,8 @@ Lua-side: 951 candidate chains across 882 cards in `s.initial_effect`. After `is
 
 ---
 
-### Phase 6 — `s.condition` body extraction
-**Goal.** Translate `s.condition` handler bodies into DSL `condition: <expr>` clauses on the parent effect.
-
-**Yield estimate.** ~300-500 cards (most activated effects with non-trivial conditions).
-
-**Approach.**
-- New `walk.functions[handler]` pass extracts an `Option<ConditionExpr>` from the function body.
-- Map common predicates: `Duel.GetTurnPlayer() == tp`, `Duel.IsPhase(PHASE_*)`, `c:IsLocation(LOCATION_*)`, `c:IsControler(...)`, `c:IsRace(RACE_*)`, `c:IsCode(N)`, `Duel.IsExistingMatchingCard(...)`.
-- Emit DSL `condition: <expr>` line in the effect block when extraction succeeds.
-
-**Acceptance.**
-- New unit tests for the top 5 predicate shapes.
-- Apply emits ≥ 200 condition lines.
-- Roundtrip + corpus check passes; zero regressions.
-
-**Agent.** `lua-translator`.
-
-**Depends on.** Nothing — but pairs naturally with Phase 7 / 8.
+### ~~Phase 6 — `s.condition` body extraction~~ ✓ shipped (PR #66)
+**Shipped.** −6 errors, −2 warnings, 375 condition lines added across 360 cards. Thirteen Lua predicate shapes mapped to 9 DSL grammar atoms (`phase ==`, `in_gy`, `on_field`, `in_hand`, `in_banished`, `previous_location ==`, `reason ==`, `reason includes`, `lp/opponent_lp <op> N`). Compound `A and B` / `A or B` conditions supported. Pass C added to `lua_translate apply`. 12 unit tests added. Shapes without grammar atoms (`IsTurnPlayer`, `IsExistingMatchingCard`, `ep~=tp`, …) deferred.
 
 ---
 
