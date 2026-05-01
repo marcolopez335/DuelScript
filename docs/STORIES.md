@@ -2,7 +2,7 @@
 
 Active backlog of work items, ordered by yield. Each story states the goal, the agent, the acceptance criteria, and the dependency chain.
 
-State as of 2026-05-01 — `cards/official/` parses 13,298 / 13,298, **3,470 errors** / **585 warnings** remain (post-Phase 6).
+State as of 2026-05-01 — `cards/official/` parses 13,298 / 13,298, **3,469 errors** / **585 warnings** remain (post-Phase 7).
 
 ---
 
@@ -52,21 +52,8 @@ Lua-side: 951 candidate chains across 882 cards in `s.initial_effect`. After `is
 
 ---
 
-### Phase 7 — `s.cost` body extraction
-**Goal.** Translate `s.cost` handler bodies into DSL `cost { ... }` blocks.
-
-**Yield estimate.** ~200 cards.
-
-**Approach.**
-- Recognise common cost shapes: `Duel.PayLPCost(tp, N)`, `Duel.DiscardHand(tp, ...)`, `Duel.Release(c, REASON_COST)`, `Duel.Remove(c, POS_FACEUP, REASON_COST)`.
-- Map to DSL cost actions: `pay_lp N`, `discard <selector>`, `tribute self`, `banish self`.
-
-**Acceptance.**
-- ≥ 4 cost shapes covered.
-- Apply emits ≥ 150 cost blocks.
-- Roundtrip + corpus check passes.
-
-**Agent.** `lua-translator`.
+### ~~Phase 7 — `s.cost` body extraction~~ ✓ shipped (PR #68)
+**Shipped.** −1 error, 0 warnings, 182 cost blocks added across 182 cards. Five cost shapes covered: `pay_lp N` (via `Duel.PayLPCost` + inline `Cost.PayLP(N)`), `discard (N, card, you control, from hand)` (via `Duel.DiscardHand` with generic filters), `tribute self` (`Duel.Release(c, …)`), `banish self` (`Duel.Remove(c, …)`), `send self to gy` (`Duel.SendtoGrave(c, …)`). Pass D added to `lua_translate apply`. 12 unit tests added. Effects with empty resolve blocks skipped to avoid checker warnings. Phase 7b candidate: fill cost-on-empty-resolve cards once their resolve bodies are translated.
 
 ---
 
