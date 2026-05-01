@@ -2,7 +2,7 @@
 
 Active backlog of work items, ordered by yield. Each story states the goal, the agent, the acceptance criteria, and the dependency chain.
 
-State as of 2026-05-01 — `cards/official/` parses 13,298 / 13,298, **3,469 errors** / **585 warnings** remain (post-Phase 8).
+State as of 2026-05-01 — `cards/official/` parses 13,298 / 13,298, **3,274 errors** / **559 warnings** remain (post-Phase 5d).
 
 ---
 
@@ -66,21 +66,8 @@ Lua-side: 951 candidate chains across 882 cards in `s.initial_effect`. After `is
 
 Each is a single `corpus-curator` PR.
 
-### Phase 5d — drop redundant Field-type stubs (broaden 5b)
-**Goal.** Phase 5b dropped redundant `effect "Effect N" { resolve { } }` stubs on Equip Spell cards once a passive captured the chain. Extend the same filter to other type cards (Effect Monster, Continuous Spell, Continuous Trap) when they have a Phase 5 passive AND only one effect block AND it's empty.
-
-**Yield estimate.** ~80 cards.
-
-**Approach.** Extend the filter cascade in the Phase 5b apply script.
-
-**Acceptance.**
-- Filter cascade documented in commit message.
-- ≥ 50 cards cleaned up.
-- Roundtrip + corpus check passes.
-
-**Agent.** `corpus-curator`.
-
-**Depends on.** Phase 5 already shipped (✓).
+### ~~Phase 5d — drop redundant Field-type stubs (broaden 5b)~~ ✓ shipped (PR #73)
+**Shipped.** −195 errors, −26 warnings, 195 cards cleaned up (1,209 lines removed). Phase 5b's hand-edit (Equip Spell only, commit `9a1edeffc`) generalised into reusable `translate_corpus` cluster `drop_empty_field_type_stubs`. Filter cascade (AST-verified via `parse_v2`): card type ∈ {Effect Monster, Continuous Spell, Continuous Trap}; ≥1 `passive` block; exactly one `effect` block; that effect has empty `resolve` AND no `choose`. Cluster excises whole effect block with whitespace-aware rewrite (single blank between siblings, no orphan blank before card-closing `}`). 11 unit tests cover positive/negative cases for all three card types + Equip Spell exclusion. Initial yield estimate (~80) was low — actual hit was 195 because the proportion of cards with `cannot_attack`/`cannot_be_targeted`/`cannot_be_destroyed` passives plus a single empty-effect leftover was higher than estimated.
 
 ---
 
