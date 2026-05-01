@@ -1020,18 +1020,84 @@ pub fn translate_body(body: &FunctionBody) -> Vec<DslLine> {
 }
 
 /// Map one `RegisterEffectChain` to a DSL action line. Returns None when
-/// the chain isn't one of the shapes Phase 4 covers (non-stat code,
-/// non-translatable value, unknown receiver, multi-target without a
-/// known source group).
+/// the chain isn't one of the shapes the translator covers.
 ///
-/// Single-target shapes (`multi_target=false`):
+/// Two families:
+///   - **Stat modifiers** (Phase 4 / 4b / 4c): EFFECT_UPDATE_ATTACK /
+///     EFFECT_UPDATE_DEFENSE → `modify_atk` / `modify_def` with the
+///     parsed `SetValue` as the magnitude.
+///   - **Grants** (Phase 4e): non-stat ability codes
+///     (EFFECT_INDESTRUCTABLE_BATTLE / EFFECT_INDESTRUCTABLE_EFFECT /
+///     EFFECT_CANNOT_ATTACK / EFFECT_CANNOT_BE_EFFECT_TARGET) → DSL
+///     `grant <selector> <ability> until end_of_turn`. Grants ignore
+///     `chain.value` (the lua side uses `SetValue(1)` as a flag) and
+///     require an end-of-turn reset to avoid emitting a permanent
+///     grant from an ambiguous-duration chain.
+fn translate_register_chain(
+    chain: &RegisterEffectChain,
+    body: &FunctionBody,
+) -> Option<DslLine> {
+    let code = chain.code.as_deref()?;
+    if let Some(action) = stat_modifier_action(code) {
+        return translate_modifier_chain(action, chain, body);
+    }
+    if let Some(ability) = grant_ability_for(code) {
+        return translate_grant_chain(ability, chain, body);
+    }
+    None
+}
+
+/// Map an `EFFECT_UPDATE_*` code to the DSL action verb. Returns None
+/// for codes outside the stat-modifier family.
+fn stat_modifier_action(code: &str) -> Option<&'static str> {
+    Some(match code {
+        "EFFECT_UPDATE_ATTACK"  => "modify_atk",
+        "EFFECT_UPDATE_DEFENSE" => "modify_def",
+        _ => return None,
+    })
+}
+
+/// Map a non-stat EFFECT code to the DSL `grant` ability phrase.
+/// Returns None for codes Phase 4e does not cover.
+fn grant_ability_for(code: &str) -> Option<&'static str> {
+    Some(match code {
+        "EFFECT_INDESTRUCTABLE_BATTLE"   => "cannot_be_destroyed by battle",
+        "EFFECT_INDESTRUCTABLE_EFFECT"   => "cannot_be_destroyed by effect",
+        "EFFECT_CANNOT_ATTACK"           => "cannot_attack",
+        "EFFECT_CANNOT_BE_EFFECT_TARGET" => "cannot_be_targeted",
+        _ => return None,
+    })
+}
+
+/// Resolve the DSL selector from the chain's `register_target` /
+/// `loop_source_group`. Shared by the stat-modifier and grant paths.
+///
+/// Single-target (`multi_target=false`):
 ///   - `tc` / `tc:GetFirst()` / `g:GetFirst()` → `target`
 ///   - `c` / `e:GetHandler()` → `self`
 ///
-/// Multi-target shapes (`multi_target=true`):
-///   - `loop_source_group` names a binding whose `SelectorSpec` is in
+/// Multi-target (`multi_target=true`):
+///   - `loop_source_group` resolves to a binding in
 ///     `body.group_bindings` → emit using the spec's DSL form.
 ///   - Otherwise → None.
+fn resolve_chain_selector(
+    chain: &RegisterEffectChain,
+    body: &FunctionBody,
+) -> Option<String> {
+    if chain.multi_target {
+        let group = chain.loop_source_group.as_deref()?;
+        let spec = body.group_bindings.get(group)?;
+        Some(spec.to_dsl())
+    } else {
+        match chain.register_target.as_str() {
+            "tc" | "tc:GetFirst()" | "g:GetFirst()" => Some("target".to_string()),
+            "c" | "e:GetHandler()" => Some("self".to_string()),
+            _ => None,
+        }
+    }
+}
+
+/// Stat-modifier chain → `modify_atk` / `modify_def` line.
 ///
 /// Value resolution (Phase 4c):
 ///   - literal int → `+ N` / `- N`
@@ -1040,38 +1106,43 @@ pub fn translate_body(body: &FunctionBody) -> Vec<DslLine> {
 ///   - local-var ref → recurse on the binding's RHS
 ///   - unary minus → flip sign
 ///   - method-call * literal / method-call / literal → DSL math expr
-fn translate_register_chain(
+fn translate_modifier_chain(
+    action: &str,
     chain: &RegisterEffectChain,
     body: &FunctionBody,
 ) -> Option<DslLine> {
-    let code = chain.code.as_deref()?;
-    let action = match code {
-        "EFFECT_UPDATE_ATTACK"  => "modify_atk",
-        "EFFECT_UPDATE_DEFENSE" => "modify_def",
-        _ => return None,
-    };
     let parsed = parse_lua_value(chain.value.as_deref()?, &body.value_bindings)?;
     // No-op modifier — local-var resolution often lands on `local atk=0`
     // initialisers; the real value is reassigned later in branches we
     // don't track. Skip rather than emit a useless `+ 0` line.
     if parsed.expr == "0" { return None; }
-    let selector = if chain.multi_target {
-        let group = chain.loop_source_group.as_deref()?;
-        let spec = body.group_bindings.get(group)?;
-        spec.to_dsl()
-    } else {
-        match chain.register_target.as_str() {
-            "tc" | "tc:GetFirst()" | "g:GetFirst()" => "target".to_string(),
-            "c" | "e:GetHandler()" => "self".to_string(),
-            _ => return None,
-        }
-    };
+    let selector = resolve_chain_selector(chain, body)?;
     let op = if parsed.negative { '-' } else { '+' };
     let mut line = format!("{} {} {} {}", action, selector, op, parsed.expr);
     if reset_is_end_of_turn(chain.reset.as_deref()) {
         line.push_str(" until end_of_turn");
     }
     Some(DslLine::Action(line))
+}
+
+/// Grant chain → `grant <selector> <ability> until end_of_turn`.
+///
+/// Phase 4e covers non-stat ability codes that lua expresses as
+/// `SetCode(EFFECT_<X>) + SetValue(1) + SetReset(<end-of-turn>)
+/// + <recv>:RegisterEffect(...)`. The reset gate is mandatory: a chain
+/// without `RESETS_STANDARD` / `PHASE_END` would emit a permanent grant
+/// from an ambiguous-duration chain, so skip those instead of guessing.
+fn translate_grant_chain(
+    ability: &str,
+    chain: &RegisterEffectChain,
+    body: &FunctionBody,
+) -> Option<DslLine> {
+    if !reset_is_end_of_turn(chain.reset.as_deref()) { return None; }
+    let selector = resolve_chain_selector(chain, body)?;
+    Some(DslLine::Action(format!(
+        "grant {} {} until end_of_turn",
+        selector, ability
+    )))
 }
 
 /// Parsed Lua expression as it maps to DSL `expr` syntax. `expr` is
@@ -1868,6 +1939,139 @@ end
         let lines = translate_body(&body);
         let has_modify = lines.iter().any(|l| matches!(l, DslLine::Action(s) if s.starts_with("modify_atk")));
         assert!(!has_modify, "function-ref SetValue should not emit modify_atk");
+    }
+
+    #[test]
+    fn t10_register_chain_indestructable_battle_target_grant() {
+        // Shield Warrior shape: tc:RegisterEffect with
+        // EFFECT_INDESTRUCTABLE_BATTLE + RESETS_STANDARD reset →
+        // grant target cannot_be_destroyed by battle until end_of_turn.
+        let src = r#"
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=e:GetLabelObject()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
+    e1:SetValue(1)
+    e1:SetReset(RESET_EVENT|RESETS_STANDARD|RESET_PHASE|PHASE_DAMAGE)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let body = walk(&parsed).functions.remove("s.atkop").expect("body");
+        let lines = translate_body(&body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()),
+            _ => None,
+        });
+        assert_eq!(
+            action,
+            Some("grant target cannot_be_destroyed by battle until end_of_turn"),
+        );
+    }
+
+    #[test]
+    fn t10_register_chain_cannot_attack_self_grant() {
+        // c:RegisterEffect with EFFECT_CANNOT_ATTACK + RESETS_STANDARD →
+        // grant self cannot_attack until end_of_turn.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_CANNOT_ATTACK)
+    e1:SetReset(RESET_EVENT|RESETS_STANDARD|RESET_PHASE|PHASE_END)
+    c:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let body = walk(&parsed).functions.remove("s.activate").expect("body");
+        let lines = translate_body(&body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()),
+            _ => None,
+        });
+        assert_eq!(action, Some("grant self cannot_attack until end_of_turn"));
+    }
+
+    #[test]
+    fn t10_register_chain_cannot_be_targeted_grant() {
+        // tc:RegisterEffect with EFFECT_CANNOT_BE_EFFECT_TARGET +
+        // RESETS_STANDARD → grant target cannot_be_targeted until end_of_turn.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
+    e1:SetValue(1)
+    e1:SetReset(RESET_EVENT|RESETS_STANDARD|RESET_PHASE|PHASE_END)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let body = walk(&parsed).functions.remove("s.activate").expect("body");
+        let lines = translate_body(&body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()),
+            _ => None,
+        });
+        assert_eq!(
+            action,
+            Some("grant target cannot_be_targeted until end_of_turn"),
+        );
+    }
+
+    #[test]
+    fn t10_register_chain_grant_skips_without_reset() {
+        // Same code, no SetReset → permanent grant ambiguity → skip.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
+    e1:SetValue(1)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let body = walk(&parsed).functions.remove("s.activate").expect("body");
+        let lines = translate_body(&body);
+        let has_grant = lines
+            .iter()
+            .any(|l| matches!(l, DslLine::Action(s) if s.starts_with("grant ")));
+        assert!(!has_grant, "grant chain without reset should not emit");
+    }
+
+    #[test]
+    fn t10_register_chain_grant_multi_target() {
+        // for tc in aux.Next(g) loop with EFFECT_CANNOT_ATTACK +
+        // RESETS_STANDARD → grant <group selector> cannot_attack until end_of_turn.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
+    for tc in aux.Next(g) do
+        local e1=Effect.CreateEffect(e:GetHandler())
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_CANNOT_ATTACK)
+        e1:SetReset(RESETS_STANDARD_PHASE_END)
+        tc:RegisterEffect(e1)
+    end
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let body = walk(&parsed).functions.remove("s.operation").expect("body");
+        let lines = translate_body(&body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) if s.starts_with("grant ") => Some(s.as_str()),
+            _ => None,
+        });
+        assert_eq!(
+            action,
+            Some("grant (all, card, either controls, from monster_zone) cannot_attack until end_of_turn"),
+            "got lines: {:?}", lines,
+        );
     }
 
     #[test]
