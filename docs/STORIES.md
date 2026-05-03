@@ -2,7 +2,7 @@
 
 Active backlog of work items, ordered by yield. Each story states the goal, the agent, the acceptance criteria, and the dependency chain.
 
-State as of 2026-05-01 — `cards/official/` parses 13,298 / 13,298, **3,274 errors** / **559 warnings** remain (post-Phase 5d).
+State as of 2026-05-03 — `cards/official/` parses 13,298 / 13,298, **3,274 errors** / **559 warnings** remain (post-Phase 8 / Phase 9 audit-failed-stopped).
 
 ---
 
@@ -59,6 +59,31 @@ Lua-side: 951 candidate chains across 882 cards in `s.initial_effect`. After `is
 
 ### ~~Phase 8 — `s.target` body extraction~~ ✓ shipped (PR #70)
 **Shipped.** 0 errors delta, 0 warnings delta, 301 target declarations added across 301 cards. Two generic-filter shapes covered: `nil` filter (161 cards) and `aux.TRUE` filter (140 cards). `extract_target_decl` added to `lua_ast.rs`, reusing `spec_from_matching` / `SelectorSpec` from Phase 3a/b. Pass E added to `lua_translate apply`. 7 unit tests added (253 total lua_ast,cdb). `LOCATION_PZONE` → `pendulum_zone` and `LOCATION_MMZONE` → `extra_monster_zone` added to `zone_from_locations`; `LOCATION_FZONE` / `field_zone` omitted (PEG grammar ordered-choice conflict — "field" matches before "field_zone"). Custom named filters (~3,254 cards), variable quantities (28), and empty-resolve cards (33) deferred to Phase 8b.
+
+---
+
+### Phase 9 — `s.operation` body extraction ✗ audit-failed-stopped (2026-05-03, issue #75)
+**Audit finding.** 1,042 files with empty `resolve { }` blocks audited against CardScripts Lua mirror. No sub-shape clears the ≥30 safe-card floor.
+
+**Root causes:**
+
+1. **Secondary handler pattern (~95%+ of empties).** The primary operation handler (`s.activate`) builds a delayed/conditional field effect and registers it via `Duel.RegisterEffect(e, tp)`. The actual action (`Destroy`, `SpecialSummon`) lives in a secondary handler (`s.desop`, `s.spop`) that is never linked to `walk.effects`. The DSL has no syntax for a delayed-trigger wrapper. Grammar blocked.
+
+2. **If-condition action pattern (small subset).** ~13 cards execute their action as the boolean test of an `if` statement (`if Duel.SSet(tp,tc)>0 then ...`). `collect_duel_calls` descends into if-bodies but not if-condition expressions. Safe yield after slot-alignment: 13 cards — below floor.
+
+3. **Pass A slot-tracking bug.** `first_empty_resolve()` does a global file scan with no effect-index awareness. Passes C/D/E use `condition/cost/target_inject_pos(txt, effect_idx)`; Pass A does not. This creates mis-injection risk for cards where earlier effects are already filled. Fix is a correctness chore (no yield by itself).
+
+**Shapes evaluated:**
+
+| Sub-shape | Safe count | Blocker |
+|---|---|---|
+| Secondary handler (field effects) | 0 | No DSL wrapper grammar |
+| If-condition action | 13 | Below floor + slot-tracking bug |
+| `Duel.Overlay` (attach) | 0 | Needs T33 grammar |
+
+**Side effects.** Apply run produced 3 residual Pass E target injections (`c76524506.ds`, `c7241272.ds`, `c78783557.ds`) — no error/warning delta. 253 tests passing, 0 regressions.
+
+**Recommendations.** (1) Fix Pass A slot-tracking (correctness, no yield). (2) Phase 7b: backfill cost on ~15 deferred empty-resolve cards. (3) Phase 8b: backfill target on ~30 remaining deferred cards. (4) Ship T33 grammar (`attach`) to unlock ~47 `Duel.Overlay` cards. (5) Once T33 + slot-tracking fix land, revisit if-condition extraction as a micro-phase (13 cards, below-floor acknowledged).
 
 ---
 
