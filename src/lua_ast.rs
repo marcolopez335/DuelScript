@@ -1810,6 +1810,11 @@ fn translate_call(c: &DuelCall, bindings: &BTreeMap<String, SelectorSpec>) -> Op
         // optional yours/opponents owner.
         "Duel.ShuffleHand" => Some(action_shuffle_hand(a)),
 
+        // Duel.DiscardDeck(player, count, reason) — send top N cards of
+        // player's deck to gy. DSL `mill N [from opponent_deck]` covers
+        // self-mill (default) and opponent-mill. Non-literal N → TODO.
+        "Duel.DiscardDeck" => Some(action_discard_deck(a)),
+
         // Duel.NegateAttack — DSL `negate` (no destroy variant).
         "Duel.NegateAttack" => Some(DslLine::Action("negate".to_string())),
         "Duel.NegateActivation" => Some(DslLine::Action("negate".to_string())),
@@ -1940,6 +1945,27 @@ fn action_shuffle(args: &[String]) -> DslLine {
         _ => return DslLine::Action("shuffle_deck".to_string()),
     };
     DslLine::Action(format!("shuffle_deck {}", who))
+}
+
+/// `Duel.DiscardDeck(player, count, reason)` → `mill <N> [from opponent_deck]`.
+/// Non-literal count → TODO (DSL grammar requires an integer expr).
+fn action_discard_deck(args: &[String]) -> DslLine {
+    let player = args.first().map(String::as_str).unwrap_or("");
+    let count = args.get(1).map(String::as_str).unwrap_or("");
+    if count.parse::<u32>().is_err() {
+        return DslLine::Todo(format!(
+            "Duel.DiscardDeck(player={}, count={}) — non-literal count",
+            player, count
+        ));
+    }
+    match player {
+        "tp" => DslLine::Action(format!("mill {}", count)),
+        "1-tp" => DslLine::Action(format!("mill {} from opponent_deck", count)),
+        _ => DslLine::Todo(format!(
+            "Duel.DiscardDeck(player={}, count={}) — non-canonical player",
+            player, count
+        )),
+    }
 }
 
 /// `Duel.ShuffleHand(player)` → `shuffle_hand [yours|opponents]`.
@@ -2102,6 +2128,42 @@ mod tests {
     fn translate_duel_shuffle_hand_non_canonical_player_emits_todo() {
         let calls = vec![
             DuelCall { method: "Duel.ShuffleHand".to_string(), args: vec!["weird".into()] },
+        ];
+        let lines = translate_calls(&calls);
+        assert!(matches!(&lines[0], DslLine::Todo(_)));
+    }
+
+    #[test]
+    fn translate_duel_discard_deck_self_literal() {
+        let calls = vec![
+            DuelCall {
+                method: "Duel.DiscardDeck".to_string(),
+                args: vec!["tp".into(), "3".into(), "REASON_EFFECT".into()],
+            },
+        ];
+        let lines = translate_calls(&calls);
+        assert!(matches!(&lines[0], DslLine::Action(s) if s == "mill 3"));
+    }
+
+    #[test]
+    fn translate_duel_discard_deck_opponent_literal() {
+        let calls = vec![
+            DuelCall {
+                method: "Duel.DiscardDeck".to_string(),
+                args: vec!["1-tp".into(), "5".into(), "REASON_EFFECT".into()],
+            },
+        ];
+        let lines = translate_calls(&calls);
+        assert!(matches!(&lines[0], DslLine::Action(s) if s == "mill 5 from opponent_deck"));
+    }
+
+    #[test]
+    fn translate_duel_discard_deck_non_literal_count_emits_todo() {
+        let calls = vec![
+            DuelCall {
+                method: "Duel.DiscardDeck".to_string(),
+                args: vec!["tp".into(), "ct".into(), "REASON_EFFECT".into()],
+            },
         ];
         let lines = translate_calls(&calls);
         assert!(matches!(&lines[0], DslLine::Todo(_)));
