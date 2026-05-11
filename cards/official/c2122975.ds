@@ -6,7 +6,11 @@ card "Trap Reclamation" {
         speed: 2
         mandatory
         trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            discard (1, card, you control, from hand)
+        }
         resolve {
+            install_watcher "thop" { event: sent_to gy duration: end_of_turn check { add_to_hand target } }
         }
     }
 }
