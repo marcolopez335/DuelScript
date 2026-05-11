@@ -1794,6 +1794,11 @@ fn translate_call(c: &DuelCall, bindings: &BTreeMap<String, SelectorSpec>) -> Op
         // common shape `Duel.Equip(tp, c, target, ...)` → equip self to target.
         "Duel.Equip" => Some(action_equip(a)),
 
+        // Duel.Overlay(xyz_target, materials, [send_overlay]) — attach
+        // materials as Xyz Materials to the target. DSL: `attach <materials>
+        // to <target> as_material`. T33 translator extension.
+        "Duel.Overlay" => Some(action_overlay(a, bindings)),
+
         // Duel.SSet(player, target) — set spell/trap face-down on field.
         "Duel.SSet" => Some(DslLine::Action("set target".to_string())),
 
@@ -1873,6 +1878,40 @@ fn group_arg(args: &[String], idx: usize, bindings: &BTreeMap<String, SelectorSp
         return spec.to_dsl();
     }
     "target".to_string()
+}
+
+/// `Duel.Overlay(xyz_target, materials, [send_overlay])` → `attach <mat> to <xyz> as_material`.
+///
+/// Argument resolution per side:
+///   - literal `c`  → `self`   (the host card)
+///   - literal `tc` → `target` (first selected target via Duel.GetFirstTarget)
+///   - any other bare ident → look up in group bindings, use captured spec
+///   - else → emit a TODO line (unresolvable selector)
+fn action_overlay(args: &[String], bindings: &BTreeMap<String, SelectorSpec>) -> DslLine {
+    let target_raw = args.first().map(String::as_str).unwrap_or("");
+    let materials_raw = args.get(1).map(String::as_str).unwrap_or("");
+    match (xyz_arg_to_dsl(target_raw, bindings), xyz_arg_to_dsl(materials_raw, bindings)) {
+        (Some(target), Some(materials)) => {
+            DslLine::Action(format!("attach {} to {} as_material", materials, target))
+        }
+        _ => DslLine::Todo(format!(
+            "Duel.Overlay(target={}, materials={}) — unresolvable selector",
+            target_raw, materials_raw
+        )),
+    }
+}
+
+/// Resolve a single Duel.Overlay argument to a DSL selector expression.
+/// Returns None when the argument is neither a known sentinel (`c`/`tc`)
+/// nor a tracked group binding — caller emits a TODO in that case.
+fn xyz_arg_to_dsl(raw: &str, bindings: &BTreeMap<String, SelectorSpec>) -> Option<String> {
+    let raw = raw.trim();
+    let base = raw.split(|ch| ch == ':' || ch == '.').next().unwrap_or(raw);
+    match base {
+        "c" => Some("self".to_string()),
+        "tc" => Some("target".to_string()),
+        other => bindings.get(other).map(|s| s.to_dsl()),
+    }
 }
 
 /// `Duel.Equip(player, eq, tar, ...)` → `equip self to target` for the
@@ -1978,6 +2017,47 @@ mod tests {
     fn translate_unknown_emits_todo() {
         let calls = vec![
             DuelCall { method: "Duel.SwapSequence".to_string(), args: vec!["a".into(), "b".into()] },
+        ];
+        let lines = translate_calls(&calls);
+        assert!(matches!(&lines[0], DslLine::Todo(_)));
+    }
+
+    #[test]
+    fn translate_duel_overlay_self_target() {
+        // Duel.Overlay(c, tc, true) — attach first target to host as material.
+        let calls = vec![
+            DuelCall {
+                method: "Duel.Overlay".to_string(),
+                args: vec!["c".into(), "tc".into(), "true".into()],
+            },
+        ];
+        let lines = translate_calls(&calls);
+        assert!(matches!(&lines[0], DslLine::Action(s) if s == "attach target to self as_material"));
+    }
+
+    #[test]
+    fn translate_duel_overlay_target_to_target() {
+        // Duel.Overlay(sc, tc) where neither side is c — fall back to "target"
+        // for sc (unknown binding) which is the sentinel behaviour we expect
+        // when the recipient binding is `tc` itself; here both are sentinels.
+        let calls = vec![
+            DuelCall {
+                method: "Duel.Overlay".to_string(),
+                args: vec!["tc".into(), "c".into()],
+            },
+        ];
+        let lines = translate_calls(&calls);
+        assert!(matches!(&lines[0], DslLine::Action(s) if s == "attach self to target as_material"));
+    }
+
+    #[test]
+    fn translate_duel_overlay_unbound_emits_todo() {
+        // Unknown selectors on both sides → TODO, not silent action.
+        let calls = vec![
+            DuelCall {
+                method: "Duel.Overlay".to_string(),
+                args: vec!["sc".into(), "mg".into()],
+            },
         ];
         let lines = translate_calls(&calls);
         assert!(matches!(&lines[0], DslLine::Todo(_)));
