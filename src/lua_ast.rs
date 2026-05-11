@@ -70,6 +70,13 @@ pub struct RegisterEffectChain {
     /// `FunctionBody::group_bindings` to render a real selector instead
     /// of the bare `target` placeholder.
     pub loop_source_group: Option<String>,
+    /// Function name passed to `e:SetOperation(...)`. Carries the sub-handler
+    /// the chain delegates to when its event code fires (install_watcher
+    /// translation path).
+    pub operation: Option<String>,
+    /// Function name passed to `e:SetCondition(...)`. Not currently used by
+    /// any translator pass; reserved for future install_watcher refinements.
+    pub condition: Option<String>,
 }
 
 /// A statically-extracted selector intent — built from a single
@@ -1205,10 +1212,12 @@ fn collect_register_chains(
                 if let Some((bind, method, args)) = method_call_on_binding(fc) {
                     if let Some(chain) = by_binding.get_mut(&bind) {
                         match method.as_str() {
-                            "SetCode"  => chain.code = args.first().cloned(),
-                            "SetValue" => chain.value = args.first().cloned(),
-                            "SetReset" => chain.reset = args.first().cloned(),
-                            "SetType"  => chain.effect_type = args.first().cloned(),
+                            "SetCode"      => chain.code = args.first().cloned(),
+                            "SetValue"     => chain.value = args.first().cloned(),
+                            "SetReset"     => chain.reset = args.first().cloned(),
+                            "SetType"      => chain.effect_type = args.first().cloned(),
+                            "SetOperation" => chain.operation = args.first().cloned(),
+                            "SetCondition" => chain.condition = args.first().cloned(),
                             _ => {}
                         }
                     }
@@ -1462,6 +1471,18 @@ pub fn translate_calls(calls: &[DuelCall]) -> Vec<DslLine> {
 /// (Phase 2/3 behavior), then any continuous-modifier `RegisterEffect`
 /// chains the body created (Phase 4 — `modify_atk` / `modify_def`).
 pub fn translate_body(body: &FunctionBody) -> Vec<DslLine> {
+    translate_body_with_functions(body, &BTreeMap::new())
+}
+
+/// Variant of [`translate_body`] that has access to the surrounding
+/// function-table. Used by translator passes that need to follow
+/// `SetOperation(s.<name>)` references into another handler body — for
+/// example, the install_watcher path materialises the sub-handler's
+/// translated lines as the `check { ... }` body.
+pub fn translate_body_with_functions(
+    body: &FunctionBody,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Vec<DslLine> {
     let mut out = Vec::new();
     for c in &body.calls {
         if let Some(line) = translate_call(c, &body.group_bindings) {
@@ -1469,7 +1490,7 @@ pub fn translate_body(body: &FunctionBody) -> Vec<DslLine> {
         }
     }
     for chain in &body.register_chains {
-        if let Some(line) = translate_register_chain(chain, body) {
+        if let Some(line) = translate_register_chain(chain, body, functions) {
             out.push(line);
         }
     }
@@ -1493,6 +1514,7 @@ pub fn translate_body(body: &FunctionBody) -> Vec<DslLine> {
 fn translate_register_chain(
     chain: &RegisterEffectChain,
     body: &FunctionBody,
+    functions: &BTreeMap<String, FunctionBody>,
 ) -> Option<DslLine> {
     let code = chain.code.as_deref()?;
     if let Some(action) = stat_modifier_action(code) {
@@ -1501,7 +1523,62 @@ fn translate_register_chain(
     if let Some(ability) = grant_ability_for(code) {
         return translate_grant_chain(ability, chain, body);
     }
+    if let Some(trigger) = trigger_for_event_code(code) {
+        return translate_install_watcher_chain(trigger, chain, functions);
+    }
     None
+}
+
+/// Map an EVENT_* code (from `SetCode`) to the DSL `trigger_expr` form.
+/// Returns None for events outside the install_watcher shape this
+/// translator currently covers (compound `EVENT_PHASE+PHASE_END` shapes,
+/// chain-event family, summon-success variants, etc. are deferred).
+fn trigger_for_event_code(code: &str) -> Option<&'static str> {
+    Some(match code {
+        "EVENT_BATTLE_DESTROYING"   => "destroys_by_battle",
+        "EVENT_BATTLE_DESTROYED"    => "destroyed_by_battle",
+        "EVENT_DESTROYED"           => "destroyed",
+        "EVENT_TO_GRAVE"            => "sent_to gy",
+        "EVENT_LEAVE_FIELD"         => "leaves_field",
+        "EVENT_BATTLE_DAMAGE"       => "battle_damage",
+        "EVENT_ATTACK_ANNOUNCE"     => "attack_declared",
+        "EVENT_REMOVE"              => "banished",
+        "EVENT_FLIP_SUMMON_SUCCESS" => "flip_summoned",
+        _ => return None,
+    })
+}
+
+/// Install-watcher chain → single-line DSL:
+/// `install_watcher "<name>" { event: <trigger> duration: <dur> check { <action> } }`.
+///
+/// Narrow shape this implementation accepts:
+///   - `SetCode` maps to a trigger via `trigger_for_event_code`.
+///   - `SetReset` resolves to end-of-turn (the only duration grammar accepts
+///     here today; durations beyond this require T-series grammar work).
+///   - `SetOperation` names a function in `functions`, and translating that
+///     handler body produces at least one DSL action line. The first action
+///     line becomes the watcher's `check { … }` body. Subsequent lines are
+///     dropped — multi-action checks need richer emit.
+fn translate_install_watcher_chain(
+    trigger: &str,
+    chain: &RegisterEffectChain,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Option<DslLine> {
+    if !reset_is_end_of_turn(chain.reset.as_deref()) { return None; }
+    let op_name = chain.operation.as_deref()?;
+    let op_body = functions.get(op_name)?;
+    let lines = translate_body_with_functions(op_body, functions);
+    let first_action = lines.iter().find_map(|l| match l {
+        DslLine::Action(s) => Some(s.clone()),
+        _ => None,
+    })?;
+    // Use the sub-handler name (sans `s.` prefix) as the watcher label so
+    // re-applies stay idempotent and the corpus diff stays inspectable.
+    let label = op_name.strip_prefix("s.").unwrap_or(op_name);
+    Some(DslLine::Action(format!(
+        "install_watcher \"{}\" {{ event: {} duration: end_of_turn check {{ {} }} }}",
+        label, trigger, first_action,
+    )))
 }
 
 /// Map an `EFFECT_UPDATE_*` code to the DSL action verb. Returns None
@@ -2206,6 +2283,68 @@ mod tests {
         ];
         let lines = translate_calls(&calls);
         assert!(matches!(&lines[0], DslLine::Todo(_)));
+    }
+
+    #[test]
+    fn install_watcher_battle_destroying_damage_shape() {
+        // Future Drive shape: an operation handler registers a continuous
+        // trigger effect on tc whose own operation (s.damop) deals damage
+        // when tc destroys a card by battle.
+        let src = r#"
+local s,id=GetID()
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local tc=Duel.GetFirstTarget()
+    local e3=Effect.CreateEffect(c)
+    e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+    e3:SetCode(EVENT_BATTLE_DESTROYING)
+    e3:SetOperation(s.damop)
+    e3:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e3)
+end
+function s.damop(e,tp,eg,ep,ev,re,r,rp)
+    Duel.Damage(1-tp,1000,REASON_EFFECT)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.activate").expect("activate body");
+        let lines = translate_body_with_functions(body, &report.functions);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()),
+            _ => None,
+        });
+        assert_eq!(
+            action,
+            Some(r#"install_watcher "damop" { event: destroys_by_battle duration: end_of_turn check { damage opponent 1000 } }"#),
+        );
+    }
+
+    #[test]
+    fn install_watcher_skips_chain_without_end_of_turn_reset() {
+        // Same shape minus the SetReset call — should not emit a watcher
+        // (no duration guard would let it run forever in DSL).
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local tc=Duel.GetFirstTarget()
+    local e3=Effect.CreateEffect(c)
+    e3:SetCode(EVENT_BATTLE_DESTROYING)
+    e3:SetOperation(s.damop)
+    tc:RegisterEffect(e3)
+end
+function s.damop(e,tp,eg,ep,ev,re,r,rp)
+    Duel.Damage(1-tp,500,REASON_EFFECT)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.activate").expect("activate body");
+        let lines = translate_body_with_functions(body, &report.functions);
+        assert!(
+            !lines.iter().any(|l| matches!(l, DslLine::Action(s) if s.starts_with("install_watcher"))),
+            "no SetReset → must not emit install_watcher",
+        );
     }
 
     #[test]
