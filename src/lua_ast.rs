@@ -1815,6 +1815,15 @@ fn translate_call(c: &DuelCall, bindings: &BTreeMap<String, SelectorSpec>) -> Op
         // self-mill (default) and opponent-mill. Non-literal N → TODO.
         "Duel.DiscardDeck" => Some(action_discard_deck(a)),
 
+        // Duel.Announce* family — UI prompt for card / attribute / race /
+        // level / type. Five DSL atoms in `announce_what`. Number variants
+        // (AnnounceNumber/Range/Coin) have no DSL atom → TODO.
+        "Duel.AnnounceCard"      => Some(DslLine::Action("announce card".into())),
+        "Duel.AnnounceAttribute" => Some(DslLine::Action("announce attribute".into())),
+        "Duel.AnnounceRace"      => Some(DslLine::Action("announce race".into())),
+        "Duel.AnnounceLevel"     => Some(DslLine::Action("announce level".into())),
+        "Duel.AnnounceType"      => Some(DslLine::Action("announce type".into())),
+
         // Duel.NegateAttack — DSL `negate` (no destroy variant).
         "Duel.NegateAttack" => Some(DslLine::Action("negate".to_string())),
         "Duel.NegateActivation" => Some(DslLine::Action("negate".to_string())),
@@ -2164,6 +2173,36 @@ mod tests {
                 method: "Duel.DiscardDeck".to_string(),
                 args: vec!["tp".into(), "ct".into(), "REASON_EFFECT".into()],
             },
+        ];
+        let lines = translate_calls(&calls);
+        assert!(matches!(&lines[0], DslLine::Todo(_)));
+    }
+
+    #[test]
+    fn translate_duel_announce_family() {
+        for (method, expected) in [
+            ("Duel.AnnounceCard", "announce card"),
+            ("Duel.AnnounceAttribute", "announce attribute"),
+            ("Duel.AnnounceRace", "announce race"),
+            ("Duel.AnnounceLevel", "announce level"),
+            ("Duel.AnnounceType", "announce type"),
+        ] {
+            let calls = vec![
+                DuelCall { method: method.to_string(), args: vec!["tp".into()] },
+            ];
+            let lines = translate_calls(&calls);
+            match &lines[0] {
+                DslLine::Action(s) => assert_eq!(s, expected, "method={}", method),
+                DslLine::Todo(t) => panic!("expected action for {}, got TODO: {}", method, t),
+            }
+        }
+    }
+
+    #[test]
+    fn translate_duel_announce_number_still_todo() {
+        // No DSL atom for numeric announce → must remain TODO so caller knows.
+        let calls = vec![
+            DuelCall { method: "Duel.AnnounceNumber".to_string(), args: vec!["tp".into(), "1".into(), "2".into()] },
         ];
         let lines = translate_calls(&calls);
         assert!(matches!(&lines[0], DslLine::Todo(_)));
