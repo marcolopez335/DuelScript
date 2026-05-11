@@ -171,7 +171,7 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
                 Some(c) => c,
                 None => { r.effects_no_handler += 1; continue; }
             };
-            let lines = lua_ast::translate_body(body);
+            let lines = lua_ast::translate_body_with_functions(body, &walk.functions);
             if !lines.iter().any(|l| l.is_action()) {
                 r.effects_todo_only += 1;
                 continue;
