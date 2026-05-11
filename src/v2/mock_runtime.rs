@@ -524,6 +524,9 @@ impl DuelScriptRuntime for MockRuntime {
     fn shuffle_deck(&mut self, player: u8) {
         self.record("shuffle_deck", format!("player={}", player));
     }
+    fn shuffle_hand(&mut self, player: u8) {
+        self.record("shuffle_hand", format!("player={}", player));
+    }
 
     // ── Stat mods ────────────────────────────────────────────
     fn modify_atk(&mut self, card_id: u32, delta: i32, duration: Duration) {

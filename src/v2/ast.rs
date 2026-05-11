@@ -569,6 +569,7 @@ pub enum Action {
     Reveal(Selector),
     LookAt(Selector, Option<Zone>),
     ShuffleDeck(Option<DeckOwner>),
+    ShuffleHand(Option<DeckOwner>),
     Announce(AnnounceWhat, Option<String>),
     LinkTo(Selector, Selector),
     CoinFlip { heads: Vec<Action>, tails: Vec<Action> },

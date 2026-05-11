@@ -663,6 +663,14 @@ fn format_action(a: &Action, out: &mut String, indent: usize) {
             };
             writeln!(out, "{}shuffle_deck{}", pad, suffix).unwrap();
         }
+        Action::ShuffleHand(owner) => {
+            let suffix = match owner {
+                None => "".to_string(),
+                Some(DeckOwner::Yours) => " yours".to_string(),
+                Some(DeckOwner::Opponents) => " opponents".to_string(),
+            };
+            writeln!(out, "{}shuffle_hand{}", pad, suffix).unwrap();
+        }
         Action::Announce(what, binding) => {
             let mut s = format!("{}announce {}", pad, format_announce_what(what));
             if let Some(b) = binding {

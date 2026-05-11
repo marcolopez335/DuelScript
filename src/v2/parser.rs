@@ -1761,6 +1761,13 @@ fn parse_action(pair: Pair<Rule>) -> Result<Action, V2ParseError> {
                 else { None };
             Ok(Action::ShuffleDeck(owner))
         }
+        Rule::shuffle_hand_action => {
+            let text = normalize_ws(inner.as_str());
+            let owner = if text.contains("opponents") { Some(DeckOwner::Opponents) }
+                else if text.contains("yours") || text.contains("both") { Some(DeckOwner::Yours) }
+                else { None };
+            Ok(Action::ShuffleHand(owner))
+        }
         Rule::announce_action => {
             let mut it = inner.into_inner();
             let what = parse_announce_what(it.next().unwrap().as_str().trim())?;

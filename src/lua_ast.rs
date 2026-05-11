@@ -1806,6 +1806,10 @@ fn translate_call(c: &DuelCall, bindings: &BTreeMap<String, SelectorSpec>) -> Op
         // optional yours/opponents/both; default is implicit yours.
         "Duel.ShuffleDeck" => Some(action_shuffle(a)),
 
+        // Duel.ShuffleHand(player) — shuffle hand. DSL `shuffle_hand` with
+        // optional yours/opponents owner.
+        "Duel.ShuffleHand" => Some(action_shuffle_hand(a)),
+
         // Duel.NegateAttack — DSL `negate` (no destroy variant).
         "Duel.NegateAttack" => Some(DslLine::Action("negate".to_string())),
         "Duel.NegateActivation" => Some(DslLine::Action("negate".to_string())),
@@ -1938,6 +1942,19 @@ fn action_shuffle(args: &[String]) -> DslLine {
     DslLine::Action(format!("shuffle_deck {}", who))
 }
 
+/// `Duel.ShuffleHand(player)` → `shuffle_hand [yours|opponents]`.
+fn action_shuffle_hand(args: &[String]) -> DslLine {
+    let player = args.first().map(String::as_str).unwrap_or("");
+    let who = match player {
+        "tp" => "yours",
+        "1-tp" => "opponents",
+        _ => return DslLine::Todo(format!(
+            "Duel.ShuffleHand(player={}) — non-canonical player", player
+        )),
+    };
+    DslLine::Action(format!("shuffle_hand {}", who))
+}
+
 /// Translate `Duel.Recover(player, amount, reason)` to `gain_lp <N>`.
 /// DSL has no opponent-recover form, so non-self-target → TODO.
 fn action_recover(args: &[String]) -> DslLine {
@@ -2058,6 +2075,33 @@ mod tests {
                 method: "Duel.Overlay".to_string(),
                 args: vec!["sc".into(), "mg".into()],
             },
+        ];
+        let lines = translate_calls(&calls);
+        assert!(matches!(&lines[0], DslLine::Todo(_)));
+    }
+
+    #[test]
+    fn translate_duel_shuffle_hand_yours() {
+        let calls = vec![
+            DuelCall { method: "Duel.ShuffleHand".to_string(), args: vec!["tp".into()] },
+        ];
+        let lines = translate_calls(&calls);
+        assert!(matches!(&lines[0], DslLine::Action(s) if s == "shuffle_hand yours"));
+    }
+
+    #[test]
+    fn translate_duel_shuffle_hand_opponents() {
+        let calls = vec![
+            DuelCall { method: "Duel.ShuffleHand".to_string(), args: vec!["1-tp".into()] },
+        ];
+        let lines = translate_calls(&calls);
+        assert!(matches!(&lines[0], DslLine::Action(s) if s == "shuffle_hand opponents"));
+    }
+
+    #[test]
+    fn translate_duel_shuffle_hand_non_canonical_player_emits_todo() {
+        let calls = vec![
+            DuelCall { method: "Duel.ShuffleHand".to_string(), args: vec!["weird".into()] },
         ];
         let lines = translate_calls(&calls);
         assert!(matches!(&lines[0], DslLine::Todo(_)));
