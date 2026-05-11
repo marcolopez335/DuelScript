@@ -547,16 +547,12 @@ fn collect_duel_calls(block: &Block, out: &mut Vec<DuelCall>) {
             Stmt::Do(d) => collect_duel_calls(d.block(), out),
             Stmt::LocalAssignment(la) => {
                 for e in la.expressions() {
-                    if let Expression::FunctionCall(fc) = e {
-                        if let Some(call) = duel_call_from_fc(fc) { out.push(call); }
-                    }
+                    collect_duel_calls_in_expr(e, out);
                 }
             }
             Stmt::Assignment(a) => {
                 for e in a.expressions() {
-                    if let Expression::FunctionCall(fc) = e {
-                        if let Some(call) = duel_call_from_fc(fc) { out.push(call); }
-                    }
+                    collect_duel_calls_in_expr(e, out);
                 }
             }
             _ => {}
