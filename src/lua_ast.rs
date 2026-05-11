@@ -494,6 +494,29 @@ fn extract_duel_calls(block: &Block) -> Vec<DuelCall> {
     out
 }
 
+/// Recursively walk an `Expression` extracting any `Duel.*` `FunctionCall`
+/// sub-nodes. Used to capture calls inside boolean contexts such as
+/// `if Duel.Equip(tp,c,tc) then ...` — the Lua side-effects still occur,
+/// so the action should appear in the translated resolve body.
+fn collect_duel_calls_in_expr(expr: &Expression, out: &mut Vec<DuelCall>) {
+    match expr {
+        Expression::FunctionCall(fc) => {
+            if let Some(call) = duel_call_from_fc(fc) { out.push(call); }
+        }
+        Expression::BinaryOperator { lhs, rhs, .. } => {
+            collect_duel_calls_in_expr(lhs, out);
+            collect_duel_calls_in_expr(rhs, out);
+        }
+        Expression::UnaryOperator { expression, .. } => {
+            collect_duel_calls_in_expr(expression, out);
+        }
+        Expression::Parentheses { expression, .. } => {
+            collect_duel_calls_in_expr(expression, out);
+        }
+        _ => {}
+    }
+}
+
 fn collect_duel_calls(block: &Block, out: &mut Vec<DuelCall>) {
     for stmt in block.stmts() {
         match stmt {
@@ -501,6 +524,14 @@ fn collect_duel_calls(block: &Block, out: &mut Vec<DuelCall>) {
                 if let Some(call) = duel_call_from_fc(fc) { out.push(call); }
             }
             Stmt::If(if_stmt) => {
+                // Walk the if-condition expression for side-effectful Duel.*
+                // calls (e.g. `if Duel.Equip(...) then`) — the call happens
+                // even when used as a boolean. `translate_call` filters out
+                // pure query/UI methods so this stays safe.
+                collect_duel_calls_in_expr(if_stmt.condition(), out);
+                for ei in if_stmt.else_if().into_iter().flatten() {
+                    collect_duel_calls_in_expr(ei.condition(), out);
+                }
                 collect_duel_calls(if_stmt.block(), out);
                 for ei in if_stmt.else_if().into_iter().flatten() {
                     collect_duel_calls(ei.block(), out);
@@ -509,8 +540,8 @@ fn collect_duel_calls(block: &Block, out: &mut Vec<DuelCall>) {
                     collect_duel_calls(else_block, out);
                 }
             }
-            Stmt::While(w) => collect_duel_calls(w.block(), out),
-            Stmt::Repeat(r) => collect_duel_calls(r.block(), out),
+            Stmt::While(w)  => { collect_duel_calls_in_expr(w.condition(), out); collect_duel_calls(w.block(), out); }
+            Stmt::Repeat(r) => { collect_duel_calls_in_expr(r.until(), out); collect_duel_calls(r.block(), out); }
             Stmt::NumericFor(nf) => collect_duel_calls(nf.block(), out),
             Stmt::GenericFor(gf) => collect_duel_calls(gf.block(), out),
             Stmt::Do(d) => collect_duel_calls(d.block(), out),
@@ -1959,8 +1990,9 @@ fn action_change_position(args: &[String], bindings: &BTreeMap<String, SelectorS
     let target = group_arg(args, 0, bindings);
     let pos = args.get(1).map(String::as_str).unwrap_or("");
     let to = match pos {
-        "POS_FACEUP_ATTACK"   => Some("attack_position"),
-        "POS_FACEUP_DEFENSE"  => Some("defense_position"),
+        "POS_FACEUP_ATTACK"     => Some("attack_position"),
+        "POS_FACEUP_DEFENSE"    => Some("defense_position"),
+        "POS_FACEDOWN_DEFENSE"  => Some("face_down_defense"),
         _ => None,
     };
     match to {
@@ -1979,6 +2011,13 @@ fn group_arg(args: &[String], idx: usize, bindings: &BTreeMap<String, SelectorSp
     };
     // Strip common ":GetFirst()" or ":Filter(...)" suffix to get base name.
     let base = raw.split(|c| c == ':' || c == '.').next().unwrap_or(raw);
+    // Special: `c` and `e:GetHandler()` reliably refer to the host card.
+    // Emit `self` rather than the bare `target` fallback so actions like
+    // `Duel.SendtoGrave(c, ...)` translate to `send self to gy` instead of
+    // mis-rendering as `send target to gy`.
+    if base == "c" || raw == "e:GetHandler()" {
+        return "self".to_string();
+    }
     if let Some(spec) = bindings.get(base) {
         return spec.to_dsl();
     }
