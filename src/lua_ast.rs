@@ -1572,16 +1572,22 @@ fn translate_install_watcher_chain(
     let op_name = chain.operation.as_deref()?;
     let op_body = functions.get(op_name)?;
     let lines = translate_body_with_functions(op_body, functions);
-    let first_action = lines.iter().find_map(|l| match l {
-        DslLine::Action(s) => Some(s.clone()),
+    // Collect every translated ACTION line from the sub-handler. The DSL
+    // `check { action+ }` grammar accepts whitespace-separated action
+    // atoms, so we join with a single space rather than emit a multi-line
+    // block (which would force the renderer to bake per-line indent into
+    // the DslLine::Action string).
+    let actions: Vec<String> = lines.into_iter().filter_map(|l| match l {
+        DslLine::Action(s) => Some(s),
         _ => None,
-    })?;
+    }).collect();
+    if actions.is_empty() { return None; }
     // Use the sub-handler name (sans `s.` prefix) as the watcher label so
     // re-applies stay idempotent and the corpus diff stays inspectable.
     let label = op_name.strip_prefix("s.").unwrap_or(op_name);
     Some(DslLine::Action(format!(
         "install_watcher \"{}\" {{ event: {} duration: end_of_turn check {{ {} }} }}",
-        label, trigger, first_action,
+        label, trigger, actions.join(" "),
     )))
 }
 
