@@ -1544,6 +1544,10 @@ fn trigger_for_event_code(code: &str) -> Option<&'static str> {
         "EVENT_ATTACK_ANNOUNCE"     => "attack_declared",
         "EVENT_REMOVE"              => "banished",
         "EVENT_FLIP_SUMMON_SUCCESS" => "flip_summoned",
+        // Compound phase-event shape: EVENT_PHASE + PHASE_<X> in lua.
+        "EVENT_PHASE+PHASE_END"     => "end_phase",
+        "EVENT_PHASE+PHASE_STANDBY" => "standby_phase",
+        "EVENT_PHASE+PHASE_BATTLE"  => "battle_phase",
         _ => return None,
     })
 }
