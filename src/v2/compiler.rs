@@ -894,6 +894,7 @@ fn action_category(action: &Action) -> u32 {
         Action::LookAt(_, _)           => 0,
         Action::Excavate(_, _)         => 0,
         Action::ShuffleDeck(_)         => 0,
+        Action::ShuffleHand(_)         => 0,
         Action::Reveal(_)              => 0,
         Action::Announce(_, _)         => 0,
         Action::CoinFlip { heads, tails } => {
@@ -2433,6 +2434,13 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
                 _ => player,
             };
             rt.shuffle_deck(target_player);
+        }
+        Action::ShuffleHand(owner) => {
+            let target_player = match owner {
+                Some(DeckOwner::Opponents) => 1 - player,
+                _ => player,
+            };
+            rt.shuffle_hand(target_player);
         }
         Action::Reveal(sel) => {
             let cards = resolve_v2_selector(sel, rt, player);

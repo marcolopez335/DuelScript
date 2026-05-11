@@ -586,6 +586,11 @@ pub trait DuelScriptRuntime {
     /// **Required to override.**
     fn shuffle_deck(&mut self, player: u8);
 
+    /// Shuffle `player`'s hand.
+    ///
+    /// **Required to override.**
+    fn shuffle_hand(&mut self, player: u8);
+
     // ── Stat Modification ────────────────────────────────────
 
     /// Increase or decrease `card_id`'s current ATK by `delta`.
