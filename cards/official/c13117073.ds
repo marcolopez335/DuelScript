@@ -22,7 +22,11 @@ card "Barricadeborg Blocker" {
         once_per_turn: hard
         timing: if
         trigger: summoned by special
+        cost {
+            discard (1, card, you control, from hand)
+        }
         resolve {
+            install_watcher "thop" { event: end_phase duration: end_of_turn check { add_to_hand (1, card, you control, from gy) } }
         }
     }
 }
