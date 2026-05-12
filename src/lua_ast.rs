@@ -1718,6 +1718,9 @@ fn translate_register_chain(
     if let Some(action) = set_stat_action(code) {
         return translate_set_stat_chain(action, chain, body);
     }
+    if code == "EFFECT_EXTRA_ATTACK" {
+        return translate_extra_attack_chain(chain, body);
+    }
     if let Some(ability) = grant_ability_for(code) {
         return translate_grant_chain(ability, chain, body);
     }
@@ -1930,6 +1933,28 @@ fn translate_grant_chain(
     Some(DslLine::Action(format!(
         "grant {} {} until end_of_turn",
         selector, ability
+    )))
+}
+
+/// EFFECT_EXTRA_ATTACK is value-dependent: SetValue(1) → double_attack,
+/// SetValue(2) → triple_attack. Other values (variable refs / dynamic
+/// expressions) are skipped — the DSL has no `extra_attack <n>` form, so
+/// emitting double_attack would mis-translate.
+fn translate_extra_attack_chain(
+    chain: &RegisterEffectChain,
+    body: &FunctionBody,
+) -> Option<DslLine> {
+    if !reset_is_end_of_turn(chain.reset.as_deref()) { return None; }
+    let value: i64 = chain.value.as_deref()?.trim().parse().ok()?;
+    let ability = match value {
+        1 => "double_attack",
+        2 => "triple_attack",
+        _ => return None,
+    };
+    let selector = resolve_chain_selector(chain, body)?;
+    Some(DslLine::Action(format!(
+        "grant {} {} until end_of_turn",
+        selector, ability,
     )))
 }
 
@@ -3152,6 +3177,74 @@ end
             _ => None,
         });
         assert_eq!(action, Some("set_def self 0 until end_of_turn"));
+    }
+
+    #[test]
+    fn t10_register_chain_extra_attack_value_1_double_attack() {
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_EXTRA_ATTACK)
+    e1:SetValue(1)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    c:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let body = walk(&parsed).functions.remove("s.activate").expect("body");
+        let lines = translate_body(&body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()),
+            _ => None,
+        });
+        assert_eq!(action, Some("grant self double_attack until end_of_turn"));
+    }
+
+    #[test]
+    fn t10_register_chain_extra_attack_value_2_triple_attack() {
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_EXTRA_ATTACK)
+    e1:SetValue(2)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let body = walk(&parsed).functions.remove("s.activate").expect("body");
+        let lines = translate_body(&body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()),
+            _ => None,
+        });
+        assert_eq!(action, Some("grant target triple_attack until end_of_turn"));
+    }
+
+    #[test]
+    fn t10_register_chain_extra_attack_variable_value_skipped() {
+        // Non-literal value → skip (no DSL form for dynamic extra_attack).
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local ct=2
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_EXTRA_ATTACK)
+    e1:SetValue(ct)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    c:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let body = walk(&parsed).functions.remove("s.activate").expect("body");
+        let lines = translate_body(&body);
+        let has_grant = lines.iter().any(|l| matches!(l, DslLine::Action(s) if s.contains("attack")));
+        assert!(!has_grant, "variable EXTRA_ATTACK value should not emit");
     }
 
     #[test]
