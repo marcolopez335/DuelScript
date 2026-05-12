@@ -94,6 +94,11 @@ struct Ctx<'a> {
     is_ritual: bool,
     is_counter_trap: bool,
     is_quickplay: bool,
+    /// Continuous Spell, Continuous Trap, Field Spell, or Equip Spell —
+    /// cards whose activation just places the card in its zone, with the
+    /// real work done by passive grants. The "Effect 1" activation block
+    /// on these cards is a placeholder with no resolve content.
+    is_permanent_passive: bool,
 }
 
 impl<'a> Ctx<'a> {
@@ -115,6 +120,10 @@ impl<'a> Ctx<'a> {
             CardType::FusionMonster | CardType::SynchroMonster
           | CardType::XyzMonster   | CardType::LinkMonster
         ));
+        let is_permanent_passive = types.iter().any(|t| matches!(t,
+            CardType::ContinuousSpell | CardType::FieldSpell
+          | CardType::EquipSpell      | CardType::ContinuousTrap
+        ));
         Self {
             card, is_monster, is_spell, is_trap, is_extra_deck,
             is_link: types.contains(&CardType::LinkMonster),
@@ -124,6 +133,7 @@ impl<'a> Ctx<'a> {
             is_ritual: types.contains(&CardType::RitualMonster),
             is_counter_trap: types.contains(&CardType::CounterTrap),
             is_quickplay: types.contains(&CardType::QuickPlaySpell),
+            is_permanent_passive,
         }
     }
 
@@ -378,11 +388,21 @@ fn check_summon_block(ctx: &Ctx, errors: &mut Vec<ValidationError>) {
 
 fn check_effect_blocks(ctx: &Ctx, errors: &mut Vec<ValidationError>) {
     for effect in &ctx.card.effects {
-        // Effect must have resolve or choose
+        // Effect must have resolve or choose.
+        // Exception: on permanent-passive cards (Continuous Spell/Trap, Field
+        // Spell, Equip Spell), the activation effect just places the card in
+        // its zone — its resolve is genuinely empty and the real work is done
+        // by `passive` blocks. We skip the error when the effect has no
+        // trigger and no cost (cost without resolve already triggers a warn).
         if effect.resolve.is_empty() && effect.choose.is_none() {
-            errors.push(err(ctx.name(), &format!(
-                "Effect '{}' must have a resolve or choose block", effect.name
-            )));
+            let is_passive_activation = ctx.is_permanent_passive
+                && effect.trigger.is_none()
+                && effect.cost.is_empty();
+            if !is_passive_activation {
+                errors.push(err(ctx.name(), &format!(
+                    "Effect '{}' must have a resolve or choose block", effect.name
+                )));
+            }
         }
 
         // Can't have both resolve and choose
@@ -772,5 +792,149 @@ mod tests {
         };
         let report = validate_v2(&file);
         assert!(report.errors.iter().any(|e| e.message.contains("resolve or choose")));
+    }
+
+    /// Permanent-passive cards (Continuous Spell/Trap, Field Spell, Equip Spell)
+    /// have an activation effect whose resolve is genuinely empty — the card
+    /// is just placed in its zone, and `passive` blocks do the real work.
+    /// The validator must not require a resolve for these.
+    #[test]
+    fn test_permanent_passive_activation_allows_empty_resolve() {
+        let mk_card = |ct: CardType, name: &str| Card {
+            name: name.into(),
+            fields: CardFields {
+                card_types: vec![ct],
+                ..Default::default()
+            },
+            summon: None,
+            effects: vec![Effect {
+                name: "Effect 1".into(),
+                speed: Some(1),
+                frequency: None,
+                mandatory: false,
+                simultaneous: false,
+                timing: None,
+                trigger: None,
+                who: None,
+                condition: None,
+                activate_from: vec![],
+                damage_step: None,
+                target: None,
+                cost: vec![],
+                resolve: vec![],
+                choose: None,
+            }],
+            passives: vec![],
+            restrictions: vec![],
+            replacements: vec![],
+            redirects: vec![],
+        };
+        for ct in [
+            CardType::ContinuousSpell,
+            CardType::ContinuousTrap,
+            CardType::FieldSpell,
+            CardType::EquipSpell,
+        ] {
+            let file = File { cards: vec![mk_card(ct.clone(), &format!("{:?}", ct))] };
+            let report = validate_v2(&file);
+            assert!(
+                !report.errors.iter().any(|e| e.message.contains("resolve or choose")),
+                "{:?} should not require resolve on activation effect; got {:?}",
+                ct, report.errors
+            );
+        }
+    }
+
+    /// The relax must NOT extend to non-permanent spells/traps (Normal,
+    /// Quick-Play, Counter Trap) — those cards genuinely need resolve content.
+    #[test]
+    fn test_non_permanent_spells_still_need_resolve() {
+        let mk_card = |ct: CardType, name: &str| Card {
+            name: name.into(),
+            fields: CardFields {
+                card_types: vec![ct],
+                ..Default::default()
+            },
+            summon: None,
+            effects: vec![Effect {
+                name: "Effect 1".into(),
+                speed: Some(1),
+                frequency: None,
+                mandatory: false,
+                simultaneous: false,
+                timing: None,
+                trigger: None,
+                who: None,
+                condition: None,
+                activate_from: vec![],
+                damage_step: None,
+                target: None,
+                cost: vec![],
+                resolve: vec![],
+                choose: None,
+            }],
+            passives: vec![],
+            restrictions: vec![],
+            replacements: vec![],
+            redirects: vec![],
+        };
+        for ct in [
+            CardType::NormalSpell,
+            CardType::QuickPlaySpell,
+            CardType::NormalTrap,
+            CardType::CounterTrap,
+        ] {
+            let file = File { cards: vec![mk_card(ct.clone(), &format!("{:?}", ct))] };
+            let report = validate_v2(&file);
+            assert!(
+                report.errors.iter().any(|e| e.message.contains("resolve or choose")),
+                "{:?} should still require resolve; got {:?}",
+                ct, report.errors
+            );
+        }
+    }
+
+    /// Even on permanent-passive cards, an effect with a *trigger* (e.g.
+    /// "if X is destroyed") is a real ignition/trigger effect — it must
+    /// have a resolve.
+    #[test]
+    fn test_permanent_passive_with_trigger_still_needs_resolve() {
+        let file = File {
+            cards: vec![Card {
+                name: "Triggered Continuous".into(),
+                fields: CardFields {
+                    card_types: vec![CardType::ContinuousSpell],
+                    ..Default::default()
+                },
+                summon: None,
+                effects: vec![Effect {
+                    name: "Effect 1".into(),
+                    speed: Some(1),
+                    frequency: None,
+                    mandatory: false,
+                    simultaneous: false,
+                    timing: None,
+                    trigger: Some(Trigger::EndPhase),
+                    who: None,
+                    condition: None,
+                    activate_from: vec![],
+                    damage_step: None,
+                    target: None,
+                    cost: vec![],
+                    resolve: vec![],
+                    choose: None,
+                }],
+                passives: vec![],
+                restrictions: vec![],
+                replacements: vec![],
+                redirects: vec![],
+            }],
+        };
+        let report = validate_v2(&file);
+        assert!(
+            report.errors.iter().any(|e| e.message.contains("resolve or choose")),
+            "trigger on Continuous Spell should still require resolve; got {:?}",
+            report.errors
+        );
     }
 }
