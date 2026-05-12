@@ -116,6 +116,12 @@ pub struct EffectSkeleton {
     /// translator emits a fixed `fusion_summon (1, fusion monster)` line
     /// instead of walking a handler body.
     pub fusion_summon_spec: bool,
+    /// True when this skeleton stands in for a `Ritual.AddProcEqual` /
+    /// `AddProcGreater` / `CreateProc` / `AddWholeLevelTribute` call. The
+    /// ritual helpers attach an activation effect that runs the full
+    /// ritual procedure internally; translator emits a fixed
+    /// `ritual_summon (1, ritual monster)` line.
+    pub ritual_summon_spec: bool,
 }
 
 impl EffectSkeleton {
@@ -363,6 +369,16 @@ fn extract_effects_from_block(block: &Block, report: &mut LuaReport) {
                                 fusion_summon_spec: true,
                                 ..Default::default()
                             });
+                        } else if expr_is_ritual_proc_helper(expr) {
+                            by_binding.insert(name.clone(), EffectSkeleton {
+                                binding: name.clone(),
+                                ritual_summon_spec: true,
+                                // AddProcEqual/Greater register the effect
+                                // internally — treat as already committed
+                                // so the registered-only filter below keeps it.
+                                registered: true,
+                                ..Default::default()
+                            });
                         }
                     }
                 }
@@ -381,6 +397,20 @@ fn extract_effects_from_block(block: &Block, report: &mut LuaReport) {
                             ..Default::default()
                         });
                     }
+                }
+                // Top-level `Ritual.AddProcEqual(...)` / `AddProcGreater(...)`
+                // / `AddProcEqualCode(...)` / `AddProcGreaterCode(...)` /
+                // `AddWholeLevelTribute(...)` shapes don't bind to a local.
+                // The helper registers its own effect, so synthesize an
+                // anonymous ritual-spec skeleton.
+                if call_is_ritual_proc_helper(fc) {
+                    let anon = format!("__ritual_inline_{}", by_binding.len());
+                    by_binding.insert(anon.clone(), EffectSkeleton {
+                        binding: anon,
+                        ritual_summon_spec: true,
+                        registered: true,
+                        ..Default::default()
+                    });
                 }
                 // `eN:SetX(...)` populates the effect named by binding.
                 if let Some((binding, method, args)) = method_call_on_binding(fc) {
@@ -423,6 +453,33 @@ fn expr_is_effect_createeffect(expr: &Expression) -> bool {
     if let Expression::FunctionCall(fc) = expr {
         let head = call_head_string(fc);
         head == "Effect.CreateEffect"
+    } else {
+        false
+    }
+}
+
+/// True if the function call is one of the top-level Ritual.* helpers
+/// that register a ritual-summon activation effect: `AddProcEqual`,
+/// `AddProcGreater`, `AddProcEqualCode`, `AddProcGreaterCode`, or
+/// `AddWholeLevelTribute`. Used to mark anonymous skeletons during walk.
+fn call_is_ritual_proc_helper(fc: &FunctionCall) -> bool {
+    let head = call_head_string(fc);
+    matches!(
+        head.as_str(),
+        "Ritual.AddProcEqual"
+        | "Ritual.AddProcGreater"
+        | "Ritual.AddProcEqualCode"
+        | "Ritual.AddProcGreaterCode"
+        | "Ritual.AddWholeLevelTribute",
+    )
+}
+
+/// True if `expr` is `Ritual.CreateProc(...)` — the binding-form helper
+/// that returns the registered ritual activation effect.
+fn expr_is_ritual_proc_helper(expr: &Expression) -> bool {
+    if let Expression::FunctionCall(fc) = expr {
+        let head = call_head_string(fc);
+        head == "Ritual.CreateProc"
     } else {
         false
     }

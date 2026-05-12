@@ -163,14 +163,19 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
 
         // Pass A — fill empty resolve blocks via translated handler bodies.
         for eff in &walk.effects {
-            // Special case: skeletons built from Fusion.CreateSummonEff have
-            // no SetOperation (the helper owns the UI / op pipeline). Emit
-            // a fixed `fusion_summon (1, fusion monster)` line so the
-            // resolve stops being empty.
-            if eff.fusion_summon_spec {
-                let line = lua_ast::DslLine::Action(
-                    "fusion_summon (1, fusion monster)".to_string(),
-                );
+            // Special case: skeletons built from Fusion.CreateSummonEff /
+            // Ritual.AddProc* / Ritual.CreateProc have no SetOperation (the
+            // helper owns the UI / op pipeline). Emit a fixed summon line
+            // so the resolve stops being empty.
+            let helper_line = if eff.fusion_summon_spec {
+                Some("fusion_summon (1, fusion monster)")
+            } else if eff.ritual_summon_spec {
+                Some("ritual_summon (1, ritual monster)")
+            } else {
+                None
+            };
+            if let Some(text) = helper_line {
+                let line = lua_ast::DslLine::Action(text.to_string());
                 let body = render_resolve_body(&[line]);
                 if let Some((lo, hi)) = first_empty_resolve(&new_txt) {
                     let injection = format!("resolve {{\n{}        }}", body);
