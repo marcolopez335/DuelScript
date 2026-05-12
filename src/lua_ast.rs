@@ -1742,6 +1742,12 @@ fn trigger_for_event_code(code: &str) -> Option<&'static str> {
         "EVENT_SPSUMMON_SUCCESS"   => "special_summoned",
         "EVENT_SUMMON_SUCCESS"     => "normal_summoned",
         "EVENT_BE_MATERIAL"        => "used_as_material",
+        // Chain-event: a chain link activates. Without analysing the
+        // SetCondition body we don't know who; emit `any_activates` as
+        // the broadest valid trigger. The sub-handler usually gates on
+        // `Duel.IsChainNegatable` and calls NegateActivation, so the
+        // semantic shape matches counter-trap negation.
+        "EVENT_CHAINING"           => "any_activates",
         // Compound phase-event shape: EVENT_PHASE + PHASE_<X> in lua.
         "EVENT_PHASE+PHASE_END"     => "end_phase",
         "EVENT_PHASE+PHASE_STANDBY" => "standby_phase",
