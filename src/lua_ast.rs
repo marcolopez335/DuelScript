@@ -1259,6 +1259,21 @@ fn collect_register_chains(
                             out.push(emitted);
                         }
                     }
+                } else if let Some(args) = try_duel_register_effect_call(fc) {
+                    // `Duel.RegisterEffect(eN, player)` — player-scoped
+                    // continuous chain. Use the player text as the chain's
+                    // register_target so install_watcher emit still flows;
+                    // modifier/grant translators won't fire because their
+                    // `resolve_chain_selector` only accepts card sentinels.
+                    if let Some(eff_name) = args.first() {
+                        if let Some(chain) = by_binding.get(eff_name) {
+                            let mut emitted = chain.clone();
+                            emitted.register_target = args.get(1).cloned().unwrap_or_else(|| "tp".to_string());
+                            emitted.multi_target = loop_source.is_some();
+                            emitted.loop_source_group = loop_source.map(str::to_string);
+                            out.push(emitted);
+                        }
+                    }
                 }
             }
             Stmt::If(if_stmt) => {
@@ -1340,6 +1355,33 @@ fn expr_clone_source(expr: &Expression) -> Option<String> {
 /// be a chained expression like `e:GetHandler()`. Returns the rendered
 /// receiver path and the call arguments so callers can identify which
 /// chain was committed and on what.
+/// Detect the `Duel.RegisterEffect(eN, player)` global-registration shape.
+/// Returns the raw arg strings (first = effect binding, second = player
+/// expression) on match, else None. Used as a fallback when the method-
+/// call form (`<recv>:RegisterEffect(eN)`) doesn't fit.
+fn try_duel_register_effect_call(fc: &FunctionCall) -> Option<Vec<String>> {
+    let prefix_name = match fc.prefix() {
+        ast::Prefix::Name(n) => n.token().to_string(),
+        _ => return None,
+    };
+    if prefix_name != "Duel" { return None; }
+    let suffixes: Vec<&Suffix> = fc.suffixes().collect();
+    if suffixes.len() < 2 { return None; }
+    // First suffix: `.RegisterEffect`
+    match suffixes[0] {
+        Suffix::Index(Index::Dot { name, .. })
+            if name.token().to_string() == "RegisterEffect" => {}
+        _ => return None,
+    }
+    // Second suffix: the `(eN, player)` argument list.
+    match suffixes[1] {
+        Suffix::Call(Call::AnonymousCall(args)) => {
+            Some(call_args_to_strings(args))
+        }
+        _ => None,
+    }
+}
+
 fn try_register_effect_call(fc: &FunctionCall) -> Option<(String, Vec<String>)> {
     let suffixes: Vec<&Suffix> = fc.suffixes().collect();
     if suffixes.is_empty() { return None; }
