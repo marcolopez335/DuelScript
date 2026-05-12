@@ -1715,6 +1715,9 @@ fn translate_register_chain(
     if let Some(action) = stat_modifier_action(code) {
         return translate_modifier_chain(action, chain, body);
     }
+    if let Some(action) = set_stat_action(code) {
+        return translate_set_stat_chain(action, chain, body);
+    }
     if let Some(ability) = grant_ability_for(code) {
         return translate_grant_chain(ability, chain, body);
     }
@@ -1722,6 +1725,40 @@ fn translate_register_chain(
         return translate_install_watcher_chain(trigger, chain, functions);
     }
     None
+}
+
+/// Map a SET_*_FINAL effect code to the DSL `set_atk` / `set_def` action.
+/// `_FINAL` variants override the base value after all modifiers — DSL has
+/// no equivalent priority concept yet, so both base and final variants
+/// emit the same atom. Returns None for non-set codes.
+fn set_stat_action(code: &str) -> Option<&'static str> {
+    Some(match code {
+        "EFFECT_SET_ATTACK"        => "set_atk",
+        "EFFECT_SET_ATTACK_FINAL"  => "set_atk",
+        "EFFECT_SET_DEFENSE"       => "set_def",
+        "EFFECT_SET_DEFENSE_FINAL" => "set_def",
+        _ => return None,
+    })
+}
+
+/// Set-stat chain → `set_atk <selector> <value>` / `set_def <selector> <value>`.
+///
+/// Distinct from `translate_modifier_chain`: no `+`/`-` op, no negative
+/// magnitudes — the value is set absolutely. Reuses `parse_lua_value` for
+/// literal / method-call / local-var resolution.
+fn translate_set_stat_chain(
+    action: &str,
+    chain: &RegisterEffectChain,
+    body: &FunctionBody,
+) -> Option<DslLine> {
+    let parsed = parse_lua_value(chain.value.as_deref()?, &body.value_bindings)?;
+    if parsed.negative { return None; }
+    let selector = resolve_chain_selector(chain, body)?;
+    let mut line = format!("{} {} {}", action, selector, parsed.expr);
+    if reset_is_end_of_turn(chain.reset.as_deref()) {
+        line.push_str(" until end_of_turn");
+    }
+    Some(DslLine::Action(line))
 }
 
 /// Map an EVENT_* code (from `SetCode`) to the DSL `trigger_expr` form.
@@ -3066,6 +3103,55 @@ end
             action,
             Some("grant target cannot_be_targeted until end_of_turn"),
         );
+    }
+
+    #[test]
+    fn t10_register_chain_set_attack_target_until_eot() {
+        // tc:RegisterEffect with EFFECT_SET_ATTACK_FINAL + literal value +
+        // PHASE_END reset → set_atk target <value> until end_of_turn.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_SET_ATTACK_FINAL)
+    e1:SetValue(2500)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let body = walk(&parsed).functions.remove("s.operation").expect("body");
+        let lines = translate_body(&body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()),
+            _ => None,
+        });
+        assert_eq!(action, Some("set_atk target 2500 until end_of_turn"));
+    }
+
+    #[test]
+    fn t10_register_chain_set_defense_self_until_eot() {
+        // c:RegisterEffect with EFFECT_SET_DEFENSE_FINAL → set_def self.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_SET_DEFENSE_FINAL)
+    e1:SetValue(0)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    c:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let body = walk(&parsed).functions.remove("s.activate").expect("body");
+        let lines = translate_body(&body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()),
+            _ => None,
+        });
+        assert_eq!(action, Some("set_def self 0 until end_of_turn"));
     }
 
     #[test]
