@@ -163,6 +163,24 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
 
         // Pass A — fill empty resolve blocks via translated handler bodies.
         for eff in &walk.effects {
+            // Special case: skeletons built from Fusion.CreateSummonEff have
+            // no SetOperation (the helper owns the UI / op pipeline). Emit
+            // a fixed `fusion_summon (1, fusion monster)` line so the
+            // resolve stops being empty.
+            if eff.fusion_summon_spec {
+                let line = lua_ast::DslLine::Action(
+                    "fusion_summon (1, fusion monster)".to_string(),
+                );
+                let body = render_resolve_body(&[line]);
+                if let Some((lo, hi)) = first_empty_resolve(&new_txt) {
+                    let injection = format!("resolve {{\n{}        }}", body);
+                    new_txt = format!("{}{}{}", &new_txt[..lo], injection, &new_txt[hi..]);
+                    filled += 1;
+                } else {
+                    break;
+                }
+                continue;
+            }
             let handler = match &eff.operation_handler {
                 Some(h) => h.trim().to_string(),
                 None => { r.effects_no_handler += 1; continue; }

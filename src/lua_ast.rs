@@ -110,6 +110,12 @@ pub struct EffectSkeleton {
     pub target_handler: Option<String>,
     pub condition_handler: Option<String>,
     pub cost_handler: Option<String>,
+    /// True when this skeleton was created via `Fusion.CreateSummonEff(...)`
+    /// rather than the usual `Effect.CreateEffect(c)` + Set* chain. The
+    /// fusion helper handles its own UI / operation internally, so the
+    /// translator emits a fixed `fusion_summon (1, fusion monster)` line
+    /// instead of walking a handler body.
+    pub fusion_summon_spec: bool,
 }
 
 impl EffectSkeleton {
@@ -351,11 +357,31 @@ fn extract_effects_from_block(block: &Block, report: &mut LuaReport) {
                                 binding: name.clone(),
                                 ..Default::default()
                             });
+                        } else if expr_is_fusion_createsummoneff(expr) {
+                            by_binding.insert(name.clone(), EffectSkeleton {
+                                binding: name.clone(),
+                                fusion_summon_spec: true,
+                                ..Default::default()
+                            });
                         }
                     }
                 }
             }
             Stmt::FunctionCall(fc) => {
+                // `c:RegisterEffect(Fusion.CreateSummonEff(...))` — direct
+                // commit without a local binding intermediate. Synthesize
+                // an anonymous skeleton so Pass A can fill the resolve.
+                if let Some((arg_expr, _)) = is_register_effect_fusion_inline(fc) {
+                    if arg_expr {
+                        let anon = format!("__fusion_inline_{}", by_binding.len());
+                        by_binding.insert(anon.clone(), EffectSkeleton {
+                            binding: anon,
+                            fusion_summon_spec: true,
+                            registered: true,
+                            ..Default::default()
+                        });
+                    }
+                }
                 // `eN:SetX(...)` populates the effect named by binding.
                 if let Some((binding, method, args)) = method_call_on_binding(fc) {
                     if let Some(skel) = by_binding.get_mut(&binding) {
@@ -399,6 +425,49 @@ fn expr_is_effect_createeffect(expr: &Expression) -> bool {
         head == "Effect.CreateEffect"
     } else {
         false
+    }
+}
+
+/// True if `expr` is the call `Fusion.CreateSummonEff(...)` — the helper
+/// that builds a fusion-summon activation effect with its own UI / op
+/// pipeline. Translator emits a fixed `fusion_summon (1, fusion monster)`
+/// line for skeletons created via this helper.
+fn expr_is_fusion_createsummoneff(expr: &Expression) -> bool {
+    if let Expression::FunctionCall(fc) = expr {
+        let head = call_head_string(fc);
+        head == "Fusion.CreateSummonEff"
+    } else {
+        false
+    }
+}
+
+/// Detect `c:RegisterEffect(Fusion.CreateSummonEff(...))` — the inline
+/// commit shape where no local binding holds the effect. Returns
+/// `(true, ())` on match so the walker can synthesize an anonymous
+/// EffectSkeleton with `fusion_summon_spec = true`.
+fn is_register_effect_fusion_inline(fc: &FunctionCall) -> Option<(bool, ())> {
+    // Detect the outer call: <receiver>:RegisterEffect(<expr>)
+    let suffixes: Vec<&Suffix> = fc.suffixes().collect();
+    let last = suffixes.last()?;
+    let args = match last {
+        Suffix::Call(Call::MethodCall(mc))
+            if mc.name().token().to_string() == "RegisterEffect" =>
+        {
+            mc.args()
+        }
+        _ => return None,
+    };
+    // Argument list shape: a single FunctionCall whose head is
+    // `Fusion.CreateSummonEff`.
+    let exprs: Vec<&Expression> = match args {
+        full_moon::ast::FunctionArgs::Parentheses { arguments, .. } => arguments.iter().collect(),
+        _ => return None,
+    };
+    let first = exprs.first()?;
+    if expr_is_fusion_createsummoneff(first) {
+        Some((true, ()))
+    } else {
+        None
     }
 }
 
