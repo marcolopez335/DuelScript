@@ -1813,6 +1813,9 @@ fn grant_ability_for(code: &str) -> Option<&'static str> {
         "EFFECT_INDESTRUCTABLE_EFFECT"   => "cannot_be_destroyed by effect",
         "EFFECT_CANNOT_ATTACK"           => "cannot_attack",
         "EFFECT_CANNOT_BE_EFFECT_TARGET" => "cannot_be_targeted",
+        "EFFECT_CANNOT_SPECIAL_SUMMON"   => "cannot_special_summon",
+        "EFFECT_CANNOT_SUMMON"           => "cannot_normal_summon",
+        "EFFECT_DIRECT_ATTACK"           => "direct_attack",
         _ => return None,
     })
 }
