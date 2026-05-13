@@ -209,6 +209,62 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             }
         }
 
+        // Pass A2 — inject a fresh `resolve { … }` into effect blocks that
+        // lack one entirely (validator: "must have a resolve or choose
+        // block"). Only fires when the lua-ast translator emits at least
+        // one ACTION line, so blocks without translator coverage stay
+        // untouched. Effect blocks are matched positionally — the i-th
+        // walk.effects entry maps to the i-th `effect "Effect N"` block
+        // in the .ds (helper-line and op-handler effects both count;
+        // pure-passive lua chains have no effect block and are skipped
+        // upstream).
+        let mut a2_block_idx = 0usize;
+        for eff in &walk.effects {
+            let helper_line = if eff.fusion_summon_spec {
+                Some("fusion_summon (1, fusion monster)")
+            } else if eff.ritual_summon_spec {
+                Some("ritual_summon (1, ritual monster)")
+            } else {
+                None
+            };
+            let lines: Vec<lua_ast::DslLine> = if let Some(text) = helper_line {
+                vec![lua_ast::DslLine::Action(text.to_string())]
+            } else if let Some(handler) = &eff.operation_handler {
+                match walk.functions.get(handler.trim()) {
+                    Some(body) => lua_ast::translate_body_with_functions(body, &walk.functions),
+                    None => { a2_block_idx += 1; continue; }
+                }
+            } else {
+                continue; // pure-passive — no effect block in .ds
+            };
+            let block_idx = a2_block_idx;
+            a2_block_idx += 1;
+            if !lines.iter().any(|l| l.is_action()) { continue; }
+
+            let (block_lo, block_hi) = match nth_effect_block(&new_txt, block_idx) {
+                Some(r) => r,
+                None => break,
+            };
+            let block = &new_txt[block_lo..block_hi];
+            // Skip if the block already has a resolve or choose — Pass A
+            // handles those, and we don't want to double-inject.
+            if block.contains("resolve") || block.contains("choose") { continue; }
+
+            let body_text = render_resolve_body(&lines);
+            // Inject right before the block's closing `}`, after any
+            // trailing whitespace, so the new resolve nests inside the
+            // effect block with the standard 8-space indent.
+            let close_brace = block_hi - 1; // points at `}`
+            let mut inject_pos = close_brace;
+            let bytes = new_txt.as_bytes();
+            while inject_pos > block_lo && bytes[inject_pos - 1].is_ascii_whitespace() {
+                inject_pos -= 1;
+            }
+            let injection = format!("\n        resolve {{\n{}        }}", body_text);
+            new_txt = format!("{}{}{}", &new_txt[..inject_pos], injection, &new_txt[inject_pos..]);
+            filled += 1;
+        }
+
         // Pass B — Phase 5 passive injection. For every effect skeleton
         // whose chain is a literal stat-modifier passive (no SetOperation
         // / SetTarget / SetCondition / SetCost), emit a `passive { … }`
@@ -386,6 +442,42 @@ fn next_passive_index(txt: &str) -> u32 {
         }
     }
     max + 1
+}
+
+/// Find the byte range of the `idx`-th (0-based) `effect "..." { ... }`
+/// block in `txt`. Returns `(start_of_effect_keyword, position_after_closing_brace)`.
+/// Brace-balanced — handles nested `resolve { ... }` / `cost { ... }` etc.
+/// Returns None if there aren't enough effect blocks.
+fn nth_effect_block(txt: &str, idx: usize) -> Option<(usize, usize)> {
+    let mut count = 0usize;
+    let mut search = 0usize;
+    let bytes = txt.as_bytes();
+    loop {
+        let rel = txt[search..].find("effect \"")?;
+        let abs_eff = search + rel;
+        let open_rel = txt[abs_eff..].find('{')?;
+        let abs_open = abs_eff + open_rel;
+        let mut depth = 1usize;
+        let mut i = abs_open + 1;
+        while i < bytes.len() {
+            match bytes[i] {
+                b'{' => depth += 1,
+                b'}' => {
+                    depth -= 1;
+                    if depth == 0 { break; }
+                }
+                _ => {}
+            }
+            i += 1;
+        }
+        if depth != 0 { return None; }
+        let close_after = i + 1;
+        if count == idx {
+            return Some((abs_eff, close_after));
+        }
+        count += 1;
+        search = close_after;
+    }
 }
 
 fn has_empty_resolve(txt: &str) -> bool {
