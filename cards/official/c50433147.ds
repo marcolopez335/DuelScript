@@ -10,5 +10,9 @@ card "The Nordic Lights" {
     effect "Effect 1" {
         speed: 1
         mandatory
+        condition: previous_location == field
+        resolve {
+            destroy (all, card, either controls, from monster_zone)
+        }
     }
 }

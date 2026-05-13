@@ -5,5 +5,10 @@ card "Cloak and Dagger" {
     effect "Effect 1" {
         speed: 2
         mandatory
+        resolve {
+            announce card
+            install_watcher "rmop" { event: normal_summoned duration: end_of_turn check { banish target } }
+            install_watcher "rmop" { event: special_summoned duration: end_of_turn check { banish target } }
+        }
     }
 }

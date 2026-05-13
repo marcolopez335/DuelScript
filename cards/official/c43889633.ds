@@ -5,6 +5,10 @@ card "Forgotten Temple of the Deep" {
     effect "Effect 1" {
         speed: 2
         mandatory
+        resolve {
+            banish target
+            install_watcher "spop" { event: end_phase duration: end_of_turn check { special_summon target } }
+        }
     }
 
     effect "Effect 3" {
