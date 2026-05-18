@@ -1721,6 +1721,9 @@ fn translate_register_chain(
     if code == "EFFECT_EXTRA_ATTACK" {
         return translate_extra_attack_chain(chain, body);
     }
+    if code == "EFFECT_DISABLE" {
+        return translate_disable_chain(chain, body);
+    }
     if let Some(ability) = grant_ability_for(code) {
         return translate_grant_chain(ability, chain, body);
     }
@@ -1939,6 +1942,26 @@ fn translate_grant_chain(
     Some(DslLine::Action(format!(
         "grant {} {} until end_of_turn",
         selector, ability
+    )))
+}
+
+/// EFFECT_DISABLE chain → `negate_effects <selector> until end_of_turn`.
+///
+/// In the lua corpus EFFECT_DISABLE is the primary negate-effects code;
+/// the paired EFFECT_DISABLE_EFFECT chain that usually follows expresses
+/// the same intent on already-active effects. We translate only EFFECT_DISABLE
+/// here so paired cards emit a single DSL line; EFFECT_DISABLE_EFFECT is
+/// intentionally not mapped (would duplicate the action). End-of-turn reset
+/// is mandatory: a chain without a duration would emit a permanent negate.
+fn translate_disable_chain(
+    chain: &RegisterEffectChain,
+    body: &FunctionBody,
+) -> Option<DslLine> {
+    if !reset_is_end_of_turn(chain.reset.as_deref()) { return None; }
+    let selector = resolve_chain_selector(chain, body)?;
+    Some(DslLine::Action(format!(
+        "negate_effects {} end_of_turn",
+        selector,
     )))
 }
 
@@ -3385,6 +3408,70 @@ end
         let lines = translate_body(&body);
         let has_grant = lines.iter().any(|l| matches!(l, DslLine::Action(s) if s.contains("attack")));
         assert!(!has_grant, "variable EXTRA_ATTACK value should not emit");
+    }
+
+    #[test]
+    fn t10_register_chain_disable_target_negate_effects() {
+        // EFFECT_DISABLE on target with end-of-turn reset → negate_effects.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_DISABLE)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let body = walk(&parsed).functions.remove("s.operation").expect("body");
+        let lines = translate_body(&body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()),
+            _ => None,
+        });
+        assert_eq!(action, Some("negate_effects target end_of_turn"));
+    }
+
+    #[test]
+    fn t10_register_chain_disable_effect_skipped() {
+        // EFFECT_DISABLE_EFFECT is the paired companion; we translate only
+        // EFFECT_DISABLE to avoid duplicate negate_effects lines on the
+        // common DISABLE+DISABLE_EFFECT pair.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_DISABLE_EFFECT)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let body = walk(&parsed).functions.remove("s.operation").expect("body");
+        let lines = translate_body(&body);
+        let has_neg = lines.iter().any(|l| matches!(l, DslLine::Action(s) if s.starts_with("negate_effects")));
+        assert!(!has_neg, "EFFECT_DISABLE_EFFECT alone must not emit a negate_effects line");
+    }
+
+    #[test]
+    fn t10_register_chain_disable_skips_without_reset() {
+        // No SetReset → permanent negate ambiguity → skip.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_DISABLE)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let body = walk(&parsed).functions.remove("s.operation").expect("body");
+        let lines = translate_body(&body);
+        let has_neg = lines.iter().any(|l| matches!(l, DslLine::Action(s) if s.starts_with("negate_effects")));
+        assert!(!has_neg, "EFFECT_DISABLE without reset must not emit");
     }
 
     #[test]
