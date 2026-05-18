@@ -655,11 +655,9 @@ fn collect_duel_calls(block: &Block, out: &mut Vec<DuelCall>) {
                 // even when used as a boolean. `translate_call` filters out
                 // pure query/UI methods so this stays safe.
                 collect_duel_calls_in_expr(if_stmt.condition(), out);
-                for ei in if_stmt.else_if().into_iter().flatten() {
-                    collect_duel_calls_in_expr(ei.condition(), out);
-                }
                 collect_duel_calls(if_stmt.block(), out);
                 for ei in if_stmt.else_if().into_iter().flatten() {
+                    collect_duel_calls_in_expr(ei.condition(), out);
                     collect_duel_calls(ei.block(), out);
                 }
                 if let Some(else_block) = if_stmt.else_block() {
@@ -2113,6 +2111,8 @@ fn translate_call(c: &DuelCall, bindings: &BTreeMap<String, SelectorSpec>) -> Op
         | "Duel.SetPossibleOperationInfo" | "Duel.RegisterEffect"
         | "Duel.SetTargetPlayer" | "Duel.SetTargetParam"
         | "Duel.SetTargetCard" | "Duel.SetChainLimit"
+        // Flag-effect helpers — bookkeeping only, no semantic DSL action.
+        | "Duel.RegisterFlagEffect" | "Duel.HasFlagEffect" | "Duel.GetFlagEffect"
         => None,
 
         // ── Skip: read-only queries (used as cond / target side) ─
@@ -2347,7 +2347,12 @@ fn xyz_arg_to_dsl(raw: &str, bindings: &BTreeMap<String, SelectorSpec>) -> Optio
 fn action_equip(args: &[String]) -> DslLine {
     let eq = args.get(1).map(String::as_str).unwrap_or("");
     let tar = args.get(2).map(String::as_str).unwrap_or("");
-    if eq == "c" && (tar == "tc" || tar == "g" || tar == "g:GetFirst()") {
+    // `c`   = the card itself (most common)
+    // `eqc` = local bound via `local eqc = e:GetLabelObject()` — equip card self-ref
+    // `ec`  = same pattern with a different variable name
+    // All three refer to the equip spell card executing this effect.
+    let eq_is_self = eq == "c" || eq == "eqc" || eq == "ec";
+    if eq_is_self && (tar == "tc" || tar == "g" || tar == "g:GetFirst()") {
         DslLine::Action("equip self to target".to_string())
     } else {
         DslLine::Todo(format!("Duel.Equip(eq={}, tar={}) — non-canonical shape", eq, tar))
@@ -4049,5 +4054,114 @@ end
         let spec = target_decl_from_lua(src, "s.target").expect("spec");
         assert_eq!(spec.quantity, "2");
         assert_eq!(spec.to_dsl(), "(2, card, either controls, from field)");
+    }
+
+    // ── Phase 9 tests ──────────────────────────────────────────────────────
+
+    #[test]
+    fn phase9_sset_in_if_condition() {
+        // Many Spell/Trap operation bodies use Duel.SSet as a boolean
+        // expression inside an if condition:
+        //   `if tc:IsRelateToEffect(e) and Duel.SSet(tp,tc)>0 then`
+        // The stmt-level walker missed this; the expr walker must find it.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    if tc:IsRelateToEffect(e) and Duel.SSet(tp,tc)>0 then
+        local e1=Effect.CreateEffect(e:GetHandler())
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_IMMUNE_EFFECT)
+        e1:SetReset(RESETS_STANDARD_PHASE_END)
+        tc:RegisterEffect(e1)
+    end
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.activate").expect("activate body");
+        let lines = translate_body(body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()),
+            _ => None,
+        });
+        assert_eq!(action, Some("set target"),
+            "Duel.SSet in if-condition should produce 'set target'; lines={:?}", lines);
+    }
+
+    #[test]
+    fn phase9_special_summon_in_if_condition() {
+        // Duel.SpecialSummon used as a boolean in an if condition.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    if c:IsRelateToEffect(e) and Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)>0 then
+        Duel.RegisterFlagEffect(tp,id,RESET_PHASE|PHASE_END,0,1)
+    end
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.activate").expect("activate body");
+        let lines = translate_body(body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()),
+            _ => None,
+        });
+        assert_eq!(action, Some("special_summon self"),
+            "Duel.SpecialSummon(c,...) in if-condition should produce 'special_summon self'; lines={:?}", lines);
+    }
+
+    #[test]
+    fn phase9_register_flag_effect_skipped() {
+        // Duel.RegisterFlagEffect is metadata — should be skipped (None),
+        // not produce a TODO that would block the fill.
+        let calls = vec![
+            DuelCall {
+                method: "Duel.RegisterFlagEffect".to_string(),
+                args: vec!["tp".into(), "id".into(), "RESET_PHASE|PHASE_END".into(), "0".into(), "1".into()],
+            },
+            DuelCall {
+                method: "Duel.HasFlagEffect".to_string(),
+                args: vec!["tp".into(), "id".into()],
+            },
+            DuelCall {
+                method: "Duel.GetFlagEffect".to_string(),
+                args: vec!["tp".into(), "id".into()],
+            },
+        ];
+        let lines = translate_calls(&calls);
+        assert!(lines.is_empty(),
+            "RegisterFlagEffect/HasFlagEffect/GetFlagEffect should all be skipped; got {:?}", lines);
+    }
+
+    #[test]
+    fn phase9_equip_self_via_label_object() {
+        // Equip cards often bind `local eqc = e:GetLabelObject()` and then
+        // call `Duel.Equip(tp, eqc, tc, ...)`.  This is still "equip self to target".
+        let calls = vec![
+            DuelCall {
+                method: "Duel.Equip".to_string(),
+                args: vec!["tp".into(), "eqc".into(), "tc".into(), "0".into()],
+            },
+        ];
+        let lines = translate_calls(&calls);
+        assert_eq!(lines.len(), 1);
+        assert!(matches!(&lines[0], DslLine::Action(s) if s == "equip self to target"),
+            "eqc self-ref should translate to 'equip self to target'; got {:?}", lines[0]);
+    }
+
+    #[test]
+    fn phase9_equip_self_via_ec_label_object() {
+        // Same pattern with variable name `ec`.
+        let calls = vec![
+            DuelCall {
+                method: "Duel.Equip".to_string(),
+                args: vec!["tp".into(), "ec".into(), "tc".into(), "0".into()],
+            },
+        ];
+        let lines = translate_calls(&calls);
+        assert_eq!(lines.len(), 1);
+        assert!(matches!(&lines[0], DslLine::Action(s) if s == "equip self to target"),
+            "ec self-ref should translate to 'equip self to target'; got {:?}", lines[0]);
     }
 }
