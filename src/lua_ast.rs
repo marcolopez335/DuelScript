@@ -1763,8 +1763,8 @@ fn translate_set_stat_chain(
     if parsed.negative { return None; }
     let selector = resolve_chain_selector(chain, body)?;
     let mut line = format!("{} {} {}", action, selector, parsed.expr);
-    if reset_is_end_of_turn(chain.reset.as_deref()) {
-        line.push_str(" until end_of_turn");
+    if let Some(dur) = reset_to_duration_kw(chain.reset.as_deref()) {
+        line.push_str(&format!(" until {}", dur));
     }
     Some(DslLine::Action(line))
 }
@@ -1817,7 +1817,12 @@ fn translate_install_watcher_chain(
     chain: &RegisterEffectChain,
     functions: &BTreeMap<String, FunctionBody>,
 ) -> Option<DslLine> {
-    if !reset_is_end_of_turn(chain.reset.as_deref()) { return None; }
+    // Watcher duration is hardcoded `end_of_turn`; only accept resets
+    // that map to that keyword (don't let damage-step variants slip
+    // through with the wrong literal duration).
+    if reset_to_duration_kw(chain.reset.as_deref()) != Some("end_of_turn") {
+        return None;
+    }
     let op_name = chain.operation.as_deref()?;
     let op_body = functions.get(op_name)?;
     let lines = translate_body_with_functions(op_body, functions);
@@ -1919,29 +1924,29 @@ fn translate_modifier_chain(
     let selector = resolve_chain_selector(chain, body)?;
     let op = if parsed.negative { '-' } else { '+' };
     let mut line = format!("{} {} {} {}", action, selector, op, parsed.expr);
-    if reset_is_end_of_turn(chain.reset.as_deref()) {
-        line.push_str(" until end_of_turn");
+    if let Some(dur) = reset_to_duration_kw(chain.reset.as_deref()) {
+        line.push_str(&format!(" until {}", dur));
     }
     Some(DslLine::Action(line))
 }
 
-/// Grant chain → `grant <selector> <ability> until end_of_turn`.
+/// Grant chain → `grant <selector> <ability> until <duration>`.
 ///
 /// Phase 4e covers non-stat ability codes that lua expresses as
-/// `SetCode(EFFECT_<X>) + SetValue(1) + SetReset(<end-of-turn>)
+/// `SetCode(EFFECT_<X>) + SetValue(1) + SetReset(<...>)
 /// + <recv>:RegisterEffect(...)`. The reset gate is mandatory: a chain
-/// without `RESETS_STANDARD` / `PHASE_END` would emit a permanent grant
-/// from an ambiguous-duration chain, so skip those instead of guessing.
+/// without a recognisable reset would emit a permanent grant from an
+/// ambiguous-duration chain, so skip those instead of guessing.
 fn translate_grant_chain(
     ability: &str,
     chain: &RegisterEffectChain,
     body: &FunctionBody,
 ) -> Option<DslLine> {
-    if !reset_is_end_of_turn(chain.reset.as_deref()) { return None; }
+    let dur = reset_to_duration_kw(chain.reset.as_deref())?;
     let selector = resolve_chain_selector(chain, body)?;
     Some(DslLine::Action(format!(
-        "grant {} {} until end_of_turn",
-        selector, ability
+        "grant {} {} until {}",
+        selector, ability, dur,
     )))
 }
 
@@ -1957,11 +1962,11 @@ fn translate_disable_chain(
     chain: &RegisterEffectChain,
     body: &FunctionBody,
 ) -> Option<DslLine> {
-    if !reset_is_end_of_turn(chain.reset.as_deref()) { return None; }
+    let dur = reset_to_duration_kw(chain.reset.as_deref())?;
     let selector = resolve_chain_selector(chain, body)?;
     Some(DslLine::Action(format!(
-        "negate_effects {} end_of_turn",
-        selector,
+        "negate_effects {} {}",
+        selector, dur,
     )))
 }
 
@@ -1973,7 +1978,7 @@ fn translate_extra_attack_chain(
     chain: &RegisterEffectChain,
     body: &FunctionBody,
 ) -> Option<DslLine> {
-    if !reset_is_end_of_turn(chain.reset.as_deref()) { return None; }
+    let dur = reset_to_duration_kw(chain.reset.as_deref())?;
     let value: i64 = chain.value.as_deref()?.trim().parse().ok()?;
     let ability = match value {
         1 => "double_attack",
@@ -1982,8 +1987,8 @@ fn translate_extra_attack_chain(
     };
     let selector = resolve_chain_selector(chain, body)?;
     Some(DslLine::Action(format!(
-        "grant {} {} until end_of_turn",
-        selector, ability,
+        "grant {} {} until {}",
+        selector, ability, dur,
     )))
 }
 
@@ -2070,19 +2075,30 @@ fn method_call_to_stat(arg: &str) -> Option<String> {
     Some(format!("{}.{}", recv, stat))
 }
 
-/// Phase 4 maps a `SetReset` argument to DSL `until end_of_turn` when it
-/// uses any of the standard end-of-turn idioms:
-///   - explicit `PHASE_END` token
-///   - `RESETS_STANDARD` bundle (expands to RESET_PHASE+PHASE_END+...)
+/// Map a `SetReset` argument to a DSL `duration` keyword:
+///   - `PHASE_END` or `RESETS_STANDARD` → `end_of_turn`
+///   - `PHASE_DAMAGE` / `PHASE_DAMAGE_CAL` → `end_of_damage_step`
 ///
-/// Other reset shapes (battle-step only, chain-only, etc.) are deferred —
-/// no `until` clause emitted, leaving the engine's default behavior.
-fn reset_is_end_of_turn(reset: Option<&str>) -> bool {
-    match reset {
-        Some(s) => s.contains("PHASE_END") || s.contains("RESETS_STANDARD"),
-        None => false,
+/// Returns None for reset shapes the grammar can't express (chain-only,
+/// battle-step-only, etc.) — callers either skip the chain entirely or
+/// emit the action without a duration clause.
+///
+/// Order matters: the PHASE_END check runs first because `RESETS_STANDARD`
+/// is the dominant shape; PHASE_DAMAGE is checked only when neither
+/// end-of-turn variant matches so the more common case keeps its mapping
+/// (RESETS_STANDARD can co-occur with RESET_PHASE|PHASE_DAMAGE in
+/// chains like INDESTRUCTABLE_BATTLE during damage step).
+fn reset_to_duration_kw(reset: Option<&str>) -> Option<&'static str> {
+    let s = reset?;
+    if s.contains("PHASE_END") || s.contains("RESETS_STANDARD") {
+        return Some("end_of_turn");
     }
+    if s.contains("PHASE_DAMAGE") {
+        return Some("end_of_damage_step");
+    }
+    None
 }
+
 
 /// Map a single `Duel.X` call to a DSL line (or None for skip-class
 /// metadata). `bindings` maps local-variable names to their captured
@@ -3408,6 +3424,32 @@ end
         let lines = translate_body(&body);
         let has_grant = lines.iter().any(|l| matches!(l, DslLine::Action(s) if s.contains("attack")));
         assert!(!has_grant, "variable EXTRA_ATTACK value should not emit");
+    }
+
+    #[test]
+    fn t10_register_chain_indestructable_battle_phase_damage_end_of_damage_step() {
+        // PHASE_DAMAGE reset → grant ... until end_of_damage_step
+        // (instead of end_of_turn). Common shape on damage-step-only
+        // battle-protection effects.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
+    e1:SetValue(1)
+    e1:SetReset(RESET_PHASE|PHASE_DAMAGE)
+    c:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let body = walk(&parsed).functions.remove("s.activate").expect("body");
+        let lines = translate_body(&body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()),
+            _ => None,
+        });
+        assert_eq!(action, Some("grant self cannot_be_destroyed by battle until end_of_damage_step"));
     }
 
     #[test]
