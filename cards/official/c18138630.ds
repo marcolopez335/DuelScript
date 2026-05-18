@@ -5,6 +5,17 @@ card "Frightfur Jar" {
     effect "Effect 1" {
         speed: 2
         mandatory
+        cost {
+            discard (1, card, you control, from hand)
+        }
+        resolve {
+            draw 1
+            destroy target
+            shuffle_hand yours
+            send target to deck
+            send target to deck
+            shuffle_hand yours
+        }
     }
 
     effect "Effect 3" {

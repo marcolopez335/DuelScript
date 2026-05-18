@@ -11,5 +11,9 @@ card "Evolsaur Cerato" {
         speed: 1
         mandatory
         trigger: summoned by special
+        resolve {
+            modify_atk self + 200 until end_of_turn
+            install_watcher "schop" { event: destroys_by_battle duration: end_of_turn check { add_to_hand (1, card, you control, from deck) } }
+        }
     }
 }

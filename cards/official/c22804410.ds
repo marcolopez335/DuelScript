@@ -25,12 +25,18 @@ card "Deep-Eyes White Dragon" {
         speed: 1
         mandatory
         trigger: summoned
+        resolve {
+            set_atk self target.atk until end_of_turn
+        }
     }
 
     effect "Effect 3" {
         speed: 1
         mandatory
         trigger: summoned by special
+        resolve {
+            destroy (all, card, opponent controls, from monster_zone)
+        }
     }
 
     effect "Effect 4" {

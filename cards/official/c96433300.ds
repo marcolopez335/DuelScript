@@ -5,6 +5,10 @@ card "Ogdoadic Hollow" {
     effect "Effect 1" {
         speed: 2
         mandatory
+        resolve {
+            special_summon target
+            install_watcher "tgop" { event: end_phase duration: end_of_turn check { send target to gy } }
+        }
     }
 
     effect "Effect 2" {

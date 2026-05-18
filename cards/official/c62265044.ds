@@ -5,6 +5,13 @@ card "Dragon Ravine" {
     effect "Effect 1" {
         speed: 1
         mandatory
+        cost {
+            discard (1, card, you control, from hand)
+        }
+        resolve {
+            add_to_hand (1, card, you control, from deck)
+            send (1, card, you control, from deck) to gy
+        }
     }
 
     effect "Effect 2" {

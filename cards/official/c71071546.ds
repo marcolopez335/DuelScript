@@ -16,6 +16,10 @@ card "Orbital 7" {
     effect "Effect 2" {
         speed: 1
         mandatory
+        resolve {
+            set_atk self 2000 until end_of_turn
+            install_watcher "tgop" { event: end_phase duration: end_of_turn check { send self to gy } }
+        }
     }
 
     effect "Effect 3" {

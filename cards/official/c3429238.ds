@@ -19,6 +19,11 @@ card "Drill Warrior" {
         speed: 1
         once_per_turn: soft
         mandatory
+        condition: phase == main1
+        resolve {
+            set_atk self self.atk / 2 until end_of_turn
+            grant self direct_attack until end_of_turn
+        }
     }
 
     effect "Effect 2" {

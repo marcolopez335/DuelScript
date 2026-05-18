@@ -11,5 +11,9 @@ card "Karate Man" {
         speed: 1
         once_per_turn: soft
         mandatory
+        resolve {
+            set_atk self self.atk * 2 until end_of_turn
+            install_watcher "desop" { event: end_phase duration: end_of_turn check { destroy self } }
+        }
     }
 }
