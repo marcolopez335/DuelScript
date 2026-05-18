@@ -1738,8 +1738,10 @@ fn set_stat_action(code: &str) -> Option<&'static str> {
     Some(match code {
         "EFFECT_SET_ATTACK"        => "set_atk",
         "EFFECT_SET_ATTACK_FINAL"  => "set_atk",
+        "EFFECT_SET_BASE_ATTACK"   => "set_atk",
         "EFFECT_SET_DEFENSE"       => "set_def",
         "EFFECT_SET_DEFENSE_FINAL" => "set_def",
+        "EFFECT_SET_BASE_DEFENSE"  => "set_def",
         _ => return None,
     })
 }
@@ -1856,6 +1858,10 @@ fn grant_ability_for(code: &str) -> Option<&'static str> {
         "EFFECT_CANNOT_SPECIAL_SUMMON"   => "cannot_special_summon",
         "EFFECT_CANNOT_SUMMON"           => "cannot_normal_summon",
         "EFFECT_DIRECT_ATTACK"           => "direct_attack",
+        "EFFECT_PIERCE"                  => "piercing",
+        "EFFECT_ATTACK_ALL"              => "attack_all_monsters",
+        "EFFECT_MUST_ATTACK"             => "must_attack",
+        "EFFECT_CANNOT_CHANGE_POSITION"  => "cannot_change_position",
         _ => return None,
     })
 }
@@ -3164,6 +3170,140 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
     local e1=Effect.CreateEffect(c)
     e1:SetType(EFFECT_TYPE_SINGLE)
     e1:SetCode(EFFECT_SET_DEFENSE_FINAL)
+    e1:SetValue(0)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    c:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let body = walk(&parsed).functions.remove("s.activate").expect("body");
+        let lines = translate_body(&body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()),
+            _ => None,
+        });
+        assert_eq!(action, Some("set_def self 0 until end_of_turn"));
+    }
+
+    #[test]
+    fn t10_register_chain_pierce_self_grant() {
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_PIERCE)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    c:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let body = walk(&parsed).functions.remove("s.activate").expect("body");
+        let lines = translate_body(&body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()),
+            _ => None,
+        });
+        assert_eq!(action, Some("grant self piercing until end_of_turn"));
+    }
+
+    #[test]
+    fn t10_register_chain_attack_all_target_grant() {
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_ATTACK_ALL)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let body = walk(&parsed).functions.remove("s.operation").expect("body");
+        let lines = translate_body(&body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()),
+            _ => None,
+        });
+        assert_eq!(action, Some("grant target attack_all_monsters until end_of_turn"));
+    }
+
+    #[test]
+    fn t10_register_chain_must_attack_target_grant() {
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_MUST_ATTACK)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let body = walk(&parsed).functions.remove("s.operation").expect("body");
+        let lines = translate_body(&body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()),
+            _ => None,
+        });
+        assert_eq!(action, Some("grant target must_attack until end_of_turn"));
+    }
+
+    #[test]
+    fn t10_register_chain_cannot_change_position_target_grant() {
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_CANNOT_CHANGE_POSITION)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let body = walk(&parsed).functions.remove("s.operation").expect("body");
+        let lines = translate_body(&body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()),
+            _ => None,
+        });
+        assert_eq!(action, Some("grant target cannot_change_position until end_of_turn"));
+    }
+
+    #[test]
+    fn t10_register_chain_set_base_attack_target_until_eot() {
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_SET_BASE_ATTACK)
+    e1:SetValue(1000)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let body = walk(&parsed).functions.remove("s.operation").expect("body");
+        let lines = translate_body(&body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()),
+            _ => None,
+        });
+        assert_eq!(action, Some("set_atk target 1000 until end_of_turn"));
+    }
+
+    #[test]
+    fn t10_register_chain_set_base_defense_self_until_eot() {
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_SET_BASE_DEFENSE)
     e1:SetValue(0)
     e1:SetReset(RESETS_STANDARD_PHASE_END)
     c:RegisterEffect(e1)
