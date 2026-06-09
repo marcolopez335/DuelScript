@@ -5,7 +5,12 @@ card "Curse of Aging" {
     effect "Effect 1" {
         speed: 2
         mandatory
+        cost {
+            discard (1, card, you control, from hand)
+        }
         resolve {
+            modify_atk (all, card, opponent controls, from monster_zone, where is_face_up) - 500 until end_of_turn
+            modify_def (all, card, opponent controls, from monster_zone, where is_face_up) - 500 until end_of_turn
         }
     }
 }
