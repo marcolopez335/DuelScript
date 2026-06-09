@@ -21,6 +21,7 @@
 
 use std::collections::BTreeMap;
 use std::fmt::Write;
+use std::sync::{Mutex, OnceLock};
 
 use full_moon::ast;
 use full_moon::ast::{Stmt, Expression, FunctionCall, Suffix, Call, Index, Block, LastStmt};
@@ -77,6 +78,13 @@ pub struct RegisterEffectChain {
     /// Function name passed to `e:SetCondition(...)`. Not currently used by
     /// any translator pass; reserved for future install_watcher refinements.
     pub condition: Option<String>,
+    /// True when the same Set* slot was written twice with DIFFERENT args
+    /// before registration — the branch-conditional idiom
+    /// (`if … then e1:SetValue(a) else e1:SetValue(b) end`). The straight-
+    /// line extractor keeps only the last write, so the recorded payload is
+    /// one arm of a runtime choice; translating it would mis-emit (Phase 11
+    /// guard, found via Spellbook of Wisdom's spells-or-traps immunity).
+    pub conflicting_sets: bool,
 }
 
 /// A statically-extracted selector intent — built from a single
@@ -1421,14 +1429,18 @@ fn collect_register_chains(
             Stmt::FunctionCall(fc) => {
                 if let Some((bind, method, args)) = method_call_on_binding(fc) {
                     if let Some(chain) = by_binding.get_mut(&bind) {
-                        match method.as_str() {
-                            "SetCode"      => chain.code = args.first().cloned(),
-                            "SetValue"     => chain.value = args.first().cloned(),
-                            "SetReset"     => chain.reset = args.first().cloned(),
-                            "SetType"      => chain.effect_type = args.first().cloned(),
-                            "SetOperation" => chain.operation = args.first().cloned(),
-                            "SetCondition" => chain.condition = args.first().cloned(),
-                            _ => {}
+                        let arg = args.first().cloned();
+                        let conflicted = match method.as_str() {
+                            "SetCode"      => set_or_conflict(&mut chain.code, arg),
+                            "SetValue"     => set_or_conflict(&mut chain.value, arg),
+                            "SetReset"     => set_or_conflict(&mut chain.reset, arg),
+                            "SetType"      => { chain.effect_type = arg; false }
+                            "SetOperation" => set_or_conflict(&mut chain.operation, arg),
+                            "SetCondition" => set_or_conflict(&mut chain.condition, arg),
+                            _ => false,
+                        };
+                        if conflicted {
+                            chain.conflicting_sets = true;
                         }
                     }
                 }
@@ -1481,6 +1493,18 @@ fn collect_register_chains(
             _ => {}
         }
     }
+}
+
+/// Write `new` into a chain's Set* slot, reporting `true` when the slot
+/// already held a DIFFERENT value — the branch-conditional double-set
+/// idiom that makes the recorded payload one arm of a runtime choice.
+/// Re-setting the same arg is not a conflict (idempotent rewrites).
+fn set_or_conflict(slot: &mut Option<String>, new: Option<String>) -> bool {
+    let conflicted = matches!((&*slot, &new), (Some(old), Some(n)) if old != n);
+    if new.is_some() {
+        *slot = new;
+    }
+    conflicted
 }
 
 /// Inspect a `for <names> in <exprs>` loop. If the iterator expression
@@ -1706,6 +1730,27 @@ fn handler_to_fn_name(handler: &str) -> String {
 // reviewable, never silently misinterpreted.
 // ============================================================
 
+/// Passcode → card-name table for `EFFECT_CHANGE_CODE` translation
+/// (Phase 11). Populated by the apply binary from BabelCdb before
+/// translating; unit tests register fixture names directly. When empty,
+/// change-code chains skip instead of emitting an unresolvable id.
+static CARD_NAMES: OnceLock<Mutex<BTreeMap<u32, String>>> = OnceLock::new();
+
+/// Register passcode → name pairs for `EFFECT_CHANGE_CODE` lookup.
+/// Extends (never replaces) the table so repeated registration — e.g.
+/// multiple unit tests in one process — is additive and order-free.
+pub fn register_card_names<I: IntoIterator<Item = (u32, String)>>(pairs: I) {
+    let table = CARD_NAMES.get_or_init(|| Mutex::new(BTreeMap::new()));
+    if let Ok(mut map) = table.lock() {
+        map.extend(pairs);
+    }
+}
+
+/// Resolve a passcode to its registered card name, if any.
+fn lookup_card_name(id: u32) -> Option<String> {
+    CARD_NAMES.get()?.lock().ok()?.get(&id).cloned()
+}
+
 #[derive(Debug, Clone)]
 pub enum DslLine {
     /// A confidently-translated DSL action line, e.g.
@@ -1771,7 +1816,7 @@ pub fn translate_body_with_functions(
     // the post-write value. Drop such lines instead of mis-emitting.
     let mut stat_writes: Vec<(String, String)> = Vec::new();
     for chain in &body.register_chains {
-        if let Some(line) = translate_register_chain(chain, body, functions) {
+        for line in translate_register_chain(chain, body, functions) {
             if let DslLine::Action(text) = &line {
                 if stat_writes.iter().any(|(sel, stat)| {
                     text.contains(&format!("{}.{}", sel, stat))
@@ -1800,10 +1845,10 @@ fn stat_write_of(line: &str) -> Option<(String, String)> {
     Some((sel.to_string(), stat.to_string()))
 }
 
-/// Map one `RegisterEffectChain` to a DSL action line. Returns None when
-/// the chain isn't one of the shapes the translator covers.
+/// Map one `RegisterEffectChain` to DSL action lines. Returns an empty
+/// vec when the chain isn't one of the shapes the translator covers.
 ///
-/// Two families:
+/// Families:
 ///   - **Stat modifiers** (Phase 4 / 4b / 4c): EFFECT_UPDATE_ATTACK /
 ///     EFFECT_UPDATE_DEFENSE → `modify_atk` / `modify_def` with the
 ///     parsed `SetValue` as the magnitude.
@@ -1814,31 +1859,44 @@ fn stat_write_of(line: &str) -> Option<(String, String)> {
 ///     `chain.value` (the lua side uses `SetValue(1)` as a flag) and
 ///     require an end-of-turn reset to avoid emitting a permanent
 ///     grant from an ambiguous-duration chain.
+///   - **Non-stat passives** (Phase 11): EFFECT_CHANGE_ATTRIBUTE /
+///     EFFECT_CHANGE_RACE / EFFECT_CHANGE_CODE / EFFECT_IMMUNE_EFFECT.
+///     IMMUNE may expand to two grant lines (spell+trap immunity), so
+///     this dispatcher returns a Vec.
 fn translate_register_chain(
     chain: &RegisterEffectChain,
     body: &FunctionBody,
     functions: &BTreeMap<String, FunctionBody>,
-) -> Option<DslLine> {
-    let code = chain.code.as_deref()?;
-    if let Some(action) = stat_modifier_action(code) {
-        return translate_modifier_chain(action, chain, body);
+) -> Vec<DslLine> {
+    // Branch-conditional Set* writes — the recorded payload is one arm of
+    // a runtime choice; any emit would be a mis-emit. Skip.
+    if chain.conflicting_sets {
+        return Vec::new();
     }
-    if let Some(action) = set_stat_action(code) {
-        return translate_set_stat_chain(action, chain, body);
+    let Some(code) = chain.code.as_deref() else { return Vec::new() };
+    if code == "EFFECT_IMMUNE_EFFECT" {
+        return translate_immune_chain(chain, body, functions);
     }
-    if code == "EFFECT_EXTRA_ATTACK" {
-        return translate_extra_attack_chain(chain, body);
-    }
-    if code == "EFFECT_DISABLE" {
-        return translate_disable_chain(chain, body);
-    }
-    if let Some(ability) = grant_ability_for(code) {
-        return translate_grant_chain(ability, chain, body);
-    }
-    if let Some(trigger) = trigger_for_event_code(code) {
-        return translate_install_watcher_chain(trigger, chain, functions);
-    }
-    None
+    let single = if let Some(action) = stat_modifier_action(code) {
+        translate_modifier_chain(action, chain, body)
+    } else if let Some(action) = set_stat_action(code) {
+        translate_set_stat_chain(action, chain, body)
+    } else if code == "EFFECT_EXTRA_ATTACK" {
+        translate_extra_attack_chain(chain, body)
+    } else if code == "EFFECT_DISABLE" {
+        translate_disable_chain(chain, body)
+    } else if code == "EFFECT_CHANGE_ATTRIBUTE" || code == "EFFECT_CHANGE_RACE" {
+        translate_change_property_chain(code, chain, body)
+    } else if code == "EFFECT_CHANGE_CODE" {
+        translate_change_code_chain(chain, body)
+    } else if let Some(ability) = grant_ability_for(code) {
+        translate_grant_chain(ability, chain, body)
+    } else if let Some(trigger) = trigger_for_event_code(code) {
+        translate_install_watcher_chain(trigger, chain, functions)
+    } else {
+        None
+    };
+    single.into_iter().collect()
 }
 
 /// Map a SET_*_FINAL effect code to the DSL `set_atk` / `set_def` action.
@@ -2001,6 +2059,8 @@ fn grant_ability_for(code: &str) -> Option<&'static str> {
 /// Multi-target (`multi_target=true`):
 ///   - `loop_source_group` resolves to a binding in
 ///     `body.group_bindings` → emit using the spec's DSL form.
+///   - `loop_source_group` is a local bound to `Duel.GetTargetCards(…)`
+///     → `target` (the loop visits exactly the declared targets).
 ///   - Otherwise → None.
 fn resolve_chain_selector(
     chain: &RegisterEffectChain,
@@ -2008,13 +2068,23 @@ fn resolve_chain_selector(
 ) -> Option<String> {
     if chain.multi_target {
         let group = chain.loop_source_group.as_deref()?;
-        let spec = body.group_bindings.get(group)?;
-        // A dropped lua filter means the DSL selector matches a SUPERSET
-        // of the group the lua iterated — fine when the engine then picks
-        // targets, wrong when a modifier applies to every match. Skip
-        // (Phase 10 skip-not-mis-emit).
-        if !spec.filter_mapped { return None; }
-        Some(spec.to_dsl())
+        if let Some(spec) = body.group_bindings.get(group) {
+            // A dropped lua filter means the DSL selector matches a SUPERSET
+            // of the group the lua iterated — fine when the engine then picks
+            // targets, wrong when a modifier applies to every match. Skip
+            // (Phase 10 skip-not-mis-emit).
+            if !spec.filter_mapped { return None; }
+            return Some(spec.to_dsl());
+        }
+        // Loop over the effect's own chosen targets (Phase 11):
+        // `local g=Duel.GetTargetCards(e)` + `for tc in aux.Next(g)` —
+        // each member IS a declared target, so the DSL `target` selector
+        // covers the whole group.
+        let rhs = body.value_bindings.get(group)?;
+        if rhs.starts_with("Duel.GetTargetCards(") {
+            return Some("target".to_string());
+        }
+        None
     } else {
         match chain.register_target.as_str() {
             "tc" | "tc:GetFirst()" | "g:GetFirst()" => Some("target".to_string()),
@@ -2093,6 +2163,212 @@ fn translate_disable_chain(
         "negate_effects {} {}",
         selector, dur,
     )))
+}
+
+/// EFFECT_CHANGE_ATTRIBUTE / EFFECT_CHANGE_RACE chain →
+/// `change_attribute <selector> to <ATTR>` / `change_race <selector> to <Race>`.
+///
+/// Phase 11. Only literal single-constant `SetValue` args translate —
+/// `e:GetLabel()` (runtime-chosen), local vars from `Duel.Announce*`,
+/// and method-call values skip. The DSL change_attribute / change_race
+/// grammar carries no duration clause, so the lua chain's end-of-turn
+/// reset cannot be expressed; the property change is emitted without a
+/// bound (known lossy — documented in the Phase 11 report). Resets that
+/// don't map to a known duration keyword skip entirely so unaudited
+/// lifetime shapes never emit.
+fn translate_change_property_chain(
+    code: &str,
+    chain: &RegisterEffectChain,
+    body: &FunctionBody,
+) -> Option<DslLine> {
+    reset_to_duration_kw(chain.reset.as_deref())?;
+    let raw = chain.value.as_deref()?.trim();
+    let (action, token) = match code {
+        "EFFECT_CHANGE_ATTRIBUTE" => ("change_attribute", attribute_token(raw)?),
+        "EFFECT_CHANGE_RACE"      => ("change_race", race_token(raw)?),
+        _ => return None,
+    };
+    let selector = resolve_chain_selector(chain, body)?;
+    Some(DslLine::Action(format!("{} {} to {}", action, selector, token)))
+}
+
+/// Map a literal `ATTRIBUTE_*` constant to the DSL attribute token.
+/// OR'd multi-attribute values return None (grammar takes one token).
+fn attribute_token(value: &str) -> Option<&'static str> {
+    Some(match value {
+        "ATTRIBUTE_LIGHT"  => "LIGHT",
+        "ATTRIBUTE_DARK"   => "DARK",
+        "ATTRIBUTE_FIRE"   => "FIRE",
+        "ATTRIBUTE_WATER"  => "WATER",
+        "ATTRIBUTE_EARTH"  => "EARTH",
+        "ATTRIBUTE_WIND"   => "WIND",
+        "ATTRIBUTE_DIVINE" => "DIVINE",
+        _ => return None,
+    })
+}
+
+/// Map a literal `RACE_*` constant to the DSL race token (grammar
+/// spelling, e.g. RACE_WINGEDBEAST → "Winged Beast").
+fn race_token(value: &str) -> Option<&'static str> {
+    Some(match value {
+        "RACE_WARRIOR"      => "Warrior",
+        "RACE_SPELLCASTER"  => "Spellcaster",
+        "RACE_FAIRY"        => "Fairy",
+        "RACE_FIEND"        => "Fiend",
+        "RACE_ZOMBIE"       => "Zombie",
+        "RACE_MACHINE"      => "Machine",
+        "RACE_AQUA"         => "Aqua",
+        "RACE_PYRO"         => "Pyro",
+        "RACE_ROCK"         => "Rock",
+        "RACE_WINGEDBEAST"  => "Winged Beast",
+        "RACE_PLANT"        => "Plant",
+        "RACE_INSECT"       => "Insect",
+        "RACE_THUNDER"      => "Thunder",
+        "RACE_DRAGON"       => "Dragon",
+        "RACE_BEAST"        => "Beast",
+        "RACE_BEASTWARRIOR" => "Beast-Warrior",
+        "RACE_DINOSAUR"     => "Dinosaur",
+        "RACE_FISH"         => "Fish",
+        "RACE_SEASERPENT"   => "Sea Serpent",
+        "RACE_REPTILE"      => "Reptile",
+        "RACE_PSYCHIC"      => "Psychic",
+        "RACE_DIVINE"       => "Divine-Beast",
+        "RACE_WYRM"         => "Wyrm",
+        "RACE_CYBERSE"      => "Cyberse",
+        "RACE_ILLUSION"     => "Illusion",
+        _ => return None,
+    })
+}
+
+/// EFFECT_CHANGE_CODE chain → `change_name <selector> to "<name>" [until <dur>]`.
+///
+/// Phase 11. The lua SetValue is a passcode; the DSL atom takes the card
+/// NAME, so translation needs the BabelCdb-backed table registered via
+/// [`register_card_names`]. Accepts literal integer passcodes plus the
+/// audited `CARD_*` named constants. Skips: unresolvable ids (no table /
+/// unknown passcode), names containing a double quote (unrepresentable
+/// in the DSL string literal), and non-literal values (`e:GetLabel()`,
+/// `tc:GetOriginalCode()` locals — DSL has no "name of target" form).
+fn translate_change_code_chain(
+    chain: &RegisterEffectChain,
+    body: &FunctionBody,
+) -> Option<DslLine> {
+    let raw = chain.value.as_deref()?.trim();
+    let id: u32 = raw.parse().ok().or_else(|| card_constant_id(raw))?;
+    let name = lookup_card_name(id)?;
+    if name.contains('"') { return None; }
+    let selector = resolve_chain_selector(chain, body)?;
+    let mut line = format!("change_name {} to \"{}\"", selector, name);
+    if let Some(dur) = reset_to_duration_kw(chain.reset.as_deref()) {
+        line.push_str(&format!(" until {}", dur));
+    }
+    Some(DslLine::Action(line))
+}
+
+/// Named `CARD_*` passcode constants (CardScripts card_counter_constants.lua)
+/// seen in audited EFFECT_CHANGE_CODE chains.
+fn card_constant_id(name: &str) -> Option<u32> {
+    Some(match name {
+        "CARD_CYBER_DRAGON" => 70095154,
+        _ => return None,
+    })
+}
+
+/// EFFECT_IMMUNE_EFFECT chain → `grant <selector> unaffected_by <src> until <dur>`.
+///
+/// Phase 11. The lua SetValue is a filter predicate `(e, te|re) → bool`
+/// deciding which effects the card ignores. Only *stock* single-return
+/// filters translate — the function-ref is resolved through the walk's
+/// function table and its return expression classified by
+/// [`immune_filter_sources`]. Inline closures and multi-statement filter
+/// bodies skip (no return_expr). May emit two grant lines for the
+/// spell+trap immunity stock filter.
+fn translate_immune_chain(
+    chain: &RegisterEffectChain,
+    body: &FunctionBody,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Vec<DslLine> {
+    let Some(dur) = reset_to_duration_kw(chain.reset.as_deref()) else { return Vec::new() };
+    let Some(selector) = resolve_chain_selector(chain, body) else { return Vec::new() };
+    let Some(value) = chain.value.as_deref() else { return Vec::new() };
+    let Some(filter_body) = functions.get(value.trim()) else { return Vec::new() };
+    let Some(expr) = filter_body.return_expr.as_deref() else { return Vec::new() };
+    let Some(sources) = immune_filter_sources(expr) else { return Vec::new() };
+    sources
+        .into_iter()
+        .map(|src| DslLine::Action(format!(
+            "grant {} unaffected_by {} until {}",
+            selector, src, dur,
+        )))
+        .collect()
+}
+
+/// Classify a stock immune-filter return expression into DSL
+/// `unaffected_by` source tokens. Returns None when any conjunct falls
+/// outside the recognized trivial forms (skip-not-mis-emit).
+///
+/// Recognized conjuncts (te/re = the incoming effect, e = the immunity):
+///   - other-card: `te:GetOwner()~=e:GetOwner()` and handler/order
+///     variants. Drops the "other cards'" qualifier — corpus precedent:
+///     the passive path already maps this filter alone to
+///     `unaffected_by effects` (the card's own effects on itself are
+///     the only loss).
+///   - opponent: `GetOwnerPlayer()`-inequality variants → effects owned
+///     by the opponent.
+///   - effect-kind: `IsMonsterEffect` / `IsSpellEffect` / `IsTrapEffect`
+///     / `IsSpellTrapEffect` / `IsActiveType(TYPE_EFFECT)` (normal
+///     monsters have no effects, so effect-monster ≡ monster here).
+///
+/// Combination table:
+///   - kind only (± other-card) → that kind's token(s)
+///   - opponent (± other-card)  → `opponent_effects`
+///   - opponent + kind          → None (grammar can't scope a kind to one
+///     player; either over-grant would be a mis-emit)
+fn immune_filter_sources(expr: &str) -> Option<Vec<&'static str>> {
+    let normalized = expr.split_whitespace().collect::<Vec<_>>().join(" ");
+    let mut kinds: Vec<&'static str> = Vec::new();
+    let mut opponent = false;
+    for conjunct in normalized.split(" and ") {
+        let c: String = conjunct.chars().filter(|ch| !ch.is_whitespace()).collect();
+        match c.as_str() {
+            // other-card qualifier — droppable (see doc comment).
+            "te:GetOwner()~=e:GetOwner()" | "re:GetOwner()~=e:GetOwner()"
+            | "e:GetOwner()~=te:GetOwner()" | "e:GetOwner()~=re:GetOwner()"
+            | "te:GetOwner()~=e:GetHandler()" | "re:GetOwner()~=e:GetHandler()"
+            | "e:GetHandler()~=te:GetOwner()" | "e:GetHandler()~=re:GetOwner()" => {}
+            // opponent-owned qualifier.
+            "te:GetOwnerPlayer()~=e:GetHandlerPlayer()"
+            | "re:GetOwnerPlayer()~=e:GetHandlerPlayer()"
+            | "te:GetOwnerPlayer()~=e:GetOwnerPlayer()"
+            | "re:GetOwnerPlayer()~=e:GetOwnerPlayer()"
+            | "e:GetOwnerPlayer()~=te:GetOwnerPlayer()"
+            | "e:GetOwnerPlayer()~=re:GetOwnerPlayer()"
+            | "e:GetHandlerPlayer()~=te:GetOwnerPlayer()"
+            | "e:GetHandlerPlayer()~=re:GetOwnerPlayer()"
+            | "e:GetOwnerPlayer()==1-te:GetOwnerPlayer()"
+            | "e:GetOwnerPlayer()==1-re:GetOwnerPlayer()"
+            | "te:GetOwnerPlayer()==1-e:GetOwnerPlayer()"
+            | "re:GetOwnerPlayer()==1-e:GetOwnerPlayer()" => opponent = true,
+            // effect-kind qualifiers.
+            "te:IsMonsterEffect()" | "re:IsMonsterEffect()"
+            | "te:IsActiveType(TYPE_EFFECT)" | "re:IsActiveType(TYPE_EFFECT)" =>
+                kinds.push("monsters"),
+            "te:IsSpellEffect()" | "re:IsSpellEffect()" => kinds.push("spells"),
+            "te:IsTrapEffect()" | "re:IsTrapEffect()" => kinds.push("traps"),
+            "te:IsSpellTrapEffect()" | "re:IsSpellTrapEffect()" => {
+                kinds.push("spells");
+                kinds.push("traps");
+            }
+            _ => return None,
+        }
+    }
+    kinds.dedup();
+    match (kinds.is_empty(), opponent) {
+        (true,  true)  => Some(vec!["opponent_effects"]),
+        (true,  false) => Some(vec!["effects"]),
+        (false, false) => Some(kinds),
+        (false, true)  => None, // player-scoped kind — inexpressible
+    }
 }
 
 /// EFFECT_EXTRA_ATTACK is value-dependent: SetValue(1) → double_attack,
@@ -4807,5 +5083,387 @@ end
         assert_eq!(lines.len(), 1);
         assert!(matches!(&lines[0], DslLine::Action(s) if s == "equip self to target"),
             "ec self-ref should translate to 'equip self to target'; got {:?}", lines[0]);
+    }
+
+    // ── Phase 11 tests — non-stat passive codes at resolve time ───────────
+
+    /// Translate the named handler with the full function table in scope
+    /// (immune-filter funcrefs resolve through it) and return the action
+    /// lines.
+    fn p11_actions(src: &str, handler: &str) -> Vec<String> {
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get(handler).expect("handler body");
+        translate_body_with_functions(body, &report.functions)
+            .into_iter()
+            .filter_map(|l| match l {
+                DslLine::Action(s) => Some(s),
+                _ => None,
+            })
+            .collect()
+    }
+
+    #[test]
+    fn t11_change_attribute_literal_target() {
+        // c70369116 shape: literal ATTRIBUTE_* on the resolved target.
+        // The DSL change_attribute grammar has no duration clause — the
+        // reset gates emission but is not rendered.
+        let src = r#"
+function s.atop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    if tc:IsFaceup() and tc:IsRelateToEffect(e) then
+        local e1=Effect.CreateEffect(e:GetHandler())
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_CHANGE_ATTRIBUTE)
+        e1:SetValue(ATTRIBUTE_DARK)
+        e1:SetReset(RESETS_STANDARD_PHASE_END)
+        tc:RegisterEffect(e1)
+    end
+end
+"#;
+        assert_eq!(p11_actions(src, "s.atop"), vec!["change_attribute target to DARK"]);
+    }
+
+    #[test]
+    fn t11_change_attribute_getlabel_skip() {
+        // e:GetLabel() values are runtime-chosen (announce effects) — skip.
+        let src = r#"
+function s.attop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_CHANGE_ATTRIBUTE)
+    e1:SetValue(e:GetLabel())
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    c:RegisterEffect(e1)
+end
+"#;
+        assert!(p11_actions(src, "s.attop").is_empty(),
+            "GetLabel attribute value must skip");
+    }
+
+    #[test]
+    fn t11_change_race_literal_self() {
+        // c9069157 shape: literal RACE_* on the card itself, with the
+        // grammar-spelling token (RACE_DRAGON → Dragon).
+        let src = r#"
+function s.rcop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_CHANGE_RACE)
+    e1:SetValue(RACE_DRAGON)
+    e1:SetReset(RESETS_STANDARD_DISABLE_PHASE_END)
+    c:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(p11_actions(src, "s.rcop"), vec!["change_race self to Dragon"]);
+    }
+
+    #[test]
+    fn t11_change_code_literal_via_name_table() {
+        // c16828633 (Genex Spare) shape: literal passcode SetValue →
+        // change_name with the CDB-resolved name and the reset duration.
+        register_card_names([(68505803u32, "Genex Controller".to_string())]);
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    if not c:IsRelateToEffect(e) or c:IsFacedown() then return end
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_CHANGE_CODE)
+    e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    e1:SetValue(68505803)
+    c:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.operation"),
+            vec![r#"change_name self to "Genex Controller" until end_of_turn"#],
+        );
+    }
+
+    #[test]
+    fn t11_change_code_unknown_passcode_skip() {
+        // Passcode absent from the name table — skip rather than emit a
+        // numeric id the DSL string form can't represent.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_CHANGE_CODE)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    e1:SetValue(999999991)
+    c:RegisterEffect(e1)
+end
+"#;
+        assert!(p11_actions(src, "s.operation").is_empty(),
+            "unknown passcode must skip");
+    }
+
+    #[test]
+    fn t11_change_code_method_value_skip() {
+        // c2407234 shape: `local code=tc:GetOriginalCode()` — the name is
+        // runtime data; DSL change_name needs a literal string. Skip.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local tc=Duel.GetFirstTarget()
+    local code=tc:GetOriginalCode()
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_CHANGE_CODE)
+    e1:SetValue(code)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    c:RegisterEffect(e1)
+end
+"#;
+        assert!(p11_actions(src, "s.operation").is_empty(),
+            "method-call code value must skip");
+    }
+
+    #[test]
+    fn t11_immune_spelltrap_two_grants() {
+        // c26329679 shape: stock IsSpellTrapEffect filter → two grant
+        // lines (the unaffected_by grammar takes one source token).
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_IMMUNE_EFFECT)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    e1:SetValue(s.efilter)
+    tc:RegisterEffect(e1)
+end
+function s.efilter(e,te)
+    return te:IsSpellTrapEffect()
+end
+"#;
+        assert_eq!(p11_actions(src, "s.operation"), vec![
+            "grant target unaffected_by spells until end_of_turn",
+            "grant target unaffected_by traps until end_of_turn",
+        ]);
+    }
+
+    #[test]
+    fn t11_immune_other_card_effects() {
+        // c96434581 shape: owner-inequality stock filter ("other cards'
+        // effects") → unaffected_by effects (corpus-precedent mapping).
+        let src = r#"
+function s.regop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_IMMUNE_EFFECT)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    e1:SetValue(s.efilter)
+    c:RegisterEffect(e1)
+end
+function s.efilter(e,re)
+    return e:GetHandler()~=re:GetOwner()
+end
+"#;
+        assert_eq!(p11_actions(src, "s.regop"),
+            vec!["grant self unaffected_by effects until end_of_turn"]);
+    }
+
+    #[test]
+    fn t11_immune_opponent_effects() {
+        // c4059313 shape: owner-player inequality → opponent_effects.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_IMMUNE_EFFECT)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    e1:SetValue(s.efilter)
+    tc:RegisterEffect(e1)
+end
+function s.efilter(e,re)
+    return e:GetOwnerPlayer()==1-re:GetOwnerPlayer()
+end
+"#;
+        assert_eq!(p11_actions(src, "s.activate"),
+            vec!["grant target unaffected_by opponent_effects until end_of_turn"]);
+    }
+
+    #[test]
+    fn t11_immune_monster_plus_other_card() {
+        // c52155219 shape: IsMonsterEffect + other-card qualifier →
+        // unaffected_by monsters (other-card qualifier drops).
+        let src = r#"
+function s.immop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_IMMUNE_EFFECT)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    e1:SetValue(s.efilter)
+    tc:RegisterEffect(e1)
+end
+function s.efilter(e,te)
+    return te:IsMonsterEffect() and te:GetOwner()~=e:GetOwner()
+end
+"#;
+        assert_eq!(p11_actions(src, "s.immop"),
+            vec!["grant target unaffected_by monsters until end_of_turn"]);
+    }
+
+    #[test]
+    fn t11_immune_opponent_scoped_kind_skip() {
+        // c79194594 shape: kind + opponent-player conjunct. The grammar
+        // can't scope a kind to one player; either over-grant would
+        // mis-emit, so skip.
+        let src = r#"
+function s.immop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_IMMUNE_EFFECT)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    e1:SetValue(s.imfilter1)
+    c:RegisterEffect(e1)
+end
+function s.imfilter1(e,te)
+    return te:IsMonsterEffect() and te:GetOwnerPlayer()~=e:GetHandlerPlayer()
+end
+"#;
+        assert!(p11_actions(src, "s.immop").is_empty(),
+            "player-scoped kind immunity must skip");
+    }
+
+    #[test]
+    fn t11_immune_custom_filter_skip() {
+        // c59765225 shape: IsActivated / GetControler conjuncts are not
+        // stock forms — skip.
+        let src = r#"
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_IMMUNE_EFFECT)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    e1:SetValue(s.immval)
+    c:RegisterEffect(e1)
+end
+function s.immval(e,te)
+    return te:GetOwner()~=e:GetHandler() and te:IsMonsterEffect() and te:IsActivated()
+end
+"#;
+        assert!(p11_actions(src, "s.atkop").is_empty(),
+            "non-stock immune filter must skip");
+    }
+
+    #[test]
+    fn t11_immune_closure_value_skip() {
+        // Inline closure SetValue — no function-table entry to resolve,
+        // so the chain skips.
+        let src = r#"
+function s.regop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_IMMUNE_EFFECT)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    e1:SetValue(function(e,re) return e:GetHandler()~=re:GetOwner() end)
+    c:RegisterEffect(e1)
+end
+"#;
+        assert!(p11_actions(src, "s.regop").is_empty(),
+            "inline-closure immune filter must skip");
+    }
+
+    #[test]
+    fn t11_get_target_cards_loop_selector() {
+        // c29726552 (Kumongous) shape: `local g=Duel.GetTargetCards(e)`
+        // + aux.Next loop registering CANNOT_ATTACK / DISABLE per target
+        // → both lines on the `target` selector. The paired
+        // EFFECT_DISABLE_EFFECT chain stays unmapped (no duplicate).
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local g=Duel.GetTargetCards(e)
+    local tc=g:GetFirst()
+    for tc in aux.Next(g) do
+        local e1=Effect.CreateEffect(c)
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_CANNOT_ATTACK)
+        e1:SetReset(RESETS_STANDARD_PHASE_END,2)
+        tc:RegisterEffect(e1)
+        local e2=Effect.CreateEffect(c)
+        e2:SetType(EFFECT_TYPE_SINGLE)
+        e2:SetCode(EFFECT_DISABLE)
+        e2:SetReset(RESETS_STANDARD_PHASE_END,2)
+        tc:RegisterEffect(e2)
+        local e3=Effect.CreateEffect(c)
+        e3:SetType(EFFECT_TYPE_SINGLE)
+        e3:SetCode(EFFECT_DISABLE_EFFECT)
+        e3:SetReset(RESETS_STANDARD_PHASE_END,2)
+        tc:RegisterEffect(e3)
+    end
+end
+"#;
+        assert_eq!(p11_actions(src, "s.operation"), vec![
+            "grant target cannot_attack until end_of_turn",
+            "negate_effects target end_of_turn",
+        ]);
+    }
+
+    #[test]
+    fn t11_branch_conditional_setvalue_skip() {
+        // c88616795 (Spellbook of Wisdom) shape: SetValue differs per
+        // if/else arm (player chooses spells-or-traps immunity). The
+        // straight-line extractor keeps only the last write — emitting it
+        // would hardcode one arm of a runtime choice. Must skip.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local c=e:GetHandler()
+    if tc:IsRelateToEffect(e) and tc:IsFaceup() then
+        local e1=Effect.CreateEffect(c)
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_IMMUNE_EFFECT)
+        if e:GetLabel()==0 then
+            e1:SetValue(s.efilter1)
+        else
+            e1:SetValue(s.efilter2)
+        end
+        e1:SetReset(RESETS_STANDARD_PHASE_END)
+        tc:RegisterEffect(e1)
+    end
+end
+function s.efilter1(e,te)
+    return te:IsSpellEffect() and te:GetOwner()~=e:GetOwner()
+end
+function s.efilter2(e,te)
+    return te:IsTrapEffect()
+end
+"#;
+        assert!(p11_actions(src, "s.activate").is_empty(),
+            "branch-conditional SetValue must skip");
+    }
+
+    #[test]
+    fn t11_event_group_loop_skip() {
+        // Loop over `eg` (the raw event group) has no translatable
+        // selector — must skip, not guess.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    for tc in aux.Next(eg) do
+        local e1=Effect.CreateEffect(c)
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_CANNOT_ATTACK)
+        e1:SetReset(RESETS_STANDARD_PHASE_END)
+        tc:RegisterEffect(e1)
+    end
+end
+"#;
+        assert!(p11_actions(src, "s.operation").is_empty(),
+            "event-group loop must skip");
     }
 }

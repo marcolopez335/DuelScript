@@ -80,13 +80,14 @@ fn main() {
             // when the lua-ast translator emits at least one ACTION line
             // (TODO-only outputs are skipped to avoid corpus pollution).
             //
-            //   lua_translate apply <corpus_dir> <lua_dir>
+            //   lua_translate apply <corpus_dir> <lua_dir> [cards.cdb]
             if args.len() < 4 {
-                eprintln!("usage: lua_translate apply <corpus_dir> <lua_dir>");
+                eprintln!("usage: lua_translate apply <corpus_dir> <lua_dir> [cards.cdb]");
                 process::exit(2);
             }
             let corpus = &args[2];
             let lua_dir = &args[3];
+            load_card_names(args.get(4).map(String::as_str), lua_dir);
             let report = apply(corpus, lua_dir);
             println!("=== lua_translate apply report ===");
             println!("  files scanned:           {}", report.scanned);
@@ -105,6 +106,33 @@ fn main() {
             eprintln!("unknown mode: {}", mode);
             process::exit(2);
         }
+    }
+}
+
+/// Populate the lua_ast passcode → card-name table used by the
+/// EFFECT_CHANGE_CODE → `change_name` translation (Phase 11).
+///
+/// Uses the explicit `[cards.cdb]` CLI arg when given; otherwise probes
+/// the workspace-sibling convention `<lua_dir>/../../BabelCdb/cards.cdb`
+/// (lua_dir is CardScripts/official, BabelCdb is its repo sibling).
+/// Missing or unreadable cdb is non-fatal — change-code chains simply
+/// skip when no name resolves.
+fn load_card_names(cli_path: Option<&str>, lua_dir: &str) {
+    let path = match cli_path {
+        Some(p) => std::path::PathBuf::from(p),
+        None => Path::new(lua_dir).join("../../BabelCdb/cards.cdb"),
+    };
+    if !path.exists() {
+        eprintln!("note: no cards.cdb at {} — change_name translation disabled", path.display());
+        return;
+    }
+    match duelscript::cdb::CdbReader::open(&path) {
+        Ok(cdb) => {
+            lua_ast::register_card_names(
+                cdb.all_cards().into_iter().map(|c| (c.id as u32, c.name.clone())),
+            );
+        }
+        Err(e) => eprintln!("note: cannot read {}: {:?} — change_name translation disabled", path.display(), e),
     }
 }
 
