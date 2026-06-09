@@ -1743,6 +1743,11 @@ fn set_stat_action(code: &str) -> Option<&'static str> {
         "EFFECT_SET_DEFENSE"       => "set_def",
         "EFFECT_SET_DEFENSE_FINAL" => "set_def",
         "EFFECT_SET_BASE_DEFENSE"  => "set_def",
+        // CHANGE_LEVEL sets the level absolutely. Emitted as `set_level`
+        // rather than `change_level <sel> to <N>` because change_property
+        // grammar has no duration clause — reset-bearing lua chains would
+        // silently lose their end-of-turn bound there.
+        "EFFECT_CHANGE_LEVEL"      => "set_level",
         _ => return None,
     })
 }
@@ -1849,6 +1854,7 @@ fn stat_modifier_action(code: &str) -> Option<&'static str> {
     Some(match code {
         "EFFECT_UPDATE_ATTACK"  => "modify_atk",
         "EFFECT_UPDATE_DEFENSE" => "modify_def",
+        "EFFECT_UPDATE_LEVEL"   => "modify_level",
         _ => return None,
     })
 }
@@ -2754,6 +2760,105 @@ end
             _ => None,
         });
         assert_eq!(action, Some("modify_def self + 300"));
+    }
+
+    #[test]
+    fn register_chain_update_level_emits_modify_level() {
+        // Mausoleum-style level buff: tc:RegisterEffect with literal value
+        // and a PHASE_END reset → modify_level target + 1 until end_of_turn.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_LEVEL)
+    e1:SetValue(1)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.activate").expect("activate body");
+        let lines = translate_body(body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()),
+            _ => None,
+        });
+        assert_eq!(action, Some("modify_level target + 1 until end_of_turn"));
+    }
+
+    #[test]
+    fn register_chain_update_level_negative_value() {
+        // Level reducer: SetValue(-1) → modify_level target - 1 until end_of_turn.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_LEVEL)
+    e1:SetValue(-1)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.activate").expect("activate body");
+        let lines = translate_body(body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()),
+            _ => None,
+        });
+        assert_eq!(action, Some("modify_level target - 1 until end_of_turn"));
+    }
+
+    #[test]
+    fn register_chain_change_level_emits_set_level() {
+        // CHANGE_LEVEL is an absolute set → set_level target 4 until end_of_turn.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_CHANGE_LEVEL)
+    e1:SetValue(4)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.activate").expect("activate body");
+        let lines = translate_body(body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()),
+            _ => None,
+        });
+        assert_eq!(action, Some("set_level target 4 until end_of_turn"));
+    }
+
+    #[test]
+    fn register_chain_change_level_nonliteral_unknown_receiver_skipped() {
+        // Unknown register receiver (sc) → no level line; skip-not-mis-emit.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local sc=Duel.GetAttacker()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_CHANGE_LEVEL)
+    e1:SetValue(4)
+    sc:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.activate").expect("activate body");
+        let lines = translate_body(body);
+        assert!(
+            !lines.iter().any(|l| matches!(l, DslLine::Action(s) if s.starts_with("set_level"))),
+            "unknown receiver must not emit set_level",
+        );
     }
 
     #[test]
