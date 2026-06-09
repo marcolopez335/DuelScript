@@ -774,6 +774,12 @@ impl DuelScriptRuntime for MockRuntime {
         self.record("change_level", format!("card={} level={}", card_id, level));
         if let Some(c) = self.state.cards.get_mut(&card_id) { c.level = level; }
     }
+    fn modify_level(&mut self, card_id: u32, delta: i32, duration: Duration) {
+        self.record("modify_level", format!("card={} delta={} dur={:?}", card_id, delta, duration));
+        if let Some(c) = self.state.cards.get_mut(&card_id) {
+            c.level = (c.level as i32 + delta).max(0) as u32;
+        }
+    }
     fn change_attribute(&mut self, card_id: u32, attribute: u32) {
         self.record("change_attribute", format!("card={} attribute=0x{:x}", card_id, attribute));
         if let Some(c) = self.state.cards.get_mut(&card_id) { c.attribute = attribute as u64; }

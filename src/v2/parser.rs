@@ -2316,6 +2316,7 @@ fn parse_stat_name(text: &str) -> Result<StatName, V2ParseError> {
     match text {
         "atk" => Ok(StatName::Atk),
         "def" => Ok(StatName::Def),
+        "level" => Ok(StatName::Level),
         _ => Err(V2ParseError::UnknownRule(format!("stat_name: {}", text))),
     }
 }
@@ -2589,6 +2590,34 @@ fn parse_replaceable_event(text: &str) -> Result<ReplaceableEvent, V2ParseError>
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_modify_level_action() {
+        let source = r#"
+card "Level Test" {
+    id: 1
+    type: Normal Spell
+
+    effect "Level Up" {
+        speed: 1
+        resolve {
+            modify_level target + 1 until end_of_turn
+            set_level target 4
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let resolve = &file.cards[0].effects[0].resolve;
+        assert!(matches!(
+            &resolve[0],
+            Action::ModifyStat(StatName::Level, _, false, _, Some(_))
+        ));
+        assert!(matches!(
+            &resolve[1],
+            Action::SetStat(StatName::Level, _, _, None)
+        ));
+    }
 
     #[test]
     fn test_pot_of_greed() {

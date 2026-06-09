@@ -594,7 +594,7 @@ pub enum ReturnDest { Hand, Deck(Option<DeckPosition>), ExtraDeck, Owner }
 pub enum DeckPosition { Top, Bottom, Shuffle }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum StatName { Atk, Def }
+pub enum StatName { Atk, Def, Level }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DeckOwner { Yours, Opponents }
