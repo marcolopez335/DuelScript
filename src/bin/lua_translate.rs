@@ -162,6 +162,14 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
         let mut filled = 0usize;
 
         // Pass A — fill empty resolve blocks via translated handler bodies.
+        // Effect blocks are matched positionally (same convention as Pass
+        // A2): the i-th walk.effects entry with an op handler or summon-
+        // helper spec maps to the i-th `effect "Effect N"` block, and the
+        // fill targets the empty resolve INSIDE that block. Filling "the
+        // first empty resolve anywhere" instead would, on rerun, inject an
+        // earlier effect's lines into a later untranslatable effect's
+        // still-empty resolve — wrong content and non-idempotent.
+        let mut a_block_idx = 0usize;
         for eff in &walk.effects {
             // Special case: skeletons built from Fusion.CreateSummonEff /
             // Ritual.AddProc* / Ritual.CreateProc have no SetOperation (the
@@ -174,38 +182,35 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             } else {
                 None
             };
-            if let Some(text) = helper_line {
-                let line = lua_ast::DslLine::Action(text.to_string());
-                let body = render_resolve_body(&[line]);
-                if let Some((lo, hi)) = first_empty_resolve(&new_txt) {
-                    let injection = format!("resolve {{\n{}        }}", body);
-                    new_txt = format!("{}{}{}", &new_txt[..lo], injection, &new_txt[hi..]);
-                    filled += 1;
-                } else {
-                    break;
+            let lines: Vec<lua_ast::DslLine> = if let Some(text) = helper_line {
+                vec![lua_ast::DslLine::Action(text.to_string())]
+            } else if let Some(handler) = &eff.operation_handler {
+                match walk.functions.get(handler.trim()) {
+                    Some(body) => lua_ast::translate_body_with_functions(body, &walk.functions),
+                    None => {
+                        r.effects_no_handler += 1;
+                        a_block_idx += 1; // block exists, body unknown
+                        continue;
+                    }
                 }
-                continue;
-            }
-            let handler = match &eff.operation_handler {
-                Some(h) => h.trim().to_string(),
-                None => { r.effects_no_handler += 1; continue; }
+            } else {
+                r.effects_no_handler += 1;
+                continue; // pure-passive — no effect block in .ds
             };
-            let body = match walk.functions.get(&handler) {
-                Some(c) => c,
-                None => { r.effects_no_handler += 1; continue; }
-            };
-            let lines = lua_ast::translate_body_with_functions(body, &walk.functions);
+            let block_idx = a_block_idx;
+            a_block_idx += 1;
             if !lines.iter().any(|l| l.is_action()) {
                 r.effects_todo_only += 1;
                 continue;
             }
-            let body = render_resolve_body(&lines);
-            if let Some((lo, hi)) = first_empty_resolve(&new_txt) {
+            let Some((block_lo, block_hi)) = nth_effect_block(&new_txt, block_idx) else {
+                break;
+            };
+            if let Some((lo, hi)) = first_empty_resolve_within(&new_txt, block_lo, block_hi) {
+                let body = render_resolve_body(&lines);
                 let injection = format!("resolve {{\n{}        }}", body);
                 new_txt = format!("{}{}{}", &new_txt[..lo], injection, &new_txt[hi..]);
                 filled += 1;
-            } else {
-                break;
             }
         }
 
@@ -494,14 +499,16 @@ fn has_empty_resolve(txt: &str) -> bool {
     false
 }
 
-fn first_empty_resolve(txt: &str) -> Option<(usize, usize)> {
-    let mut i = 0;
-    while let Some(start) = txt[i..].find("resolve {") {
+/// Find the first empty `resolve { }` whose byte range falls inside
+/// `[lo, hi)` — used by Pass A to bind a fill to its own effect block.
+/// Returns absolute offsets `(start_of_resolve_keyword, after_closing_brace)`.
+fn first_empty_resolve_within(txt: &str, lo: usize, hi: usize) -> Option<(usize, usize)> {
+    let mut i = lo;
+    while let Some(start) = txt[i..hi].find("resolve {") {
         let abs_start = i + start;
         let abs_open = abs_start + "resolve {".len();
-        let rest = &txt[abs_open..];
-        let close = rest.find('}')?;
-        let inner = &rest[..close];
+        let close = txt[abs_open..hi].find('}')?;
+        let inner = &txt[abs_open..abs_open + close];
         if inner.chars().all(|c| c.is_whitespace()) {
             return Some((abs_start, abs_open + close + 1));
         }

@@ -89,6 +89,13 @@ pub struct SelectorSpec {
     pub controller: Option<String>,  // "you control", "opponent controls", "either controls"
     pub zone: Option<String>,        // "from hand", "from gy", ...
     pub where_clause: Option<String>,
+    /// False when the lua-side filter predicate (`s.filter`,
+    /// `aux.FaceupFilter(…)`, …) had no DSL equivalent and was dropped.
+    /// Action selectors tolerate the over-approximation (the engine picks
+    /// from a superset), but group-applied modifiers must not — applying a
+    /// stat change to the unfiltered group alters cards the lua never
+    /// touched, so those paths skip when this is false (Phase 10).
+    pub filter_mapped: bool,
 }
 
 impl SelectorSpec {
@@ -729,11 +736,23 @@ fn collect_group_bindings(block: &Block, out: &mut BTreeMap<String, SelectorSpec
 /// then attempts a recursive translation into DSL `expr` syntax.
 fn extract_value_bindings(block: &Block) -> BTreeMap<String, String> {
     let mut out = BTreeMap::new();
-    collect_value_bindings(block, &mut out);
+    let mut tainted = Vec::new();
+    collect_value_bindings(block, &mut out, &mut tainted);
+    // A name written more than once (clamps like `if ct>3 then ct=3 end`,
+    // branch-dependent reassignments) has no single statically-known value.
+    // Drop it so value resolution skips instead of mis-emitting the first
+    // assignment (Phase 10 skip-not-mis-emit).
+    for name in tainted {
+        out.remove(&name);
+    }
     out
 }
 
-fn collect_value_bindings(block: &Block, out: &mut BTreeMap<String, String>) {
+fn collect_value_bindings(
+    block: &Block,
+    out: &mut BTreeMap<String, String>,
+    tainted: &mut Vec<String>,
+) {
     for stmt in block.stmts() {
         match stmt {
             Stmt::LocalAssignment(la) => {
@@ -749,16 +768,34 @@ fn collect_value_bindings(block: &Block, out: &mut BTreeMap<String, String>) {
                         }
                         let text = expr.to_string().trim().to_string();
                         if !text.is_empty() {
-                            out.insert(name.clone(), text);
+                            if out.insert(name.clone(), text).is_some() {
+                                tainted.push(name.clone());
+                            }
                         }
                     }
                 }
             }
-            Stmt::If(if_stmt)     => { collect_value_bindings(if_stmt.block(), out); }
-            Stmt::While(w)        => { collect_value_bindings(w.block(), out); }
-            Stmt::NumericFor(nf)  => { collect_value_bindings(nf.block(), out); }
-            Stmt::GenericFor(gf)  => { collect_value_bindings(gf.block(), out); }
-            Stmt::Do(d)           => { collect_value_bindings(d.block(), out); }
+            Stmt::Assignment(a) => {
+                // Non-local reassignment of a tracked binding taints it.
+                for var in a.variables() {
+                    if let ast::Var::Name(n) = var {
+                        tainted.push(n.token().to_string());
+                    }
+                }
+            }
+            Stmt::If(if_stmt) => {
+                collect_value_bindings(if_stmt.block(), out, tainted);
+                for ei in if_stmt.else_if().into_iter().flatten() {
+                    collect_value_bindings(ei.block(), out, tainted);
+                }
+                if let Some(else_block) = if_stmt.else_block() {
+                    collect_value_bindings(else_block, out, tainted);
+                }
+            }
+            Stmt::While(w)        => { collect_value_bindings(w.block(), out, tainted); }
+            Stmt::NumericFor(nf)  => { collect_value_bindings(nf.block(), out, tainted); }
+            Stmt::GenericFor(gf)  => { collect_value_bindings(gf.block(), out, tainted); }
+            Stmt::Do(d)           => { collect_value_bindings(d.block(), out, tainted); }
             _ => {}
         }
     }
@@ -1253,6 +1290,22 @@ fn spec_from_matching(args: &[String], _has_opp_locs: bool, has_minmax: bool) ->
         controller: Some(controller),
         zone,
         where_clause: None,
+        filter_mapped: map_group_filter(args.get(1).map(String::as_str).unwrap_or("")).is_some(),
+    })
+}
+
+/// Map a lua filter predicate to a DSL `(kind, where-predicate)` pair.
+/// Returns None for predicates with no DSL equivalent — callers decide
+/// whether to over-approximate (action selectors) or skip (group-applied
+/// modifiers, count exprs).
+fn map_group_filter(filter: &str) -> Option<(&'static str, Option<&'static str>)> {
+    Some(match filter {
+        "nil" | "aux.TRUE" => ("card", None),
+        "Card.IsFaceup"    => ("card", Some("is_face_up")),
+        "Card.IsMonster"   => ("monster", None),
+        "Card.IsSpell"     => ("spell", None),
+        "Card.IsTrap"      => ("trap", None),
+        _ => return None,
     })
 }
 
@@ -1264,12 +1317,18 @@ fn spec_from_get_matching(args: &[String]) -> Option<SelectorSpec> {
     let opp_locs = args.get(3)?.as_str();
     let controller = controller_from_scope(scope_p, my_locs, opp_locs)?;
     let zone = zone_from_locations(my_locs, opp_locs);
+    // Filters with a direct DSL equivalent refine the selector (Phase 10);
+    // everything else keeps the lenient `card` kind established by earlier
+    // phases but is flagged unmapped so group-applied paths can skip.
+    let mapped = map_group_filter(args[0].as_str());
+    let (kind, where_clause) = mapped.unwrap_or(("card", None));
     Some(SelectorSpec {
         quantity: "all".to_string(),
-        kind: "card".to_string(),
+        kind: kind.to_string(),
         controller: Some(controller),
         zone,
-        where_clause: None,
+        where_clause: where_clause.map(str::to_string),
+        filter_mapped: mapped.is_some(),
     })
 }
 
@@ -1413,7 +1472,8 @@ fn collect_register_chains(
             Stmt::Repeat(r)      => collect_register_chains(r.block(), loop_source, by_binding, out),
             Stmt::NumericFor(nf) => collect_register_chains(nf.block(), Some(""), by_binding, out),
             Stmt::GenericFor(gf) => {
-                let inner = aux_next_source_group(gf).map(|s| s.to_string());
+                let inner = aux_next_source_group(gf)
+                    .or_else(|| iter_method_source_group(gf));
                 let inner_ref = inner.as_deref().or(Some(""));
                 collect_register_chains(gf.block(), inner_ref, by_binding, out);
             }
@@ -1452,6 +1512,28 @@ fn aux_next_source_group(gf: &ast::GenericFor) -> Option<String> {
         _ => return None,
     };
     args.first().cloned()
+}
+
+/// Inspect a `for <names> in <exprs>` loop for the `<group>:Iter()`
+/// iterator shape (modern corpus equivalent of `aux.Next(<group>)`).
+/// Returns the group binding name on match (Phase 10).
+fn iter_method_source_group(gf: &ast::GenericFor) -> Option<String> {
+    let expr = gf.expressions().iter().next()?;
+    let fc = match expr {
+        Expression::FunctionCall(fc) => fc,
+        _ => return None,
+    };
+    let prefix = match fc.prefix() {
+        ast::Prefix::Name(n) => n.token().to_string(),
+        _ => return None,
+    };
+    let suffixes: Vec<&Suffix> = fc.suffixes().collect();
+    if suffixes.len() != 1 { return None; }
+    match suffixes[0] {
+        Suffix::Call(Call::MethodCall(mc))
+            if mc.name().token().to_string() == "Iter" => Some(prefix),
+        _ => None,
+    }
 }
 
 /// True if `expr` is `<binding>:Clone()`. Returns `Some(binding)` so the
@@ -1682,12 +1764,40 @@ pub fn translate_body_with_functions(
             out.push(line);
         }
     }
+    // Stat-write interference guard (Phase 10): lua computes values like
+    // `local lv = c:GetLevel()+tc:GetLevel()` ONCE before registering both
+    // chains, but the emitted DSL lines evaluate sequentially — a later
+    // line whose expr reads a stat an earlier line already wrote would see
+    // the post-write value. Drop such lines instead of mis-emitting.
+    let mut stat_writes: Vec<(String, String)> = Vec::new();
     for chain in &body.register_chains {
         if let Some(line) = translate_register_chain(chain, body, functions) {
+            if let DslLine::Action(text) = &line {
+                if stat_writes.iter().any(|(sel, stat)| {
+                    text.contains(&format!("{}.{}", sel, stat))
+                }) {
+                    continue;
+                }
+                if let Some(write) = stat_write_of(text) {
+                    stat_writes.push(write);
+                }
+            }
             out.push(line);
         }
     }
     out
+}
+
+/// If a DSL action line writes a stat on `self` / `target`, return the
+/// (selector, stat) pair — e.g. `set_level self …` → ("self", "level").
+/// Group-selector writes return None: they can't be referenced back via
+/// a `sel.stat` expr, so they can't interfere.
+fn stat_write_of(line: &str) -> Option<(String, String)> {
+    let rest = line.strip_prefix("modify_").or_else(|| line.strip_prefix("set_"))?;
+    let (stat, rest) = rest.split_once(' ')?;
+    let sel = rest.split_whitespace().next()?;
+    if sel != "self" && sel != "target" { return None; }
+    Some((sel.to_string(), stat.to_string()))
 }
 
 /// Map one `RegisterEffectChain` to a DSL action line. Returns None when
@@ -1764,6 +1874,9 @@ fn translate_set_stat_chain(
 ) -> Option<DslLine> {
     let parsed = parse_lua_value(chain.value.as_deref()?, &body.value_bindings)?;
     if parsed.negative { return None; }
+    // Group-applied chains can't carry per-member values: `target.` refs
+    // resolve to the selected target, not each loop member (Phase 10 guard).
+    if chain.multi_target && parsed.expr.contains("target.") { return None; }
     let selector = resolve_chain_selector(chain, body)?;
     let mut line = format!("{} {} {}", action, selector, parsed.expr);
     if let Some(dur) = reset_to_duration_kw(chain.reset.as_deref()) {
@@ -1896,6 +2009,11 @@ fn resolve_chain_selector(
     if chain.multi_target {
         let group = chain.loop_source_group.as_deref()?;
         let spec = body.group_bindings.get(group)?;
+        // A dropped lua filter means the DSL selector matches a SUPERSET
+        // of the group the lua iterated — fine when the engine then picks
+        // targets, wrong when a modifier applies to every match. Skip
+        // (Phase 10 skip-not-mis-emit).
+        if !spec.filter_mapped { return None; }
         Some(spec.to_dsl())
     } else {
         match chain.register_target.as_str() {
@@ -1925,6 +2043,9 @@ fn translate_modifier_chain(
     // initialisers; the real value is reassigned later in branches we
     // don't track. Skip rather than emit a useless `+ 0` line.
     if parsed.expr == "0" { return None; }
+    // Group-applied chains can't carry per-member values: `target.` refs
+    // resolve to the selected target, not each loop member (Phase 10 guard).
+    if chain.multi_target && parsed.expr.contains("target.") { return None; }
     let selector = resolve_chain_selector(chain, body)?;
     let op = if parsed.negative { '-' } else { '+' };
     let mut line = format!("{} {} {} {}", action, selector, op, parsed.expr);
@@ -2013,10 +2134,14 @@ struct ParsedValue {
 fn parse_lua_value(arg: &str, bindings: &BTreeMap<String, String>) -> Option<ParsedValue> {
     let arg = arg.trim();
 
-    // Unary minus — recurse and flip sign.
+    // Unary minus — recurse and flip sign. Only when the remainder is a
+    // single atom: `-a + b` must NOT parse as -(a + b), so anything with
+    // a top-level binary operator falls through to the binop splitter.
     if let Some(rest) = arg.strip_prefix('-') {
         let rest = rest.trim();
-        if !rest.is_empty() && !rest.starts_with('-') {
+        if !rest.is_empty() && !rest.starts_with('-')
+            && split_top_level_binop(rest).is_none()
+        {
             let inner = parse_lua_value(rest, bindings)?;
             return Some(ParsedValue { expr: inner.expr, negative: !inner.negative });
         }
@@ -2042,24 +2167,159 @@ fn parse_lua_value(arg: &str, bindings: &BTreeMap<String, String>) -> Option<Par
         return Some(ParsedValue { expr: stat, negative: false });
     }
 
-    // Single-step math: `<lhs> <op> <rhs>` where rhs is a literal int.
-    // Skip if there's nesting we can't statically split.
-    for op in ['*', '/'] {
-        if let Some((lhs, rhs)) = arg.rsplit_once(op) {
-            let lhs = lhs.trim();
-            let rhs = rhs.trim();
-            if let (Some(l), Ok(r)) = (method_call_to_stat(lhs), rhs.parse::<u64>()) {
-                if r > 0 {
-                    return Some(ParsedValue {
-                        expr: format!("{} {} {}", l, op, r),
-                        negative: false,
-                    });
-                }
-            }
-        }
+    // Group-count calls → DSL `count(<selector>)` (Phase 10).
+    if let Some(expr) = count_call_to_count_expr(arg) {
+        return Some(ParsedValue { expr, negative: false });
+    }
+
+    // Single-step binary math: `<lhs> <op> <rhs>` split at the last
+    // top-level operator (paren-depth aware — `1-tp` inside a count call's
+    // argument list is not a split point). Both operands must recursively
+    // resolve to op-free atoms; multi-op expressions are skipped because
+    // the DSL's flat expr chain would not preserve Lua's precedence.
+    if let Some((lhs, op, rhs)) = split_top_level_binop(arg) {
+        let l = parse_lua_value(lhs, bindings)?;
+        let r = parse_lua_value(rhs, bindings)?;
+        if expr_has_op(&l.expr) || expr_has_op(&r.expr) { return None; }
+        return match op {
+            // `x * 1` / `1 * x` — common lua sign-flip idiom
+            // (`tc:GetDefense()*-1`); elide the redundant factor.
+            '*' if r.expr == "1" => Some(ParsedValue {
+                expr: l.expr,
+                negative: l.negative != r.negative,
+            }),
+            '*' if l.expr == "1" => Some(ParsedValue {
+                expr: r.expr,
+                negative: l.negative != r.negative,
+            }),
+            '*' | '/' => Some(ParsedValue {
+                expr: format!("{} {} {}", l.expr, op, r.expr),
+                negative: l.negative != r.negative,
+            }),
+            // Additive ops: a negative operand would need re-bracketing the
+            // DSL can't express (`a + -b`), so only plain operands combine.
+            '+' | '-' if !l.negative && !r.negative => Some(ParsedValue {
+                expr: format!("{} {} {}", l.expr, op, r.expr),
+                negative: false,
+            }),
+            _ => None,
+        };
     }
 
     None
+}
+
+/// True when a rendered DSL expr already contains a binary operator —
+/// used to reject nested math the flat expr grammar would mis-associate.
+fn expr_has_op(expr: &str) -> bool {
+    [" + ", " - ", " * ", " / "].iter().any(|op| expr.contains(op))
+}
+
+/// Split a Lua expression at its last top-level binary operator, honoring
+/// precedence (`+`/`-` before `*`/`/` so the split lands at the loosest
+/// binding point). Paren-depth aware; a `-` directly after another
+/// operator, an opening paren, or at position 0 is unary, not binary.
+fn split_top_level_binop(arg: &str) -> Option<(&str, char, &str)> {
+    let bytes = arg.as_bytes();
+    let mut depth = 0i32;
+    let mut last_addsub: Option<usize> = None;
+    let mut last_muldiv: Option<usize> = None;
+    let mut prev_meaningful: Option<u8> = None;
+    for (i, &b) in bytes.iter().enumerate() {
+        match b {
+            b'(' => depth += 1,
+            b')' => depth -= 1,
+            b'*' | b'/' if depth == 0 => last_muldiv = Some(i),
+            b'+' if depth == 0 => last_addsub = Some(i),
+            b'-' if depth == 0 => {
+                // Unary when at start or right after an operator / `(`.
+                let unary = matches!(prev_meaningful, None | Some(b'+') | Some(b'-') | Some(b'*') | Some(b'/') | Some(b'('));
+                if !unary { last_addsub = Some(i); }
+            }
+            _ => {}
+        }
+        if !b.is_ascii_whitespace() { prev_meaningful = Some(b); }
+    }
+    let pos = last_addsub.or(last_muldiv)?;
+    let lhs = arg[..pos].trim();
+    let rhs = arg[pos + 1..].trim();
+    if lhs.is_empty() || rhs.is_empty() { return None; }
+    Some((lhs, arg.as_bytes()[pos] as char, rhs))
+}
+
+/// Lower a `Duel.GetMatchingGroupCount(filter, p, my, opp, exc, …)` or
+/// `Duel.GetFieldGroupCount(p, my, opp)` call text to DSL
+/// `count((all, <kind>, <controller>, from <zone>[, where …]))`.
+///
+/// Skip-not-mis-emit gates (Phase 10): the count's numeric value IS the
+/// semantics, so unlike the action-selector path the filter must map to
+/// a selector the DSL can express — custom `s.filter` predicates, card-
+/// code filters, and `aux.FaceupFilter(…)` compositions all return None.
+/// The scope player must be `tp` (or `1-tp`, which flips the controller),
+/// and the locations must collapse to a single DSL zone.
+fn count_call_to_count_expr(arg: &str) -> Option<String> {
+    let (is_field, inner) =
+        if let Some(rest) = arg.strip_prefix("Duel.GetMatchingGroupCount(") {
+            (false, rest)
+        } else if let Some(rest) = arg.strip_prefix("Duel.GetFieldGroupCount(") {
+            (true, rest)
+        } else {
+            return None;
+        };
+    let inner = inner.strip_suffix(')')?;
+    let args = split_top_level_commas(inner)?;
+    let (kind, where_clause, scope_p, my, opp) = if is_field {
+        // GetFieldGroupCount(player, my_locs, opp_locs) — no filter.
+        if args.len() != 3 { return None; }
+        ("card", None, args[0].as_str(), args[1].as_str(), args[2].as_str())
+    } else {
+        // GetMatchingGroupCount(filter, player, my_locs, opp_locs, exception, …)
+        if args.len() < 5 { return None; }
+        let (kind, wc) = map_group_filter(args[0].as_str())?;
+        (kind, wc, args[1].as_str(), args[2].as_str(), args[3].as_str())
+    };
+    // Locations are relative to the scope player; `1-tp` flips ownership.
+    let controller = match scope_p {
+        "tp"   => controller_from_scope(scope_p, my, opp)?,
+        "1-tp" => controller_from_scope(scope_p, opp, my)?,
+        _ => return None,
+    };
+    let zone = zone_from_locations(my, opp)?;
+    let spec = SelectorSpec {
+        quantity: "all".to_string(),
+        kind: kind.to_string(),
+        controller: Some(controller),
+        zone: Some(zone),
+        where_clause: where_clause.map(str::to_string),
+        filter_mapped: true,
+    };
+    Some(format!("count({})", spec.to_dsl()))
+}
+
+/// Split a call argument list at top-level commas. Returns None on
+/// unbalanced parens (truncated text) so callers skip instead of
+/// mis-reading a partial argument.
+fn split_top_level_commas(s: &str) -> Option<Vec<String>> {
+    let mut out = Vec::new();
+    let mut depth = 0i32;
+    let mut start = 0usize;
+    for (i, b) in s.bytes().enumerate() {
+        match b {
+            b'(' | b'{' => depth += 1,
+            b')' | b'}' => {
+                depth -= 1;
+                if depth < 0 { return None; }
+            }
+            b',' if depth == 0 => {
+                out.push(s[start..i].trim().to_string());
+                start = i + 1;
+            }
+            _ => {}
+        }
+    }
+    if depth != 0 { return None; }
+    out.push(s[start..].trim().to_string());
+    Some(out)
 }
 
 /// `tc:GetAttack()` / `c:GetLevel()` → `target.atk` / `self.level`.
@@ -2863,12 +3123,13 @@ end
 
     #[test]
     fn register_chain_for_loop_uses_group_selector_spec() {
-        // Daigusto Falcos: `for tc in aux.Next(g)` where g is a known
+        // Daigusto Falcos shape: `for tc in aux.Next(g)` where g is a known
         // GetMatchingGroup binding → translator emits modify_atk using
-        // the captured SelectorSpec.
+        // the captured SelectorSpec. Filter must be mappable (Phase 10) —
+        // `nil` keeps the unfiltered `card` kind.
         let src = r#"
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
-    local g=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
+    local g=Duel.GetMatchingGroup(nil,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
     for tc in aux.Next(g) do
         local e1=Effect.CreateEffect(e:GetHandler())
         e1:SetType(EFFECT_TYPE_SINGLE)
@@ -2897,6 +3158,283 @@ end
             action,
             Some("modify_atk (all, card, either controls, from monster_zone) + 600 until end_of_turn"),
             "got lines: {:?}", lines
+        );
+    }
+
+    #[test]
+    fn p10_count_local_var_times_n() {
+        // Phase 10 primary shape: local count var * literal multiplier →
+        // `count(<selector>) * N`. Receiver `c` (= e:GetHandler()) → self.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local ct=Duel.GetMatchingGroupCount(nil,tp,LOCATION_GRAVE,0,nil)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(ct*300)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    c:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.operation").expect("operation body");
+        let lines = translate_body(body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()),
+            _ => None,
+        });
+        assert_eq!(
+            action,
+            Some("modify_atk self + count((all, card, you control, from gy)) * 300 until end_of_turn"),
+            "got lines: {:?}", lines
+        );
+    }
+
+    #[test]
+    fn p10_inline_field_count_negative_multiplier() {
+        // Inline Duel.GetFieldGroupCount(...) * -500: the negative literal
+        // flips the modifier sign; the `1-tp`-free scope keeps `you control`.
+        // The `-` inside a (hypothetical) arg list must not split — the
+        // paren-depth-aware splitter lands on the top-level `*`.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(Duel.GetFieldGroupCount(tp,LOCATION_MZONE,0)*-500)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.operation").expect("operation body");
+        let lines = translate_body(body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()),
+            _ => None,
+        });
+        assert_eq!(
+            action,
+            Some("modify_atk target - count((all, card, you control, from monster_zone)) * 500 until end_of_turn"),
+            "got lines: {:?}", lines
+        );
+    }
+
+    #[test]
+    fn p10_literal_times_count_var() {
+        // Commutated form `300*ct` resolves the same as `ct*300`; the
+        // `1-tp` scope player flips the controller to `opponent controls`.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local ct=Duel.GetMatchingGroupCount(Card.IsMonster,1-tp,LOCATION_GRAVE,0,nil)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_DEFENSE)
+    e1:SetValue(300*ct)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.operation").expect("operation body");
+        let lines = translate_body(body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()),
+            _ => None,
+        });
+        assert_eq!(
+            action,
+            Some("modify_def target + 300 * count((all, monster, opponent controls, from gy)) until end_of_turn"),
+            "got lines: {:?}", lines
+        );
+    }
+
+    #[test]
+    fn p10_g_iter_loop_with_faceup_filter() {
+        // Reinforced-Space-style `for tc in g:Iter()` loop: the group
+        // binding's Card.IsFaceup filter refines the selector with a
+        // `where is_face_up` clause.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_MZONE,0,nil)
+    for tc in g:Iter() do
+        local e1=Effect.CreateEffect(e:GetHandler())
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_UPDATE_ATTACK)
+        e1:SetReset(RESETS_STANDARD_PHASE_END)
+        e1:SetValue(400)
+        tc:RegisterEffect(e1)
+    end
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.activate").expect("activate body");
+        assert_eq!(body.register_chains.len(), 1);
+        assert_eq!(body.register_chains[0].loop_source_group.as_deref(), Some("g"));
+        let lines = translate_body(body);
+        let action = lines.iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()),
+            _ => None,
+        });
+        assert_eq!(
+            action,
+            Some("modify_atk (all, card, you control, from monster_zone, where is_face_up) + 400 until end_of_turn"),
+            "got lines: {:?}", lines
+        );
+    }
+
+    #[test]
+    fn p10_reassigned_count_var_skipped() {
+        // Clamped count (`if ct>3 then ct=3 end`) — the binding is written
+        // twice, so its value is not statically known. Skip, don't mis-emit
+        // the unclamped count.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local ct=Duel.GetMatchingGroupCount(nil,tp,LOCATION_GRAVE,0,nil)
+    if ct>3 then ct=3 end
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(ct*300)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    c:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.operation").expect("operation body");
+        let lines = translate_body(body);
+        assert!(
+            !lines.iter().any(|l| matches!(l, DslLine::Action(s) if s.starts_with("modify_atk"))),
+            "reassigned count var must not emit, got: {:?}", lines
+        );
+    }
+
+    #[test]
+    fn p10_custom_filter_count_skipped() {
+        // Custom `s.filter` predicate has no DSL equivalent — the count's
+        // numeric value IS the semantics, so skip instead of counting the
+        // whole zone.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local ct=Duel.GetMatchingGroupCount(s.filter,tp,LOCATION_GRAVE,0,nil)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(ct*300)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    c:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.operation").expect("operation body");
+        let lines = translate_body(body);
+        assert!(
+            !lines.iter().any(|l| matches!(l, DslLine::Action(s) if s.starts_with("modify_atk"))),
+            "custom filter count must not emit, got: {:?}", lines
+        );
+    }
+
+    #[test]
+    fn p10_stat_write_interference_drops_later_line() {
+        // Shogi-Lance shape: `local lv=c:GetLevel()+tc:GetLevel()` applied
+        // to BOTH cards. Lua computes lv once; sequential DSL lines would
+        // make the second read the first's freshly-written self.level, so
+        // only the first line survives.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local tc=Duel.GetFirstTarget()
+    local lv=c:GetLevel()+tc:GetLevel()
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_CHANGE_LEVEL)
+    e1:SetValue(lv)
+    e1:SetReset(RESET_EVENT|RESETS_STANDARD)
+    c:RegisterEffect(e1)
+    local e2=e1:Clone()
+    tc:RegisterEffect(e2)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.operation").expect("operation body");
+        let lines = translate_body(body);
+        let actions: Vec<&str> = lines.iter().filter_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()),
+            _ => None,
+        }).collect();
+        assert_eq!(
+            actions,
+            vec!["set_level self self.level + target.level until end_of_turn"],
+            "second (interfering) set_level must be dropped",
+        );
+    }
+
+    #[test]
+    fn p10_group_with_unmappable_filter_skipped() {
+        // Group built with a custom predicate (`aux.FaceupFilter(
+        // Card.IsAttributeExcept, …)`): the DSL selector would match a
+        // superset of the lua group, and a group-applied modifier would
+        // alter cards the lua never touched. Skip the chain.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetMatchingGroup(aux.FaceupFilter(Card.IsAttributeExcept,ATTRIBUTE_EARTH),tp,LOCATION_MZONE,LOCATION_MZONE,nil)
+    for tc in g:Iter() do
+        local e1=Effect.CreateEffect(e:GetHandler())
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_UPDATE_ATTACK)
+        e1:SetReset(RESETS_STANDARD_PHASE_END)
+        e1:SetValue(-500)
+        tc:RegisterEffect(e1)
+    end
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.activate").expect("activate body");
+        let lines = translate_body(body);
+        assert!(
+            !lines.iter().any(|l| matches!(l, DslLine::Action(s) if s.starts_with("modify_atk"))),
+            "unmappable group filter must not emit, got: {:?}", lines
+        );
+    }
+
+    #[test]
+    fn p10_loop_per_member_value_skipped() {
+        // Group-applied chain whose value reads each member (`tc:GetAttack()/2`):
+        // DSL `target.atk` would resolve to the selected target, not the loop
+        // member — skip the whole chain.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_MZONE,0,nil)
+    for tc in g:Iter() do
+        local e1=Effect.CreateEffect(e:GetHandler())
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_UPDATE_ATTACK)
+        e1:SetReset(RESETS_STANDARD_PHASE_END)
+        e1:SetValue(tc:GetAttack()/2)
+        tc:RegisterEffect(e1)
+    end
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.activate").expect("activate body");
+        let lines = translate_body(body);
+        assert!(
+            !lines.iter().any(|l| matches!(l, DslLine::Action(s) if s.starts_with("modify_atk"))),
+            "per-member loop value must not emit, got: {:?}", lines
         );
     }
 
@@ -3652,9 +4190,10 @@ end
     fn t10_register_chain_grant_multi_target() {
         // for tc in aux.Next(g) loop with EFFECT_CANNOT_ATTACK +
         // RESETS_STANDARD → grant <group selector> cannot_attack until end_of_turn.
+        // Filter must be mappable (Phase 10) — `nil` keeps the `card` kind.
         let src = r#"
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
-    local g=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
+    local g=Duel.GetMatchingGroup(nil,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
     for tc in aux.Next(g) do
         local e1=Effect.CreateEffect(e:GetHandler())
         e1:SetType(EFFECT_TYPE_SINGLE)
