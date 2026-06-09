@@ -1003,6 +1003,15 @@ pub trait DuelScriptRuntime {
     /// No-op.
     fn change_level(&mut self, _card_id: u32, _level: u32) {}
 
+    /// Increase or decrease `card_id`'s level by `delta`.
+    ///
+    /// See `modify_atk` for `duration` semantics. EFFECT_UPDATE_LEVEL
+    /// (code 130) on the EDOPro side.
+    ///
+    /// # Default
+    /// No-op.
+    fn modify_level(&mut self, _card_id: u32, _delta: i32, _duration: Duration) {}
+
     /// Set `card_id`'s attribute to the given EDOPro bitmask.
     ///
     /// # Default

@@ -1469,6 +1469,7 @@ fn format_stat_name(s: &StatName) -> &'static str {
     match s {
         StatName::Atk => "atk",
         StatName::Def => "def",
+        StatName::Level => "level",
     }
 }
 

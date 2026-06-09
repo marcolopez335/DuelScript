@@ -325,6 +325,7 @@ fn compile_passive(passive: &Passive, card: &Card) -> CompiledEffectV2 {
         match first.stat {
             StatName::Atk => 100, // EFFECT_UPDATE_ATTACK
             StatName::Def => 104, // EFFECT_UPDATE_DEFENSE
+            StatName::Level => 130, // EFFECT_UPDATE_LEVEL
         }
     } else if passive.negate_effects {
         2 // EFFECT_DISABLE
@@ -864,8 +865,10 @@ fn action_category(action: &Action) -> u32 {
         Action::Equip(_, _) => tm::CATEGORY_EQUIP,
         Action::ModifyStat(StatName::Atk, _, _, _, _) => tm::CATEGORY_ATKCHANGE,
         Action::ModifyStat(StatName::Def, _, _, _, _) => tm::CATEGORY_DEFCHANGE,
+        Action::ModifyStat(StatName::Level, _, _, _, _) => tm::CATEGORY_LVCHANGE,
         Action::SetStat(StatName::Atk, _, _, _) => tm::CATEGORY_ATKCHANGE,
         Action::SetStat(StatName::Def, _, _, _) => tm::CATEGORY_DEFCHANGE,
+        Action::SetStat(StatName::Level, _, _, _) => tm::CATEGORY_LVCHANGE,
         Action::PlaceCounter(_, _, _) | Action::RemoveCounter(_, _, _) => tm::CATEGORY_COUNTER,
         Action::Mill(_, _) => tm::CATEGORY_DECKDES,
         // Compound actions — recurse
@@ -1577,6 +1580,7 @@ fn gen_passive_op(
                 // re-invocation model for lifetime management. See decisions-2.md I-II.
                 StatName::Atk => rt.modify_atk(cid, signed, RuntimeDuration::Permanently),
                 StatName::Def => rt.modify_def(cid, signed, RuntimeDuration::Permanently),
+                StatName::Level => rt.modify_level(cid, signed, RuntimeDuration::Permanently),
             }
         }
 
@@ -2280,6 +2284,7 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
                 match stat {
                     StatName::Atk => rt.modify_atk(card_id, delta, rt_duration),
                     StatName::Def => rt.modify_def(card_id, delta, rt_duration),
+                    StatName::Level => rt.modify_level(card_id, delta, rt_duration),
                 }
             }
         }
@@ -2290,6 +2295,9 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
                 match stat {
                     StatName::Atk => rt.set_atk(card_id, val),
                     StatName::Def => rt.set_def(card_id, val),
+                    // `set_level` shares the change_level runtime hook; levels
+                    // are unsigned engine-side, so clamp at 0.
+                    StatName::Level => rt.change_level(card_id, val.max(0) as u32),
                 }
             }
         }
