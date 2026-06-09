@@ -137,7 +137,69 @@ pub struct EffectSkeleton {
     /// ritual procedure internally; translator emits a fixed
     /// `ritual_summon (1, ritual monster)` line.
     pub ritual_summon_spec: bool,
+    /// Parameterized fusion/ritual helper captured from
+    /// `eN:SetOperation(Fusion.SummonEffOP(...))` or
+    /// `eN:SetOperation(Ritual.Operation(...))` (Phase 12). Params are
+    /// raw lua strings; decode happens at emit time so unknown shapes
+    /// drop out cleanly instead of mis-emitting.
+    pub summon_helper_op: Option<SummonHelperOp>,
+    /// True when a chain that owns a .ds effect block WITHOUT consuming
+    /// a Pass-A block index precedes this skeleton in `s.initial_effect`
+    /// source order: a bare `EFFECT_TYPE_ACTIVATE` chain with no
+    /// SetOperation, or an `eN:Clone()` chain (clones aren't walked).
+    /// Positional block mapping is off-by-N for this effect, so the
+    /// Phase 12 helper emit must skip rather than fill the wrong block.
+    pub block_alignment_hazard: bool,
 }
+
+/// Which parameterized summon helper produced a [`SummonHelperOp`].
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SummonHelperKind {
+    /// `Fusion.SummonEffOP(...)` — proc_fusion_spell.lua's operation
+    /// factory. Positional params: fusfilter, matfilter, extrafil,
+    /// extraop, gc, stage2, exactcount, value, location, chkf,
+    /// preselect, nosummoncheck, mincount, maxcount, sumpos.
+    FusionSummonEffOp,
+    /// `Ritual.Operation(...)` — proc_ritual.lua's operation factory.
+    /// Positional params: filter, lvtype, lv, extrafil, extraop,
+    /// matfilter, stage2, location, forcedselection, customoperation,
+    /// specificmatfilter, requirementfunc, sumpos, self.
+    RitualOperation,
+}
+
+/// A parameterized summon-helper call found as a `SetOperation` argument.
+/// Both helpers are `aux.FunctionWithNamedArgs` wrappers, so card scripts
+/// call them with positional args, a named-args table, or the
+/// `table.unpack(local_table)` idiom — all three normalize into
+/// `(param name, raw lua value)` pairs here, with `nil` values and the
+/// no-op `handler` key dropped.
+#[derive(Debug, Clone)]
+pub struct SummonHelperOp {
+    pub kind: SummonHelperKind,
+    pub params: Vec<(String, String)>,
+    /// Param shape couldn't be decoded safely: the local table failed
+    /// the single-assignment / no-mutation taint check, had
+    /// expression-keyed or mixed fields, or the ident never resolved.
+    /// Emit must skip (skip-not-mis-emit).
+    pub unresolved: bool,
+}
+
+/// Positional parameter names of `Fusion.SummonEffOP` (from
+/// CardScripts/proc_fusion_spell.lua's FunctionWithNamedArgs list, minus
+/// the target-only names that the OP factory does not take).
+const FUSION_SUMMON_EFF_OP_PARAMS: &[&str] = &[
+    "fusfilter", "matfilter", "extrafil", "extraop", "gc", "stage2",
+    "exactcount", "value", "location", "chkf", "preselect",
+    "nosummoncheck", "mincount", "maxcount", "sumpos",
+];
+
+/// Positional parameter names of `Ritual.Operation` (from
+/// CardScripts/proc_ritual.lua's FunctionWithNamedArgs list).
+const RITUAL_OPERATION_PARAMS: &[&str] = &[
+    "filter", "lvtype", "lv", "extrafil", "extraop", "matfilter",
+    "stage2", "location", "forcedselection", "customoperation",
+    "specificmatfilter", "requirementfunc", "sumpos", "self",
+];
 
 impl EffectSkeleton {
     /// First arg passed to `<binding>:<method>(...)`, or None if not called.
@@ -194,6 +256,245 @@ impl EffectSkeleton {
             target: scope_target.target,
         })
     }
+
+    /// DSL summon line for skeletons backed by a fusion/ritual helper.
+    ///
+    /// Covers the plain factory forms (`Fusion.CreateSummonEff` /
+    /// `Ritual.AddProc*` / `Ritual.CreateProc` — fixed line) and the
+    /// parameterized `SetOperation` helpers (Phase 12 — params decode
+    /// into selector constraints). Returns None when params have no DSL
+    /// equivalent — the resolve stays empty rather than mis-emitting.
+    pub fn summon_helper_line(&self) -> Option<String> {
+        if self.fusion_summon_spec {
+            return Some("fusion_summon (1, fusion monster)".to_string());
+        }
+        if self.ritual_summon_spec {
+            return Some("ritual_summon (1, ritual monster)".to_string());
+        }
+        let op = self.summon_helper_op.as_ref()?;
+        if op.unresolved || self.block_alignment_hazard { return None; }
+        match op.kind {
+            SummonHelperKind::FusionSummonEffOp => fusion_helper_line(&op.params),
+            SummonHelperKind::RitualOperation => ritual_helper_line(&op.params),
+        }
+    }
+}
+
+/// Emit `fusion_summon ...` from decoded `Fusion.SummonEffOP` params.
+///
+/// EMIT: `fusfilter` mapping to a where-clause (archetype / race /
+/// attribute / level), `matfilter` mapping to a material selector. Any
+/// other param (extrafil, extraop, gc, stage2, extratg, location, …) has
+/// no DSL equivalent — the whole line skips because dropping the param
+/// would change semantics (e.g. gc forces a specific material).
+fn fusion_helper_line(params: &[(String, String)]) -> Option<String> {
+    let mut where_clause: Option<String> = None;
+    let mut using: Option<&'static str> = None;
+    for (k, v) in params {
+        match k.as_str() {
+            "fusfilter" => where_clause = Some(summon_filter_to_where(v)?),
+            "matfilter" => using = Some(fusion_matfilter_to_using(v)?),
+            _ => return None,
+        }
+    }
+    let sel = match &where_clause {
+        Some(w) => format!("(1, fusion monster, where {w})"),
+        None => "(1, fusion monster)".to_string(),
+    };
+    Some(match using {
+        Some(u) => format!("fusion_summon {sel} using {u}"),
+        None => format!("fusion_summon {sel}"),
+    })
+}
+
+/// Emit `ritual_summon ...` from decoded `Ritual.Operation` params.
+///
+/// EMIT: `filter` mapping to a where-clause; `lvtype` of
+/// RITPROC_GREATER / RITPROC_EQUAL (both already shipped as the fixed
+/// line for Ritual.AddProcGreater / AddProcEqual — the level procedure
+/// is the helper's standard behavior, not a DSL-visible constraint).
+/// Any other param (lv override, forcedselection, customoperation,
+/// requirementfunc, …) skips.
+fn ritual_helper_line(params: &[(String, String)]) -> Option<String> {
+    let mut where_clause: Option<String> = None;
+    for (k, v) in params {
+        match k.as_str() {
+            "filter" => where_clause = Some(summon_filter_to_where(v)?),
+            "lvtype" if v == "RITPROC_GREATER" || v == "RITPROC_EQUAL" => {}
+            _ => return None,
+        }
+    }
+    Some(match &where_clause {
+        Some(w) => format!("ritual_summon (1, ritual monster, where {w})"),
+        None => "ritual_summon (1, ritual monster)".to_string(),
+    })
+}
+
+/// Map a fusion `matfilter` param to a DSL `using` material selector.
+fn fusion_matfilter_to_using(raw: &str) -> Option<&'static str> {
+    match raw.trim() {
+        // Bare `Fusion.OnFieldMat` fn-ref: restricts the default
+        // material pool (hand + field) to the player's field.
+        "Fusion.OnFieldMat" => Some("(all, monster, you control)"),
+        _ => None,
+    }
+}
+
+/// Map a summoned-monster filter param (`fusfilter` / ritual `filter`)
+/// to a DSL where-clause. Handles the two corpus idioms:
+/// `aux.FilterBoolFunction(Card.IsX, ...)` and the single-predicate
+/// closure `function(c) return c:IsX(...) end`. Returns None for
+/// anything else — caller skips the whole line.
+fn summon_filter_to_where(raw: &str) -> Option<String> {
+    let raw = raw.trim();
+    if let Some(inner) = raw
+        .strip_prefix("aux.FilterBoolFunction(")
+        .and_then(|r| r.strip_suffix(')'))
+    {
+        let (method, arg) = inner.split_once(',')?;
+        return filter_predicate_to_where(method.trim(), arg.trim());
+    }
+    closure_filter_to_where(raw)
+}
+
+/// Map a `Card.Is*` predicate + raw constant arg to a where-clause.
+/// Multi-constant forms (`{SET_A,SET_B}` lists, `RACE_A|RACE_B` masks)
+/// expand to `or`-joined atoms — lua treats them as any-of.
+fn filter_predicate_to_where(method: &str, arg: &str) -> Option<String> {
+    let join = |parts: Vec<String>| {
+        if parts.is_empty() { None } else { Some(parts.join(" or ")) }
+    };
+    match method {
+        "Card.IsSetCard" => {
+            let consts: Vec<&str> = match arg.strip_prefix('{').and_then(|a| a.strip_suffix('}')) {
+                Some(list) => list.split(',').map(str::trim).collect(),
+                None => vec![arg],
+            };
+            let mut parts = Vec::new();
+            for c in consts {
+                parts.push(format!("archetype == \"{}\"", setcode_const_to_archetype(c)?));
+            }
+            join(parts)
+        }
+        "Card.IsRace" => {
+            let mut parts = Vec::new();
+            for c in arg.split('|').map(str::trim) {
+                parts.push(format!("race == {}", race_const_to_dsl(c)?));
+            }
+            join(parts)
+        }
+        "Card.IsAttribute" => {
+            let mut parts = Vec::new();
+            for c in arg.split('|').map(str::trim) {
+                parts.push(format!("attribute == {}", attribute_const_to_dsl(c)?));
+            }
+            join(parts)
+        }
+        _ => None,
+    }
+}
+
+/// Map a single-predicate closure filter (`function(c) return
+/// c:IsSetCard(SET_X) end` and friends) to a where-clause. Closures
+/// with any extra logic (conjunctions, comparisons against other
+/// bindings, …) fail the strict shape checks and return None.
+fn closure_filter_to_where(raw: &str) -> Option<String> {
+    let r = raw.strip_prefix("function")?.trim_start();
+    let r = r.strip_prefix('(')?;
+    let (param, r) = r.split_once(')')?;
+    let param = param.trim();
+    if param.is_empty() || !param.chars().all(|c| c.is_ascii_alphanumeric() || c == '_') {
+        return None;
+    }
+    let r = r.trim_start().strip_prefix("return")?;
+    let body = r.trim().strip_suffix("end")?.trim();
+    let (recv, rest) = body.split_once(':')?;
+    if recv.trim() != param { return None; }
+    let (method, rest) = rest.split_once('(')?;
+    let arg = rest.strip_suffix(')')?.trim();
+    match method.trim() {
+        "IsSetCard" => filter_predicate_to_where("Card.IsSetCard", arg),
+        "IsRace" => filter_predicate_to_where("Card.IsRace", arg),
+        "IsAttribute" => filter_predicate_to_where("Card.IsAttribute", arg),
+        "IsLevelAbove" => {
+            let n: u32 = arg.parse().ok()?;
+            Some(format!("level >= {n}"))
+        }
+        _ => None,
+    }
+}
+
+/// SET_* archetype constant → DSL archetype string. Curated for the
+/// constants that appear as fusion/ritual summon filters in the corpus;
+/// names match the TCG archetype strings the compiler's ArchetypeIs
+/// predicate (and its card-name substring fallback) expects.
+fn setcode_const_to_archetype(c: &str) -> Option<&'static str> {
+    Some(match c {
+        "SET_ANCIENT_GEAR" => "Ancient Gear",
+        "SET_DD"           => "D/D",
+        "SET_DDD"          => "D/D/D",
+        "SET_FIENDSMITH"   => "Fiendsmith",
+        "SET_FRIGHTFUR"    => "Frightfur",
+        "SET_GOLD_PRIDE"   => "Gold Pride",
+        "SET_GOUKI"        => "Gouki",
+        "SET_INVOKED"      => "Invoked",
+        "SET_MAGISTUS"     => "Magistus",
+        "SET_MEGALITH"     => "Megalith",
+        "SET_MELODIOUS"    => "Melodious",
+        "SET_MEMENTO"      => "Memento",
+        "SET_NINJA"        => "Ninja",
+        "SET_PREDAP"       => "Predap",
+        "SET_PUNK"         => "P.U.N.K.",
+        "SET_SHADDOLL"     => "Shaddoll",
+        "SET_VAYLANTZ"     => "Vaylantz",
+        _ => return None,
+    })
+}
+
+/// RACE_* constant → DSL race name (grammar's `race` rule).
+fn race_const_to_dsl(c: &str) -> Option<&'static str> {
+    Some(match c {
+        "RACE_AQUA"         => "Aqua",
+        "RACE_BEAST"        => "Beast",
+        "RACE_BEASTWARRIOR" => "Beast-Warrior",
+        "RACE_CYBERSE"      => "Cyberse",
+        "RACE_DINOSAUR"     => "Dinosaur",
+        "RACE_DIVINE"       => "Divine-Beast",
+        "RACE_DRAGON"       => "Dragon",
+        "RACE_FAIRY"        => "Fairy",
+        "RACE_FIEND"        => "Fiend",
+        "RACE_FISH"         => "Fish",
+        "RACE_ILLUSION"     => "Illusion",
+        "RACE_INSECT"       => "Insect",
+        "RACE_MACHINE"      => "Machine",
+        "RACE_PLANT"        => "Plant",
+        "RACE_PSYCHIC"      => "Psychic",
+        "RACE_PYRO"         => "Pyro",
+        "RACE_REPTILE"      => "Reptile",
+        "RACE_ROCK"         => "Rock",
+        "RACE_SEASERPENT"   => "Sea Serpent",
+        "RACE_SPELLCASTER"  => "Spellcaster",
+        "RACE_THUNDER"      => "Thunder",
+        "RACE_WARRIOR"      => "Warrior",
+        "RACE_WINGEDBEAST"  => "Winged Beast",
+        "RACE_WYRM"         => "Wyrm",
+        "RACE_ZOMBIE"       => "Zombie",
+        _ => return None,
+    })
+}
+
+/// ATTRIBUTE_* constant → DSL attribute name (grammar's `attribute` rule).
+fn attribute_const_to_dsl(c: &str) -> Option<&'static str> {
+    Some(match c {
+        "ATTRIBUTE_DARK"   => "DARK",
+        "ATTRIBUTE_DIVINE" => "DIVINE",
+        "ATTRIBUTE_EARTH"  => "EARTH",
+        "ATTRIBUTE_FIRE"   => "FIRE",
+        "ATTRIBUTE_LIGHT"  => "LIGHT",
+        "ATTRIBUTE_WATER"  => "WATER",
+        "ATTRIBUTE_WIND"   => "WIND",
+        _ => return None,
+    })
 }
 
 /// Derived scope/target pair for a passive's emit text. `None` means we
@@ -363,6 +664,23 @@ fn function_decl_name(decl: &ast::FunctionDeclaration) -> String {
 /// back to the binding.
 fn extract_effects_from_block(block: &Block, report: &mut LuaReport) {
     let mut by_binding: BTreeMap<String, EffectSkeleton> = BTreeMap::new();
+    // Local bindings (`local params = {...}`) visible to summon-helper
+    // param decoding, plus the taint set: names that are re-assigned or
+    // mutated anywhere in the function fail the single-assignment check
+    // (Phase 12, mirroring Phase 10's count-var taint rule).
+    let mut local_exprs: BTreeMap<String, &Expression> = BTreeMap::new();
+    let mut tainted: std::collections::BTreeSet<String> = std::collections::BTreeSet::new();
+    // (effect binding, local var) pairs whose helper params came from a
+    // local table — re-checked against the final taint set after the walk.
+    let mut helper_var_uses: Vec<(String, String)> = Vec::new();
+    // Source-order bookkeeping for the Phase 12 block-alignment guard:
+    // each effect-bearing chain gets an ordinal in `s.initial_effect`
+    // source order. Clone chains (`local e2=e1:Clone()`) own a .ds block
+    // but never enter `by_binding`, so their ordinals go straight into
+    // the hazard list.
+    let mut source_ord = 0usize;
+    let mut ordinals: BTreeMap<String, usize> = BTreeMap::new();
+    let mut clone_hazards: Vec<usize> = Vec::new();
 
     for stmt in block.stmts() {
         match stmt {
@@ -373,18 +691,36 @@ fn extract_effects_from_block(block: &Block, report: &mut LuaReport) {
                 for (i, name) in names.iter().enumerate() {
                     let expr = exprs.get(i);
                     if let Some(expr) = expr {
+                        if local_exprs.insert(name.clone(), expr).is_some() {
+                            // `local x = ...` twice — second shadows first;
+                            // too ambiguous for param decoding.
+                            tainted.insert(name.clone());
+                        }
                         if expr_is_effect_createeffect(expr) {
+                            ordinals.insert(name.clone(), source_ord);
+                            source_ord += 1;
                             by_binding.insert(name.clone(), EffectSkeleton {
                                 binding: name.clone(),
                                 ..Default::default()
                             });
+                        } else if expr_clone_source(expr)
+                            .is_some_and(|src| by_binding.contains_key(&src))
+                        {
+                            // `local e2=e1:Clone()` of a known effect —
+                            // owns a .ds block but isn't walked.
+                            clone_hazards.push(source_ord);
+                            source_ord += 1;
                         } else if expr_is_fusion_createsummoneff(expr) {
+                            ordinals.insert(name.clone(), source_ord);
+                            source_ord += 1;
                             by_binding.insert(name.clone(), EffectSkeleton {
                                 binding: name.clone(),
                                 fusion_summon_spec: true,
                                 ..Default::default()
                             });
                         } else if expr_is_ritual_proc_helper(expr) {
+                            ordinals.insert(name.clone(), source_ord);
+                            source_ord += 1;
                             by_binding.insert(name.clone(), EffectSkeleton {
                                 binding: name.clone(),
                                 ritual_summon_spec: true,
@@ -398,13 +734,34 @@ fn extract_effects_from_block(block: &Block, report: &mut LuaReport) {
                     }
                 }
             }
+            Stmt::Assignment(a) => {
+                // Plain assignments taint param tables: `params = ...`
+                // re-binds, `params.x = ...` / `params[i] = ...` mutate.
+                for var in a.variables() {
+                    if let Some(name) = assigned_base_name(var) {
+                        tainted.insert(name);
+                    }
+                }
+            }
             Stmt::FunctionCall(fc) => {
+                // `table.insert(params, ...)` mutates the param table.
+                if call_head_string(fc) == "table.insert" {
+                    if let Some(Suffix::Call(Call::AnonymousCall(args))) = fc.suffixes().last() {
+                        if let Some(first) = call_args_to_strings(args).first() {
+                            if first.chars().all(|c| c.is_ascii_alphanumeric() || c == '_') {
+                                tainted.insert(first.clone());
+                            }
+                        }
+                    }
+                }
                 // `c:RegisterEffect(Fusion.CreateSummonEff(...))` — direct
                 // commit without a local binding intermediate. Synthesize
                 // an anonymous skeleton so Pass A can fill the resolve.
                 if let Some((arg_expr, _)) = is_register_effect_fusion_inline(fc) {
                     if arg_expr {
                         let anon = format!("__fusion_inline_{}", by_binding.len());
+                        ordinals.insert(anon.clone(), source_ord);
+                        source_ord += 1;
                         by_binding.insert(anon.clone(), EffectSkeleton {
                             binding: anon,
                             fusion_summon_spec: true,
@@ -420,6 +777,8 @@ fn extract_effects_from_block(block: &Block, report: &mut LuaReport) {
                 // anonymous ritual-spec skeleton.
                 if call_is_ritual_proc_helper(fc) {
                     let anon = format!("__ritual_inline_{}", by_binding.len());
+                    ordinals.insert(anon.clone(), source_ord);
+                    source_ord += 1;
                     by_binding.insert(anon.clone(), EffectSkeleton {
                         binding: anon,
                         ritual_summon_spec: true,
@@ -433,6 +792,18 @@ fn extract_effects_from_block(block: &Block, report: &mut LuaReport) {
                         skel.set_calls.push((method.clone(), args.clone()));
                         if method == "SetOperation" {
                             skel.operation_handler = args.first().cloned();
+                            // Parameterized fusion/ritual helper as the
+                            // operation (Phase 12) — decode its params.
+                            if let Some(arg_expr) = first_method_arg_expr(fc) {
+                                if let Some((op, used_var)) =
+                                    summon_helper_from_expr(arg_expr, &local_exprs)
+                                {
+                                    if let Some(var) = used_var {
+                                        helper_var_uses.push((binding.clone(), var));
+                                    }
+                                    skel.summon_helper_op = Some(op);
+                                }
+                            }
                         } else if method == "SetTarget" {
                             skel.target_handler = args.first().cloned();
                         } else if method == "SetCondition" {
@@ -452,6 +823,50 @@ fn extract_effects_from_block(block: &Block, report: &mut LuaReport) {
                 }
             }
             _ => {}
+        }
+    }
+
+    // Param tables mutated anywhere in the function (even after the
+    // SetOperation call) fail the taint check — mark those helper ops
+    // unresolved so emit skips them.
+    for (binding, var) in helper_var_uses {
+        if tainted.contains(&var) {
+            if let Some(op) = by_binding
+                .get_mut(&binding)
+                .and_then(|s| s.summon_helper_op.as_mut())
+            {
+                op.unresolved = true;
+            }
+        }
+    }
+
+    // Block-alignment guard (Phase 12): bare EFFECT_TYPE_ACTIVATE chains
+    // with no SetOperation own a .ds effect block (the activation shell
+    // of a spell/trap) yet never consume a Pass-A block index — same for
+    // Clone chains collected above. Any helper-op skeleton that comes
+    // AFTER such a chain in source order would fill the wrong block, so
+    // it gets flagged and the emit skips.
+    let mut hazards = clone_hazards;
+    for skel in by_binding.values() {
+        let is_bare_activate = skel.registered
+            && skel.operation_handler.is_none()
+            && !skel.fusion_summon_spec
+            && !skel.ritual_summon_spec
+            && skel.first_arg_of("SetType")
+                .is_some_and(|t| t.contains("EFFECT_TYPE_ACTIVATE"));
+        if is_bare_activate {
+            if let Some(ord) = ordinals.get(&skel.binding) {
+                hazards.push(*ord);
+            }
+        }
+    }
+    if !hazards.is_empty() {
+        for (binding, skel) in by_binding.iter_mut() {
+            if skel.summon_helper_op.is_none() { continue; }
+            let Some(ord) = ordinals.get(binding) else { continue };
+            if hazards.iter().any(|h| h < ord) {
+                skel.block_alignment_hazard = true;
+            }
         }
     }
 
@@ -541,6 +956,181 @@ fn is_register_effect_fusion_inline(fc: &FunctionCall) -> Option<(bool, ())> {
     } else {
         None
     }
+}
+
+/// Base identifier of an assignment target — `params` for `params = x`,
+/// `params.foo = x`, and `params[1] = x`.
+fn assigned_base_name(var: &ast::Var) -> Option<String> {
+    match var {
+        ast::Var::Name(n) => Some(n.token().to_string()),
+        ast::Var::Expression(ve) => match ve.prefix() {
+            ast::Prefix::Name(n) => Some(n.token().to_string()),
+            _ => None,
+        },
+        _ => None,
+    }
+}
+
+/// First argument Expression of `<bind>:<method>(...)`.
+fn first_method_arg_expr(fc: &FunctionCall) -> Option<&Expression> {
+    let mut suffixes = fc.suffixes();
+    if let Suffix::Call(Call::MethodCall(mc)) = suffixes.next()? {
+        if let ast::FunctionArgs::Parentheses { arguments, .. } = mc.args() {
+            return arguments.iter().next();
+        }
+    }
+    None
+}
+
+/// Decode a `SetOperation` argument that is a parameterized summon
+/// helper call (`Fusion.SummonEffOP(...)` / `Ritual.Operation(...)`).
+///
+/// Normalizes the three corpus call shapes into named params:
+/// - positional args: `Fusion.SummonEffOP(fusfilter, matfilter, ...)`
+/// - named-args table: `Ritual.Operation(params)` / inline `{...}` —
+///   `aux.FunctionWithNamedArgs` reads named keys only
+/// - `Fusion.SummonEffOP(table.unpack(params))` — positional fields of
+///   a single-assignment local table
+///
+/// Returns the op plus the local-table variable it read (if any) so the
+/// caller can re-check the taint set after the walk completes.
+fn summon_helper_from_expr(
+    expr: &Expression,
+    local_exprs: &BTreeMap<String, &Expression>,
+) -> Option<(SummonHelperOp, Option<String>)> {
+    let fc = match expr {
+        Expression::FunctionCall(fc) => fc,
+        _ => return None,
+    };
+    let (kind, names): (SummonHelperKind, &[&str]) = match call_head_string(fc).as_str() {
+        "Fusion.SummonEffOP" => (SummonHelperKind::FusionSummonEffOp, FUSION_SUMMON_EFF_OP_PARAMS),
+        "Ritual.Operation" => (SummonHelperKind::RitualOperation, RITUAL_OPERATION_PARAMS),
+        _ => return None,
+    };
+    let unresolved = |used: Option<String>| Some((
+        SummonHelperOp { kind, params: Vec::new(), unresolved: true },
+        used,
+    ));
+    let arg_exprs: Vec<&Expression> = match fc.suffixes().last() {
+        Some(Suffix::Call(Call::AnonymousCall(ast::FunctionArgs::Parentheses { arguments, .. }))) => {
+            arguments.iter().collect()
+        }
+        // `Fusion.SummonEffOP{...}` table-call sugar.
+        Some(Suffix::Call(Call::AnonymousCall(ast::FunctionArgs::TableConstructor(tc)))) => {
+            return match named_table_params(tc) {
+                Some(params) => Some((SummonHelperOp { kind, params, unresolved: false }, None)),
+                None => unresolved(None),
+            };
+        }
+        _ => return unresolved(None),
+    };
+
+    if arg_exprs.len() == 1 {
+        let raw = arg_exprs[0].to_string().trim().to_string();
+        // `table.unpack(params)` — inline the local table positionally.
+        if let Some(var) = raw
+            .strip_prefix("table.unpack(")
+            .and_then(|r| r.strip_suffix(')'))
+            .map(str::trim)
+            .filter(|v| !v.is_empty() && v.chars().all(|c| c.is_ascii_alphanumeric() || c == '_'))
+        {
+            let var = var.to_string();
+            return match local_exprs.get(&var) {
+                Some(Expression::TableConstructor(tc)) => {
+                    match positional_table_params(tc, names) {
+                        Some(params) => Some((
+                            SummonHelperOp { kind, params, unresolved: false },
+                            Some(var),
+                        )),
+                        None => unresolved(Some(var)),
+                    }
+                }
+                _ => unresolved(Some(var)),
+            };
+        }
+        // Inline named-args table.
+        if let Expression::TableConstructor(tc) = arg_exprs[0] {
+            return match named_table_params(tc) {
+                Some(params) => Some((SummonHelperOp { kind, params, unresolved: false }, None)),
+                None => unresolved(None),
+            };
+        }
+        // Bare identifier — either a named-args table local or a plain
+        // value local (used as the first positional param).
+        if raw.chars().all(|c| c.is_ascii_alphanumeric() || c == '_') {
+            return match local_exprs.get(&raw) {
+                Some(Expression::TableConstructor(tc)) => match named_table_params(tc) {
+                    Some(params) => Some((
+                        SummonHelperOp { kind, params, unresolved: false },
+                        Some(raw),
+                    )),
+                    None => unresolved(Some(raw)),
+                },
+                Some(other) => {
+                    let params = positional_params(&[other.to_string().trim().to_string()], names);
+                    Some((SummonHelperOp { kind, params, unresolved: false }, Some(raw)))
+                }
+                None => unresolved(Some(raw)),
+            };
+        }
+    }
+
+    // General positional form.
+    let raws: Vec<String> = arg_exprs.iter().map(|e| e.to_string().trim().to_string()).collect();
+    let params = positional_params(&raws, names);
+    Some((SummonHelperOp { kind, params, unresolved: false }, None))
+}
+
+/// Zip raw positional args with helper param names, dropping `nil`s.
+/// Args beyond the helper's arity get an `__overflow` sentinel name so
+/// the emit policy (which skips any param it doesn't recognize) rejects
+/// the line instead of silently dropping the arg.
+fn positional_params(raws: &[String], names: &[&str]) -> Vec<(String, String)> {
+    let mut params = Vec::new();
+    for (i, raw) in raws.iter().enumerate() {
+        if raw == "nil" { continue; }
+        match names.get(i) {
+            Some(name) => params.push((name.to_string(), raw.clone())),
+            // More args than the helper takes — record an unmappable
+            // sentinel so the emit policy skips the line.
+            None => params.push(("__overflow".to_string(), raw.clone())),
+        }
+    }
+    params
+}
+
+/// Decode an all-named-fields table constructor (`{fusfilter=..., ...}`)
+/// into params. The no-op `handler` key is dropped (FunctionWithNamedArgs
+/// only reads the helper's own names). Positional or expression-keyed
+/// fields → None (caller marks unresolved).
+fn named_table_params(tc: &ast::TableConstructor) -> Option<Vec<(String, String)>> {
+    let mut params = Vec::new();
+    for field in tc.fields() {
+        match field {
+            ast::Field::NameKey { key, value, .. } => {
+                let k = key.token().to_string();
+                let v = value.to_string().trim().to_string();
+                if k == "handler" || v == "nil" { continue; }
+                params.push((k, v));
+            }
+            _ => return None,
+        }
+    }
+    Some(params)
+}
+
+/// Decode an all-positional-fields table constructor (the
+/// `table.unpack(params)` idiom) into named params. Named or
+/// expression-keyed fields → None (caller marks unresolved).
+fn positional_table_params(tc: &ast::TableConstructor, names: &[&str]) -> Option<Vec<(String, String)>> {
+    let mut raws = Vec::new();
+    for field in tc.fields() {
+        match field {
+            ast::Field::NoKey(expr) => raws.push(expr.to_string().trim().to_string()),
+            _ => return None,
+        }
+    }
+    Some(positional_params(&raws, names))
 }
 
 /// Render a function-call's prefix as a dotted name string,
@@ -5465,5 +6055,316 @@ end
 "#;
         assert!(p11_actions(src, "s.operation").is_empty(),
             "event-group loop must skip");
+    }
+
+    // ── Phase 12: parameterized fusion/ritual helper operations ─────
+
+    /// Walk `src` and return the summon line of the `idx`-th effect.
+    fn p12_line(src: &str, idx: usize) -> Option<String> {
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        report.effects.get(idx).expect("effect").summon_helper_line()
+    }
+
+    #[test]
+    fn p12_unpack_table_archetype_and_onfield_mat() {
+        // Fortissimo (c11493868): `local params={...}` +
+        // `Fusion.SummonEffOP(table.unpack(params))`.
+        let src = r#"
+function s.initial_effect(c)
+    local params={aux.FilterBoolFunction(Card.IsSetCard,SET_MELODIOUS),Fusion.OnFieldMat}
+    local e3=Effect.CreateEffect(c)
+    e3:SetType(EFFECT_TYPE_IGNITION)
+    e3:SetTarget(Fusion.SummonEffTG(table.unpack(params)))
+    e3:SetOperation(Fusion.SummonEffOP(table.unpack(params)))
+    c:RegisterEffect(e3)
+end
+"#;
+        assert_eq!(
+            p12_line(src, 0).as_deref(),
+            Some(r#"fusion_summon (1, fusion monster, where archetype == "Melodious") using (all, monster, you control)"#),
+        );
+    }
+
+    #[test]
+    fn p12_positional_setcard_filter() {
+        // Mementotlan Shleepy (c50042011): direct positional fusfilter.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetOperation(Fusion.SummonEffOP(aux.FilterBoolFunction(Card.IsSetCard,SET_MEMENTO)))
+    c:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(
+            p12_line(src, 0).as_deref(),
+            Some(r#"fusion_summon (1, fusion monster, where archetype == "Memento")"#),
+        );
+    }
+
+    #[test]
+    fn p12_inline_named_table_race_mask() {
+        // Dracotail Faimena (c1498449): inline named-args table with an
+        // OR'd race mask.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetOperation(Fusion.SummonEffOP({fusfilter=aux.FilterBoolFunction(Card.IsRace,RACE_DRAGON|RACE_SPELLCASTER)}))
+    c:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(
+            p12_line(src, 0).as_deref(),
+            Some("fusion_summon (1, fusion monster, where race == Dragon or race == Spellcaster)"),
+        );
+    }
+
+    #[test]
+    fn p12_closure_level_filter() {
+        // Blazing Cartesia (c95515789): closure fusfilter on level.
+        let src = r#"
+function s.initial_effect(c)
+    local params={function(c) return c:IsLevelAbove(8) end}
+    local e1=Effect.CreateEffect(c)
+    e1:SetOperation(Fusion.SummonEffOP(table.unpack(params)))
+    c:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(
+            p12_line(src, 0).as_deref(),
+            Some("fusion_summon (1, fusion monster, where level >= 8)"),
+        );
+    }
+
+    #[test]
+    fn p12_attribute_filter() {
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetOperation(Fusion.SummonEffOP(aux.FilterBoolFunction(Card.IsAttribute,ATTRIBUTE_DARK)))
+    c:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(
+            p12_line(src, 0).as_deref(),
+            Some("fusion_summon (1, fusion monster, where attribute == DARK)"),
+        );
+    }
+
+    #[test]
+    fn p12_zero_args_plain_line() {
+        // Favorite HERO Flame Wingman (c13243124): no params at all.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetOperation(Fusion.SummonEffOP())
+    c:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(p12_line(src, 0).as_deref(), Some("fusion_summon (1, fusion monster)"));
+    }
+
+    #[test]
+    fn p12_ident_resolving_to_plain_filter_local() {
+        // Ukiyoe-P.U.N.K. Sharakusai (c13258285): `local fusparam=<filter>`
+        // passed bare — a positional fusfilter, not a named-args table.
+        let src = r#"
+function s.initial_effect(c)
+    local fusparam=aux.FilterBoolFunction(Card.IsSetCard,SET_PUNK)
+    local e1=Effect.CreateEffect(c)
+    e1:SetTarget(Fusion.SummonEffTG(fusparam))
+    e1:SetOperation(Fusion.SummonEffOP(fusparam))
+    c:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(
+            p12_line(src, 0).as_deref(),
+            Some(r#"fusion_summon (1, fusion monster, where archetype == "P.U.N.K.")"#),
+        );
+    }
+
+    #[test]
+    fn p12_ritual_named_table_with_handler_and_lvtype() {
+        // Megalith Aratron (c25726386): named-args local table; the
+        // `handler` key is a no-op for Ritual.Operation and RITPROC_GREATER
+        // is the standard total-level procedure.
+        let src = r#"
+function s.initial_effect(c)
+    local ritual_operation_params={handler=c,lvtype=RITPROC_GREATER,filter=function(ritual_c) return ritual_c:IsSetCard(SET_MEGALITH) end}
+    local e1=Effect.CreateEffect(c)
+    e1:SetOperation(Ritual.Operation(ritual_operation_params))
+    c:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(
+            p12_line(src, 0).as_deref(),
+            Some(r#"ritual_summon (1, ritual monster, where archetype == "Megalith")"#),
+        );
+    }
+
+    #[test]
+    fn p12_skip_gc_param() {
+        // D/D Swirl Slime shape: gc (5th positional) forces a specific
+        // material — no DSL equivalent, whole line skips.
+        let src = r#"
+function s.initial_effect(c)
+    local params={aux.FilterBoolFunction(Card.IsSetCard,SET_DDD),nil,nil,nil,Fusion.ForcedHandler}
+    local e1=Effect.CreateEffect(c)
+    e1:SetOperation(Fusion.SummonEffOP(table.unpack(params)))
+    c:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(p12_line(src, 0), None);
+    }
+
+    #[test]
+    fn p12_skip_extraop_param() {
+        // Banish-the-materials variant: extraop changes material
+        // disposal — plain emit would be semantically wrong.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetOperation(Fusion.SummonEffOP(nil,Card.IsAbleToRemove,nil,Fusion.BanishMaterial))
+    c:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(p12_line(src, 0), None);
+    }
+
+    #[test]
+    fn p12_skip_mutated_param_table() {
+        // Param table mutated after assignment — fails the taint check.
+        let src = r#"
+function s.initial_effect(c)
+    local params={aux.FilterBoolFunction(Card.IsSetCard,SET_MELODIOUS)}
+    params[2]=Fusion.OnFieldMat
+    local e1=Effect.CreateEffect(c)
+    e1:SetOperation(Fusion.SummonEffOP(table.unpack(params)))
+    c:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(p12_line(src, 0), None);
+    }
+
+    #[test]
+    fn p12_skip_unknown_set_constant() {
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetOperation(Fusion.SummonEffOP(aux.FilterBoolFunction(Card.IsSetCard,SET_NOT_IN_MAP)))
+    c:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(p12_line(src, 0), None);
+    }
+
+    #[test]
+    fn p12_skip_compound_closure() {
+        // Closure with extra logic beyond a single predicate.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetOperation(Fusion.SummonEffOP(function(tc) return tc:IsSetCard(SET_NINJA) and tc:IsLevelAbove(4) end))
+    c:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(p12_line(src, 0), None);
+    }
+
+    #[test]
+    fn p12_skip_ritual_forcedselection() {
+        // Recette de Personnel shape: forcedselection has no DSL form.
+        let src = r#"
+function s.initial_effect(c)
+    local rparams={filter=aux.FilterBoolFunction(Card.IsSetCard,SET_MEGALITH),forcedselection=s.fsel}
+    local e1=Effect.CreateEffect(c)
+    e1:SetOperation(Ritual.Operation(rparams))
+    c:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(p12_line(src, 0), None);
+    }
+
+    #[test]
+    fn p12_skip_helper_after_bare_activate_chain() {
+        // Frightfur Factory (c43698897): e1 is a bare EFFECT_TYPE_ACTIVATE
+        // chain (continuous-spell activation shell) — it owns a .ds block
+        // but consumes no Pass-A index, so the helper's positional block
+        // mapping is off by one. Must skip.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_ACTIVATE)
+    e1:SetCode(EVENT_FREE_CHAIN)
+    c:RegisterEffect(e1)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_IGNITION)
+    e2:SetOperation(Fusion.SummonEffOP(aux.FilterBoolFunction(Card.IsSetCard,SET_FRIGHTFUR)))
+    c:RegisterEffect(e2)
+end
+"#;
+        assert_eq!(p12_line(src, 1), None);
+    }
+
+    #[test]
+    fn p12_skip_helper_after_clone_chain() {
+        // Fluffal Owl (c65331686) shape: `local e2=e1:Clone()` owns a .ds
+        // block but isn't walked — helper after it must skip.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_TRIGGER_O)
+    e1:SetOperation(s.thop)
+    c:RegisterEffect(e1)
+    local e2=e1:Clone()
+    e2:SetCode(EVENT_SPSUMMON_SUCCESS)
+    c:RegisterEffect(e2)
+    local e3=Effect.CreateEffect(c)
+    e3:SetType(EFFECT_TYPE_IGNITION)
+    e3:SetOperation(Fusion.SummonEffOP(aux.FilterBoolFunction(Card.IsSetCard,SET_FRIGHTFUR)))
+    c:RegisterEffect(e3)
+end
+"#;
+        assert_eq!(p12_line(src, 1), None);
+    }
+
+    #[test]
+    fn p12_emit_helper_before_clone_chain() {
+        // Clone chains AFTER the helper don't shift its block index —
+        // the emit stands (Megalith Phaleg shape, c63233638).
+        let src = r#"
+function s.initial_effect(c)
+    local params={lvtype=RITPROC_GREATER,filter=function(rc) return rc:IsSetCard(SET_MEGALITH) end}
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_QUICK_O)
+    e1:SetOperation(Ritual.Operation(params))
+    c:RegisterEffect(e1)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_SINGLE)
+    e2:SetCode(EFFECT_UPDATE_ATTACK)
+    e2:SetValue(500)
+    c:RegisterEffect(e2)
+    local e3=e2:Clone()
+    c:RegisterEffect(e3)
+end
+"#;
+        assert_eq!(
+            p12_line(src, 0).as_deref(),
+            Some(r#"ritual_summon (1, ritual monster, where archetype == "Megalith")"#),
+        );
+    }
+
+    #[test]
+    fn p12_skip_unresolvable_ident() {
+        // Ident with no local assignment in scope (module-level or
+        // upvalue) — can't decode, must skip.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetOperation(Fusion.SummonEffOP(fusion_params))
+    c:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(p12_line(src, 0), None);
     }
 }
