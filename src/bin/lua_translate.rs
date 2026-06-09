@@ -199,19 +199,17 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
         // still-empty resolve — wrong content and non-idempotent.
         let mut a_block_idx = 0usize;
         for eff in &walk.effects {
-            // Special case: skeletons built from Fusion.CreateSummonEff /
-            // Ritual.AddProc* / Ritual.CreateProc have no SetOperation (the
-            // helper owns the UI / op pipeline). Emit a fixed summon line
-            // so the resolve stops being empty.
-            let helper_line = if eff.fusion_summon_spec {
-                Some("fusion_summon (1, fusion monster)")
-            } else if eff.ritual_summon_spec {
-                Some("ritual_summon (1, ritual monster)")
-            } else {
-                None
-            };
+            // Special case: skeletons backed by a fusion/ritual summon
+            // helper — the plain factories (Fusion.CreateSummonEff /
+            // Ritual.AddProc* / Ritual.CreateProc, fixed line) and the
+            // parameterized SetOperation forms (Fusion.SummonEffOP /
+            // Ritual.Operation, Phase 12). The helper owns the UI / op
+            // pipeline, so a summon line replaces the handler walk.
+            // Parameterized forms whose params don't decode return None
+            // and fall through to the no-handler skip below.
+            let helper_line = eff.summon_helper_line();
             let lines: Vec<lua_ast::DslLine> = if let Some(text) = helper_line {
-                vec![lua_ast::DslLine::Action(text.to_string())]
+                vec![lua_ast::DslLine::Action(text)]
             } else if let Some(handler) = &eff.operation_handler {
                 match walk.functions.get(handler.trim()) {
                     Some(body) => lua_ast::translate_body_with_functions(body, &walk.functions),
@@ -253,15 +251,9 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
         // upstream).
         let mut a2_block_idx = 0usize;
         for eff in &walk.effects {
-            let helper_line = if eff.fusion_summon_spec {
-                Some("fusion_summon (1, fusion monster)")
-            } else if eff.ritual_summon_spec {
-                Some("ritual_summon (1, ritual monster)")
-            } else {
-                None
-            };
+            let helper_line = eff.summon_helper_line();
             let lines: Vec<lua_ast::DslLine> = if let Some(text) = helper_line {
-                vec![lua_ast::DslLine::Action(text.to_string())]
+                vec![lua_ast::DslLine::Action(text)]
             } else if let Some(handler) = &eff.operation_handler {
                 match walk.functions.get(handler.trim()) {
                     Some(body) => lua_ast::translate_body_with_functions(body, &walk.functions),
