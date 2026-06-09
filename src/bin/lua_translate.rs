@@ -210,6 +210,13 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             let helper_line = eff.summon_helper_line();
             let lines: Vec<lua_ast::DslLine> = if let Some(text) = helper_line {
                 vec![lua_ast::DslLine::Action(text)]
+            } else if eff.is_summon_helper() {
+                // Helper params undecodable or block-alignment hazard —
+                // the activation block exists in the .ds but its resolve
+                // stays an empty stub (skip-not-mis-emit).
+                r.effects_no_handler += 1;
+                a_block_idx += 1;
+                continue;
             } else if let Some(handler) = &eff.operation_handler {
                 match walk.functions.get(handler.trim()) {
                     Some(body) => lua_ast::translate_body_with_functions(body, &walk.functions),
@@ -254,6 +261,10 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             let helper_line = eff.summon_helper_line();
             let lines: Vec<lua_ast::DslLine> = if let Some(text) = helper_line {
                 vec![lua_ast::DslLine::Action(text)]
+            } else if eff.is_summon_helper() {
+                // Block exists, but no line to emit — see Pass A.
+                a2_block_idx += 1;
+                continue;
             } else if let Some(handler) = &eff.operation_handler {
                 match walk.functions.get(handler.trim()) {
                     Some(body) => lua_ast::translate_body_with_functions(body, &walk.functions),
@@ -328,8 +339,10 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
         let mut conditions_added = 0usize;
         let mut op_effect_idx = 0usize;
         for eff in &walk.effects {
-            if eff.operation_handler.is_none() {
+            if eff.operation_handler.is_none() && !eff.is_summon_helper() {
                 // Purely passive — no corresponding effect block in .ds.
+                // Summon-helper chains DO own a block even without an op
+                // handler, so they must consume an index here.
                 continue;
             }
             let effect_block_idx = op_effect_idx;
@@ -363,7 +376,7 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
         let mut costs_added = 0usize;
         let mut cost_op_idx = 0usize;
         for eff in &walk.effects {
-            if eff.operation_handler.is_none() {
+            if eff.operation_handler.is_none() && !eff.is_summon_helper() {
                 continue; // purely passive — no effect block in .ds
             }
             let effect_block_idx = cost_op_idx;
@@ -393,7 +406,7 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
         let mut targets_added = 0usize;
         let mut tgt_op_idx = 0usize;
         for eff in &walk.effects {
-            if eff.operation_handler.is_none() {
+            if eff.operation_handler.is_none() && !eff.is_summon_helper() {
                 continue; // purely passive — no effect block in .ds
             }
             let effect_block_idx = tgt_op_idx;

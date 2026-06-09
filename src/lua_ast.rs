@@ -245,6 +245,33 @@ const RITUAL_OPERATION_PARAMS: &[&str] = &[
     "specificmatfilter", "requirementfunc", "sumpos", "self",
 ];
 
+/// Positional parameter names of `Fusion.CreateSummonEff` after the
+/// leading `handler` arg (from proc_fusion_spell.lua's
+/// FunctionWithNamedArgs list). Superset of the OP factory's params:
+/// adds the cosmetic `desc` and the target-side `extratg`.
+const FUSION_CREATE_SUMMON_EFF_PARAMS: &[&str] = &[
+    "fusfilter", "matfilter", "extrafil", "extraop", "gc", "stage2",
+    "exactcount", "value", "location", "chkf", "desc", "preselect",
+    "nosummoncheck", "extratg", "mincount", "maxcount", "sumpos",
+];
+
+/// Positional parameter names of `Ritual.CreateProc` after the leading
+/// `handler` arg (from proc_ritual.lua). `lvtype` comes first.
+const RITUAL_CREATE_PROC_PARAMS: &[&str] = &[
+    "lvtype", "filter", "lv", "desc", "extrafil", "extraop", "matfilter",
+    "stage2", "location", "forcedselection", "customoperation",
+    "specificmatfilter", "requirementfunc", "sumpos", "extratg", "self",
+];
+
+/// Positional parameter names of `Ritual.AddProcGreater` /
+/// `Ritual.AddProcEqual` after the leading `handler` arg — same list as
+/// CreateProc minus `lvtype` (the level procedure is implied).
+const RITUAL_ADD_PROC_LEVEL_PARAMS: &[&str] = &[
+    "filter", "lv", "desc", "extrafil", "extraop", "matfilter",
+    "stage2", "location", "forcedselection", "customoperation",
+    "specificmatfilter", "requirementfunc", "sumpos", "extratg", "self",
+];
+
 impl EffectSkeleton {
     /// First arg passed to `<binding>:<method>(...)`, or None if not called.
     fn first_arg_of(&self, method: &str) -> Option<&str> {
@@ -303,24 +330,31 @@ impl EffectSkeleton {
 
     /// DSL summon line for skeletons backed by a fusion/ritual helper.
     ///
-    /// Covers the plain factory forms (`Fusion.CreateSummonEff` /
-    /// `Ritual.AddProc*` / `Ritual.CreateProc` — fixed line) and the
-    /// parameterized `SetOperation` helpers (Phase 12 — params decode
-    /// into selector constraints). Returns None when params have no DSL
-    /// equivalent — the resolve stays empty rather than mis-emitting.
+    /// Both the plain factory forms (`Fusion.CreateSummonEff` /
+    /// `Ritual.AddProc*` / `Ritual.CreateProc`) and the parameterized
+    /// `SetOperation` helpers (Fusion.SummonEffOP / Ritual.Operation)
+    /// decode their params into selector constraints; a call with no
+    /// restrictive params emits the bare summon line. Returns None when
+    /// params have no DSL equivalent — the resolve stays empty rather
+    /// than mis-emitting an over-permissive bare line.
     pub fn summon_helper_line(&self) -> Option<String> {
-        if self.fusion_summon_spec {
-            return Some("fusion_summon (1, fusion monster)".to_string());
-        }
-        if self.ritual_summon_spec {
-            return Some("ritual_summon (1, ritual monster)".to_string());
-        }
+        if self.block_alignment_hazard { return None; }
         let op = self.summon_helper_op.as_ref()?;
-        if op.unresolved || self.block_alignment_hazard { return None; }
+        if op.unresolved { return None; }
         match op.kind {
             SummonHelperKind::FusionSummonEffOp => fusion_helper_line(&op.params),
             SummonHelperKind::RitualOperation => ritual_helper_line(&op.params),
         }
+    }
+
+    /// True when this skeleton is backed by any fusion/ritual summon
+    /// helper. Such chains own a .ds effect block (the activation shell)
+    /// even when the emit policy declines a line, so the apply tool's
+    /// positional block walks must consume an index for them.
+    pub fn is_summon_helper(&self) -> bool {
+        self.summon_helper_op.is_some()
+            || self.fusion_summon_spec
+            || self.ritual_summon_spec
     }
 }
 
@@ -474,8 +508,10 @@ fn closure_filter_to_where(raw: &str) -> Option<String> {
 /// predicate (and its card-name substring fallback) expects.
 fn setcode_const_to_archetype(c: &str) -> Option<&'static str> {
     Some(match c {
+        "SET_AMAZONESS"    => "Amazoness",
         "SET_ANCIENT_GEAR" => "Ancient Gear",
         "SET_DD"           => "D/D",
+        "SET_GEM_KNIGHT"   => "Gem-Knight",
         "SET_DDD"          => "D/D/D",
         "SET_FIENDSMITH"   => "Fiendsmith",
         "SET_FRIGHTFUR"    => "Frightfur",
@@ -485,6 +521,7 @@ fn setcode_const_to_archetype(c: &str) -> Option<&'static str> {
         "SET_MAGISTUS"     => "Magistus",
         "SET_MEGALITH"     => "Megalith",
         "SET_MELODIOUS"    => "Melodious",
+        "SET_METALFOES"    => "Metalfoes",
         "SET_MEMENTO"      => "Memento",
         "SET_NINJA"        => "Ninja",
         "SET_PREDAP"       => "Predap",
@@ -762,6 +799,11 @@ fn extract_effects_from_block(block: &Block, report: &mut LuaReport) {
                             by_binding.insert(name.clone(), EffectSkeleton {
                                 binding: name.clone(),
                                 fusion_summon_spec: true,
+                                summon_helper_op: Some(plain_helper_op_from_expr(
+                                    expr,
+                                    SummonHelperKind::FusionSummonEffOp,
+                                    FUSION_CREATE_SUMMON_EFF_PARAMS,
+                                )),
                                 ..Default::default()
                             });
                         } else if expr_is_ritual_proc_helper(expr) {
@@ -770,6 +812,11 @@ fn extract_effects_from_block(block: &Block, report: &mut LuaReport) {
                             by_binding.insert(name.clone(), EffectSkeleton {
                                 binding: name.clone(),
                                 ritual_summon_spec: true,
+                                summon_helper_op: Some(plain_helper_op_from_expr(
+                                    expr,
+                                    SummonHelperKind::RitualOperation,
+                                    RITUAL_CREATE_PROC_PARAMS,
+                                )),
                                 // AddProcEqual/Greater register the effect
                                 // internally — treat as already committed
                                 // so the registered-only filter below keeps it.
@@ -803,18 +850,21 @@ fn extract_effects_from_block(block: &Block, report: &mut LuaReport) {
                 // `c:RegisterEffect(Fusion.CreateSummonEff(...))` — direct
                 // commit without a local binding intermediate. Synthesize
                 // an anonymous skeleton so Pass A can fill the resolve.
-                if let Some((arg_expr, _)) = is_register_effect_fusion_inline(fc) {
-                    if arg_expr {
-                        let anon = format!("__fusion_inline_{}", by_binding.len());
-                        ordinals.insert(anon.clone(), source_ord);
-                        source_ord += 1;
-                        by_binding.insert(anon.clone(), EffectSkeleton {
-                            binding: anon,
-                            fusion_summon_spec: true,
-                            registered: true,
-                            ..Default::default()
-                        });
-                    }
+                if let Some(inner) = register_effect_fusion_inline_expr(fc) {
+                    let anon = format!("__fusion_inline_{}", by_binding.len());
+                    ordinals.insert(anon.clone(), source_ord);
+                    source_ord += 1;
+                    by_binding.insert(anon.clone(), EffectSkeleton {
+                        binding: anon,
+                        fusion_summon_spec: true,
+                        summon_helper_op: Some(plain_helper_op_from_expr(
+                            inner,
+                            SummonHelperKind::FusionSummonEffOp,
+                            FUSION_CREATE_SUMMON_EFF_PARAMS,
+                        )),
+                        registered: true,
+                        ..Default::default()
+                    });
                 }
                 // Top-level `Ritual.AddProcEqual(...)` / `AddProcGreater(...)`
                 // / `AddProcEqualCode(...)` / `AddProcGreaterCode(...)` /
@@ -822,12 +872,33 @@ fn extract_effects_from_block(block: &Block, report: &mut LuaReport) {
                 // The helper registers its own effect, so synthesize an
                 // anonymous ritual-spec skeleton.
                 if call_is_ritual_proc_helper(fc) {
+                    // AddProcEqual/Greater params decode like CreateProc
+                    // minus the implied lvtype. The *Code variants filter
+                    // by card-code lists and AddWholeLevelTribute changes
+                    // the tribute procedure — neither has a DSL
+                    // equivalent, so their ops stay unresolved and the
+                    // resolve remains an empty stub.
+                    let op = match call_head_string(fc).as_str() {
+                        "Ritual.AddProcEqual" | "Ritual.AddProcGreater" => {
+                            plain_helper_op_from_call(
+                                fc,
+                                SummonHelperKind::RitualOperation,
+                                RITUAL_ADD_PROC_LEVEL_PARAMS,
+                            )
+                        }
+                        _ => SummonHelperOp {
+                            kind: SummonHelperKind::RitualOperation,
+                            params: Vec::new(),
+                            unresolved: true,
+                        },
+                    };
                     let anon = format!("__ritual_inline_{}", by_binding.len());
                     ordinals.insert(anon.clone(), source_ord);
                     source_ord += 1;
                     by_binding.insert(anon.clone(), EffectSkeleton {
                         binding: anon,
                         ritual_summon_spec: true,
+                        summon_helper_op: Some(op),
                         registered: true,
                         ..Default::default()
                     });
@@ -975,10 +1046,10 @@ fn expr_is_fusion_createsummoneff(expr: &Expression) -> bool {
 }
 
 /// Detect `c:RegisterEffect(Fusion.CreateSummonEff(...))` — the inline
-/// commit shape where no local binding holds the effect. Returns
-/// `(true, ())` on match so the walker can synthesize an anonymous
-/// EffectSkeleton with `fusion_summon_spec = true`.
-fn is_register_effect_fusion_inline(fc: &FunctionCall) -> Option<(bool, ())> {
+/// commit shape where no local binding holds the effect. Returns the
+/// inner `Fusion.CreateSummonEff(...)` expression so the walker can
+/// synthesize an anonymous EffectSkeleton with its params decoded.
+fn register_effect_fusion_inline_expr(fc: &FunctionCall) -> Option<&Expression> {
     // Detect the outer call: <receiver>:RegisterEffect(<expr>)
     let suffixes: Vec<&Suffix> = fc.suffixes().collect();
     let last = suffixes.last()?;
@@ -998,10 +1069,62 @@ fn is_register_effect_fusion_inline(fc: &FunctionCall) -> Option<(bool, ())> {
     };
     let first = exprs.first()?;
     if expr_is_fusion_createsummoneff(first) {
-        Some((true, ()))
+        Some(*first)
     } else {
         None
     }
+}
+
+/// Decode the params of a plain summon-helper call expression
+/// (`Fusion.CreateSummonEff(c, …)` / `Ritual.CreateProc(c, …)` binding
+/// or inline forms). Non-call expressions mark the op unresolved.
+fn plain_helper_op_from_expr(
+    expr: &Expression,
+    kind: SummonHelperKind,
+    names: &[&str],
+) -> SummonHelperOp {
+    match expr {
+        Expression::FunctionCall(fc) => plain_helper_op_from_call(fc, kind, names),
+        _ => SummonHelperOp { kind, params: Vec::new(), unresolved: true },
+    }
+}
+
+/// Decode the params of a plain summon-helper call (positional form
+/// with a leading `handler` arg, or the named-args table sugar of
+/// `aux.FunctionWithNamedArgs`). The `handler` arg and the cosmetic
+/// `desc` param are dropped; every other param flows to the emit
+/// policy, which rejects anything without a DSL equivalent. Shapes
+/// that don't decode mark the op unresolved so the resolve stays an
+/// empty stub instead of mis-emitting an over-permissive bare line.
+fn plain_helper_op_from_call(
+    fc: &FunctionCall,
+    kind: SummonHelperKind,
+    names: &[&str],
+) -> SummonHelperOp {
+    let unresolved = SummonHelperOp { kind, params: Vec::new(), unresolved: true };
+    let params = match fc.suffixes().last() {
+        Some(Suffix::Call(Call::AnonymousCall(ast::FunctionArgs::Parentheses { arguments, .. }))) => {
+            // Positional form — first arg is the handler card, skip it.
+            let raws: Vec<String> = arguments
+                .iter()
+                .skip(1)
+                .map(|e| e.to_string().trim().to_string())
+                .collect();
+            positional_params(&raws, names)
+        }
+        // `Fusion.CreateSummonEff{handler=c, …}` named-table sugar —
+        // named_table_params drops the handler key itself.
+        Some(Suffix::Call(Call::AnonymousCall(ast::FunctionArgs::TableConstructor(tc)))) => {
+            match named_table_params(tc) {
+                Some(params) => params,
+                None => return unresolved,
+            }
+        }
+        _ => return unresolved,
+    };
+    let params: Vec<(String, String)> =
+        params.into_iter().filter(|(k, _)| k != "desc").collect();
+    SummonHelperOp { kind, params, unresolved: false }
 }
 
 /// Base identifier of an assignment target — `params` for `params = x`,
@@ -7194,5 +7317,151 @@ end
         let parsed = full_moon::parse(src).expect("parse");
         let report = walk(&parsed);
         assert!(extract_cost_block("s.cost", &report.functions).is_none());
+    }
+
+    #[test]
+    fn plain_helper_fusion_no_params_emits_bare_line() {
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Fusion.CreateSummonEff(c)
+    c:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(
+            p12_line(src, 0).as_deref(),
+            Some("fusion_summon (1, fusion monster)"),
+        );
+    }
+
+    #[test]
+    fn plain_helper_fusion_fusfilter_emits_where_clause() {
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Fusion.CreateSummonEff(c,aux.FilterBoolFunction(Card.IsSetCard,SET_SHADDOLL))
+    c:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(
+            p12_line(src, 0).as_deref(),
+            Some(r#"fusion_summon (1, fusion monster, where archetype == "Shaddoll")"#),
+        );
+    }
+
+    #[test]
+    fn plain_helper_fusion_named_table_fusfilter() {
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Fusion.CreateSummonEff{handler=c,fusfilter=aux.FilterBoolFunction(Card.IsRace,RACE_FIEND)}
+    c:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(
+            p12_line(src, 0).as_deref(),
+            Some("fusion_summon (1, fusion monster, where race == Fiend)"),
+        );
+    }
+
+    #[test]
+    fn plain_helper_fusion_undecodable_extrafil_skips() {
+        // extrafil widens the material pool — no DSL equivalent, so the
+        // old bare-line emit would over-permit. Must skip.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Fusion.CreateSummonEff(c,aux.FilterBoolFunction(Card.IsRace,RACE_DRAGON),nil,s.fextra)
+    c:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(p12_line(src, 0), None);
+    }
+
+    #[test]
+    fn plain_helper_fusion_inline_register_decodes() {
+        let src = r#"
+function s.initial_effect(c)
+    c:RegisterEffect(Fusion.CreateSummonEff(c,aux.FilterBoolFunction(Card.IsSetCard,SET_MELODIOUS)))
+end
+"#;
+        assert_eq!(
+            p12_line(src, 0).as_deref(),
+            Some(r#"fusion_summon (1, fusion monster, where archetype == "Melodious")"#),
+        );
+    }
+
+    #[test]
+    fn plain_helper_ritual_addproc_attribute_filter() {
+        let src = r#"
+function s.initial_effect(c)
+    Ritual.AddProcEqual(c,aux.FilterBoolFunction(Card.IsAttribute,ATTRIBUTE_LIGHT))
+end
+"#;
+        assert_eq!(
+            p12_line(src, 0).as_deref(),
+            Some("ritual_summon (1, ritual monster, where attribute == LIGHT)"),
+        );
+    }
+
+    #[test]
+    fn plain_helper_ritual_addproc_explicit_level_skips() {
+        // An explicit lv overrides the summoned monster's own level in
+        // the tribute check — not expressible, must skip.
+        let src = r#"
+function s.initial_effect(c)
+    Ritual.AddProcGreater(c,aux.FilterBoolFunction(Card.IsAttribute,ATTRIBUTE_LIGHT),8)
+end
+"#;
+        assert_eq!(p12_line(src, 0), None);
+    }
+
+    #[test]
+    fn plain_helper_ritual_addproc_code_variant_skips() {
+        // *Code variants restrict the ritual target to specific card
+        // codes — not expressible as a DSL where-clause yet.
+        let src = r#"
+function s.initial_effect(c)
+    Ritual.AddProcGreaterCode(c,3,nil,99414168)
+end
+"#;
+        assert_eq!(p12_line(src, 0), None);
+    }
+
+    #[test]
+    fn plain_helper_ritual_createproc_desc_only_emits_bare_line() {
+        // desc is cosmetic; lvtype GREATER is the helper's standard
+        // procedure — the bare line is correct here.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Ritual.CreateProc(c,RITPROC_GREATER,nil,nil,aux.Stringid(id,1))
+    c:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(
+            p12_line(src, 0).as_deref(),
+            Some("ritual_summon (1, ritual monster)"),
+        );
+    }
+
+    #[test]
+    fn plain_helper_after_bare_activate_chain_skips() {
+        // Frightfur Factory shape: a bare EFFECT_TYPE_ACTIVATE chain
+        // precedes the helper chain, so positional block mapping is
+        // off-by-one — the helper emit must skip.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_ACTIVATE)
+    e1:SetCode(EVENT_FREE_CHAIN)
+    c:RegisterEffect(e1)
+    local e2=Fusion.CreateSummonEff(c,aux.FilterBoolFunction(Card.IsSetCard,SET_FRIGHTFUR))
+    c:RegisterEffect(e2)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let helper = report
+            .effects
+            .iter()
+            .find(|e| e.is_summon_helper())
+            .expect("helper skeleton");
+        assert_eq!(helper.summon_helper_line(), None);
     }
 }
