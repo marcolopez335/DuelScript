@@ -22,6 +22,7 @@ card "Weathering Soldier" {
         once_per_turn: hard
         timing: if
         trigger: custom "chain_end"
+        condition: reason == effect
         resolve {
             add_to_hand (all, card, either controls)
         }
@@ -32,5 +33,8 @@ card "Weathering Soldier" {
         once_per_turn: soft
         mandatory
         trigger: end_phase
+        resolve {
+            modify_atk self - 600 until end_of_turn
+        }
     }
 }
