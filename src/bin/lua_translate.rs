@@ -101,6 +101,7 @@ fn main() {
             println!("  blocks injected:         {}", report.blocks_injected);
             println!("  effects skipped (todo):  {}", report.effects_todo_only);
             println!("  effects skipped (no map): {}", report.effects_no_handler);
+            println!("  effects skipped (align):  {}", report.effects_alignment_hazard);
             println!("  effects skipped (no lua): {}", report.no_lua);
             println!("  passives injected:       {}", report.passives_injected);
             println!("  conditions injected:     {}", report.conditions_injected);
@@ -150,6 +151,7 @@ struct ApplyReport {
     blocks_injected: usize,
     effects_todo_only: usize,
     effects_no_handler: usize,
+    effects_alignment_hazard: usize,
     passives_injected: usize,
     conditions_injected: usize,
     costs_injected: usize,
@@ -224,6 +226,14 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
                 a_block_idx += 1;
                 continue;
             } else if let Some(handler) = &eff.operation_handler {
+                if eff.block_alignment_hazard {
+                    // A clone / bare-activate chain owns a .ds block before
+                    // this one — positional mapping is off-by-N from here
+                    // on; filling would land in the wrong block.
+                    r.effects_alignment_hazard += 1;
+                    a_block_idx += 1;
+                    continue;
+                }
                 match walk.functions.get(handler.trim()) {
                     Some(body) => lua_ast::translate_body_with_functions(body, &walk.functions),
                     None => {
@@ -272,6 +282,12 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
                 a2_block_idx += 1;
                 continue;
             } else if let Some(handler) = &eff.operation_handler {
+                if eff.block_alignment_hazard {
+                    // See Pass A — positional mapping unreliable past a
+                    // clone / bare-activate block owner.
+                    a2_block_idx += 1;
+                    continue;
+                }
                 match walk.functions.get(handler.trim()) {
                     Some(body) => lua_ast::translate_body_with_functions(body, &walk.functions),
                     None => { a2_block_idx += 1; continue; }

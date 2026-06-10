@@ -1006,9 +1006,10 @@ fn extract_effects_from_block(block: &Block, report: &mut LuaReport) {
     // Block-alignment guard (Phase 12): bare EFFECT_TYPE_ACTIVATE chains
     // with no SetOperation own a .ds effect block (the activation shell
     // of a spell/trap) yet never consume a Pass-A block index — same for
-    // Clone chains collected above. Any helper-op skeleton that comes
-    // AFTER such a chain in source order would fill the wrong block, so
-    // it gets flagged and the emit skips.
+    // Clone chains collected above. ANY skeleton that comes AFTER such a
+    // chain in source order would fill the wrong block (c99634927: the
+    // e3 clone owns "Effect 3", so e4's translation landed there), so it
+    // gets flagged and Pass A / A2 / helper emit skip.
     let mut hazards = clone_hazards;
     for skel in by_binding.values() {
         let is_bare_activate = skel.registered
@@ -1025,7 +1026,6 @@ fn extract_effects_from_block(block: &Block, report: &mut LuaReport) {
     }
     if !hazards.is_empty() {
         for (binding, skel) in by_binding.iter_mut() {
-            if skel.summon_helper_op.is_none() { continue; }
             let Some(ord) = ordinals.get(binding) else { continue };
             if hazards.iter().any(|h| h < ord) {
                 skel.block_alignment_hazard = true;
@@ -7963,5 +7963,46 @@ end
 "#;
         let actions = p11_actions(src, "s.activate");
         assert!(actions.is_empty(), "branch double-set must skip, got {:?}", actions);
+    }
+
+    #[test]
+    fn clone_in_initial_effect_flags_later_skeletons() {
+        // c99634927 shape: e3=e2:Clone() owns the .ds "Effect 3" block
+        // but never enters walk.effects, so positional block mapping is
+        // off-by-one for everything after it — e4's translation landed
+        // in Effect 3's resolve. Skeletons after the clone must carry
+        // block_alignment_hazard; skeletons before it must not.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_IGNITION)
+    e1:SetRange(LOCATION_PZONE)
+    e1:SetOperation(s.atkop1)
+    c:RegisterEffect(e1)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+    e2:SetCode(EVENT_SUMMON_SUCCESS)
+    e2:SetOperation(s.atkop2)
+    c:RegisterEffect(e2)
+    local e3=e2:Clone()
+    e3:SetCode(EVENT_SPSUMMON_SUCCESS)
+    c:RegisterEffect(e3)
+    local e4=Effect.CreateEffect(c)
+    e4:SetType(EFFECT_TYPE_IGNITION)
+    e4:SetRange(LOCATION_MZONE)
+    e4:SetOperation(s.atkop3)
+    c:RegisterEffect(e4)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let hazard: Vec<(String, bool)> = report.effects.iter()
+            .map(|e| (e.binding.clone(), e.block_alignment_hazard))
+            .collect();
+        assert_eq!(hazard, vec![
+            ("e1".to_string(), false),
+            ("e2".to_string(), false),
+            ("e4".to_string(), true),
+        ]);
     }
 }
