@@ -823,20 +823,18 @@ fn extract_effects_from_block(block: &Block, report: &mut LuaReport) {
                                 registered: true,
                                 ..Default::default()
                             });
-                        } else if expr_is_ritual_proc_helper(expr) {
+                        } else if let Some(op) = ritual_helper_op_from_expr(expr) {
                             ordinals.insert(name.clone(), source_ord);
                             source_ord += 1;
                             by_binding.insert(name.clone(), EffectSkeleton {
                                 binding: name.clone(),
                                 ritual_summon_spec: true,
-                                summon_helper_op: Some(plain_helper_op_from_expr(
-                                    expr,
-                                    SummonHelperKind::RitualOperation,
-                                    RITUAL_CREATE_PROC_PARAMS,
-                                )),
-                                // AddProcEqual/Greater register the effect
-                                // internally — treat as already committed
-                                // so the registered-only filter below keeps it.
+                                summon_helper_op: Some(op),
+                                // AddProc* register the effect internally
+                                // (CreateProc's is committed by the
+                                // `c:RegisterEffect(eN)` that follows) —
+                                // treat as already committed so the
+                                // registered-only filter below keeps it.
                                 registered: true,
                                 ..Default::default()
                             });
@@ -1060,14 +1058,34 @@ fn call_is_ritual_proc_helper(fc: &FunctionCall) -> bool {
     )
 }
 
-/// True if `expr` is `Ritual.CreateProc(...)` — the binding-form helper
-/// that returns the registered ritual activation effect.
-fn expr_is_ritual_proc_helper(expr: &Expression) -> bool {
-    if let Expression::FunctionCall(fc) = expr {
-        let head = call_head_string(fc);
-        head == "Ritual.CreateProc"
-    } else {
-        false
+/// Decode the assigned-form ritual summon helpers: `local
+/// e1=Ritual.CreateProc(...)` / `AddProcEqual(...)` /
+/// `AddProcGreater(...)`. The *Code variants and AddWholeLevelTribute
+/// decode as unresolved ops (card-code filters / tribute-procedure
+/// changes have no DSL equivalent), so their skeletons keep block
+/// alignment while the resolve stays an empty stub. Mirrors the
+/// top-level statement handling in the walker.
+fn ritual_helper_op_from_expr(expr: &Expression) -> Option<SummonHelperOp> {
+    let Expression::FunctionCall(fc) = expr else { return None };
+    match call_head_string(fc).as_str() {
+        "Ritual.CreateProc" => Some(plain_helper_op_from_call(
+            fc,
+            SummonHelperKind::RitualOperation,
+            RITUAL_CREATE_PROC_PARAMS,
+        )),
+        "Ritual.AddProcEqual" | "Ritual.AddProcGreater" => Some(plain_helper_op_from_call(
+            fc,
+            SummonHelperKind::RitualOperation,
+            RITUAL_ADD_PROC_LEVEL_PARAMS,
+        )),
+        "Ritual.AddProcEqualCode"
+        | "Ritual.AddProcGreaterCode"
+        | "Ritual.AddWholeLevelTribute" => Some(SummonHelperOp {
+            kind: SummonHelperKind::RitualOperation,
+            params: Vec::new(),
+            unresolved: true,
+        }),
+        _ => None,
     }
 }
 
@@ -7547,6 +7565,80 @@ end
             p12_line(src, 0).as_deref(),
             Some("ritual_summon (1, ritual monster)"),
         );
+    }
+
+    #[test]
+    fn plain_helper_ritual_addproc_assigned_table_filter_emits() {
+        // c14735698 shape (minus extrafil): the assigned brace-table form
+        // previously produced NO skeleton, shifting every later block one
+        // slot too early in apply.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Ritual.AddProcEqual{handler=c,filter=aux.FilterBoolFunction(Card.IsSetCard,SET_SHADDOLL)}
+    e1:SetCountLimit(1,id)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_IGNITION)
+    e2:SetOperation(s.thop)
+    c:RegisterEffect(e2)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        assert_eq!(report.effects.len(), 2);
+        assert!(report.effects[0].ritual_summon_spec);
+        assert_eq!(report.effects[1].binding, "e2");
+        assert_eq!(
+            report.effects[0].summon_helper_line().as_deref(),
+            Some(r#"ritual_summon (1, ritual monster, where archetype == "Shaddoll")"#),
+        );
+    }
+
+    #[test]
+    fn plain_helper_ritual_addproc_assigned_paren_table_stage2_skips_line() {
+        // c12157563 (Forbidden Ritual Art): paren-wrapped named table with
+        // stage2/location — no DSL equivalent, so the line skips, but the
+        // skeleton must still hold its block slot ahead of e2.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Ritual.AddProcEqual({handler=c,location=LOCATION_GRAVE,stage2=s.stage2})
+    e1:SetCountLimit(1,{id,0})
+    c:RegisterEffect(e1)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_QUICK_O)
+    e2:SetCode(EVENT_FREE_CHAIN)
+    e2:SetCost(Cost.SelfBanish)
+    e2:SetOperation(s.effop)
+    c:RegisterEffect(e2)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        assert_eq!(report.effects.len(), 2);
+        assert!(report.effects[0].ritual_summon_spec);
+        assert_eq!(report.effects[0].summon_helper_line(), None);
+        assert_eq!(report.effects[1].binding, "e2");
+    }
+
+    #[test]
+    fn plain_helper_ritual_whole_level_tribute_assigned_unresolved() {
+        // Assigned AddWholeLevelTribute changes the tribute procedure —
+        // unresolved op: skeleton keeps alignment, resolve stays empty.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Ritual.AddWholeLevelTribute(c,s.tributable)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_IGNITION)
+    e2:SetOperation(s.thop)
+    c:RegisterEffect(e2)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        assert_eq!(report.effects.len(), 2);
+        assert!(report.effects[0].ritual_summon_spec);
+        assert!(report.effects[0].summon_helper_op.as_ref().unwrap().unresolved);
+        assert_eq!(report.effects[0].summon_helper_line(), None);
+        assert_eq!(report.effects[1].binding, "e2");
     }
 
     #[test]
