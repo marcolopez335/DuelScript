@@ -414,6 +414,7 @@ fn ast_duration_to_runtime(d: &Duration) -> RuntimeDuration {
         Duration::NextStandbyPhase => RuntimeDuration::NextStandbyPhase,
         Duration::WhileOnField     => RuntimeDuration::WhileOnField,
         Duration::WhileFaceUp      => RuntimeDuration::WhileFaceUp,
+        Duration::WhileEquipped    => RuntimeDuration::WhileEquipped,
         Duration::NTurns(n)        => RuntimeDuration::NTurns(*n),
     }
 }
@@ -440,7 +441,8 @@ fn duration_to_code(dur: &Option<Duration>) -> u32 {
     match dur {
         Some(Duration::ThisTurn) | Some(Duration::EndOfTurn) => 1,
         Some(Duration::EndPhase) => 2,
-        Some(Duration::WhileOnField) | Some(Duration::WhileFaceUp) => 3,
+        Some(Duration::WhileOnField) | Some(Duration::WhileFaceUp)
+        | Some(Duration::WhileEquipped) => 3,
         Some(Duration::Permanently) => 0,
         None => 0,
         _ => 1,

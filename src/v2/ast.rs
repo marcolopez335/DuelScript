@@ -646,6 +646,10 @@ pub enum Duration {
     NextStandbyPhase,
     WhileOnField,
     WhileFaceUp,
+    /// Lifetime of an equip relationship — the modifier expires when the
+    /// equip card stops being equipped to the receiver (EFFECT_TYPE_EQUIP
+    /// semantics on the lua side).
+    WhileEquipped,
     Permanently,
     NTurns(u32),
 }

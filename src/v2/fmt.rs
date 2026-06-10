@@ -1301,6 +1301,7 @@ fn format_duration(d: &Duration) -> String {
         Duration::NextStandbyPhase => "next_standby_phase".to_string(),
         Duration::WhileOnField => "while_on_field".to_string(),
         Duration::WhileFaceUp => "while_face_up".to_string(),
+        Duration::WhileEquipped => "while_equipped".to_string(),
         Duration::Permanently => "permanently".to_string(),
         Duration::NTurns(n) => format!("{}_turns", n),
     }
@@ -1574,6 +1575,36 @@ mod tests {
             .unwrap_or_else(|e| panic!("roundtrip failed for {}:\n=== output ===\n{}\n=== error ===\n{}", path, formatted, e));
         assert_eq!(reparsed.cards.len(), file.cards.len());
         assert_eq!(reparsed.cards[0].name, file.cards[0].name);
+    }
+
+    #[test]
+    fn test_while_equipped_duration_roundtrips() {
+        // Phase 15: equipped_card receiver + while_equipped duration
+        // survive the parse → format → reparse fixed point.
+        let source = r#"
+card "Equip Receiver Test" {
+    id: 1
+    type: Normal Trap
+
+    effect "Equip and boost" {
+        speed: 2
+        mandatory
+        resolve {
+            equip self to target
+            modify_atk equipped_card + 400 until while_equipped
+            negate_effects equipped_card while_equipped
+            grant equipped_card cannot_attack until while_equipped
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let formatted = format_file(&file);
+        assert!(formatted.contains("modify_atk equipped_card + 400 until while_equipped"),
+            "missing modify line in:\n{}", formatted);
+        let reparsed = parse_v2(&formatted)
+            .unwrap_or_else(|e| panic!("roundtrip failed:\n{}\n{}", formatted, e));
+        assert_eq!(reparsed.cards[0].effects[0].resolve.len(), 4);
     }
 
     #[test] fn test_pot_of_greed_roundtrips() { roundtrip("cards/goat/pot_of_greed.ds"); }

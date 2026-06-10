@@ -2209,6 +2209,7 @@ fn parse_duration(text: &str) -> Result<Duration, V2ParseError> {
         "next_standby_phase" => Ok(Duration::NextStandbyPhase),
         "while_on_field" => Ok(Duration::WhileOnField),
         "while_face_up" => Ok(Duration::WhileFaceUp),
+        "while_equipped" => Ok(Duration::WhileEquipped),
         "permanently" => Ok(Duration::Permanently),
         _ => {
             // N_turns pattern
@@ -2616,6 +2617,44 @@ card "Level Test" {
         assert!(matches!(
             &resolve[1],
             Action::SetStat(StatName::Level, _, _, None)
+        ));
+    }
+
+    #[test]
+    fn test_equipped_card_receiver_while_equipped() {
+        // Phase 15 emission shape (Tyrant Wing / Old Entity Hastorr):
+        // equip-spell/trap resolve lines aimed at the equipped monster,
+        // bounded by the equip relationship's lifetime.
+        let source = r#"
+card "Equip Receiver Test" {
+    id: 1
+    type: Normal Trap
+
+    effect "Equip and boost" {
+        speed: 2
+        mandatory
+        resolve {
+            equip self to target
+            modify_atk equipped_card + 400 until while_equipped
+            negate_effects equipped_card while_equipped
+            grant equipped_card cannot_attack until while_equipped
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let resolve = &file.cards[0].effects[0].resolve;
+        assert!(matches!(
+            &resolve[1],
+            Action::ModifyStat(StatName::Atk, Selector::EquippedCard, false, _, Some(Duration::WhileEquipped))
+        ));
+        assert!(matches!(
+            &resolve[2],
+            Action::NegateEffects(Selector::EquippedCard, Some(Duration::WhileEquipped))
+        ));
+        assert!(matches!(
+            &resolve[3],
+            Action::Grant(Selector::EquippedCard, GrantAbility::CannotAttack, Some(Duration::WhileEquipped))
         ));
     }
 
