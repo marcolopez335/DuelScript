@@ -51,6 +51,50 @@ pub struct FunctionBody {
     /// `return <expr>` with no preceding statements. Phase 6 uses this to
     /// extract DSL `condition: <expr>` from `s.condition` handler bodies.
     pub return_expr: Option<String>,
+    /// Counter-manipulation method calls (`<recv>:AddCounter(...)` /
+    /// `<recv>:RemoveCounter(...)`) found in the body (Phase 13). Empty
+    /// when the body had none OR when an op appeared inside an
+    /// elseif/else arm — emitting one arm of a runtime either/or would
+    /// mis-emit, so the whole body's counter ops are poisoned instead.
+    pub counter_ops: Vec<CounterOp>,
+}
+
+/// One `<receiver>:AddCounter(...)` / `<receiver>:RemoveCounter(...)`
+/// statement extracted from a function body (Phase 13).
+///
+/// Arg conventions on the lua side:
+///   - `AddCounter(countertype, count[, singly])`
+///   - `RemoveCounter(player, countertype, count, reason)`
+/// Both `countertype` and `count` are kept as raw text; emit time
+/// resolves the counter NAME via the strings.conf table and requires a
+/// literal count (the DSL grammar slot is `unsigned`).
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct CounterOp {
+    /// True for AddCounter (→ `place_counter`), false for RemoveCounter
+    /// (→ `remove_counter`).
+    pub add: bool,
+    /// Receiver text — `c`, `tc`, `e:GetHandler()`, loop vars, …
+    pub receiver: String,
+    /// Raw countertype arg, possibly a `COUNTER_NEED_ENABLE+COUNTER_X` sum.
+    pub counter_arg: String,
+    /// Raw count arg. Non-literal counts skip at emit (grammar: unsigned).
+    pub count_arg: String,
+    /// RemoveCounter's player arg (`tp`, …). Empty for AddCounter.
+    pub player_arg: String,
+    /// True when the op sat inside any loop (aux.Next / numeric-for /
+    /// while / repeat). Only aux.Next-style loops with a mapped source
+    /// group are translatable; the rest skip.
+    pub multi_target: bool,
+    /// Source-group binding when inside `for <var> in aux.Next(g)`.
+    pub loop_source_group: Option<String>,
+    /// The loop variable when inside an aux.Next-style loop. The emit
+    /// path requires `receiver == loop_var` — an op on `c` inside a
+    /// group loop targets the card itself, not the group members.
+    pub loop_var: Option<String>,
+    /// True when the op sat inside any `if`/`while` block. Resolve
+    /// emission tolerates this (the IsRelateToEffect gate idiom), cost
+    /// extraction does not (a conditional payment is not a fixed cost).
+    pub in_branch: bool,
 }
 
 /// One `Effect.CreateEffect → SetX → <recv>:RegisterEffect(eN)` chain
@@ -628,9 +672,10 @@ fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
             let register_chains = extract_register_chains(body_block);
             let value_bindings = extract_value_bindings(body_block);
             let return_expr = extract_return_expr(body_block);
+            let counter_ops = extract_counter_ops(body_block);
             if !calls.is_empty() || !group_bindings.is_empty()
                 || !register_chains.is_empty() || !value_bindings.is_empty()
-                || return_expr.is_some()
+                || return_expr.is_some() || !counter_ops.is_empty()
             {
                 report.functions.insert(name, FunctionBody {
                     calls,
@@ -638,6 +683,7 @@ fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
                     register_chains,
                     value_bindings,
                     return_expr,
+                    counter_ops,
                 });
             }
         }
@@ -1431,6 +1477,8 @@ pub enum CostAction {
     Tribute(String),    // tribute <selector>
     Banish(String),     // banish <selector>
     SendToGy(String),   // send <selector> to gy
+    /// remove_counter "<name>" <n> from <self|selector> (Phase 13)
+    RemoveCounter(String, u32, String),
 }
 
 impl CostAction {
@@ -1441,6 +1489,8 @@ impl CostAction {
             CostAction::Tribute(sel)  => format!("tribute {}", sel),
             CostAction::Banish(sel)   => format!("banish {}", sel),
             CostAction::SendToGy(sel) => format!("send {} to gy", sel),
+            CostAction::RemoveCounter(name, n, sel) =>
+                format!("remove_counter \"{}\" {} from {}", name, n, sel),
         }
     }
 }
@@ -1596,12 +1646,48 @@ fn extract_cost_from_body(body: &FunctionBody) -> Option<CostBlockSpec> {
                 }
             }
 
+            // Duel.RemoveCounter as cost — field-wide single-counter
+            // removal (Phase 13). Same n == 1 / side-boolean constraints
+            // as the resolve path; anything else bails the whole cost.
+            "Duel.RemoveCounter" => {
+                let (name, controller) = duel_remove_counter_parts(a)?;
+                actions.push(CostAction::RemoveCounter(
+                    name.to_string(), 1, format!("(1, card, {})", controller),
+                ));
+            }
+
             _ if m.starts_with("Duel.") => {
                 // Unknown or unhandled Duel action in cost context → skip-not-mis-emit.
                 return None;
             }
 
             _ => {} // non-Duel call (aux.*, etc.) — ignore
+        }
+    }
+
+    // Counter-removal method calls as cost (Phase 13):
+    // `c:RemoveCounter(tp, COUNTER_X, n, REASON_COST)` → remove from self.
+    // Constraints are stricter than the resolve path — a cost is a fixed
+    // payment, so any counter op we can't express bails the entire block:
+    //   - AddCounter in a cost body → bail (not a payment we model);
+    //   - branch-nested ops → bail (conditional payment);
+    //   - only `self` receivers (c / e:GetHandler()), literal counts,
+    //     curated counter names.
+    for op in &body.counter_ops {
+        if !op.add
+            && !op.in_branch
+            && !op.multi_target
+            && op.player_arg.trim() == "tp"
+            && matches!(op.receiver.as_str(), "c" | "e:GetHandler()")
+        {
+            let name = counter_arg_to_name(&op.counter_arg)?;
+            let count: u32 = op.count_arg.trim().parse().ok()?;
+            if count == 0 { return None; }
+            actions.push(CostAction::RemoveCounter(
+                name.to_string(), count, "self".to_string(),
+            ));
+        } else {
+            return None;
         }
     }
 
@@ -2097,6 +2183,316 @@ fn set_or_conflict(slot: &mut Option<String>, new: Option<String>) -> bool {
     conflicted
 }
 
+// ── Phase 13: counter-op extraction ──────────────────────────────────────
+
+/// Loop context threaded through the counter-op walk: the aux.Next-style
+/// source group binding (empty string = untranslatable loop) plus the
+/// loop variable name (empty when unknown).
+#[derive(Clone, Copy)]
+struct CounterLoopCtx<'a> {
+    group: &'a str,
+    var: &'a str,
+}
+
+/// Walk a function body for statement-level `<recv>:AddCounter(...)` /
+/// `<recv>:RemoveCounter(...)` calls (Phase 13).
+///
+/// Returns an EMPTY vec when any counter op sat inside an elseif/else
+/// arm: the if/else idiom encodes a runtime either/or, and emitting
+/// both arms (or one of them) mis-states the card. Plain `if`-gated ops
+/// are kept — the ubiquitous `if c:IsRelateToEffect(e) and c:IsFaceup()`
+/// guard wraps virtually every operation body.
+///
+/// Calls in if-CONDITION position (`if c:AddCounter(...) then`) are not
+/// statement-level and are deliberately invisible here — the gated-on-
+/// return-value idiom has follow-up actions we can't model.
+fn extract_counter_ops(block: &Block) -> Vec<CounterOp> {
+    let mut out = Vec::new();
+    let mut alt_tainted = false;
+    collect_counter_ops(block, None, false, false, &mut out, &mut alt_tainted);
+    if alt_tainted { return Vec::new(); }
+    out
+}
+
+fn collect_counter_ops(
+    block: &Block,
+    loop_ctx: Option<CounterLoopCtx<'_>>,
+    in_branch: bool,
+    in_alt_arm: bool,
+    out: &mut Vec<CounterOp>,
+    alt_tainted: &mut bool,
+) {
+    for stmt in block.stmts() {
+        match stmt {
+            Stmt::FunctionCall(fc) => {
+                if let Some(op) = counter_op_from_fc(fc, loop_ctx, in_branch) {
+                    if in_alt_arm { *alt_tainted = true; }
+                    out.push(op);
+                }
+            }
+            Stmt::If(if_stmt) => {
+                collect_counter_ops(if_stmt.block(), loop_ctx, true, in_alt_arm, out, alt_tainted);
+                for ei in if_stmt.else_if().into_iter().flatten() {
+                    collect_counter_ops(ei.block(), loop_ctx, true, true, out, alt_tainted);
+                }
+                if let Some(else_block) = if_stmt.else_block() {
+                    collect_counter_ops(else_block, loop_ctx, true, true, out, alt_tainted);
+                }
+            }
+            // while/repeat/numeric-for loops have no translatable member
+            // group — mark ops inside them multi-target with an empty
+            // group so the emit path skips them.
+            Stmt::While(w) => collect_counter_ops(
+                w.block(), Some(CounterLoopCtx { group: "", var: "" }), true, in_alt_arm, out, alt_tainted),
+            Stmt::Repeat(r) => collect_counter_ops(
+                r.block(), Some(CounterLoopCtx { group: "", var: "" }), in_branch, in_alt_arm, out, alt_tainted),
+            Stmt::NumericFor(nf) => collect_counter_ops(
+                nf.block(), Some(CounterLoopCtx { group: "", var: "" }), in_branch, in_alt_arm, out, alt_tainted),
+            Stmt::GenericFor(gf) => {
+                let group = aux_next_source_group(gf)
+                    .or_else(|| iter_method_source_group(gf))
+                    .unwrap_or_default();
+                let var = gf.names().iter().next()
+                    .map(|n| n.token().to_string())
+                    .unwrap_or_default();
+                let ctx = CounterLoopCtx { group: &group, var: &var };
+                collect_counter_ops(gf.block(), Some(ctx), in_branch, in_alt_arm, out, alt_tainted);
+            }
+            Stmt::Do(d) => collect_counter_ops(d.block(), loop_ctx, in_branch, in_alt_arm, out, alt_tainted),
+            _ => {}
+        }
+    }
+}
+
+/// Build a `CounterOp` from a statement-level function call whose LAST
+/// suffix is a `:AddCounter(...)` / `:RemoveCounter(...)` method call.
+/// The receiver is the rendered prefix + intermediate suffixes (same
+/// convention as `try_register_effect_call`), e.g. `e:GetHandler()`.
+fn counter_op_from_fc(
+    fc: &FunctionCall,
+    loop_ctx: Option<CounterLoopCtx<'_>>,
+    in_branch: bool,
+) -> Option<CounterOp> {
+    let suffixes: Vec<&Suffix> = fc.suffixes().collect();
+    let last = suffixes.last()?;
+    let (method, args) = match last {
+        Suffix::Call(Call::MethodCall(mc)) => {
+            let name = mc.name().token().to_string();
+            if name != "AddCounter" && name != "RemoveCounter" { return None; }
+            (name, call_args_to_strings(mc.args()))
+        }
+        _ => return None,
+    };
+    let mut receiver = match fc.prefix() {
+        ast::Prefix::Name(n) => n.token().to_string(),
+        _ => fc.prefix().to_string().trim().to_string(),
+    };
+    for s in &suffixes[..suffixes.len() - 1] {
+        match s {
+            Suffix::Index(Index::Dot { name, .. }) => {
+                receiver.push('.');
+                receiver.push_str(&name.token().to_string());
+            }
+            Suffix::Call(Call::MethodCall(mc)) => {
+                receiver.push(':');
+                receiver.push_str(&mc.name().token().to_string());
+                let a = call_args_to_strings(mc.args());
+                receiver.push('(');
+                receiver.push_str(&a.join(","));
+                receiver.push(')');
+            }
+            Suffix::Call(Call::AnonymousCall(args)) => {
+                let a = call_args_to_strings(args);
+                receiver.push('(');
+                receiver.push_str(&a.join(","));
+                receiver.push(')');
+            }
+            _ => {}
+        }
+    }
+    let add = method == "AddCounter";
+    let (player_arg, counter_arg, count_arg) = if add {
+        // AddCounter(countertype, count[, singly])
+        if args.len() < 2 { return None; }
+        (String::new(), args[0].clone(), args[1].clone())
+    } else {
+        // RemoveCounter(player, countertype, count, reason)
+        if args.len() < 4 { return None; }
+        (args[0].clone(), args[1].clone(), args[2].clone())
+    };
+    Some(CounterOp {
+        add,
+        receiver,
+        counter_arg,
+        count_arg,
+        player_arg,
+        multi_target: loop_ctx.is_some(),
+        loop_source_group: loop_ctx.map(|c| c.group.to_string()),
+        loop_var: loop_ctx.map(|c| c.var.to_string()),
+        in_branch,
+    })
+}
+
+/// Named `COUNTER_*` lua constants → countertype codes. The commonly-
+/// used set from CardScripts/card_counter_constants.lua plus the two
+/// flag bits from constant.lua. File-local `local COUNTER_X=0x…`
+/// definitions are NOT resolved here — those ops skip (backlog).
+fn counter_const_code(name: &str) -> Option<u32> {
+    Some(match name {
+        "COUNTER_A"         => 0x100e,
+        "COUNTER_BUSHIDO"   => 0x3,
+        "COUNTER_EC"        => 0x217,
+        "COUNTER_FEATHER"   => 0x10,
+        "COUNTER_FOG"       => 0x1019,
+        "COUNTER_KAIJU"     => 0x37,
+        "COUNTER_PREDATOR"  => 0x1041,
+        "COUNTER_RESONANCE" => 0x211,
+        "COUNTER_SIGNAL"    => 0x1148,
+        "COUNTER_SPELL"     => 0x1,
+        "COUNTER_VENOM"     => 0x1009,
+        // Flag bits — appear as addends (`COUNTER_NEED_ENABLE+COUNTER_FOG`).
+        "COUNTER_WITHOUT_PERMIT" => 0x1000,
+        "COUNTER_NEED_ENABLE"    => 0x2000,
+        _ => return None,
+    })
+}
+
+/// Countertype code → display name, from EDOPro's authoritative
+/// `!counter` table (ProjectIgnis/Distribution config/strings.conf,
+/// fetched 2026-06-09). Codes keep the 0x1000 placed-without-permit bit
+/// — it is part of counter identity there (0x148 Summon Counter vs
+/// 0x1148 Signal Counter differ only in that bit). Entries whose name
+/// embeds double quotes (`Counter ("B.E.S.")` etc.) are EXCLUDED: the
+/// DSL string literal has no escape syntax, so those ops skip.
+fn counter_code_name(code: u32) -> Option<&'static str> {
+    Some(match code {
+        0x1 => "Spell Counter",
+        0x3 => "Bushido Counter",
+        0x4 => "Psychic Counter",
+        0x5 => "Shine Counter",
+        0x6 => "Crystal Counter",
+        0x8 => "Morph Counter",
+        0xa => "Genex Counter",
+        0xc => "Thunder Counter",
+        0xd => "Greed Counter",
+        0xf => "Worm Counter",
+        0x10 => "Black Feather Counter",
+        0x11 => "Hyper Venom Counter",
+        0x12 => "Karakuri Counter",
+        0x13 => "Chaos Counter",
+        0x16 => "Spellstone Counter",
+        0x17 => "Nut Counter",
+        0x18 => "Flower Counter",
+        0x1a => "Payback Counter",
+        0x1b => "Clock Counter",
+        0x1c => "D Counter",
+        0x1d => "Junk Counter",
+        0x1e => "Gate Counter",
+        0x20 => "Plant Counter",
+        0x22 => "Dragonic Counter",
+        0x23 => "Ocean Counter",
+        0x25 => "Chronicle Counter",
+        0x2b => "Destiny Counter",
+        0x2c => "You Got It Boss! Counter",
+        0x2e => "Shark Counter",
+        0x2f => "Pumpkin Counter",
+        0x30 => "Hi-Five the Sky Counter",
+        0x31 => "Rising Sun Counter",
+        0x32 => "Balloon Counter",
+        0x33 => "Yosen Counter",
+        0x35 => "Symphonic Counter",
+        0x36 => "Performage Counter",
+        0x37 => "Kaiju Counter",
+        0x43 => "Defect Counter",
+        0x4a => "Athlete Counter",
+        0x55 => "Hammer Counter",
+        0x59 => "Otoshidamashi Counter",
+        0x90 => "Maiden Counter",
+        0x91 => "Speed Counter",
+        0x92 => "Plasma Counter",
+        0x93 => "Sacred Beast Counter",
+        0x94 => "Earthbound Immortal Counter",
+        0x95 => "Crest Counter",
+        0x96 => "Battle Buffer Counter",
+        0x99 => "Full Moon Counter",
+        0xfb => "Trickstar Counter",
+        0x103 => "Medal Counter",
+        0x107 => "Gearspring Counter",
+        0x147 => "Borrel Counter",
+        0x148 => "Summon Counter",
+        0x201 => "Fire Fist Counter",
+        0x202 => "Phantasm Counter",
+        0x207 => "Emperor's Key Counter",
+        0x20a => "Piece Counter",
+        0x20c => "G Golem Counter",
+        0x211 => "Resonance Counter",
+        0x212 => "Access Counter",
+        0x213 => "Schoolwork Counter",
+        0x577 => "Hydradrive Counter",
+        0x584 => "Counter (Ai Ai Wall)",
+        0x1002 => "Wedge Counter",
+        0x1009 => "Venom Counter",
+        0x100e => "A-Counter",
+        0x1015 => "Ice Counter",
+        0x1019 => "Fog Counter",
+        0x1021 => "Guard Counter",
+        0x1024 => "String Counter",
+        0x1038 => "Cubic Counter",
+        0x1039 => "Zushin Counter",
+        0x1041 => "Predator Counter",
+        0x1045 => "Scale Counter",
+        0x1049 => "Patrol Counter",
+        0x1090 => "Maiden Counter",
+        0x1096 => "Protection Counter",
+        0x1097 => "Des Counter",
+        0x1098 => "Chain Counter",
+        0x109a => "Scab Counter",
+        0x1100 => "Aura Counter",
+        0x1101 => "Hallucination Counter",
+        0x1102 => "Gear Counter",
+        0x1104 => "Thorn Counter",
+        0x1105 => "Turn Counter",
+        0x1106 => "Shield Counter",
+        0x1107 => "Prey Counter",
+        0x1108 => "Vaccine Counter",
+        0x1109 => "Life Star Counter",
+        0x1110 => "Beacon Counter",
+        0x1112 => "Disturbance Counter",
+        0x1113 => "Charge Counter",
+        0x1115 => "G Golem Counter",
+        0x1148 => "Signal Counter",
+        0x1149 => "Venemy Counter",
+        0x1207 => "Burnup Counter",
+        0x1208 => "Bunny Ear Counter",
+        0x1209 => "Deranged Counter",
+        _ => return None,
+    })
+}
+
+/// Resolve a raw lua countertype argument to its display name.
+///
+/// Accepts `COUNTER_X`, `0x…` hex literals, and `+`/`|` combinations of
+/// those (the `COUNTER_NEED_ENABLE+COUNTER_FOG` idiom). Terms are
+/// resolved numerically and OR-ed, then the 0x2000 NEED_ENABLE bit —
+/// pure placement-permission metadata — is cleared before the name
+/// lookup. Unknown constants and unlisted codes return None (skip,
+/// never invent a name).
+fn counter_arg_to_name(raw: &str) -> Option<&'static str> {
+    let mut code = 0u32;
+    for term in raw.split(['+', '|']) {
+        let term = term.trim();
+        let v = if let Some(c) = counter_const_code(term) {
+            c
+        } else if let Some(hex) = term.strip_prefix("0x") {
+            u32::from_str_radix(hex, 16).ok()?
+        } else {
+            return None;
+        };
+        code |= v;
+    }
+    counter_code_name(code & !0x2000)
+}
+
 /// Inspect a `for <names> in <exprs>` loop. If the iterator expression
 /// is `aux.Next(<group>)`, return the group binding name. Other shapes
 /// (`pairs`, `ipairs`, custom iterators) return None — caller still
@@ -2374,6 +2770,7 @@ pub fn translate_calls(calls: &[DuelCall]) -> Vec<DslLine> {
         register_chains: Vec::new(),
         value_bindings: BTreeMap::new(),
         return_expr: None,
+        counter_ops: Vec::new(),
     })
 }
 
@@ -2396,6 +2793,14 @@ pub fn translate_body_with_functions(
     let mut out = Vec::new();
     for c in &body.calls {
         if let Some(line) = translate_call(c, &body.group_bindings) {
+            out.push(line);
+        }
+    }
+    // Counter ops (Phase 13) — emitted after the Duel.* stream. Bodies
+    // mixing both are rare and the relative order of a counter placement
+    // vs. other actions is not observable in the DSL's resolve model.
+    for op in &body.counter_ops {
+        if let Some(line) = translate_counter_op(op, body) {
             out.push(line);
         }
     }
@@ -2656,8 +3061,25 @@ fn resolve_chain_selector(
     chain: &RegisterEffectChain,
     body: &FunctionBody,
 ) -> Option<String> {
-    if chain.multi_target {
-        let group = chain.loop_source_group.as_deref()?;
+    resolve_body_selector(
+        &chain.register_target,
+        chain.multi_target,
+        chain.loop_source_group.as_deref(),
+        body,
+    )
+}
+
+/// Shared receiver → DSL selector lowering used by both the
+/// RegisterEffect-chain path (above) and the Phase 13 counter-op path.
+/// See `resolve_chain_selector`'s doc comment for the case table.
+fn resolve_body_selector(
+    receiver: &str,
+    multi_target: bool,
+    loop_source_group: Option<&str>,
+    body: &FunctionBody,
+) -> Option<String> {
+    if multi_target {
+        let group = loop_source_group?;
         if let Some(spec) = body.group_bindings.get(group) {
             // A dropped lua filter means the DSL selector matches a SUPERSET
             // of the group the lua iterated — fine when the engine then picks
@@ -2676,12 +3098,70 @@ fn resolve_chain_selector(
         }
         None
     } else {
-        match chain.register_target.as_str() {
+        match receiver {
             "tc" | "tc:GetFirst()" | "g:GetFirst()" => Some("target".to_string()),
             "c" | "e:GetHandler()" => Some("self".to_string()),
             _ => None,
         }
     }
+}
+
+/// Counter op → `place_counter "<name>" <n> on <sel>` /
+/// `remove_counter "<name>" <n> from <sel>` (Phase 13).
+///
+/// Skip gates (None):
+///   - countertype with no curated name (unknown constants, file-local
+///     `local COUNTER_X=…` aliases, quoted strings.conf names);
+///   - non-literal or zero count — the grammar slot is `unsigned`, and
+///     variable counts (`ct`, `e:GetLabel()`, …) have no DSL lowering;
+///   - RemoveCounter whose player arg isn't `tp`;
+///   - receivers outside the known self/target sentinels;
+///   - loop ops whose receiver is not the loop variable, or whose
+///     source group doesn't lower (while/repeat/numeric-for, unmapped
+///     filters).
+fn translate_counter_op(op: &CounterOp, body: &FunctionBody) -> Option<DslLine> {
+    let name = counter_arg_to_name(&op.counter_arg)?;
+    let count: u32 = op.count_arg.trim().parse().ok()?;
+    if count == 0 { return None; }
+    if !op.add && op.player_arg.trim() != "tp" { return None; }
+    if op.multi_target && op.loop_var.as_deref() != Some(op.receiver.as_str()) {
+        // `c:AddCounter(...)` inside a group loop targets the card
+        // itself once per member — not a per-member placement we can
+        // express. Skip.
+        return None;
+    }
+    let selector = if op.multi_target {
+        resolve_body_selector(
+            &op.receiver,
+            true,
+            op.loop_source_group.as_deref(),
+            body,
+        )?
+    } else {
+        // Stricter than the chain path's bare-`tc` sentinel: counter
+        // receivers named `tc` only map to `target` when the body
+        // single-assigns `tc = Duel.GetFirstTarget(...)` (taint logic in
+        // `extract_value_bindings` drops reassigned names). Caught live
+        // on Eternal Dread (c35787450), where `tc` is the field-zone
+        // card via Duel.GetFieldCard — not a declared target.
+        match op.receiver.as_str() {
+            "c" | "e:GetHandler()" => "self".to_string(),
+            "tc" if body
+                .value_bindings
+                .get("tc")
+                .is_some_and(|rhs| rhs.starts_with("Duel.GetFirstTarget(")) =>
+            {
+                "target".to_string()
+            }
+            _ => return None,
+        }
+    };
+    let line = if op.add {
+        format!("place_counter \"{}\" {} on {}", name, count, selector)
+    } else {
+        format!("remove_counter \"{}\" {} from {}", name, count, selector)
+    };
+    Some(DslLine::Action(line))
 }
 
 /// Stat-modifier chain → `modify_atk` / `modify_def` line.
@@ -3371,6 +3851,9 @@ fn translate_call(c: &DuelCall, bindings: &BTreeMap<String, SelectorSpec>) -> Op
         // Duel.Summon(player, target, ignore_count, e, min, max) — normal summon
         "Duel.Summon" => Some(DslLine::Action("normal_summon target".to_string())),
 
+        // Duel.RemoveCounter — field-wide counter removal (Phase 13).
+        "Duel.RemoveCounter" => Some(action_duel_remove_counter(a)),
+
         // Anything else we recognize as a duel call but don't yet map.
         _ => Some(DslLine::Todo(format!(
             "{}({})", m, a.join(", ")
@@ -3562,6 +4045,45 @@ fn action_draw(args: &[String]) -> DslLine {
     } else {
         DslLine::Todo(format!("Duel.Draw(..., count={}) — non-literal count", count))
     }
+}
+
+/// `Duel.RemoveCounter(player, s, o, countertype, count, reason)` →
+/// `remove_counter "<name>" 1 from (1, card, <controller>)` (Phase 13).
+///
+/// `s`/`o` are side booleans: counters may come off the player's own
+/// side and/or the opponent's, anywhere on the field. Emitted only for
+/// count == 1 — for one counter "anywhere in scope" collapses to one
+/// card, whereas the DSL form removes the full count from a SINGLE
+/// selected card while the lua allows spreading n > 1 across cards.
+/// Everything else → Todo (matches the previous catch-all behavior).
+fn action_duel_remove_counter(args: &[String]) -> DslLine {
+    match duel_remove_counter_parts(args) {
+        Some((name, controller)) => DslLine::Action(format!(
+            "remove_counter \"{}\" 1 from (1, card, {})", name, controller
+        )),
+        None => DslLine::Todo(format!("Duel.RemoveCounter({})", args.join(", "))),
+    }
+}
+
+/// Decode the translatable `Duel.RemoveCounter` arg shape into
+/// (counter name, DSL controller phrase). None when the player isn't
+/// `tp`, the count isn't the literal 1, the side booleans aren't a
+/// recognized pair, or the countertype has no curated name.
+fn duel_remove_counter_parts(args: &[String]) -> Option<(&'static str, &'static str)> {
+    let player = args.first().map(String::as_str).unwrap_or("");
+    let s = args.get(1).map(String::as_str).unwrap_or("");
+    let o = args.get(2).map(String::as_str).unwrap_or("");
+    let countertype = args.get(3).map(String::as_str).unwrap_or("");
+    let count = args.get(4).map(String::as_str).unwrap_or("");
+    if player != "tp" || count != "1" { return None; }
+    let controller = match (s, o) {
+        ("1", "0") => "you control",
+        ("0", "1") => "opponent controls",
+        ("1", "1") => "either controls",
+        _ => return None,
+    };
+    let name = counter_arg_to_name(countertype)?;
+    Some((name, controller))
 }
 
 #[cfg(test)]
@@ -6366,5 +6888,311 @@ function s.initial_effect(c)
 end
 "#;
         assert_eq!(p12_line(src, 0), None);
+    }
+    // ── Phase 13: counter ops ────────────────────────────────────────
+
+    /// Translate the named handler body of a lua snippet and return the
+    /// emitted ACTION lines (TODOs dropped, matching apply mode).
+    fn p13_actions(src: &str, func: &str) -> Vec<String> {
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let Some(body) = report.functions.get(func) else { return Vec::new() };
+        translate_body_with_functions(body, &report.functions)
+            .into_iter()
+            .filter_map(|l| match l {
+                DslLine::Action(s) => Some(s),
+                DslLine::Todo(_) => None,
+            })
+            .collect()
+    }
+
+    #[test]
+    fn counter_add_on_self_hex_code_if_gated() {
+        // Shark Caesar (c14306092) — the canonical relate/faceup gate.
+        let src = r#"
+function s.ctop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    if c:IsRelateToEffect(e) and c:IsFaceup() then
+        c:AddCounter(0x2e,1)
+    end
+end
+"#;
+        assert_eq!(
+            p13_actions(src, "s.ctop"),
+            vec![r#"place_counter "Shark Counter" 1 on self"#],
+        );
+    }
+
+    #[test]
+    fn counter_add_on_target_named_const_multi_count() {
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    if tc and tc:IsRelateToEffect(e) and tc:IsFaceup() then
+        tc:AddCounter(COUNTER_SPELL,2)
+    end
+end
+"#;
+        assert_eq!(
+            p13_actions(src, "s.operation"),
+            vec![r#"place_counter "Spell Counter" 2 on target"#],
+        );
+    }
+
+    #[test]
+    fn counter_add_need_enable_sum_resolves_base_counter() {
+        // Cloudian idiom — COUNTER_NEED_ENABLE+COUNTER_FOG (0x2000+0x1019).
+        let src = r#"
+function s.addc(e,tp,eg,ep,ev,re,r,rp)
+    e:GetHandler():AddCounter(COUNTER_NEED_ENABLE+COUNTER_FOG,2)
+end
+"#;
+        assert_eq!(
+            p13_actions(src, "s.addc"),
+            vec![r#"place_counter "Fog Counter" 2 on self"#],
+        );
+    }
+
+    #[test]
+    fn counter_add_in_get_target_cards_loop_emits_on_target() {
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetTargetCards(e)
+    for tc in aux.Next(g) do
+        tc:AddCounter(0x1,1)
+    end
+end
+"#;
+        assert_eq!(
+            p13_actions(src, "s.operation"),
+            vec![r#"place_counter "Spell Counter" 1 on target"#],
+        );
+    }
+
+    #[test]
+    fn counter_remove_on_self_emits() {
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    if c:IsRelateToEffect(e) then
+        c:RemoveCounter(tp,COUNTER_A,1,REASON_EFFECT)
+    end
+end
+"#;
+        assert_eq!(
+            p13_actions(src, "s.operation"),
+            vec![r#"remove_counter "A-Counter" 1 from self"#],
+        );
+    }
+
+    #[test]
+    fn counter_unknown_constant_skips() {
+        // File-local constant (`local COUNTER_BES=0x1f`) — not resolved;
+        // 0x1f itself names `Counter ("B.E.S.")`, unexpressible anyway.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    e:GetHandler():AddCounter(COUNTER_BES,1)
+end
+"#;
+        assert!(p13_actions(src, "s.operation").is_empty());
+    }
+
+    #[test]
+    fn counter_quoted_strings_conf_name_skips() {
+        // 0x1f → `Counter ("B.E.S.")` — embedded quotes can't live in a
+        // DSL string literal.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    e:GetHandler():AddCounter(0x1f,1)
+end
+"#;
+        assert!(p13_actions(src, "s.operation").is_empty());
+    }
+
+    #[test]
+    fn counter_variable_count_skips() {
+        // Grammar slot is `unsigned` — no expr lowering for counts.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local ct=Duel.GetMatchingGroupCount(Card.IsFaceup,tp,LOCATION_MZONE,0,nil)
+    e:GetHandler():AddCounter(0x1,ct)
+end
+"#;
+        assert!(p13_actions(src, "s.operation").is_empty());
+    }
+
+    #[test]
+    fn counter_in_else_arm_poisons_body() {
+        // Runtime either/or — emitting both arms (or either) mis-states
+        // the card, so ALL counter ops in the body are dropped.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    if Duel.GetTurnPlayer()==tp then
+        c:AddCounter(0x1,1)
+    else
+        c:AddCounter(0x1,2)
+    end
+end
+"#;
+        assert!(p13_actions(src, "s.operation").is_empty());
+    }
+
+    #[test]
+    fn counter_on_self_inside_group_loop_skips() {
+        // Receiver is NOT the loop variable — the op hits the card once
+        // per member, which the group-selector emit would mis-state.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetTargetCards(e)
+    for tc in aux.Next(g) do
+        e:GetHandler():AddCounter(0x1,1)
+    end
+end
+"#;
+        assert!(p13_actions(src, "s.operation").is_empty());
+    }
+
+    #[test]
+    fn counter_on_tc_not_bound_to_first_target_skips() {
+        // Eternal Dread (c35787450): `tc` is the field-zone card via
+        // Duel.GetFieldCard (and reassigned for the opponent's side) —
+        // NOT a declared target. The bare-`tc` sentinel must not fire.
+        let src = r#"
+function s.addc(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFieldCard(tp,LOCATION_FZONE,0)
+    if tc and tc:IsFaceup() and tc:IsCode(75041269) then
+        tc:AddCounter(0x1b,2)
+    end
+    tc=Duel.GetFieldCard(1-tp,LOCATION_FZONE,0)
+    if tc and tc:IsFaceup() and tc:IsCode(75041269) then
+        tc:AddCounter(0x1b,2)
+    end
+end
+"#;
+        assert!(p13_actions(src, "s.addc").is_empty());
+    }
+
+    #[test]
+    fn counter_gated_on_add_return_value_skips() {
+        // `if c:AddCounter(...) then` — condition position, not a
+        // statement; the gated follow-up isn't modeled, so nothing emits.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    if c:AddCounter(0x1,1) then
+        Duel.Draw(tp,1,REASON_EFFECT)
+    end
+end
+"#;
+        let lines = p13_actions(src, "s.operation");
+        assert!(!lines.iter().any(|l| l.starts_with("place_counter")), "{:?}", lines);
+    }
+
+    #[test]
+    fn counter_remove_in_while_loop_skips() {
+        // while tc do … GetNext idiom — untranslatable member set.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_MZONE,0,nil)
+    local tc=g:GetFirst()
+    while tc do
+        tc:AddCounter(0x1,1)
+        tc=g:GetNext()
+    end
+end
+"#;
+        assert!(p13_actions(src, "s.operation").is_empty());
+    }
+
+    #[test]
+    fn duel_remove_counter_single_from_own_field_emits() {
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    Duel.RemoveCounter(tp,1,0,COUNTER_SPELL,1,REASON_EFFECT)
+end
+"#;
+        assert_eq!(
+            p13_actions(src, "s.operation"),
+            vec![r#"remove_counter "Spell Counter" 1 from (1, card, you control)"#],
+        );
+    }
+
+    #[test]
+    fn duel_remove_counter_multi_count_skips() {
+        // n > 1 may be spread across cards in lua; the DSL form pulls
+        // the whole count from ONE selected card. Skip.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    Duel.RemoveCounter(tp,1,1,COUNTER_RESONANCE,3,REASON_EFFECT)
+end
+"#;
+        assert!(p13_actions(src, "s.operation").is_empty());
+    }
+
+    #[test]
+    fn cost_counter_remove_from_self_extracts() {
+        let src = r#"
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return e:GetHandler():IsCanRemoveCounter(tp,0x1,2,REASON_COST) end
+    e:GetHandler():RemoveCounter(tp,0x1,2,REASON_COST)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let spec = extract_cost_block("s.cost", &report.functions).expect("cost spec");
+        assert_eq!(
+            spec.actions,
+            vec![CostAction::RemoveCounter("Spell Counter".into(), 2, "self".into())],
+        );
+    }
+
+    #[test]
+    fn cost_duel_remove_counter_field_extracts() {
+        let src = r#"
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return Duel.IsCanRemoveCounter(tp,1,0,COUNTER_SPELL,1,REASON_COST) end
+    Duel.RemoveCounter(tp,1,0,COUNTER_SPELL,1,REASON_COST)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let spec = extract_cost_block("s.cost", &report.functions).expect("cost spec");
+        assert_eq!(
+            spec.actions,
+            vec![CostAction::RemoveCounter(
+                "Spell Counter".into(), 1, "(1, card, you control)".into(),
+            )],
+        );
+    }
+
+    #[test]
+    fn cost_branch_nested_counter_remove_bails() {
+        // Conditional payment is not a fixed cost — whole block bails.
+        let src = r#"
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return true end
+    if Duel.SelectYesNo(tp,aux.Stringid(id,0)) then
+        e:GetHandler():RemoveCounter(tp,0x1,1,REASON_COST)
+    end
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        assert!(extract_cost_block("s.cost", &report.functions).is_none());
+    }
+
+    #[test]
+    fn cost_add_counter_bails() {
+        // AddCounter is not a payment shape we model in cost context.
+        let src = r#"
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return true end
+    e:GetHandler():AddCounter(0x1,1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        assert!(extract_cost_block("s.cost", &report.functions).is_none());
     }
 }
