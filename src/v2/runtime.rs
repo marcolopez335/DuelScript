@@ -93,6 +93,9 @@ pub enum Duration {
     NextStandbyPhase,
     WhileOnField,
     WhileFaceUp,
+    /// Until the equip relationship between the effect's source card and
+    /// the modified card ends (EFFECT_TYPE_EQUIP lifetime).
+    WhileEquipped,
     NTurns(u32),
 }
 

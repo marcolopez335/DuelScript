@@ -3163,11 +3163,10 @@ fn translate_register_chain(
     }
     // EFFECT_TYPE_EQUIP chains register on the equip card but apply to
     // the EQUIPPED monster (Tyrant Wing: +400/400 to the monster, not
-    // the trap). Resolve-time DSL has no equipped_card receiver — the
-    // passive path maps these via `target: equipped_card` instead — so
-    // any emit here would mis-aim the receiver. Skip.
+    // the trap) — they take the dedicated `equipped_card`-receiver path
+    // (Phase 15) instead of the register-target selector lowering below.
     if chain.effect_type.as_deref().is_some_and(|t| t.contains("EFFECT_TYPE_EQUIP")) {
-        return Vec::new();
+        return translate_equip_chain(chain, body).into_iter().collect();
     }
     let Some(code) = chain.code.as_deref() else { return Vec::new() };
     if code == "EFFECT_IMMUNE_EFFECT" {
@@ -3524,6 +3523,83 @@ fn translate_modifier_chain(
         line.push_str(&format!(" until {}", dur));
     }
     Some(DslLine::Action(line))
+}
+
+/// EFFECT_TYPE_EQUIP chain → action line aimed at `equipped_card` (Phase 15).
+///
+/// Equip-type chains register on the equip card but apply to the monster
+/// it is equipped to. The resolve-time `equipped_card` selector reads back
+/// the `__equipped__` binding that `Action::Equip` produces, so emission is
+/// gated on the same handler performing a translatable `Duel.Equip` (the
+/// canonical `equip self to target` shape) — without that producer the
+/// selector would resolve to nothing or to a stale card.
+///
+/// Duration: `RESET_EVENT|RESETS_STANDARD` on an equip chain fires when
+/// the equip relation breaks, NOT at turn end (Tyrant Wing's +400/+400
+/// persists across turns while the trap stays equipped), so the default
+/// `reset_to_duration_kw` mapping would mis-emit `end_of_turn` here.
+/// Equip chains map to `while_equipped`; an explicit PHASE_END reset
+/// still means end-of-turn and wins.
+///
+/// Skip gates (None):
+///   - handler has no canonical `Duel.Equip(tp, c, tc)` producer call;
+///   - chain registered on something other than the equip card itself;
+///   - group-applied chains (`multi_target`);
+///   - codes outside the covered set (UPDATE_ATK/DEF, DISABLE,
+///     EXTRA_ATTACK[_MONSTER], grant-ability codes).
+fn translate_equip_chain(
+    chain: &RegisterEffectChain,
+    body: &FunctionBody,
+) -> Option<DslLine> {
+    if chain.multi_target { return None; }
+    if chain.register_target != "c" && chain.register_target != "e:GetHandler()" {
+        return None;
+    }
+    let has_equip_producer = body.calls.iter().any(|c| {
+        c.method == "Duel.Equip" && matches!(action_equip(&c.args), DslLine::Action(_))
+    });
+    if !has_equip_producer { return None; }
+    let dur = if chain.reset.as_deref().is_some_and(|r| r.contains("PHASE_END")) {
+        "end_of_turn"
+    } else {
+        "while_equipped"
+    };
+    let code = chain.code.as_deref()?;
+    match code {
+        "EFFECT_UPDATE_ATTACK" | "EFFECT_UPDATE_DEFENSE" => {
+            let parsed = parse_lua_value(chain.value.as_deref()?, &body.value_bindings)?;
+            if parsed.expr == "0" { return None; }
+            let action = if code == "EFFECT_UPDATE_ATTACK" { "modify_atk" } else { "modify_def" };
+            let op = if parsed.negative { '-' } else { '+' };
+            Some(DslLine::Action(format!(
+                "{} equipped_card {} {} until {}",
+                action, op, parsed.expr, dur,
+            )))
+        }
+        "EFFECT_DISABLE" => Some(DslLine::Action(format!(
+            "negate_effects equipped_card {}",
+            dur,
+        ))),
+        "EFFECT_EXTRA_ATTACK" | "EFFECT_EXTRA_ATTACK_MONSTER" => {
+            let value: i64 = chain.value.as_deref()?.trim().parse().ok()?;
+            let ability = match value {
+                1 => "double_attack",
+                2 => "triple_attack",
+                _ => return None,
+            };
+            Some(DslLine::Action(format!(
+                "grant equipped_card {} until {}",
+                ability, dur,
+            )))
+        }
+        _ => {
+            let ability = grant_ability_for(code)?;
+            Some(DslLine::Action(format!(
+                "grant equipped_card {} until {}",
+                ability, dur,
+            )))
+        }
+    }
 }
 
 /// Grant chain → `grant <selector> <ability> until <duration>`.
@@ -8224,11 +8300,11 @@ end
     }
 
     #[test]
-    fn equip_type_chain_skips_resolve_emit() {
-        // Tyrant Wing (c57470761) e2 shape: EFFECT_TYPE_EQUIP chain
-        // registered on the equip card (`c`) but applying to the
-        // EQUIPPED monster. Resolve-time DSL has no equipped_card
-        // receiver — `modify_atk self` would aim at the wrong card.
+    fn p15_equip_chain_without_producer_skips() {
+        // EFFECT_TYPE_EQUIP chain but NO Duel.Equip in the handler —
+        // nothing produces the `__equipped__` binding the equipped_card
+        // selector reads back, so emission would aim at a stale or
+        // missing card. Skip.
         let src = r#"
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
@@ -8245,6 +8321,154 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 end
 "#;
         let actions = p11_actions(src, "s.activate");
-        assert!(actions.is_empty(), "EQUIP-type chains must skip, got {:?}", actions);
+        assert!(actions.is_empty(), "no-producer EQUIP chains must skip, got {:?}", actions);
+    }
+
+    #[test]
+    fn p15_equip_stat_chains_emit_equipped_card() {
+        // Tyrant Wing (c57470761) shape: Duel.Equip then EQUIP-type
+        // UPDATE_ATTACK / UPDATE_DEFENSE / EXTRA_ATTACK_MONSTER chains
+        // registered on the equip card. RESETS_STANDARD without PHASE_END
+        // expires with the equip relation → `while_equipped`.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local tc=Duel.GetFirstTarget()
+    Duel.Equip(tp,c,tc)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_EQUIP)
+    e2:SetCode(EFFECT_UPDATE_ATTACK)
+    e2:SetValue(400)
+    e2:SetReset(RESET_EVENT|RESETS_STANDARD)
+    c:RegisterEffect(e2)
+    local e3=e2:Clone()
+    e3:SetCode(EFFECT_UPDATE_DEFENSE)
+    c:RegisterEffect(e3)
+    local e4=Effect.CreateEffect(c)
+    e4:SetType(EFFECT_TYPE_EQUIP)
+    e4:SetCode(EFFECT_EXTRA_ATTACK_MONSTER)
+    e4:SetValue(1)
+    e4:SetReset(RESET_EVENT|RESETS_STANDARD)
+    c:RegisterEffect(e4)
+end
+"#;
+        let actions = p11_actions(src, "s.activate");
+        assert_eq!(actions, vec![
+            "equip self to target".to_string(),
+            "modify_atk equipped_card + 400 until while_equipped".to_string(),
+            "modify_def equipped_card + 400 until while_equipped".to_string(),
+            "grant equipped_card double_attack until while_equipped".to_string(),
+        ]);
+    }
+
+    #[test]
+    fn p15_equip_disable_and_cannot_attack() {
+        // Old Entity Hastorr (c70913714) shape: equip self to the
+        // destroyer, negate its effects and forbid attacking — both
+        // EQUIP-type chains, lifetime of the equip relation.
+        let src = r#"
+function s.eqop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local tc=Duel.GetFirstTarget()
+    Duel.Equip(tp,c,tc)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_EQUIP)
+    e1:SetCode(EFFECT_DISABLE)
+    e1:SetReset(RESET_EVENT|RESETS_STANDARD)
+    c:RegisterEffect(e1)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_EQUIP)
+    e2:SetCode(EFFECT_CANNOT_ATTACK)
+    e2:SetReset(RESET_EVENT|RESETS_STANDARD)
+    c:RegisterEffect(e2)
+end
+"#;
+        let actions = p11_actions(src, "s.eqop");
+        assert_eq!(actions, vec![
+            "equip self to target".to_string(),
+            "negate_effects equipped_card while_equipped".to_string(),
+            "grant equipped_card cannot_attack until while_equipped".to_string(),
+        ]);
+    }
+
+    #[test]
+    fn p15_equip_chain_phase_end_reset_wins() {
+        // An explicit PHASE_END reset bounds the boost to the turn even
+        // while the equip persists — end_of_turn beats while_equipped.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local tc=Duel.GetFirstTarget()
+    Duel.Equip(tp,c,tc)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_EQUIP)
+    e2:SetCode(EFFECT_UPDATE_ATTACK)
+    e2:SetValue(500)
+    e2:SetReset(RESET_EVENT|RESETS_STANDARD|RESET_PHASE|PHASE_END)
+    c:RegisterEffect(e2)
+end
+"#;
+        let actions = p11_actions(src, "s.activate");
+        assert_eq!(actions, vec![
+            "equip self to target".to_string(),
+            "modify_atk equipped_card + 500 until end_of_turn".to_string(),
+        ]);
+    }
+
+    #[test]
+    fn p15_equip_chain_on_target_receiver_skips() {
+        // EQUIP-type chain registered on `tc` instead of the equip card —
+        // outside the canonical shape, receiver semantics unclear. Skip
+        // the chain but keep the equip line itself.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local tc=Duel.GetFirstTarget()
+    Duel.Equip(tp,c,tc)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_EQUIP)
+    e2:SetCode(EFFECT_UPDATE_ATTACK)
+    e2:SetValue(400)
+    e2:SetReset(RESET_EVENT|RESETS_STANDARD)
+    tc:RegisterEffect(e2)
+end
+"#;
+        let actions = p11_actions(src, "s.activate");
+        assert_eq!(actions, vec!["equip self to target".to_string()]);
+    }
+
+    #[test]
+    fn p15_equip_chain_non_literal_value_skips() {
+        // Metalmorph's second boost (half the attack target's ATK) is
+        // computed at battle time — no literal SetValue, no DSL lowering.
+        // The literal +300/+300 pair still emits.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local tc=Duel.GetFirstTarget()
+    Duel.Equip(tp,c,tc)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_EQUIP)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(300)
+    e1:SetReset(RESET_EVENT|RESETS_STANDARD)
+    c:RegisterEffect(e1)
+    local e2=e1:Clone()
+    e2:SetCode(EFFECT_UPDATE_DEFENSE)
+    c:RegisterEffect(e2)
+    local e3=Effect.CreateEffect(c)
+    e3:SetType(EFFECT_TYPE_EQUIP)
+    e3:SetCode(EFFECT_UPDATE_ATTACK)
+    e3:SetValue(s.atkval)
+    e3:SetReset(RESET_EVENT|RESETS_STANDARD)
+    c:RegisterEffect(e3)
+end
+"#;
+        let actions = p11_actions(src, "s.activate");
+        assert_eq!(actions, vec![
+            "equip self to target".to_string(),
+            "modify_atk equipped_card + 300 until while_equipped".to_string(),
+            "modify_def equipped_card + 300 until while_equipped".to_string(),
+        ]);
     }
 }
