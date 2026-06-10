@@ -94,6 +94,7 @@ fn main() {
             println!("  files with empty resolve: {}", report.had_empty);
             println!("  lua-ast translated:      {}", report.translated);
             println!("  effects filled:          {}", report.effects_filled);
+            println!("  blocks injected:         {}", report.blocks_injected);
             println!("  effects skipped (todo):  {}", report.effects_todo_only);
             println!("  effects skipped (no map): {}", report.effects_no_handler);
             println!("  effects skipped (no lua): {}", report.no_lua);
@@ -142,6 +143,7 @@ struct ApplyReport {
     had_empty: usize,
     translated: usize,
     effects_filled: usize,
+    blocks_injected: usize,
     effects_todo_only: usize,
     effects_no_handler: usize,
     passives_injected: usize,
@@ -301,6 +303,35 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             filled += 1;
         }
 
+        // Pass A3 — synthesize the whole activation block for bare card
+        // stubs. Cards whose lua is a lone self-registering summon helper
+        // (`Fusion.RegisterSummonEff(c, ...)`) never got a skeleton
+        // `effect "Effect 1"` block at corpus generation, so Pass A / A2
+        // have nothing to fill. When the .ds has NO effect blocks and the
+        // walk yields exactly one summon-helper skeleton whose params
+        // decode to a line, inject the standard activation block. Helpers
+        // whose params don't decode stay bare stubs (skip-not-mis-emit).
+        // Idempotent: the injected block makes the no-effect-blocks guard
+        // fail on rerun.
+        let mut blocks_added = 0usize;
+        if nth_effect_block(&new_txt, 0).is_none() && walk.effects.len() == 1 {
+            let eff = &walk.effects[0];
+            if eff.is_summon_helper() {
+                if let Some(line) = eff.summon_helper_line() {
+                    if let Some(pos) = card_close_brace(&new_txt) {
+                        let block = format!(
+                            "    effect \"Effect 1\" {{\n        speed: 1\n        mandatory\n        resolve {{\n            {}\n        }}\n    }}",
+                            line,
+                        );
+                        let prefix = new_txt[..pos].trim_end().to_string();
+                        let suffix = &new_txt[pos..];
+                        new_txt = format!("{}\n\n{}\n{}", prefix, block, suffix);
+                        blocks_added += 1;
+                    }
+                }
+            }
+        }
+
         // Pass B — Phase 5 passive injection. For every effect skeleton
         // whose chain is a literal stat-modifier passive (no SetOperation
         // / SetTarget / SetCondition / SetCost), emit a `passive { … }`
@@ -427,8 +458,9 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             }
         }
 
-        if filled > 0 || passives_added > 0 || conditions_added > 0 || costs_added > 0 || targets_added > 0 {
+        if filled > 0 || blocks_added > 0 || passives_added > 0 || conditions_added > 0 || costs_added > 0 || targets_added > 0 {
             r.effects_filled += filled;
+            r.blocks_injected += blocks_added;
             r.passives_injected += passives_added;
             r.conditions_injected += conditions_added;
             r.costs_injected += costs_added;
