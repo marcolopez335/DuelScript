@@ -7,6 +7,8 @@ card "Parallel Port Armor" {
         mandatory
         resolve {
             equip self to target
+            grant equipped_card cannot_be_destroyed by battle until while_equipped
+            grant equipped_card cannot_be_targeted until while_equipped
         }
     }
 
@@ -16,7 +18,7 @@ card "Parallel Port Armor" {
             banish self
         }
         resolve {
-            equip self to target
+            grant target double_attack until end_of_turn
         }
     }
 }
