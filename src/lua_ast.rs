@@ -19,7 +19,7 @@
 // blocks.
 // ============================================================
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::fmt::Write;
 use std::sync::{Mutex, OnceLock};
 
@@ -129,6 +129,13 @@ pub struct RegisterEffectChain {
     /// one arm of a runtime choice; translating it would mis-emit (Phase 11
     /// guard, found via Spellbook of Wisdom's spells-or-traps immunity).
     pub conflicting_sets: bool,
+    /// Slot names whose values were inherited from `eN:Clone()` rather
+    /// than written on this binding. The first Set* on a seeded slot is
+    /// the linear clone-then-override idiom (`e2=e1:Clone()` +
+    /// `e2:SetCode(...)`) — it REPLACES the inherited value and clears
+    /// the mark. Only a second differing write after that is a real
+    /// branch conflict.
+    pub clone_seeded: BTreeSet<&'static str>,
 }
 
 /// A statically-extracted selector intent — built from a single
@@ -2306,7 +2313,9 @@ fn collect_register_chains(
                             by_binding.insert(name.clone(), RegisterEffectChain::default());
                         } else if let Some(src) = expr_clone_source(expr) {
                             if let Some(existing) = by_binding.get(&src).cloned() {
-                                by_binding.insert(name.clone(), existing);
+                                let mut seeded = existing;
+                                seeded.clone_seeded = seeded_slot_names(&seeded);
+                                by_binding.insert(name.clone(), seeded);
                             }
                         }
                     }
@@ -2316,13 +2325,14 @@ fn collect_register_chains(
                 if let Some((bind, method, args)) = method_call_on_binding(fc) {
                     if let Some(chain) = by_binding.get_mut(&bind) {
                         let arg = args.first().cloned();
+                        let seeds = &mut chain.clone_seeded;
                         let conflicted = match method.as_str() {
-                            "SetCode"      => set_or_conflict(&mut chain.code, arg),
-                            "SetValue"     => set_or_conflict(&mut chain.value, arg),
-                            "SetReset"     => set_or_conflict(&mut chain.reset, arg),
+                            "SetCode"      => set_or_conflict(&mut chain.code, arg, seeds, "code"),
+                            "SetValue"     => set_or_conflict(&mut chain.value, arg, seeds, "value"),
+                            "SetReset"     => set_or_conflict(&mut chain.reset, arg, seeds, "reset"),
                             "SetType"      => { chain.effect_type = arg; false }
-                            "SetOperation" => set_or_conflict(&mut chain.operation, arg),
-                            "SetCondition" => set_or_conflict(&mut chain.condition, arg),
+                            "SetOperation" => set_or_conflict(&mut chain.operation, arg, seeds, "operation"),
+                            "SetCondition" => set_or_conflict(&mut chain.condition, arg, seeds, "condition"),
                             _ => false,
                         };
                         if conflicted {
@@ -2385,12 +2395,36 @@ fn collect_register_chains(
 /// already held a DIFFERENT value — the branch-conditional double-set
 /// idiom that makes the recorded payload one arm of a runtime choice.
 /// Re-setting the same arg is not a conflict (idempotent rewrites).
-fn set_or_conflict(slot: &mut Option<String>, new: Option<String>) -> bool {
-    let conflicted = matches!((&*slot, &new), (Some(old), Some(n)) if old != n);
+///
+/// A slot named in `seeds` holds a value inherited from `eN:Clone()`;
+/// the first write there is the linear clone-then-override idiom — it
+/// replaces the inherited value and consumes the seed mark instead of
+/// conflicting.
+fn set_or_conflict(
+    slot: &mut Option<String>,
+    new: Option<String>,
+    seeds: &mut BTreeSet<&'static str>,
+    slot_name: &'static str,
+) -> bool {
+    let was_seeded = seeds.remove(slot_name);
+    let conflicted = !was_seeded
+        && matches!((&*slot, &new), (Some(old), Some(n)) if old != n);
     if new.is_some() {
         *slot = new;
     }
     conflicted
+}
+
+/// Names of the conflict-tracked slots a chain currently holds values
+/// for — these become the clone's seed marks.
+fn seeded_slot_names(chain: &RegisterEffectChain) -> BTreeSet<&'static str> {
+    let mut names = BTreeSet::new();
+    if chain.code.is_some()      { names.insert("code"); }
+    if chain.value.is_some()     { names.insert("value"); }
+    if chain.reset.is_some()     { names.insert("reset"); }
+    if chain.operation.is_some() { names.insert("operation"); }
+    if chain.condition.is_some() { names.insert("condition"); }
+    names
 }
 
 // ── Phase 13: counter-op extraction ──────────────────────────────────────
@@ -7936,5 +7970,90 @@ end
             first_action(src, "s.operation").as_deref(),
             Some("modify_atk self + target.base_atk until end_of_turn"),
         );
+    }
+
+    // ── Clone-seeded slot overrides: linear Clone()+Set* is not a conflict ──
+
+    #[test]
+    fn clone_override_emits_both_chains() {
+        // c67901914 e2 shape: e2=e1:Clone() inherits e1's slots, then
+        // SetCode/SetValue override them. Linear and deterministic — the
+        // override replaces the inherited value; no branch conflict.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_SET_ATTACK_FINAL)
+    e1:SetValue(tc:GetBaseAttack()*2)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+    local e2=e1:Clone()
+    e2:SetCode(EFFECT_SET_DEFENSE_FINAL)
+    e2:SetValue(tc:GetBaseDefense()*2)
+    tc:RegisterEffect(e2)
+end
+"#;
+        let actions = p11_actions(src, "s.activate");
+        assert_eq!(actions, vec![
+            "set_atk target target.base_atk * 2 until end_of_turn",
+            "set_def target target.base_def * 2 until end_of_turn",
+        ]);
+    }
+
+    #[test]
+    fn clone_override_then_branch_set_still_conflicts() {
+        // The seed mark is consumed by the FIRST override per slot — a
+        // later differing write on the same slot is a real branch
+        // conflict and the clone's chain must skip.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_SET_ATTACK_FINAL)
+    e1:SetValue(tc:GetBaseAttack()*2)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+    local e2=e1:Clone()
+    e2:SetCode(EFFECT_SET_DEFENSE_FINAL)
+    if tc:IsAttackPos() then
+        e2:SetValue(tc:GetBaseDefense()*2)
+    else
+        e2:SetValue(0)
+    end
+    tc:RegisterEffect(e2)
+end
+"#;
+        let actions = p11_actions(src, "s.activate");
+        assert_eq!(
+            actions,
+            vec!["set_atk target target.base_atk * 2 until end_of_turn"],
+            "clone with branch-conditional SetValue must skip, got {:?}", actions,
+        );
+    }
+
+    #[test]
+    fn plain_branch_double_set_still_conflicts() {
+        // Regression guard for d5f6f551b's predecessor (d5d637700): a
+        // non-clone chain whose slot is written differently in two branch
+        // arms is one arm of a runtime choice — must skip.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    if tc:IsAttackPos() then
+        e1:SetValue(500)
+    else
+        e1:SetValue(-500)
+    end
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let actions = p11_actions(src, "s.activate");
+        assert!(actions.is_empty(), "branch double-set must skip, got {:?}", actions);
     }
 }
