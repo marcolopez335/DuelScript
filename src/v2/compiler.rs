@@ -980,10 +980,12 @@ fn eval_v2_expr(expr: &Expr, rt: &dyn DuelScriptRuntime) -> i32 {
 
 fn stat_field_to_value(field: &StatField, card_id: u32, rt: &dyn DuelScriptRuntime) -> i32 {
     let stat = match field {
-        StatField::Atk | StatField::BaseAtk | StatField::OriginalAtk
-            => &Stat::Atk,
-        StatField::Def | StatField::BaseDef | StatField::OriginalDef
-            => &Stat::Def,
+        StatField::Atk => &Stat::Atk,
+        StatField::Def => &Stat::Def,
+        StatField::BaseAtk => &Stat::BaseAtk,
+        StatField::BaseDef => &Stat::BaseDef,
+        StatField::OriginalAtk => &Stat::OriginalAtk,
+        StatField::OriginalDef => &Stat::OriginalDef,
         StatField::Level => &Stat::Level,
         StatField::Rank => &Stat::Rank,
         _ => return 0,

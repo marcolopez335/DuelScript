@@ -3891,6 +3891,10 @@ fn split_top_level_commas(s: &str) -> Option<Vec<String>> {
 }
 
 /// `tc:GetAttack()` / `c:GetLevel()` → `target.atk` / `self.level`.
+/// GetBaseAttack/GetBaseDefense are the pre-modification stats — a
+/// distinct DSL token (`base_atk`/`base_def`), not an alias for the
+/// current value: `set_atk target target.atk * 2` drifts whenever the
+/// target's ATK is already modified.
 fn method_call_to_stat(arg: &str) -> Option<String> {
     let (recv, method) = match arg {
         s if s.starts_with("tc:") => ("target", &s[3..]),
@@ -3898,8 +3902,10 @@ fn method_call_to_stat(arg: &str) -> Option<String> {
         _ => return None,
     };
     let stat = match method {
-        "GetAttack()" | "GetBaseAttack()"   => "atk",
-        "GetDefense()" | "GetBaseDefense()" => "def",
+        "GetAttack()"      => "atk",
+        "GetDefense()"     => "def",
+        "GetBaseAttack()"  => "base_atk",
+        "GetBaseDefense()" => "base_def",
         "GetLevel()"  => "level",
         "GetRank()"   => "rank",
         _ => return None,
@@ -7737,5 +7743,106 @@ end
             &p13b_src("local g=Duel.SelectTarget(tp,s.filter,tp,LOCATION_MZONE,0,1,1,nil)", "g:GetFirst()"),
             "s.activate");
         assert!(actions.is_empty(), "SelectTarget group GetFirst must skip, got {:?}", actions);
+    }
+
+    // ── Base-stat tokens: GetBaseAttack/GetBaseDefense ≠ atk/def ──────
+
+    /// Translate `handler` of `src` and return the first Action line.
+    fn first_action(src: &str, handler: &str) -> Option<String> {
+        let parsed = full_moon::parse(src).expect("parse");
+        let body = walk(&parsed).functions.remove(handler).expect("body");
+        translate_body(&body).into_iter().find_map(|l| match l {
+            DslLine::Action(s) => Some(s),
+            _ => None,
+        })
+    }
+
+    #[test]
+    fn base_stat_getbaseattack_emits_base_atk() {
+        // c67901914 e1 shape: SET_ATTACK_FINAL valued at
+        // tc:GetBaseAttack()*2 — printed/base ATK doubled, NOT the
+        // current ATK (`target.atk * 2` drifts once ATK is modified).
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_SET_ATTACK_FINAL)
+    e1:SetValue(tc:GetBaseAttack()*2)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(
+            first_action(src, "s.activate").as_deref(),
+            Some("set_atk target target.base_atk * 2 until end_of_turn"),
+        );
+    }
+
+    #[test]
+    fn base_stat_getbasedefense_self_emits_base_def() {
+        // c39343610 shape: self-targeted SET_DEFENSE_FINAL from
+        // c:GetBaseDefense()*2.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_SET_DEFENSE_FINAL)
+    e1:SetValue(c:GetBaseDefense()*2)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    c:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(
+            first_action(src, "s.operation").as_deref(),
+            Some("set_def self self.base_def * 2 until end_of_turn"),
+        );
+    }
+
+    #[test]
+    fn base_stat_getattack_still_emits_atk() {
+        // Regression guard: the current-value getter keeps the plain
+        // `atk` token (c99634927 atkop3 shape — UPDATE_ATTACK by
+        // c:GetAttack() registered on the target).
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(c:GetAttack())
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(
+            first_action(src, "s.operation").as_deref(),
+            Some("modify_atk target + self.atk until end_of_turn"),
+        );
+    }
+
+    #[test]
+    fn base_stat_binding_indirection_resolves_base_atk() {
+        // c77205367 shape: base ATK captured into a local, then
+        // SetValue(<local>) — one level of value_bindings indirection.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local tc=Duel.GetFirstTarget()
+    local atk=tc:GetBaseAttack()
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(atk)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    c:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(
+            first_action(src, "s.operation").as_deref(),
+            Some("modify_atk self + target.base_atk until end_of_turn"),
+        );
     }
 }
