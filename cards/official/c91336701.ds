@@ -16,6 +16,9 @@ card "Day-Breaker the Shining Magical Warrior" {
         speed: 1
         mandatory
         trigger: summoned by special
+        resolve {
+            place_counter "Spell Counter" 1 on self
+        }
     }
 
     effect "Effect 3" {
@@ -23,6 +26,9 @@ card "Day-Breaker the Shining Magical Warrior" {
         once_per_turn: hard
         mandatory
         trigger: summoned by special
+        resolve {
+            place_counter "Spell Counter" 1 on self
+        }
     }
 
     effect "Effect 4" {
@@ -30,6 +36,9 @@ card "Day-Breaker the Shining Magical Warrior" {
         once_per_turn: soft
         mandatory
         target (1, card, either controls, from field)
+        cost {
+            remove_counter "Spell Counter" 2 from self
+        }
         resolve {
             destroy (all, card, either controls)
         }

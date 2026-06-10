@@ -20,11 +20,17 @@ card "Magister of Endymion" {
         speed: 1
         timing: when
         trigger: summoned
+        resolve {
+            place_counter "Spell Counter" 1 on self
+        }
     }
 
     effect "Effect 4" {
         speed: 2
         once_per_turn: soft
+        cost {
+            remove_counter "Spell Counter" 3 from self
+        }
         resolve {
             special_summon (all, card, either controls)
         }

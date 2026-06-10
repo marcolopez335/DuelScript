@@ -5,11 +5,17 @@ card "The World Tree" {
     effect "Effect 1" {
         speed: 1
         mandatory
+        resolve {
+            place_counter "Flower Counter" 1 on self
+        }
     }
 
     effect "Effect 3" {
         speed: 1
         mandatory
+        cost {
+            remove_counter "Flower Counter" 1 from self
+        }
         resolve {
             destroy target
         }
@@ -19,6 +25,9 @@ card "The World Tree" {
         speed: 1
         mandatory
         target (1, card, either controls, from field)
+        cost {
+            remove_counter "Flower Counter" 2 from self
+        }
         resolve {
             destroy (all, card, either controls)
         }
@@ -27,6 +36,9 @@ card "The World Tree" {
     effect "Effect 5" {
         speed: 1
         mandatory
+        cost {
+            remove_counter "Flower Counter" 3 from self
+        }
         resolve {
             special_summon (all, card, either controls)
         }

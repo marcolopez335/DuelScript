@@ -11,5 +11,9 @@ card "Snow Dragon" {
         speed: 1
         mandatory
         trigger: custom "chain_end"
+        condition: reason == destroy
+        resolve {
+            place_counter "Ice Counter" 1 on (all, card, either controls, from monster_zone, where is_face_up)
+        }
     }
 }
