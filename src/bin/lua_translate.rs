@@ -398,6 +398,12 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             }
             let effect_block_idx = op_effect_idx;
             op_effect_idx += 1;
+            if eff.block_alignment_hazard {
+                // See Pass A — a block-owning chain that consumes no
+                // index precedes this one; the positional mapping is
+                // off-by-N, so injecting would land in the wrong block.
+                continue;
+            }
 
             let cond_handler = match &eff.condition_handler {
                 Some(h) => h.trim().to_string(),
@@ -432,6 +438,9 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             }
             let effect_block_idx = cost_op_idx;
             cost_op_idx += 1;
+            if eff.block_alignment_hazard {
+                continue; // see Pass A — positional mapping unreliable
+            }
 
             let cost_handler = match &eff.cost_handler {
                 Some(h) => h.trim().to_string(),
@@ -462,6 +471,9 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             }
             let effect_block_idx = tgt_op_idx;
             tgt_op_idx += 1;
+            if eff.block_alignment_hazard {
+                continue; // see Pass A — positional mapping unreliable
+            }
 
             let tgt_handler = match &eff.target_handler {
                 Some(h) => h.trim().to_string(),
