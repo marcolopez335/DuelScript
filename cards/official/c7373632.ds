@@ -6,8 +6,7 @@ card "Divine Evolution" {
         speed: 1
         mandatory
         resolve {
-            modify_atk target + 1000 until end_of_turn
-            modify_def target + 1000 until end_of_turn
+            install_watcher "tgop" { event: attack_declared duration: end_of_turn check { send (1, card, you control, from monster_zone) to gy } }
         }
     }
 }
