@@ -197,10 +197,18 @@ pub struct EffectSkeleton {
     /// True when a chain that owns a .ds effect block WITHOUT consuming
     /// a Pass-A block index precedes this skeleton in `s.initial_effect`
     /// source order: a bare `EFFECT_TYPE_ACTIVATE` chain with no
-    /// SetOperation, or an `eN:Clone()` chain (clones aren't walked).
+    /// SetOperation, a clone of a summon-helper chain, or an unregistered
+    /// clone (plain registered clones are seeded into real skeletons and
+    /// consume indices like any other chain — Phase 14).
     /// Positional block mapping is off-by-N for this effect, so the
     /// Phase 12 helper emit must skip rather than fill the wrong block.
     pub block_alignment_hazard: bool,
+    /// Set* method names whose `set_calls` entries were inherited from
+    /// `eN:Clone()` rather than written on this binding. The first Set*
+    /// on a seeded method is the clone-then-override idiom — it replaces
+    /// ALL inherited entries for that method and clears the mark
+    /// (slot-level precedent: [`RegisterEffectChain::clone_seeded`]).
+    pub clone_seeded: BTreeSet<String>,
 }
 
 /// Which parameterized summon helper produced a [`SummonHelperOp`].
@@ -765,12 +773,14 @@ fn extract_effects_from_block(block: &Block, report: &mut LuaReport) {
     let mut helper_var_uses: Vec<(String, String)> = Vec::new();
     // Source-order bookkeeping for the Phase 12 block-alignment guard:
     // each effect-bearing chain gets an ordinal in `s.initial_effect`
-    // source order. Clone chains (`local e2=e1:Clone()`) own a .ds block
-    // but never enter `by_binding`, so their ordinals go straight into
-    // the hazard list.
+    // source order. Plain clone chains (`local e2=e1:Clone()`) seed a
+    // real skeleton from the source's state (Phase 14); only clones of
+    // summon-helper chains and clones that never register stay on the
+    // hazard list.
     let mut source_ord = 0usize;
     let mut ordinals: BTreeMap<String, usize> = BTreeMap::new();
     let mut clone_hazards: Vec<usize> = Vec::new();
+    let mut clone_bindings: Vec<String> = Vec::new();
 
     for stmt in block.stmts() {
         match stmt {
@@ -793,13 +803,30 @@ fn extract_effects_from_block(block: &Block, report: &mut LuaReport) {
                                 binding: name.clone(),
                                 ..Default::default()
                             });
-                        } else if expr_clone_source(expr)
-                            .is_some_and(|src| by_binding.contains_key(&src))
+                        } else if let Some(src_skel) = expr_clone_source(expr)
+                            .and_then(|src| by_binding.get(&src)).cloned()
                         {
-                            // `local e2=e1:Clone()` of a known effect —
-                            // owns a .ds block but isn't walked.
-                            clone_hazards.push(source_ord);
-                            source_ord += 1;
+                            if src_skel.is_summon_helper() {
+                                // Clone of a fusion/ritual helper chain —
+                                // seeding would duplicate the summon line,
+                                // so keep the conservative hazard skip.
+                                clone_hazards.push(source_ord);
+                                source_ord += 1;
+                            } else {
+                                // `local e2=e1:Clone()` — seed a real
+                                // skeleton from the source's state at the
+                                // clone point; later Set* calls override
+                                // inherited slots (Phase 14).
+                                let mut seeded = src_skel;
+                                seeded.binding = name.clone();
+                                seeded.registered = false;
+                                seeded.clone_seeded = seeded.set_calls.iter()
+                                    .map(|(m, _)| m.clone()).collect();
+                                ordinals.insert(name.clone(), source_ord);
+                                source_ord += 1;
+                                clone_bindings.push(name.clone());
+                                by_binding.insert(name.clone(), seeded);
+                            }
                         } else if expr_is_fusion_createsummoneff(expr) {
                             ordinals.insert(name.clone(), source_ord);
                             source_ord += 1;
@@ -950,6 +977,13 @@ fn extract_effects_from_block(block: &Block, report: &mut LuaReport) {
                 // `eN:SetX(...)` populates the effect named by binding.
                 if let Some((binding, method, args)) = method_call_on_binding(fc) {
                     if let Some(skel) = by_binding.get_mut(&binding) {
+                        if skel.clone_seeded.remove(&method) {
+                            // First write on a clone-inherited slot is the
+                            // clone-then-override idiom — drop the
+                            // inherited entries so lookups see the
+                            // override, not the source's value.
+                            skel.set_calls.retain(|(m, _)| *m != method);
+                        }
                         skel.set_calls.push((method.clone(), args.clone()));
                         if method == "SetOperation" {
                             skel.operation_handler = args.first().cloned();
@@ -1001,12 +1035,27 @@ fn extract_effects_from_block(block: &Block, report: &mut LuaReport) {
         }
     }
 
+    // Clone skeletons that never saw `<recv>:RegisterEffect(eN)` drop out
+    // of walk.effects below, yet may still own a .ds block (e.g. the
+    // registration happens behind a shape this walk doesn't track) —
+    // keep their ordinals on the hazard list so later skeletons skip.
+    for cb in &clone_bindings {
+        if by_binding.get(cb).is_some_and(|s| !s.registered) {
+            if let Some(ord) = ordinals.get(cb) {
+                clone_hazards.push(*ord);
+            }
+        }
+    }
+
     // Block-alignment guard (Phase 12): bare EFFECT_TYPE_ACTIVATE chains
     // with no SetOperation own a .ds effect block (the activation shell
     // of a spell/trap) yet never consume a Pass-A block index — same for
-    // Clone chains collected above. ANY skeleton that comes AFTER such a
-    // chain in source order would fill the wrong block (c99634927: the
-    // e3 clone owns "Effect 3", so e4's translation landed there), so it
+    // the residual clone hazards collected above (Phase 14 seeds plain
+    // registered clones into real skeletons, so they consume indices
+    // naturally and no longer poison the mapping; the c99634927 incident
+    // — e4's translation landing in the e3 clone's "Effect 3" block —
+    // can't recur for seeded clones). ANY skeleton that comes AFTER a
+    // hazard chain in source order would fill the wrong block, so it
     // gets flagged and Pass A / A2 / helper emit skip.
     let mut hazards = clone_hazards;
     for skel in by_binding.values() {
@@ -8066,12 +8115,11 @@ end
     }
 
     #[test]
-    fn clone_in_initial_effect_flags_later_skeletons() {
-        // c99634927 shape: e3=e2:Clone() owns the .ds "Effect 3" block
-        // but never enters walk.effects, so positional block mapping is
-        // off-by-one for everything after it — e4's translation landed
-        // in Effect 3's resolve. Skeletons after the clone must carry
-        // block_alignment_hazard; skeletons before it must not.
+    fn clone_in_initial_effect_seeds_real_skeleton() {
+        // c99634927 shape: e3=e2:Clone() inherits e2's chain, overrides
+        // SetCode, and registers. Phase 14 seeds a real skeleton — e3
+        // enters walk.effects with e2's handlers and its own code, the
+        // positional block mapping realigns, and e4 carries no hazard.
         let src = r#"
 function s.initial_effect(c)
     local e1=Effect.CreateEffect(c)
@@ -8082,6 +8130,7 @@ function s.initial_effect(c)
     local e2=Effect.CreateEffect(c)
     e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
     e2:SetCode(EVENT_SUMMON_SUCCESS)
+    e2:SetTarget(s.atktg2)
     e2:SetOperation(s.atkop2)
     c:RegisterEffect(e2)
     local e3=e2:Clone()
@@ -8096,14 +8145,82 @@ end
 "#;
         let parsed = full_moon::parse(src).expect("parse");
         let report = walk(&parsed);
-        let hazard: Vec<(String, bool)> = report.effects.iter()
+        let summary: Vec<(String, bool)> = report.effects.iter()
             .map(|e| (e.binding.clone(), e.block_alignment_hazard))
             .collect();
-        assert_eq!(hazard, vec![
+        assert_eq!(summary, vec![
             ("e1".to_string(), false),
             ("e2".to_string(), false),
-            ("e4".to_string(), true),
+            ("e3".to_string(), false),
+            ("e4".to_string(), false),
         ]);
+        let e3 = &report.effects[2];
+        assert_eq!(e3.operation_handler.as_deref(), Some("s.atkop2"),
+            "clone must inherit the source's operation handler");
+        assert_eq!(e3.target_handler.as_deref(), Some("s.atktg2"),
+            "clone must inherit the source's target handler");
+        assert_eq!(e3.first_arg_of("SetCode"), Some("EVENT_SPSUMMON_SUCCESS"),
+            "SetCode on the clone must override the inherited entry");
+        assert_eq!(
+            e3.set_calls.iter().filter(|(m, _)| m == "SetCode").count(), 1,
+            "override must replace, not shadow, the inherited SetCode",
+        );
+    }
+
+    #[test]
+    fn unregistered_clone_still_flags_later_skeletons() {
+        // A clone that never reaches `c:RegisterEffect(eN)` drops out of
+        // walk.effects but may still own a .ds block — later skeletons
+        // must keep the conservative hazard skip.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_IGNITION)
+    e1:SetOperation(s.op1)
+    c:RegisterEffect(e1)
+    local e2=e1:Clone()
+    e2:SetCode(EVENT_SPSUMMON_SUCCESS)
+    local e3=Effect.CreateEffect(c)
+    e3:SetType(EFFECT_TYPE_IGNITION)
+    e3:SetOperation(s.op3)
+    c:RegisterEffect(e3)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let summary: Vec<(String, bool)> = report.effects.iter()
+            .map(|e| (e.binding.clone(), e.block_alignment_hazard))
+            .collect();
+        assert_eq!(summary, vec![
+            ("e1".to_string(), false),
+            ("e3".to_string(), true),
+        ]);
+    }
+
+    #[test]
+    fn passive_clone_seeds_overridden_stat() {
+        // e2=e1:Clone() + SetCode(EFFECT_UPDATE_DEFENSE) on a passive ATK
+        // chain: the seeded skeleton must yield a DEF passive with the
+        // inherited value, not a duplicate ATK one.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(500)
+    c:RegisterEffect(e1)
+    local e2=e1:Clone()
+    e2:SetCode(EFFECT_UPDATE_DEFENSE)
+    c:RegisterEffect(e2)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        assert_eq!(report.effects.len(), 2);
+        let spec1 = report.effects[0].passive_modifier_spec().expect("e1 spec");
+        let spec2 = report.effects[1].passive_modifier_spec().expect("e2 spec");
+        assert_eq!((spec1.stat.as_str(), spec1.value), ("atk", 500));
+        assert_eq!((spec2.stat.as_str(), spec2.value), ("def", 500));
     }
 
     #[test]
