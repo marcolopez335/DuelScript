@@ -47,7 +47,11 @@ fn main() {
         }
         "translate" => {
             // Parse, walk, and emit one draft DSL `resolve` block per
-            // effect that has a SetOperation handler.
+            // effect that has a SetOperation handler. Uses the same
+            // functions-aware translation path and card-name table as
+            // apply mode so its output is a faithful per-file preview.
+            load_card_names(args.get(3).map(String::as_str),
+                Path::new(path).parent().and_then(Path::to_str).unwrap_or("."));
             let parsed = match full_moon::parse(&src) {
                 Ok(a) => a,
                 Err(e) => { eprintln!("parse error: {:?}", e); process::exit(1); }
@@ -57,7 +61,7 @@ fn main() {
                 println!("// effect[{}] binding={}", i, eff.binding);
                 if let Some(handler) = &eff.operation_handler {
                     if let Some(body) = walk.functions.get(handler.trim()) {
-                        let lines = lua_ast::translate_body(body);
+                        let lines = lua_ast::translate_body_with_functions(body, &walk.functions);
                         println!("resolve {{");
                         for l in lines {
                             println!("{}", l.into_string("    "));
