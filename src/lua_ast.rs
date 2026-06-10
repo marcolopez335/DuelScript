@@ -119,8 +119,9 @@ pub struct RegisterEffectChain {
     /// the chain delegates to when its event code fires (install_watcher
     /// translation path).
     pub operation: Option<String>,
-    /// Function name passed to `e:SetCondition(...)`. Not currently used by
-    /// any translator pass; reserved for future install_watcher refinements.
+    /// Function name passed to `e:SetCondition(...)`. The install_watcher
+    /// path skips any chain that carries one — the watcher grammar has no
+    /// condition slot, so emitting would drop the gate (Tyrant Wing e9).
     pub condition: Option<String>,
     /// Raw `SetTargetRange(a, b)` args joined with `,` (Phase 15). For
     /// `EFFECT_TYPE_FIELD` chains this names WHICH cards (LOCATION masks)
@@ -3370,6 +3371,13 @@ fn translate_install_watcher_chain(
     if reset_to_duration_kw(chain.reset.as_deref()) != Some("end_of_turn") {
         return None;
     }
+    // A SetCondition handler gates when the chain may fire (Tyrant Wing's
+    // s.descon: destroy only if the equipped monster attacked twice). The
+    // watcher grammar has no condition slot, so emitting would run the
+    // check unconditionally on every event. Skip-not-mis-emit.
+    if chain.condition.is_some() {
+        return None;
+    }
     let op_name = chain.operation.as_deref()?;
     let op_body = functions.get(op_name)?;
     let lines = translate_body_with_functions(op_body, functions);
@@ -5080,6 +5088,42 @@ end
         assert!(
             !lines.iter().any(|l| matches!(l, DslLine::Action(s) if s.starts_with("install_watcher"))),
             "no SetReset → must not emit install_watcher",
+        );
+    }
+
+    #[test]
+    fn install_watcher_skips_chain_with_set_condition() {
+        // Tyrant Wing e9 shape: the trigger chain carries a SetCondition
+        // handler (s.descon — flag effect set only when the equipped
+        // monster attacked twice). The watcher grammar has no condition
+        // slot, so emitting would fire the check unconditionally every
+        // end phase. Skip-not-mis-emit.
+        let src = r#"
+local s,id=GetID()
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local e9=Effect.CreateEffect(c)
+    e9:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
+    e9:SetCode(EVENT_PHASE+PHASE_END)
+    e9:SetCondition(s.descon)
+    e9:SetOperation(s.desop)
+    e9:SetReset(RESET_EVENT|RESETS_STANDARD)
+    c:RegisterEffect(e9)
+end
+function s.descon(e,tp,eg,ep,ev,re,r,rp)
+    return e:GetHandler():GetFlagEffect(id)~=0
+end
+function s.desop(e,tp,eg,ep,ev,re,r,rp)
+    Duel.Destroy(e:GetHandler(),REASON_EFFECT)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.activate").expect("activate body");
+        let lines = translate_body_with_functions(body, &report.functions);
+        assert!(
+            !lines.iter().any(|l| matches!(l, DslLine::Action(s) if s.starts_with("install_watcher"))),
+            "SetCondition chain → must not emit install_watcher, got: {:?}", lines,
         );
     }
 
