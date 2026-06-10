@@ -122,6 +122,37 @@ pub struct RegisterEffectChain {
     /// Function name passed to `e:SetCondition(...)`. Not currently used by
     /// any translator pass; reserved for future install_watcher refinements.
     pub condition: Option<String>,
+    /// Raw `SetTargetRange(a, b)` args joined with `,` (Phase 15). For
+    /// `EFFECT_TYPE_FIELD` chains this names WHICH cards (LOCATION masks)
+    /// or players (1/0 flags) the effect reaches, relative to the
+    /// registering player.
+    pub target_range: Option<String>,
+    /// Raw first arg of `SetTarget(...)` (Phase 15). For FIELD chains this
+    /// is the affected-card filter `(e, c) → bool`; resolve-time emit maps
+    /// it to a DSL selector kind/where-clause or skips.
+    pub set_target: Option<String>,
+    /// Raw second arg of `SetReset(reset, count)` when present (Phase 15).
+    /// A count above 1 means the effect survives multiple reset events
+    /// (e.g. `RESET_PHASE|PHASE_END, 2` = end of NEXT turn) — not a
+    /// standard end-of-turn lifetime, so reset-gated emits must skip.
+    /// Overwritten (not merged) on every SetReset write: an absent count
+    /// arg means the lua default of 1.
+    pub reset_count: Option<String>,
+    /// True when the chain was committed via `Duel.RegisterEffect(eN, p)`
+    /// rather than `<card>:RegisterEffect(eN)` (Phase 15). Field-scope
+    /// restriction emit requires this — a card-registered FIELD chain's
+    /// lifetime is tied to the card's presence, which the resolve-time
+    /// grant form can't express.
+    pub duel_registered: bool,
+    /// True when the registration site sat inside an arm of an
+    /// if/elseif/else that HAS alternative arms (Phase 15) — the
+    /// either/or idiom (`SelectEffect` label dispatch, …). Emitting one
+    /// arm unconditionally mis-states the card, so choice-arm chains are
+    /// skipped (same rationale as the counter-op elseif/else poison;
+    /// caught live on c55948544 Judgment of the Pharaoh). Plain
+    /// `if`-gated chains keep emitting — the ubiquitous
+    /// IsRelateToEffect guard wraps most operation bodies.
+    pub in_choice_arm: bool,
     /// True when the same Set* slot was written twice with DIFFERENT args
     /// before registration — the branch-conditional idiom
     /// (`if … then e1:SetValue(a) else e1:SetValue(b) end`). The straight-
@@ -532,7 +563,10 @@ fn setcode_const_to_archetype(c: &str) -> Option<&'static str> {
         "SET_FRIGHTFUR"    => "Frightfur",
         "SET_GOLD_PRIDE"   => "Gold Pride",
         "SET_GOUKI"        => "Gouki",
+        "SET_GRAVEKEEPERS" => "Gravekeeper's",
+        "SET_HEROIC"       => "Heroic",
         "SET_INVOKED"      => "Invoked",
+        "SET_LYRILUSC"     => "Lyrilusc",
         "SET_MAGISTUS"     => "Magistus",
         "SET_MEGALITH"     => "Megalith",
         "SET_MELODIOUS"    => "Melodious",
@@ -541,6 +575,7 @@ fn setcode_const_to_archetype(c: &str) -> Option<&'static str> {
         "SET_NINJA"        => "Ninja",
         "SET_PREDAP"       => "Predap",
         "SET_PUNK"         => "P.U.N.K.",
+        "SET_RAIDRAPTOR"   => "Raidraptor",
         "SET_SHADDOLL"     => "Shaddoll",
         "SET_VAYLANTZ"     => "Vaylantz",
         _ => return None,
@@ -2340,13 +2375,14 @@ fn zone_from_locations(my: &str, opp: &str) -> Option<String> {
 fn extract_register_chains(block: &Block) -> Vec<RegisterEffectChain> {
     let mut chains = Vec::new();
     let mut by_binding: BTreeMap<String, RegisterEffectChain> = BTreeMap::new();
-    collect_register_chains(block, None, &mut by_binding, &mut chains);
+    collect_register_chains(block, None, false, &mut by_binding, &mut chains);
     chains
 }
 
 fn collect_register_chains(
     block: &Block,
     loop_source: Option<&str>,
+    choice_arm: bool,
     by_binding: &mut BTreeMap<String, RegisterEffectChain>,
     out: &mut Vec<RegisterEffectChain>,
 ) {
@@ -2378,7 +2414,19 @@ fn collect_register_chains(
                         let conflicted = match method.as_str() {
                             "SetCode"      => set_or_conflict(&mut chain.code, arg, seeds, "code"),
                             "SetValue"     => set_or_conflict(&mut chain.value, arg, seeds, "value"),
-                            "SetReset"     => set_or_conflict(&mut chain.reset, arg, seeds, "reset"),
+                            "SetReset"     => {
+                                let conflicted = set_or_conflict(&mut chain.reset, arg, seeds, "reset");
+                                // Count arg: absent means the lua default of 1 —
+                                // overwrite (a clone-override `SetReset(X)` must
+                                // not keep the source's stale count).
+                                chain.reset_count = args.get(1).cloned();
+                                conflicted
+                            }
+                            "SetTargetRange" => {
+                                let joined = (!args.is_empty()).then(|| args.join(","));
+                                set_or_conflict(&mut chain.target_range, joined, seeds, "target_range")
+                            }
+                            "SetTarget"    => set_or_conflict(&mut chain.set_target, arg, seeds, "set_target"),
                             "SetType"      => { chain.effect_type = arg; false }
                             "SetOperation" => set_or_conflict(&mut chain.operation, arg, seeds, "operation"),
                             "SetCondition" => set_or_conflict(&mut chain.condition, arg, seeds, "condition"),
@@ -2396,6 +2444,7 @@ fn collect_register_chains(
                             emitted.register_target = receiver;
                             emitted.multi_target = loop_source.is_some();
                             emitted.loop_source_group = loop_source.map(str::to_string);
+                            emitted.in_choice_arm = choice_arm;
                             out.push(emitted);
                         }
                     }
@@ -2409,32 +2458,41 @@ fn collect_register_chains(
                         if let Some(chain) = by_binding.get(eff_name) {
                             let mut emitted = chain.clone();
                             emitted.register_target = args.get(1).cloned().unwrap_or_else(|| "tp".to_string());
+                            emitted.duel_registered = true;
                             emitted.multi_target = loop_source.is_some();
                             emitted.loop_source_group = loop_source.map(str::to_string);
+                            emitted.in_choice_arm = choice_arm;
                             out.push(emitted);
                         }
                     }
                 }
             }
             Stmt::If(if_stmt) => {
-                collect_register_chains(if_stmt.block(), loop_source, by_binding, out);
+                // An if with elseif/else arms encodes a runtime either/or
+                // — chains registered inside ANY arm are one branch of a
+                // choice (Phase 15 guard). A plain if is a guard, not a
+                // choice.
+                let has_arms = if_stmt.else_if().is_some_and(|eis| eis.len() > 0)
+                    || if_stmt.else_block().is_some();
+                let arm = choice_arm || has_arms;
+                collect_register_chains(if_stmt.block(), loop_source, arm, by_binding, out);
                 for ei in if_stmt.else_if().into_iter().flatten() {
-                    collect_register_chains(ei.block(), loop_source, by_binding, out);
+                    collect_register_chains(ei.block(), loop_source, arm, by_binding, out);
                 }
                 if let Some(else_block) = if_stmt.else_block() {
-                    collect_register_chains(else_block, loop_source, by_binding, out);
+                    collect_register_chains(else_block, loop_source, arm, by_binding, out);
                 }
             }
-            Stmt::While(w)       => collect_register_chains(w.block(), loop_source, by_binding, out),
-            Stmt::Repeat(r)      => collect_register_chains(r.block(), loop_source, by_binding, out),
-            Stmt::NumericFor(nf) => collect_register_chains(nf.block(), Some(""), by_binding, out),
+            Stmt::While(w)       => collect_register_chains(w.block(), loop_source, choice_arm, by_binding, out),
+            Stmt::Repeat(r)      => collect_register_chains(r.block(), loop_source, choice_arm, by_binding, out),
+            Stmt::NumericFor(nf) => collect_register_chains(nf.block(), Some(""), choice_arm, by_binding, out),
             Stmt::GenericFor(gf) => {
                 let inner = aux_next_source_group(gf)
                     .or_else(|| iter_method_source_group(gf));
                 let inner_ref = inner.as_deref().or(Some(""));
-                collect_register_chains(gf.block(), inner_ref, by_binding, out);
+                collect_register_chains(gf.block(), inner_ref, choice_arm, by_binding, out);
             }
-            Stmt::Do(d)          => collect_register_chains(d.block(), loop_source, by_binding, out),
+            Stmt::Do(d)          => collect_register_chains(d.block(), loop_source, choice_arm, by_binding, out),
             _ => {}
         }
     }
@@ -2473,6 +2531,8 @@ fn seeded_slot_names(chain: &RegisterEffectChain) -> BTreeSet<&'static str> {
     if chain.reset.is_some()     { names.insert("reset"); }
     if chain.operation.is_some() { names.insert("operation"); }
     if chain.condition.is_some() { names.insert("condition"); }
+    if chain.target_range.is_some() { names.insert("target_range"); }
+    if chain.set_target.is_some()   { names.insert("set_target"); }
     names
 }
 
@@ -3170,6 +3230,24 @@ fn translate_register_chain(
         return Vec::new();
     }
     let Some(code) = chain.code.as_deref() else { return Vec::new() };
+    // EFFECT_TYPE_FIELD chains apply to the cards/players named by
+    // SetTargetRange, NOT to the register receiver — receiver-based
+    // selector paths (grant/modifier/disable) would mis-aim them (a
+    // c-registered field chain restricting opponent monsters must not
+    // become `grant self …`). Route them to the Phase 15 field-scope
+    // translator; only the install_watcher path (EVENT codes on
+    // FIELD+CONTINUOUS watcher chains) may still fall through.
+    if chain.effect_type.as_deref().is_some_and(|t| t.contains("EFFECT_TYPE_FIELD")) {
+        if let Some(line) = translate_field_scope_chain(code, chain, functions) {
+            return vec![line];
+        }
+        if let Some(trigger) = trigger_for_event_code(code) {
+            return translate_install_watcher_chain(trigger, chain, functions)
+                .into_iter()
+                .collect();
+        }
+        return Vec::new();
+    }
     if code == "EFFECT_IMMUNE_EFFECT" {
         return translate_immune_chain(chain, body, functions);
     }
@@ -3564,6 +3642,260 @@ fn translate_disable_chain(
         "negate_effects {} {}",
         selector, dur,
     )))
+}
+
+/// Field-scope restriction chain (Phase 15):
+/// `EFFECT_TYPE_FIELD + SetTargetRange(LOCATION…, LOCATION…) +
+/// Duel.RegisterEffect(eN, tp)` → `grant (all, …) <ability> until
+/// end_of_turn` or `negate_effects (all, …) end_of_turn`.
+///
+/// Skip gates (None) — every one is a confirmed corpus sub-shape:
+///   - codes outside the card-scoped table below: damage-shaping
+///     (CHANGE_DAMAGE / AVOID_BATTLE_DAMAGE / REFLECT_* / REVERSE_*)
+///     and player-scoped restrictions (CANNOT_ACTIVATE /
+///     CANNOT_SPECIAL_SUMMON / CANNOT_BP / SKIP_* …) have no DSL form;
+///   - registration to any player expr other than the literal `tp`
+///     (SetTargetRange sides are relative to the registering player, so
+///     `p` / `1-tp` registrations would flip the controller decode);
+///   - card-registered FIELD chains (`!duel_registered`) — lifetime is
+///     tied to the card's presence on field, inexpressible here;
+///   - player-flag or OR'd/unknown LOCATION TargetRange values;
+///   - SetTarget filters with no kind/where decode (`e:GetLabel()`
+///     except-target idiom, runtime-arg predicates, …);
+///   - SetValue other than the literal flag `1` (function values like
+///     `aux.indoval` qualify the restriction to one player's effects —
+///     emitting the unqualified ability would over-grant);
+///   - SetCondition / SetOperation closures we can't classify;
+///   - non-standard resets: anything that isn't a plain end-of-turn
+///     phase reset with an (implicit) count of 1, including
+///     RESET_SELF_TURN / RESET_OPPO_TURN qualifiers.
+fn translate_field_scope_chain(
+    code: &str,
+    chain: &RegisterEffectChain,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Option<DslLine> {
+    if !chain.duel_registered || chain.multi_target || chain.in_choice_arm {
+        return None;
+    }
+    if chain.register_target.trim() != "tp" {
+        return None;
+    }
+    if chain.condition.is_some() || chain.operation.is_some() {
+        return None;
+    }
+    // Standard end-of-turn lifetime only.
+    if reset_to_duration_kw(chain.reset.as_deref()) != Some("end_of_turn") {
+        return None;
+    }
+    let reset = chain.reset.as_deref().unwrap_or("");
+    if reset.contains("RESET_SELF_TURN") || reset.contains("RESET_OPPO_TURN") {
+        return None; // turn-qualified phase reset ≠ end of CURRENT turn
+    }
+    if chain.reset_count.as_deref().is_some_and(|c| c.trim() != "1") {
+        return None; // survives N reset events — not end-of-turn
+    }
+    let negate = code == "EFFECT_DISABLE";
+    let ability = if negate { None } else { Some(field_grant_ability_for(code)?) };
+    // Value: restriction grants use SetValue(1) as a flag (or omit it);
+    // anything else is a qualifier function — skip. EFFECT_DISABLE takes
+    // no value in this shape.
+    match chain.value.as_deref().map(str::trim) {
+        None => {}
+        Some("1") if !negate => {}
+        _ => return None,
+    }
+    let (kind, where_clause) = match chain.set_target.as_deref() {
+        None => ("card".to_string(), None),
+        Some(filter) => field_filter_to_kind_where(filter, functions)?,
+    };
+    let selector = field_range_selector(
+        chain.target_range.as_deref()?,
+        &kind,
+        where_clause.as_deref(),
+    )?;
+    Some(DslLine::Action(match ability {
+        Some(a) => format!("grant {} {} until end_of_turn", selector, a),
+        None => format!("negate_effects {} end_of_turn", selector),
+    }))
+}
+
+/// Card-scoped EFFECT codes a field-range restriction can express as a
+/// DSL `grant` ability. Deliberately excludes the player-scoped codes
+/// that share grant_ability_for's spellings (EFFECT_CANNOT_SPECIAL_SUMMON
+/// / EFFECT_CANNOT_SUMMON): on a FIELD chain their TargetRange is player
+/// flags and the restriction binds the PLAYER, which the card-selector
+/// grant form cannot express.
+fn field_grant_ability_for(code: &str) -> Option<&'static str> {
+    Some(match code {
+        "EFFECT_INDESTRUCTABLE_BATTLE"   => "cannot_be_destroyed by battle",
+        "EFFECT_INDESTRUCTABLE_EFFECT"   => "cannot_be_destroyed by effect",
+        "EFFECT_CANNOT_ATTACK"           => "cannot_attack",
+        "EFFECT_CANNOT_DIRECT_ATTACK"    => "cannot_attack_directly",
+        "EFFECT_CANNOT_BE_EFFECT_TARGET" => "cannot_be_targeted",
+        "EFFECT_CANNOT_CHANGE_POSITION"  => "cannot_change_position",
+        "EFFECT_DIRECT_ATTACK"           => "direct_attack",
+        "EFFECT_PIERCE"                  => "piercing",
+        "EFFECT_ATTACK_ALL"              => "attack_all_monsters",
+        "EFFECT_MUST_ATTACK"             => "must_attack",
+        _ => return None,
+    })
+}
+
+/// Decode a FIELD chain's `SetTargetRange` into a full DSL group
+/// selector `(all, <kind>, <controller>, <zone>[, where …])`.
+///
+/// Both sides must be `0` or a single known LOCATION_* token (player
+/// flags `1`, OR'd masks, and unknown constants return None); when both
+/// sides are set they must name the SAME location so one `from <zone>`
+/// clause covers them.
+fn field_range_selector(
+    range: &str,
+    kind: &str,
+    where_clause: Option<&str>,
+) -> Option<String> {
+    let cleaned: String = range.chars().filter(|c| !c.is_whitespace()).collect();
+    let (my, opp) = cleaned.split_once(',')?;
+    let controller = match (my != "0", opp != "0") {
+        (true,  true)  => {
+            if my != opp { return None; }
+            "either controls"
+        }
+        (true,  false) => "you control",
+        (false, true)  => "opponent controls",
+        (false, false) => return None,
+    };
+    // zone_from_locations rejects player flags / OR'd masks / unknown
+    // constants by returning None.
+    let zone = zone_from_locations(my, opp)?;
+    let mut parts = vec!["all".to_string(), kind.to_string(), controller.to_string(), zone];
+    if let Some(w) = where_clause {
+        parts.push(format!("where {}", w));
+    }
+    Some(format!("({})", parts.join(", ")))
+}
+
+/// Map a FIELD chain's `SetTarget` filter arg to a selector
+/// (kind, where-clause) pair. Accepted forms:
+///   - stock names map_group_filter knows (`aux.TRUE`, `Card.IsFaceup`,
+///     `Card.IsMonster` / `IsSpell` / `IsTrap`);
+///   - `aux.TargetBoolFunction(<Card.Is*>, <const>)` partial application;
+///   - inline `(e,c)` closures with a conjunction of mappable predicates;
+///   - named `s.*` filters resolved through the walk's function table
+///     whose body is a single `return <conjunction>`.
+fn field_filter_to_kind_where(
+    filter: &str,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Option<(String, Option<String>)> {
+    let filter = filter.trim();
+    if let Some((kind, w)) = map_group_filter(filter) {
+        return Some((kind.to_string(), w.map(str::to_string)));
+    }
+    if let Some(inner) = filter
+        .strip_prefix("aux.TargetBoolFunction(")
+        .and_then(|r| r.strip_suffix(')'))
+    {
+        let (method, arg) = inner.split_once(',')?;
+        let w = filter_predicate_to_where(method.trim(), arg.trim())?;
+        return Some(("card".to_string(), Some(w)));
+    }
+    if let Some(expr) = field_filter_closure_body(filter) {
+        return field_filter_expr_to_kind_where(&expr);
+    }
+    // Named file-local filter — only single-`return` bodies carry a
+    // return_expr; multi-statement filters drop out here.
+    let body = functions.get(filter)?;
+    let expr = body.return_expr.as_deref()?;
+    field_filter_expr_to_kind_where(expr)
+}
+
+/// Extract the return expression from an inline two-param
+/// `function(e,c) return <expr> end` FIELD-target closure. The affected
+/// card is the SECOND param and must be literally `c` (the conjunct
+/// classifier matches `c:` receivers).
+fn field_filter_closure_body(raw: &str) -> Option<String> {
+    let r = raw.strip_prefix("function")?.trim_start();
+    let r = r.strip_prefix('(')?;
+    let (params, r) = r.split_once(')')?;
+    let params: Vec<&str> = params.split(',').map(str::trim).collect();
+    if params.len() != 2 || params[1] != "c" {
+        return None;
+    }
+    let r = r.trim_start().strip_prefix("return")?;
+    Some(r.trim().strip_suffix("end")?.trim().to_string())
+}
+
+/// Classify an affected-card filter expression (conjunction of `c:Is*`
+/// predicates) into a selector (kind, where-clause). Any conjunct
+/// outside the table — runtime args, `or`-groups, except-target
+/// `e:GetLabel()` comparisons, position predicates — fails the whole
+/// filter (skip-not-mis-emit).
+fn field_filter_expr_to_kind_where(expr: &str) -> Option<(String, Option<String>)> {
+    let normalized = expr.split_whitespace().collect::<Vec<_>>().join(" ");
+    // Top-level disjunctions are not classified — `(A) or (B)` groups
+    // would need parenthesised where-clause emit and audit showed every
+    // instance also contains unmappable atoms.
+    if normalized.contains(" or ") {
+        return None;
+    }
+    let mut kind: Option<&'static str> = None;
+    let mut wheres: Vec<String> = Vec::new();
+    for conjunct in normalized.split(" and ") {
+        let c: String = conjunct.chars().filter(|ch| !ch.is_whitespace()).collect();
+        let body = c.strip_prefix("c:")?;
+        let (method, rest) = body.split_once('(')?;
+        let arg = rest.strip_suffix(')')?;
+        let mut set_kind = |k: &'static str| -> Option<()> {
+            match kind {
+                None => { kind = Some(k); Some(()) }
+                Some(existing) if existing == k => Some(()),
+                Some(_) => None, // conflicting kinds — unclassifiable
+            }
+        };
+        match (method, arg) {
+            ("IsFaceup",   "") => wheres.push("is_face_up".to_string()),
+            ("IsFacedown", "") => wheres.push("is_face_down".to_string()),
+            ("IsMonster",  "") => set_kind("monster")?,
+            ("IsSpell",    "") => set_kind("spell")?,
+            ("IsTrap",     "") => set_kind("trap")?,
+            ("IsSetCard",   a) => wheres.push(filter_predicate_to_where("Card.IsSetCard", a)?),
+            ("IsAttribute", a) => wheres.push(filter_predicate_to_where("Card.IsAttribute", a)?),
+            ("IsRace",      a) => wheres.push(filter_predicate_to_where("Card.IsRace", a)?),
+            ("IsType",      a) => wheres.push(type_mask_to_where(a)?),
+            ("IsLevelBelow", a) => wheres.push(format!("level <= {}", a.parse::<u32>().ok()?)),
+            ("IsLevelAbove", a) => wheres.push(format!("level >= {}", a.parse::<u32>().ok()?)),
+            ("IsRankBelow",  a) => wheres.push(format!("rank <= {}", a.parse::<u32>().ok()?)),
+            ("IsRankAbove",  a) => wheres.push(format!("rank >= {}", a.parse::<u32>().ok()?)),
+            _ => return None,
+        }
+    }
+    let where_clause = if wheres.is_empty() { None } else { Some(wheres.join(" and ")) };
+    Some((kind.unwrap_or("card").to_string(), where_clause))
+}
+
+/// Map a `c:IsType(TYPE_…)` mask to where-clause atoms. `+`/`|`-joined
+/// masks are any-of in lua → `or`-joined atoms. Only the frame types
+/// with a DSL `is_*` predicate map; spell/trap subtype masks
+/// (TYPE_CONTINUOUS / TYPE_FIELD / TYPE_EQUIP …) return None.
+fn type_mask_to_where(mask: &str) -> Option<String> {
+    let mut parts = Vec::new();
+    for t in mask.split(['+', '|']).map(str::trim) {
+        parts.push(match t {
+            "TYPE_NORMAL"   => "is_normal",
+            "TYPE_EFFECT"   => "is_effect",
+            "TYPE_FUSION"   => "is_fusion",
+            "TYPE_SYNCHRO"  => "is_synchro",
+            "TYPE_XYZ"      => "is_xyz",
+            "TYPE_LINK"     => "is_link",
+            "TYPE_RITUAL"   => "is_ritual",
+            "TYPE_PENDULUM" => "is_pendulum",
+            "TYPE_TUNER"    => "is_tuner",
+            "TYPE_FLIP"     => "is_flip",
+            "TYPE_TOKEN"    => "is_token",
+            _ => return None,
+        }.to_string());
+    }
+    if parts.is_empty() { return None; }
+    Some(parts.join(" or "))
 }
 
 /// EFFECT_CHANGE_ATTRIBUTE / EFFECT_CHANGE_RACE chain →
@@ -8246,5 +8578,413 @@ end
 "#;
         let actions = p11_actions(src, "s.activate");
         assert!(actions.is_empty(), "EQUIP-type chains must skip, got {:?}", actions);
+    }
+
+    // ── Phase 15: field-scope restriction chains (Duel.RegisterEffect) ──
+
+    #[test]
+    fn p15_field_indestructable_battle_no_filter() {
+        // c12607053 shape: all your monsters survive battle this turn.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
+    e1:SetTargetRange(LOCATION_MZONE,0)
+    e1:SetValue(1)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["grant (all, card, you control, from monster_zone) cannot_be_destroyed by battle until end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn p15_field_named_filter_faceup_archetype() {
+        // c19333131 (Ninjitsu Art of Decoy-B) shape: named s.* filter
+        // resolved through the function table; conjunction of IsFaceup
+        // + IsSetCard maps to a where-clause.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
+    e1:SetTargetRange(LOCATION_MZONE,0)
+    e1:SetTarget(s.etarget)
+    e1:SetValue(1)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.etarget(e,c)
+    return c:IsFaceup() and c:IsSetCard(SET_NINJA)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.operation"),
+            vec![r#"grant (all, card, you control, from monster_zone, where is_face_up and archetype == "Ninja") cannot_be_destroyed by battle until end_of_turn"#],
+        );
+    }
+
+    #[test]
+    fn p15_field_closure_filter_attribute_race() {
+        // c26434972 shape: inline (e,c) closure with attribute + race
+        // conjunction.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
+    e1:SetTargetRange(LOCATION_MZONE,0)
+    e1:SetTarget(function(e,c) return c:IsAttribute(ATTRIBUTE_LIGHT) and c:IsRace(RACE_FIEND) end)
+    e1:SetValue(1)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["grant (all, card, you control, from monster_zone, where attribute == LIGHT and race == Fiend) cannot_be_destroyed by battle until end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn p15_field_targetboolfunction_archetype() {
+        // c48608796 (Lyrilusc) shape: aux.TargetBoolFunction partial
+        // application as the SetTarget filter.
+        let src = r#"
+function s.indop(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
+    e1:SetTargetRange(LOCATION_MZONE,0)
+    e1:SetTarget(aux.TargetBoolFunction(Card.IsSetCard,SET_LYRILUSC))
+    e1:SetValue(1)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.indop"),
+            vec![r#"grant (all, card, you control, from monster_zone, where archetype == "Lyrilusc") cannot_be_destroyed by battle until end_of_turn"#],
+        );
+    }
+
+    #[test]
+    fn p15_field_level_attribute_two_chains() {
+        // c7935043 (Umiiruka-style) shape: two chains sharing one filter;
+        // level/attribute predicates; both grants emit.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
+    e1:SetTargetRange(LOCATION_MZONE,0)
+    e1:SetTarget(s.tg)
+    e1:SetValue(1)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+    local e2=e1:Clone()
+    e2:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
+    Duel.RegisterEffect(e2,tp)
+end
+function s.tg(e,c)
+    return c:IsLevelBelow(3) and c:IsAttribute(ATTRIBUTE_WATER)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec![
+                "grant (all, card, you control, from monster_zone, where level <= 3 and attribute == WATER) cannot_be_destroyed by battle until end_of_turn",
+                "grant (all, card, you control, from monster_zone, where level <= 3 and attribute == WATER) cannot_be_destroyed by effect until end_of_turn",
+            ],
+        );
+    }
+
+    #[test]
+    fn p15_field_disable_negate_effects() {
+        // c12181376 e-chain shape: EFFECT_DISABLE on the opponent's
+        // spell/trap zone with an IsTrap filter → negate_effects.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_DISABLE)
+    e1:SetTargetRange(0,LOCATION_SZONE)
+    e1:SetTarget(s.distg)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.distg(e,c)
+    return c:IsTrap()
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["negate_effects (all, trap, opponent controls, from spell_trap_zone) end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn p15_field_both_sides_xyz_rank() {
+        // c10282757 e-chain shape: both monster zones, frame-type +
+        // rank predicates.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e2=Effect.CreateEffect(e:GetHandler())
+    e2:SetType(EFFECT_TYPE_FIELD)
+    e2:SetCode(EFFECT_CANNOT_ATTACK)
+    e2:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
+    e2:SetTarget(s.filter2)
+    e2:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e2,tp)
+end
+function s.filter2(e,c)
+    return c:IsType(TYPE_XYZ) and c:IsRankAbove(4)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["grant (all, card, either controls, from monster_zone, where is_xyz and rank >= 4) cannot_attack until end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn p15_skip_player_flag_range() {
+        // EFFECT_CANNOT_ACTIVATE with player-flag TargetRange(0,1) —
+        // player-scoped restriction, no DSL form (grammar backlog).
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_ACTIVATE)
+    e1:SetTargetRange(0,1)
+    e1:SetValue(s.aclimit)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        let actions = p11_actions(src, "s.activate");
+        assert!(actions.is_empty(), "player-scoped field code must skip, got {:?}", actions);
+    }
+
+    #[test]
+    fn p15_skip_damage_shaping_code() {
+        // EFFECT_AVOID_BATTLE_DAMAGE — damage-shaping family, no DSL form.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_AVOID_BATTLE_DAMAGE)
+    e1:SetTargetRange(1,0)
+    e1:SetValue(1)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        let actions = p11_actions(src, "s.activate");
+        assert!(actions.is_empty(), "damage-shaping field code must skip, got {:?}", actions);
+    }
+
+    #[test]
+    fn p15_skip_reset_count_two() {
+        // c16469012 shape: SetReset(RESET_PHASE|PHASE_END,2) lives until
+        // the SECOND end phase — not an end-of-turn lifetime.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_ATTACK)
+    e1:SetTargetRange(0,LOCATION_MZONE)
+    e1:SetReset(RESET_PHASE|PHASE_END,2)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        let actions = p11_actions(src, "s.operation");
+        assert!(actions.is_empty(), "reset count 2 must skip, got {:?}", actions);
+    }
+
+    #[test]
+    fn p15_skip_except_target_filter() {
+        // c19394153 family: `e:GetLabel()~=c:GetFieldID()` filter is the
+        // "every monster EXCEPT the selected one" idiom — no DSL
+        // qualifier exists (grammar backlog).
+        let src = r#"
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_ATTACK)
+    e1:SetTargetRange(LOCATION_MZONE,0)
+    e1:SetTarget(s.ftarget)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.ftarget(e,c)
+    return e:GetLabel()~=c:GetFieldID()
+end
+"#;
+        let actions = p11_actions(src, "s.atkop");
+        assert!(actions.is_empty(), "except-target filter must skip, got {:?}", actions);
+    }
+
+    #[test]
+    fn p15_skip_qualifier_value_indoval() {
+        // c72318602 shape: SetValue(aux.indoval) qualifies the protection
+        // to the OPPONENT's effects only — emitting the unqualified
+        // ability would over-grant.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
+    e1:SetTargetRange(LOCATION_MZONE,0)
+    e1:SetValue(aux.indoval)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        let actions = p11_actions(src, "s.operation");
+        assert!(actions.is_empty(), "qualifier-fn SetValue must skip, got {:?}", actions);
+    }
+
+    #[test]
+    fn p15_skip_register_player_not_tp() {
+        // Hieroglyph-style `Duel.RegisterEffect(e1,p)` — the range decode
+        // is relative to an unknown player; controller would flip.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local p=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
+    e1:SetTargetRange(LOCATION_MZONE,0)
+    e1:SetValue(1)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,p)
+end
+"#;
+        let actions = p11_actions(src, "s.activate");
+        assert!(actions.is_empty(), "non-tp registration must skip, got {:?}", actions);
+    }
+
+    #[test]
+    fn p15_skip_card_registered_field_chain() {
+        // FIELD chain committed via c:RegisterEffect — lifetime tied to
+        // the card. Must NOT fall through to the receiver-based grant
+        // path (`grant self …` would mis-aim a TargetRange(0,MZONE)
+        // restriction on the opponent's monsters).
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_ATTACK)
+    e1:SetTargetRange(0,LOCATION_MZONE)
+    e1:SetReset(RESET_EVENT|RESETS_STANDARD)
+    c:RegisterEffect(e1)
+end
+"#;
+        let actions = p11_actions(src, "s.operation");
+        assert!(actions.is_empty(), "card-registered FIELD chain must skip, got {:?}", actions);
+    }
+
+    #[test]
+    fn p15_field_watcher_still_emits_install_watcher() {
+        // Regression guard: FIELD+CONTINUOUS watcher chains (EVENT codes
+        // via Duel.RegisterEffect) must still flow to install_watcher.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+    e1:SetCode(EVENT_DESTROYED)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    e1:SetOperation(s.deop)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.deop(e,tp,eg,ep,ev,re,r,rp)
+    Duel.Draw(tp,1,REASON_EFFECT)
+end
+"#;
+        let actions = p11_actions(src, "s.activate");
+        assert_eq!(
+            actions,
+            vec![r#"install_watcher "deop" { event: destroyed duration: end_of_turn check { draw 1 } }"#],
+        );
+    }
+
+    #[test]
+    fn p15_skip_choice_arm_chain() {
+        // c55948544 (Judgment of the Pharaoh) shape: the chain sits in
+        // one arm of an if/elseif SelectEffect-label dispatch — emitting
+        // it unconditionally would state one option as THE effect.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local op=e:GetLabel()
+    if op==1 then
+        local e1=Effect.CreateEffect(e:GetHandler())
+        e1:SetType(EFFECT_TYPE_FIELD)
+        e1:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
+        e1:SetTargetRange(LOCATION_MZONE,0)
+        e1:SetValue(1)
+        e1:SetReset(RESET_PHASE|PHASE_END)
+        Duel.RegisterEffect(e1,tp)
+    elseif op==2 then
+        local e2=Effect.CreateEffect(e:GetHandler())
+        e2:SetType(EFFECT_TYPE_FIELD)
+        e2:SetCode(EFFECT_DISABLE)
+        e2:SetTargetRange(0,LOCATION_SZONE)
+        e2:SetReset(RESET_PHASE|PHASE_END)
+        Duel.RegisterEffect(e2,tp)
+    end
+end
+"#;
+        let actions = p11_actions(src, "s.activate");
+        assert!(actions.is_empty(), "choice-arm chains must skip, got {:?}", actions);
+    }
+
+    #[test]
+    fn p15_plain_if_guard_still_emits() {
+        // The ubiquitous plain-if guard (no else) is NOT a choice —
+        // field-scope chains inside it keep emitting.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    if Duel.GetTurnPlayer()==tp then
+        local e1=Effect.CreateEffect(e:GetHandler())
+        e1:SetType(EFFECT_TYPE_FIELD)
+        e1:SetCode(EFFECT_PIERCE)
+        e1:SetTargetRange(LOCATION_MZONE,0)
+        e1:SetReset(RESET_PHASE|PHASE_END)
+        Duel.RegisterEffect(e1,tp)
+    end
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["grant (all, card, you control, from monster_zone) piercing until end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn p15_skip_spell_trap_subtype_mask() {
+        // c12253117 shape: IsType(TYPE_FIELD) — spell/trap subtype masks
+        // have no is_* predicate; whole filter fails.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_DISABLE)
+    e1:SetTargetRange(LOCATION_SZONE,LOCATION_SZONE)
+    e1:SetTarget(s.distarget)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.distarget(e,c)
+    return c:IsType(TYPE_FIELD)
+end
+"#;
+        let actions = p11_actions(src, "s.activate");
+        assert!(actions.is_empty(), "subtype mask filter must skip, got {:?}", actions);
     }
 }
