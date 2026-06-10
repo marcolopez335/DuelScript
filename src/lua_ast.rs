@@ -3240,8 +3240,12 @@ fn grant_ability_for(code: &str) -> Option<&'static str> {
 /// `loop_source_group`. Shared by the stat-modifier and grant paths.
 ///
 /// Single-target (`multi_target=false`):
-///   - `tc` / `tc:GetFirst()` / `g:GetFirst()` → `target`
+///   - `tc` single-assigned from `Duel.GetFirstTarget(...)` → `target`
+///   - `<g>:GetFirst()` with `g` bound to `Duel.GetTargetCards(...)` → `target`
 ///   - `c` / `e:GetHandler()` → `self`
+///   - any other `tc` provenance (GetFieldCard, SelectMatchingCard,
+///     GetAttacker, GetLabelObject, rebinding, …) → None (Phase 13b
+///     skip-not-mis-emit gate)
 ///
 /// Multi-target (`multi_target=true`):
 ///   - `loop_source_group` resolves to a binding in
@@ -3290,11 +3294,37 @@ fn resolve_body_selector(
         }
         None
     } else {
-        match receiver {
-            "tc" | "tc:GetFirst()" | "g:GetFirst()" => Some("target".to_string()),
-            "c" | "e:GetHandler()" => Some("self".to_string()),
-            _ => None,
+        let recv = receiver;
+        if recv == "c" || recv == "e:GetHandler()" {
+            return Some("self".to_string());
         }
+        // Bare `tc` is only the declared target when the body
+        // single-assigns it from `Duel.GetFirstTarget(...)` (the taint
+        // logic in `extract_value_bindings` drops reassigned names).
+        // `tc` bound via Duel.GetFieldCard / Duel.SelectMatchingCard /
+        // Duel.GetAttacker / e:GetLabelObject etc. is a different card
+        // entirely — emitting `target` mis-aims the line. Same gate as
+        // the Phase 13 counter-op path (caught live on c35787450
+        // Eternal Dread).
+        if recv == "tc" {
+            return body
+                .value_bindings
+                .get("tc")
+                .is_some_and(|rhs| rhs.starts_with("Duel.GetFirstTarget("))
+                .then(|| "target".to_string());
+        }
+        // `<g>:GetFirst()` receiver — first member of a group local.
+        // Only the declared-target group (`Duel.GetTargetCards`) lowers
+        // to `target`; Select* / GetMatchingGroup sources pick a fresh
+        // card at resolve time.
+        if let Some(var) = recv.strip_suffix(":GetFirst()") {
+            return body
+                .value_bindings
+                .get(var)
+                .is_some_and(|rhs| rhs.starts_with("Duel.GetTargetCards("))
+                .then(|| "target".to_string());
+        }
+        None
     }
 }
 
@@ -5324,12 +5354,15 @@ end
 
     #[test]
     fn t10_register_chain_indestructable_battle_target_grant() {
-        // Shield Warrior shape: tc:RegisterEffect with
+        // Declared-target battle protection: tc:RegisterEffect with
         // EFFECT_INDESTRUCTABLE_BATTLE + RESETS_STANDARD reset →
         // grant target cannot_be_destroyed by battle until end_of_turn.
+        // (Originally used the Shield Warrior `e:GetLabelObject()`
+        // binding; that provenance is statically unknowable and now
+        // skips under the Phase 13b gate — see p13b tests.)
         let src = r#"
 function s.atkop(e,tp,eg,ep,ev,re,r,rp)
-    local tc=e:GetLabelObject()
+    local tc=Duel.GetFirstTarget()
     local e1=Effect.CreateEffect(e:GetHandler())
     e1:SetType(EFFECT_TYPE_SINGLE)
     e1:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
@@ -7081,6 +7114,7 @@ end
 "#;
         assert_eq!(p12_line(src, 0), None);
     }
+
     // ── Phase 13: counter ops ────────────────────────────────────────
 
     /// Translate the named handler body of a lua snippet and return the
@@ -7617,5 +7651,91 @@ end
             .find(|e| e.is_summon_helper())
             .expect("helper skeleton");
         assert_eq!(helper.summon_helper_line(), None);
+    }
+
+    // ── Phase 13b: chain-path `tc` → `target` gated on GetFirstTarget ──
+
+    /// Minimal single-target chain body parameterized by the lines that
+    /// precede the RegisterEffect — used to vary how `tc` is bound.
+    fn p13b_src(prelude: &str, receiver: &str) -> String {
+        format!(r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    {}
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(500)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    {}:RegisterEffect(e1)
+end
+"#, prelude, receiver)
+    }
+
+    #[test]
+    fn p13b_tc_getfirsttarget_emits_target() {
+        // Canonical declared-target shape — gate passes.
+        let actions = p11_actions(&p13b_src("local tc=Duel.GetFirstTarget()", "tc"), "s.activate");
+        assert_eq!(actions, vec!["modify_atk target + 500 until end_of_turn"]);
+    }
+
+    #[test]
+    fn p13b_tc_fieldcard_binding_skips() {
+        // Eternal Dread (c35787450) shape: `tc` is the field-zone card,
+        // not a declared target — `target` would mis-aim the line.
+        let actions = p11_actions(
+            &p13b_src("local tc=Duel.GetFieldCard(tp,LOCATION_FZONE,0)", "tc"),
+            "s.activate");
+        assert!(actions.is_empty(), "GetFieldCard-bound tc must skip, got {:?}", actions);
+    }
+
+    #[test]
+    fn p13b_tc_selectmatchingcard_binding_skips() {
+        // Resolve-time selection is not the declared target.
+        let actions = p11_actions(
+            &p13b_src(
+                "local tc=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_MZONE,0,1,1,nil):GetFirst()",
+                "tc"),
+            "s.activate");
+        assert!(actions.is_empty(), "SelectMatchingCard-bound tc must skip, got {:?}", actions);
+    }
+
+    #[test]
+    fn p13b_tc_unbound_skips() {
+        // No `tc` assignment in the body (upvalue / module-level) —
+        // provenance unknown, skip.
+        let actions = p11_actions(&p13b_src("", "tc"), "s.activate");
+        assert!(actions.is_empty(), "unbound tc must skip, got {:?}", actions);
+    }
+
+    #[test]
+    fn p13b_tc_rebound_skips() {
+        // GetFirstTarget then reassigned — taint logic drops the binding,
+        // so the gate must skip (single-assignment requirement).
+        let actions = p11_actions(
+            &p13b_src(
+                "local tc=Duel.GetFirstTarget()\n    tc=Duel.GetAttackTarget()",
+                "tc"),
+            "s.activate");
+        assert!(actions.is_empty(), "rebound tc must skip, got {:?}", actions);
+    }
+
+    #[test]
+    fn p13b_getfirst_receiver_gettargetcards_emits_target() {
+        // `g:GetFirst()` where g is the declared-target group — the first
+        // declared target, still `target`.
+        let actions = p11_actions(
+            &p13b_src("local g=Duel.GetTargetCards(e)", "g:GetFirst()"),
+            "s.activate");
+        assert_eq!(actions, vec!["modify_atk target + 500 until end_of_turn"]);
+    }
+
+    #[test]
+    fn p13b_getfirst_receiver_selecttarget_skips() {
+        // c67901914 shape: group from Duel.SelectTarget — receiver is a
+        // fresh selection, not the chain's declared target. Skip.
+        let actions = p11_actions(
+            &p13b_src("local g=Duel.SelectTarget(tp,s.filter,tp,LOCATION_MZONE,0,1,1,nil)", "g:GetFirst()"),
+            "s.activate");
+        assert!(actions.is_empty(), "SelectTarget group GetFirst must skip, got {:?}", actions);
     }
 }
