@@ -806,6 +806,23 @@ fn extract_effects_from_block(block: &Block, report: &mut LuaReport) {
                                 )),
                                 ..Default::default()
                             });
+                        } else if expr_is_fusion_registersummoneff(expr) {
+                            ordinals.insert(name.clone(), source_ord);
+                            source_ord += 1;
+                            by_binding.insert(name.clone(), EffectSkeleton {
+                                binding: name.clone(),
+                                fusion_summon_spec: true,
+                                summon_helper_op: Some(plain_helper_op_from_expr(
+                                    expr,
+                                    SummonHelperKind::FusionSummonEffOp,
+                                    FUSION_CREATE_SUMMON_EFF_PARAMS,
+                                )),
+                                // RegisterSummonEff commits the effect
+                                // internally — no `c:RegisterEffect(eN)`
+                                // follows, so mark registered here.
+                                registered: true,
+                                ..Default::default()
+                            });
                         } else if expr_is_ritual_proc_helper(expr) {
                             ordinals.insert(name.clone(), source_ord);
                             source_ord += 1;
@@ -859,6 +876,28 @@ fn extract_effects_from_block(block: &Block, report: &mut LuaReport) {
                         fusion_summon_spec: true,
                         summon_helper_op: Some(plain_helper_op_from_expr(
                             inner,
+                            SummonHelperKind::FusionSummonEffOp,
+                            FUSION_CREATE_SUMMON_EFF_PARAMS,
+                        )),
+                        registered: true,
+                        ..Default::default()
+                    });
+                }
+                // Top-level `Fusion.RegisterSummonEff(c, ...)` — the
+                // self-registering variant: forwards its args to
+                // CreateSummonEff and registers the effect itself
+                // (proc_fusion_spell.lua), so no binding or
+                // `c:RegisterEffect(eN)` follows. Same param list and
+                // handler-arg skip as CreateSummonEff.
+                if call_is_fusion_register_summon_eff(fc) {
+                    let anon = format!("__fusion_register_{}", by_binding.len());
+                    ordinals.insert(anon.clone(), source_ord);
+                    source_ord += 1;
+                    by_binding.insert(anon.clone(), EffectSkeleton {
+                        binding: anon,
+                        fusion_summon_spec: true,
+                        summon_helper_op: Some(plain_helper_op_from_call(
+                            fc,
                             SummonHelperKind::FusionSummonEffOp,
                             FUSION_CREATE_SUMMON_EFF_PARAMS,
                         )),
@@ -1045,6 +1084,23 @@ fn expr_is_fusion_createsummoneff(expr: &Expression) -> bool {
     }
 }
 
+/// True if `expr` is `Fusion.RegisterSummonEff(...)` — the binding form
+/// of the self-registering fusion helper (`local e1=Fusion.RegisterSummonEff{...}`).
+/// It forwards to CreateSummonEff and registers the effect internally.
+fn expr_is_fusion_registersummoneff(expr: &Expression) -> bool {
+    if let Expression::FunctionCall(fc) = expr {
+        call_is_fusion_register_summon_eff(fc)
+    } else {
+        false
+    }
+}
+
+/// True if the function call is `Fusion.RegisterSummonEff(...)` — the
+/// top-level statement form of the self-registering fusion helper.
+fn call_is_fusion_register_summon_eff(fc: &FunctionCall) -> bool {
+    call_head_string(fc) == "Fusion.RegisterSummonEff"
+}
+
 /// Detect `c:RegisterEffect(Fusion.CreateSummonEff(...))` — the inline
 /// commit shape where no local binding holds the effect. Returns the
 /// inner `Fusion.CreateSummonEff(...)` expression so the walker can
@@ -1104,13 +1160,26 @@ fn plain_helper_op_from_call(
     let unresolved = SummonHelperOp { kind, params: Vec::new(), unresolved: true };
     let params = match fc.suffixes().last() {
         Some(Suffix::Call(Call::AnonymousCall(ast::FunctionArgs::Parentheses { arguments, .. }))) => {
-            // Positional form — first arg is the handler card, skip it.
-            let raws: Vec<String> = arguments
-                .iter()
-                .skip(1)
-                .map(|e| e.to_string().trim().to_string())
-                .collect();
-            positional_params(&raws, names)
+            // Named-args table passed with explicit parens:
+            // `Fusion.CreateSummonEff({handler=c, …})`. The table is the
+            // FIRST argument, not the handler card — skipping it as a
+            // positional handler would decode zero params and mis-emit
+            // an over-permissive bare line.
+            if let Some(Expression::TableConstructor(tc)) = arguments.iter().next() {
+                if arguments.len() != 1 { return unresolved; }
+                match named_table_params(tc) {
+                    Some(params) => params,
+                    None => return unresolved,
+                }
+            } else {
+                // Positional form — first arg is the handler card, skip it.
+                let raws: Vec<String> = arguments
+                    .iter()
+                    .skip(1)
+                    .map(|e| e.to_string().trim().to_string())
+                    .collect();
+                positional_params(&raws, names)
+            }
         }
         // `Fusion.CreateSummonEff{handler=c, …}` named-table sugar —
         // named_table_params drops the handler key itself.
@@ -7438,6 +7507,91 @@ end
             p12_line(src, 0).as_deref(),
             Some("ritual_summon (1, ritual monster)"),
         );
+    }
+
+    #[test]
+    fn plain_helper_fusion_parenthesized_table_stage2_skips() {
+        // Dark Fusion (c94820406): named-args table wrapped in parens —
+        // the table is arg #1, not the handler. stage2 grants the
+        // summoned monster effects, so the line must skip; the old
+        // positional decode skipped the table as "handler" and mis-emitted
+        // a bare line.
+        let src = r#"
+function s.initial_effect(c)
+    c:RegisterEffect(Fusion.CreateSummonEff({handler=c,fusfilter=aux.FilterBoolFunction(Card.IsRace,RACE_FIEND),stage2=s.stage2}))
+end
+"#;
+        assert_eq!(p12_line(src, 0), None);
+    }
+
+    #[test]
+    fn plain_helper_fusion_parenthesized_table_fusfilter_emits() {
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Fusion.CreateSummonEff({handler=c,fusfilter=aux.FilterBoolFunction(Card.IsRace,RACE_FIEND)})
+    c:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(
+            p12_line(src, 0).as_deref(),
+            Some("fusion_summon (1, fusion monster, where race == Fiend)"),
+        );
+    }
+
+    #[test]
+    fn plain_helper_fusion_register_no_params_emits_bare_line() {
+        // Polymerization (c24094653): top-level statement form, no
+        // params beyond the handler.
+        let src = r#"
+function s.initial_effect(c)
+    Fusion.RegisterSummonEff(c)
+end
+"#;
+        assert_eq!(
+            p12_line(src, 0).as_deref(),
+            Some("fusion_summon (1, fusion monster)"),
+        );
+    }
+
+    #[test]
+    fn plain_helper_fusion_register_table_extra_params_skip() {
+        // Greater Polymerization (c7614732): mincount changes the
+        // material count floor and stage2 grants summoned-monster
+        // effects — no DSL equivalent, must skip.
+        let src = r#"
+function s.initial_effect(c)
+    Fusion.RegisterSummonEff{handler=c,mincount=3,stage2=s.stage2}
+end
+"#;
+        assert_eq!(p12_line(src, 0), None);
+    }
+
+    #[test]
+    fn plain_helper_fusion_register_binding_form_fusfilter() {
+        // Binding form registers internally — no `c:RegisterEffect(e1)`
+        // follows, the skeleton must still count as registered.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Fusion.RegisterSummonEff{handler=c,fusfilter=aux.FilterBoolFunction(Card.IsSetCard,SET_SHADDOLL)}
+end
+"#;
+        assert_eq!(
+            p12_line(src, 0).as_deref(),
+            Some(r#"fusion_summon (1, fusion monster, where archetype == "Shaddoll")"#),
+        );
+    }
+
+    #[test]
+    fn plain_helper_fusion_register_binding_extrafil_skips() {
+        // Dimension Fusion Destruction (c89190953): extrafil widens the
+        // material pool, extraop banishes materials — must skip even
+        // though fusfilter alone would decode.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Fusion.RegisterSummonEff{handler=c,fusfilter=aux.FilterBoolFunction(Card.IsSetCard,SET_PHANTASM),extrafil=s.fextra,stage2=s.stage2}
+end
+"#;
+        assert_eq!(p12_line(src, 0), None);
     }
 
     #[test]
