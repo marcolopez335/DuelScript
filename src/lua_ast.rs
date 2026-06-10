@@ -3094,6 +3094,14 @@ fn translate_register_chain(
     if chain.conflicting_sets {
         return Vec::new();
     }
+    // EFFECT_TYPE_EQUIP chains register on the equip card but apply to
+    // the EQUIPPED monster (Tyrant Wing: +400/400 to the monster, not
+    // the trap). Resolve-time DSL has no equipped_card receiver — the
+    // passive path maps these via `target: equipped_card` instead — so
+    // any emit here would mis-aim the receiver. Skip.
+    if chain.effect_type.as_deref().is_some_and(|t| t.contains("EFFECT_TYPE_EQUIP")) {
+        return Vec::new();
+    }
     let Some(code) = chain.code.as_deref() else { return Vec::new() };
     if code == "EFFECT_IMMUNE_EFFECT" {
         return translate_immune_chain(chain, body, functions);
@@ -8004,5 +8012,30 @@ end
             ("e2".to_string(), false),
             ("e4".to_string(), true),
         ]);
+    }
+
+    #[test]
+    fn equip_type_chain_skips_resolve_emit() {
+        // Tyrant Wing (c57470761) e2 shape: EFFECT_TYPE_EQUIP chain
+        // registered on the equip card (`c`) but applying to the
+        // EQUIPPED monster. Resolve-time DSL has no equipped_card
+        // receiver — `modify_atk self` would aim at the wrong card.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local tc=Duel.GetFirstTarget()
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_EQUIP)
+    e2:SetCode(EFFECT_UPDATE_ATTACK)
+    e2:SetValue(400)
+    e2:SetReset(RESET_EVENT|RESETS_STANDARD)
+    c:RegisterEffect(e2)
+    local e3=e2:Clone()
+    e3:SetCode(EFFECT_UPDATE_DEFENSE)
+    c:RegisterEffect(e3)
+end
+"#;
+        let actions = p11_actions(src, "s.activate");
+        assert!(actions.is_empty(), "EQUIP-type chains must skip, got {:?}", actions);
     }
 }
