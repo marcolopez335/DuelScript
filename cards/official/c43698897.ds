@@ -12,10 +12,10 @@ card "Frightfur Factory" {
         once_per_turn: hard
         mandatory
         cost {
-            banish self
+            banish (1, spell, where archetype == "Fusion") from gy
         }
         resolve {
-            add_to_hand target
+            fusion_summon (1, fusion monster, where archetype == "Frightfur")
         }
     }
 
@@ -23,9 +23,9 @@ card "Frightfur Factory" {
         speed: 1
         once_per_turn: soft
         timing: if
-        trigger: custom "chain_end"
+        trigger: sent_to gy
         resolve {
-            add_to_hand (all, card, either controls)
+            add_to_hand target
         }
     }
 }
