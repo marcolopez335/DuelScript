@@ -11,12 +11,19 @@ card "Card Guard" {
         speed: 1
         mandatory
         trigger: summoned
+        resolve {
+            place_counter "Guard Counter" 1 on self
+        }
     }
 
     effect "Effect 2" {
         speed: 1
         mandatory
         trigger: summoned by special
+        resolve {
+            remove_counter "Guard Counter" 1 from self
+            place_counter "Guard Counter" 1 on target
+        }
     }
 
     effect "Effect 4" {

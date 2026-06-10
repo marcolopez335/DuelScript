@@ -11,11 +11,18 @@ card "Shien's Daredevil" {
         speed: 1
         mandatory
         trigger: summoned
+        resolve {
+            place_counter "Bushido Counter" 1 on self
+        }
     }
 
     effect "Effect 3" {
         speed: 1
         once_per_turn: soft
         mandatory
+        resolve {
+            remove_counter "Bushido Counter" 1 from self
+            place_counter "Bushido Counter" 1 on target
+        }
     }
 }

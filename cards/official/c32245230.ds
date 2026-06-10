@@ -5,6 +5,9 @@ card "The Deal of Destiny" {
     effect "Effect 1" {
         speed: 2
         mandatory
+        resolve {
+            place_counter "Emperor's Key Counter" 1 on self
+        }
     }
 
     effect "Effect 3" {
@@ -12,6 +15,9 @@ card "The Deal of Destiny" {
         once_per_turn: hard
         timing: if
         trigger: summoned by special
+        cost {
+            remove_counter "Emperor's Key Counter" 1 from self
+        }
         resolve {
             send (all, card, either controls) to gy
             special_summon (all, card, either controls)

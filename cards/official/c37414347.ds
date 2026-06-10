@@ -21,6 +21,9 @@ card "F.A. Shining Star GT" {
         speed: 1
         mandatory
         trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        resolve {
+            place_counter "Athlete Counter" 1 on self
+        }
     }
 
     effect "Effect 5" {
@@ -28,6 +31,9 @@ card "F.A. Shining Star GT" {
         once_per_turn: hard
         timing: when
         trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        cost {
+            remove_counter "Athlete Counter" 1 from self
+        }
         resolve {
             negate
             destroy (all, card, either controls)
