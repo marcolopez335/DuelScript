@@ -5,7 +5,17 @@ card "Spellbook of Wisdom" {
     effect "Effect 1" {
         speed: 2
         mandatory
-        resolve {
+        choose {
+            option "This turn, that target is unaffected by the effects of other Spell Cards." {
+                resolve {
+                    grant target unaffected_by spells until end_of_turn
+                }
+            }
+            option "This turn, that target is unaffected by the effects of Trap Cards" {
+                resolve {
+                    grant target unaffected_by traps until end_of_turn
+                }
+            }
         }
     }
 }
