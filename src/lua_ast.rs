@@ -3365,7 +3365,7 @@ fn scan_dispatch_block(block: &Block, st: &mut DispatchScan) {
                 // Otherwise only cosmetic / query Duel calls may sit
                 // outside the arms (Duel.Hint, Duel.SetTargetPlayer, …).
                 match duel_call_from_fc(fc) {
-                    Some(call) if translate_call(&call, &BTreeMap::new()).is_none() => {}
+                    Some(call) if translate_call(&call, &FunctionBody::default()).is_none() => {}
                     _ => { st.failed = true; return; }
                 }
             }
@@ -3591,7 +3591,7 @@ fn label_cond_matches(cond: &Expression, label_var: Option<&str>, k: u32) -> boo
 fn expr_has_action_call(expr: &Expression) -> bool {
     let mut calls = Vec::new();
     collect_duel_calls_in_expr(expr, &mut calls);
-    calls.iter().any(|c| translate_call(c, &BTreeMap::new()).is_some())
+    calls.iter().any(|c| translate_call(c, &FunctionBody::default()).is_some())
 }
 
 /// True for a block that is exactly one bare `return` (the
@@ -3999,7 +3999,7 @@ pub fn translate_body_with_functions(
 ) -> Vec<DslLine> {
     let mut out = Vec::new();
     for c in &body.calls {
-        if let Some(line) = translate_call(c, &body.group_bindings) {
+        if let Some(line) = translate_call(c, body) {
             out.push(line);
         }
     }
@@ -4082,7 +4082,7 @@ fn translate_choice_arm(
 ) -> Option<Vec<DslLine>> {
     let mut out = Vec::new();
     for c in &arm.calls {
-        match translate_call(c, &arm.group_bindings) {
+        match translate_call(c, arm) {
             Some(DslLine::Action(s)) => out.push(DslLine::Action(s)),
             Some(DslLine::Todo(_)) => return None,
             None => {}
@@ -5440,9 +5440,10 @@ fn translate_equip_helper_call(
     Some(DslLine::Action(format!("equip {} to self", sel.to_dsl())))
 }
 
-fn translate_call(c: &DuelCall, bindings: &BTreeMap<String, SelectorSpec>) -> Option<DslLine> {
+fn translate_call(c: &DuelCall, body: &FunctionBody) -> Option<DslLine> {
     let m = c.method.as_str();
     let a = &c.args;
+    let bindings = &body.group_bindings;
     match m {
         // ── Skip: pure UI / control-flow / metadata ──────────
         "Duel.Hint" | "Duel.HintSelection" | "Duel.ConfirmCards"
@@ -5478,44 +5479,28 @@ fn translate_call(c: &DuelCall, bindings: &BTreeMap<String, SelectorSpec>) -> Op
         "Duel.Draw" => Some(action_draw(a)),
 
         // Duel.Destroy(target, reason)
-        "Duel.Destroy" => Some(DslLine::Action(
-            format!("destroy {}", group_arg(a, 0, bindings))
-        )),
+        "Duel.Destroy" => Some(gated_action(m, a, body, |t| format!("destroy {}", t))),
 
         // Duel.SendtoGrave(target, reason)
-        "Duel.SendtoGrave" => Some(DslLine::Action(
-            format!("send {} to gy", group_arg(a, 0, bindings))
-        )),
+        "Duel.SendtoGrave" => Some(gated_action(m, a, body, |t| format!("send {} to gy", t))),
 
         // Duel.SendtoHand(target, player, reason)
-        "Duel.SendtoHand" => Some(DslLine::Action(
-            format!("add_to_hand {}", group_arg(a, 0, bindings))
-        )),
+        "Duel.SendtoHand" => Some(gated_action(m, a, body, |t| format!("add_to_hand {}", t))),
 
         // Duel.SendtoDeck(target, player, sequence, reason)
-        "Duel.SendtoDeck" => Some(DslLine::Action(
-            format!("send {} to deck", group_arg(a, 0, bindings))
-        )),
+        "Duel.SendtoDeck" => Some(gated_action(m, a, body, |t| format!("send {} to deck", t))),
 
         // Duel.Remove(target, pos, reason) — banish
-        "Duel.Remove" => Some(DslLine::Action(
-            format!("banish {}", group_arg(a, 0, bindings))
-        )),
+        "Duel.Remove" => Some(gated_action(m, a, body, |t| format!("banish {}", t))),
 
         // Duel.Release(target, reason) — tribute. No DSL `tribute`
         // action in resolve grammar (only `tribute self` in cost block).
         // Released cards go to gy; closest semantic action is send-to-gy.
-        "Duel.Release" => Some(DslLine::Action(
-            format!("send {} to gy", group_arg(a, 0, bindings))
-        )),
+        "Duel.Release" => Some(gated_action(m, a, body, |t| format!("send {} to gy", t))),
 
         // Duel.SpecialSummon(target, sumtype, p1, p2, nocheck, nolimit, pos)
-        "Duel.SpecialSummon" => Some(DslLine::Action(
-            format!("special_summon {}", group_arg(a, 0, bindings))
-        )),
-        "Duel.SpecialSummonStep" => Some(DslLine::Action(
-            format!("special_summon {}", group_arg(a, 0, bindings))
-        )),
+        "Duel.SpecialSummon" => Some(gated_action(m, a, body, |t| format!("special_summon {}", t))),
+        "Duel.SpecialSummonStep" => Some(gated_action(m, a, body, |t| format!("special_summon {}", t))),
         "Duel.SpecialSummonComplete" => None, // boundary marker
 
         // Duel.DiscardHand(player, filter, min, max, reason)
@@ -5527,7 +5512,7 @@ fn translate_call(c: &DuelCall, bindings: &BTreeMap<String, SelectorSpec>) -> Op
         // attack/defense. We can't always extract position from args, but
         // the DSL `change_position target` (no `to ...`) is valid: lets the
         // engine pick. If we recognize a literal POS_*, we add `to`.
-        "Duel.ChangePosition" => Some(action_change_position(a, bindings)),
+        "Duel.ChangePosition" => Some(action_change_position(a, body)),
 
         // Duel.Equip(player, equipper, target, ...) — equip self/target to
         // another card. DSL: `equip <eq> to <target>`. We only handle the
@@ -5546,7 +5531,8 @@ fn translate_call(c: &DuelCall, bindings: &BTreeMap<String, SelectorSpec>) -> Op
         "Duel.Overlay" => Some(action_overlay(a, bindings)),
 
         // Duel.SSet(player, target) — set spell/trap face-down on field.
-        "Duel.SSet" => Some(DslLine::Action("set target".to_string())),
+        // The card arg is position 1 (position 0 is the player).
+        "Duel.SSet" => Some(gated_action_at(m, a, 1, body, |t| format!("set {}", t))),
 
         // Duel.ShuffleDeck(player) — shuffle. DSL has shuffle_deck with
         // optional yours/opponents/both; default is implicit yours.
@@ -5576,13 +5562,14 @@ fn translate_call(c: &DuelCall, bindings: &BTreeMap<String, SelectorSpec>) -> Op
         "Duel.NegateEffect" => Some(DslLine::Action("negate".to_string())),
 
         // Special-summon family that's not the basic SpecialSummon —
-        // engine handles them as variants of the same action.
+        // engine handles them as variants of the same action. The summoned
+        // card is arg 1 (arg 0 is the player).
         "Duel.SynchroSummon" | "Duel.XyzSummon" | "Duel.LinkSummon"
         | "Duel.FusionSummon" | "Duel.RitualSummon"
-        => Some(DslLine::Action("special_summon target".to_string())),
+        => Some(gated_action_at(m, a, 1, body, |t| format!("special_summon {}", t))),
 
         // Duel.Summon(player, target, ignore_count, e, min, max) — normal summon
-        "Duel.Summon" => Some(DslLine::Action("normal_summon target".to_string())),
+        "Duel.Summon" => Some(gated_action_at(m, a, 1, body, |t| format!("normal_summon {}", t))),
 
         // Duel.RemoveCounter — field-wide counter removal (Phase 13).
         "Duel.RemoveCounter" => Some(action_duel_remove_counter(a)),
@@ -5617,8 +5604,13 @@ fn action_damage(args: &[String]) -> DslLine {
 }
 
 /// `Duel.ChangePosition(target, pos)` → `change_position <sel> [to <pos>]`.
-fn action_change_position(args: &[String], bindings: &BTreeMap<String, SelectorSpec>) -> DslLine {
-    let target = group_arg(args, 0, bindings);
+fn action_change_position(args: &[String], body: &FunctionBody) -> DslLine {
+    let Some(target) = group_arg(args, 0, body) else {
+        return DslLine::Todo(format!(
+            "Duel.ChangePosition({}) — target provenance unknown",
+            args.join(", ")
+        ));
+    };
     let pos = args.get(1).map(String::as_str).unwrap_or("");
     let to = match pos {
         "POS_FACEUP_ATTACK"     => Some("attack_position"),
@@ -5632,27 +5624,76 @@ fn action_change_position(args: &[String], bindings: &BTreeMap<String, SelectorS
     }
 }
 
+/// Render a consuming action whose first argument is a card/group
+/// selector. Unresolvable provenance → TODO line instead of a silently
+/// mis-aimed bare `target` (skip-not-mis-emit).
+fn gated_action(
+    method: &str,
+    args: &[String],
+    body: &FunctionBody,
+    render: impl FnOnce(&str) -> String,
+) -> DslLine {
+    gated_action_at(method, args, 0, body, render)
+}
+
+/// [`gated_action`] for methods whose card/group argument is not in
+/// position 0 (SSet / Summon / the extra-deck summon family put the
+/// player first).
+fn gated_action_at(
+    method: &str,
+    args: &[String],
+    idx: usize,
+    body: &FunctionBody,
+    render: impl FnOnce(&str) -> String,
+) -> DslLine {
+    match group_arg(args, idx, body) {
+        Some(sel) => DslLine::Action(render(&sel)),
+        None => DslLine::Todo(format!(
+            "{}({}) — target provenance unknown",
+            method,
+            args.join(", ")
+        )),
+    }
+}
+
 /// Resolve action argument N to a DSL selector expression. If the
 /// argument names a known group binding, substitute the captured
-/// SelectorSpec; otherwise default to the bare `target` placeholder.
-fn group_arg(args: &[String], idx: usize, bindings: &BTreeMap<String, SelectorSpec>) -> String {
-    let raw = match args.get(idx) {
-        Some(s) => s.trim(),
-        None => return "target".to_string(),
-    };
+/// SelectorSpec. The bare `target` placeholder is only emitted when the
+/// argument demonstrably holds the effect's DECLARED targets —
+/// `Duel.GetFirstTarget` / `Duel.GetTargetCards` provenance, inline or
+/// via a single-assigned local (same gate as `resolve_body_selector`,
+/// Phase 13b). Anything else (event groups, GetFieldCard bindings,
+/// GetMatchingGroup locals that lost their spec, helper params, …) is a
+/// different card entirely — returns None so callers emit a TODO.
+fn group_arg(args: &[String], idx: usize, body: &FunctionBody) -> Option<String> {
+    let raw = args.get(idx)?.trim();
     // Strip common ":GetFirst()" or ":Filter(...)" suffix to get base name.
     let base = raw.split(|c| c == ':' || c == '.').next().unwrap_or(raw);
     // Special: `c` and `e:GetHandler()` reliably refer to the host card.
-    // Emit `self` rather than the bare `target` fallback so actions like
-    // `Duel.SendtoGrave(c, ...)` translate to `send self to gy` instead of
-    // mis-rendering as `send target to gy`.
+    // Emit `self` so actions like `Duel.SendtoGrave(c, ...)` translate to
+    // `send self to gy`.
     if base == "c" || raw == "e:GetHandler()" {
-        return "self".to_string();
+        return Some("self".to_string());
     }
-    if let Some(spec) = bindings.get(base) {
-        return spec.to_dsl();
+    if let Some(spec) = body.group_bindings.get(base) {
+        return Some(spec.to_dsl());
     }
-    "target".to_string()
+    // Inline declared-target fetch consumed directly by the action.
+    if raw.starts_with("Duel.GetFirstTarget(") || raw.starts_with("Duel.GetTargetCards(") {
+        return Some("target".to_string());
+    }
+    // Local single-assigned from a declared-target fetch (taint logic in
+    // `extract_value_bindings` drops reassigned names).
+    if body
+        .value_bindings
+        .get(base)
+        .is_some_and(|rhs| {
+            rhs.starts_with("Duel.GetFirstTarget(") || rhs.starts_with("Duel.GetTargetCards(")
+        })
+    {
+        return Some("target".to_string());
+    }
+    None
 }
 
 /// `Duel.Overlay(xyz_target, materials, [send_overlay])` → `attach <mat> to <xyz> as_material`.
@@ -5879,12 +5920,14 @@ mod tests {
     }
 
     #[test]
-    fn translate_duel_destroy_target() {
+    fn translate_duel_destroy_unknown_provenance_todo() {
+        // `g` with no tracked binding and no declared-target provenance —
+        // bare `target` would mis-aim, so the line degrades to a TODO.
         let calls = vec![
             DuelCall { method: "Duel.Destroy".to_string(), args: vec!["g".into(), "REASON_EFFECT".into()] },
         ];
         let lines = translate_calls(&calls);
-        assert!(matches!(&lines[0], DslLine::Action(s) if s == "destroy target"));
+        assert!(matches!(&lines[0], DslLine::Todo(s) if s.contains("target provenance unknown")));
     }
 
     #[test]
@@ -10661,15 +10704,123 @@ end
     #[test]
     fn p17_select_getfirst_range_minmax_no_binding() {
         // min ≠ max: `GetFirst()` of a wider pick is one arbitrary member
-        // — no selector names it, so no binding is created and the action
-        // keeps the legacy bare-target placeholder.
+        // — no selector names it, so no binding is created. The pick is
+        // NOT the declared target either, so the action degrades to a
+        // TODO instead of a mis-aimed bare `target`.
         let src = r#"
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
     local tc=Duel.SelectMatchingCard(tp,Card.IsFaceup,tp,LOCATION_MZONE,0,1,2,nil):GetFirst()
     Duel.Destroy(tc,REASON_EFFECT)
 end
 "#;
-        assert_eq!(p11_actions(src, "s.activate"), vec!["destroy target"]);
+        assert_eq!(p11_actions(src, "s.activate"), Vec::<String>::new());
+    }
+
+    // ── group_arg provenance gate ─────────────────────────────────────
+
+    #[test]
+    fn group_arg_gate_getfirsttarget_local_is_target() {
+        // `local tc=Duel.GetFirstTarget()` — the declared target. Bare
+        // `target` is correct.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    if tc:IsRelateToEffect(e) then
+        Duel.Destroy(tc,REASON_EFFECT)
+    end
+end
+"#;
+        assert_eq!(p11_actions(src, "s.operation"), vec!["destroy target"]);
+    }
+
+    #[test]
+    fn group_arg_gate_gettargetcards_local_is_target() {
+        // `local g=Duel.GetTargetCards(e)` — the declared-target group.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetTargetCards(e)
+    Duel.SendtoGrave(g,REASON_EFFECT)
+end
+"#;
+        assert_eq!(p11_actions(src, "s.operation"), vec!["send target to gy"]);
+    }
+
+    #[test]
+    fn group_arg_gate_inline_getfirsttarget_is_target() {
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    Duel.Remove(Duel.GetFirstTarget(),POS_FACEUP,REASON_EFFECT)
+end
+"#;
+        assert_eq!(p11_actions(src, "s.operation"), vec!["banish target"]);
+    }
+
+    #[test]
+    fn group_arg_gate_event_group_skips() {
+        // `eg` is the EVENT group (e.g. the summoned monsters), not the
+        // effect's declared target — bare `target` would mis-aim.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    Duel.Destroy(eg,REASON_EFFECT)
+end
+"#;
+        assert_eq!(p11_actions(src, "s.operation"), Vec::<String>::new());
+    }
+
+    #[test]
+    fn group_arg_gate_getfieldcard_local_skips() {
+        // GetFieldCard binding is a positional fetch, not a declared target.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFieldCard(tp,LOCATION_SZONE,0)
+    if tc then
+        Duel.Destroy(tc,REASON_EFFECT)
+    end
+end
+"#;
+        assert_eq!(p11_actions(src, "s.operation"), Vec::<String>::new());
+    }
+
+    #[test]
+    fn group_arg_gate_sset_select_pick_skips() {
+        // `Duel.SSet(tp, sg)` where sg is an untracked resolve-time pick
+        // (SelectUnselectGroup) — the old static `set target` mis-aimed.
+        let src = r#"
+function s.setop(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetMatchingGroup(s.setfilter,tp,LOCATION_DECK,0,nil)
+    local sg=aux.SelectUnselectGroup(g,e,tp,2,2,s.rescon,1,tp,HINTMSG_SET)
+    if #sg==2 then
+        Duel.SSet(tp,sg)
+    end
+end
+"#;
+        assert_eq!(p11_actions(src, "s.setop"), Vec::<String>::new());
+    }
+
+    #[test]
+    fn group_arg_gate_summon_getfirsttarget_is_target() {
+        // `Duel.Summon(tp, tc, …)` on the declared target.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    Duel.Summon(tp,tc,true,nil)
+end
+"#;
+        assert_eq!(p11_actions(src, "s.operation"), vec!["normal_summon target"]);
+    }
+
+    #[test]
+    fn group_arg_gate_reassigned_local_skips() {
+        // A reassigned local loses single-assignment provenance (taint
+        // logic in extract_value_bindings).
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    tc=Duel.GetAttacker()
+    Duel.Destroy(tc,REASON_EFFECT)
+end
+"#;
+        assert_eq!(p11_actions(src, "s.operation"), Vec::<String>::new());
     }
 
     #[test]
