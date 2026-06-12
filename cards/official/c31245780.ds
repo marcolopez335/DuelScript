@@ -6,7 +6,9 @@ card "Battle Mania" {
         speed: 2
         mandatory
         resolve {
-            change_position target to attack_position
+            change_position (all, card, opponent controls, from monster_zone, where is_face_up) to attack_position
+            grant (all, card, opponent controls, from monster_zone, where is_face_up) must_attack until end_of_turn
+            grant (all, card, opponent controls, from monster_zone, where is_face_up) cannot_change_position until end_of_turn
         }
     }
 }
