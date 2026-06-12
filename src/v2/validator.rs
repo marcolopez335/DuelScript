@@ -25,6 +25,7 @@ pub fn validate_card(card: &Card, errors: &mut Vec<ValidationError>) {
     check_link_arrows(&ctx, errors);
     check_summon_block(&ctx, errors);
     check_effect_blocks(&ctx, errors);
+    check_target_references(&ctx, errors);
     check_spell_speeds(&ctx, errors);
     check_passive_blocks(&ctx, errors);
     check_restriction_blocks(&ctx, errors);
@@ -430,6 +431,141 @@ fn check_effect_blocks(ctx: &Ctx, errors: &mut Vec<ValidationError>) {
     }
 }
 
+// ── Bare-target references ──────────────────────────────────
+//
+// `target` in a resolve body refers to the card(s) bound by the effect's
+// target declaration or choose block. Without either, the reference
+// resolves to nothing at runtime — a silent mis-aim (the bug class shipped
+// by pre-oracle translator phases).
+fn check_target_references(ctx: &Ctx, errors: &mut Vec<ValidationError>) {
+    for effect in &ctx.card.effects {
+        if effect.target.is_some() || effect.choose.is_some() {
+            continue;
+        }
+        let mut scan = TargetScan::default();
+        scan_actions(&effect.resolve, &mut scan);
+        // An inline `choose` action binds its own selection — exempt.
+        if scan.uses_target && !scan.has_choose {
+            errors.push(warn(ctx.name(), &format!(
+                "Effect '{}' references `target` but declares no target/choose block",
+                effect.name
+            )));
+        }
+    }
+}
+
+#[derive(Default)]
+struct TargetScan {
+    uses_target: bool,
+    has_choose: bool,
+}
+
+fn scan_selector(s: &Selector, scan: &mut TargetScan) {
+    if matches!(s, Selector::Target) {
+        scan.uses_target = true;
+    }
+}
+
+fn scan_condition(c: &Condition, scan: &mut TargetScan) {
+    let atoms: &[ConditionAtom] = match c {
+        Condition::And(v) | Condition::Or(v) => v,
+        Condition::Single(a) => std::slice::from_ref(a),
+    };
+    for a in atoms {
+        scan_condition_atom(a, scan);
+    }
+}
+
+fn scan_condition_atom(a: &ConditionAtom, scan: &mut TargetScan) {
+    match a {
+        ConditionAtom::Not(inner) => scan_condition_atom(inner, scan),
+        ConditionAtom::Controls(_, sel) => scan_selector(sel, scan),
+        _ => {}
+    }
+}
+
+fn scan_actions(actions: &[Action], scan: &mut TargetScan) {
+    for action in actions {
+        match action {
+            Action::Discard(s)
+            | Action::Destroy(s)
+            | Action::Banish(s, _, _)
+            | Action::Send(s, _)
+            | Action::Return(s, _)
+            | Action::Search(s, _)
+            | Action::AddToHand(s, _)
+            | Action::SpecialSummon(s, _, _)
+            | Action::NormalSummon(s)
+            | Action::Set(s, _)
+            | Action::FlipDown(s)
+            | Action::ChangePosition(s, _)
+            | Action::TakeControl(s, _)
+            | Action::NegateEffects(s, _)
+            | Action::ModifyStat(_, s, _, _, _)
+            | Action::SetStat(_, s, _, _)
+            | Action::ChangeLevel(s, _)
+            | Action::ChangeAttribute(s, _)
+            | Action::ChangeRace(s, _)
+            | Action::ChangeName(s, _, _)
+            | Action::SetScale(s, _)
+            | Action::Detach(_, s)
+            | Action::PlaceCounter(_, _, s)
+            | Action::RemoveCounter(_, _, s)
+            | Action::Reveal(s)
+            | Action::LookAt(s, _)
+            | Action::Grant(s, _, _)
+            | Action::SwapStats(s) => scan_selector(s, scan),
+            Action::RitualSummon { target, materials, .. }
+            | Action::FusionSummon { target, materials }
+            | Action::SynchroSummon { target, materials }
+            | Action::XyzSummon { target, materials } => {
+                scan_selector(target, scan);
+                if let Some(m) = materials {
+                    scan_selector(m, scan);
+                }
+            }
+            Action::Equip(a, b)
+            | Action::Attach(a, b)
+            | Action::LinkTo(a, b)
+            | Action::SwapControl(a, b) => {
+                scan_selector(a, scan);
+                scan_selector(b, scan);
+            }
+            Action::CoinFlip { heads, tails } => {
+                scan_actions(heads, scan);
+                scan_actions(tails, scan);
+            }
+            Action::DiceRoll(body)
+            | Action::Delayed { body, .. }
+            | Action::AndIfYouDo(body)
+            | Action::Then(body)
+            | Action::Also(body) => scan_actions(body, scan),
+            Action::If { condition, then, otherwise } => {
+                scan_condition(condition, scan);
+                scan_actions(then, scan);
+                scan_actions(otherwise, scan);
+            }
+            Action::ForEach { selector, body, .. } => {
+                scan_selector(selector, scan);
+                scan_actions(body, scan);
+            }
+            Action::InstallWatcher { check, .. } => scan_actions(check, scan),
+            Action::Choose(_) => scan.has_choose = true,
+            Action::Draw(_)
+            | Action::Negate(_)
+            | Action::Damage(_, _)
+            | Action::GainLp(_)
+            | Action::PayLp(_)
+            | Action::CreateToken(_)
+            | Action::Mill(_, _)
+            | Action::Excavate(_, _)
+            | Action::ShuffleDeck(_)
+            | Action::ShuffleHand(_)
+            | Action::Announce(_, _) => {}
+        }
+    }
+}
+
 fn check_spell_speeds(ctx: &Ctx, errors: &mut Vec<ValidationError>) {
     for effect in &ctx.card.effects {
         let speed = match effect.speed {
@@ -792,6 +928,84 @@ mod tests {
         };
         let report = validate_v2(&file);
         assert!(report.errors.iter().any(|e| e.message.contains("resolve or choose")));
+    }
+
+    fn bare_target_card(target: Option<TargetDecl>, resolve: Vec<Action>) -> File {
+        File {
+            cards: vec![Card {
+                name: "Bare Target".into(),
+                fields: CardFields {
+                    card_types: vec![CardType::NormalSpell],
+                    ..Default::default()
+                },
+                summon: None,
+                effects: vec![Effect {
+                    name: "Effect 1".into(),
+                    speed: Some(1),
+                    frequency: None,
+                    mandatory: false,
+                    simultaneous: false,
+                    timing: None,
+                    trigger: None,
+                    who: None,
+                    condition: None,
+                    activate_from: vec![],
+                    damage_step: None,
+                    target,
+                    cost: vec![],
+                    resolve,
+                    choose: None,
+                }],
+                passives: vec![],
+                restrictions: vec![],
+                replacements: vec![],
+                redirects: vec![],
+            }],
+        }
+    }
+
+    #[test]
+    fn test_bare_target_without_declaration_warns() {
+        let file = bare_target_card(None, vec![Action::Destroy(Selector::Target)]);
+        let report = validate_v2(&file);
+        assert!(
+            report.errors.iter().any(|e| e.severity == Severity::Warning
+                && e.message.contains("references `target`")),
+            "expected bare-target warning; got: {:?}", report.errors
+        );
+    }
+
+    #[test]
+    fn test_bare_target_nested_in_then_warns() {
+        let file = bare_target_card(
+            None,
+            vec![Action::Then(vec![Action::Banish(Selector::Target, None, false)])],
+        );
+        let report = validate_v2(&file);
+        assert!(report.errors.iter().any(|e| e.message.contains("references `target`")));
+    }
+
+    #[test]
+    fn test_target_with_declaration_no_warning() {
+        let file = bare_target_card(
+            Some(TargetDecl {
+                selector: Selector::Counted {
+                    quantity: Quantity::Exact(1),
+                    filter: CardFilter { name: None, kind: CardFilterKind::Card },
+                    controller: None,
+                    zone: None,
+                    position: None,
+                    where_clause: None,
+                },
+                binding: None,
+            }),
+            vec![Action::Destroy(Selector::Target)],
+        );
+        let report = validate_v2(&file);
+        assert!(
+            !report.errors.iter().any(|e| e.message.contains("references `target`")),
+            "declared target must not warn; got: {:?}", report.errors
+        );
     }
 
     /// Permanent-passive cards (Continuous Spell/Trap, Field Spell, Equip Spell)
