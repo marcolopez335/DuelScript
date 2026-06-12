@@ -17,7 +17,7 @@ card "Performage Cup Tricker" {
         once_per_turn: hard
         mandatory
         resolve {
-            add_to_hand target
+            attach self to target as_material
         }
     }
 
@@ -36,7 +36,8 @@ card "Performage Cup Tricker" {
         timing: if
         trigger: custom "chain_end"
         resolve {
-            add_to_hand target
+            special_summon self
+            modify_atk (1, card, either controls, from monster_zone) - 600 until end_of_turn
         }
     }
 }
