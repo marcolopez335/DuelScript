@@ -67,6 +67,31 @@ pub struct FunctionBody {
     /// per arm in option order; empty when the body has no clean dispatch
     /// (untranslatable surrounding statements, non-contiguous labels, …).
     pub choice_arms: Vec<FunctionBody>,
+    /// Statement-level calls to script-local helpers (`s.equipop(c,e,tp,tc)`)
+    /// found in the body, in source order (Phase 17). Emit time resolves
+    /// the head against `LuaReport::functions` to recognise known helper
+    /// idioms (select-then-equip).
+    pub helper_calls: Vec<(String, Vec<String>)>,
+    /// Set when THIS function is a select-then-equip helper: its body
+    /// leads with the canonical
+    /// `<host>:EquipByEffectAndLimitRegister(e,tp,<target>,…)` statement
+    /// (bare, or wrapped in `if not … then return end`). Callers emit
+    /// `equip <selection> to self` when the call-site args resolve.
+    pub equip_helper: Option<EquipHelperSpec>,
+    /// Provenance of derived selection locals (Phase 17): maps a name
+    /// bound via `local tc = g:GetFirst()` to its source group binding
+    /// `g`. Used to fold alias sets when counting selection consumers.
+    pub select_sources: BTreeMap<String, String>,
+}
+
+/// Parameter mapping for a select-then-equip helper function (Phase 17):
+/// which positional call-site args carry the equip host (must resolve to
+/// the card itself) and the equip target (must resolve to a one-card
+/// selection binding).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct EquipHelperSpec {
+    pub host_param: usize,
+    pub target_param: usize,
 }
 
 /// Phase 16 — the option list of a straight-line `Duel.SelectOption`
@@ -206,6 +231,12 @@ pub struct SelectorSpec {
     /// stat change to the unfiltered group alters cards the lua never
     /// touched, so those paths skip when this is false (Phase 10).
     pub filter_mapped: bool,
+    /// True only for `Duel.SelectMatchingCard` — a fresh resolve-time
+    /// pick (Phase 17). `Duel.SelectTarget` (declared-target pick) and
+    /// `Duel.GetMatchingGroup` (no pick at all) stay false: the chain-
+    /// selector path folds ONLY resolve-time selections, preserving the
+    /// Phase 13b skip for SelectTarget-provenance receivers.
+    pub from_resolve_select: bool,
 }
 
 impl SelectorSpec {
@@ -775,12 +806,14 @@ fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
             }
             let body_block = body.block();
             let calls = extract_duel_calls(body_block);
-            let group_bindings = extract_group_bindings(body_block);
+            let (group_bindings, select_sources) = extract_group_bindings(body_block);
             let register_chains = extract_register_chains(body_block);
             let value_bindings = extract_value_bindings(body_block);
             let return_expr = extract_return_expr(body_block);
             let counter_ops = extract_counter_ops(body_block);
             let (inline_options, choice_arms) = extract_choice_arms(body_block);
+            let helper_calls = extract_helper_calls(body_block);
+            let equip_helper = extract_equip_helper(body);
             // SetLabel-linked form (target side) and op-side inline form
             // are mutually exclusive in practice — a body matching both
             // would need two SelectOption calls, which both reject.
@@ -790,6 +823,7 @@ fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
                 || !register_chains.is_empty() || !value_bindings.is_empty()
                 || return_expr.is_some() || !counter_ops.is_empty()
                 || select_option.is_some() || !choice_arms.is_empty()
+                || !helper_calls.is_empty() || equip_helper.is_some()
             {
                 report.functions.insert(name, FunctionBody {
                     calls,
@@ -800,6 +834,9 @@ fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
                     counter_ops,
                     select_option,
                     choice_arms,
+                    helper_calls,
+                    equip_helper,
+                    select_sources,
                 });
             }
         }
@@ -1665,17 +1702,175 @@ fn collect_duel_calls(block: &Block, out: &mut Vec<DuelCall>) {
     }
 }
 
-/// Walk a function body for `local <name> = Duel.<select-call>(...)`
-/// and `local <name> = Duel.<select-call>(...)` chains. Each binding
-/// captures the SelectorSpec we'd emit if the binding is referenced
-/// later as the target of an action (SendtoGrave(<name>), etc.).
-fn extract_group_bindings(block: &Block) -> BTreeMap<String, SelectorSpec> {
-    let mut out = BTreeMap::new();
-    collect_group_bindings(block, &mut out);
+/// Extract statement-level script-local helper calls (`s.equipop(c,e,tp,tc)`)
+/// from a function block, recursively (Phase 17). Only `s.<name>(...)`
+/// heads qualify — Duel./aux./method calls have their own walkers.
+fn extract_helper_calls(block: &Block) -> Vec<(String, Vec<String>)> {
+    let mut out = Vec::new();
+    collect_helper_calls(block, &mut out);
     out
 }
 
-fn collect_group_bindings(block: &Block, out: &mut BTreeMap<String, SelectorSpec>) {
+fn collect_helper_calls(block: &Block, out: &mut Vec<(String, Vec<String>)>) {
+    for stmt in block.stmts() {
+        match stmt {
+            Stmt::FunctionCall(fc) => {
+                if let Some(hc) = helper_call_from_fc(fc) { out.push(hc); }
+            }
+            Stmt::If(if_stmt) => {
+                collect_helper_calls(if_stmt.block(), out);
+                for ei in if_stmt.else_if().into_iter().flatten() {
+                    collect_helper_calls(ei.block(), out);
+                }
+                if let Some(else_block) = if_stmt.else_block() {
+                    collect_helper_calls(else_block, out);
+                }
+            }
+            Stmt::While(w)       => collect_helper_calls(w.block(), out),
+            Stmt::NumericFor(nf) => collect_helper_calls(nf.block(), out),
+            Stmt::GenericFor(gf) => collect_helper_calls(gf.block(), out),
+            Stmt::Do(d)          => collect_helper_calls(d.block(), out),
+            _ => {}
+        }
+    }
+}
+
+fn helper_call_from_fc(fc: &FunctionCall) -> Option<(String, Vec<String>)> {
+    let head = call_head_string(fc);
+    if !head.starts_with("s.") || head.contains(':') { return None; }
+    match fc.suffixes().last()? {
+        Suffix::Call(Call::AnonymousCall(a)) => Some((head, call_args_to_strings(a))),
+        _ => None,
+    }
+}
+
+/// Recognise a select-then-equip helper function (Phase 17): a declared
+/// function whose body LEADS with the canonical
+/// `<host>:EquipByEffectAndLimitRegister(e,tp,<target>,…)` statement —
+/// either bare or as the `if not <call> then return end` guard — where
+/// both `<host>` and `<target>` are parameters. Trailing statements
+/// (ATK/DEF rider chains with non-literal values) are tolerated and
+/// dropped; the equip itself is the translatable core.
+fn extract_equip_helper(body: &ast::FunctionBody) -> Option<EquipHelperSpec> {
+    let params: Vec<String> = body.parameters().iter().filter_map(|p| match p {
+        ast::Parameter::Name(n) => Some(n.token().to_string()),
+        _ => None,
+    }).collect();
+    let first = body.block().stmts().next()?;
+    let fc = match first {
+        Stmt::FunctionCall(fc) => fc,
+        Stmt::If(if_stmt) => {
+            // `if not <call> then return end` — the guard arm must be
+            // empty besides the return.
+            if if_stmt.block().stmts().next().is_some() { return None; }
+            match if_stmt.condition() {
+                Expression::UnaryOperator { unop: ast::UnOp::Not(_), expression } => {
+                    match expression.as_ref() {
+                        Expression::FunctionCall(fc) => fc,
+                        _ => return None,
+                    }
+                }
+                _ => return None,
+            }
+        }
+        _ => return None,
+    };
+    let (recv, method, args) = method_call_on_binding(fc)?;
+    if method != "EquipByEffectAndLimitRegister" { return None; }
+    let host_param = params.iter().position(|p| *p == recv)?;
+    let target_arg = args.get(2)?;
+    let target_param = params.iter().position(|p| p == target_arg)?;
+    Some(EquipHelperSpec { host_param, target_param })
+}
+
+/// `Duel.*` calls that only read a selection for UI feedback — they do
+/// not act on it, so they don't count as consumers (Phase 17).
+const SELECTION_COSMETIC_CALLS: &[&str] = &[
+    "Duel.Hint", "Duel.HintSelection", "Duel.ConfirmCards",
+    "Duel.SetOperationInfo", "Duel.SetPossibleOperationInfo",
+    "Duel.BreakEffect",
+];
+
+/// Count how many emit-relevant sites consume a selection binding,
+/// across its whole alias set (`g`, `tc = g:GetFirst()`, …). The Phase
+/// 17 select-then-do paths require exactly ONE consumer: the DSL folds
+/// the selection into the action's selector, so a second consumer would
+/// re-select a fresh card instead of reusing the first pick
+/// (skip-not-mis-emit).
+fn selection_consumers(body: &FunctionBody, name: &str) -> usize {
+    let mut aliases: BTreeSet<String> = BTreeSet::new();
+    aliases.insert(name.to_string());
+    if let Some(src) = body.select_sources.get(name) {
+        aliases.insert(src.clone());
+    }
+    let derived: Vec<String> = body.select_sources.iter()
+        .filter(|(_, v)| aliases.contains(*v))
+        .map(|(k, _)| k.clone())
+        .collect();
+    aliases.extend(derived);
+    fn base(s: &str) -> &str {
+        s.trim().split([':', '.']).next().unwrap_or(s)
+    }
+    let mut n = 0;
+    for c in &body.calls {
+        if SELECTION_COSMETIC_CALLS.contains(&c.method.as_str()) { continue; }
+        if c.args.iter().any(|a| aliases.contains(base(a))) { n += 1; }
+    }
+    for ch in &body.register_chains {
+        if aliases.contains(base(&ch.register_target)) { n += 1; }
+    }
+    for op in &body.counter_ops {
+        if aliases.contains(base(&op.receiver)) { n += 1; }
+    }
+    for (_, args) in &body.helper_calls {
+        if args.iter().any(|a| aliases.contains(base(a))) { n += 1; }
+    }
+    n
+}
+
+/// Walk a function body for `local <name> = Duel.<select-call>(...)`
+/// chains. Each binding captures the SelectorSpec we'd emit if the
+/// binding is referenced later as the target of an action
+/// (SendtoGrave(<name>), etc.).
+///
+/// Phase 17 additions:
+///   - `local tc = Duel.SelectMatchingCard(...):GetFirst()` — the
+///     one-card selection bound directly to a card local. Only
+///     `min == max == 1` selects qualify (GetFirst of a wider pick is
+///     an arbitrary member, not "the selection").
+///   - `local tc = g:GetFirst()` with `g` already bound to a one-card
+///     selection — derived alias, recorded in `sources`.
+///   - Taint: a name select-bound more than once (shadowing — Dark
+///     Magic Expanded's double `local g=`) or re-assigned later has no
+///     single statically-known selection; it is dropped along with any
+///     alias derived from it (skip-not-mis-emit).
+fn extract_group_bindings(block: &Block) -> (BTreeMap<String, SelectorSpec>, BTreeMap<String, String>) {
+    let mut out = BTreeMap::new();
+    let mut sources = BTreeMap::new();
+    let mut tainted = BTreeSet::new();
+    collect_group_bindings(block, &mut out, &mut sources, &mut tainted);
+    for name in &tainted {
+        out.remove(name);
+        sources.remove(name);
+    }
+    // An alias falls with its source group.
+    let stale: Vec<String> = sources.iter()
+        .filter(|(_, src)| tainted.contains(*src))
+        .map(|(name, _)| name.clone())
+        .collect();
+    for name in stale {
+        out.remove(&name);
+        sources.remove(&name);
+    }
+    (out, sources)
+}
+
+fn collect_group_bindings(
+    block: &Block,
+    out: &mut BTreeMap<String, SelectorSpec>,
+    sources: &mut BTreeMap<String, String>,
+    tainted: &mut BTreeSet<String>,
+) {
     for stmt in block.stmts() {
         match stmt {
             Stmt::LocalAssignment(la) => {
@@ -1683,21 +1878,87 @@ fn collect_group_bindings(block: &Block, out: &mut BTreeMap<String, SelectorSpec
                     .map(|n| n.token().to_string()).collect();
                 let exprs: Vec<&Expression> = la.expressions().iter().collect();
                 for (i, name) in names.iter().enumerate() {
-                    if let Some(Expression::FunctionCall(fc)) = exprs.get(i) {
-                        if let Some(spec) = selector_spec_from_call(fc) {
-                            out.insert(name.clone(), spec);
+                    let Some(expr) = exprs.get(i) else { continue };
+                    if let Expression::FunctionCall(fc) = expr {
+                        if let Some(spec) = selector_spec_from_call(fc)
+                            .or_else(|| selector_spec_from_getfirst_call(fc))
+                        {
+                            if out.insert(name.clone(), spec).is_some() {
+                                tainted.insert(name.clone());
+                            }
+                            sources.remove(name);
+                            continue;
+                        }
+                    }
+                    // `local tc = g:GetFirst()` — alias of an existing
+                    // one-card selection binding.
+                    let text = expr.to_string().trim().to_string();
+                    if let Some(src) = text.strip_suffix(":GetFirst()") {
+                        if let Some(spec) = out.get(src).cloned() {
+                            if spec.quantity == "1" {
+                                if out.insert(name.clone(), spec).is_some() {
+                                    tainted.insert(name.clone());
+                                }
+                                sources.insert(name.clone(), src.to_string());
+                                continue;
+                            }
+                        }
+                    }
+                    // Rebinding a tracked selection local to anything
+                    // else loses the static selection.
+                    if out.contains_key(name) {
+                        tainted.insert(name.clone());
+                    }
+                }
+            }
+            Stmt::Assignment(a) => {
+                // Non-local reassignment of a tracked binding taints it.
+                for var in a.variables() {
+                    if let ast::Var::Name(n) = var {
+                        let name = n.token().to_string();
+                        if out.contains_key(&name) {
+                            tainted.insert(name);
                         }
                     }
                 }
             }
-            Stmt::If(if_stmt)     => { collect_group_bindings(if_stmt.block(), out); }
-            Stmt::While(w)        => { collect_group_bindings(w.block(), out); }
-            Stmt::NumericFor(nf)  => { collect_group_bindings(nf.block(), out); }
-            Stmt::GenericFor(gf)  => { collect_group_bindings(gf.block(), out); }
-            Stmt::Do(d)           => { collect_group_bindings(d.block(), out); }
+            Stmt::If(if_stmt)     => {
+                collect_group_bindings(if_stmt.block(), out, sources, tainted);
+                for ei in if_stmt.else_if().into_iter().flatten() {
+                    collect_group_bindings(ei.block(), out, sources, tainted);
+                }
+                if let Some(else_block) = if_stmt.else_block() {
+                    collect_group_bindings(else_block, out, sources, tainted);
+                }
+            }
+            Stmt::While(w)        => { collect_group_bindings(w.block(), out, sources, tainted); }
+            Stmt::NumericFor(nf)  => { collect_group_bindings(nf.block(), out, sources, tainted); }
+            Stmt::GenericFor(gf)  => { collect_group_bindings(gf.block(), out, sources, tainted); }
+            Stmt::Do(d)           => { collect_group_bindings(d.block(), out, sources, tainted); }
             _ => {}
         }
     }
+}
+
+/// `Duel.SelectMatchingCard(...):GetFirst()` — a one-card selection
+/// whose first (only) member is bound directly (Phase 17). The plain
+/// extractor rejects this shape because the call's LAST suffix is the
+/// `:GetFirst()` method call, not the select's argument list. Only
+/// `min == max == 1` qualifies — `GetFirst()` of a wider selection is
+/// one arbitrary member, which no DSL selector can name.
+fn selector_spec_from_getfirst_call(fc: &FunctionCall) -> Option<SelectorSpec> {
+    let head = call_head_string(fc);
+    if head != "Duel.SelectMatchingCard" { return None; }
+    let suffixes: Vec<&Suffix> = fc.suffixes().collect();
+    if suffixes.len() < 2 { return None; }
+    let Suffix::Call(Call::MethodCall(mc)) = suffixes[suffixes.len() - 1] else { return None };
+    if mc.name().token().to_string() != "GetFirst" { return None; }
+    if !call_args_to_strings(mc.args()).is_empty() { return None; }
+    let Suffix::Call(Call::AnonymousCall(a)) = suffixes[suffixes.len() - 2] else { return None };
+    let args = call_args_to_strings(a);
+    let mut spec = spec_from_matching(&args, true, true)?;
+    spec.from_resolve_select = true;
+    (spec.quantity == "1").then_some(spec)
 }
 
 /// Walk a function body and collect every `local <name> = <RHS>` whose
@@ -2273,7 +2534,8 @@ fn selector_spec_from_call(fc: &FunctionCall) -> Option<SelectorSpec> {
     };
     match head.as_str() {
         // Duel.SelectMatchingCard(sel_p, filter, scope_p, my_locs, opp_locs, min, max, exception, ...)
-        "Duel.SelectMatchingCard" => spec_from_matching(&args, /*has_opp_locs=*/true, /*has_minmax=*/true),
+        "Duel.SelectMatchingCard" => spec_from_matching(&args, /*has_opp_locs=*/true, /*has_minmax=*/true)
+            .map(|mut s| { s.from_resolve_select = true; s }),
         // Duel.GetMatchingGroup(filter, scope_p, my_locs, opp_locs, exception, ...)
         // Quantity is "all" since it's the unfiltered group; subsequent
         // action will pick from it.
@@ -2305,6 +2567,7 @@ fn spec_from_matching(args: &[String], _has_opp_locs: bool, has_minmax: bool) ->
         zone,
         where_clause: None,
         filter_mapped: map_group_filter(args.get(1).map(String::as_str).unwrap_or("")).is_some(),
+        from_resolve_select: false,
     })
 }
 
@@ -2343,6 +2606,7 @@ fn spec_from_get_matching(args: &[String]) -> Option<SelectorSpec> {
         zone,
         where_clause: where_clause.map(str::to_string),
         filter_mapped: mapped.is_some(),
+        from_resolve_select: false,
     })
 }
 
@@ -3408,7 +3672,8 @@ fn build_arm_body(
     outer_values: &BTreeMap<String, String>,
 ) -> FunctionBody {
     let mut group_bindings = outer_groups.clone();
-    group_bindings.extend(extract_group_bindings(block));
+    let (arm_groups, arm_sources) = extract_group_bindings(block);
+    group_bindings.extend(arm_groups);
     let mut value_bindings = outer_values.clone();
     value_bindings.extend(extract_value_bindings(block));
     FunctionBody {
@@ -3417,6 +3682,7 @@ fn build_arm_body(
         register_chains: extract_register_chains(block),
         value_bindings,
         counter_ops: extract_counter_ops(block),
+        select_sources: arm_sources,
         ..FunctionBody::default()
     }
 }
@@ -3734,6 +4000,13 @@ pub fn translate_body_with_functions(
     let mut out = Vec::new();
     for c in &body.calls {
         if let Some(line) = translate_call(c, &body.group_bindings) {
+            out.push(line);
+        }
+    }
+    // Select-then-equip helper calls (Phase 17) — `s.equipop(c,e,tp,tc)`
+    // delegating to the canonical EquipByEffectAndLimitRegister wrapper.
+    for (name, args) in &body.helper_calls {
+        if let Some(line) = translate_equip_helper_call(name, args, body, functions) {
             out.push(line);
         }
     }
@@ -4158,23 +4431,40 @@ fn resolve_body_selector(
         // entirely — emitting `target` mis-aims the line. Same gate as
         // the Phase 13 counter-op path (caught live on c35787450
         // Eternal Dread).
-        if recv == "tc" {
-            return body
+        if recv == "tc"
+            && body
                 .value_bindings
                 .get("tc")
                 .is_some_and(|rhs| rhs.starts_with("Duel.GetFirstTarget("))
-                .then(|| "target".to_string());
+        {
+            return Some("target".to_string());
         }
         // `<g>:GetFirst()` receiver — first member of a group local.
-        // Only the declared-target group (`Duel.GetTargetCards`) lowers
-        // to `target`; Select* / GetMatchingGroup sources pick a fresh
-        // card at resolve time.
+        // The declared-target group (`Duel.GetTargetCards`) lowers to
+        // `target` (the loop visits exactly the declared targets).
         if let Some(var) = recv.strip_suffix(":GetFirst()") {
-            return body
+            if body
                 .value_bindings
                 .get(var)
                 .is_some_and(|rhs| rhs.starts_with("Duel.GetTargetCards("))
-                .then(|| "target".to_string());
+            {
+                return Some("target".to_string());
+            }
+        }
+        // Phase 17 — chain registered on a one-card selection local
+        // (`tc` bound from `Duel.SelectMatchingCard(...):GetFirst()` or
+        // via `g:GetFirst()` of a select-bound group). The selection
+        // folds into the line's selector. Requires exactly one consumer
+        // of the selection — a second consumer would re-select instead
+        // of reusing the pick.
+        let sel_base = recv.strip_suffix(":GetFirst()").unwrap_or(recv);
+        if let Some(spec) = body.group_bindings.get(sel_base) {
+            if spec.from_resolve_select
+                && spec.quantity == "1"
+                && selection_consumers(body, sel_base) == 1
+            {
+                return Some(spec.to_dsl());
+            }
         }
         None
     }
@@ -4300,7 +4590,8 @@ fn translate_equip_chain(
         return None;
     }
     let has_equip_producer = body.calls.iter().any(|c| {
-        c.method == "Duel.Equip" && matches!(action_equip(&c.args), DslLine::Action(_))
+        c.method == "Duel.Equip"
+            && matches!(action_equip(&c.args, &body.group_bindings), DslLine::Action(_))
     });
     if !has_equip_producer { return None; }
     let dur = if chain.reset.as_deref().is_some_and(|r| r.contains("PHASE_END")) {
@@ -5043,6 +5334,7 @@ fn count_call_to_count_expr(arg: &str) -> Option<String> {
         zone: Some(zone),
         where_clause: where_clause.map(str::to_string),
         filter_mapped: true,
+        from_resolve_select: false,
     };
     Some(format!("count({})", spec.to_dsl()))
 }
@@ -5124,6 +5416,30 @@ fn reset_to_duration_kw(reset: Option<&str>) -> Option<&'static str> {
 /// Map a single `Duel.X` call to a DSL line (or None for skip-class
 /// metadata). `bindings` maps local-variable names to their captured
 /// SelectorSpec so referenced groups can become real selectors.
+/// Phase 17 — translate one `s.<helper>(…)` call through a recognised
+/// select-then-equip helper. The lua-side helper runs
+/// `Duel.Equip(tp, <target>, <host>)` — the SELECTED card is equipped
+/// onto the host — so the DSL form is `equip <selection> to self`.
+///
+/// Skips (None): unknown helper, host arg not the card itself, target
+/// arg without one-card select provenance, or a selection consumed by
+/// more than one site.
+fn translate_equip_helper_call(
+    name: &str,
+    args: &[String],
+    body: &FunctionBody,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Option<DslLine> {
+    let spec = functions.get(name)?.equip_helper.as_ref()?;
+    let host = args.get(spec.host_param)?.trim();
+    if host != "c" && host != "e:GetHandler()" { return None; }
+    let target = args.get(spec.target_param)?.trim();
+    let sel = body.group_bindings.get(target)?;
+    if !sel.from_resolve_select || sel.quantity != "1" { return None; }
+    if selection_consumers(body, target) != 1 { return None; }
+    Some(DslLine::Action(format!("equip {} to self", sel.to_dsl())))
+}
+
 fn translate_call(c: &DuelCall, bindings: &BTreeMap<String, SelectorSpec>) -> Option<DslLine> {
     let m = c.method.as_str();
     let a = &c.args;
@@ -5216,7 +5532,13 @@ fn translate_call(c: &DuelCall, bindings: &BTreeMap<String, SelectorSpec>) -> Op
         // Duel.Equip(player, equipper, target, ...) — equip self/target to
         // another card. DSL: `equip <eq> to <target>`. We only handle the
         // common shape `Duel.Equip(tp, c, target, ...)` → equip self to target.
-        "Duel.Equip" => Some(action_equip(a)),
+        "Duel.Equip" => Some(action_equip(a, bindings)),
+
+        // Duel.GetControl(targets, player[, reset, count, zone]) — control
+        // change (Phase 17). Permanent take-to-you with a resolvable
+        // selection → `take_control <selector>`; temporary (reset args)
+        // or opponent-directed shapes have no DSL form yet.
+        "Duel.GetControl" => Some(action_get_control(a, bindings)),
 
         // Duel.Overlay(xyz_target, materials, [send_overlay]) — attach
         // materials as Xyz Materials to the target. DSL: `attach <materials>
@@ -5370,7 +5692,12 @@ fn xyz_arg_to_dsl(raw: &str, bindings: &BTreeMap<String, SelectorSpec>) -> Optio
 /// `Duel.Equip(player, eq, tar, ...)` → `equip self to target` for the
 /// canonical "equip this card to selected target" shape. Other shapes
 /// (equip group to single target, multi-target) → TODO.
-fn action_equip(args: &[String]) -> DslLine {
+///
+/// Phase 17: when the recipient names a one-card selection binding
+/// (`Duel.SelectMatchingCard` provenance), the selection folds into the
+/// recipient selector instead of the bare `target` placeholder — a
+/// resolve-time pick is NOT the declared target.
+fn action_equip(args: &[String], bindings: &BTreeMap<String, SelectorSpec>) -> DslLine {
     let eq = args.get(1).map(String::as_str).unwrap_or("");
     let tar = args.get(2).map(String::as_str).unwrap_or("");
     // `c`   = the card itself (most common)
@@ -5378,10 +5705,38 @@ fn action_equip(args: &[String]) -> DslLine {
     // `ec`  = same pattern with a different variable name
     // All three refer to the equip spell card executing this effect.
     let eq_is_self = eq == "c" || eq == "eqc" || eq == "ec";
-    if eq_is_self && (tar == "tc" || tar == "g" || tar == "g:GetFirst()") {
-        DslLine::Action("equip self to target".to_string())
-    } else {
-        DslLine::Todo(format!("Duel.Equip(eq={}, tar={}) — non-canonical shape", eq, tar))
+    if eq_is_self {
+        let tar_base = tar.split([':', '.']).next().unwrap_or(tar).trim();
+        if let Some(spec) = bindings.get(tar_base) {
+            if spec.quantity == "1" {
+                return DslLine::Action(format!("equip self to {}", spec.to_dsl()));
+            }
+        } else if tar == "tc" || tar == "g" || tar == "g:GetFirst()" {
+            return DslLine::Action("equip self to target".to_string());
+        }
+    }
+    DslLine::Todo(format!("Duel.Equip(eq={}, tar={}) — non-canonical shape", eq, tar))
+}
+
+/// `Duel.GetControl(targets, player[, reset, count, zone])` →
+/// `take_control <selector>` (Phase 17). Emits only the permanent
+/// take-to-you shape with a selection-binding target; temporary control
+/// (reset args present) and opponent-directed shapes skip as TODO.
+fn action_get_control(args: &[String], bindings: &BTreeMap<String, SelectorSpec>) -> DslLine {
+    let raw = args.first().map(String::as_str).unwrap_or("");
+    let player = args.get(1).map(String::as_str).unwrap_or("");
+    if args.len() > 2 || player != "tp" {
+        return DslLine::Todo(format!(
+            "Duel.GetControl({}) — temporary or non-self control change",
+            args.join(", ")
+        ));
+    }
+    let base = raw.split([':', '.']).next().unwrap_or(raw).trim();
+    match bindings.get(base) {
+        Some(spec) => DslLine::Action(format!("take_control {}", spec.to_dsl())),
+        None => DslLine::Todo(format!(
+            "Duel.GetControl(targets={}, player=tp) — unresolvable selector", raw
+        )),
     }
 }
 
@@ -8988,14 +9343,20 @@ end
     }
 
     #[test]
-    fn p13b_tc_selectmatchingcard_binding_skips() {
-        // Resolve-time selection is not the declared target.
+    fn p17_tc_selectmatchingcard_binding_folds_selector() {
+        // Phase 13b skipped this provenance (a resolve-time selection is
+        // not the declared target). Phase 17 folds the one-card selection
+        // into the line's selector instead — the selection-implying
+        // selector aims the chain at the freshly picked card.
         let actions = p11_actions(
             &p13b_src(
                 "local tc=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_MZONE,0,1,1,nil):GetFirst()",
                 "tc"),
             "s.activate");
-        assert!(actions.is_empty(), "SelectMatchingCard-bound tc must skip, got {:?}", actions);
+        assert_eq!(
+            actions,
+            vec!["modify_atk (1, card, you control, from monster_zone) + 500 until end_of_turn"],
+        );
     }
 
     #[test]
@@ -10274,5 +10635,213 @@ end
         let report = walk(&parsed);
         let ob = report.functions.get("s.lvop").expect("op body");
         assert!(extract_choose_spec(None, ob, &report.functions).is_none());
+    }
+
+    // ── Phase 17 — select-then-do chains ──────────────────────────────
+
+    #[test]
+    fn p17_select_getfirst_action_folds_selector() {
+        // `local tc=Duel.SelectMatchingCard(...):GetFirst()` then a direct
+        // action on `tc` — the one-card selection folds into the action's
+        // selector instead of the bare `target` placeholder.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.SelectMatchingCard(tp,Card.IsFaceup,tp,LOCATION_MZONE,0,1,1,nil):GetFirst()
+    if tc then
+        Duel.Destroy(tc,REASON_EFFECT)
+    end
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["destroy (1, card, you control, from monster_zone)"],
+        );
+    }
+
+    #[test]
+    fn p17_select_getfirst_range_minmax_no_binding() {
+        // min ≠ max: `GetFirst()` of a wider pick is one arbitrary member
+        // — no selector names it, so no binding is created and the action
+        // keeps the legacy bare-target placeholder.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.SelectMatchingCard(tp,Card.IsFaceup,tp,LOCATION_MZONE,0,1,2,nil):GetFirst()
+    Duel.Destroy(tc,REASON_EFFECT)
+end
+"#;
+        assert_eq!(p11_actions(src, "s.activate"), vec!["destroy target"]);
+    }
+
+    #[test]
+    fn p17_alias_getfirst_action_folds_selector() {
+        // `local g=Select(...)` + `local tc=g:GetFirst()` — derived alias
+        // carries the source selection.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.SelectMatchingCard(tp,Card.IsMonster,tp,LOCATION_GRAVE,0,1,1,nil)
+    local tc=g:GetFirst()
+    if tc then
+        Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
+    end
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["special_summon (1, card, you control, from gy)"],
+        );
+    }
+
+    #[test]
+    fn p17_shadowed_group_taints_chain() {
+        // Dark Magic Expanded (c111280) hazard: `g` select-bound twice —
+        // the alias provenance is ambiguous, so the chain skips.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.SelectMatchingCard(tp,Card.IsFaceup,tp,LOCATION_MZONE,0,1,1,nil)
+    local tc=g:GetFirst()
+    if tc==nil then
+        local g=Duel.SelectMatchingCard(tp,Card.IsFaceup,tp,LOCATION_GRAVE,0,1,1,nil)
+        tc=g:GetFirst()
+    end
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(500)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let actions = p11_actions(src, "s.activate");
+        assert!(actions.is_empty(), "shadowed selection must skip, got {:?}", actions);
+    }
+
+    #[test]
+    fn p17_chain_selection_consumed_twice_skips() {
+        // The selection feeds BOTH an action and a register chain — the
+        // emitted selector would re-select a fresh card on the second
+        // line, so the chain skips. The action line still emits.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.SelectMatchingCard(tp,Card.IsFaceup,tp,LOCATION_MZONE,0,1,1,nil)
+    local tc=g:GetFirst()
+    if tc then
+        Duel.ChangePosition(tc,POS_FACEUP_DEFENSE)
+        local e1=Effect.CreateEffect(e:GetHandler())
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_UPDATE_ATTACK)
+        e1:SetValue(500)
+        e1:SetReset(RESETS_STANDARD_PHASE_END)
+        tc:RegisterEffect(e1)
+    end
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["change_position (1, card, you control, from monster_zone) to defense_position"],
+        );
+    }
+
+    fn p17_equip_src(helper: &str, call_site: &str) -> String {
+        format!(r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_EQUIP)
+    local g=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_GRAVE,0,1,1,nil)
+    local tc=g:GetFirst()
+    if tc then
+        {}
+    end
+end
+function s.equipop(c,e,tp,tc)
+    {}
+end
+"#, call_site, helper)
+    }
+
+    #[test]
+    fn p17_equip_helper_emits() {
+        // Snatch-steal family: select a card, delegate to the canonical
+        // EquipByEffectAndLimitRegister helper → the SELECTED card is
+        // equipped onto the host.
+        let actions = p11_actions(
+            &p17_equip_src(
+                "c:EquipByEffectAndLimitRegister(e,tp,tc,id)",
+                "s.equipop(c,e,tp,tc)"),
+            "s.activate");
+        assert_eq!(actions, vec!["equip (1, card, you control, from gy) to self"]);
+    }
+
+    #[test]
+    fn p17_equip_helper_guard_form_emits() {
+        // `if not <equip> then return end` lead — riders after the guard
+        // are tolerated (and dropped; they live in the helper's body).
+        let actions = p11_actions(
+            &p17_equip_src(
+                "if not c:EquipByEffectAndLimitRegister(e,tp,tc,nil,true) then return end\n    local atk=tc:GetTextAttack()",
+                "s.equipop(c,e,tp,tc)"),
+            "s.activate");
+        assert_eq!(actions, vec!["equip (1, card, you control, from gy) to self"]);
+    }
+
+    #[test]
+    fn p17_equip_helper_non_self_host_skips() {
+        // Host arg is the selected card, not the card itself — exotic
+        // direction, skip.
+        let actions = p11_actions(
+            &p17_equip_src(
+                "c:EquipByEffectAndLimitRegister(e,tp,tc,id)",
+                "s.equipop(tc,e,tp,tc)"),
+            "s.activate");
+        assert!(actions.is_empty(), "non-self host must skip, got {:?}", actions);
+    }
+
+    #[test]
+    fn p17_take_control_emits() {
+        // c43932352 shape: permanent take-to-you on a one-card selection.
+        let src = r#"
+function s.ctrlop(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.SelectMatchingCard(tp,Card.IsAbleToChangeControler,tp,0,LOCATION_MZONE,1,1,nil)
+    if #g>0 then
+        Duel.HintSelection(g)
+        Duel.GetControl(g,tp)
+    end
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.ctrlop"),
+            vec!["take_control (1, card, opponent controls, from monster_zone)"],
+        );
+    }
+
+    #[test]
+    fn p17_take_control_temporary_skips() {
+        // Reset args present — temporary control has no DSL form.
+        let src = r#"
+function s.ctrlop(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.SelectMatchingCard(tp,nil,tp,0,LOCATION_MZONE,1,1,nil)
+    Duel.GetControl(g,tp,RESET_PHASE|PHASE_END,1)
+end
+"#;
+        let actions = p11_actions(src, "s.ctrlop");
+        assert!(actions.is_empty(), "temporary control must skip, got {:?}", actions);
+    }
+
+    #[test]
+    fn p17_equip_action_select_recipient_folds_selector() {
+        // Direct `Duel.Equip(tp, c, tc)` where the recipient is a fresh
+        // one-card selection — fold the selection, don't claim `target`.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local tc=Duel.SelectMatchingCard(tp,Card.IsFaceup,tp,LOCATION_MZONE,0,1,1,nil):GetFirst()
+    if tc then
+        Duel.Equip(tp,c,tc)
+    end
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["equip self to (1, card, you control, from monster_zone)"],
+        );
     }
 }
