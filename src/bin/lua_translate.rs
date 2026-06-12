@@ -103,6 +103,7 @@ fn main() {
             println!("  effects skipped (no map): {}", report.effects_no_handler);
             println!("  effects skipped (align):  {}", report.effects_alignment_hazard);
             println!("  effects skipped (no lua): {}", report.no_lua);
+            println!("  choose blocks injected:  {}", report.chooses_injected);
             println!("  passives injected:       {}", report.passives_injected);
             println!("  conditions injected:     {}", report.conditions_injected);
             println!("  costs injected:          {}", report.costs_injected);
@@ -137,6 +138,10 @@ fn load_card_names(cli_path: Option<&str>, lua_dir: &str) {
             lua_ast::register_card_names(
                 cdb.all_cards().into_iter().map(|c| (c.id as u32, c.name.clone())),
             );
+            // Phase 16 — strs feed choose-option labels (aux.Stringid).
+            lua_ast::register_card_strings(
+                cdb.all_cards().into_iter().map(|c| (c.id as u32, c.strings.clone())),
+            );
         }
         Err(e) => eprintln!("note: cannot read {}: {:?} — change_name translation disabled", path.display(), e),
     }
@@ -152,6 +157,7 @@ struct ApplyReport {
     effects_todo_only: usize,
     effects_no_handler: usize,
     effects_alignment_hazard: usize,
+    chooses_injected: usize,
     passives_injected: usize,
     conditions_injected: usize,
     costs_injected: usize,
@@ -196,6 +202,9 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
 
         let mut new_txt = txt.clone();
         let mut filled = 0usize;
+        // Card passcode from the filename stem (`c1006081` → 1006081) —
+        // Phase 16 choose-option labels resolve via the card's own strs.
+        let card_id: Option<u32> = stem.strip_prefix('c').and_then(|s| s.parse().ok());
 
         // Pass A — fill empty resolve blocks via translated handler bodies.
         // Effect blocks are matched positionally (same convention as Pass
@@ -207,6 +216,54 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
         // still-empty resolve — wrong content and non-idempotent.
         let mut a_block_idx = 0usize;
         for eff in &walk.effects {
+            // Phase 16 — SelectOption label-branch dispatch. When the
+            // target handler picked an option (`Duel.SelectOption` +
+            // `e:SetLabel`) and the operation handler splits on
+            // `e:GetLabel()` with one fully-translatable arm per option,
+            // a `choose { option … }` block REPLACES the empty resolve
+            // (the validator accepts either, never both). Falls through
+            // to the normal fill when the shape or a label doesn't
+            // resolve — no block index is consumed until success.
+            if !eff.is_summon_helper() && !eff.block_alignment_hazard {
+                let choose_text = eff.operation_handler.as_deref()
+                    .and_then(|oh| {
+                        let ob = walk.functions.get(oh.trim())?;
+                        let tb = eff.target_handler.as_deref()
+                            .and_then(|th| walk.functions.get(th.trim()));
+                        let spec = lua_ast::extract_choose_spec(tb, ob, &walk.functions)?;
+                        render_choose_block(&spec, card_id?)
+                    });
+                if let Some(choose_text) = choose_text {
+                    let block_idx = a_block_idx;
+                    a_block_idx += 1;
+                    if let Some((block_lo, block_hi)) = nth_effect_block(&new_txt, block_idx) {
+                        if let Some((lo, hi)) = first_empty_resolve_within(&new_txt, block_lo, block_hi) {
+                            new_txt = format!("{}{}{}", &new_txt[..lo], choose_text, &new_txt[hi..]);
+                            filled += 1;
+                            r.chooses_injected += 1;
+                        } else if !new_txt[block_lo..block_hi].contains("resolve")
+                            && !new_txt[block_lo..block_hi].contains("choose")
+                        {
+                            // Block lacks a resolve slot entirely (the
+                            // "must have a resolve or choose" class) —
+                            // inject before the closing brace, Pass A2
+                            // style. Idempotent: the injected choose
+                            // makes this branch unreachable on rerun.
+                            let close_brace = block_hi - 1;
+                            let mut inject_pos = close_brace;
+                            let bytes = new_txt.as_bytes();
+                            while inject_pos > block_lo && bytes[inject_pos - 1].is_ascii_whitespace() {
+                                inject_pos -= 1;
+                            }
+                            let injection = format!("\n        {}", choose_text);
+                            new_txt = format!("{}{}{}", &new_txt[..inject_pos], injection, &new_txt[inject_pos..]);
+                            filled += 1;
+                            r.chooses_injected += 1;
+                        }
+                    }
+                    continue;
+                }
+            }
             // Special case: skeletons backed by a fusion/ritual summon
             // helper — the plain factories (Fusion.CreateSummonEff /
             // Ritual.AddProc* / Ritual.CreateProc, fixed line) and the
@@ -632,6 +689,10 @@ fn condition_inject_pos(txt: &str, effect_idx: usize) -> Option<usize> {
             let resolve_pos = after_eff + rel_res;
             // Safety: no other `effect "` block between opening and resolve.
             if txt[after_eff..resolve_pos].contains("effect \"") { return None; }
+            // Phase 16 — the first `resolve {` after a `choose {` is
+            // NESTED inside an option block; injecting there would land
+            // mid-choose. Choose-bearing effects skip.
+            if txt[after_eff..resolve_pos].contains("choose {") { return None; }
             // Idempotent: skip if already has condition: in this block.
             if txt[eff_pos..resolve_pos].contains("condition:") { return None; }
             return Some(resolve_pos);
@@ -660,6 +721,9 @@ fn cost_inject_pos(txt: &str, effect_idx: usize) -> Option<usize> {
             let resolve_pos = after_eff + rel_res;
             // Safety: no other `effect "` block between opening and resolve.
             if txt[after_eff..resolve_pos].contains("effect \"") { return None; }
+            // Phase 16 — see condition_inject_pos: a `resolve {` after
+            // `choose {` is nested inside an option block.
+            if txt[after_eff..resolve_pos].contains("choose {") { return None; }
             // Idempotent: skip if cost block already present in this effect.
             if txt[eff_pos..resolve_pos].contains("cost {") { return None; }
             // Skip empty resolve — would cause "has cost but no resolve" warning.
@@ -699,6 +763,9 @@ fn target_inject_pos(txt: &str, effect_idx: usize) -> Option<usize> {
             let inject_pos = after_eff + inject_rel;
             // Safety: no other `effect "` block between opening and injection point.
             if txt[after_eff..inject_pos].contains("effect \"") { return None; }
+            // Phase 16 — see condition_inject_pos: a `resolve {` after
+            // `choose {` is nested inside an option block.
+            if txt[after_eff..inject_pos].contains("choose {") { return None; }
             // Idempotent: skip if a target declaration already exists.
             if txt[eff_pos..inject_pos].contains("\n        target ") { return None; }
             // Skip empty resolve — would trigger "has target but no resolve" checker warning.
@@ -712,6 +779,27 @@ fn target_inject_pos(txt: &str, effect_idx: usize) -> Option<usize> {
         count += 1;
         search = eff_pos + "effect \"".len();
     }
+}
+
+/// Render a Phase 16 [`lua_ast::ChooseSpec`] as a DSL `choose { … }`
+/// block sized to replace the empty `resolve { }` slot (8-space base
+/// indent). Returns None when any option label fails to resolve from
+/// the card's CDB strs — the whole choose skips, not mis-labels.
+fn render_choose_block(spec: &lua_ast::ChooseSpec, card_id: u32) -> Option<String> {
+    let mut out = String::from("choose {\n");
+    for (idx, lines) in &spec.options {
+        let label = lua_ast::lookup_card_string(card_id, *idx)?;
+        out.push_str(&format!("            option \"{}\" {{\n", label));
+        out.push_str("                resolve {\n");
+        for l in lines.iter().filter(|l| l.is_action()) {
+            out.push_str(&l.clone().into_string("                    "));
+            out.push('\n');
+        }
+        out.push_str("                }\n");
+        out.push_str("            }\n");
+    }
+    out.push_str("        }");
+    Some(out)
 }
 
 fn render_resolve_body(lines: &[lua_ast::DslLine]) -> String {

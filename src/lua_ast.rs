@@ -57,6 +57,25 @@ pub struct FunctionBody {
     /// elseif/else arm — emitting one arm of a runtime either/or would
     /// mis-emit, so the whole body's counter ops are poisoned instead.
     pub counter_ops: Vec<CounterOp>,
+    /// Straight-line `local op=Duel.SelectOption(tp, aux.Stringid(id,a), …)`
+    /// + `e:SetLabel(op)` pair found at the top level of a TARGET handler
+    /// (Phase 16). None when absent, conditional (dynamic option list), or
+    /// ambiguous (multiple SelectOption / SetLabel writes).
+    pub select_option: Option<SelectOptionSpec>,
+    /// Arm bodies of a `local op=e:GetLabel()` + `if op==0 … elseif op==1 …`
+    /// label dispatch found in an OPERATION handler (Phase 16). One entry
+    /// per arm in option order; empty when the body has no clean dispatch
+    /// (untranslatable surrounding statements, non-contiguous labels, …).
+    pub choice_arms: Vec<FunctionBody>,
+}
+
+/// Phase 16 — the option list of a straight-line `Duel.SelectOption`
+/// whose result was stored via `e:SetLabel(op)`. `string_ids` holds the
+/// second args of the `aux.Stringid(id, n)` description args, in lua
+/// argument order — they index the card's CDB strs (str1 = index 0).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SelectOptionSpec {
+    pub string_ids: Vec<u32>,
 }
 
 /// One `<receiver>:AddCounter(...)` / `<receiver>:RemoveCounter(...)`
@@ -760,9 +779,16 @@ fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
             let value_bindings = extract_value_bindings(body_block);
             let return_expr = extract_return_expr(body_block);
             let counter_ops = extract_counter_ops(body_block);
+            let (inline_options, choice_arms) = extract_choice_arms(body_block);
+            // SetLabel-linked form (target side) and op-side inline form
+            // are mutually exclusive in practice — a body matching both
+            // would need two SelectOption calls, which both reject.
+            let select_option = inline_options
+                .or_else(|| extract_select_option(body_block));
             if !calls.is_empty() || !group_bindings.is_empty()
                 || !register_chains.is_empty() || !value_bindings.is_empty()
                 || return_expr.is_some() || !counter_ops.is_empty()
+                || select_option.is_some() || !choice_arms.is_empty()
             {
                 report.functions.insert(name, FunctionBody {
                     calls,
@@ -771,6 +797,8 @@ fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
                     value_bindings,
                     return_expr,
                     counter_ops,
+                    select_option,
+                    choice_arms,
                 });
             }
         }
@@ -2850,6 +2878,548 @@ fn counter_arg_to_name(raw: &str) -> Option<&'static str> {
 /// is `aux.Next(<group>)`, return the group binding name. Other shapes
 /// (`pairs`, `ipairs`, custom iterators) return None — caller still
 /// flags the loop as multi-target, but without a translatable source.
+// ── Phase 16: SelectOption label-branch choose extraction ────
+
+/// Parse `aux.Stringid(id, N)` → N. The first arg must be the literal
+/// `id` binding from `local s,id=GetID()` — option text resolution at
+/// emit time indexes the card's own CDB strings (str1 = index 0).
+fn stringid_index(raw: &str) -> Option<u32> {
+    let s: String = raw.chars().filter(|c| !c.is_whitespace()).collect();
+    let inner = s.strip_prefix("aux.Stringid(id,")?.strip_suffix(')')?;
+    let n: u32 = inner.parse().ok()?;
+    (n < 16).then_some(n)
+}
+
+/// Count `Duel.SelectOption` calls anywhere in a block (recursive —
+/// reuses the duel-call walker, which descends into branches & loops).
+fn count_select_option_calls(block: &Block) -> usize {
+    extract_duel_calls(block).iter()
+        .filter(|c| c.method == "Duel.SelectOption")
+        .count()
+}
+
+/// Count `<recv>:SetLabel(...)` statements anywhere in a block.
+fn count_set_label_calls(block: &Block) -> usize {
+    let mut n = 0usize;
+    count_set_label_in(block, &mut n);
+    n
+}
+
+fn count_set_label_in(block: &Block, n: &mut usize) {
+    for stmt in block.stmts() {
+        match stmt {
+            Stmt::FunctionCall(fc) => {
+                if let Some((_, method, _)) = method_call_on_binding(fc) {
+                    if method == "SetLabel" { *n += 1; }
+                }
+            }
+            Stmt::If(i) => {
+                count_set_label_in(i.block(), n);
+                for ei in i.else_if().into_iter().flatten() { count_set_label_in(ei.block(), n); }
+                if let Some(b) = i.else_block() { count_set_label_in(b, n); }
+            }
+            Stmt::While(w)       => count_set_label_in(w.block(), n),
+            Stmt::Repeat(r)      => count_set_label_in(r.block(), n),
+            Stmt::NumericFor(f)  => count_set_label_in(f.block(), n),
+            Stmt::GenericFor(f)  => count_set_label_in(f.block(), n),
+            Stmt::Do(d)          => count_set_label_in(d.block(), n),
+            _ => {}
+        }
+    }
+}
+
+/// Find the Phase 16 target-side idiom at the TOP level of a handler
+/// body: `local <v> = Duel.SelectOption(tp, aux.Stringid(id,a), …)`
+/// followed by `e:SetLabel(<v>)`. Conditional SelectOption (dynamic
+/// option lists — Junk Changer's level-gated single option), multiple
+/// SelectOption calls anywhere in the body, or extra SetLabel writes
+/// all return None: the recorded option list would be one runtime
+/// shape of many (skip-not-mis-emit).
+fn extract_select_option(block: &Block) -> Option<SelectOptionSpec> {
+    if count_select_option_calls(block) != 1 { return None; }
+    if count_set_label_calls(block) != 1 { return None; }
+    let mut bound_var: Option<String> = None;
+    let mut spec: Option<SelectOptionSpec> = None;
+    for stmt in block.stmts() {
+        match stmt {
+            Stmt::LocalAssignment(la) => {
+                let names: Vec<String> = la.names().iter()
+                    .map(|n| n.token().to_string()).collect();
+                let exprs: Vec<&Expression> = la.expressions().iter().collect();
+                if names.len() == 1 && exprs.len() == 1 {
+                    if let Expression::FunctionCall(fc) = exprs[0] {
+                        if let Some(call) = duel_call_from_fc(fc) {
+                            if call.method == "Duel.SelectOption" {
+                                if call.args.first().map(String::as_str) != Some("tp") {
+                                    return None;
+                                }
+                                let ids: Vec<u32> = call.args[1..].iter()
+                                    .map(|a| stringid_index(a))
+                                    .collect::<Option<Vec<u32>>>()?;
+                                if ids.len() < 2 { return None; }
+                                bound_var = Some(names[0].clone());
+                                spec = Some(SelectOptionSpec { string_ids: ids });
+                            }
+                        }
+                    }
+                }
+            }
+            Stmt::FunctionCall(fc) => {
+                if let Some((bind, method, args)) = method_call_on_binding(fc) {
+                    if method == "SetLabel" {
+                        // Must store the SelectOption result on `e`.
+                        if bind != "e" { return None; }
+                        let var = bound_var.as_deref()?;
+                        if args.len() != 1 || args[0] != var { return None; }
+                        return spec;
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+    None
+}
+
+/// Scan state for [`extract_choice_arms`]. Straight-line group/value
+/// bindings declared before the dispatch are collected here so arms can
+/// resolve references to them; bindings inside OTHER arms stay
+/// invisible (each arm extracts its own block only).
+#[derive(Default)]
+struct DispatchScan {
+    label_var: Option<String>,
+    /// Option list when the SelectOption sits in THIS body (the op-side
+    /// inline form, no SetLabel hop). None for the SetLabel-linked form
+    /// — the option list then comes from the target handler.
+    inline_options: Option<SelectOptionSpec>,
+    arms: Option<Vec<FunctionBody>>,
+    outer_groups: BTreeMap<String, SelectorSpec>,
+    outer_values: BTreeMap<String, String>,
+    /// Register-effect chains under construction in the straight-line
+    /// scope (`local e1=Effect.CreateEffect(…)` + `e1:Set*` writes).
+    chains: BTreeMap<String, RegisterEffectChain>,
+    /// A chain whose construction forked on the label: one variant per
+    /// option. Post-fork `Set*` writes apply to every variant; the
+    /// commit (`RegisterEffect`) finalizes the variants into arms.
+    fork: Option<ChainFork>,
+    failed: bool,
+}
+
+struct ChainFork {
+    binding: String,
+    variants: Vec<RegisterEffectChain>,
+}
+
+/// Walk an operation-handler body looking for the Phase 16 label
+/// dispatch. Two recognized sources for the label:
+///   - `local <w> = e:GetLabel()` (SetLabel-linked; options live in the
+///     target handler), or
+///   - `local <w> = Duel.SelectOption(tp, aux.Stringid(id,a), …)`
+///     inline in this body.
+/// Two recognized dispatch shapes on `if <w>==0 … elseif <w>==1 … else`:
+///   - statement arms — each arm is a self-contained alternative
+///     (Three Strikes Barrier), or
+///   - a chain-slot fork — every arm only writes `Set*` slots on ONE
+///     chain under construction (Armored Kappa's SetCode fork); the
+///     shared prefix/suffix writes apply to every variant.
+/// Returns the inline option list (if any) plus one synthesized
+/// FunctionBody per arm in option order. Empty arms when no dispatch
+/// matches or any statement outside the dispatch could carry an action
+/// the emitted choose would silently drop (skip-not-mis-emit).
+fn extract_choice_arms(block: &Block) -> (Option<SelectOptionSpec>, Vec<FunctionBody>) {
+    let mut st = DispatchScan::default();
+    scan_dispatch_block(block, &mut st);
+    // An unconsumed fork means the chain never registered on this path.
+    if st.failed || st.fork.is_some() { return (None, Vec::new()); }
+    match st.arms {
+        Some(arms) => (st.inline_options, arms),
+        None => (None, Vec::new()),
+    }
+}
+
+/// Parse `local <v> = Duel.SelectOption(tp, aux.Stringid(id,a), …)`
+/// from a single-name local-assignment RHS.
+fn inline_select_option(expr: &Expression) -> Option<SelectOptionSpec> {
+    let Expression::FunctionCall(fc) = expr else { return None };
+    let call = duel_call_from_fc(fc)?;
+    if call.method != "Duel.SelectOption" { return None; }
+    if call.args.first().map(String::as_str) != Some("tp") { return None; }
+    let ids: Vec<u32> = call.args[1..].iter()
+        .map(|a| stringid_index(a))
+        .collect::<Option<Vec<u32>>>()?;
+    (ids.len() >= 2).then_some(SelectOptionSpec { string_ids: ids })
+}
+
+fn scan_dispatch_block(block: &Block, st: &mut DispatchScan) {
+    for stmt in block.stmts() {
+        if st.failed { return; }
+        match stmt {
+            Stmt::LocalAssignment(la) => {
+                let names: Vec<String> = la.names().iter()
+                    .map(|n| n.token().to_string()).collect();
+                let exprs: Vec<&Expression> = la.expressions().iter().collect();
+                for (i, name) in names.iter().enumerate() {
+                    let Some(expr) = exprs.get(i) else { continue };
+                    let text = expr.to_string().trim().to_string();
+                    if text == "e:GetLabel()" {
+                        if st.label_var.is_some() { st.failed = true; return; }
+                        st.label_var = Some(name.clone());
+                        continue;
+                    }
+                    if let Some(spec) = inline_select_option(expr) {
+                        // Op-side inline SelectOption — this local IS
+                        // the label. A second label source is ambiguous.
+                        if st.label_var.is_some() { st.failed = true; return; }
+                        st.label_var = Some(name.clone());
+                        st.inline_options = Some(spec);
+                        continue;
+                    }
+                    // Any other local whose RHS hides an action call
+                    // (incl. a malformed/dynamic SelectOption, which
+                    // translates as TODO) would be dropped by the
+                    // choose emit — reject the body.
+                    if expr_has_action_call(expr) { st.failed = true; return; }
+                    if expr_is_effect_createeffect(expr) {
+                        st.chains.insert(name.clone(), RegisterEffectChain::default());
+                    } else if let Expression::FunctionCall(fc) = *expr {
+                        if let Some(spec) = selector_spec_from_call(fc) {
+                            st.outer_groups.insert(name.clone(), spec);
+                        } else if !text.is_empty() {
+                            st.outer_values.insert(name.clone(), text);
+                        }
+                    } else if !text.is_empty() {
+                        st.outer_values.insert(name.clone(), text);
+                    }
+                }
+            }
+            Stmt::FunctionCall(fc) => {
+                if scan_dispatch_call(fc, st) {
+                    if st.failed { return; }
+                    continue;
+                }
+                // Otherwise only cosmetic / query Duel calls may sit
+                // outside the arms (Duel.Hint, Duel.SetTargetPlayer, …).
+                match duel_call_from_fc(fc) {
+                    Some(call) if translate_call(&call, &BTreeMap::new()).is_none() => {}
+                    _ => { st.failed = true; return; }
+                }
+            }
+            Stmt::If(if_stmt) => {
+                if try_dispatch_if(if_stmt, st) {
+                    if st.failed { return; }
+                } else if !if_stmt.else_if().is_some_and(|e| e.len() > 0)
+                    && if_stmt.else_block().is_none()
+                {
+                    // Plain-if guard. `if … then return end` early-outs
+                    // are fine as-is; otherwise recurse — the dispatch
+                    // often sits inside an IsRelateToEffect wrapper.
+                    if expr_has_action_call(if_stmt.condition()) { st.failed = true; return; }
+                    if !block_is_bare_return(if_stmt.block()) {
+                        scan_dispatch_block(if_stmt.block(), st);
+                    }
+                } else {
+                    st.failed = true;
+                    return;
+                }
+            }
+            _ => { st.failed = true; return; }
+        }
+    }
+    // A trailing bare `return` is harmless; a value return is not.
+    match block.last_stmt() {
+        None => {}
+        Some(LastStmt::Return(r)) if r.returns().is_empty() => {}
+        _ => { st.failed = true; }
+    }
+}
+
+/// Handle a chain-related statement in the straight-line dispatch
+/// scope: `Set*` writes on a tracked (or forked) chain, and the
+/// `RegisterEffect` commits that finalize a fork into arms. Returns
+/// true when the call was chain-related (possibly setting `st.failed`),
+/// false to let the caller try the cosmetic-call path.
+fn scan_dispatch_call(fc: &FunctionCall, st: &mut DispatchScan) -> bool {
+    if let Some((receiver, args)) = try_register_effect_call(fc) {
+        finalize_chain_register(args.first(), receiver, false, st);
+        return true;
+    }
+    if let Some(args) = try_duel_register_effect_call(fc) {
+        let player = args.get(1).cloned().unwrap_or_else(|| "tp".to_string());
+        finalize_chain_register(args.first(), player, true, st);
+        return true;
+    }
+    if let Some((bind, method, margs)) = method_call_on_binding(fc) {
+        if let Some(fork) = st.fork.as_mut() {
+            if fork.binding == bind {
+                if !method.starts_with("Set") { st.failed = true; return true; }
+                for v in &mut fork.variants {
+                    apply_chain_write(v, &method, &margs);
+                }
+                return true;
+            }
+        }
+        if let Some(chain) = st.chains.get_mut(&bind) {
+            if !method.starts_with("Set") { st.failed = true; return true; }
+            apply_chain_write(chain, &method, &margs);
+            return true;
+        }
+    }
+    false
+}
+
+/// Commit a chain binding. A forked binding finalizes into one arm per
+/// variant; an UNFORKED chain registering in the straight-line scope is
+/// an unconditional action outside the arms — reject (the choose emit
+/// would drop it).
+fn finalize_chain_register(
+    binding: Option<&String>,
+    register_target: String,
+    duel_registered: bool,
+    st: &mut DispatchScan,
+) {
+    let Some(binding) = binding else { st.failed = true; return };
+    if let Some(fork) = st.fork.take() {
+        if &fork.binding == binding {
+            if st.arms.is_some() { st.failed = true; return; }
+            let arms = fork.variants.into_iter().map(|mut chain| {
+                chain.register_target = register_target.clone();
+                chain.duel_registered = duel_registered;
+                FunctionBody {
+                    group_bindings: st.outer_groups.clone(),
+                    value_bindings: st.outer_values.clone(),
+                    register_chains: vec![chain],
+                    ..FunctionBody::default()
+                }
+            }).collect();
+            st.arms = Some(arms);
+            return;
+        }
+        st.fork = Some(fork);
+    }
+    st.failed = true;
+}
+
+/// Apply one `Set*` write to a chain snapshot. Mirrors the slot list of
+/// `collect_register_chains`; methods untracked there (SetDescription,
+/// SetProperty, SetHintTiming, …) are cosmetic here too.
+fn apply_chain_write(chain: &mut RegisterEffectChain, method: &str, args: &[String]) {
+    match method {
+        "SetCode"        => chain.code = args.first().cloned(),
+        "SetValue"       => chain.value = args.first().cloned(),
+        "SetReset"       => {
+            chain.reset = args.first().cloned();
+            chain.reset_count = args.get(1).cloned();
+        }
+        "SetTargetRange" => chain.target_range = (!args.is_empty()).then(|| args.join(",")),
+        "SetTarget"      => chain.set_target = args.first().cloned(),
+        "SetType"        => chain.effect_type = args.first().cloned(),
+        "SetOperation"   => chain.operation = args.first().cloned(),
+        "SetCondition"   => chain.condition = args.first().cloned(),
+        _ => {}
+    }
+}
+
+/// Try to read `if_stmt` as the label dispatch. Returns true when the
+/// head matched `<w>==0` / `e:GetLabel()==0` and the statement was
+/// CONSUMED — either into statement arms (`st.arms`), a chain-slot
+/// fork (`st.fork`, finalized later at the chain's RegisterEffect
+/// commit), or a failure (`st.failed`: bad elseif ladder, second
+/// dispatch, arm whitelist miss). Returns false when the head doesn't
+/// match — the caller treats the if as a guard.
+fn try_dispatch_if(if_stmt: &ast::If, st: &mut DispatchScan) -> bool {
+    if !label_cond_matches(if_stmt.condition(), st.label_var.as_deref(), 0) {
+        return false;
+    }
+    let mut arm_blocks: Vec<&Block> = vec![if_stmt.block()];
+    let mut next = 1u32;
+    for ei in if_stmt.else_if().into_iter().flatten() {
+        if !label_cond_matches(ei.condition(), st.label_var.as_deref(), next) {
+            st.failed = true;
+            return true;
+        }
+        arm_blocks.push(ei.block());
+        next += 1;
+    }
+    if let Some(else_block) = if_stmt.else_block() {
+        arm_blocks.push(else_block);
+    }
+    if arm_blocks.len() < 2 {
+        // `if op==0 then … end` with no alternative — option 2's arm is
+        // implicit do-nothing, which the choose grammar can't express.
+        st.failed = true;
+        return true;
+    }
+    if st.fork.is_some() || st.arms.is_some() {
+        // Second dispatch on the same label — ambiguous.
+        st.failed = true;
+        return true;
+    }
+    // Chain-slot fork? Every arm writes Set* slots on the SAME chain
+    // currently under construction.
+    if let Some((binding, per_arm_writes)) = slot_fork_arms(&arm_blocks, st) {
+        let base = st.chains.remove(&binding).expect("fork binding tracked");
+        let variants = per_arm_writes.into_iter().map(|writes| {
+            let mut v = base.clone();
+            for (method, args) in writes {
+                apply_chain_write(&mut v, &method, &args);
+            }
+            v
+        }).collect();
+        st.fork = Some(ChainFork { binding, variants });
+        return true;
+    }
+    // Statement arms — each a self-contained alternative.
+    let mut arms = Vec::new();
+    for ab in arm_blocks {
+        let mut chain_bindings = BTreeSet::new();
+        if !choice_arm_shape_ok(ab, &mut chain_bindings) {
+            st.failed = true;
+            return true;
+        }
+        arms.push(build_arm_body(ab, &st.outer_groups, &st.outer_values));
+    }
+    st.arms = Some(arms);
+    true
+}
+
+/// Classify dispatch arms as a chain-slot fork: every arm's statements
+/// are exclusively `<b>:Set*(…)` writes on one shared binding `b` that
+/// is a chain under construction in the enclosing scope. Returns the
+/// binding plus each arm's ordered writes.
+#[allow(clippy::type_complexity)]
+fn slot_fork_arms(
+    arm_blocks: &[&Block],
+    st: &DispatchScan,
+) -> Option<(String, Vec<Vec<(String, Vec<String>)>>)> {
+    let mut binding: Option<String> = None;
+    let mut per_arm = Vec::new();
+    for ab in arm_blocks {
+        if ab.last_stmt().is_some() { return None; }
+        let mut writes = Vec::new();
+        for stmt in ab.stmts() {
+            let Stmt::FunctionCall(fc) = stmt else { return None };
+            let (bind, method, args) = method_call_on_binding(fc)?;
+            if !method.starts_with("Set") || !st.chains.contains_key(&bind) { return None; }
+            match &binding {
+                Some(b) if *b != bind => return None,
+                None => binding = Some(bind.clone()),
+                _ => {}
+            }
+            writes.push((method, args));
+        }
+        if writes.is_empty() { return None; }
+        per_arm.push(writes);
+    }
+    Some((binding?, per_arm))
+}
+
+/// Whitespace-insensitive match of a dispatch condition against
+/// `<label_var>==k` or the inline `e:GetLabel()==k` form.
+fn label_cond_matches(cond: &Expression, label_var: Option<&str>, k: u32) -> bool {
+    let s: String = cond.to_string().chars().filter(|c| !c.is_whitespace()).collect();
+    if s == format!("e:GetLabel()=={}", k) { return true; }
+    label_var.is_some_and(|w| s == format!("{}=={}", w, k))
+}
+
+/// True when the expression contains a Duel.* call that would translate
+/// to a DSL line — anything but a known cosmetic / query method.
+fn expr_has_action_call(expr: &Expression) -> bool {
+    let mut calls = Vec::new();
+    collect_duel_calls_in_expr(expr, &mut calls);
+    calls.iter().any(|c| translate_call(c, &BTreeMap::new()).is_some())
+}
+
+/// True for a block that is exactly one bare `return` (the
+/// `if not … then return end` early-out idiom).
+fn block_is_bare_return(block: &Block) -> bool {
+    block.stmts().next().is_none()
+        && matches!(block.last_stmt(), Some(LastStmt::Return(r)) if r.returns().is_empty())
+}
+
+/// Structural whitelist for one STATEMENT arm. Every statement must be
+/// a shape the per-arm extractors capture — otherwise the emitted
+/// option would silently omit lua behavior. Chain Set*/RegisterEffect
+/// calls must target bindings CREATED in this arm: a write to an outer
+/// chain is the slot-fork idiom, which `slot_fork_arms` classifies
+/// before this whitelist runs.
+fn choice_arm_shape_ok(block: &Block, chain_bindings: &mut BTreeSet<String>) -> bool {
+    for stmt in block.stmts() {
+        match stmt {
+            Stmt::LocalAssignment(la) => {
+                let names: Vec<String> = la.names().iter()
+                    .map(|n| n.token().to_string()).collect();
+                let exprs: Vec<&Expression> = la.expressions().iter().collect();
+                for (i, name) in names.iter().enumerate() {
+                    let Some(expr) = exprs.get(i) else { continue };
+                    if expr_is_effect_createeffect(expr) {
+                        chain_bindings.insert(name.clone());
+                    } else if let Some(src) = expr_clone_source(expr) {
+                        if !chain_bindings.contains(&src) { return false; }
+                        chain_bindings.insert(name.clone());
+                    }
+                }
+            }
+            Stmt::FunctionCall(fc) => {
+                if let Some((_, args)) = try_register_effect_call(fc) {
+                    match args.first() {
+                        Some(b) if chain_bindings.contains(b) => {}
+                        _ => return false,
+                    }
+                } else if let Some(args) = try_duel_register_effect_call(fc) {
+                    match args.first() {
+                        Some(b) if chain_bindings.contains(b) => {}
+                        _ => return false,
+                    }
+                } else if let Some((bind, method, _)) = method_call_on_binding(fc) {
+                    let chain_set = chain_bindings.contains(&bind) && method.starts_with("Set");
+                    let counter = method == "AddCounter" || method == "RemoveCounter";
+                    if !chain_set && !counter { return false; }
+                } else if duel_call_from_fc(fc).is_some() {
+                    // Captured by the arm's calls extraction; emit-time
+                    // coverage rejects untranslatable ones.
+                } else {
+                    return false;
+                }
+            }
+            Stmt::If(if_stmt) => {
+                // Plain guard only — an inner else would hide a second
+                // either/or the per-arm extractors can't represent
+                // (counter-op poisoning, conflicting Set* writes).
+                if if_stmt.else_if().is_some_and(|e| e.len() > 0)
+                    || if_stmt.else_block().is_some()
+                {
+                    return false;
+                }
+                if !choice_arm_shape_ok(if_stmt.block(), chain_bindings) { return false; }
+            }
+            _ => return false,
+        }
+    }
+    block.last_stmt().is_none()
+}
+
+/// Synthesize a FunctionBody for one dispatch arm. Group/value bindings
+/// declared in the outer straight-line scope (before the dispatch) are
+/// visible to the arm; arm-local bindings shadow them.
+fn build_arm_body(
+    block: &Block,
+    outer_groups: &BTreeMap<String, SelectorSpec>,
+    outer_values: &BTreeMap<String, String>,
+) -> FunctionBody {
+    let mut group_bindings = outer_groups.clone();
+    group_bindings.extend(extract_group_bindings(block));
+    let mut value_bindings = outer_values.clone();
+    value_bindings.extend(extract_value_bindings(block));
+    FunctionBody {
+        calls: extract_duel_calls(block),
+        group_bindings,
+        register_chains: extract_register_chains(block),
+        value_bindings,
+        counter_ops: extract_counter_ops(block),
+        ..FunctionBody::default()
+    }
+}
+
 fn aux_next_source_group(gf: &ast::GenericFor) -> Option<String> {
     let expr = gf.expressions().iter().next()?;
     let fc = match expr {
@@ -3090,6 +3660,27 @@ fn lookup_card_name(id: u32) -> Option<String> {
     CARD_NAMES.get()?.lock().ok()?.get(&id).cloned()
 }
 
+/// Process-wide passcode → CDB strs (str1..str16) table for choose-
+/// option label resolution (Phase 16). Mirrors [`CARD_NAMES`].
+static CARD_STRINGS: OnceLock<Mutex<BTreeMap<u32, Vec<String>>>> = OnceLock::new();
+
+/// Register passcode → CDB string-list pairs (Phase 16).
+pub fn register_card_strings<I: IntoIterator<Item = (u32, Vec<String>)>>(pairs: I) {
+    let table = CARD_STRINGS.get_or_init(|| Mutex::new(BTreeMap::new()));
+    if let Ok(mut map) = table.lock() {
+        map.extend(pairs);
+    }
+}
+
+/// Resolve `aux.Stringid(<card_id>, <idx>)` to its CDB string. Returns
+/// None when missing, empty, or containing a double quote — the DSL
+/// string lexer has no escapes, so such labels skip (not mis-emit).
+pub fn lookup_card_string(card_id: u32, idx: u32) -> Option<String> {
+    let map = CARD_STRINGS.get()?.lock().ok()?;
+    let s = map.get(&card_id)?.get(idx as usize)?.trim().to_string();
+    (!s.is_empty() && !s.contains('"')).then_some(s)
+}
+
 #[derive(Debug, Clone)]
 pub enum DslLine {
     /// A confidently-translated DSL action line, e.g.
@@ -3119,11 +3710,7 @@ impl DslLine {
 pub fn translate_calls(calls: &[DuelCall]) -> Vec<DslLine> {
     translate_body(&FunctionBody {
         calls: calls.to_vec(),
-        group_bindings: BTreeMap::new(),
-        register_chains: Vec::new(),
-        value_bindings: BTreeMap::new(),
-        return_expr: None,
-        counter_ops: Vec::new(),
+        ..FunctionBody::default()
     })
 }
 
@@ -3179,6 +3766,77 @@ pub fn translate_body_with_functions(
         }
     }
     out
+}
+
+/// Phase 16 — a fully-translated SelectOption choose block: one
+/// `(stringid index, action lines)` pair per option, in option order.
+#[derive(Debug)]
+pub struct ChooseSpec {
+    pub options: Vec<(u32, Vec<DslLine>)>,
+}
+
+/// Link a [`SelectOptionSpec`] — op-side inline, or SetLabel-linked
+/// from the target handler — to the operation handler's label-dispatch
+/// arms and translate every arm (Phase 16). Returns None unless the
+/// option count matches the arm count AND every arm translates
+/// completely — skip-not-mis-emit.
+pub fn extract_choose_spec(
+    target_body: Option<&FunctionBody>,
+    op_body: &FunctionBody,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Option<ChooseSpec> {
+    let sel = op_body.select_option.as_ref()
+        .or_else(|| target_body?.select_option.as_ref())?;
+    if op_body.choice_arms.is_empty() || op_body.choice_arms.len() != sel.string_ids.len() {
+        return None;
+    }
+    let mut options = Vec::new();
+    for (i, arm) in op_body.choice_arms.iter().enumerate() {
+        options.push((sel.string_ids[i], translate_choice_arm(arm, functions)?));
+    }
+    Some(ChooseSpec { options })
+}
+
+/// Translate one dispatch arm with FULL coverage: every Duel call must
+/// be an action or a known cosmetic/query, every register chain must
+/// emit, every counter op must map, and the stat-write interference
+/// guard must not need to drop anything. Any gap fails the whole arm —
+/// an option that under-states its lua branch would mis-state the card.
+fn translate_choice_arm(
+    arm: &FunctionBody,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Option<Vec<DslLine>> {
+    let mut out = Vec::new();
+    for c in &arm.calls {
+        match translate_call(c, &arm.group_bindings) {
+            Some(DslLine::Action(s)) => out.push(DslLine::Action(s)),
+            Some(DslLine::Todo(_)) => return None,
+            None => {}
+        }
+    }
+    for op in &arm.counter_ops {
+        match translate_counter_op(op, arm) {
+            Some(line) if line.is_action() => out.push(line),
+            _ => return None,
+        }
+    }
+    let mut stat_writes: Vec<(String, String)> = Vec::new();
+    for chain in &arm.register_chains {
+        let lines = translate_register_chain(chain, arm, functions);
+        if lines.is_empty() { return None; }
+        for line in lines {
+            let DslLine::Action(text) = &line else { return None };
+            if stat_writes.iter().any(|(sel, stat)| {
+                text.contains(&format!("{}.{}", sel, stat))
+            }) {
+                return None;
+            }
+            if let Some(write) = stat_write_of(text) { stat_writes.push(write); }
+            out.push(line);
+        }
+    }
+    if out.is_empty() { return None; }
+    Some(out)
 }
 
 /// If a DSL action line writes a stat on `self` / `target`, return the
@@ -9210,5 +9868,367 @@ end
 "#;
         let actions = p11_actions(src, "s.activate");
         assert!(actions.is_empty(), "subtype mask filter must skip, got {:?}", actions);
+    }
+
+    // ── Phase 16: SelectOption label-branches → choose ──────
+
+    fn p16_spec(src: &str, target_fn: &str, op_fn: &str) -> Option<ChooseSpec> {
+        let parsed = full_moon::parse(src).expect("lua parse");
+        let report = walk(&parsed);
+        let tb = report.functions.get(target_fn);
+        let ob = report.functions.get(op_fn).expect("op body");
+        extract_choose_spec(tb, ob, &report.functions)
+    }
+
+    fn p16_options(spec: &ChooseSpec) -> Vec<(u32, Vec<String>)> {
+        spec.options.iter().map(|(idx, lines)| {
+            (*idx, lines.iter().map(|l| match l {
+                DslLine::Action(s) => s.clone(),
+                DslLine::Todo(s) => panic!("unexpected TODO in choose arm: {}", s),
+            }).collect())
+        }).collect()
+    }
+
+    const P16_TARGET_2OPT: &str = r#"
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return true end
+    local op=Duel.SelectOption(tp,aux.Stringid(id,1),aux.Stringid(id,2))
+    e:SetLabel(op)
+end
+"#;
+
+    #[test]
+    fn p16_happy_two_arm_actions() {
+        let src = format!("{}{}", P16_TARGET_2OPT, r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local sel=e:GetLabel()
+    if sel==0 then
+        Duel.Draw(tp,1,REASON_EFFECT)
+    else
+        Duel.Damage(1-tp,500,REASON_EFFECT)
+    end
+end
+"#);
+        let spec = p16_spec(&src, "s.target", "s.activate").expect("choose spec");
+        assert_eq!(p16_options(&spec), vec![
+            (1, vec!["draw 1".to_string()]),
+            (2, vec!["damage opponent 500".to_string()]),
+        ]);
+    }
+
+    #[test]
+    fn p16_three_arm_with_chain_and_getlabel_inline() {
+        // Three Strikes Barrier shape: inline `e:GetLabel()==0` head (no
+        // local), elseif ladder, register-chain arm. The chain arm reuses
+        // the Phase 15 field-scope emit.
+        let src = r#"
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return true end
+    local op=Duel.SelectOption(tp,aux.Stringid(id,0),aux.Stringid(id,1),aux.Stringid(id,2))
+    e:SetLabel(op)
+end
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    if e:GetLabel()==0 then
+        Duel.Draw(tp,1,REASON_EFFECT)
+    elseif e:GetLabel()==1 then
+        Duel.Damage(1-tp,800,REASON_EFFECT)
+    else
+        local e1=Effect.CreateEffect(e:GetHandler())
+        e1:SetType(EFFECT_TYPE_FIELD)
+        e1:SetCode(EFFECT_PIERCE)
+        e1:SetTargetRange(LOCATION_MZONE,0)
+        e1:SetReset(RESET_PHASE|PHASE_END)
+        Duel.RegisterEffect(e1,tp)
+    end
+end
+"#;
+        let spec = p16_spec(src, "s.target", "s.activate").expect("choose spec");
+        assert_eq!(p16_options(&spec), vec![
+            (0, vec!["draw 1".to_string()]),
+            (1, vec!["damage opponent 800".to_string()]),
+            (2, vec!["grant (all, card, you control, from monster_zone) piercing until end_of_turn".to_string()]),
+        ]);
+    }
+
+    #[test]
+    fn p16_counter_arm() {
+        let src = format!("{}{}", P16_TARGET_2OPT, r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local sel=e:GetLabel()
+    if sel==0 then
+        c:AddCounter(COUNTER_SPELL,2)
+    else
+        Duel.Draw(tp,1,REASON_EFFECT)
+    end
+end
+"#);
+        let spec = p16_spec(&src, "s.target", "s.activate").expect("choose spec");
+        assert_eq!(p16_options(&spec), vec![
+            (1, vec![r#"place_counter "Spell Counter" 2 on self"#.to_string()]),
+            (2, vec!["draw 1".to_string()]),
+        ]);
+    }
+
+    #[test]
+    fn p16_skip_select_effect() {
+        // SelectEffect label dispatch is NOT a SelectOption — no option
+        // descriptions to label a choose with. Phase 15's in_choice_arm
+        // guard keeps suppressing the arms on the normal resolve path.
+        let src = r#"
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return true end
+    local op=Duel.SelectEffect(tp,aux.Stringid(id,1),aux.Stringid(id,2))
+    e:SetLabel(op)
+end
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local sel=e:GetLabel()
+    if sel==0 then
+        Duel.Draw(tp,1,REASON_EFFECT)
+    else
+        Duel.Damage(1-tp,500,REASON_EFFECT)
+    end
+end
+"#;
+        assert!(p16_spec(src, "s.target", "s.activate").is_none());
+    }
+
+    #[test]
+    fn p16_skip_dynamic_option_list() {
+        // Junk Changer (c1006081) shape: the option list depends on the
+        // selected monster's level — two SelectOption calls in branches.
+        let src = r#"
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return true end
+    local g=Duel.SelectTarget(tp,s.filter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
+    local op=0
+    if g:GetFirst():GetLevel()==1 then
+        op=Duel.SelectOption(tp,aux.Stringid(id,1))
+    else
+        op=Duel.SelectOption(tp,aux.Stringid(id,1),aux.Stringid(id,2))
+    end
+    e:SetLabel(op)
+end
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local sel=e:GetLabel()
+    if sel==0 then
+        Duel.Draw(tp,1,REASON_EFFECT)
+    else
+        Duel.Damage(1-tp,500,REASON_EFFECT)
+    end
+end
+"#;
+        assert!(p16_spec(src, "s.target", "s.activate").is_none());
+    }
+
+    #[test]
+    fn p16_skip_untranslatable_arm() {
+        // One arm holds a call with no DSL mapping (TODO) — the whole
+        // card skips rather than emitting a half-true option.
+        let src = format!("{}{}", P16_TARGET_2OPT, r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local sel=e:GetLabel()
+    if sel==0 then
+        Duel.Draw(tp,1,REASON_EFFECT)
+    else
+        Duel.MoveSequence(c,1)
+    end
+end
+"#);
+        assert!(p16_spec(&src, "s.target", "s.activate").is_none());
+    }
+
+    #[test]
+    fn p16_skip_label_value_use() {
+        // Mermail Abyssmander (c21767650) shape: the label feeds
+        // SetValue(opt+1) inside a group loop — no statement-level arms.
+        let src = format!("{}{}", P16_TARGET_2OPT, r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local opt=e:GetLabel()
+    local g=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil)
+    for tc in aux.Next(g) do
+        local e1=Effect.CreateEffect(e:GetHandler())
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_UPDATE_LEVEL)
+        e1:SetValue(opt+1)
+        e1:SetReset(RESET_EVENT|RESETS_STANDARD)
+        tc:RegisterEffect(e1)
+    end
+end
+"#);
+        assert!(p16_spec(&src, "s.target", "s.activate").is_none());
+    }
+
+    #[test]
+    fn p16_skip_select_yes_no() {
+        let src = r#"
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return true end
+    local op=Duel.SelectYesNo(tp,aux.Stringid(id,0))
+    e:SetLabel(op)
+end
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local sel=e:GetLabel()
+    if sel==0 then
+        Duel.Draw(tp,1,REASON_EFFECT)
+    else
+        Duel.Damage(1-tp,500,REASON_EFFECT)
+    end
+end
+"#;
+        assert!(p16_spec(src, "s.target", "s.activate").is_none());
+    }
+
+    #[test]
+    fn p16_skip_arm_count_mismatch() {
+        // Three options picked, but only two dispatch arms — the third
+        // option's behavior is unrepresented.
+        let src = r#"
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return true end
+    local op=Duel.SelectOption(tp,aux.Stringid(id,0),aux.Stringid(id,1),aux.Stringid(id,2))
+    e:SetLabel(op)
+end
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local sel=e:GetLabel()
+    if sel==0 then
+        Duel.Draw(tp,1,REASON_EFFECT)
+    else
+        Duel.Damage(1-tp,500,REASON_EFFECT)
+    end
+end
+"#;
+        assert!(p16_spec(src, "s.target", "s.activate").is_none());
+    }
+
+    #[test]
+    fn p16_skip_action_outside_dispatch() {
+        // An unconditional action before the dispatch would be dropped
+        // by the choose emit — the whole body must reject.
+        let src = format!("{}{}", P16_TARGET_2OPT, r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    Duel.Draw(tp,1,REASON_EFFECT)
+    local sel=e:GetLabel()
+    if sel==0 then
+        Duel.Recover(tp,500,REASON_EFFECT)
+    else
+        Duel.Damage(1-tp,500,REASON_EFFECT)
+    end
+end
+"#);
+        assert!(p16_spec(&src, "s.target", "s.activate").is_none());
+    }
+
+    #[test]
+    fn p16_dispatch_inside_relate_guard() {
+        // Wind-Up-style wrapper: the dispatch sits inside the ubiquitous
+        // IsRelateToEffect plain-if guard — still extracts.
+        let src = format!("{}{}", P16_TARGET_2OPT, r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    if c:IsFaceup() and c:IsRelateToEffect(e) then
+        local sel=e:GetLabel()
+        if sel==0 then
+            Duel.Draw(tp,1,REASON_EFFECT)
+        else
+            Duel.Damage(1-tp,500,REASON_EFFECT)
+        end
+    end
+end
+"#);
+        let spec = p16_spec(&src, "s.target", "s.activate").expect("choose spec");
+        assert_eq!(spec.options.len(), 2);
+    }
+
+    #[test]
+    fn p16_slot_fork_value() {
+        // Wind-Up Shark (c25484449) value-fork shape: the dispatch arms
+        // only fork ONE Set* slot of a chain under construction — each
+        // option becomes the chain with that arm's writes applied.
+        let src = format!("{}{}", P16_TARGET_2OPT, r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_LEVEL)
+    if e:GetLabel()==0 then
+        e1:SetValue(1)
+    else
+        e1:SetValue(-1)
+    end
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    c:RegisterEffect(e1)
+end
+"#);
+        let spec = p16_spec(&src, "s.target", "s.activate").expect("choose spec");
+        assert_eq!(p16_options(&spec), vec![
+            (1, vec!["modify_level self + 1 until end_of_turn".to_string()]),
+            (2, vec!["modify_level self - 1 until end_of_turn".to_string()]),
+        ]);
+    }
+
+    #[test]
+    fn p16_inline_select_option_code_fork() {
+        // Armored Kappa (c50789693) shape: the SelectOption sits in the
+        // OPERATION body (no SetLabel hop) and the dispatch forks the
+        // chain's SetCode slot. No target handler involved.
+        let src = r#"
+function s.adop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    if c:IsRelateToEffect(e) and c:IsFaceup() then
+        local opt=Duel.SelectOption(tp,aux.Stringid(id,2),aux.Stringid(id,3))
+        local e1=Effect.CreateEffect(c)
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetProperty(EFFECT_FLAG_COPY_INHERIT)
+        if opt==0 then
+            e1:SetCode(EFFECT_UPDATE_ATTACK)
+        else
+            e1:SetCode(EFFECT_UPDATE_DEFENSE)
+        end
+        e1:SetValue(1000)
+        e1:SetReset(RESET_EVENT|RESETS_STANDARD_DISABLE)
+        c:RegisterEffect(e1)
+    end
+end
+"#;
+        let parsed = full_moon::parse(src).expect("lua parse");
+        let report = walk(&parsed);
+        let ob = report.functions.get("s.adop").expect("op body");
+        let spec = extract_choose_spec(None, ob, &report.functions).expect("choose spec");
+        assert_eq!(p16_options(&spec), vec![
+            (2, vec!["modify_atk self + 1000 until end_of_turn".to_string()]),
+            (3, vec!["modify_def self + 1000 until end_of_turn".to_string()]),
+        ]);
+    }
+
+    #[test]
+    fn p16_skip_fork_with_unresolvable_value() {
+        // Cupid Pitch (c21915012) shape: the forked SetValue references
+        // a label-object read no static value resolves — both variants
+        // must fail to translate, skipping the card.
+        let src = r#"
+function s.lvop(e,tp,eg,ep,ev,re,r,rp)
+    local lv=e:GetLabelObject():GetLabel()
+    if lv==0 then return end
+    local c=e:GetHandler()
+    if c:IsRelateToEffect(e) and c:IsFaceup() then
+        local opt=Duel.SelectOption(tp,aux.Stringid(id,2),aux.Stringid(id,3))
+        local e1=Effect.CreateEffect(c)
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_UPDATE_LEVEL)
+        if opt==0 then
+            e1:SetValue(lv)
+        else
+            e1:SetValue(-lv)
+        end
+        e1:SetReset(RESET_EVENT|RESETS_STANDARD_DISABLE)
+        c:RegisterEffect(e1)
+    end
+end
+"#;
+        let parsed = full_moon::parse(src).expect("lua parse");
+        let report = walk(&parsed);
+        let ob = report.functions.get("s.lvop").expect("op body");
+        assert!(extract_choose_spec(None, ob, &report.functions).is_none());
     }
 }
