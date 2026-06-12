@@ -29,5 +29,17 @@ card "Wind-Up Shark" {
         speed: 1
         once_per_turn: soft
         mandatory
+        choose {
+            option "Increase Level by 1" {
+                resolve {
+                    modify_level self + 1 until end_of_turn
+                }
+            }
+            option "Decrease Level by 1" {
+                resolve {
+                    modify_level self - 1 until end_of_turn
+                }
+            }
+        }
     }
 }
