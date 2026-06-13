@@ -484,6 +484,7 @@ action = {
   | coin_flip_action
   | dice_roll_action
   | grant_action
+  | restrict_action
   | link_action
   | if_action
   | for_each_action
@@ -589,6 +590,25 @@ grant_ability = {
   | "attack_all_monsters"
   | "must_attack"
   | "immune_to_targeting"
+}
+
+// T36 — player-scoped restriction (resolve-time EFFECT_TYPE_FIELD effects
+// that restrict a PLAYER rather than cards; lua SetTargetRange(p1,p2) flags).
+// Prefix ordering matters: cannot_activate_* variants before cannot_activate.
+restrict_action = { "restrict" ~ player_scope ~ player_restriction ~ duration? }
+player_scope = { "both_players" | "you" | "opponent" }
+player_restriction = {
+    "cannot_special_summon"
+  | "cannot_normal_summon"
+  | "cannot_set_monsters"
+  | "cannot_set_spells_traps"
+  | "cannot_activate_spells_traps"
+  | "cannot_activate_monster_effects"
+  | "cannot_activate_spells"
+  | "cannot_activate_traps"
+  | "cannot_activate"
+  | "cannot_conduct_battle_phase"
+  | "skip_battle_phase"
 }
 
 // ── Control Flow ─────────────────────────────────────────────

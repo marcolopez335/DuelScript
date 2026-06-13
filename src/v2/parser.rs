@@ -1810,6 +1810,16 @@ fn parse_action(pair: Pair<Rule>) -> Result<Action, V2ParseError> {
                 .transpose()?;
             Ok(Action::Grant(sel, ability, dur))
         }
+        Rule::restrict_action => {
+            let mut it = inner.into_inner();
+            let scope = parse_player_scope(it.next().unwrap().as_str().trim())?;
+            let restriction = parse_player_restriction(it.next().unwrap().as_str().trim())?;
+            let duration = it.next()
+                .filter(|p| p.as_rule() == Rule::duration)
+                .map(|p| parse_duration(p.as_str().trim()))
+                .transpose()?;
+            Ok(Action::Restrict { scope, restriction, duration })
+        }
         Rule::link_action => {
             let mut it = inner.into_inner();
             let a = parse_selector(it.next().unwrap())?;
@@ -2385,6 +2395,32 @@ fn parse_grant_ability(text: &str) -> Result<GrantAbility, V2ParseError> {
     }
 }
 
+fn parse_player_scope(text: &str) -> Result<PlayerScope, V2ParseError> {
+    match text {
+        "you" => Ok(PlayerScope::You),
+        "opponent" => Ok(PlayerScope::Opponent),
+        "both_players" => Ok(PlayerScope::BothPlayers),
+        _ => Err(V2ParseError::UnknownRule(format!("player_scope: {}", text))),
+    }
+}
+
+fn parse_player_restriction(text: &str) -> Result<PlayerRestriction, V2ParseError> {
+    match text {
+        "cannot_special_summon" => Ok(PlayerRestriction::CannotSpecialSummon),
+        "cannot_normal_summon" => Ok(PlayerRestriction::CannotNormalSummon),
+        "cannot_set_monsters" => Ok(PlayerRestriction::CannotSetMonsters),
+        "cannot_set_spells_traps" => Ok(PlayerRestriction::CannotSetSpellsTraps),
+        "cannot_activate_spells_traps" => Ok(PlayerRestriction::CannotActivateSpellsTraps),
+        "cannot_activate_monster_effects" => Ok(PlayerRestriction::CannotActivateMonsterEffects),
+        "cannot_activate_spells" => Ok(PlayerRestriction::CannotActivateSpells),
+        "cannot_activate_traps" => Ok(PlayerRestriction::CannotActivateTraps),
+        "cannot_activate" => Ok(PlayerRestriction::CannotActivate),
+        "cannot_conduct_battle_phase" => Ok(PlayerRestriction::CannotConductBattlePhase),
+        "skip_battle_phase" => Ok(PlayerRestriction::SkipBattlePhase),
+        _ => Err(V2ParseError::UnknownRule(format!("player_restriction: {}", text))),
+    }
+}
+
 fn parse_card_state(text: &str) -> Result<CardState, V2ParseError> {
     match text {
         "summoned_this_turn" => Ok(CardState::SummonedThisTurn),
@@ -2656,6 +2692,82 @@ card "Equip Receiver Test" {
             &resolve[3],
             Action::Grant(Selector::EquippedCard, GrantAbility::CannotAttack, Some(Duration::WhileEquipped))
         ));
+    }
+
+    #[test]
+    fn test_restrict_action_parses() {
+        // T36: player-scoped restriction — every scope, the prefix-ordering
+        // hot spots (cannot_activate_* must win over cannot_activate), and
+        // the optional duration.
+        let source = r#"
+card "Restrict Test" {
+    id: 1
+    type: Normal Trap
+
+    effect "Lockdown" {
+        speed: 2
+        mandatory
+        resolve {
+            restrict you cannot_special_summon this_turn
+            restrict opponent cannot_activate_spells_traps end_of_turn
+            restrict both_players cannot_activate
+            restrict opponent cannot_activate_monster_effects this_turn
+            restrict you cannot_conduct_battle_phase this_turn
+            restrict opponent skip_battle_phase 2_turns
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let resolve = &file.cards[0].effects[0].resolve;
+        assert_eq!(resolve.len(), 6);
+        assert!(matches!(&resolve[0], Action::Restrict {
+            scope: PlayerScope::You,
+            restriction: PlayerRestriction::CannotSpecialSummon,
+            duration: Some(Duration::ThisTurn),
+        }));
+        assert!(matches!(&resolve[1], Action::Restrict {
+            scope: PlayerScope::Opponent,
+            restriction: PlayerRestriction::CannotActivateSpellsTraps,
+            duration: Some(Duration::EndOfTurn),
+        }));
+        assert!(matches!(&resolve[2], Action::Restrict {
+            scope: PlayerScope::BothPlayers,
+            restriction: PlayerRestriction::CannotActivate,
+            duration: None,
+        }));
+        assert!(matches!(&resolve[3], Action::Restrict {
+            restriction: PlayerRestriction::CannotActivateMonsterEffects, ..
+        }));
+        assert!(matches!(&resolve[4], Action::Restrict {
+            restriction: PlayerRestriction::CannotConductBattlePhase, ..
+        }));
+        assert!(matches!(&resolve[5], Action::Restrict {
+            scope: PlayerScope::Opponent,
+            restriction: PlayerRestriction::SkipBattlePhase,
+            duration: Some(Duration::NTurns(2)),
+        }));
+    }
+
+    #[test]
+    fn test_restrict_action_rejects_unknown_restriction() {
+        // The restriction vocabulary is a closed keyword set — anything
+        // outside it must fail the parse, not degrade to a free string.
+        let source = r#"
+card "Bad Restrict" {
+    id: 1
+    type: Normal Trap
+
+    effect "Nope" {
+        speed: 2
+        mandatory
+        resolve {
+            restrict you cannot_win this_turn
+        }
+    }
+}
+"#;
+        assert!(parse_v2(source).is_err());
     }
 
     #[test]
