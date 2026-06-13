@@ -157,6 +157,37 @@ These cross the parse-to-runtime seam. Each is a `grammar-extender` PR.
 
 ---
 
+### T36 — `restrict` player-scoped restriction action (specced + shipped in same PR)
+**Goal.** New resolve action for lua resolve-time `EFFECT_TYPE_FIELD` effects that restrict a PLAYER rather than cards — `Effect.CreateEffect` + `EFFECT_FLAG_PLAYER_TARGET` + `SetTargetRange(p1,p2)` player flags + `Duel.RegisterEffect(e1,tp)`. The existing `grant <selector> <ability>` form is card-scoped and cannot express these.
+
+**Pre-spec letter.** n/a (ledger retired).
+
+**Yield estimate.** ~123 chains (Phase 15 audit). Corpus-wide lua survey backing the keyword set: `EFFECT_CANNOT_SPECIAL_SUMMON` 469 (418 of them `SetTargetRange(1,0)`, 466 unfiltered), `EFFECT_CANNOT_ACTIVATE` 119, `EFFECT_CANNOT_SUMMON` 26, `EFFECT_SKIP_BP` 10, `EFFECT_CANNOT_BP` 9, `EFFECT_CANNOT_MSET` 4, `EFFECT_CANNOT_SSET` 4.
+
+**Syntax.**
+```
+restrict_action = { "restrict" ~ player_scope ~ player_restriction ~ duration? }
+player_scope = { "both_players" | "you" | "opponent" }   // (1,1) / (1,0) / (0,1)
+```
+`player_restriction` is a closed keyword set (no free strings), 11 keywords: `cannot_special_summon`, `cannot_normal_summon`, `cannot_set_monsters`, `cannot_set_spells_traps`, `cannot_activate_spells_traps`, `cannot_activate_monster_effects`, `cannot_activate_spells`, `cannot_activate_traps`, `cannot_activate`, `cannot_conduct_battle_phase`, `skip_battle_phase`. Pest prefix rule: the `cannot_activate_*` variants are ordered before `cannot_activate`.
+
+**Filtered-activation decision (option a, partial).** Most `EFFECT_CANNOT_ACTIVATE` chains carry a `SetValue` filter. The four high-count filter shapes got keywords: `re:IsHasType(EFFECT_TYPE_ACTIVATE)` (27) + `re:IsSpellTrapEffect()` (7) → `cannot_activate_spells_traps`; `re:IsMonsterEffect()` (15) → `cannot_activate_monster_effects`; trap-card activations (6) → `cannot_activate_traps`; spell-card activations (5) → `cannot_activate_spells`; `SetValue(1)` (15) → bare `cannot_activate`. Exotic filters (attribute/location/code-specific, ~30 chains) stay out — the follow-up translator skips them.
+
+**Runtime seam (ygobeetle mirror obligation).** New `DuelScriptRuntime` trait method:
+```rust
+fn restrict_player(&mut self, player: u8, restriction: PlayerRestriction, duration: Duration) {}
+```
+`PlayerRestriction` is a runtime-surface mirror enum (same pattern as `Duration`/`TokenSpec`) with a doc-comment table mapping each variant to its `EFFECT_*` code + activation filter. The compiler resolves the relative scope to absolute player indices (`both_players` → two calls), matching the `take_control`/`player_who_to_idx` house style. `engine-dev` must mirror this on `YgobeetleRuntimeAdapter`.
+
+**Acceptance (all shipped in this PR).**
+- Grammar + AST (`Action::Restrict`, `PlayerScope`, `PlayerRestriction`) + parser + validator + compiler + fmt + runtime trait + MockRuntime, tests at each layer.
+- Parse, validate, compile→mock, fmt-roundtrip tests green; zero warnings; corpus counts unchanged.
+- Follow-up translator phase (emit `restrict` lines into `cards/official/`) ships separately.
+
+**Agent.** `grammar-extender` (this PR). Then `lua-translator` for the corpus apply pass; `engine-dev` for the adapter mirror.
+
+---
+
 ## Per-archetype templates
 
 Long-tail. Each archetype = one PR. Defer until grammar-free phases are exhausted.
