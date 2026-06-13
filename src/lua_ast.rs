@@ -4172,6 +4172,9 @@ fn translate_register_chain(
         if let Some(line) = translate_field_scope_chain(code, chain, functions) {
             return vec![line];
         }
+        if let Some(line) = translate_player_restrict_chain(code, chain, functions) {
+            return vec![line];
+        }
         if let Some(trigger) = trigger_for_event_code(code) {
             return translate_install_watcher_chain(trigger, chain, functions)
                 .into_iter()
@@ -4307,6 +4310,14 @@ fn translate_install_watcher_chain(
     // watcher grammar has no condition slot, so emitting would run the
     // check unconditionally on every event. Skip-not-mis-emit.
     if chain.condition.is_some() {
+        return None;
+    }
+    // Choice-arm watcher chains state one arm of a runtime either/or as
+    // THE effect — same poison as every other chain family. Latent until
+    // Phase 18: caught live on c84117021 (Spell Wall), whose else-arm
+    // EVENT_ATTACK_ANNOUNCE watcher became emittable the moment its check
+    // body (a restrict line) translated.
+    if chain.in_choice_arm {
         return None;
     }
     let op_name = chain.operation.as_deref()?;
@@ -4685,8 +4696,9 @@ fn translate_disable_chain(
 /// Skip gates (None) — every one is a confirmed corpus sub-shape:
 ///   - codes outside the card-scoped table below: damage-shaping
 ///     (CHANGE_DAMAGE / AVOID_BATTLE_DAMAGE / REFLECT_* / REVERSE_*)
-///     and player-scoped restrictions (CANNOT_ACTIVATE /
-///     CANNOT_SPECIAL_SUMMON / CANNOT_BP / SKIP_* …) have no DSL form;
+///     has no DSL form; player-scoped restrictions (CANNOT_ACTIVATE /
+///     CANNOT_SPECIAL_SUMMON / CANNOT_BP / SKIP_BP …) fall through to
+///     the Phase 18 `restrict` path instead;
 ///   - registration to any player expr other than the literal `tp`
 ///     (SetTargetRange sides are relative to the registering player, so
 ///     `p` / `1-tp` registrations would flip the controller decode);
@@ -4757,7 +4769,8 @@ fn translate_field_scope_chain(
 /// that share grant_ability_for's spellings (EFFECT_CANNOT_SPECIAL_SUMMON
 /// / EFFECT_CANNOT_SUMMON): on a FIELD chain their TargetRange is player
 /// flags and the restriction binds the PLAYER, which the card-selector
-/// grant form cannot express.
+/// grant form cannot express — those route to the Phase 18 `restrict`
+/// path instead.
 fn field_grant_ability_for(code: &str) -> Option<&'static str> {
     Some(match code {
         "EFFECT_INDESTRUCTABLE_BATTLE"   => "cannot_be_destroyed by battle",
@@ -4772,6 +4785,171 @@ fn field_grant_ability_for(code: &str) -> Option<&'static str> {
         "EFFECT_MUST_ATTACK"             => "must_attack",
         _ => return None,
     })
+}
+
+/// Player-scoped restriction chain (Phase 18, T36):
+/// `EFFECT_TYPE_FIELD + SetTargetRange(<player flags>) + SetCode(<player
+/// code>) + standard reset + Duel.RegisterEffect(eN, tp)` →
+/// `restrict <you|opponent|both_players> <keyword> <duration>`.
+///
+/// Inverts the T36 `PlayerRestriction` doc table exactly: the six
+/// value-less codes map 1:1; `EFFECT_CANNOT_ACTIVATE` keys on the
+/// `SetValue` activation filter via `classify_activate_filter`.
+///
+/// Skip gates (None) — skip-not-mis-emit, all confirmed corpus sub-shapes:
+///   - codes outside the 11-keyword T36 vocabulary (CANNOT_DRAW,
+///     CANNOT_ATTACK_ANNOUNCE, …);
+///   - any `SetTarget` filter — the "cannot special summon, except X"
+///     summon-limit idiom qualifies WHICH cards the player is barred
+///     from; the unfiltered keyword would over-restrict;
+///   - `SetValue` on the value-less codes other than the literal flag
+///     `1`, and CANNOT_ACTIVATE filters outside the four T36 shapes
+///     (attribute / location / code-specific limits);
+///   - SetCondition / SetOperation closures (floodgate-style gating);
+///   - registration to any player expr other than the literal `tp`,
+///     card-registered chains, group-applied chains, choice arms;
+///   - non-standard resets: turn-qualified (RESET_SELF_TURN /
+///     RESET_OPPO_TURN), reset counts above 1 (two-turn lifetimes),
+///     and missing resets (would guess `permanently`).
+fn translate_player_restrict_chain(
+    code: &str,
+    chain: &RegisterEffectChain,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Option<DslLine> {
+    if !chain.duel_registered || chain.multi_target || chain.in_choice_arm {
+        return None;
+    }
+    if chain.register_target.trim() != "tp" {
+        return None;
+    }
+    if chain.condition.is_some() || chain.operation.is_some() {
+        return None;
+    }
+    if chain.set_target.is_some() {
+        return None; // filtered restriction ("…except X" summon limits)
+    }
+    let dur = reset_to_duration_kw(chain.reset.as_deref())?;
+    let reset = chain.reset.as_deref().unwrap_or("");
+    if reset.contains("RESET_SELF_TURN") || reset.contains("RESET_OPPO_TURN") {
+        return None; // turn-qualified phase reset ≠ end of CURRENT turn
+    }
+    if chain.reset_count.as_deref().is_some_and(|c| c.trim() != "1") {
+        return None; // survives N reset events — two-turn lifetime
+    }
+    let scope = player_scope_from_range(chain.target_range.as_deref()?)?;
+    let value = chain.value.as_deref().map(str::trim);
+    let keyword = if code == "EFFECT_CANNOT_ACTIVATE" {
+        classify_activate_filter(value?, functions)?
+    } else {
+        // Value-less codes: lua uses no SetValue (or the literal flag 1);
+        // anything else is a qualifier function — skip.
+        match value {
+            None | Some("1") => {}
+            Some(_) => return None,
+        }
+        match code {
+            "EFFECT_CANNOT_SPECIAL_SUMMON" => "cannot_special_summon",
+            "EFFECT_CANNOT_SUMMON"         => "cannot_normal_summon",
+            "EFFECT_CANNOT_MSET"           => "cannot_set_monsters",
+            "EFFECT_CANNOT_SSET"           => "cannot_set_spells_traps",
+            "EFFECT_CANNOT_BP"             => "cannot_conduct_battle_phase",
+            "EFFECT_SKIP_BP"               => "skip_battle_phase",
+            _ => return None,
+        }
+    };
+    Some(DslLine::Action(format!("restrict {} {} {}", scope, keyword, dur)))
+}
+
+/// Decode a FIELD chain's player-flag `SetTargetRange` into the DSL
+/// player scope. Sides are relative to the registering player (gated to
+/// the literal `tp` upstream): (1,0) = "you", (0,1) = "opponent",
+/// (1,1) = "both_players". LOCATION masks and anything else return None.
+fn player_scope_from_range(range: &str) -> Option<&'static str> {
+    let cleaned: String = range.chars().filter(|c| !c.is_whitespace()).collect();
+    Some(match cleaned.as_str() {
+        "1,0" => "you",
+        "0,1" => "opponent",
+        "1,1" => "both_players",
+        _ => return None,
+    })
+}
+
+/// Classify an `EFFECT_CANNOT_ACTIVATE` chain's `SetValue` activation
+/// filter into the matching T36 keyword. Accepted forms:
+///   - the literal flag `1` (everything) → `cannot_activate`;
+///   - inline `function(e,re[,tp]) return <expr> end` closures — the
+///     activating-effect param is the SECOND one;
+///   - named `s.*` filters resolved through the walk's function table
+///     whose body is a single `return <expr>` (the `s.aclimit` idiom).
+/// Everything else (locals, multi-statement filters) returns None.
+fn classify_activate_filter(
+    value: &str,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Option<&'static str> {
+    let value = value.trim();
+    if value == "1" {
+        return Some("cannot_activate");
+    }
+    if let Some((param, expr)) = activate_filter_closure_body(value) {
+        return classify_activate_expr(&expr, &param);
+    }
+    // Named file-local filter — corpus convention names the activating
+    // effect `re` (or `te`); param names aren't recorded, so try both.
+    // Conjunct receivers must match uniformly, so a mis-bound first
+    // param can't slip through.
+    let expr = functions.get(value)?.return_expr.as_deref()?;
+    classify_activate_expr(expr, "re").or_else(|| classify_activate_expr(expr, "te"))
+}
+
+/// Extract the (effect-param, return-expression) of an inline
+/// `function(e,re[,tp]) return <expr> end` activation-filter closure.
+/// The activating effect is the SECOND param by lua convention
+/// (`(e, re, tp)` / `(_, re)`).
+fn activate_filter_closure_body(raw: &str) -> Option<(String, String)> {
+    let r = raw.strip_prefix("function")?.trim_start();
+    let r = r.strip_prefix('(')?;
+    let (params, r) = r.split_once(')')?;
+    let params: Vec<&str> = params.split(',').map(str::trim).collect();
+    if !(2..=3).contains(&params.len()) {
+        return None;
+    }
+    let r = r.trim_start().strip_prefix("return")?;
+    let expr = r.trim().strip_suffix("end")?.trim().to_string();
+    Some((params[1].to_string(), expr))
+}
+
+/// Classify an activation-filter expression (conjunction of predicates
+/// on the activating effect `eff`) into a T36 keyword. The accept set is
+/// closed — exactly the four filter shapes the T36 survey blessed; any
+/// other conjunct (attribute / location / code-specific limits, owner
+/// comparisons, …) fails the whole filter (skip-not-mis-emit).
+fn classify_activate_expr(expr: &str, eff: &str) -> Option<&'static str> {
+    let normalized = expr.split_whitespace().collect::<Vec<_>>().join(" ");
+    if normalized.contains(" or ") {
+        return None;
+    }
+    // Conjunct atoms over the activating effect.
+    let mut card_activation = false; // IsHasType(EFFECT_TYPE_ACTIVATE)
+    let mut monster = false;         // IsMonsterEffect()
+    let mut spell = false;           // IsSpellEffect() / GetHandler():IsSpell()
+    let mut trap = false;            // IsTrapEffect() / GetHandler():IsTrap()
+    for conjunct in normalized.split(" and ") {
+        let c: String = conjunct.chars().filter(|ch| !ch.is_whitespace()).collect();
+        match c.strip_prefix(eff)? {
+            ":IsHasType(EFFECT_TYPE_ACTIVATE)" => card_activation = true,
+            ":IsMonsterEffect()" => monster = true,
+            ":IsSpellEffect()" | ":GetHandler():IsSpell()" => spell = true,
+            ":IsTrapEffect()" | ":GetHandler():IsTrap()" => trap = true,
+            _ => return None,
+        }
+    }
+    match (card_activation, monster, spell, trap) {
+        (true,  false, false, false) => Some("cannot_activate_spells_traps"),
+        (false, true,  false, false) => Some("cannot_activate_monster_effects"),
+        (true,  false, true,  false) => Some("cannot_activate_spells"),
+        (true,  false, false, true)  => Some("cannot_activate_traps"),
+        _ => None,
+    }
 }
 
 /// Decode a FIELD chain's `SetTargetRange` into a full DSL group
@@ -10140,8 +10318,10 @@ end
 
     #[test]
     fn p15_skip_player_flag_range() {
-        // EFFECT_CANNOT_ACTIVATE with player-flag TargetRange(0,1) —
-        // player-scoped restriction, no DSL form (grammar backlog).
+        // EFFECT_CANNOT_ACTIVATE with player-flag TargetRange(0,1) and a
+        // named `s.aclimit` filter that ISN'T defined in the script —
+        // the Phase 18 restrict path can't classify the activation
+        // filter, so the chain must still skip.
         let src = r#"
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
     local e1=Effect.CreateEffect(e:GetHandler())
@@ -10373,6 +10553,317 @@ end
 "#;
         let actions = p11_actions(src, "s.activate");
         assert!(actions.is_empty(), "subtype mask filter must skip, got {:?}", actions);
+    }
+
+    // ── Phase 18: player-scoped restriction chains → restrict ──────
+
+    #[test]
+    fn p18_restrict_special_summon_you() {
+        // The dominant corpus shape (Cyber-Stein-tax style): the
+        // activating player cannot special summon for the turn —
+        // CANNOT_SPECIAL_SUMMON, no value, no target filter.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+    e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+    e1:SetTargetRange(1,0)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["restrict you cannot_special_summon end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn p18_restrict_both_players_and_normal_summon() {
+        // (1,1) player flags → both_players; CANNOT_SUMMON →
+        // cannot_normal_summon; the literal flag SetValue(1) is accepted.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_SUMMON)
+    e1:SetTargetRange(1,1)
+    e1:SetValue(1)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.operation"),
+            vec!["restrict both_players cannot_normal_summon end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn p18_restrict_activate_spells_traps_named_filter() {
+        // The `s.aclimit` idiom: named filter resolved through the
+        // function table; IsHasType(EFFECT_TYPE_ACTIVATE) = spell/trap
+        // CARD activations.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_ACTIVATE)
+    e1:SetTargetRange(0,1)
+    e1:SetValue(s.aclimit)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.aclimit(e,re,tp)
+    return re:IsHasType(EFFECT_TYPE_ACTIVATE)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["restrict opponent cannot_activate_spells_traps end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn p18_restrict_activate_monster_effects_inline_closure() {
+        // Inline `(_,re)` closure form of the monster-effect filter.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_ACTIVATE)
+    e1:SetTargetRange(0,1)
+    e1:SetValue(function(_,re) return re:IsMonsterEffect() end)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["restrict opponent cannot_activate_monster_effects end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn p18_restrict_activate_traps_conjunction() {
+        // Trap-card activation filter: GetHandler():IsTrap() AND
+        // IsHasType(EFFECT_TYPE_ACTIVATE) — both conjuncts required,
+        // either order.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_ACTIVATE)
+    e1:SetTargetRange(1,1)
+    e1:SetValue(s.aclimit)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.aclimit(e,re,tp)
+    return re:GetHandler():IsTrap() and re:IsHasType(EFFECT_TYPE_ACTIVATE)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["restrict both_players cannot_activate_traps end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn p18_restrict_activate_bare_flag() {
+        // SetValue(1) on CANNOT_ACTIVATE = no card may be activated at
+        // all → the bare cannot_activate keyword.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_ACTIVATE)
+    e1:SetTargetRange(0,1)
+    e1:SetValue(1)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.operation"),
+            vec!["restrict opponent cannot_activate end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn p18_restrict_battle_phase_codes() {
+        // CANNOT_BP / SKIP_BP map without a value; two chains, one line
+        // each.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_BP)
+    e1:SetTargetRange(1,0)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+    local e2=Effect.CreateEffect(e:GetHandler())
+    e2:SetType(EFFECT_TYPE_FIELD)
+    e2:SetCode(EFFECT_SKIP_BP)
+    e2:SetTargetRange(0,1)
+    e2:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e2,tp)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec![
+                "restrict you cannot_conduct_battle_phase end_of_turn",
+                "restrict opponent skip_battle_phase end_of_turn",
+            ],
+        );
+    }
+
+    #[test]
+    fn p18_skip_filtered_special_summon() {
+        // The dominant SKIP class: a SetTarget summon-limit filter
+        // ("cannot special summon, except Zombie monsters") qualifies
+        // WHICH cards — the unfiltered keyword would over-restrict.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+    e1:SetTargetRange(1,0)
+    e1:SetTarget(s.splimit)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.splimit(e,c)
+    return not c:IsRace(RACE_ZOMBIE)
+end
+"#;
+        let actions = p11_actions(src, "s.activate");
+        assert!(actions.is_empty(), "summon-limit filter must skip, got {:?}", actions);
+    }
+
+    #[test]
+    fn p18_skip_exotic_activate_filter() {
+        // Attribute-qualified activation filter (Mulcharmy-style) — the
+        // extra conjunct is outside the four T36 shapes.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_ACTIVATE)
+    e1:SetTargetRange(0,1)
+    e1:SetValue(function(_,re) return re:IsMonsterEffect() and re:GetHandler():IsAttributeExcept(ATTRIBUTE_FIRE) end)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        let actions = p11_actions(src, "s.activate");
+        assert!(actions.is_empty(), "exotic activation filter must skip, got {:?}", actions);
+    }
+
+    #[test]
+    fn p18_skip_condition_gated() {
+        // SetCondition turns the restriction into a floodgate gated on
+        // game state — the unconditional restrict line would mis-state it.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_SKIP_BP)
+    e1:SetTargetRange(1,0)
+    e1:SetCondition(s.skipcon)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.skipcon(e)
+    return Duel.GetTurnPlayer()==e:GetHandlerPlayer()
+end
+"#;
+        let actions = p11_actions(src, "s.activate");
+        assert!(actions.is_empty(), "condition-gated chain must skip, got {:?}", actions);
+    }
+
+    #[test]
+    fn p18_skip_two_turn_and_turn_qualified_resets() {
+        // SetReset(...,2) lives until the SECOND end phase, and a
+        // RESET_SELF_TURN qualifier is not end-of-CURRENT-turn — both
+        // are outside the standard reset class.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+    e1:SetTargetRange(1,0)
+    e1:SetReset(RESET_PHASE|PHASE_END,2)
+    Duel.RegisterEffect(e1,tp)
+    local e2=Effect.CreateEffect(e:GetHandler())
+    e2:SetType(EFFECT_TYPE_FIELD)
+    e2:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+    e2:SetTargetRange(1,0)
+    e2:SetReset(RESET_PHASE|PHASE_END|RESET_SELF_TURN,2)
+    Duel.RegisterEffect(e2,tp)
+end
+"#;
+        let actions = p11_actions(src, "s.activate");
+        assert!(actions.is_empty(), "non-standard resets must skip, got {:?}", actions);
+    }
+
+    #[test]
+    fn p18_skip_choice_arm_watcher_with_restrict_check() {
+        // c84117021 (Spell Wall) shape: an EVENT watcher chain inside one
+        // arm of an if/else whose check body is a now-translatable
+        // restrict line. The install_watcher path must honor the
+        // choice-arm poison like every other chain family.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local opt=Duel.GetChainInfo(0,CHAININFO_TARGET_PARAM)
+    if opt==0 then
+        local e1=Effect.CreateEffect(e:GetHandler())
+        e1:SetType(EFFECT_TYPE_FIELD)
+        e1:SetCode(EFFECT_CANNOT_DISABLE_SUMMON)
+        e1:SetReset(RESET_PHASE|PHASE_END)
+        Duel.RegisterEffect(e1,tp)
+    else
+        local tc=Duel.GetFirstTarget()
+        local e1=Effect.CreateEffect(e:GetHandler())
+        e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+        e1:SetCode(EVENT_ATTACK_ANNOUNCE)
+        e1:SetOperation(s.atkop)
+        e1:SetReset(RESETS_STANDARD_PHASE_END)
+        tc:RegisterEffect(e1)
+    end
+end
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_ACTIVATE)
+    e1:SetTargetRange(0,1)
+    e1:SetValue(1)
+    e1:SetReset(RESET_PHASE|PHASE_DAMAGE)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        let actions = p11_actions(src, "s.activate");
+        assert!(actions.is_empty(), "choice-arm watcher must skip, got {:?}", actions);
+    }
+
+    #[test]
+    fn p18_skip_code_outside_vocabulary() {
+        // EFFECT_CANNOT_DRAW is a player-scoped code but NOT in the
+        // 11-keyword T36 vocabulary — must skip, not mis-map.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_DRAW)
+    e1:SetTargetRange(0,1)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        let actions = p11_actions(src, "s.activate");
+        assert!(actions.is_empty(), "out-of-vocabulary code must skip, got {:?}", actions);
     }
 
     // ── Phase 16: SelectOption label-branches → choose ──────
