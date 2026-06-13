@@ -575,6 +575,10 @@ pub enum Action {
     CoinFlip { heads: Vec<Action>, tails: Vec<Action> },
     DiceRoll(Vec<Action>),
     Grant(Selector, GrantAbility, Option<Duration>),
+    /// T36 — player-scoped restriction. Unlike `Grant` (card-scoped), this
+    /// restricts what a PLAYER may do (lua: EFFECT_TYPE_FIELD +
+    /// EFFECT_FLAG_PLAYER_TARGET + SetTargetRange(p1,p2) player flags).
+    Restrict { scope: PlayerScope, restriction: PlayerRestriction, duration: Option<Duration> },
     If { condition: Condition, then: Vec<Action>, otherwise: Vec<Action> },
     ForEach { selector: Selector, zone: Zone, body: Vec<Action> },
     Choose(ChooseBlock),
@@ -634,6 +638,45 @@ pub enum ActivateWhat { Effects, Spells, Traps }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum UnaffectedSource { Spells, Traps, Monsters, Effects, OpponentEffects }
+
+// ── Player-Scoped Restrictions (T36) ─────────────────────────
+
+/// Which player(s) a `restrict` action applies to, relative to the
+/// activating player. Mirrors lua `SetTargetRange(p1,p2)` player flags:
+/// `You` = (1,0), `Opponent` = (0,1), `BothPlayers` = (1,1).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PlayerScope { You, Opponent, BothPlayers }
+
+/// Closed vocabulary of player-scoped restrictions (T36). Each variant maps
+/// to one lua `EFFECT_CANNOT_*` / `EFFECT_SKIP_*` code, with the
+/// `cannot_activate_*` variants covering the common `SetValue` activation
+/// filters (spell/trap card activations, monster effects).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PlayerRestriction {
+    /// EFFECT_CANNOT_SPECIAL_SUMMON (unfiltered).
+    CannotSpecialSummon,
+    /// EFFECT_CANNOT_SUMMON.
+    CannotNormalSummon,
+    /// EFFECT_CANNOT_MSET.
+    CannotSetMonsters,
+    /// EFFECT_CANNOT_SSET.
+    CannotSetSpellsTraps,
+    /// EFFECT_CANNOT_ACTIVATE + filter `re:IsHasType(EFFECT_TYPE_ACTIVATE)`
+    /// — cannot activate spell/trap CARDS.
+    CannotActivateSpellsTraps,
+    /// EFFECT_CANNOT_ACTIVATE + filter `re:IsMonsterEffect()`.
+    CannotActivateMonsterEffects,
+    /// EFFECT_CANNOT_ACTIVATE + spell-card activation filter.
+    CannotActivateSpells,
+    /// EFFECT_CANNOT_ACTIVATE + trap-card activation filter.
+    CannotActivateTraps,
+    /// EFFECT_CANNOT_ACTIVATE, unfiltered (`SetValue(1)`).
+    CannotActivate,
+    /// EFFECT_CANNOT_BP — cannot conduct the Battle Phase.
+    CannotConductBattlePhase,
+    /// EFFECT_SKIP_BP — Battle Phase is skipped.
+    SkipBattlePhase,
+}
 
 // ── Duration ─────────────────────────────────────────────────
 

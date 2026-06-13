@@ -561,7 +561,9 @@ fn scan_actions(actions: &[Action], scan: &mut TargetScan) {
             | Action::Excavate(_, _)
             | Action::ShuffleDeck(_)
             | Action::ShuffleHand(_)
-            | Action::Announce(_, _) => {}
+            | Action::Announce(_, _)
+            // T36: player-scoped — no card selector to scan.
+            | Action::Restrict { .. } => {}
         }
     }
 }
@@ -736,6 +738,31 @@ fn is_terminal_redirect_zone(zone: &Zone) -> bool {
 mod tests {
     use super::*;
     use crate::v2::parser::parse_v2;
+
+    #[test]
+    fn test_restrict_action_valid() {
+        // T36: restrict has no card selector — it must not trip the
+        // target-scan invariants (bare-target warning, must-have-resolve ok).
+        let source = r#"
+card "Restrict Valid Test" {
+    id: 1
+    type: Normal Trap
+
+    effect "Lockdown" {
+        speed: 2
+        mandatory
+        resolve {
+            restrict opponent cannot_special_summon this_turn
+            restrict both_players cannot_activate_spells_traps end_of_turn
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let report = validate_v2(&file);
+        assert_eq!(report.error_count(), 0, "errors: {:?}", report.errors);
+        assert_eq!(report.warning_count(), 0, "warnings: {:?}", report.errors);
+    }
 
     #[test]
     fn test_pot_of_greed_valid() {

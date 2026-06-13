@@ -99,6 +99,43 @@ pub enum Duration {
     NTurns(u32),
 }
 
+/// Player-scoped restriction kind passed to `restrict_player` (T36).
+///
+/// Runtime-surface mirror of `ast::PlayerRestriction`; decouples the trait
+/// from the AST so non-compiler runtimes don't need the full AST graph.
+/// Same pattern as `Duration` (T21) and `TokenSpec` (T17).
+///
+/// Each variant maps 1:1 to a lua effect code (engine side registers an
+/// `EFFECT_TYPE_FIELD` + `EFFECT_FLAG_PLAYER_TARGET` continuous effect):
+///
+/// | Variant | lua code | activation filter (`SetValue`) |
+/// |---|---|---|
+/// | `CannotSpecialSummon` | `EFFECT_CANNOT_SPECIAL_SUMMON` | — |
+/// | `CannotNormalSummon` | `EFFECT_CANNOT_SUMMON` | — |
+/// | `CannotSetMonsters` | `EFFECT_CANNOT_MSET` | — |
+/// | `CannotSetSpellsTraps` | `EFFECT_CANNOT_SSET` | — |
+/// | `CannotActivateSpellsTraps` | `EFFECT_CANNOT_ACTIVATE` | `re:IsHasType(EFFECT_TYPE_ACTIVATE)` |
+/// | `CannotActivateMonsterEffects` | `EFFECT_CANNOT_ACTIVATE` | `re:IsMonsterEffect()` |
+/// | `CannotActivateSpells` | `EFFECT_CANNOT_ACTIVATE` | spell-card activations |
+/// | `CannotActivateTraps` | `EFFECT_CANNOT_ACTIVATE` | trap-card activations |
+/// | `CannotActivate` | `EFFECT_CANNOT_ACTIVATE` | `SetValue(1)` (everything) |
+/// | `CannotConductBattlePhase` | `EFFECT_CANNOT_BP` | — |
+/// | `SkipBattlePhase` | `EFFECT_SKIP_BP` | — |
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PlayerRestriction {
+    CannotSpecialSummon,
+    CannotNormalSummon,
+    CannotSetMonsters,
+    CannotSetSpellsTraps,
+    CannotActivateSpellsTraps,
+    CannotActivateMonsterEffects,
+    CannotActivateSpells,
+    CannotActivateTraps,
+    CannotActivate,
+    CannotConductBattlePhase,
+    SkipBattlePhase,
+}
+
 // ── Runtime Abstraction ───────────────────────────────────────
 
 /// Trait that engines implement to expose game state and operations
@@ -864,6 +901,38 @@ pub trait DuelScriptRuntime {
     /// # Default
     /// No-op.
     fn take_control(&mut self, _card_id: u32, _new_controller: u8, _duration: Duration) {}
+
+    // ── T36: Player-scoped restriction ───────────────────────
+
+    /// Register a player-scoped restriction on `player` (T36).
+    ///
+    /// Unlike `register_grant` (card-scoped — restricts what a CARD may do),
+    /// this restricts what a PLAYER may do: special summoning, activating
+    /// cards/effects, conducting the Battle Phase, etc. Engine side this is a
+    /// resolve-time `EFFECT_TYPE_FIELD` + `EFFECT_FLAG_PLAYER_TARGET`
+    /// registration whose target range names `player`, with the reset derived
+    /// from `duration`. See [`PlayerRestriction`] for the code/filter table.
+    ///
+    /// The compiler resolves the DSL's relative `player_scope` (`you` /
+    /// `opponent` / `both_players`) to absolute player indices before calling
+    /// — `both_players` arrives as two calls, one per player (matching
+    /// `take_control` / `damage` house style of absolute indices on the
+    /// trait surface).
+    ///
+    /// **ygobeetle mirror obligation:** new trait method — engine-dev must
+    /// mirror this on `YgobeetleRuntimeAdapter` (companion repo), mapping
+    /// each variant to its `EFFECT_CANNOT_*` / `EFFECT_SKIP_BP` registration.
+    ///
+    /// # Args
+    /// - `player`: 0 or 1 — the absolute player index being restricted.
+    /// - `restriction`: which action class is forbidden.
+    /// - `duration`: when the restriction expires. `Duration::Permanently`
+    ///   is the opt-out (no reset; restriction persists), consistent with
+    ///   the omitted-duration default on every other duration-bearing action.
+    ///
+    /// # Default
+    /// No-op.
+    fn restrict_player(&mut self, _player: u8, _restriction: PlayerRestriction, _duration: Duration) {}
 
     // ── Sprint 67: Token creation ────────────────────────────
 

@@ -710,6 +710,14 @@ fn format_action(a: &Action, out: &mut String, indent: usize) {
             }
             writeln!(out, "{}", s).unwrap();
         }
+        Action::Restrict { scope, restriction, duration } => {
+            let mut s = format!("{}restrict {} {}", pad,
+                format_player_scope(scope), format_player_restriction(restriction));
+            if let Some(d) = duration {
+                s.push_str(&format!(" {}", format_duration(d)));
+            }
+            writeln!(out, "{}", s).unwrap();
+        }
         Action::If { condition, then, otherwise } => {
             writeln!(out, "{}if ({}) {{", pad, format_condition(condition)).unwrap();
             for a in then {
@@ -1292,6 +1300,30 @@ fn format_grant_ability(g: &GrantAbility) -> String {
 
 // ── Duration ──────────────────────────────────────────────────
 
+fn format_player_scope(s: &PlayerScope) -> &'static str {
+    match s {
+        PlayerScope::You         => "you",
+        PlayerScope::Opponent    => "opponent",
+        PlayerScope::BothPlayers => "both_players",
+    }
+}
+
+fn format_player_restriction(r: &PlayerRestriction) -> &'static str {
+    match r {
+        PlayerRestriction::CannotSpecialSummon          => "cannot_special_summon",
+        PlayerRestriction::CannotNormalSummon           => "cannot_normal_summon",
+        PlayerRestriction::CannotSetMonsters            => "cannot_set_monsters",
+        PlayerRestriction::CannotSetSpellsTraps         => "cannot_set_spells_traps",
+        PlayerRestriction::CannotActivateSpellsTraps    => "cannot_activate_spells_traps",
+        PlayerRestriction::CannotActivateMonsterEffects => "cannot_activate_monster_effects",
+        PlayerRestriction::CannotActivateSpells         => "cannot_activate_spells",
+        PlayerRestriction::CannotActivateTraps          => "cannot_activate_traps",
+        PlayerRestriction::CannotActivate               => "cannot_activate",
+        PlayerRestriction::CannotConductBattlePhase     => "cannot_conduct_battle_phase",
+        PlayerRestriction::SkipBattlePhase              => "skip_battle_phase",
+    }
+}
+
 fn format_duration(d: &Duration) -> String {
     match d {
         Duration::ThisTurn => "this_turn".to_string(),
@@ -1605,6 +1637,46 @@ card "Equip Receiver Test" {
         let reparsed = parse_v2(&formatted)
             .unwrap_or_else(|e| panic!("roundtrip failed:\n{}\n{}", formatted, e));
         assert_eq!(reparsed.cards[0].effects[0].resolve.len(), 4);
+    }
+
+    #[test]
+    fn test_restrict_action_roundtrips() {
+        // T36: every player_restriction keyword and every scope survive the
+        // parse -> format -> reparse fixed point.
+        let source = r#"
+card "Restrict Roundtrip Test" {
+    id: 1
+    type: Normal Trap
+
+    effect "Lockdown" {
+        speed: 2
+        mandatory
+        resolve {
+            restrict you cannot_special_summon this_turn
+            restrict opponent cannot_normal_summon end_of_turn
+            restrict you cannot_set_monsters this_turn
+            restrict opponent cannot_set_spells_traps this_turn
+            restrict both_players cannot_activate_spells_traps end_of_turn
+            restrict opponent cannot_activate_monster_effects this_turn
+            restrict opponent cannot_activate_spells this_turn
+            restrict opponent cannot_activate_traps this_turn
+            restrict both_players cannot_activate
+            restrict opponent cannot_conduct_battle_phase this_turn
+            restrict you skip_battle_phase 2_turns
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let formatted = format_file(&file);
+        assert!(formatted.contains("restrict you cannot_special_summon this_turn"),
+            "missing restrict line in:\n{}", formatted);
+        assert!(formatted.contains("restrict both_players cannot_activate\n"),
+            "duration-less restrict mis-rendered in:\n{}", formatted);
+        let reparsed = parse_v2(&formatted)
+            .unwrap_or_else(|e| panic!("roundtrip failed:\n{}\n{}", formatted, e));
+        assert_eq!(reparsed.cards[0].effects[0].resolve.len(), 11);
+        assert_eq!(format_file(&reparsed), formatted, "fmt not a fixed point");
     }
 
     #[test] fn test_pot_of_greed_roundtrips() { roundtrip("cards/goat/pot_of_greed.ds"); }

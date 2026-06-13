@@ -11,7 +11,7 @@
 use std::sync::Arc;
 use super::ast::*;
 use super::constants as tm;
-use super::runtime::{DamageType, Duration as RuntimeDuration, DuelScriptRuntime, CardFilter as RuntimeCardFilter, Stat, TokenSpec};
+use super::runtime::{DamageType, Duration as RuntimeDuration, DuelScriptRuntime, CardFilter as RuntimeCardFilter, PlayerRestriction as RuntimePlayerRestriction, Stat, TokenSpec};
 
 // ── Output Types ────────────────────────────────────────────
 
@@ -416,6 +416,22 @@ fn ast_duration_to_runtime(d: &Duration) -> RuntimeDuration {
         Duration::WhileFaceUp      => RuntimeDuration::WhileFaceUp,
         Duration::WhileEquipped    => RuntimeDuration::WhileEquipped,
         Duration::NTurns(n)        => RuntimeDuration::NTurns(*n),
+    }
+}
+
+fn ast_player_restriction_to_runtime(r: &PlayerRestriction) -> RuntimePlayerRestriction {
+    match r {
+        PlayerRestriction::CannotSpecialSummon          => RuntimePlayerRestriction::CannotSpecialSummon,
+        PlayerRestriction::CannotNormalSummon           => RuntimePlayerRestriction::CannotNormalSummon,
+        PlayerRestriction::CannotSetMonsters            => RuntimePlayerRestriction::CannotSetMonsters,
+        PlayerRestriction::CannotSetSpellsTraps         => RuntimePlayerRestriction::CannotSetSpellsTraps,
+        PlayerRestriction::CannotActivateSpellsTraps    => RuntimePlayerRestriction::CannotActivateSpellsTraps,
+        PlayerRestriction::CannotActivateMonsterEffects => RuntimePlayerRestriction::CannotActivateMonsterEffects,
+        PlayerRestriction::CannotActivateSpells         => RuntimePlayerRestriction::CannotActivateSpells,
+        PlayerRestriction::CannotActivateTraps          => RuntimePlayerRestriction::CannotActivateTraps,
+        PlayerRestriction::CannotActivate               => RuntimePlayerRestriction::CannotActivate,
+        PlayerRestriction::CannotConductBattlePhase     => RuntimePlayerRestriction::CannotConductBattlePhase,
+        PlayerRestriction::SkipBattlePhase              => RuntimePlayerRestriction::SkipBattlePhase,
     }
 }
 
@@ -883,6 +899,7 @@ fn action_category(action: &Action) -> u32 {
         Action::Then(actions) | Action::Also(actions) | Action::AndIfYouDo(actions)
             => categories_from_actions(actions),
         Action::Grant(_, _, _)         => 0,
+        Action::Restrict { .. }        => 0,
         // Compound actions handled separately above or not categorised
         Action::ForEach { body, .. }   => categories_from_actions(body),
         Action::Delayed { body, .. }   => categories_from_actions(body),
@@ -2343,6 +2360,24 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
                 rt.register_grant(card_id, grant_code, dur_code);
             }
         }
+        Action::Restrict { scope, restriction, duration } => {
+            // T36: resolve the relative player scope to absolute indices
+            // (house style — see `player_who_to_idx`); `both_players` becomes
+            // one call per player. `None` duration means "no duration clause"
+            // -> Permanently, consistent with TakeControl / ModifyStat.
+            let rt_restriction = ast_player_restriction_to_runtime(restriction);
+            let rt_duration = duration.as_ref()
+                .map(ast_duration_to_runtime)
+                .unwrap_or(RuntimeDuration::Permanently);
+            let players: &[u8] = match scope {
+                PlayerScope::You         => &[player],
+                PlayerScope::Opponent    => &[1 - player],
+                PlayerScope::BothPlayers => &[player, 1 - player],
+            };
+            for &idx in players {
+                rt.restrict_player(idx, rt_restriction, rt_duration);
+            }
+        }
         Action::If { condition, then, otherwise } => {
             if eval_v2_condition(condition, rt) {
                 for a in then { execute_v2_action(a, rt, player); }
@@ -3033,6 +3068,49 @@ card "Level Changer" {
         }
         let log = rt.dump_calls();
         assert!(log.contains("ritual_summon"), "Expected ritual_summon, got: {}", log);
+    }
+
+    #[test]
+    fn test_restrict_action_compiles_and_executes() {
+        use super::super::mock_runtime::MockRuntime;
+        // T36: relative scope resolves to absolute player indices at execute
+        // time (you=activating player, opponent=1-player, both=two calls);
+        // omitted duration defaults to Permanently.
+        let source = r#"
+card "Restrict Compile Test" {
+    id: 30001
+    type: Normal Trap
+
+    effect "Lockdown" {
+        speed: 2
+        mandatory
+        resolve {
+            restrict you cannot_special_summon this_turn
+            restrict opponent cannot_activate_spells_traps end_of_turn
+            restrict both_players cannot_conduct_battle_phase
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        assert_eq!(compiled.effects.len(), 1);
+        let mut rt = MockRuntime::new();
+        rt.effect_card_id = 30001;
+        rt.effect_player = 0;
+        (compiled.effects[0].operation.as_ref().unwrap())(&mut rt);
+        assert!(rt.was_called_with("restrict_player",
+            "player=0 restriction=CannotSpecialSummon dur=ThisTurn"),
+            "you-scope call missing; calls: {}", rt.dump_calls());
+        assert!(rt.was_called_with("restrict_player",
+            "player=1 restriction=CannotActivateSpellsTraps dur=EndOfTurn"),
+            "opponent-scope call missing; calls: {}", rt.dump_calls());
+        assert!(rt.was_called_with("restrict_player",
+            "player=0 restriction=CannotConductBattlePhase dur=Permanently"),
+            "both_players you-side call missing; calls: {}", rt.dump_calls());
+        assert!(rt.was_called_with("restrict_player",
+            "player=1 restriction=CannotConductBattlePhase dur=Permanently"),
+            "both_players opponent-side call missing; calls: {}", rt.dump_calls());
     }
 
     #[test]
