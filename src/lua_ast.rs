@@ -4591,7 +4591,7 @@ fn translate_equip_chain(
     }
     let has_equip_producer = body.calls.iter().any(|c| {
         c.method == "Duel.Equip"
-            && matches!(action_equip(&c.args, &body.group_bindings), DslLine::Action(_))
+            && matches!(action_equip(&c.args, &body.group_bindings, body), DslLine::Action(_))
     });
     if !has_equip_producer { return None; }
     let dur = if chain.reset.as_deref().is_some_and(|r| r.contains("PHASE_END")) {
@@ -5517,7 +5517,7 @@ fn translate_call(c: &DuelCall, body: &FunctionBody) -> Option<DslLine> {
         // Duel.Equip(player, equipper, target, ...) — equip self/target to
         // another card. DSL: `equip <eq> to <target>`. We only handle the
         // common shape `Duel.Equip(tp, c, target, ...)` → equip self to target.
-        "Duel.Equip" => Some(action_equip(a, bindings)),
+        "Duel.Equip" => Some(action_equip(a, bindings, body)),
 
         // Duel.GetControl(targets, player[, reset, count, zone]) — control
         // change (Phase 17). Permanent take-to-you with a resolvable
@@ -5528,7 +5528,7 @@ fn translate_call(c: &DuelCall, body: &FunctionBody) -> Option<DslLine> {
         // Duel.Overlay(xyz_target, materials, [send_overlay]) — attach
         // materials as Xyz Materials to the target. DSL: `attach <materials>
         // to <target> as_material`. T33 translator extension.
-        "Duel.Overlay" => Some(action_overlay(a, bindings)),
+        "Duel.Overlay" => Some(action_overlay(a, bindings, body)),
 
         // Duel.SSet(player, target) — set spell/trap face-down on field.
         // The card arg is position 1 (position 0 is the player).
@@ -5678,35 +5678,46 @@ fn group_arg(args: &[String], idx: usize, body: &FunctionBody) -> Option<String>
     if let Some(spec) = body.group_bindings.get(base) {
         return Some(spec.to_dsl());
     }
-    // Inline declared-target fetch consumed directly by the action.
-    if raw.starts_with("Duel.GetFirstTarget(") || raw.starts_with("Duel.GetTargetCards(") {
-        return Some("target".to_string());
-    }
-    // Local single-assigned from a declared-target fetch (taint logic in
-    // `extract_value_bindings` drops reassigned names).
-    if body
-        .value_bindings
-        .get(base)
-        .is_some_and(|rhs| {
-            rhs.starts_with("Duel.GetFirstTarget(") || rhs.starts_with("Duel.GetTargetCards(")
-        })
-    {
+    // Declared-target fetch, inline or via a single-assigned local.
+    if is_declared_target(raw, body) {
         return Some("target".to_string());
     }
     None
 }
 
+/// True when the argument (or the single-assigned local it names)
+/// demonstrably holds the effect's DECLARED targets — an inline
+/// `Duel.GetFirstTarget` / `Duel.GetTargetCards` fetch, or a local bound
+/// to one (taint logic in `extract_value_bindings` drops reassigned
+/// names). Variable NAMES like `tc` carry no provenance: a `tc` fed from
+/// `SelectMatchingCard` or `GetFirstCardTarget` is not the declared target.
+fn is_declared_target(raw: &str, body: &FunctionBody) -> bool {
+    let base = raw.split([':', '.']).next().unwrap_or(raw).trim();
+    raw.starts_with("Duel.GetFirstTarget(")
+        || raw.starts_with("Duel.GetTargetCards(")
+        || body.value_bindings.get(base).is_some_and(|rhs| {
+            rhs.starts_with("Duel.GetFirstTarget(") || rhs.starts_with("Duel.GetTargetCards(")
+        })
+}
+
 /// `Duel.Overlay(xyz_target, materials, [send_overlay])` → `attach <mat> to <xyz> as_material`.
 ///
 /// Argument resolution per side:
-///   - literal `c`  → `self`   (the host card)
-///   - literal `tc` → `target` (first selected target via Duel.GetFirstTarget)
+///   - literal `c` / `e:GetHandler()` → `self` (the host card)
+///   - declared-target provenance (`is_declared_target`) → `target`
 ///   - any other bare ident → look up in group bindings, use captured spec
 ///   - else → emit a TODO line (unresolvable selector)
-fn action_overlay(args: &[String], bindings: &BTreeMap<String, SelectorSpec>) -> DslLine {
+fn action_overlay(
+    args: &[String],
+    bindings: &BTreeMap<String, SelectorSpec>,
+    body: &FunctionBody,
+) -> DslLine {
     let target_raw = args.first().map(String::as_str).unwrap_or("");
     let materials_raw = args.get(1).map(String::as_str).unwrap_or("");
-    match (xyz_arg_to_dsl(target_raw, bindings), xyz_arg_to_dsl(materials_raw, bindings)) {
+    match (
+        xyz_arg_to_dsl(target_raw, bindings, body),
+        xyz_arg_to_dsl(materials_raw, bindings, body),
+    ) {
         (Some(target), Some(materials)) => {
             DslLine::Action(format!("attach {} to {} as_material", materials, target))
         }
@@ -5718,16 +5729,25 @@ fn action_overlay(args: &[String], bindings: &BTreeMap<String, SelectorSpec>) ->
 }
 
 /// Resolve a single Duel.Overlay argument to a DSL selector expression.
-/// Returns None when the argument is neither a known sentinel (`c`/`tc`)
-/// nor a tracked group binding — caller emits a TODO in that case.
-fn xyz_arg_to_dsl(raw: &str, bindings: &BTreeMap<String, SelectorSpec>) -> Option<String> {
+/// Returns None when the argument is neither the host card, a tracked
+/// group binding, nor a declared-target fetch — caller emits a TODO.
+fn xyz_arg_to_dsl(
+    raw: &str,
+    bindings: &BTreeMap<String, SelectorSpec>,
+    body: &FunctionBody,
+) -> Option<String> {
     let raw = raw.trim();
     let base = raw.split(|ch| ch == ':' || ch == '.').next().unwrap_or(raw);
-    match base {
-        "c" => Some("self".to_string()),
-        "tc" => Some("target".to_string()),
-        other => bindings.get(other).map(|s| s.to_dsl()),
+    if base == "c" || raw == "e:GetHandler()" {
+        return Some("self".to_string());
     }
+    if let Some(spec) = bindings.get(base) {
+        return Some(spec.to_dsl());
+    }
+    if is_declared_target(raw, body) {
+        return Some("target".to_string());
+    }
+    None
 }
 
 /// `Duel.Equip(player, eq, tar, ...)` → `equip self to target` for the
@@ -5738,21 +5758,30 @@ fn xyz_arg_to_dsl(raw: &str, bindings: &BTreeMap<String, SelectorSpec>) -> Optio
 /// (`Duel.SelectMatchingCard` provenance), the selection folds into the
 /// recipient selector instead of the bare `target` placeholder — a
 /// resolve-time pick is NOT the declared target.
-fn action_equip(args: &[String], bindings: &BTreeMap<String, SelectorSpec>) -> DslLine {
+fn action_equip(
+    args: &[String],
+    bindings: &BTreeMap<String, SelectorSpec>,
+    body: &FunctionBody,
+) -> DslLine {
     let eq = args.get(1).map(String::as_str).unwrap_or("");
     let tar = args.get(2).map(String::as_str).unwrap_or("");
-    // `c`   = the card itself (most common)
-    // `eqc` = local bound via `local eqc = e:GetLabelObject()` — equip card self-ref
-    // `ec`  = same pattern with a different variable name
-    // All three refer to the equip spell card executing this effect.
-    let eq_is_self = eq == "c" || eq == "eqc" || eq == "ec";
+    // The equip card is "self" only with provenance: the literal host card,
+    // or a local bound to `e:GetLabelObject()` (Phase 9 equip-spell
+    // self-ref pattern). A variable NAME like `ec` proves nothing — an `ec`
+    // fed from `SelectMatchingCard` is a different card entirely.
+    let eq_is_self = eq == "c"
+        || eq == "e:GetHandler()"
+        || body
+            .value_bindings
+            .get(eq)
+            .is_some_and(|rhs| rhs.starts_with("e:GetLabelObject("));
     if eq_is_self {
         let tar_base = tar.split([':', '.']).next().unwrap_or(tar).trim();
         if let Some(spec) = bindings.get(tar_base) {
             if spec.quantity == "1" {
                 return DslLine::Action(format!("equip self to {}", spec.to_dsl()));
             }
-        } else if tar == "tc" || tar == "g" || tar == "g:GetFirst()" {
+        } else if is_declared_target(tar, body) {
             return DslLine::Action("equip self to target".to_string());
         }
     }
@@ -5953,30 +5982,52 @@ mod tests {
 
     #[test]
     fn translate_duel_overlay_self_target() {
-        // Duel.Overlay(c, tc, true) — attach first target to host as material.
-        let calls = vec![
-            DuelCall {
+        // Duel.Overlay(c, tc, true) with `tc = Duel.GetFirstTarget()` —
+        // attach first target to host as material.
+        let body = FunctionBody {
+            calls: vec![DuelCall {
                 method: "Duel.Overlay".to_string(),
                 args: vec!["c".into(), "tc".into(), "true".into()],
-            },
-        ];
-        let lines = translate_calls(&calls);
+            }],
+            value_bindings: BTreeMap::from([
+                ("tc".to_string(), "Duel.GetFirstTarget()".to_string()),
+            ]),
+            ..FunctionBody::default()
+        };
+        let lines = translate_body(&body);
         assert!(matches!(&lines[0], DslLine::Action(s) if s == "attach target to self as_material"));
     }
 
     #[test]
     fn translate_duel_overlay_target_to_target() {
-        // Duel.Overlay(sc, tc) where neither side is c — fall back to "target"
-        // for sc (unknown binding) which is the sentinel behaviour we expect
-        // when the recipient binding is `tc` itself; here both are sentinels.
-        let calls = vec![
-            DuelCall {
+        // Duel.Overlay(tc, c) with declared-target provenance on tc —
+        // attach self to the targeted Xyz monster.
+        let body = FunctionBody {
+            calls: vec![DuelCall {
                 method: "Duel.Overlay".to_string(),
                 args: vec!["tc".into(), "c".into()],
-            },
-        ];
-        let lines = translate_calls(&calls);
+            }],
+            value_bindings: BTreeMap::from([
+                ("tc".to_string(), "Duel.GetFirstTarget()".to_string()),
+            ]),
+            ..FunctionBody::default()
+        };
+        let lines = translate_body(&body);
         assert!(matches!(&lines[0], DslLine::Action(s) if s == "attach self to target as_material"));
+    }
+
+    #[test]
+    fn translate_duel_overlay_name_alone_carries_no_provenance() {
+        // Bare `tc` with no tracked assignment must NOT become `target`:
+        // a `tc` fed from `c:GetFirstCardTarget()` (continuous card target)
+        // is not the chain's declared target.
+        let calls = vec![DuelCall {
+            method: "Duel.Overlay".to_string(),
+            args: vec!["tc".into(), "c".into()],
+        }];
+        let lines = translate_calls(&calls);
+        assert!(matches!(&lines[0], DslLine::Todo(_)),
+            "unproven overlay dest should emit a TODO; got {:?}", lines[0]);
     }
 
     #[test]
@@ -8017,32 +8068,38 @@ end
     #[test]
     fn phase9_equip_self_via_label_object() {
         // Equip cards often bind `local eqc = e:GetLabelObject()` and then
-        // call `Duel.Equip(tp, eqc, tc, ...)`.  This is still "equip self to target".
-        let calls = vec![
-            DuelCall {
+        // call `Duel.Equip(tp, eqc, tc, ...)` with `tc = Duel.GetFirstTarget()`.
+        // With both provenances tracked this is "equip self to target".
+        let body = FunctionBody {
+            calls: vec![DuelCall {
                 method: "Duel.Equip".to_string(),
                 args: vec!["tp".into(), "eqc".into(), "tc".into(), "0".into()],
-            },
-        ];
-        let lines = translate_calls(&calls);
+            }],
+            value_bindings: BTreeMap::from([
+                ("eqc".to_string(), "e:GetLabelObject()".to_string()),
+                ("tc".to_string(), "Duel.GetFirstTarget()".to_string()),
+            ]),
+            ..FunctionBody::default()
+        };
+        let lines = translate_body(&body);
         assert_eq!(lines.len(), 1);
         assert!(matches!(&lines[0], DslLine::Action(s) if s == "equip self to target"),
             "eqc self-ref should translate to 'equip self to target'; got {:?}", lines[0]);
     }
 
     #[test]
-    fn phase9_equip_self_via_ec_label_object() {
-        // Same pattern with variable name `ec`.
-        let calls = vec![
-            DuelCall {
-                method: "Duel.Equip".to_string(),
-                args: vec!["tp".into(), "ec".into(), "tc".into(), "0".into()],
-            },
-        ];
+    fn phase9_equip_name_alone_carries_no_provenance() {
+        // Bare `ec`/`tc` names with no tracked assignment must NOT emit the
+        // canonical line: an `ec` fed from SelectMatchingCard and a `tc` fed
+        // from GetFirstCardTarget are different cards than self/target.
+        let calls = vec![DuelCall {
+            method: "Duel.Equip".to_string(),
+            args: vec!["tp".into(), "ec".into(), "tc".into(), "0".into()],
+        }];
         let lines = translate_calls(&calls);
         assert_eq!(lines.len(), 1);
-        assert!(matches!(&lines[0], DslLine::Action(s) if s == "equip self to target"),
-            "ec self-ref should translate to 'equip self to target'; got {:?}", lines[0]);
+        assert!(matches!(&lines[0], DslLine::Todo(_)),
+            "unproven equip args should emit a TODO; got {:?}", lines[0]);
     }
 
     // ── Phase 11 tests — non-stat passive codes at resolve time ───────────
