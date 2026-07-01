@@ -82,6 +82,25 @@ pub struct FunctionBody {
     /// bound via `local tc = g:GetFirst()` to its source group binding
     /// `g`. Used to fold alias sets when counting selection consumers.
     pub select_sources: BTreeMap<String, String>,
+    /// The (cond, then-expr, else-expr) triple when the body is exactly
+    /// the guarded-value idiom (Phase 19): a sole
+    /// `if <cond> then return <A> else return <B> end` statement, or
+    /// `if <cond> then return <A> end` followed by a bare `return <B>`.
+    /// Damage-shaping `SetValue` guards use this shape
+    /// (`if (r&REASON_EFFECT)~=0 then return 0 else return val end`).
+    /// Multi-statement bodies (local bindings, side effects, elseif
+    /// arms) stay None — same conservatism as `return_expr`.
+    pub guarded_return: Option<GuardedReturn>,
+}
+
+/// A guarded-value function body (Phase 19): `if cond then return
+/// then_expr else return else_expr end` — with the else branch either
+/// an explicit `else` block or a trailing bare `return`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct GuardedReturn {
+    pub cond: String,
+    pub then_expr: String,
+    pub else_expr: String,
 }
 
 /// Parameter mapping for a select-then-equip helper function (Phase 17):
@@ -810,6 +829,7 @@ fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
             let register_chains = extract_register_chains(body_block);
             let value_bindings = extract_value_bindings(body_block);
             let return_expr = extract_return_expr(body_block);
+            let guarded_return = extract_guarded_return(body_block);
             let counter_ops = extract_counter_ops(body_block);
             let (inline_options, choice_arms) = extract_choice_arms(body_block);
             let helper_calls = extract_helper_calls(body_block);
@@ -824,6 +844,7 @@ fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
                 || return_expr.is_some() || !counter_ops.is_empty()
                 || select_option.is_some() || !choice_arms.is_empty()
                 || !helper_calls.is_empty() || equip_helper.is_some()
+                || guarded_return.is_some()
             {
                 report.functions.insert(name, FunctionBody {
                     calls,
@@ -831,6 +852,7 @@ fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
                     register_chains,
                     value_bindings,
                     return_expr,
+                    guarded_return,
                     counter_ops,
                     select_option,
                     choice_arms,
@@ -2045,17 +2067,47 @@ fn extract_return_expr(block: &Block) -> Option<String> {
     // require alias substitution we don't do here.
     if block.stmts().next().is_some() { return None; }
     match block.last_stmt()? {
-        LastStmt::Return(ret) => {
-            let mut iter = ret.returns().iter();
-            let expr = iter.next()?;
-            if iter.next().is_some() { return None; } // multi-value return
-            let text = expr.to_string();
-            let text = text.trim();
-            if text.is_empty() { return None; }
-            Some(text.to_string())
-        }
+        LastStmt::Return(ret) => single_return_value(ret),
         _ => None,
     }
+}
+
+/// The single returned expression of a `return <expr>` statement — None
+/// for the bare `return` and multi-value returns.
+fn single_return_value(ret: &ast::Return) -> Option<String> {
+    let mut iter = ret.returns().iter();
+    let expr = iter.next()?;
+    if iter.next().is_some() { return None; } // multi-value return
+    let text = expr.to_string();
+    let text = text.trim();
+    if text.is_empty() { return None; }
+    Some(text.to_string())
+}
+
+/// Extract the guarded-value idiom (Phase 19): a body that is exactly
+/// `if <cond> then return <A> else return <B> end` (sole statement, no
+/// elseif arms, nothing after) or `if <cond> then return <A> end`
+/// followed by a bare trailing `return <B>`. Anything else — local
+/// bindings, side-effect statements, elseif arms, unreachable trailing
+/// code after a closed if/else — returns None.
+fn extract_guarded_return(block: &Block) -> Option<GuardedReturn> {
+    let mut stmts = block.stmts();
+    let Stmt::If(if_stmt) = stmts.next()? else { return None };
+    if stmts.next().is_some() { return None; }
+    if if_stmt.else_if().is_some_and(|eis| eis.len() > 0) { return None; }
+    let then_expr = extract_return_expr(if_stmt.block())?;
+    let else_expr = match (if_stmt.else_block(), block.last_stmt()) {
+        // `if C then return A else return B end`
+        (Some(else_block), None) => extract_return_expr(else_block)?,
+        // `if C then return A end return B`
+        (None, Some(LastStmt::Return(ret))) => single_return_value(ret)?,
+        _ => return None,
+    };
+    Some(GuardedReturn {
+        cond: if_stmt.condition().to_string().trim().to_string(),
+        then_expr,
+        else_expr,
+    })
 }
 
 // ── Phase 7: cost block extraction ───────────────────────────────────────
@@ -4175,6 +4227,9 @@ fn translate_register_chain(
         if let Some(line) = translate_player_restrict_chain(code, chain, functions) {
             return vec![line];
         }
+        if let Some(line) = translate_damage_rule_chain(code, chain, functions) {
+            return vec![line];
+        }
         if let Some(trigger) = trigger_for_event_code(code) {
             return translate_install_watcher_chain(trigger, chain, functions)
                 .into_iter()
@@ -4950,6 +5005,269 @@ fn classify_activate_expr(expr: &str, eff: &str) -> Option<&'static str> {
         (true,  false, false, true)  => Some("cannot_activate_traps"),
         _ => None,
     }
+}
+
+/// Player-scoped damage-shaping chain (Phase 19, T37):
+/// `EFFECT_TYPE_FIELD + SetTargetRange(<player flags>) + SetCode(<damage
+/// code>) + standard reset + Duel.RegisterEffect(eN, tp)` →
+/// `damage_rule <you|opponent|both_players> <keyword> <duration>`.
+///
+/// Inverts the T37 `DamageRule` doc table exactly:
+///   - EFFECT_CHANGE_DAMAGE: `SetValue(0)` → `no_damage`; a
+///     REASON_EFFECT→0 guard fn → `no_effect_damage`; a REASON_EFFECT→
+///     val/2 guard fn → `halve_effect_damage`;
+///   - EFFECT_AVOID_BATTLE_DAMAGE: no value or the literal flag `1` →
+///     `no_battle_damage`;
+///   - EFFECT_CHANGE_BATTLE_DAMAGE: `SetValue(HALF_DAMAGE)` →
+///     `halve_battle_damage`, `SetValue(DOUBLE_DAMAGE)` →
+///     `double_battle_damage`;
+///   - EFFECT_REVERSE_DAMAGE: flag `1`/none → `reverse_damage`, a
+///     boolean REASON_EFFECT guard → `reverse_effect_damage`;
+///   - EFFECT_REFLECT_DAMAGE: the `(r&REASON_EFFECT)~=0 and rp==1-tp`
+///     guard → `reflect_effect_damage`;
+///   - EFFECT_REFLECT_BATTLE_DAMAGE: flag `1`/none →
+///     `reflect_battle_damage`.
+/// The no-value spelling is accepted wherever the doc table says flag
+/// `1`: the engine treats an absent value as unconditionally-applies,
+/// and the corpus majority shape for AVOID/REFLECT_BATTLE omits it.
+///
+/// Skip gates (None) — skip-not-mis-emit, all confirmed corpus
+/// sub-shapes; the chain-shape gates mirror the Phase 18 restrict path:
+///   - guard bodies outside `classify_damage_guard`'s closed set:
+///     chain-id "that damage" shapes (Duel.GetCurrentChain /
+///     CHAININFO_CHAIN_ID label matching), owner/responsible-player
+///     qualifiers (`rp~=e:GetOwnerPlayer()`), flag/counter side
+///     effects, unguarded halves (`return math.floor(val/2)` halves
+///     ALL damage — no T37 keyword), doubles, race/attribute limits;
+///   - arbitrary multipliers and fixed replacement values
+///     (`SetValue(400)`, `GetLP()/2`, `aux.ChangeBattleDamage(...)`);
+///   - card-scoped LOCATION masks in SetTargetRange (player flags
+///     only), registration to any player expr other than the literal
+///     `tp`, card-registered chains, group-applied chains, choice arms;
+///   - SetCondition / SetOperation closures, SetTarget filters;
+///   - non-standard resets: turn-qualified (RESET_SELF_TURN /
+///     RESET_OPPO_TURN), reset counts above 1, missing resets.
+fn translate_damage_rule_chain(
+    code: &str,
+    chain: &RegisterEffectChain,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Option<DslLine> {
+    if !chain.duel_registered || chain.multi_target || chain.in_choice_arm {
+        return None;
+    }
+    if chain.register_target.trim() != "tp" {
+        return None;
+    }
+    if chain.condition.is_some() || chain.operation.is_some() {
+        return None;
+    }
+    if chain.set_target.is_some() {
+        return None; // affected-card filter — not a plain player rule
+    }
+    let dur = reset_to_duration_kw(chain.reset.as_deref())?;
+    let reset = chain.reset.as_deref().unwrap_or("");
+    if reset.contains("RESET_SELF_TURN") || reset.contains("RESET_OPPO_TURN") {
+        return None; // turn-qualified phase reset ≠ end of CURRENT turn
+    }
+    if chain.reset_count.as_deref().is_some_and(|c| c.trim() != "1") {
+        return None; // survives N reset events — two-turn lifetime
+    }
+    let scope = player_scope_from_range(chain.target_range.as_deref()?)?;
+    let value = chain.value.as_deref().map(str::trim);
+    let keyword = match code {
+        "EFFECT_CHANGE_DAMAGE" => match value? {
+            "0" => "no_damage",
+            v => match classify_damage_guard(v, functions)? {
+                DamageGuard::EffectToZero => "no_effect_damage",
+                DamageGuard::EffectHalve => "halve_effect_damage",
+                _ => return None,
+            },
+        },
+        "EFFECT_AVOID_BATTLE_DAMAGE" => match value {
+            None | Some("1") => "no_battle_damage",
+            Some(_) => return None,
+        },
+        "EFFECT_CHANGE_BATTLE_DAMAGE" => match value? {
+            "HALF_DAMAGE" => "halve_battle_damage",
+            "DOUBLE_DAMAGE" => "double_battle_damage",
+            _ => return None,
+        },
+        "EFFECT_REVERSE_DAMAGE" => match value {
+            None | Some("1") => "reverse_damage",
+            Some(v) => match classify_damage_guard(v, functions)? {
+                DamageGuard::EffectFlag => "reverse_effect_damage",
+                _ => return None,
+            },
+        },
+        "EFFECT_REFLECT_DAMAGE" => match classify_damage_guard(value?, functions)? {
+            DamageGuard::EffectFromOpponentFlag => "reflect_effect_damage",
+            _ => return None,
+        },
+        "EFFECT_REFLECT_BATTLE_DAMAGE" => match value {
+            None | Some("1") => "reflect_battle_damage",
+            Some(_) => return None,
+        },
+        _ => return None,
+    };
+    Some(DslLine::Action(format!("damage_rule {} {} {}", scope, keyword, dur)))
+}
+
+/// The closed set of damage-shaping `SetValue` guard shapes Phase 19
+/// classifies. Which shapes are legal for which code is decided by the
+/// caller (an EffectFlag on EFFECT_REFLECT_DAMAGE is NOT
+/// reflect_effect_damage — the doc-table shape needs the rp conjunct).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum DamageGuard {
+    /// Value guard: REASON_EFFECT damage → `0`, everything else passes.
+    EffectToZero,
+    /// Value guard: REASON_EFFECT damage → `val/2` (floored or not),
+    /// everything else passes.
+    EffectHalve,
+    /// Boolean guard: `(r&REASON_EFFECT)~=0` alone.
+    EffectFlag,
+    /// Boolean guard: `(r&REASON_EFFECT)~=0 and rp==1-tp` — effect
+    /// damage the OPPONENT inflicts.
+    EffectFromOpponentFlag,
+}
+
+/// Classify a damage-shaping `SetValue` argument into a `DamageGuard`.
+/// Accepted carriers:
+///   - inline `function(<params>) return <expr> end` closures — the
+///     value/reason/responsible-player params are positional 3/4/5 by
+///     the `(e,re,val,r,rp,rc)` corpus convention;
+///   - named `s.*` value fns resolved through the walk's function
+///     table, as either a single `return <expr>` body or the Phase 19
+///     guarded-return idiom. Param names aren't recorded, so the
+///     conventional spellings are tried: reason `r`, value `val` then
+///     `dam` (guard and pass-through occurrences must match uniformly,
+///     so a mis-bound name can't slip through).
+/// Multi-statement bodies (the chain-id CHAININFO shapes, flag/counter
+/// side effects) have neither `return_expr` nor `guarded_return` and
+/// drop out here.
+fn classify_damage_guard(
+    value: &str,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Option<DamageGuard> {
+    if let Some((params, expr)) = damage_guard_closure_body(value) {
+        let val = params.get(2).map(String::as_str).unwrap_or("");
+        let r = params.get(3).map(String::as_str).unwrap_or("");
+        let rp = params.get(4).map(String::as_str).unwrap_or("");
+        return classify_damage_guard_expr(&expr, val, r, rp);
+    }
+    let body = functions.get(value)?;
+    let classify = |val: &str| {
+        if let Some(expr) = body.return_expr.as_deref() {
+            return classify_damage_guard_expr(expr, val, "r", "rp");
+        }
+        let g = body.guarded_return.as_ref()?;
+        classify_guard_triple(&g.cond, &g.then_expr, &g.else_expr, val, "r")
+    };
+    classify("val").or_else(|| classify("dam"))
+}
+
+/// Extract the (params, return-expression) of an inline
+/// `function(<params>) return <expr> end` damage-value closure.
+/// Multi-statement closure bodies return None.
+fn damage_guard_closure_body(raw: &str) -> Option<(Vec<String>, String)> {
+    let r = raw.strip_prefix("function")?.trim_start();
+    let r = r.strip_prefix('(')?;
+    let (params, r) = r.split_once(')')?;
+    let params: Vec<String> = params.split(',').map(|p| p.trim().to_string()).collect();
+    let r = r.trim_start().strip_prefix("return")?;
+    let expr = r.trim().strip_suffix("end")?.trim().to_string();
+    if expr.is_empty() { return None; }
+    Some((params, expr))
+}
+
+/// Classify a single-expression damage guard. Two families:
+///   - the ternary value guard `<cond> and <A> or <B>` (lua's `0` is
+///     truthy, so `r&REASON_EFFECT~=0 and 0 or val` is sound) —
+///     delegated to `classify_guard_triple`;
+///   - a boolean guard: a conjunction of the effect-reason test and
+///     (optionally) the responsible-player-is-opponent test. Any other
+///     conjunct (`or`, attack-position checks, IsHasType predicates, …)
+///     fails the whole guard (skip-not-mis-emit).
+fn classify_damage_guard_expr(expr: &str, val: &str, r: &str, rp: &str) -> Option<DamageGuard> {
+    let normalized = expr.split_whitespace().collect::<Vec<_>>().join(" ");
+    if let Some((left, b)) = normalized.rsplit_once(" or ") {
+        let (cond, a) = left.split_once(" and ")?;
+        return classify_guard_triple(cond, a, b, val, r);
+    }
+    let mut effect = false;
+    let mut from_opponent = false;
+    for conjunct in normalized.split(" and ") {
+        let c = damage_guard_canon(conjunct);
+        if is_effect_reason_test(&c, r) {
+            effect = true;
+        } else if !rp.is_empty() && (c == format!("{}==1-tp", rp)
+            || c == format!("{}==1-e:GetHandlerPlayer", rp))
+        {
+            from_opponent = true;
+        } else {
+            return None;
+        }
+    }
+    match (effect, from_opponent) {
+        (true, false) => Some(DamageGuard::EffectFlag),
+        (true, true) => Some(DamageGuard::EffectFromOpponentFlag),
+        _ => None,
+    }
+}
+
+/// Classify a (cond, then, else) value-guard triple. The guarded branch
+/// is the one selected by the effect-reason test (either polarity); the
+/// pass-through branch must be exactly the value param. Guarded branch
+/// `0` → EffectToZero; a halving of the value param → EffectHalve.
+fn classify_guard_triple(
+    cond: &str,
+    then_expr: &str,
+    else_expr: &str,
+    val: &str,
+    r: &str,
+) -> Option<DamageGuard> {
+    let cond = damage_guard_canon(cond);
+    let (guarded, pass) = if is_effect_reason_test(&cond, r) {
+        (then_expr, else_expr)
+    } else if cond == format!("{}&REASON_EFFECT==0", r) {
+        (else_expr, then_expr)
+    } else {
+        return None;
+    };
+    let strip = |s: &str| s.chars().filter(|c| !c.is_whitespace()).collect::<String>();
+    let (guarded, pass) = (strip(guarded), strip(pass));
+    if pass != val {
+        return None;
+    }
+    if guarded == "0" {
+        return Some(DamageGuard::EffectToZero);
+    }
+    let halves = [
+        format!("{}/2", val),
+        format!("{}//2", val),
+        format!("math.floor({}/2)", val),
+        format!("math.floor({}//2)", val),
+    ];
+    if halves.contains(&guarded) {
+        return Some(DamageGuard::EffectHalve);
+    }
+    None
+}
+
+/// True when a canonicalized conjunct is the effect-reason band test:
+/// `r&REASON_EFFECT` compared `~=0` / `>0` / `==REASON_EFFECT`.
+fn is_effect_reason_test(canon: &str, r: &str) -> bool {
+    canon == format!("{}&REASON_EFFECT~=0", r)
+        || canon == format!("{}&REASON_EFFECT>0", r)
+        || canon == format!("{}&REASON_EFFECT==REASON_EFFECT", r)
+}
+
+/// Canonicalize a guard conjunct: drop whitespace and parentheses.
+/// Sound here because every accepted atom is call-free after the drop —
+/// `(r&REASON_EFFECT)~=0` and `rp==1-e:GetHandlerPlayer()` both
+/// canonicalize to fixed strings, while any expr whose parens carried
+/// call arguments can no longer equal an accepted atom.
+fn damage_guard_canon(s: &str) -> String {
+    s.chars().filter(|c| !c.is_whitespace() && *c != '(' && *c != ')').collect()
 }
 
 /// Decode a FIELD chain's `SetTargetRange` into a full DSL group
@@ -10339,14 +10657,17 @@ end
 
     #[test]
     fn p15_skip_damage_shaping_code() {
-        // EFFECT_AVOID_BATTLE_DAMAGE — damage-shaping family, no DSL form.
+        // EFFECT_AVOID_BATTLE_DAMAGE with an aux.ChangeBattleDamage-style
+        // helper value — a damage-shaping code the Phase 15 card-scoped
+        // path must not touch, and whose exotic value keeps it outside
+        // the Phase 19 damage_rule path too.
         let src = r#"
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
     local e1=Effect.CreateEffect(e:GetHandler())
     e1:SetType(EFFECT_TYPE_FIELD)
     e1:SetCode(EFFECT_AVOID_BATTLE_DAMAGE)
     e1:SetTargetRange(1,0)
-    e1:SetValue(1)
+    e1:SetValue(aux.ChangeBattleDamage(1,0))
     e1:SetReset(RESET_PHASE|PHASE_END)
     Duel.RegisterEffect(e1,tp)
 end
@@ -10864,6 +11185,406 @@ end
 "#;
         let actions = p11_actions(src, "s.activate");
         assert!(actions.is_empty(), "out-of-vocabulary code must skip, got {:?}", actions);
+    }
+
+    // ── Phase 19: damage-shaping chains → damage_rule ───────
+
+    #[test]
+    fn p19_damage_rule_no_damage_you() {
+        // The plainest shape: CHANGE_DAMAGE + SetValue(0) on the
+        // activating player — "you take no damage this turn".
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+    e1:SetCode(EFFECT_CHANGE_DAMAGE)
+    e1:SetTargetRange(1,0)
+    e1:SetValue(0)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["damage_rule you no_damage end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn p19_damage_rule_no_effect_damage_named_guard() {
+        // The dominant guard-fn shape: named value fn with the if/else
+        // REASON_EFFECT→0 body, resolved through guarded_return.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+    e1:SetCode(EFFECT_CHANGE_DAMAGE)
+    e1:SetTargetRange(1,0)
+    e1:SetValue(s.damval)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.damval(e,re,val,r,rp,rc)
+    if (r&REASON_EFFECT)~=0 then return 0 else return val end
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["damage_rule you no_effect_damage end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn p19_damage_rule_no_effect_damage_trailing_return_and_ternary() {
+        // Guard-body spelling variants: the `if … then return 0 end
+        // return dam` trailing-return form (with the `dam` param name),
+        // and the inverted single-expr ternary
+        // `(r&REASON_EFFECT)==0 and val or 0`.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CHANGE_DAMAGE)
+    e1:SetTargetRange(0,1)
+    e1:SetValue(s.damval)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+    local e2=Effect.CreateEffect(e:GetHandler())
+    e2:SetType(EFFECT_TYPE_FIELD)
+    e2:SetCode(EFFECT_CHANGE_DAMAGE)
+    e2:SetTargetRange(1,0)
+    e2:SetValue(s.damval2)
+    e2:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e2,tp)
+end
+function s.damval(e,re,dam,r,rp,rc)
+    if r&REASON_EFFECT~=0 then return 0 end
+    return dam
+end
+function s.damval2(e,re,val,r,rp,rc)
+    return (r&REASON_EFFECT)==0 and val or 0
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec![
+                "damage_rule opponent no_effect_damage end_of_turn",
+                "damage_rule you no_effect_damage end_of_turn",
+            ],
+        );
+    }
+
+    #[test]
+    fn p19_damage_rule_halve_effect_damage_guard() {
+        // REASON_EFFECT-guarded halving (floored spelling) →
+        // halve_effect_damage.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CHANGE_DAMAGE)
+    e1:SetTargetRange(1,0)
+    e1:SetValue(s.val)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.val(e,re,dam,r,rp,rc)
+    if r&REASON_EFFECT~=0 then return math.floor(dam/2) else return dam end
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["damage_rule you halve_effect_damage end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn p19_damage_rule_no_battle_damage_flag_spellings() {
+        // AVOID_BATTLE_DAMAGE with SetValue(1) and with no value are the
+        // same flag shape — both emit, each scope.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_AVOID_BATTLE_DAMAGE)
+    e1:SetTargetRange(1,0)
+    e1:SetValue(1)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+    local e2=Effect.CreateEffect(e:GetHandler())
+    e2:SetType(EFFECT_TYPE_FIELD)
+    e2:SetCode(EFFECT_AVOID_BATTLE_DAMAGE)
+    e2:SetTargetRange(1,1)
+    e2:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e2,tp)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec![
+                "damage_rule you no_battle_damage end_of_turn",
+                "damage_rule both_players no_battle_damage end_of_turn",
+            ],
+        );
+    }
+
+    #[test]
+    fn p19_damage_rule_halve_and_double_battle_damage() {
+        // CHANGE_BATTLE_DAMAGE keys on the two blessed constants.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CHANGE_BATTLE_DAMAGE)
+    e1:SetTargetRange(1,0)
+    e1:SetValue(HALF_DAMAGE)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+    local e2=Effect.CreateEffect(e:GetHandler())
+    e2:SetType(EFFECT_TYPE_FIELD)
+    e2:SetCode(EFFECT_CHANGE_BATTLE_DAMAGE)
+    e2:SetTargetRange(0,1)
+    e2:SetValue(DOUBLE_DAMAGE)
+    e2:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e2,tp)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec![
+                "damage_rule you halve_battle_damage end_of_turn",
+                "damage_rule opponent double_battle_damage end_of_turn",
+            ],
+        );
+    }
+
+    #[test]
+    fn p19_damage_rule_reverse_variants() {
+        // REVERSE_DAMAGE: flag 1 → reverse_damage; a boolean
+        // REASON_EFFECT guard (single-return named fn) →
+        // reverse_effect_damage.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_REVERSE_DAMAGE)
+    e1:SetTargetRange(1,0)
+    e1:SetValue(1)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+    local e2=Effect.CreateEffect(e:GetHandler())
+    e2:SetType(EFFECT_TYPE_FIELD)
+    e2:SetCode(EFFECT_REVERSE_DAMAGE)
+    e2:SetTargetRange(1,0)
+    e2:SetValue(s.rev)
+    e2:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e2,tp)
+end
+function s.rev(e,re,val,r,rp,rc)
+    return (r&REASON_EFFECT)~=0
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec![
+                "damage_rule you reverse_damage end_of_turn",
+                "damage_rule you reverse_effect_damage end_of_turn",
+            ],
+        );
+    }
+
+    #[test]
+    fn p19_damage_rule_reflect_effect_damage_rp_guard() {
+        // REFLECT_DAMAGE needs BOTH conjuncts of the doc-table guard:
+        // effect reason AND rp == opponent of the handler player.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_REFLECT_DAMAGE)
+    e1:SetTargetRange(1,0)
+    e1:SetValue(s.refcon)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.refcon(e,re,val,r,rp,rc)
+    return (r&REASON_EFFECT)~=0 and rp==1-e:GetHandlerPlayer()
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["damage_rule you reflect_effect_damage end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn p19_damage_rule_reflect_battle_damage_valueless() {
+        // REFLECT_BATTLE_DAMAGE with no SetValue — the corpus majority
+        // spelling of the flag shape.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_REFLECT_BATTLE_DAMAGE)
+    e1:SetTargetRange(1,0)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["damage_rule you reflect_battle_damage end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn p19_skip_unguarded_halve_and_bare_reflect_guard() {
+        // Two near-miss guards that must skip: an UNGUARDED halve
+        // (halves ALL damage — no T37 keyword; Butterspy Protection
+        // shape) and a REFLECT guard missing the rp conjunct (reflects
+        // even self-inflicted effect damage — not the doc-table shape).
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CHANGE_DAMAGE)
+    e1:SetTargetRange(1,0)
+    e1:SetValue(function(e,re,val,r,rp,rc) return math.floor(val/2) end)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+    local e2=Effect.CreateEffect(e:GetHandler())
+    e2:SetType(EFFECT_TYPE_FIELD)
+    e2:SetCode(EFFECT_REFLECT_DAMAGE)
+    e2:SetTargetRange(1,0)
+    e2:SetValue(function(e,_,_,r) return (r&REASON_EFFECT)==REASON_EFFECT end)
+    e2:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e2,tp)
+end
+"#;
+        let actions = p11_actions(src, "s.activate");
+        assert!(actions.is_empty(), "near-miss guards must skip, got {:?}", actions);
+    }
+
+    #[test]
+    fn p19_skip_chain_id_and_side_effect_guards() {
+        // The chain-id "that damage" family (GetCurrentChain /
+        // CHAININFO label matching) and guards with statement side
+        // effects are multi-statement bodies — neither return_expr nor
+        // guarded_return captures them, so the chain skips.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CHANGE_DAMAGE)
+    e1:SetTargetRange(1,0)
+    e1:SetValue(s.damval)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+    local e2=Effect.CreateEffect(e:GetHandler())
+    e2:SetType(EFFECT_TYPE_FIELD)
+    e2:SetCode(EFFECT_CHANGE_DAMAGE)
+    e2:SetTargetRange(1,0)
+    e2:SetValue(s.counterval)
+    e2:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e2,tp)
+end
+function s.damval(e,re,val,r,rp,rc)
+    local cc=Duel.GetCurrentChain()
+    if cc==0 or (r&REASON_EFFECT)==0 then return val end
+    local cid=Duel.GetChainInfo(0,CHAININFO_CHAIN_ID)
+    if cid~=e:GetLabel() then return val end
+    return 0
+end
+function s.counterval(e,re,val,r,rp,rc)
+    if (r&REASON_EFFECT)~=0 then e:GetHandler():AddCounter(COUNTER_FEATHER,1) return 0 end
+    return val
+end
+"#;
+        let actions = p11_actions(src, "s.activate");
+        assert!(actions.is_empty(), "chain-id / side-effect guards must skip, got {:?}", actions);
+    }
+
+    #[test]
+    fn p19_skip_owner_qualified_guard_and_fixed_value() {
+        // An rp-qualifier OUTSIDE the accepted atoms
+        // (`rp~=e:GetOwnerPlayer()` — only opponent-inflicted effect
+        // damage becomes 0) and an arbitrary fixed replacement value
+        // both fall outside the closed set.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CHANGE_DAMAGE)
+    e1:SetTargetRange(1,0)
+    e1:SetValue(s.damval)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+    local e2=Effect.CreateEffect(e:GetHandler())
+    e2:SetType(EFFECT_TYPE_FIELD)
+    e2:SetCode(EFFECT_CHANGE_BATTLE_DAMAGE)
+    e2:SetTargetRange(1,0)
+    e2:SetValue(400)
+    e2:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e2,tp)
+end
+function s.damval(e,re,val,r,rp,rc)
+    if (r&REASON_EFFECT)~=0 and rp~=e:GetOwnerPlayer() then return 0 else return val end
+end
+"#;
+        let actions = p11_actions(src, "s.activate");
+        assert!(actions.is_empty(), "qualified guard / fixed value must skip, got {:?}", actions);
+    }
+
+    #[test]
+    fn p19_skip_card_scoped_range_and_condition_gate() {
+        // A LOCATION mask in SetTargetRange is a card-scoped chain (the
+        // Phase 15 family), and a SetCondition floodgate mis-states the
+        // rule as unconditional — both skip.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_AVOID_BATTLE_DAMAGE)
+    e1:SetTargetRange(LOCATION_MZONE,0)
+    e1:SetValue(1)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+    local e2=Effect.CreateEffect(e:GetHandler())
+    e2:SetType(EFFECT_TYPE_FIELD)
+    e2:SetCode(EFFECT_CHANGE_DAMAGE)
+    e2:SetTargetRange(1,0)
+    e2:SetValue(0)
+    e2:SetCondition(s.con)
+    e2:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e2,tp)
+end
+function s.con(e)
+    return Duel.GetTurnPlayer()==e:GetHandlerPlayer()
+end
+"#;
+        let actions = p11_actions(src, "s.activate");
+        assert!(actions.is_empty(), "card-scoped range / condition gate must skip, got {:?}", actions);
+    }
+
+    #[test]
+    fn p19_skip_two_turn_reset() {
+        // SetReset(...,2) lives until the SECOND end phase — outside
+        // the standard reset class.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CHANGE_DAMAGE)
+    e1:SetTargetRange(1,0)
+    e1:SetValue(0)
+    e1:SetReset(RESET_PHASE|PHASE_END,2)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        let actions = p11_actions(src, "s.activate");
+        assert!(actions.is_empty(), "two-turn reset must skip, got {:?}", actions);
     }
 
     // ── Phase 16: SelectOption label-branches → choose ──────
