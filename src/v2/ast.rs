@@ -579,6 +579,10 @@ pub enum Action {
     /// restricts what a PLAYER may do (lua: EFFECT_TYPE_FIELD +
     /// EFFECT_FLAG_PLAYER_TARGET + SetTargetRange(p1,p2) player flags).
     Restrict { scope: PlayerScope, restriction: PlayerRestriction, duration: Option<Duration> },
+    /// T37 — player-scoped damage-shaping rule. Shapes the damage a PLAYER
+    /// takes (lua: resolve-time EFFECT_TYPE_FIELD + EFFECT_FLAG_PLAYER_TARGET
+    /// with EFFECT_CHANGE_DAMAGE / EFFECT_AVOID_BATTLE_DAMAGE / etc.).
+    DamageRule { scope: PlayerScope, rule: DamageRule, duration: Option<Duration> },
     If { condition: Condition, then: Vec<Action>, otherwise: Vec<Action> },
     ForEach { selector: Selector, zone: Zone, body: Vec<Action> },
     Choose(ChooseBlock),
@@ -676,6 +680,41 @@ pub enum PlayerRestriction {
     CannotConductBattlePhase,
     /// EFFECT_SKIP_BP — Battle Phase is skipped.
     SkipBattlePhase,
+}
+
+// ── Player-Scoped Damage Rules (T37) ─────────────────────────
+
+/// Closed vocabulary of player-scoped damage-shaping rules (T37). Each
+/// variant maps to one lua damage-shaping `EFFECT_*` code plus the common
+/// `SetValue` shape found in the corpus survey ("no X damage", "X damage is
+/// halved/doubled", "damage becomes LP gain", "damage is reflected").
+/// Exotic shapes (chain-specific "that damage", arbitrary multipliers,
+/// fixed replacement values) are deliberately outside the closed set.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DamageRule {
+    /// EFFECT_CHANGE_DAMAGE, `SetValue(0)` — takes no damage at all.
+    NoDamage,
+    /// EFFECT_CHANGE_DAMAGE, REASON_EFFECT guard → 0.
+    NoEffectDamage,
+    /// EFFECT_CHANGE_DAMAGE, REASON_EFFECT guard → val/2.
+    HalveEffectDamage,
+    /// EFFECT_AVOID_BATTLE_DAMAGE, `SetValue(1)`.
+    NoBattleDamage,
+    /// EFFECT_CHANGE_BATTLE_DAMAGE, `SetValue(HALF_DAMAGE)`.
+    HalveBattleDamage,
+    /// EFFECT_CHANGE_BATTLE_DAMAGE, `SetValue(DOUBLE_DAMAGE)`.
+    DoubleBattleDamage,
+    /// EFFECT_REVERSE_DAMAGE, `SetValue(1)` — any damage becomes LP gain.
+    ReverseDamage,
+    /// EFFECT_REVERSE_DAMAGE, REASON_EFFECT guard — effect damage becomes
+    /// LP gain.
+    ReverseEffectDamage,
+    /// EFFECT_REFLECT_DAMAGE, REASON_EFFECT ∧ rp == opponent guard —
+    /// effect damage the opponent inflicts is inflicted to them instead.
+    ReflectEffectDamage,
+    /// EFFECT_REFLECT_BATTLE_DAMAGE, `SetValue(1)` — battle damage is
+    /// inflicted to the opponent instead.
+    ReflectBattleDamage,
 }
 
 // ── Duration ─────────────────────────────────────────────────

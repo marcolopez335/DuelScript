@@ -464,6 +464,7 @@ action = {
   | equip_action
   | negate_effects_action
   | negate_action
+  | damage_rule_action
   | damage_action
   | gain_lp_action
   | pay_lp_action
@@ -609,6 +610,27 @@ player_restriction = {
   | "cannot_activate"
   | "cannot_conduct_battle_phase"
   | "skip_battle_phase"
+}
+
+// T37 — player-scoped damage-shaping rule (resolve-time EFFECT_TYPE_FIELD
+// effects that shape the damage a PLAYER takes: EFFECT_CHANGE_DAMAGE,
+// EFFECT_AVOID_BATTLE_DAMAGE, EFFECT_REVERSE_DAMAGE, EFFECT_CHANGE_BATTLE_DAMAGE,
+// EFFECT_REFLECT_DAMAGE, EFFECT_REFLECT_BATTLE_DAMAGE).
+// damage_rule_action is ordered before damage_action in `action` ("damage_rule"
+// shares the "damage" prefix). Within damage_rule the no_*/reverse_* variants
+// are ordered longest-first defensively (no strict prefixes today).
+damage_rule_action = { "damage_rule" ~ player_scope ~ damage_rule ~ duration? }
+damage_rule = {
+    "no_effect_damage"
+  | "no_battle_damage"
+  | "no_damage"
+  | "halve_effect_damage"
+  | "halve_battle_damage"
+  | "double_battle_damage"
+  | "reverse_effect_damage"
+  | "reverse_damage"
+  | "reflect_effect_damage"
+  | "reflect_battle_damage"
 }
 
 // ── Control Flow ─────────────────────────────────────────────

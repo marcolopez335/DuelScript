@@ -136,6 +136,42 @@ pub enum PlayerRestriction {
     SkipBattlePhase,
 }
 
+/// Player-scoped damage-shaping rule passed to `set_damage_rule` (T37).
+///
+/// Runtime-surface mirror of `ast::DamageRule`; decouples the trait from the
+/// AST so non-compiler runtimes don't need the full AST graph. Same pattern
+/// as `Duration` (T21), `TokenSpec` (T17) and `PlayerRestriction` (T36).
+///
+/// Each variant maps to one lua damage-shaping effect code plus the common
+/// `SetValue` shape (engine side registers a resolve-time
+/// `EFFECT_TYPE_FIELD` + `EFFECT_FLAG_PLAYER_TARGET` continuous effect):
+///
+/// | Variant | lua code | `SetValue` shape |
+/// |---|---|---|
+/// | `NoDamage` | `EFFECT_CHANGE_DAMAGE` | `0` (scripts commonly pair a clone with `EFFECT_NO_EFFECT_DAMAGE`) |
+/// | `NoEffectDamage` | `EFFECT_CHANGE_DAMAGE` | `r&REASON_EFFECT ~= 0 → 0, else val` |
+/// | `HalveEffectDamage` | `EFFECT_CHANGE_DAMAGE` | `r&REASON_EFFECT ~= 0 → val//2, else val` |
+/// | `NoBattleDamage` | `EFFECT_AVOID_BATTLE_DAMAGE` | `1` |
+/// | `HalveBattleDamage` | `EFFECT_CHANGE_BATTLE_DAMAGE` | `HALF_DAMAGE` |
+/// | `DoubleBattleDamage` | `EFFECT_CHANGE_BATTLE_DAMAGE` | `DOUBLE_DAMAGE` |
+/// | `ReverseDamage` | `EFFECT_REVERSE_DAMAGE` | `1` (any damage becomes LP gain) |
+/// | `ReverseEffectDamage` | `EFFECT_REVERSE_DAMAGE` | `(r&REASON_EFFECT) ~= 0` |
+/// | `ReflectEffectDamage` | `EFFECT_REFLECT_DAMAGE` | `(r&REASON_EFFECT) ~= 0 and rp == 1-tp` |
+/// | `ReflectBattleDamage` | `EFFECT_REFLECT_BATTLE_DAMAGE` | `1` |
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DamageRule {
+    NoDamage,
+    NoEffectDamage,
+    HalveEffectDamage,
+    NoBattleDamage,
+    HalveBattleDamage,
+    DoubleBattleDamage,
+    ReverseDamage,
+    ReverseEffectDamage,
+    ReflectEffectDamage,
+    ReflectBattleDamage,
+}
+
 // ── Runtime Abstraction ───────────────────────────────────────
 
 /// Trait that engines implement to expose game state and operations
@@ -933,6 +969,41 @@ pub trait DuelScriptRuntime {
     /// # Default
     /// No-op.
     fn restrict_player(&mut self, _player: u8, _restriction: PlayerRestriction, _duration: Duration) {}
+
+    // ── T37: Player-scoped damage rule ───────────────────────
+
+    /// Register a player-scoped damage-shaping rule on `player` (T37).
+    ///
+    /// The sibling of `restrict_player` (T36): where that forbids a player
+    /// ACTION, this shapes the DAMAGE a player takes — "takes no (battle/
+    /// effect) damage", "effect damage is halved", "battle damage is
+    /// doubled", "damage becomes LP gain", "damage is inflicted to the
+    /// opponent instead". Engine side this is a resolve-time
+    /// `EFFECT_TYPE_FIELD` + `EFFECT_FLAG_PLAYER_TARGET` registration whose
+    /// target range names `player`, with the reset derived from `duration`.
+    /// See [`DamageRule`] for the code/`SetValue` table.
+    ///
+    /// The compiler resolves the DSL's relative `player_scope` (`you` /
+    /// `opponent` / `both_players`) to absolute player indices before calling
+    /// — `both_players` arrives as two calls, one per player (matching
+    /// `restrict_player` / `take_control` house style of absolute indices on
+    /// the trait surface).
+    ///
+    /// **ygobeetle mirror obligation:** new trait method — engine-dev must
+    /// mirror this on `YgobeetleRuntimeAdapter` (companion repo), mapping
+    /// each variant to its damage-shaping `EFFECT_*` registration.
+    ///
+    /// # Args
+    /// - `player`: 0 or 1 — the absolute player index whose incoming damage
+    ///   is shaped.
+    /// - `rule`: which damage-shaping rule applies.
+    /// - `duration`: when the rule expires. `Duration::Permanently` is the
+    ///   opt-out (no reset; rule persists), consistent with the
+    ///   omitted-duration default on every other duration-bearing action.
+    ///
+    /// # Default
+    /// No-op.
+    fn set_damage_rule(&mut self, _player: u8, _rule: DamageRule, _duration: Duration) {}
 
     // ── Sprint 67: Token creation ────────────────────────────
 

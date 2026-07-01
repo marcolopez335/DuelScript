@@ -1820,6 +1820,16 @@ fn parse_action(pair: Pair<Rule>) -> Result<Action, V2ParseError> {
                 .transpose()?;
             Ok(Action::Restrict { scope, restriction, duration })
         }
+        Rule::damage_rule_action => {
+            let mut it = inner.into_inner();
+            let scope = parse_player_scope(it.next().unwrap().as_str().trim())?;
+            let rule = parse_damage_rule(it.next().unwrap().as_str().trim())?;
+            let duration = it.next()
+                .filter(|p| p.as_rule() == Rule::duration)
+                .map(|p| parse_duration(p.as_str().trim()))
+                .transpose()?;
+            Ok(Action::DamageRule { scope, rule, duration })
+        }
         Rule::link_action => {
             let mut it = inner.into_inner();
             let a = parse_selector(it.next().unwrap())?;
@@ -2421,6 +2431,22 @@ fn parse_player_restriction(text: &str) -> Result<PlayerRestriction, V2ParseErro
     }
 }
 
+fn parse_damage_rule(text: &str) -> Result<DamageRule, V2ParseError> {
+    match text {
+        "no_damage" => Ok(DamageRule::NoDamage),
+        "no_effect_damage" => Ok(DamageRule::NoEffectDamage),
+        "halve_effect_damage" => Ok(DamageRule::HalveEffectDamage),
+        "no_battle_damage" => Ok(DamageRule::NoBattleDamage),
+        "halve_battle_damage" => Ok(DamageRule::HalveBattleDamage),
+        "double_battle_damage" => Ok(DamageRule::DoubleBattleDamage),
+        "reverse_damage" => Ok(DamageRule::ReverseDamage),
+        "reverse_effect_damage" => Ok(DamageRule::ReverseEffectDamage),
+        "reflect_effect_damage" => Ok(DamageRule::ReflectEffectDamage),
+        "reflect_battle_damage" => Ok(DamageRule::ReflectBattleDamage),
+        _ => Err(V2ParseError::UnknownRule(format!("damage_rule: {}", text))),
+    }
+}
+
 fn parse_card_state(text: &str) -> Result<CardState, V2ParseError> {
     match text {
         "summoned_this_turn" => Ok(CardState::SummonedThisTurn),
@@ -2763,6 +2789,98 @@ card "Bad Restrict" {
         mandatory
         resolve {
             restrict you cannot_win this_turn
+        }
+    }
+}
+"#;
+        assert!(parse_v2(source).is_err());
+    }
+
+    #[test]
+    fn test_damage_rule_action_parses() {
+        // T37: player-scoped damage rule — every scope, the shared-prefix
+        // hot spots (damage_rule vs the plain damage action; no_*/reverse_*
+        // keyword families), and the optional duration.
+        let source = r#"
+card "Damage Rule Test" {
+    id: 1
+    type: Normal Trap
+
+    effect "Shield" {
+        speed: 2
+        mandatory
+        resolve {
+            damage_rule you no_effect_damage this_turn
+            damage_rule opponent no_battle_damage end_of_turn
+            damage_rule both_players no_damage
+            damage_rule you halve_effect_damage this_turn
+            damage_rule opponent double_battle_damage this_turn
+            damage_rule you reverse_effect_damage this_turn
+            damage_rule you reverse_damage
+            damage_rule you reflect_effect_damage this_turn
+            damage_rule you reflect_battle_damage 2_turns
+            damage opponent 500
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let resolve = &file.cards[0].effects[0].resolve;
+        assert_eq!(resolve.len(), 10);
+        assert!(matches!(&resolve[0], Action::DamageRule {
+            scope: PlayerScope::You,
+            rule: DamageRule::NoEffectDamage,
+            duration: Some(Duration::ThisTurn),
+        }));
+        assert!(matches!(&resolve[1], Action::DamageRule {
+            scope: PlayerScope::Opponent,
+            rule: DamageRule::NoBattleDamage,
+            duration: Some(Duration::EndOfTurn),
+        }));
+        assert!(matches!(&resolve[2], Action::DamageRule {
+            scope: PlayerScope::BothPlayers,
+            rule: DamageRule::NoDamage,
+            duration: None,
+        }));
+        assert!(matches!(&resolve[3], Action::DamageRule {
+            rule: DamageRule::HalveEffectDamage, ..
+        }));
+        assert!(matches!(&resolve[4], Action::DamageRule {
+            rule: DamageRule::DoubleBattleDamage, ..
+        }));
+        assert!(matches!(&resolve[5], Action::DamageRule {
+            rule: DamageRule::ReverseEffectDamage, ..
+        }));
+        assert!(matches!(&resolve[6], Action::DamageRule {
+            rule: DamageRule::ReverseDamage,
+            duration: None, ..
+        }));
+        assert!(matches!(&resolve[7], Action::DamageRule {
+            rule: DamageRule::ReflectEffectDamage, ..
+        }));
+        assert!(matches!(&resolve[8], Action::DamageRule {
+            scope: PlayerScope::You,
+            rule: DamageRule::ReflectBattleDamage,
+            duration: Some(Duration::NTurns(2)),
+        }));
+        // The plain damage action must still win when there is no _rule suffix.
+        assert!(matches!(&resolve[9], Action::Damage(_, _)));
+    }
+
+    #[test]
+    fn test_damage_rule_action_rejects_unknown_rule() {
+        // The damage-rule vocabulary is a closed keyword set — anything
+        // outside it must fail the parse, not degrade to a free string.
+        let source = r#"
+card "Bad Damage Rule" {
+    id: 1
+    type: Normal Trap
+
+    effect "Nope" {
+        speed: 2
+        mandatory
+        resolve {
+            damage_rule you triple_effect_damage this_turn
         }
     }
 }
