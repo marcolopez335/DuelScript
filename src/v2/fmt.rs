@@ -718,6 +718,14 @@ fn format_action(a: &Action, out: &mut String, indent: usize) {
             }
             writeln!(out, "{}", s).unwrap();
         }
+        Action::DamageRule { scope, rule, duration } => {
+            let mut s = format!("{}damage_rule {} {}", pad,
+                format_player_scope(scope), format_damage_rule(rule));
+            if let Some(d) = duration {
+                s.push_str(&format!(" {}", format_duration(d)));
+            }
+            writeln!(out, "{}", s).unwrap();
+        }
         Action::If { condition, then, otherwise } => {
             writeln!(out, "{}if ({}) {{", pad, format_condition(condition)).unwrap();
             for a in then {
@@ -1324,6 +1332,21 @@ fn format_player_restriction(r: &PlayerRestriction) -> &'static str {
     }
 }
 
+fn format_damage_rule(r: &DamageRule) -> &'static str {
+    match r {
+        DamageRule::NoDamage            => "no_damage",
+        DamageRule::NoEffectDamage      => "no_effect_damage",
+        DamageRule::HalveEffectDamage   => "halve_effect_damage",
+        DamageRule::NoBattleDamage      => "no_battle_damage",
+        DamageRule::HalveBattleDamage   => "halve_battle_damage",
+        DamageRule::DoubleBattleDamage  => "double_battle_damage",
+        DamageRule::ReverseDamage       => "reverse_damage",
+        DamageRule::ReverseEffectDamage => "reverse_effect_damage",
+        DamageRule::ReflectEffectDamage => "reflect_effect_damage",
+        DamageRule::ReflectBattleDamage => "reflect_battle_damage",
+    }
+}
+
 fn format_duration(d: &Duration) -> String {
     match d {
         Duration::ThisTurn => "this_turn".to_string(),
@@ -1676,6 +1699,45 @@ card "Restrict Roundtrip Test" {
         let reparsed = parse_v2(&formatted)
             .unwrap_or_else(|e| panic!("roundtrip failed:\n{}\n{}", formatted, e));
         assert_eq!(reparsed.cards[0].effects[0].resolve.len(), 11);
+        assert_eq!(format_file(&reparsed), formatted, "fmt not a fixed point");
+    }
+
+    #[test]
+    fn test_damage_rule_action_roundtrips() {
+        // T37: every damage_rule keyword and every scope survive the
+        // parse -> format -> reparse fixed point.
+        let source = r#"
+card "Damage Rule Roundtrip Test" {
+    id: 1
+    type: Normal Trap
+
+    effect "Shield" {
+        speed: 2
+        mandatory
+        resolve {
+            damage_rule you no_damage this_turn
+            damage_rule opponent no_effect_damage end_of_turn
+            damage_rule you halve_effect_damage this_turn
+            damage_rule both_players no_battle_damage this_turn
+            damage_rule opponent halve_battle_damage end_of_turn
+            damage_rule opponent double_battle_damage this_turn
+            damage_rule you reverse_damage
+            damage_rule you reverse_effect_damage this_turn
+            damage_rule you reflect_effect_damage this_turn
+            damage_rule you reflect_battle_damage 2_turns
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let formatted = format_file(&file);
+        assert!(formatted.contains("damage_rule you no_damage this_turn"),
+            "missing damage_rule line in:\n{}", formatted);
+        assert!(formatted.contains("damage_rule you reverse_damage\n"),
+            "duration-less damage_rule mis-rendered in:\n{}", formatted);
+        let reparsed = parse_v2(&formatted)
+            .unwrap_or_else(|e| panic!("roundtrip failed:\n{}\n{}", formatted, e));
+        assert_eq!(reparsed.cards[0].effects[0].resolve.len(), 10);
         assert_eq!(format_file(&reparsed), formatted, "fmt not a fixed point");
     }
 

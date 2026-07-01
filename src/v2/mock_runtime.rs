@@ -19,7 +19,7 @@
 // ============================================================
 
 use std::collections::HashMap;
-use super::runtime::{CardFilter, DamageType, Duration, PlayerRestriction, Stat, TokenSpec, DuelScriptRuntime};
+use super::runtime::{CardFilter, DamageRule, DamageType, Duration, PlayerRestriction, Stat, TokenSpec, DuelScriptRuntime};
 
 // ── Recorded call types ──────────────────────────────────────
 
@@ -773,6 +773,12 @@ impl DuelScriptRuntime for MockRuntime {
     fn restrict_player(&mut self, player: u8, restriction: PlayerRestriction, duration: Duration) {
         self.record("restrict_player",
             format!("player={} restriction={:?} dur={:?}", player, restriction, duration));
+    }
+
+    // ── T37: Player-scoped damage rule ───────────────────────
+    fn set_damage_rule(&mut self, player: u8, rule: DamageRule, duration: Duration) {
+        self.record("set_damage_rule",
+            format!("player={} rule={:?} dur={:?}", player, rule, duration));
     }
 
     // ── Card Identity Changes ────────────────────────────────

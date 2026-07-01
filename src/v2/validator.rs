@@ -563,7 +563,9 @@ fn scan_actions(actions: &[Action], scan: &mut TargetScan) {
             | Action::ShuffleHand(_)
             | Action::Announce(_, _)
             // T36: player-scoped — no card selector to scan.
-            | Action::Restrict { .. } => {}
+            | Action::Restrict { .. }
+            // T37: player-scoped — no card selector to scan.
+            | Action::DamageRule { .. } => {}
         }
     }
 }
@@ -754,6 +756,31 @@ card "Restrict Valid Test" {
         resolve {
             restrict opponent cannot_special_summon this_turn
             restrict both_players cannot_activate_spells_traps end_of_turn
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let report = validate_v2(&file);
+        assert_eq!(report.error_count(), 0, "errors: {:?}", report.errors);
+        assert_eq!(report.warning_count(), 0, "warnings: {:?}", report.errors);
+    }
+
+    #[test]
+    fn test_damage_rule_action_valid() {
+        // T37: damage_rule has no card selector — it must not trip the
+        // target-scan invariants (bare-target warning, must-have-resolve ok).
+        let source = r#"
+card "Damage Rule Valid Test" {
+    id: 1
+    type: Normal Trap
+
+    effect "Shield" {
+        speed: 2
+        mandatory
+        resolve {
+            damage_rule you no_battle_damage this_turn
+            damage_rule both_players halve_effect_damage end_of_turn
         }
     }
 }

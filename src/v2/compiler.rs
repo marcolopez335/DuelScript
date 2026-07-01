@@ -11,7 +11,7 @@
 use std::sync::Arc;
 use super::ast::*;
 use super::constants as tm;
-use super::runtime::{DamageType, Duration as RuntimeDuration, DuelScriptRuntime, CardFilter as RuntimeCardFilter, PlayerRestriction as RuntimePlayerRestriction, Stat, TokenSpec};
+use super::runtime::{DamageRule as RuntimeDamageRule, DamageType, Duration as RuntimeDuration, DuelScriptRuntime, CardFilter as RuntimeCardFilter, PlayerRestriction as RuntimePlayerRestriction, Stat, TokenSpec};
 
 // ── Output Types ────────────────────────────────────────────
 
@@ -432,6 +432,21 @@ fn ast_player_restriction_to_runtime(r: &PlayerRestriction) -> RuntimePlayerRest
         PlayerRestriction::CannotActivate               => RuntimePlayerRestriction::CannotActivate,
         PlayerRestriction::CannotConductBattlePhase     => RuntimePlayerRestriction::CannotConductBattlePhase,
         PlayerRestriction::SkipBattlePhase              => RuntimePlayerRestriction::SkipBattlePhase,
+    }
+}
+
+fn ast_damage_rule_to_runtime(r: &DamageRule) -> RuntimeDamageRule {
+    match r {
+        DamageRule::NoDamage            => RuntimeDamageRule::NoDamage,
+        DamageRule::NoEffectDamage      => RuntimeDamageRule::NoEffectDamage,
+        DamageRule::HalveEffectDamage   => RuntimeDamageRule::HalveEffectDamage,
+        DamageRule::NoBattleDamage      => RuntimeDamageRule::NoBattleDamage,
+        DamageRule::HalveBattleDamage   => RuntimeDamageRule::HalveBattleDamage,
+        DamageRule::DoubleBattleDamage  => RuntimeDamageRule::DoubleBattleDamage,
+        DamageRule::ReverseDamage       => RuntimeDamageRule::ReverseDamage,
+        DamageRule::ReverseEffectDamage => RuntimeDamageRule::ReverseEffectDamage,
+        DamageRule::ReflectEffectDamage => RuntimeDamageRule::ReflectEffectDamage,
+        DamageRule::ReflectBattleDamage => RuntimeDamageRule::ReflectBattleDamage,
     }
 }
 
@@ -900,6 +915,7 @@ fn action_category(action: &Action) -> u32 {
             => categories_from_actions(actions),
         Action::Grant(_, _, _)         => 0,
         Action::Restrict { .. }        => 0,
+        Action::DamageRule { .. }      => 0,
         // Compound actions handled separately above or not categorised
         Action::ForEach { body, .. }   => categories_from_actions(body),
         Action::Delayed { body, .. }   => categories_from_actions(body),
@@ -2378,6 +2394,24 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
                 rt.restrict_player(idx, rt_restriction, rt_duration);
             }
         }
+        Action::DamageRule { scope, rule, duration } => {
+            // T37: same scope/duration conventions as Restrict (T36) —
+            // relative scope resolves to absolute player indices,
+            // `both_players` becomes one call per player, `None` duration
+            // -> Permanently.
+            let rt_rule = ast_damage_rule_to_runtime(rule);
+            let rt_duration = duration.as_ref()
+                .map(ast_duration_to_runtime)
+                .unwrap_or(RuntimeDuration::Permanently);
+            let players: &[u8] = match scope {
+                PlayerScope::You         => &[player],
+                PlayerScope::Opponent    => &[1 - player],
+                PlayerScope::BothPlayers => &[player, 1 - player],
+            };
+            for &idx in players {
+                rt.set_damage_rule(idx, rt_rule, rt_duration);
+            }
+        }
         Action::If { condition, then, otherwise } => {
             if eval_v2_condition(condition, rt) {
                 for a in then { execute_v2_action(a, rt, player); }
@@ -3110,6 +3144,49 @@ card "Restrict Compile Test" {
             "both_players you-side call missing; calls: {}", rt.dump_calls());
         assert!(rt.was_called_with("restrict_player",
             "player=1 restriction=CannotConductBattlePhase dur=Permanently"),
+            "both_players opponent-side call missing; calls: {}", rt.dump_calls());
+    }
+
+    #[test]
+    fn test_damage_rule_action_compiles_and_executes() {
+        use super::super::mock_runtime::MockRuntime;
+        // T37: relative scope resolves to absolute player indices at execute
+        // time (you=activating player, opponent=1-player, both=two calls);
+        // omitted duration defaults to Permanently.
+        let source = r#"
+card "Damage Rule Compile Test" {
+    id: 30002
+    type: Normal Trap
+
+    effect "Shield" {
+        speed: 2
+        mandatory
+        resolve {
+            damage_rule you no_battle_damage this_turn
+            damage_rule opponent halve_effect_damage end_of_turn
+            damage_rule both_players reflect_effect_damage
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        assert_eq!(compiled.effects.len(), 1);
+        let mut rt = MockRuntime::new();
+        rt.effect_card_id = 30002;
+        rt.effect_player = 0;
+        (compiled.effects[0].operation.as_ref().unwrap())(&mut rt);
+        assert!(rt.was_called_with("set_damage_rule",
+            "player=0 rule=NoBattleDamage dur=ThisTurn"),
+            "you-scope call missing; calls: {}", rt.dump_calls());
+        assert!(rt.was_called_with("set_damage_rule",
+            "player=1 rule=HalveEffectDamage dur=EndOfTurn"),
+            "opponent-scope call missing; calls: {}", rt.dump_calls());
+        assert!(rt.was_called_with("set_damage_rule",
+            "player=0 rule=ReflectEffectDamage dur=Permanently"),
+            "both_players you-side call missing; calls: {}", rt.dump_calls());
+        assert!(rt.was_called_with("set_damage_rule",
+            "player=1 rule=ReflectEffectDamage dur=Permanently"),
             "both_players opponent-side call missing; calls: {}", rt.dump_calls());
     }
 
