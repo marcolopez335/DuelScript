@@ -188,6 +188,36 @@ fn restrict_player(&mut self, player: u8, restriction: PlayerRestriction, durati
 
 ---
 
+### T37 — `damage_rule` player-scoped damage-shaping action (specced + shipped in same PR)
+**Goal.** New resolve action for lua resolve-time `EFFECT_TYPE_FIELD` + `EFFECT_FLAG_PLAYER_TARGET` effects that shape the damage a PLAYER takes — "you take no (battle/effect) damage", "effect damage is halved", "battle damage is doubled", "damage becomes LP gain", "damage is inflicted to the opponent instead". T36's sibling: `restrict` forbids a player ACTION; `damage_rule` shapes incoming DAMAGE.
+
+**Pre-spec letter.** n/a (ledger retired).
+
+**Yield estimate.** ~53 chains (Phase 15 audit; re-survey against today's failing set found 80 chain-sites). Failing-card FIELD chain-sites by code: `EFFECT_CHANGE_DAMAGE` 31, `EFFECT_AVOID_BATTLE_DAMAGE` 26, `EFFECT_CHANGE_BATTLE_DAMAGE` 11, `EFFECT_REFLECT_DAMAGE` 6, `EFFECT_REVERSE_DAMAGE` 4, `EFFECT_REFLECT_BATTLE_DAMAGE` 2.
+
+**Syntax.**
+```
+damage_rule_action = { "damage_rule" ~ player_scope ~ damage_rule ~ duration? }
+```
+Reuses T36's `player_scope` (`you` (1,0) / `opponent` (0,1) / `both_players` (1,1)). `damage_rule` is a closed keyword set (no free values), 10 keywords: `no_damage`, `no_effect_damage`, `halve_effect_damage`, `no_battle_damage`, `halve_battle_damage`, `double_battle_damage`, `reverse_damage`, `reverse_effect_damage`, `reflect_effect_damage`, `reflect_battle_damage`. Pest prefix rule: `damage_rule_action` is ordered before `damage_action` in the `action` alternatives (shared `damage` prefix); within the keyword set the `no_*`/`reverse_*` families are ordered longest-first defensively. Naming: a new action keyword rather than `restrict` reuse — `double_battle_damage` and `reverse_damage` are not restrictions, and the trait method registers different effect codes.
+
+**SetValue decision (corpus survey, `EFFECT_CHANGE_DAMAGE` n=88).** Plain `SetValue(0)` (25) = "takes no damage" at all (scripts commonly pair a clone with `EFFECT_NO_EFFECT_DAMAGE`) → `no_damage`, distinct from the clean `r&REASON_EFFECT→0` guard (13) → `no_effect_damage`. Halving guards (16) → `halve_effect_damage`. Excluded as translator-skip classes: chain-id-specific "that damage becomes 0/doubles" shapes (24, `CHAININFO_CHAIN_ID` label matching), effect-damage doubling (6, all chain-bound), arbitrary multipliers/fixed replacement values (`400`, `GetLP()/2`), card-scoped `SetTargetRange(LOCATION_MZONE,…)` forms of the battle codes, and `aux.ChangeBattleDamage` continuous singles (passive-side, not resolve chains).
+
+**Runtime seam (ygobeetle mirror obligation).** New `DuelScriptRuntime` trait method:
+```rust
+fn set_damage_rule(&mut self, player: u8, rule: DamageRule, duration: Duration) {}
+```
+`DamageRule` is a runtime-surface mirror enum (same pattern as `PlayerRestriction` T36) with a doc-comment table mapping each variant to its `EFFECT_*` code + `SetValue` shape. The compiler resolves the relative scope to absolute player indices (`both_players` → two calls), matching the `restrict_player`/`take_control` house style. `engine-dev` must mirror this on `YgobeetleRuntimeAdapter`.
+
+**Acceptance (all shipped in this PR).**
+- Grammar + AST (`Action::DamageRule`, `DamageRule`; `PlayerScope` reused) + parser + validator + compiler + fmt + runtime trait + MockRuntime, tests at each layer.
+- Parse, validate, compile→mock, fmt-roundtrip tests green; zero warnings; corpus check output byte-identical (1922 errors / 1614 warnings).
+- Follow-up translator phase (emit `damage_rule` lines into `cards/official/`) ships separately.
+
+**Agent.** `grammar-extender` (this PR). Then `lua-translator` for the corpus apply pass; `engine-dev` for the adapter mirror.
+
+---
+
 ## Per-archetype templates
 
 Long-tail. Each archetype = one PR. Defer until grammar-free phases are exhausted.
