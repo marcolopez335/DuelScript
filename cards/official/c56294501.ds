@@ -16,7 +16,9 @@ card "Junk Sleep" {
         timing: if
         trigger: summoned
         condition: phase == end
-        resolve { }
+        resolve {
+            change_position (all, card, you control, from monster_zone) to attack_position
+        }
     }
 
     effect "Effect 3" {
@@ -24,12 +26,15 @@ card "Junk Sleep" {
         once_per_turn: hard
         timing: if
         trigger: summoned by special
-        resolve { }
+        resolve {
+            change_position (all, card, you control, from monster_zone) to attack_position
+        }
     }
 
     effect "Effect 4" {
         speed: 2
         once_per_turn: soft
+        condition: phase == end
         resolve {
             change_position (all, card, you control, from monster_zone) to attack_position
         }

@@ -17,6 +17,10 @@ card "Ghostrick-Go-Round" {
     effect "Effect 2" {
         speed: 2
         once_per_turn: soft
-        resolve { }
+        condition: phase == battle
+        resolve {
+            change_position target to face_down_defense
+            change_position target to attack_position
+        }
     }
 }
