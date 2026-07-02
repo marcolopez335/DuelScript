@@ -32,6 +32,11 @@ pub struct LuaReport {
     pub effects: Vec<EffectSkeleton>,
     pub functions: BTreeMap<String, FunctionBody>,
     pub parse_error: Option<String>,
+    /// Source ordinals of chains that may own a .ds effect block but have
+    /// no skeleton in `effects` (Phase 20): clones of summon-helper chains
+    /// and clones that never register. The block matcher aligns them as
+    /// unknown-signature entities so downstream chains can re-anchor.
+    pub phantom_block_ordinals: Vec<usize>,
 }
 
 /// One operation-handler function body: the ordered list of `Duel.*`
@@ -301,9 +306,14 @@ pub struct EffectSkeleton {
     /// SetOperation, a clone of a summon-helper chain, or an unregistered
     /// clone (plain registered clones are seeded into real skeletons and
     /// consume indices like any other chain — Phase 14).
-    /// Positional block mapping is off-by-N for this effect, so the
-    /// Phase 12 helper emit must skip rather than fill the wrong block.
+    /// Positional block mapping is off-by-N for this effect; only a
+    /// signature-forced block assignment (Phase 20 matcher) may fill it.
     pub block_alignment_hazard: bool,
+    /// Position of this chain among the effect-bearing chains of
+    /// `s.initial_effect`, in source order (Phase 20). The block matcher
+    /// aligns entities in this order; note `LuaReport::effects` itself is
+    /// in BTreeMap (binding-name) order, which usually coincides.
+    pub source_ordinal: usize,
     /// Set* method names whose `set_calls` entries were inherited from
     /// `eN:Clone()` rather than written on this binding. The first Set*
     /// on a seeded method is the clone-then-override idiom — it replaces
@@ -454,7 +464,9 @@ impl EffectSkeleton {
     /// params have no DSL equivalent — the resolve stays empty rather
     /// than mis-emitting an over-permissive bare line.
     pub fn summon_helper_line(&self) -> Option<String> {
-        if self.block_alignment_hazard { return None; }
+        // Phase 20: the block-alignment gate lives in
+        // `block_match::compute_assignments` — a hazard-flagged helper
+        // emits its line only when the matcher forces a block for it.
         let op = self.summon_helper_op.as_ref()?;
         if op.unresolved { return None; }
         match op.kind {
@@ -1180,6 +1192,10 @@ fn extract_effects_from_block(block: &Block, report: &mut LuaReport) {
     // can't recur for seeded clones). ANY skeleton that comes AFTER a
     // hazard chain in source order would fill the wrong block, so it
     // gets flagged and Pass A / A2 / helper emit skip.
+    // Phase 20 — clone hazards are exactly the chains that may own a .ds
+    // block without a skeleton; expose them so the block matcher can
+    // align them as unknown-signature entities.
+    report.phantom_block_ordinals = clone_hazards.clone();
     let mut hazards = clone_hazards;
     for skel in by_binding.values() {
         let is_bare_activate = skel.registered
@@ -1203,8 +1219,9 @@ fn extract_effects_from_block(block: &Block, report: &mut LuaReport) {
         }
     }
 
-    for (_, skel) in by_binding {
+    for (binding, mut skel) in by_binding {
         if skel.registered {
+            skel.source_ordinal = ordinals.get(&binding).copied().unwrap_or(usize::MAX);
             report.effects.push(skel);
         }
     }
@@ -9209,11 +9226,15 @@ end
     }
 
     #[test]
-    fn p12_skip_helper_after_bare_activate_chain() {
+    fn p12_helper_after_bare_activate_chain_is_hazard_gated() {
         // Frightfur Factory (c43698897): e1 is a bare EFFECT_TYPE_ACTIVATE
         // chain (continuous-spell activation shell) — it owns a .ds block
         // but consumes no Pass-A index, so the helper's positional block
-        // mapping is off by one. Must skip.
+        // mapping is off by one. Phase 20 retarget: the helper LINE now
+        // decodes (`summon_helper_line` no longer swallows the hazard);
+        // whether it may fill a block is decided by
+        // `block_match::compute_assignments`, gated on the hazard flag
+        // asserted here.
         let src = r#"
 function s.initial_effect(c)
     local e1=Effect.CreateEffect(c)
@@ -9226,7 +9247,14 @@ function s.initial_effect(c)
     c:RegisterEffect(e2)
 end
 "#;
-        assert_eq!(p12_line(src, 1), None);
+        assert_eq!(
+            p12_line(src, 1).as_deref(),
+            Some(r#"fusion_summon (1, fusion monster, where archetype == "Frightfur")"#),
+        );
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        assert!(report.effects[1].block_alignment_hazard,
+            "helper behind a bare-activate shell must stay hazard-flagged");
     }
 
     #[test]
@@ -9879,10 +9907,14 @@ end
     }
 
     #[test]
-    fn plain_helper_after_bare_activate_chain_skips() {
+    fn plain_helper_after_bare_activate_chain_keeps_hazard_flag() {
         // Frightfur Factory shape: a bare EFFECT_TYPE_ACTIVATE chain
         // precedes the helper chain, so positional block mapping is
-        // off-by-one — the helper emit must skip.
+        // off-by-one. Phase 20 retarget: `summon_helper_line` no longer
+        // swallows the hazard itself — the line decodes, and the skip
+        // (or a signature-forced rescue) is decided by
+        // `block_match::compute_assignments`, which gates every fill on
+        // the hazard flag asserted here.
         let src = r#"
 function s.initial_effect(c)
     local e1=Effect.CreateEffect(c)
@@ -9900,7 +9932,10 @@ end
             .iter()
             .find(|e| e.is_summon_helper())
             .expect("helper skeleton");
-        assert_eq!(helper.summon_helper_line(), None);
+        assert!(helper.block_alignment_hazard,
+            "helper after a bare-activate chain must stay hazard-flagged");
+        assert!(helper.summon_helper_line().is_some(),
+            "the line itself decodes — the block gate lives in the matcher");
     }
 
     // ── Phase 13b: chain-path `tc` → `target` gated on GetFirstTarget ──

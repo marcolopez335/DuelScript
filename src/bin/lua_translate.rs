@@ -21,6 +21,7 @@ use std::fs;
 use std::path::Path;
 use std::process;
 
+use duelscript::block_match;
 use duelscript::lua_ast;
 
 fn main() {
@@ -102,6 +103,8 @@ fn main() {
             println!("  effects skipped (todo):  {}", report.effects_todo_only);
             println!("  effects skipped (no map): {}", report.effects_no_handler);
             println!("  effects skipped (align):  {}", report.effects_alignment_hazard);
+            println!("  blocks matched (positional): {}", report.match_positional);
+            println!("  blocks matched (rescued):    {}", report.match_rescued);
             println!("  effects skipped (no lua): {}", report.no_lua);
             println!("  choose blocks injected:  {}", report.chooses_injected);
             println!("  passives injected:       {}", report.passives_injected);
@@ -157,6 +160,8 @@ struct ApplyReport {
     effects_todo_only: usize,
     effects_no_handler: usize,
     effects_alignment_hazard: usize,
+    match_positional: usize,
+    match_rescued: usize,
     chooses_injected: usize,
     passives_injected: usize,
     conditions_injected: usize,
@@ -200,6 +205,16 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
         if walk.effects.is_empty() { continue; }
         r.translated += 1;
 
+        // Phase 20 — signature-based handler→block matching. Hazard-free
+        // cards get the historical positional mapping (the i-th index-
+        // consuming walk effect → the i-th `effect "Effect N"` block);
+        // hazard-gated effects fill only when the matcher forces an
+        // unambiguous, order-consistent block for them. All passes below
+        // consult the same per-effect assignment.
+        let assign = block_match::compute_assignments(&walk, &txt);
+        r.match_positional += assign.positional;
+        r.match_rescued += assign.rescued;
+
         let mut new_txt = txt.clone();
         let mut filled = 0usize;
         // Card passcode from the filename stem (`c1006081` → 1006081) —
@@ -207,15 +222,24 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
         let card_id: Option<u32> = stem.strip_prefix('c').and_then(|s| s.parse().ok());
 
         // Pass A — fill empty resolve blocks via translated handler bodies.
-        // Effect blocks are matched positionally (same convention as Pass
-        // A2): the i-th walk.effects entry with an op handler or summon-
-        // helper spec maps to the i-th `effect "Effect N"` block, and the
-        // fill targets the empty resolve INSIDE that block. Filling "the
-        // first empty resolve anywhere" instead would, on rerun, inject an
-        // earlier effect's lines into a later untranslatable effect's
-        // still-empty resolve — wrong content and non-idempotent.
-        let mut a_block_idx = 0usize;
-        for eff in &walk.effects {
+        // Each fill targets the empty resolve INSIDE the block assigned to
+        // that effect. Filling "the first empty resolve anywhere" instead
+        // would, on rerun, inject an earlier effect's lines into a later
+        // untranslatable effect's still-empty resolve — wrong content and
+        // non-idempotent.
+        for (eff_i, eff) in walk.effects.iter().enumerate() {
+            if !eff.is_summon_helper() && eff.operation_handler.is_none() {
+                r.effects_no_handler += 1;
+                continue; // pure-passive — no effect block in .ds
+            }
+            let Some(block_idx) = assign.by_effect[eff_i] else {
+                // Hazard-gated and not rescued: a clone / bare-activate
+                // chain owns a .ds block before this one and the block
+                // signatures don't force a unique home — filling would
+                // risk landing in the wrong block.
+                r.effects_alignment_hazard += 1;
+                continue;
+            };
             // Phase 16 — SelectOption label-branch dispatch. When the
             // target handler picked an option (`Duel.SelectOption` +
             // `e:SetLabel`) and the operation handler splits on
@@ -223,8 +247,8 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             // a `choose { option … }` block REPLACES the empty resolve
             // (the validator accepts either, never both). Falls through
             // to the normal fill when the shape or a label doesn't
-            // resolve — no block index is consumed until success.
-            if !eff.is_summon_helper() && !eff.block_alignment_hazard {
+            // resolve.
+            if !eff.is_summon_helper() {
                 let choose_text = eff.operation_handler.as_deref()
                     .and_then(|oh| {
                         let ob = walk.functions.get(oh.trim())?;
@@ -234,8 +258,6 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
                         render_choose_block(&spec, card_id?)
                     });
                 if let Some(choose_text) = choose_text {
-                    let block_idx = a_block_idx;
-                    a_block_idx += 1;
                     if let Some((block_lo, block_hi)) = nth_effect_block(&new_txt, block_idx) {
                         if let Some((lo, hi)) = first_empty_resolve_within(&new_txt, block_lo, block_hi) {
                             new_txt = format!("{}{}{}", &new_txt[..lo], choose_text, &new_txt[hi..]);
@@ -276,41 +298,29 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             let lines: Vec<lua_ast::DslLine> = if let Some(text) = helper_line {
                 vec![lua_ast::DslLine::Action(text)]
             } else if eff.is_summon_helper() {
-                // Helper params undecodable or block-alignment hazard —
-                // the activation block exists in the .ds but its resolve
-                // stays an empty stub (skip-not-mis-emit).
+                // Helper params undecodable — the activation block exists
+                // in the .ds but its resolve stays an empty stub
+                // (skip-not-mis-emit).
                 r.effects_no_handler += 1;
-                a_block_idx += 1;
                 continue;
-            } else if let Some(handler) = &eff.operation_handler {
-                if eff.block_alignment_hazard {
-                    // A clone / bare-activate chain owns a .ds block before
-                    // this one — positional mapping is off-by-N from here
-                    // on; filling would land in the wrong block.
-                    r.effects_alignment_hazard += 1;
-                    a_block_idx += 1;
-                    continue;
-                }
+            } else {
+                // Consumer without a helper spec has an operation handler
+                // (checked at the top of the loop).
+                let handler = eff.operation_handler.as_deref().unwrap_or_default();
                 match walk.functions.get(handler.trim()) {
                     Some(body) => lua_ast::translate_body_with_functions(body, &walk.functions),
                     None => {
-                        r.effects_no_handler += 1;
-                        a_block_idx += 1; // block exists, body unknown
+                        r.effects_no_handler += 1; // block exists, body unknown
                         continue;
                     }
                 }
-            } else {
-                r.effects_no_handler += 1;
-                continue; // pure-passive — no effect block in .ds
             };
-            let block_idx = a_block_idx;
-            a_block_idx += 1;
             if !lines.iter().any(|l| l.is_action()) {
                 r.effects_todo_only += 1;
                 continue;
             }
             let Some((block_lo, block_hi)) = nth_effect_block(&new_txt, block_idx) else {
-                break;
+                continue;
             };
             if let Some((lo, hi)) = first_empty_resolve_within(&new_txt, block_lo, block_hi) {
                 let body = render_resolve_body(&lines);
@@ -324,41 +334,34 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
         // lack one entirely (validator: "must have a resolve or choose
         // block"). Only fires when the lua-ast translator emits at least
         // one ACTION line, so blocks without translator coverage stay
-        // untouched. Effect blocks are matched positionally — the i-th
-        // walk.effects entry maps to the i-th `effect "Effect N"` block
-        // in the .ds (helper-line and op-handler effects both count;
-        // pure-passive lua chains have no effect block and are skipped
-        // upstream).
-        let mut a2_block_idx = 0usize;
-        for eff in &walk.effects {
+        // untouched. Effect blocks come from the shared Phase 20
+        // assignment (pure-passive lua chains have no effect block and
+        // are skipped upstream).
+        for (eff_i, eff) in walk.effects.iter().enumerate() {
+            if !eff.is_summon_helper() && eff.operation_handler.is_none() {
+                continue; // pure-passive — no effect block in .ds
+            }
+            let Some(block_idx) = assign.by_effect[eff_i] else {
+                continue; // see Pass A — no unambiguous block for this effect
+            };
             let helper_line = eff.summon_helper_line();
             let lines: Vec<lua_ast::DslLine> = if let Some(text) = helper_line {
                 vec![lua_ast::DslLine::Action(text)]
             } else if eff.is_summon_helper() {
                 // Block exists, but no line to emit — see Pass A.
-                a2_block_idx += 1;
                 continue;
-            } else if let Some(handler) = &eff.operation_handler {
-                if eff.block_alignment_hazard {
-                    // See Pass A — positional mapping unreliable past a
-                    // clone / bare-activate block owner.
-                    a2_block_idx += 1;
-                    continue;
-                }
+            } else {
+                let handler = eff.operation_handler.as_deref().unwrap_or_default();
                 match walk.functions.get(handler.trim()) {
                     Some(body) => lua_ast::translate_body_with_functions(body, &walk.functions),
-                    None => { a2_block_idx += 1; continue; }
+                    None => continue,
                 }
-            } else {
-                continue; // pure-passive — no effect block in .ds
             };
-            let block_idx = a2_block_idx;
-            a2_block_idx += 1;
             if !lines.iter().any(|l| l.is_action()) { continue; }
 
             let (block_lo, block_hi) = match nth_effect_block(&new_txt, block_idx) {
                 Some(r) => r,
-                None => break,
+                None => continue,
             };
             let block = &new_txt[block_lo..block_hi];
             // Skip if the block already has a resolve or choose — Pass A
@@ -441,26 +444,16 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
         // Pass C — Phase 6 condition injection. For each active effect (with an
         // operation handler) that also has a translatable condition handler, inject
         // `condition: <dsl_expr>` before `resolve {` in the matching .ds block.
-        // Effects are matched by their 0-based position among operation-handler
-        // effects in walk.effects (BTreeMap order = alphabetical by binding, which
-        // mirrors the .ds Effect 1 / Effect 2 / … ordering).
+        // The block comes from the shared Phase 20 assignment.
         let mut conditions_added = 0usize;
-        let mut op_effect_idx = 0usize;
-        for eff in &walk.effects {
+        for (eff_i, eff) in walk.effects.iter().enumerate() {
             if eff.operation_handler.is_none() && !eff.is_summon_helper() {
                 // Purely passive — no corresponding effect block in .ds.
-                // Summon-helper chains DO own a block even without an op
-                // handler, so they must consume an index here.
                 continue;
             }
-            let effect_block_idx = op_effect_idx;
-            op_effect_idx += 1;
-            if eff.block_alignment_hazard {
-                // See Pass A — a block-owning chain that consumes no
-                // index precedes this one; the positional mapping is
-                // off-by-N, so injecting would land in the wrong block.
-                continue;
-            }
+            let Some(effect_block_idx) = assign.by_effect[eff_i] else {
+                continue; // see Pass A — no unambiguous block for this effect
+            };
 
             let cond_handler = match &eff.condition_handler {
                 Some(h) => h.trim().to_string(),
@@ -488,16 +481,13 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
         // Inserts after any existing `condition:` line (Pass C already runs above).
         // Idempotent — skips effects whose .ds block already contains `cost {`.
         let mut costs_added = 0usize;
-        let mut cost_op_idx = 0usize;
-        for eff in &walk.effects {
+        for (eff_i, eff) in walk.effects.iter().enumerate() {
             if eff.operation_handler.is_none() && !eff.is_summon_helper() {
                 continue; // purely passive — no effect block in .ds
             }
-            let effect_block_idx = cost_op_idx;
-            cost_op_idx += 1;
-            if eff.block_alignment_hazard {
-                continue; // see Pass A — positional mapping unreliable
-            }
+            let Some(effect_block_idx) = assign.by_effect[eff_i] else {
+                continue; // see Pass A — no unambiguous block for this effect
+            };
 
             let cost_handler = match &eff.cost_handler {
                 Some(h) => h.trim().to_string(),
@@ -521,16 +511,13 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
         // matching .ds block. Idempotent — skips blocks that already contain
         // a target declaration.
         let mut targets_added = 0usize;
-        let mut tgt_op_idx = 0usize;
-        for eff in &walk.effects {
+        for (eff_i, eff) in walk.effects.iter().enumerate() {
             if eff.operation_handler.is_none() && !eff.is_summon_helper() {
                 continue; // purely passive — no effect block in .ds
             }
-            let effect_block_idx = tgt_op_idx;
-            tgt_op_idx += 1;
-            if eff.block_alignment_hazard {
-                continue; // see Pass A — positional mapping unreliable
-            }
+            let Some(effect_block_idx) = assign.by_effect[eff_i] else {
+                continue; // see Pass A — no unambiguous block for this effect
+            };
 
             let tgt_handler = match &eff.target_handler {
                 Some(h) => h.trim().to_string(),
@@ -605,38 +592,10 @@ fn next_passive_index(txt: &str) -> u32 {
 
 /// Find the byte range of the `idx`-th (0-based) `effect "..." { ... }`
 /// block in `txt`. Returns `(start_of_effect_keyword, position_after_closing_brace)`.
-/// Brace-balanced — handles nested `resolve { ... }` / `cost { ... }` etc.
-/// Returns None if there aren't enough effect blocks.
+/// Delegates to the Phase 20 matcher's scanner so the apply passes and
+/// the block-signature parser agree on what counts as a block.
 fn nth_effect_block(txt: &str, idx: usize) -> Option<(usize, usize)> {
-    let mut count = 0usize;
-    let mut search = 0usize;
-    let bytes = txt.as_bytes();
-    loop {
-        let rel = txt[search..].find("effect \"")?;
-        let abs_eff = search + rel;
-        let open_rel = txt[abs_eff..].find('{')?;
-        let abs_open = abs_eff + open_rel;
-        let mut depth = 1usize;
-        let mut i = abs_open + 1;
-        while i < bytes.len() {
-            match bytes[i] {
-                b'{' => depth += 1,
-                b'}' => {
-                    depth -= 1;
-                    if depth == 0 { break; }
-                }
-                _ => {}
-            }
-            i += 1;
-        }
-        if depth != 0 { return None; }
-        let close_after = i + 1;
-        if count == idx {
-            return Some((abs_eff, close_after));
-        }
-        count += 1;
-        search = close_after;
-    }
+    block_match::effect_block_ranges(txt).into_iter().nth(idx)
 }
 
 fn has_empty_resolve(txt: &str) -> bool {
