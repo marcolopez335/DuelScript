@@ -14,6 +14,9 @@ card "Frightfur Jar" {
     effect "Effect 3" {
         speed: 2
         once_per_turn: soft
+        cost {
+            discard (1, card, you control, from hand)
+        }
         resolve {
             draw 1
             destroy (all, card, either controls)
@@ -26,6 +29,8 @@ card "Frightfur Jar" {
         speed: 2
         timing: if
         trigger: custom "chain_end"
-        resolve { }
+        resolve {
+            set_atk target target.atk / 2 until end_of_turn
+        }
     }
 }
