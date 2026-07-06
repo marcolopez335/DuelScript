@@ -1000,6 +1000,10 @@ fn eval_v2_expr(expr: &Expr, rt: &dyn DuelScriptRuntime) -> i32 {
             // can stay &dyn. No select_cards call is needed for counting.
             count_v2_selector(selector, rt, rt.effect_player()) as i32
         }
+        // T34 — both refs are closed to `self`, so they read the
+        // effect's own card (same resolution as StatRef "self").
+        Expr::OverlayCount => rt.get_overlay_count(rt.effect_card_id()) as i32,
+        Expr::CounterCount(name) => rt.get_counter_count(rt.effect_card_id(), name) as i32,
         Expr::BinOp { left, op, right } => {
             let l = eval_v2_expr(left, rt);
             let r = eval_v2_expr(right, rt);
@@ -3431,6 +3435,82 @@ card "ATK Setter" {
         (passive.operation.as_ref().unwrap())(&mut rt);
         assert!(rt.was_called_with("set_atk", "value=1500"),
             "expected set_atk value=1500; calls: {}", rt.dump_calls());
+    }
+
+    /// T34: `modifier: atk + self.overlay_count * 700` reads the live
+    /// material count off the effect's own card.
+    #[test]
+    fn test_passive_overlay_count_modifier_scales_with_materials() {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        let src = r#"
+card "Material Boost" {
+    id: 10021
+    type: Xyz Monster
+    attribute: DARK
+    race: Beast
+    rank: 7
+    atk: 700
+    def: 2500
+    passive "Gains 700 per material" {
+        scope: self
+        modifier: atk + self.overlay_count * 700
+    }
+}
+"#;
+        let file = parse_v2(src).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        let passive = compiled.effects.iter().find(|e| e.label == "Gains 700 per material").unwrap();
+        let mut rt = MockRuntime::new();
+        rt.effect_card_id = 10021;
+        rt.effect_player = 0;
+        rt.state.add_card(CardSnapshot::monster(10021, "Material Boost", 700, 2500, 7));
+        rt.state.overlay_counts.insert(10021, 2);
+        (passive.operation.as_ref().unwrap())(&mut rt);
+        assert!(rt.was_called_with("modify_atk", "delta=1400"),
+            "expected modify_atk delta=1400; calls: {}", rt.dump_calls());
+    }
+
+    /// T34: `modifier: atk + self.counter("Spell Counter") * 300` reads
+    /// the named counter count off the effect's own card.
+    #[test]
+    fn test_passive_counter_modifier_reads_named_counter() {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        let src = r#"
+card "Counter Boost" {
+    id: 10022
+    type: Effect Monster
+    attribute: DARK
+    race: Spellcaster
+    level: 6
+    atk: 2000
+    def: 1700
+    passive "Gains 300 per Spell Counter" {
+        scope: self
+        modifier: atk + self.counter("Spell Counter") * 300
+    }
+}
+"#;
+        let file = parse_v2(src).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        let passive = compiled.effects.iter()
+            .find(|e| e.label == "Gains 300 per Spell Counter").unwrap();
+        let mut rt = MockRuntime::new();
+        rt.effect_card_id = 10022;
+        rt.effect_player = 0;
+        rt.state.add_card(CardSnapshot::monster(10022, "Counter Boost", 2000, 1700, 6));
+        rt.state.counters.insert((10022, "Spell Counter".to_string()), 3);
+        (passive.operation.as_ref().unwrap())(&mut rt);
+        assert!(rt.was_called_with("modify_atk", "delta=900"),
+            "expected modify_atk delta=900; calls: {}", rt.dump_calls());
+        // A different counter name reads 0 — names are identity.
+        let mut rt2 = MockRuntime::new();
+        rt2.effect_card_id = 10022;
+        rt2.effect_player = 0;
+        rt2.state.add_card(CardSnapshot::monster(10022, "Counter Boost", 2000, 1700, 6));
+        rt2.state.counters.insert((10022, "Psychic Counter".to_string()), 3);
+        (passive.operation.as_ref().unwrap())(&mut rt2);
+        assert!(rt2.was_called_with("modify_atk", "delta=0"),
+            "expected modify_atk delta=0 for mismatched counter; calls: {}", rt2.dump_calls());
     }
 
     /// Inline: passive with set_def should emit set_def.

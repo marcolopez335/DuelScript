@@ -858,6 +858,14 @@ pub enum Expr {
     BindingRef(String, StatField),  // "tributed.level"
     PlayerLp(LpOwner),
     Count(Box<Selector>),
+    /// `self.overlay_count` — Xyz Materials overlaid on the effect's
+    /// card (T34). Closed to `self`: corpus passives only ever read the
+    /// modified card's own material count.
+    OverlayCount,
+    /// `self.counter("<name>")` — named counters on the effect's card
+    /// (T34). Names follow the Phase 13 EDOPro `!counter` display-name
+    /// convention ("Spell Counter", …).
+    CounterCount(String),
     BinOp { left: Box<Expr>, op: BinOp, right: Box<Expr> },
 }
 

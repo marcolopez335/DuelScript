@@ -146,6 +146,10 @@ pub struct MockState {
     pub flags: HashMap<(u32, String), ()>,
     /// Counters: (card_id, counter_name) → count
     pub counters: HashMap<(u32, String), u32>,
+    /// Xyz Materials overlaid per card: card_id → count (T34).
+    /// Incremented by `attach_material`; seed directly for scenarios
+    /// that start with materials already attached.
+    pub overlay_counts: HashMap<u32, u32>,
     /// Named bindings for the current effect resolution
     pub bindings: HashMap<String, Vec<u32>>,
     /// The "last selected" group, used by bind_last_selection
@@ -176,6 +180,7 @@ impl Default for MockState {
             cards: HashMap::new(),
             flags: HashMap::new(),
             counters: HashMap::new(),
+            overlay_counts: HashMap::new(),
             bindings: HashMap::new(),
             last_selection: Vec::new(),
             redirects: Vec::new(),
@@ -573,6 +578,10 @@ impl DuelScriptRuntime for MockRuntime {
     }
     fn attach_material(&mut self, material_id: u32, target_id: u32) {
         self.record("attach_material", format!("material={} target={}", material_id, target_id));
+        *self.state.overlay_counts.entry(target_id).or_insert(0) += 1;
+    }
+    fn get_overlay_count(&self, card_id: u32) -> u32 {
+        self.state.overlay_counts.get(&card_id).copied().unwrap_or(0)
     }
 
     // ── Counters ─────────────────────────────────────────────

@@ -742,6 +742,42 @@ mod tests {
     use crate::v2::parser::parse_v2;
 
     #[test]
+    fn test_overlay_counter_passive_valid() {
+        // T34: overlay/counter stat-ref passives pass validation clean —
+        // no bare-target warnings, no missing-resolve errors.
+        let source = r#"
+card "Overlay Counter Valid Test" {
+    id: 1
+    type: Xyz Monster
+    attribute: DARK
+    race: Beast
+    rank: 7
+    atk: 700
+    def: 2500
+
+    summon {
+        cannot_normal_summon
+        xyz materials: (2, monster, where level == 7)
+    }
+
+    passive "Material Boost" {
+        scope: self
+        modifier: atk + self.overlay_count * 700
+    }
+
+    passive "Counter Boost" {
+        scope: self
+        modifier: atk + self.counter("Spell Counter") * 300
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let report = validate_v2(&file);
+        assert_eq!(report.error_count(), 0, "errors: {:?}", report.errors);
+        assert_eq!(report.warning_count(), 0, "warnings: {:?}", report.errors);
+    }
+
+    #[test]
     fn test_restrict_action_valid() {
         // T36: restrict has no card selector — it must not trip the
         // target-scan invariants (bare-target warning, must-have-resolve ok).

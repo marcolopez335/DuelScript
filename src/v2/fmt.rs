@@ -1376,6 +1376,8 @@ fn format_expr(expr: &Expr) -> String {
             LpOwner::Controller => "controller_lp".to_string(),
         },
         Expr::Count(sel) => format!("count({})", format_selector(sel)),
+        Expr::OverlayCount => "self.overlay_count".to_string(),
+        Expr::CounterCount(name) => format!("self.counter(\"{}\")", name),
         Expr::BinOp { left, op, right } => {
             let op_str = match op {
                 BinOp::Add => "+",
@@ -1699,6 +1701,43 @@ card "Restrict Roundtrip Test" {
         let reparsed = parse_v2(&formatted)
             .unwrap_or_else(|e| panic!("roundtrip failed:\n{}\n{}", formatted, e));
         assert_eq!(reparsed.cards[0].effects[0].resolve.len(), 11);
+        assert_eq!(format_file(&reparsed), formatted, "fmt not a fixed point");
+    }
+
+    #[test]
+    fn test_overlay_counter_expr_roundtrips() {
+        // T34: overlay/counter stat-refs survive the parse -> format ->
+        // reparse fixed point in passive modifier exprs.
+        let source = r#"
+card "Overlay Counter Roundtrip Test" {
+    id: 1
+    type: Xyz Monster
+    attribute: DARK
+    race: Beast
+    rank: 7
+    atk: 700
+    def: 2500
+
+    passive "Material Boost" {
+        scope: self
+        modifier: atk + self.overlay_count * 700
+    }
+
+    passive "Counter Boost" {
+        scope: self
+        modifier: def - self.counter("Spell Counter") * 300
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let formatted = format_file(&file);
+        assert!(formatted.contains("modifier: atk + self.overlay_count * 700"),
+            "missing overlay modifier line in:\n{}", formatted);
+        assert!(formatted.contains("modifier: def - self.counter(\"Spell Counter\") * 300"),
+            "missing counter modifier line in:\n{}", formatted);
+        let reparsed = parse_v2(&formatted)
+            .unwrap_or_else(|e| panic!("roundtrip failed:\n{}\n{}", formatted, e));
+        assert_eq!(reparsed.cards[0].passives.len(), 2);
         assert_eq!(format_file(&reparsed), formatted, "fmt not a fixed point");
     }
 
