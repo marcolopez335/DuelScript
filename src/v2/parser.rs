@@ -2082,6 +2082,13 @@ fn parse_expr_atom(pair: Pair<Rule>) -> Result<Expr, V2ParseError> {
             let sel = parse_selector(first.clone().into_inner().next().unwrap())?;
             Ok(Expr::Count(Box::new(sel)))
         }
+        Rule::overlay_count_ref => Ok(Expr::OverlayCount),
+        Rule::counter_ref => {
+            let name = first.clone().into_inner()
+                .find(|p| p.as_rule() == Rule::string)
+                .ok_or(V2ParseError::MissingField("counter name"))?;
+            Ok(Expr::CounterCount(strip_quotes(name.as_str())))
+        }
         Rule::stat_ref => {
             // Could be StatRef (self.atk) or BindingRef (tributed.level)
             let has_ident = first.clone().into_inner().any(|p| p.as_rule() == Rule::ident);
@@ -2680,6 +2687,87 @@ card "Level Test" {
             &resolve[1],
             Action::SetStat(StatName::Level, _, _, None)
         ));
+    }
+
+    /// T34: `self.overlay_count` / `self.counter("<name>")` parse into
+    /// the dedicated Expr variants inside passive modifier exprs.
+    #[test]
+    fn test_parse_overlay_and_counter_stat_refs() {
+        let source = r#"
+card "Stat Ref Test" {
+    id: 1
+    type: Xyz Monster
+    attribute: DARK
+    race: Beast
+    rank: 7
+    atk: 700
+    def: 2500
+
+    passive "Material Boost" {
+        scope: self
+        modifier: atk + self.overlay_count * 700
+    }
+
+    passive "Counter Boost" {
+        scope: self
+        modifier: atk + self.counter("Spell Counter") * 300
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let passives = &file.cards[0].passives;
+        match &passives[0].modifiers[0].value {
+            Expr::BinOp { left, op: BinOp::Mul, right } => {
+                assert!(matches!(**left, Expr::OverlayCount), "left: {:?}", left);
+                assert!(matches!(**right, Expr::Literal(700)), "right: {:?}", right);
+            }
+            other => panic!("expected overlay_count * 700, got {:?}", other),
+        }
+        match &passives[1].modifiers[0].value {
+            Expr::BinOp { left, op: BinOp::Mul, right } => {
+                match &**left {
+                    Expr::CounterCount(name) => assert_eq!(name, "Spell Counter"),
+                    other => panic!("expected CounterCount, got {:?}", other),
+                }
+                assert!(matches!(**right, Expr::Literal(300)), "right: {:?}", right);
+            }
+            other => panic!("expected counter * 300, got {:?}", other),
+        }
+    }
+
+    /// T34 prefix-order guard: the `count(` selector fn and plain
+    /// stat-refs still parse with the new atoms ahead of them in
+    /// expr_atom.
+    #[test]
+    fn test_overlay_counter_refs_do_not_shadow_count_or_stat_refs() {
+        let source = r#"
+card "Prefix Order Test" {
+    id: 1
+    type: Normal Spell
+
+    effect "Burn" {
+        speed: 1
+        resolve {
+            damage opponent count((all, monster, you control)) * 300
+            damage opponent self.atk
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let resolve = &file.cards[0].effects[0].resolve;
+        match &resolve[0] {
+            Action::Damage(_, Expr::BinOp { left, .. }) => {
+                assert!(matches!(**left, Expr::Count(_)), "left: {:?}", left);
+            }
+            other => panic!("expected damage count(...) * 300, got {:?}", other),
+        }
+        match &resolve[1] {
+            Action::Damage(_, Expr::StatRef(entity, StatField::Atk)) => {
+                assert_eq!(entity, "self");
+            }
+            other => panic!("expected damage self.atk, got {:?}", other),
+        }
     }
 
     #[test]

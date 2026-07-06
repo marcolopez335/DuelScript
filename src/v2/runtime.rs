@@ -734,6 +734,18 @@ pub trait DuelScriptRuntime {
     /// **Required to override.**
     fn attach_material(&mut self, material_id: u32, target_id: u32);
 
+    /// Number of Xyz Materials currently overlaid on `card_id`.
+    ///
+    /// T34 trait widen — backs the `self.overlay_count` expr atom used
+    /// by passive stat modifiers ("gains 700 ATK for each material
+    /// attached to it"). Read on every `refresh_continuous` re-invocation
+    /// of the passive, so it must reflect the live material stack, not a
+    /// summon-time snapshot. `0` if the card has no materials or is
+    /// unknown. Default `0`; **ygobeetle mirror obligation** — the
+    /// `YgobeetleRuntimeAdapter` must override this from the engine's
+    /// overlay stack (engine-dev).
+    fn get_overlay_count(&self, _card_id: u32) -> u32 { 0 }
+
     // ── Counters ─────────────────────────────────────────────
 
     /// Place `count` counters of type `counter_name` onto `card_id`.

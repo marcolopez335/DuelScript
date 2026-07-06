@@ -20,6 +20,8 @@ expr      = { expr_atom ~ (expr_op ~ expr_atom)* }
 expr_atom = {
     "(" ~ expr ~ ")"
   | count_expr
+  | overlay_count_ref
+  | counter_ref
   | stat_ref
   | binding_ref
   | player_ref
@@ -28,6 +30,11 @@ expr_atom = {
 }
 expr_op    = { "+" | "-" | "*" | "/" }
 count_expr = { "count" ~ "(" ~ selector ~ ")" }
+// T34 — overlay/counter stat-refs. Ordered before stat_ref so the
+// `self.` prefix never falls into stat_ref's ident branch; counter_ref
+// keeps its parenthesized name distinct from the `count(` selector fn.
+overlay_count_ref = { "self" ~ "." ~ "overlay_count" }
+counter_ref       = { "self" ~ "." ~ "counter" ~ "(" ~ string ~ ")" }
 stat_ref   = { ("self" | "target" | "equipped" | ident) ~ "." ~ stat_field }
 stat_field = { "atk" | "def" | "level" | "rank" | "link" | "scale"
              | "base_atk" | "base_def" | "original_atk" | "original_def" }
