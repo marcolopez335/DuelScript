@@ -130,17 +130,14 @@ These cross the parse-to-runtime seam. Each is a `grammar-extender` PR.
 
 ---
 
-### T34 — `self.overlay_count` / `self.counter(name)` stats in passive expr
-**Goal.** Extend DSL `expr` grammar with stat-refs for overlay materials and named counters so the dropped Phase 4d's passive-path cards (~17) become translatable. Currently `passive_modifier_spec` bails on non-literal SetValue.
+### ~~T34 — `self.overlay_count` / `self.counter(name)` stats in passive expr~~ ✓ shipped
+**Shipped.** Grammar + translator in one branch. Two new expr atoms, closed to the `self` receiver (re-audit found zero `target.`/`equipped.` use): `overlay_count_ref = { "self" ~ "." ~ "overlay_count" }` and `counter_ref = { "self" ~ "." ~ "counter" ~ "(" ~ string ~ ")" }`, ordered before `stat_ref` in `expr_atom`. Wired AST (`Expr::OverlayCount` / `Expr::CounterCount`) → parser → validator (acceptance only, no new invariants) → compiler eval → fmt fixed-point. FF-I trait widen: `fn get_overlay_count(&self, _card_id: u32) -> u32 { 0 }` on `DuelScriptRuntime` (**ygobeetle mirror obligation** — engine-dev); `get_counter_count` already existed.
 
-**Yield (post-grammar).** ~10 overlay/counter cards + ~7 count(selector) cards = ~17 cards if combined with a follow-up translator extension to `passive_modifier_spec`.
+Translator: `passive_modifier_spec` lowers inline-closure SetValues `function(e,c) return c:GetOverlayCount()*N end` / `c:GetCounter(COUNTER_X|0xN)*N` (factor may lead or trail; counter codes via Phase 13 `counter_arg_to_name`), gated to `EFFECT_TYPE_SINGLE` self shape — in EQUIP/FIELD chains the closure's card param is each *affected* card. `PassiveModifierSpec.value` widened `i64` → `(negative: bool, value: String)`.
 
-**Approach.**
-1. Add `self.overlay_count` and `self.counter(<name>)` to grammar `expr` rule.
-2. Wire AST + compiler (mock + DuelScriptRuntime trait method).
-3. Follow-up translator pass: extend `passive_modifier_spec` to handle non-literal SetValue with `c:GetOverlayCount()*N` / `c:GetCounter(0xN)*N` shapes.
+**Actual yield.** 10 passive blocks / 9 cards (all canonical closures in corpus): overlay — c94503794, c72971064, c10300821, c16110708, c7020743 (atk+def clone); counter — c31924889, c71413901, c14553285, c21113684 (all Spell Counter). Check delta ±0 (1,847/1,574 unchanged): the gaps were silent fidelity misses, not check errors. Skip classes (tested): one-param closures (5), `e:GetHandler()` receivers (6), `Duel.*` global counts (5), multi-step math (2), in-handler `GetReasonCard` registration (c44161893), Gemini-conditioned chain (c83269557), named fn refs, unknown counter codes.
 
-**Agent.** `grammar-extender` first; then `lua-translator` for the passive-side translator extension.
+**Follow-up (not this story).** The ~7-card count(selector) half of the old estimate re-audited at 30 SetValue closures wrapping `Duel.GetMatchingGroupCount`/`GetFieldGroupCount` on UPDATE chains. Grammar already covers them (`count(...)` since Phase 10), but the translator needs `count_call_to_count_expr` to accept `c:GetControler()`/`e:GetHandlerPlayer()` scope players (it gates on `tp`/`1-tp`) plus `aux.FaceupFilter` mapping — a separate translator micro-phase.
 
 ---
 
