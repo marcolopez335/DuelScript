@@ -413,9 +413,10 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
         }
 
         // Pass B — Phase 5 passive injection. For every effect skeleton
-        // whose chain is a literal stat-modifier passive (no SetOperation
-        // / SetTarget / SetCondition / SetCost), emit a `passive { … }`
-        // block before the card's closing brace. Skips chains whose DSL
+        // whose chain is a stat-modifier passive (no SetOperation
+        // / SetTarget / SetCondition / SetCost; literal SetValue or a
+        // T34 overlay/counter closure), emit a `passive { … }` block
+        // before the card's closing brace. Skips chains whose DSL
         // text already exists in the file (avoids duplicate injection on
         // re-runs of the apply tool).
         let mut passives_added = 0usize;
@@ -426,12 +427,7 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             let block = spec.to_dsl_block(&name, "    ");
             // Skip if a passive with the exact same modifier line already
             // exists — prevents double-injection on re-runs.
-            let modifier_line = format!("modifier: {} {} {}",
-                spec.stat,
-                if spec.value < 0 { '-' } else { '+' },
-                spec.value.unsigned_abs(),
-            );
-            if new_txt.contains(&modifier_line) { continue; }
+            if new_txt.contains(&spec.modifier_line()) { continue; }
             if let Some(pos) = card_close_brace(&new_txt) {
                 new_txt = format!("{}\n\n{}\n{}", &new_txt[..pos], block, &new_txt[pos..]);
                 passives_added += 1;

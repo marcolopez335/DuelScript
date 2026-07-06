@@ -422,9 +422,16 @@ impl EffectSkeleton {
             && self.cost_handler.is_none()
     }
 
-    /// If this skeleton is a literal stat-modifier passive
-    /// (`SetCode(EFFECT_UPDATE_ATTACK|DEFENSE)` + literal `SetValue`,
-    /// no activated-effect handlers), return the spec.
+    /// If this skeleton is a stat-modifier passive
+    /// (`SetCode(EFFECT_UPDATE_ATTACK|DEFENSE)` + translatable
+    /// `SetValue`, no activated-effect handlers), return the spec.
+    ///
+    /// `SetValue` accepts a literal integer, or (T34) an inline closure
+    /// whose body is a single-step overlay/counter product — see
+    /// `passive_value_expr`. Closure values only qualify for the
+    /// `EFFECT_TYPE_SINGLE` self shape: in EQUIP/FIELD chains the
+    /// closure's card param is each *affected* card, which DSL `self`
+    /// would misread.
     ///
     /// Returns None for `EFFECT_TYPE_FIELD` chains whose `SetTargetRange`
     /// is missing — without that arg we cannot know whether the modifier
@@ -439,14 +446,22 @@ impl EffectSkeleton {
             "EFFECT_UPDATE_DEFENSE" => "def",
             _ => return None,
         };
-        let value: i64 = self.first_arg_of("SetValue")?.parse().ok()?;
         let effect_type = self.first_arg_of("SetType").unwrap_or("").to_string();
         let scope_target = derive_passive_scope_target(
             &effect_type,
             self.args_of("SetTargetRange"),
         )?;
+        let raw_value = self.first_arg_of("SetValue")?;
+        let (negative, value) = if let Ok(n) = raw_value.parse::<i64>() {
+            (n < 0, n.unsigned_abs().to_string())
+        } else if scope_target.scope.is_none() && scope_target.target.is_none() {
+            passive_value_expr(raw_value)?
+        } else {
+            return None;
+        };
         Some(PassiveModifierSpec {
             stat: stat.to_string(),
+            negative,
             value,
             effect_type,
             scope: scope_target.scope,
@@ -756,27 +771,37 @@ fn derive_passive_scope_target(
     None
 }
 
-/// Spec for a literal stat-modifier passive — extracted from an
+/// Spec for a stat-modifier passive — extracted from an
 /// `EffectSkeleton` whose chain is `SetType(EFFECT_TYPE_*) +
-/// SetCode(EFFECT_UPDATE_ATTACK|DEFENSE) + SetValue(<int>)` with no
-/// activated-effect handlers and a `c:RegisterEffect` commit.
+/// SetCode(EFFECT_UPDATE_ATTACK|DEFENSE) + SetValue(<int or T34
+/// overlay/counter closure>)` with no activated-effect handlers and a
+/// `c:RegisterEffect` commit.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PassiveModifierSpec {
     pub stat: String,             // "atk" | "def"
-    pub value: i64,               // signed delta
+    /// Sign of the modifier line (`-` when true).
+    pub negative: bool,
+    /// Sign-free DSL value expr: `"500"`, `"self.overlay_count * 700"`,
+    /// `"self.counter(\"Spell Counter\") * 300"`, …
+    pub value: String,
     pub effect_type: String,      // raw SetType arg
     pub scope: Option<&'static str>,
     pub target: Option<&'static str>,
 }
 
 impl PassiveModifierSpec {
+    /// The `modifier: …` line this spec renders to (also the apply
+    /// tool's duplicate-injection key).
+    pub fn modifier_line(&self) -> String {
+        let op = if self.negative { '-' } else { '+' };
+        format!("modifier: {} {} {}", self.stat, op, self.value)
+    }
+
     /// Render to a DSL `passive "<name>" { … }` block. Emits a `scope:`
     /// or `target:` line when needed so the modifier's reach matches
     /// the underlying Lua chain (e.g. `target: equipped_card` for
     /// `EFFECT_TYPE_EQUIP`).
     pub fn to_dsl_block(&self, name: &str, indent: &str) -> String {
-        let op = if self.value < 0 { '-' } else { '+' };
-        let n = self.value.unsigned_abs();
         let mut body = String::new();
         if let Some(scope) = self.scope {
             body.push_str(&format!("{indent}    scope: {scope}\n"));
@@ -784,9 +809,61 @@ impl PassiveModifierSpec {
         if let Some(target) = self.target {
             body.push_str(&format!("{indent}    target: {target}\n"));
         }
-        body.push_str(&format!("{indent}    modifier: {} {} {}\n", self.stat, op, n));
+        body.push_str(&format!("{indent}    {}\n", self.modifier_line()));
         format!("{indent}passive \"{name}\" {{\n{body}{indent}}}")
     }
+}
+
+/// T34 — lower a non-literal `SetValue` arg to a DSL passive value
+/// expr. Accepts exactly the inline-closure shape
+/// `function(<e>,<c>) return <body> end` where `<body>` is a
+/// single-step product on the closure's card param:
+///
+///   c:GetOverlayCount()              → self.overlay_count
+///   c:GetOverlayCount()*N            → self.overlay_count * N
+///   N*c:GetOverlayCount()            → self.overlay_count * N
+///   c:GetCounter(COUNTER_X | 0xN)*N  → self.counter("<name>") * N
+///
+/// Counter codes resolve through the Phase 13 embedded map
+/// (`counter_arg_to_name`); unknown codes skip. Everything else —
+/// named function refs, one-param closures (whose bodies read
+/// `e:GetHandler()`), `e:GetHandler()` receivers, `Duel.*` globals,
+/// multi-step math, non-`*` operators, negative factors — returns None
+/// so the caller skips instead of mis-emitting. Always positive
+/// (`negative` = false): no corpus closure of this shape subtracts.
+fn passive_value_expr(raw: &str) -> Option<(bool, String)> {
+    let rest = raw.trim().strip_prefix("function")?.trim_start();
+    let (params, body) = rest.strip_prefix('(')?.split_once(')')?;
+    // The affected-card param is the closure's second arg; one-param
+    // closures have no card handle and skip.
+    let card_param = params.split(',').nth(1).map(str::trim).filter(|p| !p.is_empty())?;
+    let body = body.trim_start().strip_prefix("return")?;
+    if !body.starts_with(char::is_whitespace) { return None; }
+    let body = body.trim().strip_suffix("end")?.trim_end();
+    let (call_txt, factor) = match split_top_level_binop(body) {
+        None => (body, 1u64),
+        Some((l, '*', r)) => {
+            if let Ok(n) = r.parse::<u64>() { (l, n) }
+            else if let Ok(n) = l.parse::<u64>() { (r, n) }
+            else { return None; }
+        }
+        Some(_) => return None,
+    };
+    let stat_ref = overlay_counter_call_to_ref(call_txt, card_param)?;
+    Some((false, if factor == 1 { stat_ref } else { format!("{stat_ref} * {factor}") }))
+}
+
+/// `<card_param>:GetOverlayCount()` → `self.overlay_count`;
+/// `<card_param>:GetCounter(<code>)` → `self.counter("<name>")`.
+/// Any other receiver or method returns None.
+fn overlay_counter_call_to_ref(call: &str, card_param: &str) -> Option<String> {
+    let rest = call.strip_prefix(card_param)?.strip_prefix(':')?;
+    if rest == "GetOverlayCount()" {
+        return Some("self.overlay_count".to_string());
+    }
+    let arg = rest.strip_prefix("GetCounter(")?.strip_suffix(')')?;
+    let name = counter_arg_to_name(arg)?;
+    Some(format!("self.counter(\"{name}\")"))
 }
 
 /// One `Duel.X(args...)` call extracted from a function body.
@@ -7305,7 +7382,8 @@ end
         let skel = report.effects.iter().find(|s| s.binding == "e2").expect("e2 skel");
         let spec = skel.passive_modifier_spec().expect("passive spec");
         assert_eq!(spec.stat, "atk");
-        assert_eq!(spec.value, 300);
+        assert_eq!(spec.value, "300");
+        assert!(!spec.negative);
         assert_eq!(spec.effect_type, "EFFECT_TYPE_EQUIP");
         assert_eq!(spec.target, Some("equipped_card"));
         let dsl = spec.to_dsl_block("Equip ATK", "    ");
@@ -7418,9 +7496,143 @@ end
         let skel = &report.effects[0];
         let spec = skel.passive_modifier_spec().expect("passive spec");
         assert_eq!(spec.stat, "def");
-        assert_eq!(spec.value, -200);
+        assert_eq!(spec.value, "200");
+        assert!(spec.negative);
         let dsl = spec.to_dsl_block("Penalty", "    ");
         assert!(dsl.contains("modifier: def - 200"), "got:\n{}", dsl);
+    }
+
+    /// T34 helper: builds a SINGLE self passive chain around `value`.
+    fn overlay_chain(value: &str) -> String {
+        format!(r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetRange(LOCATION_MZONE)
+    e1:SetValue({value})
+    c:RegisterEffect(e1)
+end
+"#)
+    }
+
+    fn spec_of(src: &str) -> Option<PassiveModifierSpec> {
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        report.effects[0].passive_modifier_spec()
+    }
+
+    #[test]
+    fn t34_overlay_closure_emits_overlay_count_expr() {
+        // c94503794 shape: "Gains 700 ATK for each material attached".
+        let spec = spec_of(&overlay_chain(
+            "function(e,c) return c:GetOverlayCount()*700 end")).expect("spec");
+        assert_eq!(spec.value, "self.overlay_count * 700");
+        assert!(!spec.negative);
+        let dsl = spec.to_dsl_block("Material Boost", "    ");
+        assert!(dsl.contains("modifier: atk + self.overlay_count * 700"), "got:\n{}", dsl);
+    }
+
+    #[test]
+    fn t34_overlay_closure_reversed_factor_and_underscore_param() {
+        // c44161893 shape: `function(_,c)`; also a leading factor.
+        let spec = spec_of(&overlay_chain(
+            "function(_,c) return 300*c:GetOverlayCount() end")).expect("spec");
+        assert_eq!(spec.value, "self.overlay_count * 300");
+    }
+
+    #[test]
+    fn t34_counter_closure_emits_counter_expr() {
+        // c31924889 shape: "gains 1000 ATK for each Spell Counter on it".
+        let spec = spec_of(&overlay_chain(
+            "function(e,c) return c:GetCounter(COUNTER_SPELL)*1000 end")).expect("spec");
+        assert_eq!(spec.value, "self.counter(\"Spell Counter\") * 1000");
+        let dsl = spec.to_dsl_block("Counter Boost", "    ");
+        assert!(dsl.contains("modifier: atk + self.counter(\"Spell Counter\") * 1000"),
+            "got:\n{}", dsl);
+    }
+
+    #[test]
+    fn t34_counter_hex_code_resolves_via_phase13_map() {
+        let spec = spec_of(&overlay_chain(
+            "function(e,c) return c:GetCounter(0x1)*300 end")).expect("spec");
+        assert_eq!(spec.value, "self.counter(\"Spell Counter\") * 300");
+    }
+
+    #[test]
+    fn t34_bare_overlay_call_emits_factorless_ref() {
+        let spec = spec_of(&overlay_chain(
+            "function(e,c) return c:GetOverlayCount() end")).expect("spec");
+        assert_eq!(spec.value, "self.overlay_count");
+    }
+
+    #[test]
+    fn t34_skip_one_param_closure() {
+        // c19369609 shape: no card param — the handler receiver is not
+        // the closure's affected-card arg.
+        assert!(spec_of(&overlay_chain(
+            "function(e) return e:GetHandler():GetOverlayCount()*500 end")).is_none());
+    }
+
+    #[test]
+    fn t34_skip_handler_receiver() {
+        // c9453320 / c60600821 shapes: two-param closure but the count
+        // is read off e:GetHandler(), not the card param.
+        assert!(spec_of(&overlay_chain(
+            "function(e,c) return 300*e:GetHandler():GetOverlayCount() end")).is_none());
+        assert!(spec_of(&overlay_chain(
+            "function(e,c) return e:GetHandler():GetCounter(COUNTER_SEASON)*400 end")).is_none());
+    }
+
+    #[test]
+    fn t34_skip_duel_global_counts() {
+        // c57448410 / c22011689 shapes: field-wide Duel.* counts are not
+        // a self stat.
+        assert!(spec_of(&overlay_chain(
+            "function(e,c) return Duel.GetOverlayCount(0,1,1)*100 end")).is_none());
+        assert!(spec_of(&overlay_chain(
+            "function(e,c) return Duel.GetCounter(0,1,1,COUNTER_PREDATOR)*200 end")).is_none());
+    }
+
+    #[test]
+    fn t34_skip_multi_step_math() {
+        // c67630394 / c90303227 shapes: composite arithmetic skips.
+        assert!(spec_of(&overlay_chain(
+            "function(_,_c) return (_c:GetOverlayCount()+_c:GetEquipCount())*300 end")).is_none());
+        assert!(spec_of(&overlay_chain(
+            "function(e,c) return math.max(0,e:GetHandler():GetOverlayCount()-1) end")).is_none());
+    }
+
+    #[test]
+    fn t34_skip_named_function_ref() {
+        assert!(spec_of(&overlay_chain("s.atkval")).is_none());
+    }
+
+    #[test]
+    fn t34_skip_unknown_counter_code() {
+        assert!(spec_of(&overlay_chain(
+            "function(e,c) return c:GetCounter(0x9999)*100 end")).is_none());
+    }
+
+    #[test]
+    fn t34_skip_closure_value_on_field_chain() {
+        // Closure values only qualify for the SINGLE self shape: in a
+        // FIELD chain the closure's `c` is each affected card, which
+        // DSL `self` would misread.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetRange(LOCATION_MZONE)
+    e1:SetTargetRange(LOCATION_MZONE,0)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(function(e,c) return c:GetOverlayCount()*200 end)
+    c:RegisterEffect(e1)
+end
+"#;
+        assert!(spec_of(src).is_none(),
+            "closure SetValue on a FIELD chain must skip");
     }
 
     #[test]
@@ -10321,8 +10533,8 @@ end
         assert_eq!(report.effects.len(), 2);
         let spec1 = report.effects[0].passive_modifier_spec().expect("e1 spec");
         let spec2 = report.effects[1].passive_modifier_spec().expect("e2 spec");
-        assert_eq!((spec1.stat.as_str(), spec1.value), ("atk", 500));
-        assert_eq!((spec2.stat.as_str(), spec2.value), ("def", 500));
+        assert_eq!((spec1.stat.as_str(), spec1.value.as_str()), ("atk", "500"));
+        assert_eq!((spec2.stat.as_str(), spec2.value.as_str()), ("def", "500"));
     }
 
     #[test]
