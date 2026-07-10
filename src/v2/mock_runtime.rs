@@ -545,12 +545,12 @@ impl DuelScriptRuntime for MockRuntime {
     fn take_control(&mut self, card_id: u32, new_controller: u8, duration: Duration) {
         self.record("take_control", format!("card={} new_ctrl={} dur={:?}", card_id, new_controller, duration));
     }
-    fn set_atk(&mut self, card_id: u32, value: i32) {
-        self.record("set_atk", format!("card={} value={}", card_id, value));
+    fn set_atk(&mut self, card_id: u32, value: i32, duration: Duration) {
+        self.record("set_atk", format!("card={} value={} dur={:?}", card_id, value, duration));
         if let Some(c) = self.state.cards.get_mut(&card_id) { c.atk = value; }
     }
-    fn set_def(&mut self, card_id: u32, value: i32) {
-        self.record("set_def", format!("card={} value={}", card_id, value));
+    fn set_def(&mut self, card_id: u32, value: i32, duration: Duration) {
+        self.record("set_def", format!("card={} value={} dur={:?}", card_id, value, duration));
         if let Some(c) = self.state.cards.get_mut(&card_id) { c.def = value; }
     }
 
@@ -791,8 +791,8 @@ impl DuelScriptRuntime for MockRuntime {
     }
 
     // ── Card Identity Changes ────────────────────────────────
-    fn change_level(&mut self, card_id: u32, level: u32) {
-        self.record("change_level", format!("card={} level={}", card_id, level));
+    fn change_level(&mut self, card_id: u32, level: u32, duration: Duration) {
+        self.record("change_level", format!("card={} level={} dur={:?}", card_id, level, duration));
         if let Some(c) = self.state.cards.get_mut(&card_id) { c.level = level; }
     }
     fn modify_level(&mut self, card_id: u32, delta: i32, duration: Duration) {
