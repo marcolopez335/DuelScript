@@ -1060,6 +1060,7 @@ fn eval_predicate(pred: &Predicate, card_id: u32, rt: &dyn DuelScriptRuntime) ->
 fn eval_predicate_atom(atom: &PredicateAtom, card_id: u32, rt: &dyn DuelScriptRuntime) -> bool {
     match atom {
         PredicateAtom::Not(inner) => !eval_predicate_atom(inner, card_id, rt),
+        PredicateAtom::Nested(pred) => eval_predicate(pred, card_id, rt),
 
         PredicateAtom::StatCompare(field, op, expr) => {
             let lhs = stat_field_to_value(field, card_id, rt);
@@ -4616,6 +4617,83 @@ card "Test Cannot NS" {
         let cards = super::resolve_v2_selector(&sel, &mut rt, 0);
         assert!(cards.is_empty(),
             "atk >= 9999 predicate should filter all candidates; got {:?}", cards);
+    }
+
+    /// A `where X and (A or B)` predicate — Nested(Or) under And — keeps
+    /// cards matching either race and drops the rest.
+    #[test]
+    fn counted_where_clause_nested_or_under_and() {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        use super::super::ast::{
+            Selector, Quantity, CardFilter, CardFilterKind, Controller,
+            Predicate, PredicateAtom, Race,
+        };
+        // where is_face_up and (race == Beast or race == Winged Beast)
+        let sel = Selector::Counted {
+            quantity: Quantity::All,
+            filter: CardFilter { name: None, kind: CardFilterKind::Monster },
+            controller: Some(Controller::Opponent),
+            zone: None,
+            position: None,
+            where_clause: Some(Predicate::And(vec![
+                PredicateAtom::IsFaceUp,
+                PredicateAtom::Nested(Box::new(Predicate::Or(vec![
+                    PredicateAtom::RaceIs(Race::Beast),
+                    PredicateAtom::RaceIs(Race::WingedBeast),
+                ]))),
+            ])),
+        };
+
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 0;
+        rt.state.add_card(CardSnapshot::monster(701, "BeastMon", 1200, 800, 3)
+            .with_race(super::race_to_engine(&Race::Beast) as u64));
+        rt.state.add_card(CardSnapshot::monster(702, "WingedMon", 1400, 900, 4)
+            .with_race(super::race_to_engine(&Race::WingedBeast) as u64));
+        rt.state.add_card(CardSnapshot::monster(703, "ZombieMon", 1600, 0, 4)
+            .with_race(super::race_to_engine(&Race::Zombie) as u64));
+        rt.state.players[1].field_monsters.extend([701, 702, 703]);
+
+        let cards = super::resolve_v2_selector(&sel, &mut rt, 0);
+        assert_eq!(cards, vec![701, 702],
+            "Nested(Or) should keep both matching races and drop Zombie");
+    }
+
+    /// `where not (A or B)` — Not wrapping Nested(Or) — inverts the group.
+    #[test]
+    fn counted_where_clause_not_nested_or() {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        use super::super::ast::{
+            Selector, Quantity, CardFilter, CardFilterKind, Controller,
+            Predicate, PredicateAtom, Race,
+        };
+        let sel = Selector::Counted {
+            quantity: Quantity::All,
+            filter: CardFilter { name: None, kind: CardFilterKind::Monster },
+            controller: Some(Controller::Opponent),
+            zone: None,
+            position: None,
+            where_clause: Some(Predicate::Single(PredicateAtom::Not(Box::new(
+                PredicateAtom::Nested(Box::new(Predicate::Or(vec![
+                    PredicateAtom::RaceIs(Race::Beast),
+                    PredicateAtom::RaceIs(Race::WingedBeast),
+                ]))),
+            )))),
+        };
+
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 0;
+        rt.state.add_card(CardSnapshot::monster(711, "BeastMon", 1200, 800, 3)
+            .with_race(super::race_to_engine(&Race::Beast) as u64));
+        rt.state.add_card(CardSnapshot::monster(712, "ZombieMon", 1600, 0, 4)
+            .with_race(super::race_to_engine(&Race::Zombie) as u64));
+        rt.state.players[1].field_monsters.extend([711, 712]);
+
+        let cards = super::resolve_v2_selector(&sel, &mut rt, 0);
+        assert_eq!(cards, vec![712],
+            "not (Beast or Winged Beast) should keep only the Zombie");
     }
 
     // ── M3b tests ────────────────────────────────────────────────

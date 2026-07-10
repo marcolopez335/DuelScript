@@ -975,6 +975,7 @@ fn format_predicate(pred: &Predicate) -> String {
 fn format_pred_atom(atom: &PredicateAtom) -> String {
     match atom {
         PredicateAtom::Not(inner) => format!("not {}", format_pred_atom(inner)),
+        PredicateAtom::Nested(pred) => format!("({})", format_predicate(pred)),
         PredicateAtom::StatCompare(field, op, expr) => {
             format!("{} {} {}", format_stat_field(field), format_compare_op(op), format_expr(expr))
         }
@@ -1662,6 +1663,36 @@ card "Equip Receiver Test" {
         let reparsed = parse_v2(&formatted)
             .unwrap_or_else(|e| panic!("roundtrip failed:\n{}\n{}", formatted, e));
         assert_eq!(reparsed.cards[0].effects[0].resolve.len(), 4);
+    }
+
+    #[test]
+    fn test_parenthesized_where_predicate_roundtrips() {
+        // T38 S1 shape: a parenthesized Or-group inside an And where-clause
+        // survives the parse → format → reparse fixed point.
+        let source = r#"
+card "Paren Pred Roundtrip" {
+    id: 1
+    type: Normal Spell
+
+    effect "Filtered Destroy" {
+        speed: 1
+        resolve {
+            destroy (all, monster, opponent controls, where is_face_up and (race == Beast or race == Winged Beast))
+            destroy (all, monster, opponent controls, where not (race == Zombie or race == Fiend))
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let formatted = format_file(&file);
+        assert!(formatted.contains("where is_face_up and (race == Beast or race == Winged Beast)"),
+            "missing paren group in:\n{}", formatted);
+        assert!(formatted.contains("where not (race == Zombie or race == Fiend)"),
+            "missing negated paren group in:\n{}", formatted);
+        let reparsed = parse_v2(&formatted)
+            .unwrap_or_else(|e| panic!("roundtrip failed:\n{}\n{}", formatted, e));
+        let reformatted = format_file(&reparsed);
+        assert_eq!(formatted, reformatted, "format must be a fixed point");
     }
 
     #[test]
