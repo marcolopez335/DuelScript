@@ -961,11 +961,22 @@ fn cost_header_matches(
     let Some(block_cost) = block_cost_text(block) else { return true };
     let Some(handler) = eff.cost_handler.as_deref() else { return false };
     let handler = handler.trim();
-    // Inline `Cost.DetachFromSelf(n)` factory (utility.lua:1630 —
-    // detach exactly n materials from the handler as cost). Single
-    // literal arg only; min/max or function-valued forms stay
-    // unverifiable. Parity-check use only — Pass D's injection surface
-    // is unchanged.
+    // Inline Cost.* factories with fixed semantics (utility.lua:1485-,
+    // 1630-) — decoded for the parity check only; Pass D's injection
+    // surface is unchanged.
+    //   - Cost.SelfBanish  → banish self (Duel.Remove(c, …, REASON_COST))
+    //   - Cost.SelfTribute → tribute self (Duel.Release(c, REASON_COST))
+    //   - Cost.DetachFromSelf(n), single literal arg → detach n from
+    //     self; min/max or function-valued forms stay unverifiable.
+    match handler {
+        "Cost.SelfBanish" => {
+            return normalize_ws(&block_cost) == "cost { banish self }";
+        }
+        "Cost.SelfTribute" => {
+            return normalize_ws(&block_cost) == "cost { tribute self }";
+        }
+        _ => {}
+    }
     if let Some(rest) = handler.strip_prefix("Cost.DetachFromSelf(") {
         if let Some(n) = rest.strip_suffix(')') {
             let n = n.trim();

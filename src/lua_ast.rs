@@ -124,6 +124,13 @@ pub struct FunctionBody {
     /// recorded so `body_drops_chains` can reject fills that would
     /// silently omit one arm of the runtime choice.
     pub method_ops_poisoned: bool,
+    /// True when the body assigns a `*.CheckAdditional` hook
+    /// (`Synchro.CheckAdditional = s.syncheck` — an extra material-
+    /// legality constraint threaded around a summon call, T38 S7
+    /// review fix). The extra-deck summon arm must skip: the
+    /// constraint lives outside the call's arguments and has no DSL
+    /// surface.
+    pub summon_check_additional: bool,
 }
 
 /// A guarded-value function body (Phase 19): `if cond then return
@@ -333,6 +340,14 @@ pub struct SelectorSpec {
     /// path. A non-nil, non-self exception is unexpressible and clears
     /// `filter_mapped` + `raw_filter` instead.
     pub except_self: bool,
+    /// Raw EXTRA filter arguments of the producing call — everything
+    /// past the exception arg (T38 S7 review fix). Lua threads them
+    /// into the filter predicate (`GetMatchingGroup(Card.
+    /// IsSynchroSummonable, tp, LOCATION_EXTRA, 0, nil, c)` narrows to
+    /// "summonable USING c"), so a consumer that must state the filter
+    /// EXACTLY has to account for them — the where-clause machinery
+    /// never sees them. Empty when the call had none.
+    pub filter_extra: Vec<String>,
 }
 
 impl SelectorSpec {
@@ -1049,6 +1064,10 @@ fn setcode_const_to_archetype(c: &str) -> Option<&'static str> {
         "SET_KARAKURI"     => "Karakuri",
         "SET_LAVAL"        => "Laval",
         "SET_MORGANITE"    => "Morganite",
+        // T38 S7 — archetypes referenced by extra-deck summon filters
+        // and material pools.
+        "SET_NOBLE_KNIGHT" => "Noble Knight",
+        "SET_YANG_ZING"    => "Yang Zing",
         "SET_PERFORMAPAL"  => "Performapal",
         "SET_DD"           => "D/D",
         "SET_GEM_KNIGHT"   => "Gem-Knight",
@@ -1466,6 +1485,7 @@ fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
             let guarded_return = extract_guarded_return(body_block);
             let (counter_ops, counter_ops_poisoned) = extract_counter_ops(body_block);
             let (method_ops, method_ops_poisoned) = extract_method_ops(body_block);
+            let summon_check_additional = block_assigns_check_additional(body_block);
             let (inline_options, choice_arms) = extract_choice_arms(body_block);
             let helper_calls = extract_helper_calls(body_block);
             let equip_helper = extract_equip_helper(body);
@@ -1504,6 +1524,7 @@ fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
                     params,
                     method_ops,
                     method_ops_poisoned,
+                    summon_check_additional,
                 });
             }
         }
@@ -2561,6 +2582,32 @@ fn collect_group_bindings(
                             sources.remove(name);
                             continue;
                         }
+                        // T38 S7 — `local sg = g:Select(tp, min, max, nil)`:
+                        // a fresh resolve-time pick from an already-tracked
+                        // group. The derived spec narrows the quantity;
+                        // kind/controller/zone/where and the filter-mapping
+                        // state inherit from the source. Non-`tp` pickers
+                        // and non-nil exception args skip (a second
+                        // exclusion can't compose with the source's).
+                        if let Some((src, sel_args)) = group_select_call(fc) {
+                            if sel_args.len() == 4
+                                && sel_args[0].trim() == "tp"
+                                && sel_args[3].trim() == "nil"
+                            {
+                                if let (Some(mut spec), Some(qty)) = (
+                                    out.get(&src).cloned(),
+                                    quantity_from(sel_args[1].trim(), sel_args[2].trim()),
+                                ) {
+                                    spec.quantity = qty;
+                                    spec.from_resolve_select = true;
+                                    if out.insert(name.clone(), spec).is_some() {
+                                        tainted.insert(name.clone());
+                                    }
+                                    sources.insert(name.clone(), src);
+                                    continue;
+                                }
+                            }
+                        }
                     }
                     // `local tc = g:GetFirst()` — alias of an existing
                     // one-card selection binding.
@@ -2610,6 +2657,19 @@ fn collect_group_bindings(
             _ => {}
         }
     }
+}
+
+/// `<group>:Select(args)` — the group-method re-select idiom (T38 S7).
+/// Returns the source binding name and the Select call's args when the
+/// expression is exactly one method-call suffix on a plain name.
+fn group_select_call(fc: &FunctionCall) -> Option<(String, Vec<String>)> {
+    let ast::Prefix::Name(n) = fc.prefix() else { return None };
+    let mut suffixes = fc.suffixes();
+    let first = suffixes.next()?;
+    if suffixes.next().is_some() { return None; }
+    let Suffix::Call(Call::MethodCall(mc)) = first else { return None };
+    if mc.name().token().to_string() != "Select" { return None; }
+    Some((n.token().to_string(), call_args_to_strings(mc.args())))
 }
 
 /// `Duel.SelectMatchingCard(...):GetFirst()` — a one-card selection
@@ -3368,6 +3428,9 @@ fn spec_from_matching(args: &[String], _has_opp_locs: bool, has_minmax: bool) ->
         from_resolve_select: false,
         raw_filter: None,
         except_self,
+        filter_extra: args.get(exception_idx + 1..)
+            .unwrap_or_default()
+            .to_vec(),
     })
 }
 
@@ -3446,6 +3509,7 @@ fn spec_from_get_matching(args: &[String]) -> Option<SelectorSpec> {
         from_resolve_select: false,
         raw_filter: if exception_ok { Some(args[0].clone()) } else { None },
         except_self,
+        filter_extra: args.get(5..).unwrap_or_default().to_vec(),
     })
 }
 
@@ -3901,6 +3965,41 @@ fn extract_method_ops(block: &Block) -> (Vec<CardMethodOp>, bool) {
 fn expr_has_method_op(expr: &Expression) -> bool {
     let text = expr.to_string();
     CARD_METHOD_OPS.iter().any(|m| text.contains(&format!(":{}(", m)))
+}
+
+/// True when any assignment in the block (recursively) writes a
+/// `*.CheckAdditional` hook — `Synchro.CheckAdditional = s.syncheck` /
+/// `Xyz.CheckAdditional` — the material-legality side channel some
+/// extra-deck summon ops thread around the summon call (T38 S7 review
+/// fix). The constraint has no DSL surface, so the summon arm skips.
+fn block_assigns_check_additional(block: &Block) -> bool {
+    for stmt in block.stmts() {
+        match stmt {
+            Stmt::Assignment(a) => {
+                for var in a.variables() {
+                    if var.to_string().contains("CheckAdditional") {
+                        return true;
+                    }
+                }
+            }
+            Stmt::If(if_stmt) => {
+                if block_assigns_check_additional(if_stmt.block()) { return true; }
+                for ei in if_stmt.else_if().into_iter().flatten() {
+                    if block_assigns_check_additional(ei.block()) { return true; }
+                }
+                if let Some(eb) = if_stmt.else_block() {
+                    if block_assigns_check_additional(eb) { return true; }
+                }
+            }
+            Stmt::While(w)       => if block_assigns_check_additional(w.block()) { return true; },
+            Stmt::Repeat(r)      => if block_assigns_check_additional(r.block()) { return true; },
+            Stmt::NumericFor(nf) => if block_assigns_check_additional(nf.block()) { return true; },
+            Stmt::GenericFor(gf) => if block_assigns_check_additional(gf.block()) { return true; },
+            Stmt::Do(d)          => if block_assigns_check_additional(d.block()) { return true; },
+            _ => {}
+        }
+    }
+    false
 }
 
 fn collect_method_ops(
@@ -4747,6 +4846,7 @@ fn build_arm_body(
         counter_ops,
         counter_ops_poisoned,
         select_sources: arm_sources,
+        summon_check_additional: block_assigns_check_additional(block),
         ..FunctionBody::default()
     }
 }
@@ -5069,7 +5169,7 @@ pub fn translate_body_with_functions(
     let body = refined.as_ref().unwrap_or(body);
     let mut out = Vec::new();
     for c in &body.calls {
-        if let Some(line) = translate_call(c, body) {
+        if let Some(line) = translate_call_with_functions(c, body, functions) {
             out.push(line);
         }
     }
@@ -5196,7 +5296,10 @@ pub fn body_drops_chains(
     }
     let mut stat_writes: Vec<(String, String)> = Vec::new();
     if !body.method_ops.is_empty() {
-        let impure = body.calls.iter().any(|c| translate_call(c, body).is_some())
+        let impure = body
+            .calls
+            .iter()
+            .any(|c| translate_call_with_functions(c, body, functions).is_some())
             || !body.counter_ops.is_empty()
             || !body.helper_calls.is_empty();
         if impure {
@@ -5288,7 +5391,7 @@ fn translate_choice_arm(
 ) -> Option<Vec<DslLine>> {
     let mut out = Vec::new();
     for c in &arm.calls {
-        match translate_call(c, arm) {
+        match translate_call_with_functions(c, arm, functions) {
             Some(DslLine::Action(s)) => out.push(DslLine::Action(s)),
             Some(DslLine::Todo(_)) => return None,
             None => {}
@@ -7124,6 +7227,7 @@ fn count_call_to_count_expr(arg: &str) -> Option<String> {
         from_resolve_select: false,
         raw_filter: None,
         except_self,
+        filter_extra: Vec::new(),
     };
     Some(format!("count({})", spec.to_dsl()))
 }
@@ -7278,6 +7382,207 @@ fn translate_equip_helper_call(
     Some(DslLine::Action(format!("equip {} to self", sel.to_dsl())))
 }
 
+/// [`translate_call`] with the walked function table in scope — the
+/// entry the functions-aware paths use. Intercepts the extra-deck
+/// summon calls whose exact decode needs named-filter resolution
+/// (T38 S7 review fix); everything else falls through to the plain
+/// table.
+fn translate_call_with_functions(
+    c: &DuelCall,
+    body: &FunctionBody,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Option<DslLine> {
+    match c.method.as_str() {
+        "Duel.SynchroSummon" => Some(action_extra_summon(
+            "synchro_summon",
+            "IsSynchroSummonable",
+            &c.method,
+            &c.args,
+            body,
+            functions,
+        )),
+        "Duel.XyzSummon" => Some(action_extra_summon(
+            "xyz_summon",
+            "IsXyzSummonable",
+            &c.method,
+            &c.args,
+            body,
+            functions,
+        )),
+        _ => translate_call(c, body),
+    }
+}
+
+/// Duel.SynchroSummon / Duel.XyzSummon → `synchro_summon` / `xyz_summon`
+/// with EXACT filter and material decoding (T38 S7 review fix). The
+/// legacy arm emitted a generic `special_summon`, dropping the summon
+/// procedure, the summon-target filter (archetype/race predicates),
+/// and material constraints — summon-legality surfaces must state all
+/// of them exactly or skip:
+///   - the summoned card must be a one-card resolve-time selection
+///     whose filter is the bare summonable predicate, an already-mapped
+///     filter, or a named and-chain over mappable atoms plus exactly
+///     one summonable atom (whose args may only be nil or the filter's
+///     own later params — the "must use" pre-check);
+///   - the producing call's EXTRA filter args must be nil, the handler
+///     card (matched by a `using self` material), or the summon call's
+///     own material group;
+///   - materials: absent/nil → none; the handler card → `using self`;
+///     a tracked, exactly-mapped whole material group → `using <sel>`.
+///     Tuner+group combinations, min/max count args, and
+///     `*.CheckAdditional` side channels skip.
+fn action_extra_summon(
+    action: &'static str,
+    summonable: &'static str,
+    m: &str,
+    a: &[String],
+    body: &FunctionBody,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> DslLine {
+    let todo = |why: &str| DslLine::Todo(format!("{}({}) — {}", m, a.join(", "), why));
+    if body.summon_check_additional {
+        return todo("CheckAdditional material side channel");
+    }
+    if a.first().map(String::as_str) != Some("tp") {
+        return todo("non-tp summoning player");
+    }
+    let max_args = if action == "synchro_summon" { 4 } else { 3 };
+    if a.len() > max_args {
+        return todo("unsupported trailing args");
+    }
+    // Summoned-card selection.
+    let raw_target = a.get(1).map(String::as_str).unwrap_or("").trim();
+    let base = raw_target.strip_suffix(":GetFirst()").unwrap_or(raw_target);
+    let Some(spec) = body.group_bindings.get(base) else {
+        return todo("summon target has no selection provenance");
+    };
+    if !spec.from_resolve_select || spec.quantity != "1" {
+        return todo("summon target is not a one-card resolve-time pick");
+    }
+    // Material constraint. (String name so the borrow doesn't tie Mat
+    // to the args slice.)
+    enum Mat { NoneAtAll, SelfCard, Group(String, String) }
+    let mat_arg = a.get(2).map(|s| s.trim()).filter(|s| *s != "nil");
+    let mg_arg = if action == "synchro_summon" {
+        a.get(3).map(|s| s.trim()).filter(|s| *s != "nil")
+    } else {
+        None
+    };
+    let mat = match (mat_arg, mg_arg) {
+        (None, None) => Mat::NoneAtAll,
+        (Some("c"), None) | (Some("e:GetHandler()"), None) => Mat::SelfCard,
+        (None, Some(g)) => match body.group_bindings.get(g) {
+            Some(gs)
+                if gs.filter_mapped
+                    && gs.quantity == "all"
+                    && gs.filter_extra.iter().all(|x| x.trim() == "nil") =>
+            {
+                Mat::Group(g.to_string(), gs.to_dsl())
+            }
+            _ => return todo("material group is not an exactly-mapped selection"),
+        },
+        _ => return todo("unsupported material combination"),
+    };
+    // Filter exactness on the summoned-card selection.
+    let mut spec = spec.clone();
+    if !spec.filter_mapped {
+        let Some(raw) = spec.raw_filter.clone() else {
+            return todo("summon-target filter unavailable");
+        };
+        let Some((wc, used_param)) = extra_summon_filter_where(&raw, summonable, functions)
+        else {
+            return todo("summon-target filter not exactly expressible");
+        };
+        if used_param && !matches!(mat, Mat::SelfCard) {
+            return todo("filter must-arg without a matching self material");
+        }
+        spec.where_clause = wc;
+    }
+    // Extra filter args of the producing call — each must be covered by
+    // the material constraint (they thread INTO the summonable
+    // predicate as its must/pool args).
+    for extra in &spec.filter_extra {
+        let ok = match extra.trim() {
+            "nil" => true,
+            "c" | "e:GetHandler()" => matches!(mat, Mat::SelfCard),
+            other => matches!(&mat, Mat::Group(name, _) if name == other),
+        };
+        if !ok {
+            return todo("filter extra arg outside the material constraint");
+        }
+    }
+    let using = match mat {
+        Mat::NoneAtAll => String::new(),
+        Mat::SelfCard => " using self".to_string(),
+        Mat::Group(_, sel) => format!(" using {}", sel),
+    };
+    DslLine::Action(format!("{} {}{}", action, spec.to_dsl(), using))
+}
+
+/// Resolve an extra-deck summon-target filter to its where-clause
+/// (T38 S7 review fix). Accepts the bare `Card.Is*Summonable` funcref
+/// (the action itself carries that semantics → no clause) and named
+/// script-local filters that flatten to an and-chain of mappable atoms
+/// plus EXACTLY one `<param>:Is*Summonable(…)` atom. Returns the
+/// remainder clause and whether the summonable atom consumed one of
+/// the filter's later params (the "must use" pre-check — the caller
+/// requires a matching `using self` material). Anything else — or-
+/// chains, foreign bindings, literal must-args — returns None.
+fn extra_summon_filter_where(
+    raw: &str,
+    summonable: &str,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Option<(Option<String>, bool)> {
+    let raw = raw.trim();
+    if raw == format!("Card.{}", summonable) {
+        return Some((None, false));
+    }
+    if !raw.starts_with("s.")
+        || !raw[2..].chars().all(|c| c.is_ascii_alphanumeric() || c == '_')
+    {
+        return None;
+    }
+    let fb = functions.get(raw)?;
+    let expr = fb.return_expr.as_deref()?.trim();
+    let param = fb.params.first()?.as_str();
+    if param.is_empty() {
+        return None;
+    }
+    let later_params: Vec<&str> = fb.params.iter().skip(1).map(String::as_str).collect();
+    let parts: Vec<&str> = match split_top_level_bool(expr) {
+        Some((ops, "and")) => ops,
+        Some(_) => return None, // or-chain — no flat rendering
+        None => vec![expr],
+    };
+    let mut used_param = false;
+    let mut summonable_seen = 0usize;
+    let mut atoms: Vec<String> = Vec::new();
+    for part in parts {
+        let part = part.trim();
+        if let Some(rest) = part.strip_prefix(&format!("{}:{}(", param, summonable)) {
+            let inner = rest.strip_suffix(')')?;
+            for arg in inner.split(',').map(str::trim).filter(|s| !s.is_empty()) {
+                if arg == "nil" {
+                    continue;
+                }
+                if later_params.contains(&arg) {
+                    used_param = true;
+                    continue;
+                }
+                return None; // literal / foreign must-arg
+            }
+            summonable_seen += 1;
+            continue;
+        }
+        atoms.push(lua_filter_atom_to_where(part, param)?);
+    }
+    if summonable_seen != 1 {
+        return None;
+    }
+    let wc = if atoms.is_empty() { None } else { Some(atoms.join(" and ")) };
+    Some((wc, used_param))
+}
+
 fn translate_call(c: &DuelCall, body: &FunctionBody) -> Option<DslLine> {
     let m = c.method.as_str();
     let a = &c.args;
@@ -7399,11 +7704,24 @@ fn translate_call(c: &DuelCall, body: &FunctionBody) -> Option<DslLine> {
         "Duel.NegateActivation" => Some(DslLine::Action("negate".to_string())),
         "Duel.NegateEffect" => Some(DslLine::Action("negate".to_string())),
 
-        // Special-summon family that's not the basic SpecialSummon —
-        // engine handles them as variants of the same action. The summoned
-        // card is arg 1 (arg 0 is the player).
-        "Duel.SynchroSummon" | "Duel.XyzSummon" | "Duel.LinkSummon"
-        | "Duel.FusionSummon" | "Duel.RitualSummon"
+        // Duel.SynchroSummon / Duel.XyzSummon — exact-summon decode
+        // (T38 S7 review fix) lives in the functions-aware paths
+        // (`translate_body_with_functions` / `translate_choice_arm`
+        // intercept before this table); the named-filter flattening
+        // needs the walked function table this signature doesn't carry.
+        // The Todo keeps the is_some/is_none semantics the dispatch-
+        // scan and expr-action probes rely on.
+        "Duel.SynchroSummon" | "Duel.XyzSummon" => Some(DslLine::Todo(format!(
+            "{}({}) — exact-summon decode needs the functions-aware path",
+            m,
+            a.join(", ")
+        ))),
+
+        // Remaining extra-deck summon family — legacy generic mapping.
+        // The same exactness concern applies (procedure + filter +
+        // material constraints dropped); none of these produced fills
+        // in the S7 audit set, so the rework is backlog (PR body).
+        "Duel.LinkSummon" | "Duel.FusionSummon" | "Duel.RitualSummon"
         => Some(gated_action_at(m, a, 1, body, |t| format!("special_summon {}", t))),
 
         // Duel.Summon(player, target, ignore_count, e, min, max) — normal summon
@@ -7441,7 +7759,25 @@ fn action_damage(args: &[String]) -> DslLine {
     DslLine::Action(format!("damage {} {}", player_d, amount))
 }
 
-/// `Duel.ChangePosition(target, pos)` → `change_position <sel> [to <pos>]`.
+/// `Duel.ChangePosition(target, …)` → `change_position <sel> [to <pos>]`
+/// (argument shapes reworked in T38 S7).
+///
+/// ocgcore signature: `(targets, au[, ad, du, dd[, noflip]])` — one
+/// position arg applies uniformly; four are a per-current-position
+/// matrix (face-up attack → au, face-down attack → ad, face-up defense
+/// → du, face-down defense → dd).
+///
+///   - Uniform literal POS_* → `to <battle_position>`.
+///   - The canonical face-up TOGGLE matrix
+///     `(POS_FACEUP_DEFENSE, 0, POS_FACEUP_ATTACK, 0)` → the bare
+///     `change_position <sel>` form (`Action::ChangePosition(None)`
+///     compiles to the engine's toggle).
+///   - Everything else skips as a TODO: non-literal / composite
+///     positions (`POS_FACEUP`, SelectPosition locals), non-toggle
+///     matrices (they flip face-down cards), and noflip variants. The
+///     pre-S7 arm emitted the bare form for ALL of these — a bare line
+///     TOGGLES, so a 4-arg matrix read as its second argument or an
+///     unrecognized uniform position was a latent mis-emit.
 fn action_change_position(args: &[String], body: &FunctionBody) -> DslLine {
     let Some(target) = group_arg(args, 0, body) else {
         return DslLine::Todo(format!(
@@ -7449,16 +7785,36 @@ fn action_change_position(args: &[String], body: &FunctionBody) -> DslLine {
             args.join(", ")
         ));
     };
-    let pos = args.get(1).map(String::as_str).unwrap_or("");
-    let to = match pos {
-        "POS_FACEUP_ATTACK"     => Some("attack_position"),
-        "POS_FACEUP_DEFENSE"    => Some("defense_position"),
-        "POS_FACEDOWN_DEFENSE"  => Some("face_down_defense"),
-        _ => None,
-    };
-    match to {
-        Some(p) => DslLine::Action(format!("change_position {} to {}", target, p)),
-        None    => DslLine::Action(format!("change_position {}", target)),
+    match args.len() {
+        2 => {
+            let to = match args[1].trim() {
+                "POS_FACEUP_ATTACK"    => "attack_position",
+                "POS_FACEUP_DEFENSE"   => "defense_position",
+                "POS_FACEDOWN_DEFENSE" => "face_down_defense",
+                other => {
+                    return DslLine::Todo(format!(
+                        "Duel.ChangePosition(…, {}) — position has no battle_position token",
+                        other
+                    ));
+                }
+            };
+            DslLine::Action(format!("change_position {} to {}", target, to))
+        }
+        5 => {
+            let quad: Vec<&str> = args[1..5].iter().map(|s| s.trim()).collect();
+            if quad == ["POS_FACEUP_DEFENSE", "0", "POS_FACEUP_ATTACK", "0"] {
+                DslLine::Action(format!("change_position {}", target))
+            } else {
+                DslLine::Todo(format!(
+                    "Duel.ChangePosition({}) — non-toggle position matrix",
+                    args.join(", ")
+                ))
+            }
+        }
+        _ => DslLine::Todo(format!(
+            "Duel.ChangePosition({}) — unrecognized argument shape",
+            args.join(", ")
+        )),
     }
 }
 
@@ -14924,6 +15280,336 @@ end
             vec!["modify_atk self + 500 until while_face_up"],
         );
         assert!(s6_gate(src, "s.op"));
+    }
+
+    // ── T38 S7 — simple untranslated primitives ─────────────────
+
+    #[test]
+    fn s7_group_select_derives_spec() {
+        // c13258285 Sharakusai scop shape: GetMatchingGroup(EXTRA) +
+        // g:Select(tp,1,1,nil) + SynchroSummon(sg:GetFirst()). The
+        // re-select derives a one-card spec from the group binding, and
+        // the exact-summon arm renders the named filter's remainder
+        // (the summonable atom is the action itself).
+        let src = r#"
+function s.scfilter(c)
+    return c:IsSetCard(SET_PUNK) and c:IsSynchroSummonable(nil)
+end
+function s.scop(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetMatchingGroup(s.scfilter,tp,LOCATION_EXTRA,0,nil)
+    if #g>0 then
+        Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+        local sg=g:Select(tp,1,1,nil)
+        Duel.SynchroSummon(tp,sg:GetFirst(),nil)
+    end
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.scop"),
+            vec![r#"synchro_summon (1, card, you control, from extra_deck, where archetype == "P.U.N.K.")"#],
+        );
+    }
+
+    #[test]
+    fn s7_extra_summon_exact_forms() {
+        // Bare summonable funcref → no where-clause; tuner arg c →
+        // `using self` (c39931513 synchop shape, incl. the GMG extra
+        // arg threading the must-tuner into the predicate).
+        let self_mat = r#"
+function s.synchop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local g=Duel.GetMatchingGroup(Card.IsSynchroSummonable,tp,LOCATION_EXTRA,0,nil,c)
+    if #g>0 then
+        local sg=g:Select(tp,1,1,nil)
+        Duel.SynchroSummon(tp,sg:GetFirst(),c)
+    end
+end
+"#;
+        assert_eq!(
+            p11_actions(self_mat, "s.synchop"),
+            vec!["synchro_summon (1, card, you control, from extra_deck) using self"],
+        );
+        // Material-pool group (Yang Zing shape): mg passed both as a GMG
+        // extra arg and as the summon's material group → `using <sel>`.
+        let pool = r#"
+function s.scop(e,tp,eg,ep,ev,re,r,rp)
+    local mg=Duel.GetMatchingGroup(aux.FaceupFilter(Card.IsSetCard,SET_YANG_ZING),tp,LOCATION_MZONE,0,nil)
+    local g=Duel.GetMatchingGroup(Card.IsSynchroSummonable,tp,LOCATION_EXTRA,0,nil,nil,mg)
+    if #g>0 then
+        local sg=g:Select(tp,1,1,nil)
+        Duel.SynchroSummon(tp,sg:GetFirst(),nil,mg)
+    end
+end
+"#;
+        assert_eq!(
+            p11_actions(pool, "s.scop"),
+            vec![r#"synchro_summon (1, card, you control, from extra_deck) using (all, card, you control, from monster_zone, where is_face_up and archetype == "Yang Zing")"#],
+        );
+        // Named filter with a must-param atom (c46037983 Fish shape):
+        // the param-arg is the "must use" pre-check, covered by the
+        // matching `using self` material.
+        let must = r#"
+function s.syncmfilter(c,must)
+    return c:IsRace(RACE_FISH) and c:IsSynchroSummonable(must)
+end
+function s.synchop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local g=Duel.GetMatchingGroup(s.syncmfilter,tp,LOCATION_EXTRA,0,nil,c)
+    if #g>0 then
+        local sg=g:Select(tp,1,1,nil)
+        Duel.SynchroSummon(tp,sg:GetFirst(),c)
+    end
+end
+"#;
+        assert_eq!(
+            p11_actions(must, "s.synchop"),
+            vec!["synchro_summon (1, card, you control, from extra_deck, where race == Fish) using self"],
+        );
+        // Plain XyzSummon.
+        let xyz = r#"
+function s.xyzop(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetMatchingGroup(Card.IsXyzSummonable,tp,LOCATION_EXTRA,0,nil)
+    if #g>0 then
+        local tg=g:Select(tp,1,1,nil)
+        Duel.XyzSummon(tp,tg:GetFirst())
+    end
+end
+"#;
+        assert_eq!(
+            p11_actions(xyz, "s.xyzop"),
+            vec!["xyz_summon (1, card, you control, from extra_deck)"],
+        );
+    }
+
+    #[test]
+    fn s7_extra_summon_exactness_skips() {
+        // Every inexpressible constraint must yield a TODO (which
+        // poisons fills), never a widened summon line.
+        for (src, why) in [
+            (r#"
+function s.scop(e,tp,eg,ep,ev,re,r,rp)
+    Synchro.CheckAdditional=s.syncheck
+    local g=Duel.GetMatchingGroup(Card.IsSynchroSummonable,tp,LOCATION_EXTRA,0,nil)
+    if #g>0 then
+        local sg=g:Select(tp,1,1,nil)
+        Duel.SynchroSummon(tp,sg:GetFirst())
+    end
+    Synchro.CheckAdditional=nil
+end
+"#, "CheckAdditional side channel"),
+            (r#"
+function s.scfilter(c,tuner,mg)
+    return c:IsSynchroSummonable(tuner,mg)
+end
+function s.scop(e,tp,eg,ep,ev,re,r,rp)
+    local mg=Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_MZONE,0,nil)
+    local g=Duel.GetMatchingGroup(s.scfilter,tp,LOCATION_EXTRA,0,nil,nil,mg)
+    if #g>0 then
+        local sg=g:Select(tp,1,1,nil)
+        Duel.SynchroSummon(tp,sg:GetFirst(),nil)
+    end
+end
+"#, "filter must-args without a matching material constraint"),
+            (r#"
+function s.scop(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetMatchingGroup(s.undefined,tp,LOCATION_EXTRA,0,nil)
+    if #g>0 then
+        local sg=g:Select(tp,1,1,nil)
+        Duel.SynchroSummon(tp,sg:GetFirst(),nil)
+    end
+end
+"#, "unresolvable named filter"),
+            (r#"
+function s.scop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local mg=Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_MZONE,0,nil)
+    local g=Duel.GetMatchingGroup(Card.IsSynchroSummonable,tp,LOCATION_EXTRA,0,nil)
+    if #g>0 then
+        local sg=g:Select(tp,1,1,nil)
+        Duel.SynchroSummon(tp,sg:GetFirst(),c,mg)
+    end
+end
+"#, "tuner+group material combination"),
+            (r#"
+function s.scop(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetMatchingGroup(Card.IsSynchroSummonable,tp,LOCATION_EXTRA,0,nil)
+    if #g>0 then
+        local sg=g:Select(tp,1,1,nil)
+        Duel.SynchroSummon(tp,sg:GetFirst(),nil,nil,1,2)
+    end
+end
+"#, "min/max material count args"),
+        ] {
+            let parsed = full_moon::parse(src).expect("parse");
+            let report = walk(&parsed);
+            let body = report.functions.get("s.scop").expect("body");
+            let lines = translate_body_with_functions(body, &report.functions);
+            assert!(
+                lines.iter().all(|l| !l.is_action()),
+                "{} must not emit an action", why,
+            );
+        }
+    }
+
+    #[test]
+    fn s7_group_select_skips() {
+        // Non-tp picker, non-nil exception, non-literal quantity, and
+        // re-selects of untracked groups all leave the binding unmapped
+        // — the summon arm emits its provenance TODO.
+        for (src, why) in [
+            (r#"
+function s.scop(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetMatchingGroup(s.f,tp,LOCATION_EXTRA,0,nil)
+    local sg=g:Select(1-tp,1,1,nil)
+    Duel.SynchroSummon(tp,sg:GetFirst(),nil)
+end
+"#, "non-tp picker"),
+            (r#"
+function s.scop(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetMatchingGroup(s.f,tp,LOCATION_EXTRA,0,nil)
+    local sg=g:Select(tp,1,1,c)
+    Duel.SynchroSummon(tp,sg:GetFirst(),nil)
+end
+"#, "non-nil exception"),
+            (r#"
+function s.scop(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetMatchingGroup(s.f,tp,LOCATION_EXTRA,0,nil)
+    local sg=g:Select(tp,1,ft,nil)
+    Duel.SynchroSummon(tp,sg:GetFirst(),nil)
+end
+"#, "non-literal quantity"),
+            (r#"
+function s.scop(e,tp,eg,ep,ev,re,r,rp)
+    local sg=eg:Select(tp,1,1,nil)
+    Duel.SynchroSummon(tp,sg:GetFirst(),nil)
+end
+"#, "untracked source group"),
+        ] {
+            let parsed = full_moon::parse(src).expect("parse");
+            let report = walk(&parsed);
+            let body = report.functions.get("s.scop").expect("body");
+            let lines = translate_body_with_functions(body, &report.functions);
+            assert!(
+                lines.iter().all(|l| !l.is_action()),
+                "{} must not emit an action", why,
+            );
+        }
+    }
+
+    #[test]
+    fn s7_change_position_toggle_matrix() {
+        // c12800777 Garuda posop shape: the canonical face-up toggle
+        // matrix lowers to the bare form (Action::ChangePosition(None)
+        // is the engine toggle). Uniform literal keeps the `to` form.
+        let toggle = r#"
+function s.posop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    if tc:IsRelateToEffect(e) and tc:IsFaceup() then
+        Duel.ChangePosition(tc,POS_FACEUP_DEFENSE,0,POS_FACEUP_ATTACK,0)
+    end
+end
+"#;
+        assert_eq!(
+            p11_actions(toggle, "s.posop"),
+            vec!["change_position target"],
+        );
+        let uniform = r#"
+function s.posop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    Duel.ChangePosition(tc,POS_FACEDOWN_DEFENSE)
+end
+"#;
+        assert_eq!(
+            p11_actions(uniform, "s.posop"),
+            vec!["change_position target to face_down_defense"],
+        );
+    }
+
+    #[test]
+    fn s7_change_position_unrecognized_shapes_todo() {
+        // Pre-S7 these all emitted a line: the 4-arg matrix was read as
+        // its SECOND argument (uniform `to defense_position` for a
+        // toggle) and unknown positions fell through to the bare TOGGLE
+        // form — both latent mis-emits. They must now be TODOs, which
+        // poison fills at Pass A.
+        for (src, why) in [
+            (r#"
+function s.posop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    Duel.ChangePosition(tc,POS_FACEUP_DEFENSE,POS_FACEDOWN_DEFENSE,POS_FACEUP_ATTACK,POS_FACEUP_ATTACK)
+end
+"#, "non-toggle matrix (flips face-down cards)"),
+            (r#"
+function s.posop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    Duel.ChangePosition(tc,POS_FACEUP)
+end
+"#, "composite position constant"),
+            (r#"
+function s.posop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local pos=Duel.SelectPosition(tp,tc,POS_FACEUP)
+    Duel.ChangePosition(tc,pos)
+end
+"#, "player-chosen position"),
+            (r#"
+function s.posop(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
+    Duel.ChangePosition(g,POS_FACEUP_ATTACK,POS_FACEUP_ATTACK,POS_FACEUP_ATTACK,POS_FACEUP_ATTACK,true)
+end
+"#, "noflip variant"),
+        ] {
+            let parsed = full_moon::parse(src).expect("parse");
+            let report = walk(&parsed);
+            let body = report.functions.get("s.posop").expect("body");
+            let lines = translate_body_with_functions(body, &report.functions);
+            assert!(
+                lines.iter().any(|l| !l.is_action()),
+                "{} must emit a TODO", why,
+            );
+            assert!(
+                lines.iter().all(|l| !l.is_action()),
+                "{} must not emit an action", why,
+            );
+        }
+    }
+
+    #[test]
+    fn s7_emit_forms_parse_roundtrip() {
+        // The bare change_position form is the one emission no earlier
+        // phase produced for a group selector; the re-select fills reuse
+        // long-shipped forms.
+        let source = r#"
+card "S7 Emit Forms" {
+    id: 2
+    type: Effect Monster
+    attribute: WIND
+    race: Winged Beast
+    level: 4
+    atk: 1600
+    def: 1200
+
+    effect "Forms" {
+        speed: 1
+        mandatory
+        target (1, monster, opponent controls)
+        resolve {
+            change_position target
+            change_position (all, card, you control, from monster_zone) to face_down_defense
+            set (1, card, you control, from deck)
+            synchro_summon (1, card, you control, from extra_deck)
+            synchro_summon (1, card, you control, from extra_deck, where archetype == "P.U.N.K.") using self
+            synchro_summon (1, card, you control, from extra_deck) using (all, card, you control, from monster_zone, where is_face_up and archetype == "Yang Zing")
+            xyz_summon (1, card, you control, from extra_deck) using self
+        }
+    }
+}
+"#;
+        let file = crate::v2::parser::parse_v2(source).expect("S7 emit forms must parse");
+        let formatted = crate::v2::fmt::format_file(&file);
+        let reparsed = crate::v2::parser::parse_v2(&formatted)
+            .unwrap_or_else(|e| panic!("roundtrip failed:\n{}\n{}", formatted, e));
+        assert_eq!(crate::v2::fmt::format_file(&reparsed), formatted);
     }
 
     #[test]
