@@ -96,12 +96,8 @@ Each is a single `corpus-curator` PR.
 
 ---
 
-### Phase 4d — backfill missing `until end_of_turn` (broaden 4b retrofit)
-**Goal.** Phase 4b retrofitted 38 cards / 49 lines. The script skipped 3 cards with mixed-reset Lua (DAMAGE_CAL, REDIRECT). Investigate each individually and either ship a hand-edit or document why the missing `until` is correct.
-
-**Yield estimate.** 3 cards (manual review).
-
-**Agent.** `corpus-curator` for the apply, with manual inspection.
+### ~~Phase 4d — backfill missing `until end_of_turn` (broaden 4b retrofit)~~ ✓ shipped (commit 556ab6a76)
+**Shipped.** 2 of the 3 skipped mixed-reset cards backfilled after hand-verifying the lua reset is in fact end-of-turn (`RESET_EVENT|RESETS_STANDARD` without a literal PHASE_END token): c33750856 Code Hack Effect 3, c98431356 Phantom Knights' Wing Effect 1. Third candidate c68507541 Amazoness Pet Liger Effect 2 left unchanged — its reset is `RESET_PHASE|PHASE_DAMAGE_CAL` (battle-step only) and the DSL has no `until damage_calculation` duration; tracked as a future T-series duration item.
 
 ---
 
