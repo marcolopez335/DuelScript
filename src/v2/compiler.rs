@@ -1625,14 +1625,16 @@ fn gen_passive_op(
             }
         }
 
-        // Absolute stat sets
+        // Absolute stat sets — same passive re-invocation model as the
+        // modifiers above: emit `Permanently` (direct-apply) and let
+        // `refresh_continuous` manage the lifetime.
         if let Some(ref expr) = set_atk {
             let val = eval_v2_expr(expr, rt);
-            rt.set_atk(cid, val);
+            rt.set_atk(cid, val, RuntimeDuration::Permanently);
         }
         if let Some(ref expr) = set_def {
             let val = eval_v2_expr(expr, rt);
-            rt.set_def(cid, val);
+            rt.set_def(cid, val, RuntimeDuration::Permanently);
         }
 
         // Ability grants (continuous — duration = while on field → 0)
@@ -2329,16 +2331,22 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
                 }
             }
         }
-        Action::SetStat(stat, sel, expr, _) => {
+        Action::SetStat(stat, sel, expr, duration) => {
             let cards = resolve_v2_selector(sel, rt, player);
             let val = eval_v2_expr(expr, rt);
+            // Same ast::Duration → runtime::Duration map as ModifyStat; `None`
+            // (no duration clause written) → Permanently, preserving direct-
+            // apply semantics for DSL sources that omit the duration.
+            let rt_duration = duration.as_ref()
+                .map(ast_duration_to_runtime)
+                .unwrap_or(RuntimeDuration::Permanently);
             for card_id in cards {
                 match stat {
-                    StatName::Atk => rt.set_atk(card_id, val),
-                    StatName::Def => rt.set_def(card_id, val),
+                    StatName::Atk => rt.set_atk(card_id, val, rt_duration),
+                    StatName::Def => rt.set_def(card_id, val, rt_duration),
                     // `set_level` shares the change_level runtime hook; levels
                     // are unsigned engine-side, so clamp at 0.
-                    StatName::Level => rt.change_level(card_id, val.max(0) as u32),
+                    StatName::Level => rt.change_level(card_id, val.max(0) as u32, rt_duration),
                 }
             }
         }
@@ -2440,7 +2448,8 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
             let cards = resolve_v2_selector(sel, rt, player);
             let val = eval_v2_expr(expr, rt) as u32;
             for card_id in cards {
-                rt.change_level(card_id, val);
+                // ChangeLevel carries no duration clause in the AST.
+                rt.change_level(card_id, val, RuntimeDuration::Permanently);
             }
         }
         Action::ChangeAttribute(sel, attr) => {
@@ -3149,6 +3158,44 @@ card "Restrict Compile Test" {
         assert!(rt.was_called_with("restrict_player",
             "player=1 restriction=CannotConductBattlePhase dur=Permanently"),
             "both_players opponent-side call missing; calls: {}", rt.dump_calls());
+    }
+
+    #[test]
+    fn test_set_stat_duration_compiles_and_executes() {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        // SetStat's Option<Duration> maps through ast_duration_to_runtime
+        // exactly like ModifyStat (omitted clause → Permanently). Pre-fix
+        // the fourth field was discarded and every set compiled permanent.
+        let source = r#"
+card "Set Stat Duration Test" {
+    id: 30002
+    type: Normal Spell
+
+    effect "Zero It" {
+        speed: 1
+        resolve {
+            set_atk (1, card, opponent controls, from monster_zone) 0 until end_of_turn
+            set_def (1, card, opponent controls, from monster_zone) 100 until this_turn
+            set_level (1, card, opponent controls, from monster_zone) 8
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        assert_eq!(compiled.effects.len(), 1);
+        let mut rt = MockRuntime::new();
+        rt.effect_card_id = 30002;
+        rt.effect_player = 0;
+        rt.state.add_card(CardSnapshot::monster(777, "Opp Monster", 1800, 1000, 4));
+        rt.state.players[1].field_monsters.push(777);
+        (compiled.effects[0].operation.as_ref().unwrap())(&mut rt);
+        assert!(rt.was_called_with("set_atk", "card=777 value=0 dur=EndOfTurn"),
+            "set_atk duration missing; calls: {}", rt.dump_calls());
+        assert!(rt.was_called_with("set_def", "card=777 value=100 dur=ThisTurn"),
+            "set_def duration missing; calls: {}", rt.dump_calls());
+        assert!(rt.was_called_with("change_level", "card=777 level=8 dur=Permanently"),
+            "omitted duration should default to Permanently; calls: {}", rt.dump_calls());
     }
 
     #[test]

@@ -691,13 +691,26 @@ pub trait DuelScriptRuntime {
 
     /// Set `card_id`'s current ATK to an absolute `value`.
     ///
+    /// `value` is snapshotted once at resolve time (the compiler evaluates
+    /// the expression eagerly); the pin does not re-evaluate.
+    ///
+    /// `duration` indicates how long the pin persists — see `modify_atk`.
+    /// Time-bounded pins mirror lua's `EFFECT_SET_ATTACK_FINAL` +
+    /// `SetReset(RESETS_STANDARD_PHASE_END)`: besides the timer, the pin
+    /// must also drop on the standard reset events (card leaves the field,
+    /// is flipped face-down / turned set, or is temporarily banished).
+    /// `Duration::Permanently` is the opt-out (direct-apply, no
+    /// registration).
+    ///
     /// **Required to override.**
-    fn set_atk(&mut self, card_id: u32, value: i32);
+    fn set_atk(&mut self, card_id: u32, value: i32, duration: Duration);
 
     /// Set `card_id`'s current DEF to an absolute `value`.
     ///
+    /// See `set_atk` for `value` snapshot and `duration` semantics.
+    ///
     /// **Required to override.**
-    fn set_def(&mut self, card_id: u32, value: i32);
+    fn set_def(&mut self, card_id: u32, value: i32, duration: Duration);
 
     // ── Battle ───────────────────────────────────────────────
 
@@ -1154,9 +1167,12 @@ pub trait DuelScriptRuntime {
 
     /// Set `card_id`'s level to `level`.
     ///
+    /// See `set_atk` for `duration` semantics (absolute pin, snapshotted
+    /// once at resolve, standard-reset lifetime for time-bounded values).
+    ///
     /// # Default
     /// No-op.
-    fn change_level(&mut self, _card_id: u32, _level: u32) {}
+    fn change_level(&mut self, _card_id: u32, _level: u32, _duration: Duration) {}
 
     /// Increase or decrease `card_id`'s level by `delta`.
     ///
