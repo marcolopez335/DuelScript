@@ -83,7 +83,7 @@ Lua-side: 951 candidate chains across 882 cards in `s.initial_effect`. After `is
 
 **Side effects.** Apply run produced 3 residual Pass E target injections (`c76524506.ds`, `c7241272.ds`, `c78783557.ds`) — no error/warning delta. 253 tests passing, 0 regressions.
 
-**Recommendations.** (1) Fix Pass A slot-tracking (correctness, no yield). (2) Phase 7b: backfill cost on ~15 deferred empty-resolve cards. (3) Phase 8b: backfill target on ~30 remaining deferred cards. (4) Ship T33 grammar (`attach`) to unlock ~47 `Duel.Overlay` cards. (5) Once T33 + slot-tracking fix land, revisit if-condition extraction as a micro-phase (13 cards, below-floor acknowledged).
+**Recommendations.** (1) ~~Fix Pass A slot-tracking~~ — addressed by Phase 20: Pass A now injects via block-bounded `first_empty_resolve_within(txt, block_lo, block_hi)` (`src/bin/lua_translate.rs`), bounds from the signature-based block matcher. (2) Phase 7b: backfill cost on ~15 deferred empty-resolve cards. (3) Phase 8b: backfill target on ~30 remaining deferred cards. (4) ~~Ship T33 grammar~~ — shipped, PR #78. (5) With T33 + block-bounded injection both landed, if-condition extraction is unblocked as a micro-phase (13 cards, below-floor acknowledged).
 
 ---
 
@@ -109,24 +109,10 @@ Each is a single `corpus-curator` PR.
 
 These cross the parse-to-runtime seam. Each is a `grammar-extender` PR.
 
-### T33 — `attach <selector>` action
-**Goal.** New DSL action mapping to `Duel.Overlay(...)` — attach a card as an Xyz Material.
+### ~~T33 — `attach <selector>` action~~ ✓ shipped (PR #78)
+**Shipped.** Grammar side landed in prior T-series work: `attach_action = { "attach" ~ selector ~ "to" ~ selector ~ "as_material" }`, `Action::Attach(Selector, Selector)`, compiler wiring, and `DuelScriptRuntime::attach_material(material_id, target_id)` (ygobeetle mirror obligation — engine-dev). PR #78 added the translator: `Duel.Overlay(target_xyz, materials, [send_overlay])` in the `translate_call` action map via `xyz_arg_to_dsl` (`c` → `self`, `tc` → `target`, tracked group binding → captured SelectorSpec, else TODO-skip).
 
-**Pre-spec letter.** `HHH-II` (next free in decisions-2.md).
-
-**Yield estimate.** ~47 cards in the empty-resolve bucket reference `Duel.Overlay`.
-
-**Approach.**
-1. Add `attach_action = { "attach" ~ selector ~ "to" ~ selector }` to `grammar/duelscript.pest`.
-2. Add `Action::Attach { what: Selector, to: Selector }` to `src/v2/ast.rs`.
-3. Wire parser, compiler, fmt, MockRuntime stub.
-4. Add `DuelScriptRuntime::attach_overlay` trait method.
-
-**Acceptance.**
-- Parse, compile, MockRuntime, roundtrip, corpus checks pass.
-- New trait method documented for `engine-dev` to mirror in ygobeetle.
-
-**Agent.** `grammar-extender`. Then route trait impl to `engine-dev`.
+**Actual yield.** 20 effects / 19 cards filled (−20 errors / −6 warnings at the time). Original ~47-card estimate included cards whose Overlay args don't resolve (both-unbound shapes stay TODO-skipped) or whose Overlay sits inside secondary handlers — those remain in the empty-resolve pool for the delayed-trigger story.
 
 ---
 
@@ -141,16 +127,10 @@ Translator: `passive_modifier_spec` lowers inline-closure SetValues `function(e,
 
 ---
 
-### T35 — `choose { ... }` block in resolve
-**Goal.** Translate `Duel.SelectOption(tp, ...)` UI choices into a `choose { ... }` block (already exists in grammar but is rarely used).
+### ~~T35 — `choose { ... }` block in resolve~~ ✓ shipped as Phase 16 (PR #120, translator-only)
+**Shipped.** Grammar already had `choose { }`; no grammar work needed. Phase 16 recognizes the `Duel.SelectOption` idiom and emits `choose { }` blocks when EVERY option arm translates via the existing Phase 10–15 emitters (skip-not-mis-emit). Label sources: SetLabel-linked (`e:SetLabel(op)` + dispatch on `e:GetLabel()`) and op-side inline. Dispatch shapes: statement arms and chain-slot forks (shared prefix/suffix Set\* writes applied to every variant). Option labels resolve from CDB strs via `register_card_strings` (aux.Stringid index); missing labels skip the card.
 
-**Pre-spec letter.** TBD.
-
-**Yield estimate.** ~44 cards.
-
-**Approach.** Translator-side change rather than grammar extension if `choose { }` already exists. Confirm by reading `parse_choose_block`. If grammar work is needed, this becomes a grammar-extender story.
-
-**Agent.** `lua-translator` if grammar exists; otherwise `grammar-extender` first.
+**Actual yield.** −3 errors / −1 warning. The ~44-card estimate was dominated by skip classes that remain skipped (below floor, tested): dynamic option lists, `SelectEffect`/`SelectYesNo`, non-contiguous ladders, arm/option-count mismatch, statements outside the dispatch, untranslatable arms, inner `else` inside an arm, value-expression label uses.
 
 ---
 
