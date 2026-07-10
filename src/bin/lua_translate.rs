@@ -101,6 +101,7 @@ fn main() {
             println!("  effects filled:          {}", report.effects_filled);
             println!("  blocks injected:         {}", report.blocks_injected);
             println!("  effects skipped (todo):  {}", report.effects_todo_only);
+            println!("  effects skipped (incomplete): {}", report.effects_incomplete);
             println!("  effects skipped (no map): {}", report.effects_no_handler);
             println!("  effects skipped (align):  {}", report.effects_alignment_hazard);
             println!("  blocks matched (positional): {}", report.match_positional);
@@ -161,6 +162,7 @@ struct ApplyReport {
     effects_filled: usize,
     blocks_injected: usize,
     effects_todo_only: usize,
+    effects_incomplete: usize,
     effects_no_handler: usize,
     effects_alignment_hazard: usize,
     match_positional: usize,
@@ -349,7 +351,17 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
                 // (checked at the top of the loop).
                 let handler = eff.operation_handler.as_deref().unwrap_or_default();
                 match walk.functions.get(handler.trim()) {
-                    Some(body) => lua_ast::translate_body_with_functions(body, &walk.functions),
+                    Some(body) => {
+                        // T38 S1 — completeness gate: a handler whose
+                        // translation drops a RegisterEffect chain would
+                        // fill an under-stated resolve. Skip the whole
+                        // fill; the dropped chain is the S1b/S8 backlog.
+                        if lua_ast::body_drops_chains(body, &walk.functions) {
+                            r.effects_incomplete += 1;
+                            continue;
+                        }
+                        lua_ast::translate_body_with_functions(body, &walk.functions)
+                    }
                     None => {
                         r.effects_no_handler += 1; // block exists, body unknown
                         continue;
@@ -358,6 +370,13 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             };
             if !lines.iter().any(|l| l.is_action()) {
                 r.effects_todo_only += 1;
+                continue;
+            }
+            // T38 S1 — a TODO line marks an untranslated Duel.* call in
+            // the same handler; filling only the translated remainder
+            // silently drops it. Skip-not-mis-emit.
+            if lines.iter().any(|l| !l.is_action()) {
+                r.effects_incomplete += 1;
                 continue;
             }
             let Some((block_lo, block_hi)) = nth_effect_block(&new_txt, block_idx) else {
@@ -394,11 +413,19 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             } else {
                 let handler = eff.operation_handler.as_deref().unwrap_or_default();
                 match walk.functions.get(handler.trim()) {
-                    Some(body) => lua_ast::translate_body_with_functions(body, &walk.functions),
+                    Some(body) => {
+                        // T38 S1 — same completeness gate as Pass A.
+                        if lua_ast::body_drops_chains(body, &walk.functions) {
+                            continue;
+                        }
+                        lua_ast::translate_body_with_functions(body, &walk.functions)
+                    }
                     None => continue,
                 }
             };
             if !lines.iter().any(|l| l.is_action()) { continue; }
+            // T38 S1 — see Pass A: TODO lines mark dropped calls.
+            if lines.iter().any(|l| !l.is_action()) { continue; }
 
             let (block_lo, block_hi) = match nth_effect_block(&new_txt, block_idx) {
                 Some(r) => r,
