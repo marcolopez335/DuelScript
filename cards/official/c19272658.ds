@@ -6,8 +6,9 @@ card "Xyz Bento" {
         speed: 2
         mandatory
         trigger: battle_damage
+        target (1, card, you control, from monster_zone, where is_face_up and is_xyz)
         resolve {
-            change_position target to defense_position
+            attach (1, card, opponent controls, from gy) to target as_material
         }
     }
 
@@ -15,8 +16,9 @@ card "Xyz Bento" {
         speed: 2
         mandatory
         trigger: custom "chain_end"
+        target (1, card, you control, from monster_zone, where is_face_up and is_xyz)
         resolve {
-            change_position target to defense_position
+            attach (1, card, opponent controls, from gy) to target as_material
         }
     }
 
@@ -25,8 +27,6 @@ card "Xyz Bento" {
         cost {
             banish self
         }
-        resolve {
-            change_position target to defense_position
-        }
+        resolve { }
     }
 }
