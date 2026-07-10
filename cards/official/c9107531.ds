@@ -34,6 +34,8 @@ card "Electro Blaster" {
         once_per_turn: soft
         timing: if
         trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
-        resolve { }
+        resolve {
+            modify_atk (all, card, you control, from monster_zone, where is_face_up and attribute == FIRE) + 300 until while_face_up
+        }
     }
 }

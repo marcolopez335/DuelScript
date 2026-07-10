@@ -12,7 +12,9 @@ card "Oily Cicada" {
         once_per_turn: hard
         timing: if
         trigger: summoned
-        resolve { }
+        resolve {
+            modify_level (all, card, you control, from monster_zone, where is_face_up and race == Insect and level >= 2) - 1 until while_face_up
+        }
     }
 
     effect "Effect 2" {
@@ -20,6 +22,8 @@ card "Oily Cicada" {
         once_per_turn: hard
         timing: if
         trigger: summoned by special
-        resolve { }
+        resolve {
+            modify_level (all, card, you control, from monster_zone, where is_face_up and race == Insect and level >= 2) - 1 until while_face_up
+        }
     }
 }

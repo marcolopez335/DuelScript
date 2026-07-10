@@ -21,6 +21,9 @@ card "Bravo, Fighter Fur Hire" {
         once_per_turn: soft
         timing: if
         trigger: summoned by special
-        resolve { }
+        resolve {
+            modify_atk (all, card, either controls, from monster_zone, where is_face_up and archetype == "Fur Hire") + 500 until end_of_turn
+            modify_def (all, card, either controls, from monster_zone, where is_face_up and archetype == "Fur Hire") + 500 until end_of_turn
+        }
     }
 }

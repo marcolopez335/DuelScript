@@ -19,6 +19,9 @@ card "Nemleria Louve" {
         cost {
             banish self
         }
-        resolve { }
+        resolve {
+            modify_atk target - count((all, card, you control, from banished, where is_face_down)) * 100 until end_of_turn
+            modify_def target - count((all, card, you control, from banished, where is_face_down)) * 100 until end_of_turn
+        }
     }
 }

@@ -5,7 +5,9 @@ card "Mischief of the Yokai" {
     effect "Effect 1" {
         speed: 2
         mandatory
-        resolve { }
+        resolve {
+            modify_level (all, card, either controls, from monster_zone, where is_face_up and level >= 2) - 2 until end_of_turn
+        }
     }
 
     effect "Effect 2" {
